@@ -25,18 +25,18 @@ devtools::install_github("r-world-devs/GitStats")
 ## How to start
 
 Start with setting your git connections: choose GitHub Client or GitLab
-Client class. Choose your default organization (GitHub) or group
-(GitLab). Provide API url and a token.
+Client class. Choose your owners (GitHub) or group/groups (GitLab).
+Provide API url and a token.
 
 ``` r
 my_github <- GitHubClient$new(
-  organization = "r-world-devs",
+  owners = "r-world-devs",
   rest_api_url = "api.github.com",
   token = Sys.getenv("GITHUB_PAT")
 )
 
 my_gitlab <- GitLabClient$new(
-  organization = "my_organization",
+  groups = c("my_group", "my_second_group"),
   rest_api_url = "your_api_url.com",
   token = Sys.getenv("GITLAB_PAT)
 )
