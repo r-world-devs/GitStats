@@ -3,6 +3,7 @@
 #' @importFrom R6 R6Class
 #' @importFrom dplyr mutate
 #' @importFrom magrittr %>%
+#' @importFrom rlang %||%
 #'
 #' @title A GitLab API Client class
 #' @description An object with methods to derive information form GitLab API.
@@ -38,20 +39,19 @@ GitLabClient <- R6::R6Class("GitLabClient",
                                 }
 
                                 tryCatch({
-                                  projects_list <- purrr::map(project_groups, function(x){
+                                  repos_dt <- purrr::map(project_groups, function(x){
                                     perform_get_request(endpoint = paste0(self$rest_api_url, "/groups/", x, "/projects"),
-                                                        token = private$token)
-                                  })
+                                                        token = private$token)  %>%
+                                      private$tailor_repos_info() %>%
+                                      private$prepare_repos_table()
+                                  }) %>%
+                                    rbindlist()
                                 },
                                 error = function(e){
 
                                   warning(paste0("HTTP status ", e$status, " noted when performing request for ", self$rest_api_url,". \n Are you sure you defined properly your groups?"),
                                           call. = FALSE)
                                 })
-
-                                repos_dt <- projects_list %>%
-                                  private$tailor_repos_info() %>%
-                                  private$prepare_repos_table()
 
                                 repos_dt
 
@@ -67,15 +67,14 @@ GitLabClient <- R6::R6Class("GitLabClient",
                               get_repos_by_team = function(team,
                                                            project_groups = self$groups){
 
-                                projects_list <- purrr::map(project_groups, function(x){
+                                repos_dt <- purrr::map(project_groups, function(x){
                                   perform_get_request(endpoint = paste0(self$rest_api_url, "/groups/", x, "/projects"),
-                                                      token = private$token)
-                                })
-
-                                repos_dt <- private$filter_projects_by_team(projects_list = projects_list,
-                                                                            team = team) %>%
-                                  private$tailor_repos_info() %>%
-                                  private$prepare_repos_table()
+                                                      token = private$token) %>%
+                                    private$filter_projects_by_team(team = team) %>%
+                                    private$tailor_repos_info() %>%
+                                    private$prepare_repos_table()
+                                }) %>%
+                                  rbindlist()
 
                                 repos_dt
 
@@ -167,17 +166,12 @@ GitLabClient <- R6::R6Class("GitLabClient",
                               #' @return A data.frame
                               prepare_repos_table = function(projects_list){
 
-                                projects_dt <- purrr::map(projects_list, function(x){
+                                projects_dt <- purrr::map(projects_list, function(project){
 
-                                  purrr::map(x, function(y){
-
-                                    if (is.null(y$description)){
-                                      y$description <- ""
-                                    }
-                                    data.frame(y)
-
-                                  }) %>%
-                                    data.table::rbindlist()
+                                  project <- purrr::map(project, function(attr){
+                                    attr <- attr %||% ""
+                                  } )
+                                  data.frame(project)
 
                                 }) %>%
                                   data.table::rbindlist()
@@ -203,11 +197,9 @@ GitLabClient <- R6::R6Class("GitLabClient",
 
                                 purrr::map(projects_list, function(x){
 
-                                  purrr::map(x, function(y){
-
                                     members <- tryCatch(
                                       {
-                                        perform_get_request(endpoint = paste0(self$rest_api_url, "/projects/", y$id, "/members/all"),
+                                        perform_get_request(endpoint = paste0(self$rest_api_url, "/projects/", x$id, "/members/all"),
                                                             token = private$token) %>% purrr::map_chr(~.$username)
                                       },
                                       error = function(e){
@@ -215,13 +207,12 @@ GitLabClient <- R6::R6Class("GitLabClient",
                                       })
 
                                     if (length(intersect(team, members))>0){
-                                      return(y)
+                                      return(x)
                                     } else {
                                       return(NULL)
                                     }
-                                  }) %>%  purrr::keep(~length(.)>0)
 
-                                })
+                                }) %>% purrr::keep(~length(.) > 0)
 
                               },
 
@@ -287,17 +278,13 @@ GitLabClient <- R6::R6Class("GitLabClient",
 
                                 projects_list <- purrr::map(projects_list, function(x){
 
-                                  purrr::map(x, function(y){
-
-                                    list(
-                                      "owner/group" = y$namespace$path,
-                                      "name" = y$name,
-                                      "created_at" = y$created_at,
-                                      "last_activity_at" = y$last_activity_at,
-                                      "description" = y$description
-                                    )
-
-                                  })
+                                  list(
+                                    "owner/group" = x$namespace$path,
+                                    "name" = x$name,
+                                    "created_at" = x$created_at,
+                                    "last_activity_at" = x$last_activity_at,
+                                    "description" = x$description
+                                  )
 
                                 })
 

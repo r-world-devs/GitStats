@@ -169,11 +169,12 @@ GitHubClient <- R6::R6Class("GitHubClient",
                               #' @return A data.frame.
                               prepare_repos_table = function(repos_list){
 
-                                repos_dt <- purrr::map(repos_list, function(x){
+                                repos_dt <- purrr::map(repos_list, function(repo){
 
-                                  x$description <- x$description %||% ""
-
-                                  data.frame(x)
+                                  repo <- purrr::map(repo, function(attr){
+                                    attr <- attr %||% ""
+                                  } )
+                                  data.frame(repo)
 
                                 }) %>%
                                 data.table::rbindlist()
@@ -215,7 +216,7 @@ GitHubClient <- R6::R6Class("GitHubClient",
                                       return(NULL)
                                     }
 
-                                  })
+                                  }) %>% purrr::keep(~length(.) > 0)
 
                               },
 
