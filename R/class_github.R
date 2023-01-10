@@ -111,12 +111,10 @@ GitHubClient <- R6::R6Class("GitHubClient",
                               #' @param owner
                               #' @param date_from
                               #' @param date_until
-                              #' @param by
                               #' @return A data.frame
                               get_commits_by_owner = function(owners = self$owners,
                                                               date_from,
-                                                              date_until = Sys.time(),
-                                                              by){
+                                                              date_until = Sys.time()){
 
                                 commits_dt <- purrr::map(owners, function(x){
                                      private$get_gql_commit_query(owner = x,
@@ -324,9 +322,9 @@ GitHubClient <- R6::R6Class("GitHubClient",
 
                                   x <- purrr::map(x, function(y){
 
-                                    y$users <- purrr::map(y$authors$edges, function(z){
+                                    y$users <- purrr::map(y$authors$edges, function(edge){
                                           tryCatch({
-                                            paste0(z$node$user$login, collapse = ",")
+                                            paste0(edge$node$user$login, collapse = ",")
                                           },
                                           error = function(e){
                                             "no login"
@@ -338,19 +336,21 @@ GitHubClient <- R6::R6Class("GitHubClient",
                                       }) %>%
                                     purrr::map(function(y){
 
-                                      author_in_team <- purrr::keep(y$users, function(z){
-                                        any(unlist(strsplit(z, ",")) %in% team)
+                                      author_in_team <- purrr::keep(y$users, function(user){
+                                        any(unlist(strsplit(user, ",")) %in% team)
                                       })
                                       if (length(author_in_team) > 0){
-                                        return(y)
+                                        y$users <- NULL
+                                        y
                                       } else {
                                         NULL
                                       }
-                                      y$users <- NULL
 
                                     }) %>% purrr::discard(~is.null(.))
 
                                 })
+
+                                commits_list
 
                               },
 
