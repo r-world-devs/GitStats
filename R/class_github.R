@@ -3,6 +3,7 @@
 #' @importFrom R6 R6Class
 #' @importFrom dplyr mutate
 #' @importFrom magrittr %>%
+#' @importFrom rlang %||%
 #'
 #' @title A GitHub API Client class
 #' @description An object with methods to derive information form GitHub API.
@@ -45,11 +46,14 @@ GitHubClient <- R6::R6Class("GitHubClient",
                                 }
 
                                 tryCatch({
-                                  repos_list <- purrr::map(repos_owner, function(x){
+                                  repos_dt <- purrr::map(repos_owner, function(x){
 
                                     perform_get_request(endpoint = paste0(self$rest_api_url, "/orgs/", x,"/repos"),
-                                                                  token = private$token)
-                                  })
+                                                                  token = private$token) %>%
+                                      private$tailor_repos_info() %>%
+                                      private$prepare_repos_table()
+                                  }) %>%
+                                    rbindlist()
                                 },
                                 error = function(e){
 
@@ -57,9 +61,6 @@ GitHubClient <- R6::R6Class("GitHubClient",
                                           call. = FALSE)
 
                                 })
-
-                                repos_dt <- private$tailor_repos_info(repos_list) %>%
-                                  private$prepare_repos_table()
 
                                 repos_dt
                               },
@@ -77,10 +78,12 @@ GitHubClient <- R6::R6Class("GitHubClient",
                                 repos_dt <- purrr::map(repos_owners, function(x){
 
                                   perform_get_request(endpoint = paste0(self$rest_api_url, "/orgs/", x,"/repos"),
-                                                      token = private$token)
-                                }) %>% private$filter_repos_by_team(team = team) %>%
-                                  private$tailor_repos_info() %>%
-                                  private$prepare_repos_table()
+                                                      token = private$token) %>%
+                                    private$filter_repos_by_team(team = team) %>%
+                                    private$tailor_repos_info() %>%
+                                    private$prepare_repos_table()
+                                }) %>%
+                                  rbindlist()
 
                                 repos_dt
 
@@ -162,19 +165,15 @@ GitHubClient <- R6::R6Class("GitHubClient",
                             private = list(
 
                               #' @description A helper to prepare table for repositories content
-                              #' @param result_items A list, a formatted content of response returned by GET API request
+                              #' @param repos_list A repository list.
                               #' @return A data.frame.
-                              prepare_repos_table = function(result_items){
+                              prepare_repos_table = function(repos_list){
 
-                                repos_dt <- purrr::map(result_items, function(x){
+                                repos_dt <- purrr::map(repos_list, function(x){
 
-                                  purrr::map(x, function(y){
-                                    if (is.null(y$description)){
-                                      y$description <- ""
-                                    }
-                                    data.frame(y)
-                                  }) %>%
-                                    data.table::rbindlist()
+                                  x$description <- x$description %||% ""
+
+                                  data.frame(x)
 
                                 }) %>%
                                 data.table::rbindlist()
@@ -195,16 +194,15 @@ GitHubClient <- R6::R6Class("GitHubClient",
                               #' @description Filter by contributors.
                               #' @param repos_list A repository list to be filtered.
                               #' @param team A character vector with team member names.
+                              #' @return A list.
                               filter_repos_by_team = function(repos_list,
-                                                                team){
+                                                              team){
 
                                 purrr::map(repos_list, function(x){
 
-                                  purrr::map(x, function(y){
-
                                     contributors <- tryCatch(
                                       {
-                                        perform_get_request(endpoint = paste0(self$rest_api_url, "/repos/", y$full_name, "/contributors"),
+                                        perform_get_request(endpoint = paste0(self$rest_api_url, "/repos/", x$full_name, "/contributors"),
                                                             token = private$token) %>% purrr::map_chr(~.$login)
                                       },
                                       error = function(e){
@@ -212,12 +210,10 @@ GitHubClient <- R6::R6Class("GitHubClient",
                                       })
 
                                     if (length(intersect(team, contributors))>0){
-                                      return(y)
+                                      return(x)
                                     } else {
                                       return(NULL)
                                     }
-
-                                  }) %>%  purrr::keep(~length(.)>0)
 
                                   })
 
@@ -276,15 +272,13 @@ GitHubClient <- R6::R6Class("GitHubClient",
 
                                 repos_list <- purrr::map(repos_list, function(x){
 
-                                  purrr::map(x, function(y){
-                                    list(
-                                      "owner/group" = y$owner$login,
-                                      "name" = y$name,
-                                      "created_at" = y$created_at,
-                                      "last_activity_at" = y$updated_at,
-                                      "description" = y$description
-                                    )
-                                  })
+                                  list(
+                                    "owner/group" = x$owner$login,
+                                    "name" = x$name,
+                                    "created_at" = x$created_at,
+                                    "last_activity_at" = x$updated_at,
+                                    "description" = x$description
+                                  )
 
                                 })
 

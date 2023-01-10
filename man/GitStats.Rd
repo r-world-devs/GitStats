@@ -105,11 +105,7 @@ A data.frame of repositories
 \subsection{Method \code{get_commits_by_owner_or_group()}}{
 A method to get information on commits.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits_by_owner_or_group(
-  date_from,
-  date_until = Sys.time(),
-  by = c("day", "week", "month", "year")
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits_by_owner_or_group(date_from, date_until = Sys.time())}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{

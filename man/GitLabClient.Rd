@@ -119,8 +119,7 @@ A method to get information on commits.
 \if{html}{\out{<div class="r">}}\preformatted{GitLabClient$get_commits_by_group(
   groups = self$groups,
   date_from,
-  date_until = Sys.time(),
-  by
+  date_until = Sys.time()
 )}\if{html}{\out{</div>}}
 }
 
