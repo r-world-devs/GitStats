@@ -108,12 +108,10 @@ GitLabClient <- R6::R6Class("GitLabClient",
                               #' @param groups
                               #' @param date_from
                               #' @param date_until
-                              #' @param by
                               #' @return A data.frame
                               get_commits_by_group = function(groups = self$groups,
                                                               date_from,
-                                                              date_until = Sys.time(),
-                                                              by){
+                                                              date_until = Sys.time()){
 
                                 commits_dt <- purrr::map(groups, function(x){
                                   private$get_all_commits_from_group(x,

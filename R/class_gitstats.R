@@ -81,7 +81,8 @@ GitStats <- R6::R6Class("GitStats",
                           #' @param phrase A phrase to look for in codelines.
                           #' @param language A character specifying language used in repositories.
                           #' @return A data.frame of repositories
-                          get_repos_by_codephrase = function(phrase, language = 'R'){
+                          get_repos_by_codephrase = function(phrase,
+                                                             language = 'R'){
 
                             repos_dt <- purrr::map(self$clients, ~.$get_repos_by_codephrase(phrase, language)) %>%
                               rbindlist() %>%
@@ -101,10 +102,7 @@ GitStats <- R6::R6Class("GitStats",
                           #' @param by
                           #' @return A data.frame
                           get_commits_by_owner_or_group = function(date_from,
-                                                                   date_until = Sys.time(),
-                                                                   by = c("day", "week", "month", "year")){
-
-                            by = match.arg(arg = by)
+                                                                   date_until = Sys.time()){
 
                             commits_dt <- purrr::map(self$clients, function(x) {
 
@@ -155,8 +153,7 @@ GitStats <- R6::R6Class("GitStats",
                                 message(self$clients$rest_api_url, " (", team_name, " team): pulled commits from ", length(unique(commits$repo_project)), " repositories.")
 
                                 commits
-                                                     }) %>%
-                              rbindlist(use.names = TRUE)
+                                                     }) %>% rbindlist(use.names = TRUE)
 
                             commits_dt$committedDate <- as.Date(commits_dt$committedDate)
 
