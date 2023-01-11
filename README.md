@@ -3,68 +3,120 @@
 
 # GitStats
 
-Please be reminded, that this work is still IN PROGRESS!
-
 <!-- badges: start -->
 <!-- badges: end -->
 
+***WORK IN PROGRESS***
+
 The goal of GitStats is to search through multiple GitHub and GitLab
-platforms for statistics.
+platforms for different statistics either by owners/groups of
+repositories, team members or searched codephrases.
 
 For the time being GitStats supports connections to public GitHub,
 enterprise GitHub and GitLab.
 
 ## Installation
 
-You can install the development version of GitStats like so:
+Development version:
 
 ``` r
 devtools::install_github("r-world-devs/GitStats")
 ```
 
-## How to start
+## Start - set connections
 
-Start with setting your git connections: choose GitHub Client or GitLab
-Client class. Choose your owners (GitHub) or group/groups (GitLab).
-Provide API url and a token.
+Start with setting your git connection.
 
 ``` r
-my_github <- GitHubClient$new(
-  owners = "r-world-devs",
-  rest_api_url = "api.github.com",
-  token = Sys.getenv("GITHUB_PAT")
-)
+library(GitStats)
 
-my_gitlab <- GitLabClient$new(
-  groups = c("my_group", "my_second_group"),
-  rest_api_url = "your_api_url.com",
-  token = Sys.getenv("GITLAB_PAT)
-)
+my_gitstats <- GitStats$new()
+
+my_gitstats$set_connection(api_url = "https://api.github.com",
+                           token = Sys.getenv("GITHUB_PAT"),
+                           owners_groups = c("r-world-devs", "openpharma"))
+
+my_gitstats
 ```
 
-Wrap all your Clients into new GitStats object (you can have them more
-than two):
+### Multiple connections
+
+As GitStats provides possibility of showing stats through multiple
+platforms, you can pass more than one connection.
 
 ``` r
-MyGitStats <- GitStats$new(
-    my_github, my_gitlab
-  )
+
+  cons <- tibble::tibble(api_url = c("https://api.github.com", "https://github.roche.com/api/v3", "https://code.roche.com/api/v4"),
+                         token = c(Sys.getenv("GITHUB_PAT"), Sys.getenv("GITHUB_PAT_ROCHE"),Sys.getenv("GITLAB_PAT")),
+                         owners_groups = list(c("openpharma", "r-world-devs"),  c("RWDScodeshare"), c("RWDInsightsEngineering", "rwdhubproducts")))
+  
+  cons
+                         
+  my_gitstats <- GitStats$new()
+
+  purrr::pwalk(cons, function(api_url, token, owners_groups){
+    my_gitstats$set_connection(api_url = api_url,
+                               token = token,
+                               owners_groups = owners_groups)
+  })
 ```
 
-And start your exploration:
+## Explore
+
+And start your exploration for repos and commits, e.g. by owners and
+groups:
 
 ``` r
-MyGitStats$get_repos_by_owner()
+repos <- my_gitstats$get_repos_by_owner_or_group()
+
+head(repos)
 ```
 
-## Team
+### Codephrase
+
+You can search for repos by a keyword:
+
+``` r
+
+repos <- my_gitstats$get_repos_by_codephrase("Hobbits")
+
+head(repos)
+```
+
+### Team
 
 You can look for the repositories and other information, where engaged
 is your team. First you need to specify your team members (by
 git-platform logins), then do the search.
 
 ``` r
-MyGitStats$set_team(team_name = "Avengers", "thor", "black_widow", "hulk", "spider-man", "iron-man")
+my_gitstats$set_team(team_name = "Avengers", "thor", "black_widow", "hulk", "spider-man", "iron-man")
 
-MyGitStats$get_repos_by_team("Avengers")
+my_gitstats$get_repos_by_team("Avengers")
+```
+
+## Plots
+
+You can plot your exploration with chaining methods inside GitStats
+class object:
+
+``` r
+
+my_gitstats$get_repos_by_owner_or_group()$plot_repos()
+```
+
+Once you’ve finished your exploration you can plot repos without calling
+exploration method:
+
+``` r
+
+my_gitstats$plot_repos()
+```
+
+By default 10 top repositories (last active) are shown, but you can set
+more to visualize:
+
+``` r
+
+my_gitstats$plot_repos(repos_n = 25)
 ```
