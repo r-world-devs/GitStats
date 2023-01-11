@@ -9,7 +9,7 @@
 #'
 GitStats <- R6::R6Class("GitStats",
                         public = list(
-                          clients = NULL,
+                          clients = list(),
 
                           #' @description Create a new `GitStats` object
                           #' @param ... A list of objects of class GitHubClient or GitLabClient
@@ -162,6 +162,43 @@ GitStats <- R6::R6Class("GitStats",
                             print(commits_dt)
 
                             invisible(self)
+
+                          },
+
+                          #' @description Method to set connections to Git platforms
+                          #' @param api_url A character, url address of API.
+                          #' @param token A token.
+                          #' @param owner_group A character vector.
+                          #' @return nothing, puts connection information into `$clients` slot
+                          set_connection = function(api_url,
+                                                    token,
+                                                    owners_groups = NULL){
+
+                            if (is.null(owners_groups)){
+                              stop("You need to specify owner/owners of the repositories.", call. = FALSE)
+                            }
+
+                            if (api_url == "https://api.github.com"){
+                              message("Set connection to GitHub public.")
+                              self$clients <- GitHubClient$new(rest_api_url = api_url,
+                                                               token = token,
+                                                               owners = owners_groups) %>%
+                                append(self$clients, .)
+                            } else if (api_url != "https://api.github.com" && grepl("github", api_url)){
+                              message("Set connection to GitHub Enterprise.")
+                              self$clients <- GitHubEnterpriseClient$new(rest_api_url = api_url,
+                                                                         token = token,
+                                                                         owners = owners_groups) %>%
+                                append(self$clients, .)
+                            } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)){
+                              message("Set connection to GitLab.")
+                              self$clients <- GitLabClient$new(rest_api_url = api_url,
+                                                               token = token,
+                                                               groups = owners_groups) %>%
+                                append(self$clients, .)
+                            } else {
+                              stop("This connection is not supported by GitStats class object.")
+                            }
 
                           },
 

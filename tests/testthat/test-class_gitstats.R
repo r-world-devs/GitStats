@@ -1,4 +1,37 @@
+testGitStats <- GitStats$new()
+
+test_that("Set connection method", {
+
+  expect_message(testGitStats$set_connection(api_url = "https://api.github.com",
+                                             token = Sys.getenv("GITHUB_PAT"),
+                                             owners_groups = c("avengers", "cocktail_party")),
+                 "Set connection to GitHub.")
+
+  expect_message(testGitStats$set_connection(api_url = "https://github.company.com",
+                                             token = Sys.getenv("GITHUB_COMPANY_PAT"),
+                                             owners_groups = "owner_1"),
+                 "Set connection to GitHub Enterprise.")
+
+
+  expect_message(testGitStats$set_connection(api_url = "https://code.pharma.com",
+                                             token = Sys.getenv("GITLAB_PAT"),
+                                             owners_groups = c("good_drugs", "vaccine_science")),
+                 "Set connection to GitLab.")
+
+  expect_error(testGitStats$set_connection(api_url = "https://avengers.com",
+                                           token = Sys.getenv("GITLAB_PAT")),
+               "You need to specify owner/owners of the repositories.")
+
+  expect_error(testGitStats$set_connection(api_url = "https://avengers.com",
+                                           token = Sys.getenv("GITLAB_PAT"),
+                                           owners_groups = c("good_drugs", "vaccine_science")),
+                 "This connection is not supported by GitStats class object.")
+
+
+})
+
 git_hub_client_1 = GitHubClient$new(rest_api_url = "https://api.github.com")
+git_hub_client_2 = GitLabClient$new(rest_api_url = "https://github.mycompany.com/api")
 
 test_that("Error pops out on wrong input passed to new GitStats object", {
 
@@ -21,28 +54,24 @@ test_that("Error pops out on wrong input passed to new GitStats object", {
 
 test_that("Error pops out when two clients of the same url api are passed as input", {
 
-  git_hub_client_2 = GitLabClient$new(rest_api_url = "https://api.github.com")
-
-  expect_error(GitStats$new(git_hub_client_1, git_hub_client_2),
+  expect_error(GitStats$new(git_hub_client_1, git_hub_client_1),
                "You can not provide two clients of same API urls.")
-
-  git_hub_client_2 = GitLabClient$new(rest_api_url = "https://github.mycompany.com/api")
 
   expect_no_error(GitStats$new(git_hub_client_1, git_hub_client_2))
 
 })
 
-MyGitStats <- GitStats$new(git_hub_client_1)
+testGitStats <- GitStats$new(git_hub_client_1)
 
 test_that("Proper information pops out when one wants to get team stats without specifying team", {
 
-  expect_error(MyGitStats$get_repos_by_team(),
+  expect_error(testGitStats$get_repos_by_team(),
                "You have to specify a team firstly")
 
 })
 
 test_that("Error pops out when groups/owners are not defined", {
 
-  expect_error(MyGitStats$get_repos_by_owner_or_group(),
+  expect_error(testGitStats$get_repos_by_owner_or_group(),
                "You have to define")
 })

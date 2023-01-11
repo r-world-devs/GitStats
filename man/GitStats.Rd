@@ -15,6 +15,7 @@ An R6 class object with methods to derive information from multiple Git platform
 \item \href{#method-GitStats-get_repos_by_codephrase}{\code{GitStats$get_repos_by_codephrase()}}
 \item \href{#method-GitStats-get_commits_by_owner_or_group}{\code{GitStats$get_commits_by_owner_or_group()}}
 \item \href{#method-GitStats-get_commits_by_team}{\code{GitStats$get_commits_by_team()}}
+\item \href{#method-GitStats-set_connection}{\code{GitStats$set_connection()}}
 \item \href{#method-GitStats-set_team}{\code{GitStats$set_team()}}
 \item \href{#method-GitStats-plot_repos}{\code{GitStats$plot_repos()}}
 \item \href{#method-GitStats-plot_commits}{\code{GitStats$plot_commits()}}
@@ -105,11 +106,7 @@ A data.frame of repositories
 \subsection{Method \code{get_commits_by_owner_or_group()}}{
 A method to get information on commits.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits_by_owner_or_group(
-  date_from,
-  date_until = Sys.time(),
-  by = c("day", "week", "month", "year")
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits_by_owner_or_group(date_from, date_until = Sys.time())}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
@@ -125,6 +122,30 @@ A method to get information on commits.
 \if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits_by_team(team_name, date_from, date_until = Sys.time())}\if{html}{\out{</div>}}
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GitStats-set_connection"></a>}}
+\if{latex}{\out{\hypertarget{method-GitStats-set_connection}{}}}
+\subsection{Method \code{set_connection()}}{
+Method to set connections to Git platforms
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$set_connection(api_url, token, owners_groups = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{api_url}}{A character, url address of API.}
+
+\item{\code{token}}{A token.}
+
+\item{\code{owner_group}}{A character vector.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+nothing, puts connection information into \verb{$clients} slot
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GitStats-set_team"></a>}}
