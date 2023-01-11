@@ -121,8 +121,7 @@ A method to get information on commits.
 \if{html}{\out{<div class="r">}}\preformatted{GitHubClient$get_commits_by_owner(
   owners = self$owners,
   date_from,
-  date_until = Sys.time(),
-  by
+  date_until = Sys.time()
 )}\if{html}{\out{</div>}}
 }
 

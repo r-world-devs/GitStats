@@ -72,6 +72,12 @@ repos <- my_gitstats$get_repos_by_owner_or_group()
 head(repos)
 ```
 
+``` r
+commits <- my_gitstats$get_commits_by_owner_or_group()
+
+head(commits)
+```
+
 ### Codephrase
 
 You can search for repos by a keyword:
