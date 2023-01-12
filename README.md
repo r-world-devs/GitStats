@@ -4,6 +4,9 @@
 # GitStats
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/r-world-devs/GitStats/workflows/R-CMD-check/badge.svg)](https://github.com/r-world-devs/GitStats/actions)
+[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
 ***WORK IN PROGRESS***
@@ -46,12 +49,16 @@ platforms, you can pass more than one connection.
 
 ``` r
 
-  cons <- tibble::tibble(api_url = c("https://api.github.com", "https://github.roche.com/api/v3", "https://code.roche.com/api/v4"),
-                         token = c(Sys.getenv("GITHUB_PAT"), Sys.getenv("GITHUB_PAT_ROCHE"),Sys.getenv("GITLAB_PAT")),
-                         owners_groups = list(c("openpharma", "r-world-devs"),  c("RWDScodeshare"), c("RWDInsightsEngineering", "rwdhubproducts")))
+  cons <- tibble::tibble(api_url = c("https://api.github.com", 
+                                     "https://github.enterprise.com/api", 
+                                     "https://code.company.com/api"),
+                         token = c(Sys.getenv("GITHUB_PAT"), 
+                                   Sys.getenv("GITHUB_PAT_ENTERPRISE"),
+                                   Sys.getenv("GITLAB_PAT_COMPANY")),
+                         owners_groups = list(c("openpharma", "r-world-devs"),  
+                                              c("org1"), 
+                                              c("org2", "org3")))
   
-  cons
-                         
   my_gitstats <- GitStats$new()
 
   purrr::pwalk(cons, function(api_url, token, owners_groups){

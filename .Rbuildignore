@@ -3,3 +3,5 @@
 ^\.github$
 ^LICENSE\.md$
 ^README.Rmd
+^codecov\.yml$
+^\.covrignore$
