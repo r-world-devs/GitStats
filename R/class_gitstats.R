@@ -12,13 +12,8 @@ GitStats <- R6::R6Class("GitStats",
                           clients = list(),
 
                           #' @description Create a new `GitStats` object
-                          #' @param ... A list of objects of class GitHubClient or GitLabClient
                           #' @return A new `GitStats` object
-                          initialize = function(...){
-
-                            private$check_input(...)
-
-                            self$clients <- list(...)
+                          initialize = function(){
 
                           },
 
@@ -60,7 +55,7 @@ GitStats <- R6::R6Class("GitStats",
                           get_repos_by_team = function(team_name){
 
                             if (is.null(self$teams)){
-                              stop("You have to specify a team firstly with 'set_team()' method.", call. = FALSE)
+                              stop("You have to specify a team first with 'set_team()' method.", call. = FALSE)
                             }
 
                             team <- self$teams[[team_name]]
@@ -138,7 +133,7 @@ GitStats <- R6::R6Class("GitStats",
                                                          date_until = Sys.time()){
 
                             if (is.null(self$teams)){
-                              stop("You have to specify a team firstly with 'set_team()' method.", call. = FALSE)
+                              stop("You have to specify a team first with 'set_team()' method.", call. = FALSE)
                             }
 
                             team <- self$teams[[team_name]]
@@ -169,7 +164,7 @@ GitStats <- R6::R6Class("GitStats",
                           #' @param api_url A character, url address of API.
                           #' @param token A token.
                           #' @param owner_group A character vector.
-                          #' @return nothing, puts connection information into `$clients` slot
+                          #' @return Nothing, puts connection information into `$clients` slot
                           set_connection = function(api_url,
                                                     token,
                                                     owners_groups = NULL){
@@ -200,11 +195,13 @@ GitStats <- R6::R6Class("GitStats",
                               stop("This connection is not supported by GitStats class object.")
                             }
 
+                            private$check_input(self$clients)
+
                           },
 
                           #' @description A method to set your team.
                           #' @param team_name A name of a team.
-                          #' @return A list
+                          #' @return Nothing, puts team information into `$teams` slot.
                           set_team = function(team_name, ...){
 
                             self$teams <- list()
@@ -242,6 +239,7 @@ GitStats <- R6::R6Class("GitStats",
 
                           #' @importFrom data.table :=
                           #' @description A method to plot basic commit stats
+                          #' @return A plot.
                           plot_commits = function(commits_dt = self$commits_dt,
                                                   stats_by = c("day", "week", "month")){
 
@@ -311,19 +309,14 @@ GitStats <- R6::R6Class("GitStats",
                           #' @description Check if input is correct: does it
                           #'   comprise of GitHubClient or GitLabClient classes
                           #'   and whether the urls do not repeat.
-                          #' @param ... Input.
-                          check_input = function(...){
+                          #' @param clients A list of clients of GitStats object.
+                          #' @return Nothing
+                          check_input = function(clients = self$clients){
 
-                            purrr::walk(list(...), function(x){
-                              if (!"GitClient" %in% class(x)){
-                                stop("Wrong objects passed into GitStats constructor. GitStats may comprise only of GitClient class objects. \n", call. = FALSE)
-                              }
-                            })
-
-                            urls <- purrr::map_chr(list(...), ~.$rest_api_url)
+                            urls <- purrr::map_chr(clients, ~.$rest_api_url)
 
                             if (length(urls) != length(unique(urls))){
-                              stop("You can not provide two clients of same API urls.")
+                              stop("You can not provide two clients of the same API urls.")
                             }
 
                           }

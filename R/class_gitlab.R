@@ -33,11 +33,6 @@ GitLabClient <- R6::R6Class("GitLabClient",
                               #' @return A data.frame of repositories
                               get_projects_by_group = function(project_groups = self$groups){
 
-                                if (is.null(project_groups)){
-                                  stop("You have to define groups for your GitClient object. You can pass it to 'groups' field when creating new object.",
-                                       call. = FALSE)
-                                }
-
                                 tryCatch({
                                   repos_dt <- purrr::map(project_groups, function(x){
                                     perform_get_request(endpoint = paste0(self$rest_api_url, "/groups/", x, "/projects"),

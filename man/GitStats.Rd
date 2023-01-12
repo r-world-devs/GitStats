@@ -30,16 +30,9 @@ An R6 class object with methods to derive information from multiple Git platform
 \subsection{Method \code{new()}}{
 Create a new \code{GitStats} object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$new(...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$new()}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{A list of objects of class GitHubClient or GitLabClient}
-}
-\if{html}{\out{</div>}}
-}
 \subsection{Returns}{
 A new \code{GitStats} object
 }
@@ -144,7 +137,7 @@ Method to set connections to Git platforms
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-nothing, puts connection information into \verb{$clients} slot
+Nothing, puts connection information into \verb{$clients} slot
 }
 }
 \if{html}{\out{<hr>}}
@@ -164,7 +157,7 @@ A method to set your team.
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A list
+Nothing, puts team information into \verb{$teams} slot.
 }
 }
 \if{html}{\out{<hr>}}
@@ -201,6 +194,9 @@ A method to plot basic commit stats
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A plot.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GitStats-plot_commit_lines"></a>}}

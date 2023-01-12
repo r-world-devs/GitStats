@@ -40,11 +40,6 @@ GitHubClient <- R6::R6Class("GitHubClient",
                               #' @return A data.frame of repositories
                               get_repos_by_owner = function(repos_owner = self$owners){
 
-                                if (is.null(repos_owner)){
-                                  stop("You have to define groups for your GitClient object. You can pass it to 'owners' attribute when creating new object.",
-                                       call. = FALSE)
-                                }
-
                                 tryCatch({
                                   repos_dt <- purrr::map(repos_owner, function(x){
 
