@@ -14,9 +14,12 @@ Imports:
   dplyr,
   magrittr,
   ghql,
+  httr2,
   plotly,
+  progress,
   purrr,
-  rlang
+  rlang,
+  R6
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
