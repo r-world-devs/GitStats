@@ -11,7 +11,15 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 Imports:
   data.table,
-  ghql
+  dplyr,
+  magrittr,
+  ghql,
+  httr2,
+  plotly,
+  progress,
+  purrr,
+  rlang,
+  R6
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
