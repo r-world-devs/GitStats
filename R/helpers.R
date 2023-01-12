@@ -1,4 +1,5 @@
 #' @importFrom progress progress_bar
+#' @importFrom magrittr %>%
 
 #' @description A wrapper for proper pagination of GitHub search REST API
 #' @param search_endpoint A character, a search endpoint

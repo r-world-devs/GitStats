@@ -9,16 +9,18 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 Imports:
-  data.table,
-  dplyr,
-  jsonlite,
-  magrittr,
-  ghql,
-  httr2,
-  plotly,
-  progress,
-  rlang,
-  R6
+    data.table,
+    dplyr,
+    jsonlite,
+    magrittr,
+    ghql,
+    httr2,
+    plotly,
+    progress,
+    rlang,
+    R6,
+    purrr,
+    tibble
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
