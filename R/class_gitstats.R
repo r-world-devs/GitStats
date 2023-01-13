@@ -90,14 +90,12 @@ GitStats <- R6::R6Class("GitStats",
         if ("GitHubClient" %in% class(x)) {
           x$get_commits_by_owner(
             date_from = date_from,
-            date_until = date_until,
-            by = by
+            date_until = date_until
           )
         } else if ("GitLabClient" %in% class(x)) {
           x$get_commits_by_group(
             date_from = date_from,
-            date_until = date_until,
-            by = by
+            date_until = date_until
           )
         }
       }) %>%
