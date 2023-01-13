@@ -47,9 +47,3 @@ jobs:
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
-
-      - name: remove git-lfs
-        shell: bash
-        run: |
-          sudo rm /etc/apt/sources.list.d/github_git-lfs.list
-          sudo rm /etc/apt/sources.list.d/github_git-lfs.list.save
