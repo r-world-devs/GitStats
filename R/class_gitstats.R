@@ -128,7 +128,11 @@ GitStats <- R6::R6Class("GitStats",
       commits_dt <- purrr::map(self$clients, function(x) {
         commits <- x$get_commits_by_team(
           team,
-          x$owners,
+          if ("GitHubClient" %in% class(x)) {
+            x$owners
+          } else if ("GitLabClient" %in% class (x)) {
+            x$groups
+          },
           date_from,
           date_until
         )

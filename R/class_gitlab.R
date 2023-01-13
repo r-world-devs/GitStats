@@ -124,13 +124,11 @@ GitLabClient <- R6::R6Class("GitLabClient",
     #' @param groups
     #' @param date_from
     #' @param date_until
-    #' @param by
     #' @return A data.frame
     get_commits_by_team = function(team,
                                    groups = self$groups,
                                    date_from,
-                                   date_until = Sys.time(),
-                                   by) {
+                                   date_until = Sys.time()) {
       commits_dt <- purrr::map(groups, function(x) {
         private$get_all_commits_from_group(
           x,
@@ -149,7 +147,8 @@ GitLabClient <- R6::R6Class("GitLabClient",
     print = function() {
       cat("GitLab API Client", sep = "\n")
       cat(paste0(" url: ", self$rest_api_url), sep = "\n")
-      cat(paste0(" groups: ", self$groups), sep = "\n")
+      groups <- paste0(self$groups, collapse = ", ")
+      cat(paste0(" groups: ", groups), sep = "\n")
     }
   ),
   private = list(
@@ -332,28 +331,55 @@ GitLabClient <- R6::R6Class("GitLabClient",
     get_all_commits_from_group = function(project_group,
                                           date_from,
                                           date_until = Sys.date()) {
-      commits_list <- perform_get_request(
-        endpoint = paste0(self$rest_api_url, "/groups/", project_group, "/projects"),
-        token = private$token
-      ) %>%
-        purrr::map_chr(~ .$id) %>%
-        purrr::map(~ perform_get_request(
+      repos_list <- list()
+      r_page <- 1
+      repeat {
+        repos_page <- perform_get_request(
+          endpoint = paste0(self$rest_api_url, "/groups/", project_group, "/projects?per_page=100&page=", r_page),
+          token = private$token
+        )
+        if (length(repos_page) > 0) {
+          repos_list <- append(repos_list, repos_page)
+          r_page <- r_page + 1
+        } else {
+          break
+        }
+      }
+
+      repos_names <- purrr::map_chr(repos_list, ~ .$name)
+      projects_ids <- purrr::map_chr(repos_list, ~ .$id)
+
+      pb <- progress::progress_bar$new(
+        format = paste0("GitLab Client (", project_group, "). Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
+        total = length(repos_names)
+      )
+
+      commits_list <- purrr::map(projects_ids, function(x) {
+        pb$tick()
+
+        perform_get_request(
           endpoint = paste0(
             self$rest_api_url,
             "/projects/",
-            .,
-            "/repository/commits?since=",
+            x,
+            "/repository/commits?since='",
             git_time_stamp(date_from),
-            "&until=",
+            "'&until='",
             git_time_stamp(date_until),
-            "&with_stats=true"
+            "'&with_stats=true"
           ),
           token = private$token
-        ))
+        )
+      })
+
+      names(commits_list) <- repos_names
+
+      commits_list <- commits_list %>%
+        purrr::discard(~ length(.) == 0)
 
       message("GitLab (", project_group, "): pulled commits from ", length(commits_list), " repositories.")
 
-      commits_list
+      return(commits_list)
     },
 
     #' @description Filter by contributors.
@@ -361,7 +387,17 @@ GitLabClient <- R6::R6Class("GitLabClient",
     #' @param team A character vector with team member names.
     filter_commits_by_team = function(commits_list,
                                       team) {
+      commits_list <- purrr::map(commits_list, function(repo) {
+        purrr::keep(repo, function(commit) {
+          if (length(commit$author_name > 0)) {
+            commit$author_name %in% team
+          } else {
+            FALSE
+          }
+        })
+      }) %>% purrr::discard(~ length(.) == 0)
 
+      commits_list
     },
 
     #' @description A helper to retrieve only important info on commits

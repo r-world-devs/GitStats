@@ -137,8 +137,7 @@ A method to get information on commits.
   team,
   groups = self$groups,
   date_from,
-  date_until = Sys.time(),
-  by
+  date_until = Sys.time()
 )}\if{html}{\out{</div>}}
 }
 
