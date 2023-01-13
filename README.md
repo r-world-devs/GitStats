@@ -48,24 +48,23 @@ As GitStats provides possibility of showing stats through multiple
 platforms, you can pass more than one connection.
 
 ``` r
+cons <- tibble::tibble(api_url = c("https://api.github.com", 
+                                   "https://github.enterprise.com/api", 
+                                   "https://code.company.com/api"),
+                       token = c(Sys.getenv("GITHUB_PAT"), 
+                                 Sys.getenv("GITHUB_PAT_ENTERPRISE"),
+                                 Sys.getenv("GITLAB_PAT_COMPANY")),
+                       owners_groups = list(c("openpharma", "r-world-devs"),  
+                                            c("org1"), 
+                                            c("org2", "org3")))
 
-  cons <- tibble::tibble(api_url = c("https://api.github.com", 
-                                     "https://github.enterprise.com/api", 
-                                     "https://code.company.com/api"),
-                         token = c(Sys.getenv("GITHUB_PAT"), 
-                                   Sys.getenv("GITHUB_PAT_ENTERPRISE"),
-                                   Sys.getenv("GITLAB_PAT_COMPANY")),
-                         owners_groups = list(c("openpharma", "r-world-devs"),  
-                                              c("org1"), 
-                                              c("org2", "org3")))
-  
-  my_gitstats <- GitStats$new()
+my_gitstats <- GitStats$new()
 
-  purrr::pwalk(cons, function(api_url, token, owners_groups){
-    my_gitstats$set_connection(api_url = api_url,
-                               token = token,
-                               owners_groups = owners_groups)
-  })
+purrr::pwalk(cons, function(api_url, token, owners_groups){
+  my_gitstats$set_connection(api_url = api_url,
+                             token = token,
+                             owners_groups = owners_groups)
+})
 ```
 
 ## Explore
@@ -90,7 +89,6 @@ head(commits)
 You can search for repos by a keyword:
 
 ``` r
-
 repos <- my_gitstats$get_repos_by_codephrase("Hobbits")
 
 head(repos)
@@ -114,7 +112,6 @@ You can plot your exploration with chaining methods inside GitStats
 class object:
 
 ``` r
-
 my_gitstats$get_repos_by_owner_or_group()$plot_repos()
 ```
 
@@ -122,7 +119,6 @@ Once you’ve finished your exploration you can plot repos without calling
 exploration method:
 
 ``` r
-
 my_gitstats$plot_repos()
 ```
 
@@ -130,6 +126,5 @@ By default 10 top repositories (last active) are shown, but you can set
 more to visualize:
 
 ``` r
-
 my_gitstats$plot_repos(repos_n = 25)
 ```
