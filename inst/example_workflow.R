@@ -16,13 +16,18 @@ git_stats$get_repos_by_owner_or_group()
 
 git_stats$get_repos_by_codephrase("Dashboard")
 
+git_stats$get_repos_by_codephrase("Dashboard",
+                                  language = "Python")
+
+# set your team members
+
 git_stats$set_team(team_name = "RWD",
-                   "galachad", "forysa",
-                   "krystian8207", "krystiai",
-                   "kalimu", "waisk",
-                   "marcinkowskak", "MARCINK6",
-                   "Cotau", "koziejk1",
-                   "banasm", "maciekbanas")
+                   "galachad",
+                   "krystian8207",
+                   "kalimu",
+                   "marcinkowskak",
+                   "Cotau",
+                   "maciekbanas")
 
 git_stats$get_repos_by_team("RWD")
 
