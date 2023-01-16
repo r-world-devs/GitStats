@@ -21,8 +21,7 @@ Imports:
     progress,
     rlang,
     R6,
-    purrr,
-    tibble
+    purrr
 Suggests: 
     covr,
     testthat (>= 3.0.0)

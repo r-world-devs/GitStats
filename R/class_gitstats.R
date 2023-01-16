@@ -3,6 +3,7 @@
 #' @importFrom R6 R6Class
 #' @importFrom data.table rbindlist
 #' @importFrom plotly plot_ly
+#' @importFrom purrr map
 #'
 #' @title A statistics platform for Git clients
 #' @description An R6 class object with methods to derive information from multiple Git platforms.

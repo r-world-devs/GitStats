@@ -9,24 +9,24 @@ An R6 class object with methods to derive information from multiple Git platform
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-GitStats-new}{\code{GitStats$new()}}
-\item \href{#method-GitStats-get_repos_by_owner_or_group}{\code{GitStats$get_repos_by_owner_or_group()}}
-\item \href{#method-GitStats-get_repos_by_team}{\code{GitStats$get_repos_by_team()}}
-\item \href{#method-GitStats-get_repos_by_codephrase}{\code{GitStats$get_repos_by_codephrase()}}
-\item \href{#method-GitStats-get_commits_by_owner_or_group}{\code{GitStats$get_commits_by_owner_or_group()}}
-\item \href{#method-GitStats-get_commits_by_team}{\code{GitStats$get_commits_by_team()}}
-\item \href{#method-GitStats-set_connection}{\code{GitStats$set_connection()}}
-\item \href{#method-GitStats-set_team}{\code{GitStats$set_team()}}
-\item \href{#method-GitStats-plot_repos}{\code{GitStats$plot_repos()}}
-\item \href{#method-GitStats-plot_commits}{\code{GitStats$plot_commits()}}
-\item \href{#method-GitStats-plot_commit_lines}{\code{GitStats$plot_commit_lines()}}
-\item \href{#method-GitStats-print}{\code{GitStats$print()}}
-\item \href{#method-GitStats-clone}{\code{GitStats$clone()}}
+\item \href{#method-new}{\code{GitStats$new()}}
+\item \href{#method-get_repos_by_owner_or_group}{\code{GitStats$get_repos_by_owner_or_group()}}
+\item \href{#method-get_repos_by_team}{\code{GitStats$get_repos_by_team()}}
+\item \href{#method-get_repos_by_codephrase}{\code{GitStats$get_repos_by_codephrase()}}
+\item \href{#method-get_commits_by_owner_or_group}{\code{GitStats$get_commits_by_owner_or_group()}}
+\item \href{#method-get_commits_by_team}{\code{GitStats$get_commits_by_team()}}
+\item \href{#method-set_connection}{\code{GitStats$set_connection()}}
+\item \href{#method-set_team}{\code{GitStats$set_team()}}
+\item \href{#method-plot_repos}{\code{GitStats$plot_repos()}}
+\item \href{#method-plot_commits}{\code{GitStats$plot_commits()}}
+\item \href{#method-plot_commit_lines}{\code{GitStats$plot_commit_lines()}}
+\item \href{#method-print}{\code{GitStats$print()}}
+\item \href{#method-clone}{\code{GitStats$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitStats-new"></a>}}
-\if{latex}{\out{\hypertarget{method-GitStats-new}{}}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new \code{GitStats} object
 \subsection{Usage}{
@@ -38,8 +38,8 @@ A new \code{GitStats} object
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitStats-get_repos_by_owner_or_group"></a>}}
-\if{latex}{\out{\hypertarget{method-GitStats-get_repos_by_owner_or_group}{}}}
+\if{html}{\out{<a id="method-get_repos_by_owner_or_group"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos_by_owner_or_group}{}}}
 \subsection{Method \code{get_repos_by_owner_or_group()}}{
 A method to list all repositories for an organization.
 \subsection{Usage}{
@@ -51,8 +51,8 @@ A data.frame of repositories
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitStats-get_repos_by_team"></a>}}
-\if{latex}{\out{\hypertarget{method-GitStats-get_repos_by_team}{}}}
+\if{html}{\out{<a id="method-get_repos_by_team"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos_by_team}{}}}
 \subsection{Method \code{get_repos_by_team()}}{
 A method to list all repositories
 for a team.
@@ -72,8 +72,8 @@ A data.frame of repositories
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitStats-get_repos_by_codephrase"></a>}}
-\if{latex}{\out{\hypertarget{method-GitStats-get_repos_by_codephrase}{}}}
+\if{html}{\out{<a id="method-get_repos_by_codephrase"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos_by_codephrase}{}}}
 \subsection{Method \code{get_repos_by_codephrase()}}{
 A method to find repositories with given phrase in codelines.
 \subsection{Usage}{
@@ -94,8 +94,8 @@ A data.frame of repositories
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitStats-get_commits_by_owner_or_group"></a>}}
-\if{latex}{\out{\hypertarget{method-GitStats-get_commits_by_owner_or_group}{}}}
+\if{html}{\out{<a id="method-get_commits_by_owner_or_group"></a>}}
+\if{latex}{\out{\hypertarget{method-get_commits_by_owner_or_group}{}}}
 \subsection{Method \code{get_commits_by_owner_or_group()}}{
 A method to get information on commits.
 \subsection{Usage}{
@@ -107,8 +107,8 @@ A data.frame
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitStats-get_commits_by_team"></a>}}
-\if{latex}{\out{\hypertarget{method-GitStats-get_commits_by_team}{}}}
+\if{html}{\out{<a id="method-get_commits_by_team"></a>}}
+\if{latex}{\out{\hypertarget{method-get_commits_by_team}{}}}
 \subsection{Method \code{get_commits_by_team()}}{
 A method to get information on commits.
 \subsection{Usage}{
@@ -117,8 +117,8 @@ A method to get information on commits.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitStats-set_connection"></a>}}
-\if{latex}{\out{\hypertarget{method-GitStats-set_connection}{}}}
+\if{html}{\out{<a id="method-set_connection"></a>}}
+\if{latex}{\out{\hypertarget{method-set_connection}{}}}
 \subsection{Method \code{set_connection()}}{
 Method to set connections to Git platforms
 \subsection{Usage}{
@@ -141,8 +141,8 @@ Nothing, puts connection information into \verb{$clients} slot
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitStats-set_team"></a>}}
-\if{latex}{\out{\hypertarget{method-GitStats-set_team}{}}}
+\if{html}{\out{<a id="method-set_team"></a>}}
+\if{latex}{\out{\hypertarget{method-set_team}{}}}
 \subsection{Method \code{set_team()}}{
 A method to set your team.
 \subsection{Usage}{
@@ -161,8 +161,8 @@ Nothing, puts team information into \verb{$teams} slot.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitStats-plot_repos"></a>}}
-\if{latex}{\out{\hypertarget{method-GitStats-plot_repos}{}}}
+\if{html}{\out{<a id="method-plot_repos"></a>}}
+\if{latex}{\out{\hypertarget{method-plot_repos}{}}}
 \subsection{Method \code{plot_repos()}}{
 A method to plot repositories outcome.
 \subsection{Usage}{
@@ -183,8 +183,8 @@ A plot.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitStats-plot_commits"></a>}}
-\if{latex}{\out{\hypertarget{method-GitStats-plot_commits}{}}}
+\if{html}{\out{<a id="method-plot_commits"></a>}}
+\if{latex}{\out{\hypertarget{method-plot_commits}{}}}
 \subsection{Method \code{plot_commits()}}{
 A method to plot basic commit stats
 \subsection{Usage}{
@@ -199,8 +199,8 @@ A plot.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitStats-plot_commit_lines"></a>}}
-\if{latex}{\out{\hypertarget{method-GitStats-plot_commit_lines}{}}}
+\if{html}{\out{<a id="method-plot_commit_lines"></a>}}
+\if{latex}{\out{\hypertarget{method-plot_commit_lines}{}}}
 \subsection{Method \code{plot_commit_lines()}}{
 A method to plot commit additions and deletions.
 \subsection{Usage}{
@@ -219,8 +219,8 @@ A plot.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitStats-print"></a>}}
-\if{latex}{\out{\hypertarget{method-GitStats-print}{}}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
 \subsection{Method \code{print()}}{
 A print method for a GitStats object
 \subsection{Usage}{
@@ -229,8 +229,8 @@ A print method for a GitStats object
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitStats-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-GitStats-clone}{}}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
