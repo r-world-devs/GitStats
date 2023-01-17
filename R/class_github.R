@@ -10,38 +10,14 @@ GitHub <- R6::R6Class("GitHub",
   inherit = GitService,
   cloneable = FALSE,
   public = list(
-    owners = NULL,
-
-    enterprise = NULL,
-
-    #' @description Create a new `GitHub` object
-    #' @param rest_api_url A url of rest API.
-    #' @param gql_api_url A url of GraphQL API.
-    #' @param token A token.
-    #' @param owners A character vector of owners of repositories.
-    #' @return A new `GitHub` object
-    initialize = function(rest_api_url = NA,
-                          gql_api_url = NA,
-                          token = NA,
-                          owners = NA) {
-      self$rest_api_url <- rest_api_url
-      if (is.na(gql_api_url)) {
-        private$set_gql_url()
-      } else {
-        self$gql_api_url <- gql_api_url
-      }
-      private$token <- token
-      self$owners <- owners
-      self$enterprise <- private$check_enterprise_github(self$rest_api_url)
-    },
 
     #' @description A method to list all repositories for an organization.
-    #' @param repos_owner A character vector of repository owners.
-    #' @return A data.frame of repositories
-    get_repos_by_owner = function(repos_owner = self$owners) {
+    #' @param orgs A character vector of organizations (owners of repositories).
+    #' @return A data.frame of repositories.
+    get_repos_by_org = function(orgs = self$orgs) {
       tryCatch(
         {
-          repos_dt <- purrr::map(repos_owner, function(x) {
+          repos_dt <- purrr::map(orgs, function(x) {
             perform_get_request(
               endpoint = paste0(self$rest_api_url, "/orgs/", x, "/repos"),
               token = private$token
@@ -52,7 +28,7 @@ GitHub <- R6::R6Class("GitHub",
             rbindlist()
         },
         error = function(e) {
-          warning(paste0("HTTP status ", e$status, " noted when performing request for ", self$rest_api_url, ". \n Are you sure you defined properly your owners?"),
+          warning(paste0("HTTP status ", e$status, " noted when performing request for ", self$rest_api_url, ". \n Are you sure you defined properly your organisations?"),
             call. = FALSE
           )
         }
@@ -66,11 +42,11 @@ GitHub <- R6::R6Class("GitHub",
     #' @param team A list of team members. Specified
     #'   by \code{set_team()} method of GitStats class
     #'   object.
-    #' @param repos_owners
+    #' @param orgs A character vector of organizations (owners of repositories).
     #' @return A data.frame of repositories
     get_repos_by_team = function(team,
-                                 repos_owners = self$owners) {
-      repos_dt <- purrr::map(repos_owners, function(x) {
+                                 orgs = self$orgs) {
+      repos_dt <- purrr::map(orgs, function(x) {
         perform_get_request(
           endpoint = paste0(self$rest_api_url, "/orgs/", x, "/repos"),
           token = private$token
@@ -106,42 +82,45 @@ GitHub <- R6::R6Class("GitHub",
     },
 
     #' @description A method to get information on commits.
-    #' @param owner
+    #' @param orgs
     #' @param date_from
     #' @param date_until
     #' @return A data.frame
-    get_commits_by_owner = function(owners = self$owners,
-                                    date_from,
-                                    date_until = Sys.time()) {
-      commits_dt <- purrr::map(owners, function(x) {
-        private$get_gql_commit_query(
-          owner = x,
+    get_commits_by_org = function(orgs = self$orgs,
+                                  date_from,
+                                  date_until = Sys.time()) {
+      commits_dt <- purrr::map(orgs, function(x) {
+        private$get_all_commits_from_owner(
+          x,
           date_from,
           date_until
-        )
-      }) %>%
-        private$prepare_commits_table()
+        ) %>%
+          private$tailor_commits_info(org = x) %>%
+          private$attach_commits_stats() %>%
+          private$prepare_commits_table()
+      }) %>% rbindlist()
 
       return(commits_dt)
     },
 
     #' @description A method to get information on commits.
     #' @param team
+    #' @param orgs
     #' @param date_from
     #' @param date_until
     #' @return A data.frame
     get_commits_by_team = function(team,
-                                   owners = self$owners,
+                                   orgs = self$orgs,
                                    date_from,
                                    date_until = Sys.time()) {
-      commits_dt <- purrr::map(owners, function(x) {
+      commits_dt <- purrr::map(orgs, function(x) {
         private$get_all_commits_from_owner(
           x,
           date_from,
           date_until
         ) %>%
           private$filter_commits_by_team(team) %>%
-          private$tailor_commits_info(repos_owner = x) %>%
+          private$tailor_commits_info(org = x) %>%
           private$attach_commits_stats() %>%
           private$prepare_commits_table()
       }) %>% rbindlist()
@@ -153,10 +132,11 @@ GitHub <- R6::R6Class("GitHub",
     print = function() {
       cat("GitHub API Client", sep = "\n")
       cat(paste0(" url: ", self$rest_api_url), sep = "\n")
-      owners <- paste0(self$owners, collapse = ", ")
-      cat(paste0(" owners: ", owners), sep = "\n")
+      orgs <- paste0(self$orgs, collapse = ", ")
+      cat(paste0(" orgs: ", orgs), sep = "\n")
     }
   ),
+
   private = list(
 
     #' @description A helper to prepare table for repositories content
@@ -260,7 +240,7 @@ GitHub <- R6::R6Class("GitHub",
     tailor_repos_info = function(repos_list) {
       repos_list <- purrr::map(repos_list, function(x) {
         list(
-          "owner/group" = x$owner$login,
+          "organisation" = x$owner$login,
           "name" = x$name,
           "created_at" = x$created_at,
           "last_activity_at" = x$updated_at,
@@ -281,8 +261,6 @@ GitHub <- R6::R6Class("GitHub",
                                           date_from,
                                           date_until = Sys.date()) {
 
-      # total_n <- perform_get_request(endpoint = paste0(self$rest_api_url, "/search/repositories?q='org:", repo_owner, "'"),
-      #                                token = private$token)[["total_count"]]
       repos_list <- list()
       r_page <- 1
       repeat {
@@ -379,19 +357,19 @@ GitHub <- R6::R6Class("GitHub",
     #' @param commits_list A list, a
     #'   formatted content of response
     #'   returned by GET API request
-    #' @param repos_owner A character, name
-    #'   of an owner
+    #' @param org A character, name
+    #'   of an organisation
     #' @return A list of commits with
     #'   selected information
     tailor_commits_info = function(commits_list,
-                                   repos_owner) {
+                                   org) {
       commits_list <- purrr::imap(commits_list, function(repo, repo_name) {
         purrr::map(repo, function(commit) {
           list(
             "id" = commit$sha,
-            "owner_group" = repos_owner,
+            "organisation" = org,
             "repo_project" = gsub(
-              pattern = paste0(repos_owner, "/"),
+              pattern = paste0(org, "/"),
               replacement = "",
               x = repo_name
             ),
@@ -410,7 +388,12 @@ GitHub <- R6::R6Class("GitHub",
     #' @param commits_list A list of commits.
     #' @return A list.
     attach_commits_stats = function(commits_list) {
+      pb <- progress::progress_bar$new(
+        format = paste0("Attaching commits stats: [:bar] repo: :current/:total"),
+        total = length(commits_list)
+      )
       purrr::imap(commits_list, function(repo, repo_name) {
+        pb$tick()
         commit_stats <- purrr::map_chr(repo, ~ .$id) %>%
           purrr::map(function(commit_id) {
             commit_info <- perform_get_request(
@@ -444,41 +427,7 @@ GitHub <- R6::R6Class("GitHub",
         purrr::map(x, ~ data.frame(.)) %>%
           rbindlist()
       }) %>% rbindlist()
-    },
-
-    #' #' @description
-    #' #' @param repo
-    #' find_owner_by_repo = function(repo){
-    #'
-    #'   list_repos <- purrr::map(self$owners, ~self$get_repos_by_owner(.)$name)
-    #'   names(list_repos) <- self$owners
-    #'   owner <- which(purrr::map_lgl(list_repos, ~repo %in% .))
-    #'
-    #'   if (length(owner)>0){
-    #'     names(owner)
-    #'   } else {
-    #'     "no owner found"
-    #'   }
-    #'
-    #' },
-
-    #' @description GraphQL url handler (if not provided)
-    set_gql_url = function(gql_api_url = self$gql_api_url,
-                           rest_api_url = self$rest_api_url) {
-      self$gql_api_url <- paste0(gsub("/v+.*", "", rest_api_url), "/graphql")
-    },
-
-    #' @description A helper to check if GitHub Client is Public or Enterprise.
-    #' @param api_url A character, a url of API.
-    #' @return A boolean.
-    check_enterprise_github = function(api_url){
-
-      if (api_url != "https://api.github.com" && grepl("github", api_url)){
-        TRUE
-      } else {
-        FALSE
-      }
-
     }
+
   )
 )
