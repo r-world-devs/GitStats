@@ -1,1 +1,4 @@
+# This is a bypass of common CMD-check error unsolved at the core.
+# For more information you can check this issue:
+# https://stackoverflow.com/questions/63613301/r-cmd-check-note-unable-to-verify-current-time
 _R_CHECK_SYSTEM_CLOCK_=0

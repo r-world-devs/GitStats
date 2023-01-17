@@ -160,33 +160,34 @@ GitStats <- R6::R6Class("GitStats",
 
       if (api_url == "https://api.github.com") {
         message("Set connection to GitHub public.")
-        self$clients <- GitHubClient$new(
+        new_client <- GitHubClient$new(
           rest_api_url = api_url,
           token = token,
           owners = owners_groups
-        ) %>%
-          append(self$clients, .)
+        )
       } else if (api_url != "https://api.github.com" && grepl("github", api_url)) {
         message("Set connection to GitHub Enterprise.")
-        self$clients <- GitHubEnterpriseClient$new(
+        new_client <- GitHubEnterpriseClient$new(
           rest_api_url = api_url,
           token = token,
           owners = owners_groups
-        ) %>%
-          append(self$clients, .)
+        )
       } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
         message("Set connection to GitLab.")
-        self$clients <- GitLabClient$new(
+        new_client <- GitLabClient$new(
           rest_api_url = api_url,
           token = token,
           groups = owners_groups
-        ) %>%
-          append(self$clients, .)
+        )
       } else {
         stop("This connection is not supported by GitStats class object.")
       }
 
-      private$check_input(self$clients)
+      self$clients <- new_client %>%
+        private$check_client() %>%
+        private$check_token() %>%
+        append(self$clients, .)
+
     },
 
     #' @description A method to set your team.
@@ -299,17 +300,39 @@ GitStats <- R6::R6Class("GitStats",
   ),
   private = list(
 
-    #' @description Check if input is correct: does it
-    #'   comprise of GitHubClient or GitLabClient classes
-    #'   and whether the urls do not repeat.
-    #' @param clients A list of clients of GitStats object.
-    #' @return Nothing
-    check_input = function(clients = self$clients) {
-      urls <- purrr::map_chr(clients, ~ .$rest_api_url)
+    #' @description Check whether the urls do not repeat in input.
+    #' @param client An object of GitService class
+    #' @return A GitService object
+    check_client = function(client) {
 
-      if (length(urls) != length(unique(urls))) {
-        stop("You can not provide two clients of the same API urls.")
+      if (length(self$clients) > 0){
+
+        clients_to_check <- append(client, self$clients)
+
+        urls <- purrr::map_chr(clients_to_check, ~ .$rest_api_url)
+
+        if (length(urls) != length(unique(urls))) {
+          stop("You can not provide two clients of the same API urls.")
+        }
       }
+
+      client
+
+    },
+
+    #' @description Check whether the token exists.
+    #' @param client An object of GitService class
+    #' @return A GitService object
+    check_token = function(client){
+
+      priv <- environment(client$initialize)$private
+
+      if (nchar(priv$token) == 0) {
+        warning(paste0("No token provided for `", client$rest_api_url, "`. Your access to API will be unauthorized."), call. = FALSE)
+      }
+
+      client
+
     }
   )
 )
