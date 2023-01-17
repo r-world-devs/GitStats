@@ -10,10 +10,10 @@ An R6 class object with methods to derive information from multiple Git platform
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{GitStats$new()}}
-\item \href{#method-get_repos_by_owner_or_group}{\code{GitStats$get_repos_by_owner_or_group()}}
+\item \href{#method-get_repos_by_org}{\code{GitStats$get_repos_by_org()}}
 \item \href{#method-get_repos_by_team}{\code{GitStats$get_repos_by_team()}}
 \item \href{#method-get_repos_by_codephrase}{\code{GitStats$get_repos_by_codephrase()}}
-\item \href{#method-get_commits_by_owner_or_group}{\code{GitStats$get_commits_by_owner_or_group()}}
+\item \href{#method-get_commits_by_org}{\code{GitStats$get_commits_by_org()}}
 \item \href{#method-get_commits_by_team}{\code{GitStats$get_commits_by_team()}}
 \item \href{#method-set_connection}{\code{GitStats$set_connection()}}
 \item \href{#method-set_team}{\code{GitStats$set_team()}}
@@ -38,12 +38,12 @@ A new \code{GitStats} object
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos_by_owner_or_group"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos_by_owner_or_group}{}}}
-\subsection{Method \code{get_repos_by_owner_or_group()}}{
-A method to list all repositories for an organization.
+\if{html}{\out{<a id="method-get_repos_by_org"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos_by_org}{}}}
+\subsection{Method \code{get_repos_by_org()}}{
+A method to list all repositories by an organization.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos_by_owner_or_group()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos_by_org()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
@@ -94,12 +94,12 @@ A data.frame of repositories
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_commits_by_owner_or_group"></a>}}
-\if{latex}{\out{\hypertarget{method-get_commits_by_owner_or_group}{}}}
-\subsection{Method \code{get_commits_by_owner_or_group()}}{
+\if{html}{\out{<a id="method-get_commits_by_org"></a>}}
+\if{latex}{\out{\hypertarget{method-get_commits_by_org}{}}}
+\subsection{Method \code{get_commits_by_org()}}{
 A method to get information on commits.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits_by_owner_or_group(date_from, date_until = Sys.time())}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits_by_org(date_from, date_until = Sys.time())}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
@@ -122,7 +122,7 @@ A method to get information on commits.
 \subsection{Method \code{set_connection()}}{
 Method to set connections to Git platforms
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$set_connection(api_url, token, owners_groups = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$set_connection(api_url, token, orgs = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -132,7 +132,8 @@ Method to set connections to Git platforms
 
 \item{\code{token}}{A token.}
 
-\item{\code{owner_group}}{A character vector.}
+\item{\code{orgs}}{A character vector of organisations (owners of repositories
+in case of GitHub and groups of projects in case of GitLab).}
 }
 \if{html}{\out{</div>}}
 }
