@@ -12,11 +12,10 @@ An object with methods to derive information form GitLab API.
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{GitLab$new()}}
-\item \href{#method-get_projects_by_group}{\code{GitLab$get_projects_by_group()}}
+\item \href{#method-get_repos_by_org}{\code{GitLab$get_repos_by_org()}}
 \item \href{#method-get_repos_by_team}{\code{GitLab$get_repos_by_team()}}
 \item \href{#method-get_repos_by_codephrase}{\code{GitLab$get_repos_by_codephrase()}}
-\item \href{#method-get_commits_by_group}{\code{GitLab$get_commits_by_group()}}
+\item \href{#method-get_commits_by_org}{\code{GitLab$get_commits_by_org()}}
 \item \href{#method-get_commits_by_team}{\code{GitLab$get_commits_by_team()}}
 \item \href{#method-print}{\code{GitLab$print()}}
 }
@@ -24,46 +23,23 @@ An object with methods to derive information form GitLab API.
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
+\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="GitService" data-id="initialize">}\href{../../GitStats/html/GitService.html#method-initialize}{\code{GitStats::GitService$initialize()}}\out{</span>}
 }
 \out{</details>}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new \code{GitLab} object
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitLab$new(rest_api_url = NA, token = NA, groups = NA)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{rest_api_url}}{A url of rest API.}
-
-\item{\code{token}}{A token.}
-
-\item{\code{groups}}{A character vector of groups of projects.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A new \code{GitLab} object
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_projects_by_group"></a>}}
-\if{latex}{\out{\hypertarget{method-get_projects_by_group}{}}}
-\subsection{Method \code{get_projects_by_group()}}{
+\if{html}{\out{<a id="method-get_repos_by_org"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos_by_org}{}}}
+\subsection{Method \code{get_repos_by_org()}}{
 A method to list all repositories for an organization.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitLab$get_projects_by_group(project_groups = self$groups)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitLab$get_repos_by_org(orgs = self$orgs)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{project_groups}}{A character vector of project groups.}
+\item{\code{orgs}}{A character vector of organisations (project groups).}
 }
 \if{html}{\out{</div>}}
 }
@@ -78,7 +54,7 @@ A data.frame of repositories
 A method to list all repositories
 for a team.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitLab$get_repos_by_team(team, project_groups = self$groups)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitLab$get_repos_by_team(team, orgs = self$orgs)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -87,6 +63,8 @@ for a team.
 \item{\code{team}}{A list of team members. Specified
 by \code{set_team()} method of GitStats class
 object.}
+
+\item{\code{orgs}}{A character vector of organisations (project groups).}
 }
 \if{html}{\out{</div>}}
 }
@@ -117,16 +95,12 @@ A data.frame of repositories
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_commits_by_group"></a>}}
-\if{latex}{\out{\hypertarget{method-get_commits_by_group}{}}}
-\subsection{Method \code{get_commits_by_group()}}{
+\if{html}{\out{<a id="method-get_commits_by_org"></a>}}
+\if{latex}{\out{\hypertarget{method-get_commits_by_org}{}}}
+\subsection{Method \code{get_commits_by_org()}}{
 A method to get information on commits.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitLab$get_commits_by_group(
-  groups = self$groups,
-  date_from,
-  date_until = Sys.time()
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitLab$get_commits_by_org(orgs = self$orgs, date_from, date_until = Sys.time())}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
@@ -141,7 +115,7 @@ A method to get information on commits.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GitLab$get_commits_by_team(
   team,
-  groups = self$groups,
+  orgs = self$orgs,
   date_from,
   date_until = Sys.time()
 )}\if{html}{\out{</div>}}
@@ -155,7 +129,7 @@ A data.frame
 \if{html}{\out{<a id="method-print"></a>}}
 \if{latex}{\out{\hypertarget{method-print}{}}}
 \subsection{Method \code{print()}}{
-A print method for a GitHubClient object
+A print method for a GitLab object
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GitLab$print()}\if{html}{\out{</div>}}
 }

@@ -4,18 +4,18 @@ test_that("Set connection method", {
 
   expect_message(testGitStats$set_connection(api_url = "https://api.github.com",
                                              token = Sys.getenv("GITHUB_PAT"),
-                                             owners_groups = c("avengers", "cocktail_party")),
+                                             orgs = c("avengers", "cocktail_party")),
                  "Set connection to GitHub.")
 
   expect_message(testGitStats$set_connection(api_url = "https://github.company.com",
                                              token = Sys.getenv("GITHUB_COMPANY_PAT"),
-                                             owners_groups = "owner_1"),
+                                             orgs = "owner_1"),
                  "Set connection to GitHub.")
 
 
   expect_message(testGitStats$set_connection(api_url = "https://code.pharma.com",
                                              token = Sys.getenv("GITLAB_PAT"),
-                                             owners_groups = c("good_drugs", "vaccine_science")),
+                                             orgs = c("good_drugs", "vaccine_science")),
                  "Set connection to GitLab.")
 })
 
@@ -25,11 +25,11 @@ test_that("Errors pop out, when wrong input is passed in set_connection method",
 
   expect_error(testGitStats$set_connection(api_url = "https://avengers.com",
                                            token = Sys.getenv("GITLAB_PAT")),
-               "You need to specify owner/owners of the repositories.")
+               "You need to specify organisations of the repositories.")
 
   expect_error(testGitStats$set_connection(api_url = "https://avengers.com",
                                            token = Sys.getenv("GITLAB_PAT"),
-                                           owners_groups = c("good_drugs", "vaccine_science")),
+                                           orgs = c("good_drugs", "vaccine_science")),
                  "This connection is not supported by GitStats class object.")
 
 
@@ -41,14 +41,14 @@ test_that("Error pops out, when two clients of the same url api are passed as in
 
   cons <- list(api_url = c("https://api.github.com", "https://api.github.com"),
                token = c(Sys.getenv("GITHUB_PAT"),Sys.getenv("GITHUB_PAT")),
-               owners_groups = list(c("justice_league"), c("avengers")))
+               orgs = list(c("justice_league"), c("avengers")))
 
 
   expect_error(
-    purrr::pwalk(cons, function(api_url, token, owners_groups){
+    purrr::pwalk(cons, function(api_url, token, orgs){
       testGitStats$set_connection(api_url = api_url,
                                 token = token,
-                                owners_groups = owners_groups)
+                                orgs = orgs)
       }),
     "You can not provide two clients of the same API urls."
 

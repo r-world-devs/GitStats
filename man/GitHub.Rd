@@ -12,11 +12,10 @@ An object with methods to derive information form GitHub API.
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{GitHub$new()}}
-\item \href{#method-get_repos_by_owner}{\code{GitHub$get_repos_by_owner()}}
+\item \href{#method-get_repos_by_org}{\code{GitHub$get_repos_by_org()}}
 \item \href{#method-get_repos_by_team}{\code{GitHub$get_repos_by_team()}}
 \item \href{#method-get_repos_by_codephrase}{\code{GitHub$get_repos_by_codephrase()}}
-\item \href{#method-get_commits_by_owner}{\code{GitHub$get_commits_by_owner()}}
+\item \href{#method-get_commits_by_org}{\code{GitHub$get_commits_by_org()}}
 \item \href{#method-get_commits_by_team}{\code{GitHub$get_commits_by_team()}}
 \item \href{#method-print}{\code{GitHub$print()}}
 }
@@ -24,53 +23,28 @@ An object with methods to derive information form GitHub API.
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
+\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="GitService" data-id="initialize">}\href{../../GitStats/html/GitService.html#method-initialize}{\code{GitStats::GitService$initialize()}}\out{</span>}
 }
 \out{</details>}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new \code{GitHub} object
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitHub$new(rest_api_url = NA, gql_api_url = NA, token = NA, owners = NA)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{rest_api_url}}{A url of rest API.}
-
-\item{\code{gql_api_url}}{A url of GraphQL API.}
-
-\item{\code{token}}{A token.}
-
-\item{\code{owners}}{A character vector of owners of repositories.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A new \code{GitHub} object
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos_by_owner"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos_by_owner}{}}}
-\subsection{Method \code{get_repos_by_owner()}}{
+\if{html}{\out{<a id="method-get_repos_by_org"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos_by_org}{}}}
+\subsection{Method \code{get_repos_by_org()}}{
 A method to list all repositories for an organization.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitHub$get_repos_by_owner(repos_owner = self$owners)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitHub$get_repos_by_org(orgs = self$orgs)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{repos_owner}}{A character vector of repository owners.}
+\item{\code{orgs}}{A character vector of organizations (owners of repositories).}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A data.frame of repositories
+A data.frame of repositories.
 }
 }
 \if{html}{\out{<hr>}}
@@ -80,7 +54,7 @@ A data.frame of repositories
 A method to list all repositories
 for a team.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitHub$get_repos_by_team(team, repos_owners = self$owners)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitHub$get_repos_by_team(team, orgs = self$orgs)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -89,6 +63,8 @@ for a team.
 \item{\code{team}}{A list of team members. Specified
 by \code{set_team()} method of GitStats class
 object.}
+
+\item{\code{orgs}}{A character vector of organizations (owners of repositories).}
 }
 \if{html}{\out{</div>}}
 }
@@ -119,16 +95,12 @@ A data.frame of repositories.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_commits_by_owner"></a>}}
-\if{latex}{\out{\hypertarget{method-get_commits_by_owner}{}}}
-\subsection{Method \code{get_commits_by_owner()}}{
+\if{html}{\out{<a id="method-get_commits_by_org"></a>}}
+\if{latex}{\out{\hypertarget{method-get_commits_by_org}{}}}
+\subsection{Method \code{get_commits_by_org()}}{
 A method to get information on commits.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitHub$get_commits_by_owner(
-  owners = self$owners,
-  date_from,
-  date_until = Sys.time()
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitHub$get_commits_by_org(orgs = self$orgs, date_from, date_until = Sys.time())}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
@@ -143,7 +115,7 @@ A method to get information on commits.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GitHub$get_commits_by_team(
   team,
-  owners = self$owners,
+  orgs = self$orgs,
   date_from,
   date_until = Sys.time()
 )}\if{html}{\out{</div>}}

@@ -10,29 +10,14 @@ GitLab <- R6::R6Class("GitLab",
   inherit = GitService,
   cloneable = FALSE,
   public = list(
-    groups = NULL,
-
-    #' @description Create a new `GitLab` object
-    #' @param rest_api_url A url of rest API.
-    #' @param token A token.
-    #' @param groups A character vector of groups of projects.
-    #' @return A new `GitLab` object
-    initialize = function(rest_api_url = NA,
-                          token = NA,
-                          groups = NA) {
-      self$rest_api_url <- rest_api_url
-      self$gql_api_url <- paste0(rest_api_url, "/graphql")
-      private$token <- token
-      self$groups <- groups
-    },
 
     #' @description A method to list all repositories for an organization.
-    #' @param project_groups A character vector of project groups.
+    #' @param orgs A character vector of organisations (project groups).
     #' @return A data.frame of repositories
-    get_projects_by_group = function(project_groups = self$groups) {
+    get_repos_by_org = function(orgs = self$orgs) {
       tryCatch(
         {
-          repos_dt <- purrr::map(project_groups, function(x) {
+          repos_dt <- purrr::map(orgs, function(x) {
             perform_get_request(
               endpoint = paste0(self$rest_api_url, "/groups/", x, "/projects"),
               token = private$token
@@ -43,7 +28,7 @@ GitLab <- R6::R6Class("GitLab",
             rbindlist()
         },
         error = function(e) {
-          warning(paste0("HTTP status ", e$status, " noted when performing request for ", self$rest_api_url, ". \n Are you sure you defined properly your groups?"),
+          warning(paste0("HTTP status ", e$status, " noted when performing request for ", self$rest_api_url, ". \n Are you sure you defined properly your organisations?"),
             call. = FALSE
           )
         }
@@ -57,11 +42,11 @@ GitLab <- R6::R6Class("GitLab",
     #' @param team A list of team members. Specified
     #'   by \code{set_team()} method of GitStats class
     #'   object.
-    #' @param project_groups
+    #' @param orgs A character vector of organisations (project groups).
     #' @return A data.frame of repositories
     get_repos_by_team = function(team,
-                                 project_groups = self$groups) {
-      repos_dt <- purrr::map(project_groups, function(x) {
+                                 orgs = self$orgs) {
+      repos_dt <- purrr::map(orgs, function(x) {
         perform_get_request(
           endpoint = paste0(self$rest_api_url, "/groups/", x, "/projects"),
           token = private$token
@@ -99,14 +84,14 @@ GitLab <- R6::R6Class("GitLab",
     },
 
     #' @description A method to get information on commits.
-    #' @param groups
+    #' @param orgs
     #' @param date_from
     #' @param date_until
     #' @return A data.frame
-    get_commits_by_group = function(groups = self$groups,
-                                    date_from,
-                                    date_until = Sys.time()) {
-      commits_dt <- purrr::map(groups, function(x) {
+    get_commits_by_org = function(orgs = self$orgs,
+                                  date_from,
+                                  date_until = Sys.time()) {
+      commits_dt <- purrr::map(orgs, function(x) {
         private$get_all_commits_from_group(
           x,
           date_from,
@@ -121,15 +106,15 @@ GitLab <- R6::R6Class("GitLab",
 
     #' @description A method to get information on commits.
     #' @param team
-    #' @param groups
+    #' @param orgs
     #' @param date_from
     #' @param date_until
     #' @return A data.frame
     get_commits_by_team = function(team,
-                                   groups = self$groups,
+                                   orgs = self$orgs,
                                    date_from,
                                    date_until = Sys.time()) {
-      commits_dt <- purrr::map(groups, function(x) {
+      commits_dt <- purrr::map(orgs, function(x) {
         private$get_all_commits_from_group(
           x,
           date_from,
@@ -143,12 +128,12 @@ GitLab <- R6::R6Class("GitLab",
       return(commits_dt)
     },
 
-    #' @description A print method for a GitHubClient object
+    #' @description A print method for a GitLab object
     print = function() {
       cat("GitLab API Client", sep = "\n")
       cat(paste0(" url: ", self$rest_api_url), sep = "\n")
-      groups <- paste0(self$groups, collapse = ", ")
-      cat(paste0(" groups: ", groups), sep = "\n")
+      orgs <- paste0(self$orgs, collapse = ", ")
+      cat(paste0(" orgs: ", orgs), sep = "\n")
     }
   ),
   private = list(
@@ -260,7 +245,7 @@ GitLab <- R6::R6Class("GitLab",
     tailor_repos_info = function(projects_list) {
       projects_list <- purrr::map(projects_list, function(x) {
         list(
-          "owner/group" = x$namespace$path,
+          "organisation" = x$namespace$path,
           "name" = x$name,
           "created_at" = x$created_at,
           "last_activity_at" = x$last_activity_at,
@@ -410,7 +395,7 @@ GitLab <- R6::R6Class("GitLab",
         purrr::map(x, function(y) {
           list(
             "id" = y$id,
-            "owner_group" = group_name,
+            "organisation" = group_name,
             "repo_project" = gsub(
               pattern = paste0("/-/commit/", y$id),
               replacement = "",
