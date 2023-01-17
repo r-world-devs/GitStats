@@ -6,18 +6,20 @@
 #' @title A GitHub API Client class
 #' @description An object with methods to derive information form GitHub API.
 
-GitHubClient <- R6::R6Class("GitHubClient",
-  inherit = GitClient,
+GitHub <- R6::R6Class("GitHub",
+  inherit = GitService,
   cloneable = FALSE,
   public = list(
     owners = NULL,
 
-    #' @description Create a new `GitHubClient` object
+    enterprise = NULL,
+
+    #' @description Create a new `GitHub` object
     #' @param rest_api_url A url of rest API.
     #' @param gql_api_url A url of GraphQL API.
     #' @param token A token.
     #' @param owners A character vector of owners of repositories.
-    #' @return A new `GitHubClient` object
+    #' @return A new `GitHub` object
     initialize = function(rest_api_url = NA,
                           gql_api_url = NA,
                           token = NA,
@@ -30,6 +32,7 @@ GitHubClient <- R6::R6Class("GitHubClient",
       }
       private$token <- token
       self$owners <- owners
+      self$enterprise <- private$check_enterprise_github(self$rest_api_url)
     },
 
     #' @description A method to list all repositories for an organization.
@@ -132,19 +135,21 @@ GitHubClient <- R6::R6Class("GitHubClient",
                                    date_from,
                                    date_until = Sys.time()) {
       commits_dt <- purrr::map(owners, function(x) {
-        private$get_gql_commit_query(
-          owner = x,
-          date_from = date_from,
-          date_until = date_until
-        )
-      }) %>%
-        private$filter_commits_by_team(team) %>%
-        private$prepare_commits_table()
+        private$get_all_commits_from_owner(
+          x,
+          date_from,
+          date_until
+        ) %>%
+          private$filter_commits_by_team(team) %>%
+          private$tailor_commits_info(repos_owner = x) %>%
+          private$attach_commits_stats() %>%
+          private$prepare_commits_table()
+      }) %>% rbindlist()
 
       return(commits_dt)
     },
 
-    #' @description A print method for a GitHubClient object
+    #' @description A print method for a GitHub object
     print = function() {
       cat("GitHub API Client", sep = "\n")
       cat(paste0(" url: ", self$rest_api_url), sep = "\n")
@@ -266,217 +271,179 @@ GitHubClient <- R6::R6Class("GitHubClient",
       repos_list
     },
 
-    #' @description Format list to table
-    #' @param commits_list
-    #' @param subject_type A character, a subject of search query: owner or user
-    #' @return A data.frame
-    prepare_commits_table = function(commits_list) {
-      purrr::map(commits_list, function(x) {
-        purrr::imap(x, function(y, z) {
-          y$owner_group <- gsub(paste0("/", z), "", y$repository$nameWithOwner)
-          y$repo_project <- z
-          y$repository <- NULL
-          y
-        }) %>% data.table::rbindlist()
-      }) %>% data.table::rbindlist()
+    #' @description GitLab private method to derive
+    #'   commits from repo with REST API.
+    #' @param repo_owner
+    #' @param date_from
+    #' @param date_until
+    #' @return A list of commits
+    get_all_commits_from_owner = function(repo_owner,
+                                          date_from,
+                                          date_until = Sys.date()) {
+
+      # total_n <- perform_get_request(endpoint = paste0(self$rest_api_url, "/search/repositories?q='org:", repo_owner, "'"),
+      #                                token = private$token)[["total_count"]]
+      repos_list <- list()
+      r_page <- 1
+      repeat {
+        repos_page <- perform_get_request(
+          endpoint = paste0(self$rest_api_url, "/orgs/", repo_owner, "/repos?per_page=100&page=", r_page),
+          token = private$token
+        )
+        if (length(repos_page) > 0) {
+          repos_list <- append(repos_list, repos_page)
+          r_page <- r_page + 1
+        } else {
+          break
+        }
+      }
+
+      repos_names <- purrr::map_chr(repos_list, ~ .$full_name)
+
+      enterprise_public <- if (self$enterprise) {
+        "Enterprise"
+      } else {
+        "Public"
+      }
+
+      pb <- progress::progress_bar$new(
+        format = paste0("GitHub (", enterprise_public, ") Client (", repo_owner, "). Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
+        total = length(repos_names)
+      )
+
+      commits_list <- purrr::map(repos_names, function(x) {
+        pb$tick()
+        tryCatch(
+          {
+            perform_get_request(
+              endpoint = paste0(
+                self$rest_api_url,
+                "/repos/",
+                x,
+                "/commits?since=",
+                git_time_stamp(date_from),
+                "&until=",
+                git_time_stamp(date_until)
+              ),
+              token = private$token
+            )
+          },
+          error = function(e) {
+            NULL
+          }
+        )
+      })
+      names(commits_list) <- repos_names
+
+      commits_list <- commits_list %>% purrr::discard(~ length(.) == 0)
+
+      message("GitHub (", enterprise_public, ") (", repo_owner, "): pulled commits from ", length(commits_list), " repositories.")
+
+      commits_list
     },
 
-    #' @description Method to filter list from GraphQL query
-    #' @param commits_list
-    #' @param team
-    #' @return A list, filtered by team members.
+    #' @description Filter by contributors.
+    #' @param commits_list A commits list to be filtered.
+    #' @param team A character vector with team member names.
     filter_commits_by_team = function(commits_list,
                                       team) {
-      commits_list <- purrr::map(commits_list, function(x) {
-        x <- purrr::map(x, function(y) {
-          y$users <- purrr::map(y$authors$edges, function(edge) {
-            tryCatch(
-              {
-                paste0(edge$node$user$login, collapse = ",")
-              },
-              error = function(e) {
-                "no login"
-              }
-            )
-          })
-          y$authors <- NULL
+      commits_list <- purrr::map(commits_list, function(repo) {
+        purrr::keep(repo, function(commit) {
+          if (length(commit$author$login > 0)) {
+            commit$author$login %in% team
+          } else {
+            FALSE
+          }
+        })
+      }) %>% purrr::discard(~ length(.) == 0)
 
-          y
-        }) %>%
-          purrr::map(function(y) {
-            author_in_team <- purrr::keep(y$users, function(user) {
-              any(unlist(strsplit(user, ",")) %in% team)
-            })
-            if (length(author_in_team) > 0) {
-              y$users <- NULL
-              y
-            } else {
-              NULL
-            }
-          }) %>%
-          purrr::discard(~ is.null(.))
+      commits_list
+    },
+
+    #' @description A helper to retrieve
+    #'   only important info on commits
+    #' @details In case of GitHub REST API
+    #'   there is no possibility to retrieve
+    #'   stats from basic get commits API
+    #'   endpoint. It is necessary to reach
+    #'   to the API endpoint of single
+    #'   commit, which is done in
+    #'   \code{attach_commit_stats()}
+    #'   method. Therefore
+    #'   \code{tailor_commits_info()} is
+    #'   'poorer" than the same method for
+    #'   GitLab Client class, where you can
+    #'   derive stats directly from commits
+    #'   API endpoint with \code{with_stats}
+    #'   attribute.
+    #' @param commits_list A list, a
+    #'   formatted content of response
+    #'   returned by GET API request
+    #' @param repos_owner A character, name
+    #'   of an owner
+    #' @return A list of commits with
+    #'   selected information
+    tailor_commits_info = function(commits_list,
+                                   repos_owner) {
+      commits_list <- purrr::imap(commits_list, function(repo, repo_name) {
+        purrr::map(repo, function(commit) {
+          list(
+            "id" = commit$sha,
+            "owner_group" = repos_owner,
+            "repo_project" = gsub(
+              pattern = paste0(repos_owner, "/"),
+              replacement = "",
+              x = repo_name
+            ),
+            # "additions" = commit$stats$additions,
+            # "deletions" = commit$stats$deletions,
+            # "commiterName" = commit$committer_name,
+            "committedDate" = commit$commit$committer$date
+          )
+        })
       })
 
       commits_list
     },
 
-    #' @description Get response from GraphQL request and format it.
-    #' @param owner
-    #' @param date_from
-    #' @param date_until
-    #' @return A list of commits
-    get_gql_commit_query = function(owner,
-                                    date_from,
-                                    date_until) {
-      commits_main_list <- list()
+    #' @description A method to retrieve statistics for commits.
+    #' @param commits_list A list of commits.
+    #' @return A list.
+    attach_commits_stats = function(commits_list) {
+      purrr::imap(commits_list, function(repo, repo_name) {
+        commit_stats <- purrr::map_chr(repo, ~ .$id) %>%
+          purrr::map(function(commit_id) {
+            commit_info <- perform_get_request(
+              endpoint = paste0(self$rest_api_url, "/repos/", repo_name, "/commits/", commit_id),
+              token = private$token
+            )
 
-      resp <- private$perform_gql_commit_query(
-        owner,
-        date_from,
-        date_until
-      )
+            list(
+              additions = commit_info$stats$additions,
+              deletions = commit_info$stats$deletions,
+              files_changes = length(commit_info$files),
+              files_added = length(grep("added", purrr::map_chr(commit_info$files, ~ .$status))),
+              files_modified = length(grep("modified", purrr::map_chr(commit_info$files, ~ .$status)))
+            )
+          })
 
-      repo_count <- resp$data$search$repositoryCount
-
-      message("Github (", owner, "): pulling commits from ", repo_count, " repositories.")
-
-      repo_names <- unlist(resp$data$search$nodes$name)
-
-      commits_list <- resp$data$search$nodes$defaultBranchRef$target$history$nodes
-      names(commits_list) <- repo_names
-      commits_main_list <- append(commits_main_list, commits_list)
-
-      has_next_page <- resp$data$search$pageInfo$hasNextPage
-      end_cursor <- resp$data$search$pageInfo$endCursor
-
-      while (has_next_page) {
-        resp <- private$perform_gql_commit_query(
-          owner,
-          date_from,
-          date_until,
-          end_cursor
-        )
-
-        repo_names <- unlist(resp$data$search$nodes$name)
-
-        commits_list <- resp$data$search$nodes$defaultBranchRef$target$history$nodes
-        names(commits_list) <- repo_names
-        commits_main_list <- append(commits_main_list, commits_list)
-
-        has_next_page <- resp$data$search$pageInfo$hasNextPage
-        end_cursor <- resp$data$search$pageInfo$endCursor
-      }
-
-      commits_main_list <- purrr::discard(commits_main_list, ~ length(.) == 0)
-
-      commits_main_list
+        purrr::map2(repo, commit_stats, function(repo_commit, repo_stats) {
+          purrr::list_modify(repo_commit,
+                             additions = repo_stats$additions,
+                             deletions = repo_stats$deletions
+          )
+        })
+      })
     },
 
     #' @description
-    #' @param owner
-    #' @param date_from
-    #' @param date_until
-    #' @param end_cursor
-    perform_gql_commit_query = function(owner,
-                                        date_from,
-                                        date_until,
-                                        end_cursor = "") {
-      query <- private$build_gql_commit_query(owner,
-        date_from,
-        date_until,
-        end_cursor = end_cursor
-      )
-
-      tryCatch(
-        {
-          resp <- get_resp_gql(
-            api_url = self$gql_api_url,
-            token = private$token,
-            query = query
-          )
-        },
-        error = function(e) {
-          message(e$message)
-          secs <- 7
-          pb <- progress::progress_bar$new(
-            format = "Retry in :elapsed",
-            total = secs
-          )
-          for (i in 1:secs) {
-            pb$tick()
-            Sys.sleep(1)
-          }
-          resp <<- get_resp_gql(
-            api_url = self$gql_api_url,
-            token = private$token,
-            query = query
-          )
-        }
-      )
-
-      resp
-    },
-
-    #' @description
-    #' @param owner
-    #' @param date_from
-    #' @param date_until
-    #' @param after cursor value
-    #' @return A character
-    build_gql_commit_query = function(owner,
-                                      date_from,
-                                      date_until,
-                                      end_cursor) {
-      if (nchar(end_cursor) == 0) {
-        after <- ""
-      } else {
-        after <- paste0(', after:"', end_cursor, '"')
-      }
-
-      search_verb <- paste0("org:", owner)
-
-      query <- paste0('{search(query: "', search_verb, '", type: REPOSITORY, first: 100', after, '){
-                                            repositoryCount
-                                            nodes {
-                                              ... on Repository {
-                                                name
-                                                defaultBranchRef {
-                                                  target {
-                                                    ... on Commit {
-                                                     history(first: 100, since: "', git_time_stamp(date_from), '", until: "', git_time_stamp(date_until), '"){
-                                                      nodes {
-                                                        id
-                                                        additions
-                                                        deletions
-                                                        committedDate
-                                                        authors(first: 10) {
-                                                          edges {
-                                                            node {
-                                                              user {
-                                                                login
-                                                              }
-                                                              name
-                                                            }
-                                                          }
-                                                        }
-                                                        repository{
-                                                          nameWithOwner
-                                                        }
-                                                      }
-                                                     }
-                                                    }
-                                                  }
-                                                }
-                                              }
-                                            }
-                                            pageInfo {
-                                              endCursor
-                                              hasNextPage
-                                            }
-                                          }
-                                               }')
-
-      query
+    #' @param commits_list
+    #' @return A data.frame
+    prepare_commits_table = function(commits_list) {
+      purrr::map(commits_list, function(x) {
+        purrr::map(x, ~ data.frame(.)) %>%
+          rbindlist()
+      }) %>% rbindlist()
     },
 
     #' #' @description
@@ -499,6 +466,19 @@ GitHubClient <- R6::R6Class("GitHubClient",
     set_gql_url = function(gql_api_url = self$gql_api_url,
                            rest_api_url = self$rest_api_url) {
       self$gql_api_url <- paste0(gsub("/v+.*", "", rest_api_url), "/graphql")
+    },
+
+    #' @description A helper to check if GitHub Client is Public or Enterprise.
+    #' @param api_url A character, a url of API.
+    #' @return A boolean.
+    check_enterprise_github = function(api_url){
+
+      if (api_url != "https://api.github.com" && grepl("github", api_url)){
+        TRUE
+      } else {
+        FALSE
+      }
+
     }
   )
 )

@@ -25,9 +25,9 @@ GitStats <- R6::R6Class("GitStats",
     #' @return A data.frame of repositories
     get_repos_by_owner_or_group = function() {
       repos_dt <- purrr::map(self$clients, function(x) {
-        if ("GitHubClient" %in% class(x)) {
+        if ("GitHub" %in% class(x)) {
           x$get_repos_by_owner()
-        } else if ("GitLabClient" %in% class(x)) {
+        } else if ("GitLab" %in% class(x)) {
           x$get_projects_by_group()
         }
       }) %>%
@@ -88,12 +88,12 @@ GitStats <- R6::R6Class("GitStats",
     get_commits_by_owner_or_group = function(date_from,
                                              date_until = Sys.time()) {
       commits_dt <- purrr::map(self$clients, function(x) {
-        if ("GitHubClient" %in% class(x)) {
+        if ("GitHub" %in% class(x)) {
           x$get_commits_by_owner(
             date_from = date_from,
             date_until = date_until
           )
-        } else if ("GitLabClient" %in% class(x)) {
+        } else if ("GitLab" %in% class(x)) {
           x$get_commits_by_group(
             date_from = date_from,
             date_until = date_until
@@ -127,9 +127,9 @@ GitStats <- R6::R6Class("GitStats",
       commits_dt <- purrr::map(self$clients, function(x) {
         commits <- x$get_commits_by_team(
           team,
-          if ("GitHubClient" %in% class(x)) {
+          if ("GitHub" %in% class(x)) {
             x$owners
-          } else if ("GitLabClient" %in% class (x)) {
+          } else if ("GitLab" %in% class (x)) {
             x$groups
           },
           date_from,
@@ -162,17 +162,9 @@ GitStats <- R6::R6Class("GitStats",
         stop("You need to specify owner/owners of the repositories.", call. = FALSE)
       }
 
-      if (api_url == "https://api.github.com") {
-        message("Set connection to GitHub public.")
-        self$clients <- GitHubClient$new(
-          rest_api_url = api_url,
-          token = token,
-          owners = owners_groups
-        ) %>%
-          append(self$clients, .)
-      } else if (api_url != "https://api.github.com" && grepl("github", api_url)) {
-        message("Set connection to GitHub Enterprise.")
-        self$clients <- GitHubEnterpriseClient$new(
+      if (grepl("github", api_url)) {
+        message("Set connection to GitHub.")
+        self$clients <- GitHub$new(
           rest_api_url = api_url,
           token = token,
           owners = owners_groups
@@ -180,7 +172,7 @@ GitStats <- R6::R6Class("GitStats",
           append(self$clients, .)
       } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
         message("Set connection to GitLab.")
-        self$clients <- GitLabClient$new(
+        self$clients <- GitLab$new(
           rest_api_url = api_url,
           token = token,
           groups = owners_groups
@@ -304,7 +296,7 @@ GitStats <- R6::R6Class("GitStats",
   private = list(
 
     #' @description Check if input is correct: does it
-    #'   comprise of GitHubClient or GitLabClient classes
+    #'   comprise of GitHub or GitLab classes
     #'   and whether the urls do not repeat.
     #' @param clients A list of clients of GitStats object.
     #' @return Nothing

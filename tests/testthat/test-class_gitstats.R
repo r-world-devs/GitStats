@@ -10,7 +10,7 @@ test_that("Set connection method", {
   expect_message(testGitStats$set_connection(api_url = "https://github.company.com",
                                              token = Sys.getenv("GITHUB_COMPANY_PAT"),
                                              owners_groups = "owner_1"),
-                 "Set connection to GitHub Enterprise.")
+                 "Set connection to GitHub.")
 
 
   expect_message(testGitStats$set_connection(api_url = "https://code.pharma.com",

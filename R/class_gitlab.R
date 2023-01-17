@@ -6,17 +6,17 @@
 #' @title A GitLab API Client class
 #' @description An object with methods to derive information form GitLab API.
 
-GitLabClient <- R6::R6Class("GitLabClient",
-  inherit = GitClient,
+GitLab <- R6::R6Class("GitLab",
+  inherit = GitService,
   cloneable = FALSE,
   public = list(
     groups = NULL,
 
-    #' @description Create a new `GitLabClient` object
+    #' @description Create a new `GitLab` object
     #' @param rest_api_url A url of rest API.
     #' @param token A token.
     #' @param groups A character vector of groups of projects.
-    #' @return A new `GitLabClient` object
+    #' @return A new `GitLab` object
     initialize = function(rest_api_url = NA,
                           token = NA,
                           groups = NA) {
