@@ -7,30 +7,30 @@
 An object with methods to derive information form GitHub Enterprise API.
 }
 \section{Super classes}{
-\code{GitStats::GitClient} -> \code{\link[GitStats:GitHubClient]{GitStats::GitHubClient}} -> \code{GitHubEnterpriseClient}
+\code{\link[GitStats:GitClient]{GitStats::GitClient}} -> \code{\link[GitStats:GitHubClient]{GitStats::GitHubClient}} -> \code{GitHubEnterpriseClient}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-GitHubEnterpriseClient-get_commits_by_team}{\code{GitHubEnterpriseClient$get_commits_by_team()}}
-\item \href{#method-GitHubEnterpriseClient-clone}{\code{GitHubEnterpriseClient$clone()}}
+\item \href{#method-get_commits_by_team}{\code{GitHubEnterpriseClient$get_commits_by_team()}}
+\item \href{#method-clone}{\code{GitHubEnterpriseClient$clone()}}
 }
 }
-\if{html}{\out{
-<details><summary>Inherited methods</summary>
-<ul>
-<li><span class="pkg-link" data-pkg="GitStats" data-topic="GitHubClient" data-id="get_commits_by_owner"><a href='../../GitStats/html/GitHubClient.html#method-GitHubClient-get_commits_by_owner'><code>GitStats::GitHubClient$get_commits_by_owner()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GitStats" data-topic="GitHubClient" data-id="get_repos_by_codephrase"><a href='../../GitStats/html/GitHubClient.html#method-GitHubClient-get_repos_by_codephrase'><code>GitStats::GitHubClient$get_repos_by_codephrase()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GitStats" data-topic="GitHubClient" data-id="get_repos_by_owner"><a href='../../GitStats/html/GitHubClient.html#method-GitHubClient-get_repos_by_owner'><code>GitStats::GitHubClient$get_repos_by_owner()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GitStats" data-topic="GitHubClient" data-id="get_repos_by_team"><a href='../../GitStats/html/GitHubClient.html#method-GitHubClient-get_repos_by_team'><code>GitStats::GitHubClient$get_repos_by_team()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GitStats" data-topic="GitHubClient" data-id="initialize"><a href='../../GitStats/html/GitHubClient.html#method-GitHubClient-initialize'><code>GitStats::GitHubClient$initialize()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GitStats" data-topic="GitHubClient" data-id="print"><a href='../../GitStats/html/GitHubClient.html#method-GitHubClient-print'><code>GitStats::GitHubClient$print()</code></a></span></li>
-</ul>
-</details>
-}}
+\if{html}{
+\out{<details ><summary>Inherited methods</summary>}
+\itemize{
+\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="GitHubClient" data-id="get_commits_by_owner">}\href{../../GitStats/html/GitHubClient.html#method-get_commits_by_owner}{\code{GitStats::GitHubClient$get_commits_by_owner()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="GitHubClient" data-id="get_repos_by_codephrase">}\href{../../GitStats/html/GitHubClient.html#method-get_repos_by_codephrase}{\code{GitStats::GitHubClient$get_repos_by_codephrase()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="GitHubClient" data-id="get_repos_by_owner">}\href{../../GitStats/html/GitHubClient.html#method-get_repos_by_owner}{\code{GitStats::GitHubClient$get_repos_by_owner()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="GitHubClient" data-id="get_repos_by_team">}\href{../../GitStats/html/GitHubClient.html#method-get_repos_by_team}{\code{GitStats::GitHubClient$get_repos_by_team()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="GitHubClient" data-id="initialize">}\href{../../GitStats/html/GitHubClient.html#method-initialize}{\code{GitStats::GitHubClient$initialize()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="GitHubClient" data-id="print">}\href{../../GitStats/html/GitHubClient.html#method-print}{\code{GitStats::GitHubClient$print()}}\out{</span>}
+}
+\out{</details>}
+}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitHubEnterpriseClient-get_commits_by_team"></a>}}
-\if{latex}{\out{\hypertarget{method-GitHubEnterpriseClient-get_commits_by_team}{}}}
+\if{html}{\out{<a id="method-get_commits_by_team"></a>}}
+\if{latex}{\out{\hypertarget{method-get_commits_by_team}{}}}
 \subsection{Method \code{get_commits_by_team()}}{
 A method to get information on commits.
 \subsection{Usage}{
@@ -47,8 +47,8 @@ A data.frame
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitHubEnterpriseClient-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-GitHubEnterpriseClient-clone}{}}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

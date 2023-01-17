@@ -8,7 +8,7 @@ test_that("Set connection method", {
                  "Set connection to GitHub.")
 
   expect_message(testGitStats$set_connection(api_url = "https://github.company.com",
-                                             token = Sys.getenv("GITHUB_COMPANY_PAT"),
+                                             token = Sys.getenv("GITHUB_PAT"),
                                              owners_groups = "owner_1"),
                  "Set connection to GitHub Enterprise.")
 
@@ -53,6 +53,21 @@ test_that("Error pops out, when two clients of the same url api are passed as in
     "You can not provide two clients of the same API urls."
 
   )
+
+})
+
+test_that("Warning shows up, when token is empty", {
+
+  testGitStats$clients <- list()
+
+  expect_warning(
+    testGitStats$set_connection(api_url = "https://api.github.com",
+                                token = Sys.getenv("TOKEN_THAT_DOES_NOT_EXIST"),
+                                owners_groups = "r-world-devs"),
+    "No token provided for `https://api.github.com`. Your access to API will be unauthorized."
+  )
+
+
 
 })
 
