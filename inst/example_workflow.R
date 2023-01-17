@@ -4,8 +4,18 @@ git_stats <- GitStats$new()
 
 git_stats$set_connection(
   api_url = "https://api.github.com",
-  token = Sys.getenv("GITHUB_PAT"),
+  token = Sys.getenv("GITHUB_PAT"), # You can set up your own token as an environment variable in .Renviron file (based in home directory)
   owners_groups = c("openpharma", "r-world-devs")
+)
+
+git_stats
+
+# you can add new connection, e.g. from GitLab
+
+git_stats$set_connection(
+  api_url = "https://gitlab.com/api/v4",
+  token = Sys.getenv("GITLAB_PAT"),
+  owners_groups = c("erasmusmc-public-health")
 )
 
 git_stats
@@ -13,6 +23,8 @@ git_stats
 # examples for getting repos
 
 git_stats$get_repos_by_owner_or_group()
+
+# you can search repositories by a keyword in code
 
 git_stats$get_repos_by_codephrase("Dashboard")
 
