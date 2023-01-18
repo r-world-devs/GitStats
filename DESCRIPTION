@@ -1,17 +1,28 @@
 Package: GitStats
-Title: What the Package Does (One Line, Title Case)
+Title: Get Statistics from Git Hosting Services
 Version: 0.0.0.9000
 Authors@R: 
     person("Maciej", "Banas", , "banasmaciek@gmail.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+Description: Derives statistics in a standardized way from multiple Git services: GitHub and GitLab for the time-being. 
+    Its main purpose is to help teams, whose activities are spread across multiple git platforms, get their repository 
+    metadata in a standardized way from all these platforms.
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 Imports:
-  data.table,
-  ghql
+    data.table,
+    dplyr,
+    jsonlite,
+    magrittr,
+    ghql,
+    httr2,
+    plotly,
+    progress,
+    rlang,
+    R6,
+    purrr
 Suggests: 
+    covr,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

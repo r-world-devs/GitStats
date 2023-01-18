@@ -7,23 +7,29 @@
 An object with methods to derive information form GitHub API.
 }
 \section{Super class}{
-\code{GitStats::GitClient} -> \code{GitHubClient}
+\code{\link[GitStats:GitClient]{GitStats::GitClient}} -> \code{GitHubClient}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-GitHubClient-new}{\code{GitHubClient$new()}}
-\item \href{#method-GitHubClient-get_repos_by_owner}{\code{GitHubClient$get_repos_by_owner()}}
-\item \href{#method-GitHubClient-get_repos_by_team}{\code{GitHubClient$get_repos_by_team()}}
-\item \href{#method-GitHubClient-get_repos_by_codephrase}{\code{GitHubClient$get_repos_by_codephrase()}}
-\item \href{#method-GitHubClient-get_commits_by_owner}{\code{GitHubClient$get_commits_by_owner()}}
-\item \href{#method-GitHubClient-get_commits_by_team}{\code{GitHubClient$get_commits_by_team()}}
-\item \href{#method-GitHubClient-print}{\code{GitHubClient$print()}}
+\item \href{#method-new}{\code{GitHubClient$new()}}
+\item \href{#method-get_repos_by_owner}{\code{GitHubClient$get_repos_by_owner()}}
+\item \href{#method-get_repos_by_team}{\code{GitHubClient$get_repos_by_team()}}
+\item \href{#method-get_repos_by_codephrase}{\code{GitHubClient$get_repos_by_codephrase()}}
+\item \href{#method-get_commits_by_owner}{\code{GitHubClient$get_commits_by_owner()}}
+\item \href{#method-get_commits_by_team}{\code{GitHubClient$get_commits_by_team()}}
+\item \href{#method-print}{\code{GitHubClient$print()}}
 }
+}
+\if{html}{
+\out{<details open ><summary>Inherited methods</summary>}
+\itemize{
+}
+\out{</details>}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitHubClient-new"></a>}}
-\if{latex}{\out{\hypertarget{method-GitHubClient-new}{}}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new \code{GitHubClient} object
 \subsection{Usage}{
@@ -48,8 +54,8 @@ A new \code{GitHubClient} object
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitHubClient-get_repos_by_owner"></a>}}
-\if{latex}{\out{\hypertarget{method-GitHubClient-get_repos_by_owner}{}}}
+\if{html}{\out{<a id="method-get_repos_by_owner"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos_by_owner}{}}}
 \subsection{Method \code{get_repos_by_owner()}}{
 A method to list all repositories for an organization.
 \subsection{Usage}{
@@ -68,8 +74,8 @@ A data.frame of repositories
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitHubClient-get_repos_by_team"></a>}}
-\if{latex}{\out{\hypertarget{method-GitHubClient-get_repos_by_team}{}}}
+\if{html}{\out{<a id="method-get_repos_by_team"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos_by_team}{}}}
 \subsection{Method \code{get_repos_by_team()}}{
 A method to list all repositories
 for a team.
@@ -91,8 +97,8 @@ A data.frame of repositories
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitHubClient-get_repos_by_codephrase"></a>}}
-\if{latex}{\out{\hypertarget{method-GitHubClient-get_repos_by_codephrase}{}}}
+\if{html}{\out{<a id="method-get_repos_by_codephrase"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos_by_codephrase}{}}}
 \subsection{Method \code{get_repos_by_codephrase()}}{
 A method to find repositories with given phrase in codelines.
 \subsection{Usage}{
@@ -113,16 +119,15 @@ A data.frame of repositories.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitHubClient-get_commits_by_owner"></a>}}
-\if{latex}{\out{\hypertarget{method-GitHubClient-get_commits_by_owner}{}}}
+\if{html}{\out{<a id="method-get_commits_by_owner"></a>}}
+\if{latex}{\out{\hypertarget{method-get_commits_by_owner}{}}}
 \subsection{Method \code{get_commits_by_owner()}}{
 A method to get information on commits.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GitHubClient$get_commits_by_owner(
   owners = self$owners,
   date_from,
-  date_until = Sys.time(),
-  by
+  date_until = Sys.time()
 )}\if{html}{\out{</div>}}
 }
 
@@ -131,8 +136,8 @@ A data.frame
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitHubClient-get_commits_by_team"></a>}}
-\if{latex}{\out{\hypertarget{method-GitHubClient-get_commits_by_team}{}}}
+\if{html}{\out{<a id="method-get_commits_by_team"></a>}}
+\if{latex}{\out{\hypertarget{method-get_commits_by_team}{}}}
 \subsection{Method \code{get_commits_by_team()}}{
 A method to get information on commits.
 \subsection{Usage}{
@@ -149,8 +154,8 @@ A data.frame
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitHubClient-print"></a>}}
-\if{latex}{\out{\hypertarget{method-GitHubClient-print}{}}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
 \subsection{Method \code{print()}}{
 A print method for a GitHubClient object
 \subsection{Usage}{

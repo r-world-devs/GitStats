@@ -7,23 +7,29 @@
 An object with methods to derive information form GitLab API.
 }
 \section{Super class}{
-\code{GitStats::GitClient} -> \code{GitLabClient}
+\code{\link[GitStats:GitClient]{GitStats::GitClient}} -> \code{GitLabClient}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-GitLabClient-new}{\code{GitLabClient$new()}}
-\item \href{#method-GitLabClient-get_projects_by_group}{\code{GitLabClient$get_projects_by_group()}}
-\item \href{#method-GitLabClient-get_repos_by_team}{\code{GitLabClient$get_repos_by_team()}}
-\item \href{#method-GitLabClient-get_repos_by_codephrase}{\code{GitLabClient$get_repos_by_codephrase()}}
-\item \href{#method-GitLabClient-get_commits_by_group}{\code{GitLabClient$get_commits_by_group()}}
-\item \href{#method-GitLabClient-get_commits_by_team}{\code{GitLabClient$get_commits_by_team()}}
-\item \href{#method-GitLabClient-print}{\code{GitLabClient$print()}}
+\item \href{#method-new}{\code{GitLabClient$new()}}
+\item \href{#method-get_projects_by_group}{\code{GitLabClient$get_projects_by_group()}}
+\item \href{#method-get_repos_by_team}{\code{GitLabClient$get_repos_by_team()}}
+\item \href{#method-get_repos_by_codephrase}{\code{GitLabClient$get_repos_by_codephrase()}}
+\item \href{#method-get_commits_by_group}{\code{GitLabClient$get_commits_by_group()}}
+\item \href{#method-get_commits_by_team}{\code{GitLabClient$get_commits_by_team()}}
+\item \href{#method-print}{\code{GitLabClient$print()}}
 }
+}
+\if{html}{
+\out{<details open ><summary>Inherited methods</summary>}
+\itemize{
+}
+\out{</details>}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitLabClient-new"></a>}}
-\if{latex}{\out{\hypertarget{method-GitLabClient-new}{}}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new \code{GitLabClient} object
 \subsection{Usage}{
@@ -46,8 +52,8 @@ A new \code{GitLabClient} object
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitLabClient-get_projects_by_group"></a>}}
-\if{latex}{\out{\hypertarget{method-GitLabClient-get_projects_by_group}{}}}
+\if{html}{\out{<a id="method-get_projects_by_group"></a>}}
+\if{latex}{\out{\hypertarget{method-get_projects_by_group}{}}}
 \subsection{Method \code{get_projects_by_group()}}{
 A method to list all repositories for an organization.
 \subsection{Usage}{
@@ -66,8 +72,8 @@ A data.frame of repositories
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitLabClient-get_repos_by_team"></a>}}
-\if{latex}{\out{\hypertarget{method-GitLabClient-get_repos_by_team}{}}}
+\if{html}{\out{<a id="method-get_repos_by_team"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos_by_team}{}}}
 \subsection{Method \code{get_repos_by_team()}}{
 A method to list all repositories
 for a team.
@@ -89,8 +95,8 @@ A data.frame of repositories
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitLabClient-get_repos_by_codephrase"></a>}}
-\if{latex}{\out{\hypertarget{method-GitLabClient-get_repos_by_codephrase}{}}}
+\if{html}{\out{<a id="method-get_repos_by_codephrase"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos_by_codephrase}{}}}
 \subsection{Method \code{get_repos_by_codephrase()}}{
 A method to find repositories with given phrase in code lines.
 \subsection{Usage}{
@@ -111,16 +117,15 @@ A data.frame of repositories
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitLabClient-get_commits_by_group"></a>}}
-\if{latex}{\out{\hypertarget{method-GitLabClient-get_commits_by_group}{}}}
+\if{html}{\out{<a id="method-get_commits_by_group"></a>}}
+\if{latex}{\out{\hypertarget{method-get_commits_by_group}{}}}
 \subsection{Method \code{get_commits_by_group()}}{
 A method to get information on commits.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GitLabClient$get_commits_by_group(
   groups = self$groups,
   date_from,
-  date_until = Sys.time(),
-  by
+  date_until = Sys.time()
 )}\if{html}{\out{</div>}}
 }
 
@@ -129,8 +134,8 @@ A data.frame
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitLabClient-get_commits_by_team"></a>}}
-\if{latex}{\out{\hypertarget{method-GitLabClient-get_commits_by_team}{}}}
+\if{html}{\out{<a id="method-get_commits_by_team"></a>}}
+\if{latex}{\out{\hypertarget{method-get_commits_by_team}{}}}
 \subsection{Method \code{get_commits_by_team()}}{
 A method to get information on commits.
 \subsection{Usage}{
@@ -148,8 +153,8 @@ A data.frame
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GitLabClient-print"></a>}}
-\if{latex}{\out{\hypertarget{method-GitLabClient-print}{}}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
 \subsection{Method \code{print()}}{
 A print method for a GitHubClient object
 \subsection{Usage}{

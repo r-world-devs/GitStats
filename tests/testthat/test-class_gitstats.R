@@ -1,48 +1,79 @@
-git_hub_client_1 = GitHubClient$new(rest_api_url = "https://api.github.com")
+testGitStats <- GitStats$new()
 
-test_that("Error pops out on wrong input passed to new GitStats object", {
+test_that("Set connection method", {
 
-  wrong_objects <- list("sth", something = mean(12, 15), url = "https://api.github.com")
+  expect_message(testGitStats$set_connection(api_url = "https://api.github.com",
+                                             token = Sys.getenv("GITHUB_PAT"),
+                                             owners_groups = c("avengers", "cocktail_party")),
+                 "Set connection to GitHub.")
 
-  purrr::walk(wrong_objects, function(x){
-    expect_error(GitStats$new(x),
-                 "Wrong objects passed into GitStats constructor. GitStats may comprise only of GitClient class objects.",
-                 ignore.case = TRUE)
-  })
+  expect_message(testGitStats$set_connection(api_url = "https://github.company.com",
+                                             token = Sys.getenv("GITHUB_PAT"),
+                                             owners_groups = "owner_1"),
+                 "Set connection to GitHub Enterprise.")
 
-  proper_objects <- list(git_hub_client = git_hub_client_1,
-                         git_lab_client = GitLabClient$new(rest_api_url = "https://gitlab.api.com"))
 
-  purrr::walk(proper_objects, function(x){
-    expect_no_error(GitStats$new(x))
-  })
+  expect_message(testGitStats$set_connection(api_url = "https://code.pharma.com",
+                                             token = Sys.getenv("GITLAB_PAT"),
+                                             owners_groups = c("good_drugs", "vaccine_science")),
+                 "Set connection to GitLab.")
+})
+
+test_that("Errors pop out, when wrong input is passed in set_connection method", {
+
+  testGitStats$clients <- list()
+
+  expect_error(testGitStats$set_connection(api_url = "https://avengers.com",
+                                           token = Sys.getenv("GITLAB_PAT")),
+               "You need to specify owner/owners of the repositories.")
+
+  expect_error(testGitStats$set_connection(api_url = "https://avengers.com",
+                                           token = Sys.getenv("GITLAB_PAT"),
+                                           owners_groups = c("good_drugs", "vaccine_science")),
+                 "This connection is not supported by GitStats class object.")
+
 
 })
 
-test_that("Error pops out when two clients of the same url api are passed as input", {
+test_that("Error pops out, when two clients of the same url api are passed as input", {
 
-  git_hub_client_2 = GitLabClient$new(rest_api_url = "https://api.github.com")
+  testGitStats$clients <- list()
 
-  expect_error(GitStats$new(git_hub_client_1, git_hub_client_2),
-               "You can not provide two clients of same API urls.")
+  cons <- list(api_url = c("https://api.github.com", "https://api.github.com"),
+               token = c(Sys.getenv("GITHUB_PAT"),Sys.getenv("GITHUB_PAT")),
+               owners_groups = list(c("justice_league"), c("avengers")))
 
-  git_hub_client_2 = GitLabClient$new(rest_api_url = "https://github.mycompany.com/api")
 
-  expect_no_error(GitStats$new(git_hub_client_1, git_hub_client_2))
+  expect_error(
+    purrr::pwalk(cons, function(api_url, token, owners_groups){
+      testGitStats$set_connection(api_url = api_url,
+                                token = token,
+                                owners_groups = owners_groups)
+      }),
+    "You can not provide two clients of the same API urls."
+
+  )
 
 })
 
-MyGitStats <- GitStats$new(git_hub_client_1)
+test_that("Warning shows up, when token is empty", {
+
+  testGitStats$clients <- list()
+
+  expect_warning(
+    testGitStats$set_connection(api_url = "https://api.github.com",
+                                token = Sys.getenv("TOKEN_THAT_DOES_NOT_EXIST"),
+                                owners_groups = "r-world-devs"),
+    "No token provided for `https://api.github.com`. Your access to API will be unauthorized."
+  )
+
+
+
+})
 
 test_that("Proper information pops out when one wants to get team stats without specifying team", {
 
-  expect_error(MyGitStats$get_repos_by_team(),
-               "You have to specify a team firstly")
+  expect_error(testGitStats$get_repos_by_team(),
+               "You have to specify a team first")
 
-})
-
-test_that("Error pops out when groups/owners are not defined", {
-
-  expect_error(MyGitStats$get_repos_by_owner_or_group(),
-               "You have to define")
 })
