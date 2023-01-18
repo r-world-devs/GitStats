@@ -21,15 +21,11 @@ GitStats <- R6::R6Class("GitStats",
     repos_dt = NULL,
     commits_dt = NULL,
 
-    #' @description A method to list all repositories for an organization.
+    #' @description A method to list all repositories by an organization.
     #' @return A data.frame of repositories
-    get_repos_by_owner_or_group = function() {
+    get_repos_by_org = function() {
       repos_dt <- purrr::map(self$clients, function(x) {
-        if ("GitHubClient" %in% class(x)) {
-          x$get_repos_by_owner()
-        } else if ("GitLabClient" %in% class(x)) {
-          x$get_projects_by_group()
-        }
+        x$get_repos_by_org()
       }) %>%
         rbindlist() %>%
         dplyr::arrange(last_activity_at)
@@ -83,22 +79,16 @@ GitStats <- R6::R6Class("GitStats",
     #' @description A method to get information on commits.
     #' @param date_from
     #' @param date_until
-    #' @param by
     #' @return A data.frame
-    get_commits_by_owner_or_group = function(date_from,
-                                             date_until = Sys.time()) {
+    get_commits_by_org = function(date_from,
+                                  date_until = Sys.time()) {
       commits_dt <- purrr::map(self$clients, function(x) {
-        if ("GitHubClient" %in% class(x)) {
-          x$get_commits_by_owner(
-            date_from = date_from,
-            date_until = date_until
-          )
-        } else if ("GitLabClient" %in% class(x)) {
-          x$get_commits_by_group(
-            date_from = date_from,
-            date_until = date_until
-          )
-        }
+
+        x$get_commits_by_org(
+          date_from = date_from,
+          date_until = date_until
+        )
+
       }) %>%
         rbindlist(use.names = TRUE)
 
@@ -127,11 +117,7 @@ GitStats <- R6::R6Class("GitStats",
       commits_dt <- purrr::map(self$clients, function(x) {
         commits <- x$get_commits_by_team(
           team,
-          if ("GitHubClient" %in% class(x)) {
-            x$owners
-          } else if ("GitLabClient" %in% class (x)) {
-            x$groups
-          },
+          x$orgs,
           date_from,
           date_until
         )
@@ -153,35 +139,29 @@ GitStats <- R6::R6Class("GitStats",
     #' @description Method to set connections to Git platforms
     #' @param api_url A character, url address of API.
     #' @param token A token.
-    #' @param owner_group A character vector.
+    #' @param orgs A character vector of organisations (owners of repositories
+    #'   in case of GitHub and groups of projects in case of GitLab).
     #' @return Nothing, puts connection information into `$clients` slot
     set_connection = function(api_url,
                               token,
-                              owners_groups = NULL) {
-      if (is.null(owners_groups)) {
-        stop("You need to specify owner/owners of the repositories.", call. = FALSE)
+                              orgs = NULL) {
+      if (is.null(orgs)) {
+        stop("You need to specify organisations of the repositories.", call. = FALSE)
       }
 
-      if (api_url == "https://api.github.com") {
-        message("Set connection to GitHub public.")
-        new_client <- GitHubClient$new(
+      if (grepl("github", api_url)) {
+        message("Set connection to GitHub.")
+        new_client <- GitHub$new(
           rest_api_url = api_url,
           token = token,
-          owners = owners_groups
-        )
-      } else if (api_url != "https://api.github.com" && grepl("github", api_url)) {
-        message("Set connection to GitHub Enterprise.")
-        new_client <- GitHubEnterpriseClient$new(
-          rest_api_url = api_url,
-          token = token,
-          owners = owners_groups
+          orgs = orgs
         )
       } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
         message("Set connection to GitLab.")
-        new_client <- GitLabClient$new(
+        new_client <- GitLab$new(
           rest_api_url = api_url,
           token = token,
-          groups = owners_groups
+          orgs = orgs
         )
       } else {
         stop("This connection is not supported by GitStats class object.")
@@ -222,7 +202,7 @@ GitStats <- R6::R6Class("GitStats",
       plotly::plot_ly(repos_dt,
         y = ~name,
         x = ~last_activity_at,
-        color = ~owner.group,
+        color = ~organisation,
         type = "bar",
         orientation = "h"
       ) %>%
@@ -253,13 +233,13 @@ GitStats <- R6::R6Class("GitStats",
         commits_dt[, statsDate := as.Date(paste0(substring(committedDate, 1, 7), "-01"))]
       }
 
-      commits_n <- commits_dt[, .(commits_n = .N), by = .(statsDate, owner_group)]
+      commits_n <- commits_dt[, .(commits_n = .N), by = .(statsDate, organisation)]
       commits_n <- commits_n[order(statsDate)]
 
       plotly::plot_ly(commits_n,
         x = ~statsDate,
         y = ~commits_n,
-        color = ~owner_group,
+        color = ~organisation,
         type = "scatter",
         mode = "lines+markers"
       )
@@ -281,13 +261,13 @@ GitStats <- R6::R6Class("GitStats",
         plotly::add_trace(
           y = ~additions,
           x = ~committedDate,
-          color = ~owner_group,
+          color = ~organisation,
           type = "bar"
         ) %>%
         plotly::add_trace(
           y = ~deletions,
           x = ~committedDate,
-          color = ~owner_group,
+          color = ~organisation,
           type = "bar"
         ) %>%
         plotly::layout(
