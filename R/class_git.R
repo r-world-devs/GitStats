@@ -1,5 +1,8 @@
 #' @importFrom R6 R6Class
 
+#' @title A Git Service API Client superclass
+#' @description  A superclass for GitHub and GitLab classes
+
 GitService <- R6::R6Class("GitService",
   public = list(
     rest_api_url = NULL,
@@ -42,14 +45,12 @@ GitService <- R6::R6Class("GitService",
     #' @description A helper to check if GitHub Client is Public or Enterprise.
     #' @param api_url A character, a url of API.
     #' @return A boolean.
-    check_enterprise = function(api_url){
-
-      if (api_url != "https://api.github.com" && grepl("github", api_url)){
+    check_enterprise = function(api_url) {
+      if (api_url != "https://api.github.com" && grepl("github", api_url)) {
         TRUE
       } else {
         FALSE
       }
-
     }
   )
 )

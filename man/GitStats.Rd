@@ -10,11 +10,9 @@ An R6 class object with methods to derive information from multiple Git platform
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{GitStats$new()}}
-\item \href{#method-get_repos_by_org}{\code{GitStats$get_repos_by_org()}}
-\item \href{#method-get_repos_by_team}{\code{GitStats$get_repos_by_team()}}
+\item \href{#method-get_repos}{\code{GitStats$get_repos()}}
 \item \href{#method-get_repos_by_codephrase}{\code{GitStats$get_repos_by_codephrase()}}
-\item \href{#method-get_commits_by_org}{\code{GitStats$get_commits_by_org()}}
-\item \href{#method-get_commits_by_team}{\code{GitStats$get_commits_by_team()}}
+\item \href{#method-get_commits}{\code{GitStats$get_commits()}}
 \item \href{#method-set_connection}{\code{GitStats$set_connection()}}
 \item \href{#method-set_team}{\code{GitStats$set_team()}}
 \item \href{#method-plot_repos}{\code{GitStats$plot_repos()}}
@@ -38,32 +36,20 @@ A new \code{GitStats} object
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos_by_org"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos_by_org}{}}}
-\subsection{Method \code{get_repos_by_org()}}{
-A method to list all repositories by an organization.
+\if{html}{\out{<a id="method-get_repos"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos}{}}}
+\subsection{Method \code{get_repos()}}{
+A method to list all repositories by an organization or a
+team.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos_by_org()}\if{html}{\out{</div>}}
-}
-
-\subsection{Returns}{
-A data.frame of repositories
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos_by_team"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos_by_team}{}}}
-\subsection{Method \code{get_repos_by_team()}}{
-A method to list all repositories
-for a team.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos_by_team(team_name)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos(by = "org")}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{team_name}}{A name of a team}
+\item{\code{by}}{A chararacter, to choose between: \itemize{
+\item{org}{Organizations} \item(team){Team}}}
 }
 \if{html}{\out{</div>}}
 }
@@ -94,27 +80,29 @@ A data.frame of repositories
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_commits_by_org"></a>}}
-\if{latex}{\out{\hypertarget{method-get_commits_by_org}{}}}
-\subsection{Method \code{get_commits_by_org()}}{
+\if{html}{\out{<a id="method-get_commits"></a>}}
+\if{latex}{\out{\hypertarget{method-get_commits}{}}}
+\subsection{Method \code{get_commits()}}{
 A method to get information on commits.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits_by_org(date_from, date_until = Sys.time())}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits(date_from = NULL, date_until = Sys.time(), by = "org")}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{date_from}}{A starting date to look commits for}
+
+\item{\code{date_until}}{An end date to look commits for}
+
+\item{\code{by}}{A chararacter, to choose between: \itemize{
+\item{org}{Organizations} \item(team){Team}}}
+}
+\if{html}{\out{</div>}}
+}
 \subsection{Returns}{
-A data.frame
+A data.frame of commits
 }
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_commits_by_team"></a>}}
-\if{latex}{\out{\hypertarget{method-get_commits_by_team}{}}}
-\subsection{Method \code{get_commits_by_team()}}{
-A method to get information on commits.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits_by_team(team_name, date_from, date_until = Sys.time())}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-set_connection"></a>}}
@@ -158,7 +146,7 @@ A method to set your team.
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-Nothing, puts team information into \verb{$teams} slot.
+Nothing, puts team information into \verb{$team} slot.
 }
 }
 \if{html}{\out{<hr>}}

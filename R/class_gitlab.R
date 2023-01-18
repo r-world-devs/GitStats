@@ -11,47 +11,32 @@ GitLab <- R6::R6Class("GitLab",
   cloneable = FALSE,
   public = list(
 
-    #' @description A method to list all repositories for an organization.
+    #' @description A method to list all repositories for an organization or for
+    #'   a team.
     #' @param orgs A character vector of organisations (project groups).
+    #' @param by A character, to choose between: \itemize{
+    #'   \item{org}{Organizations - groups of projects} \item(team){A team}}
+    #' @param team A list of team members. Specified by \code{set_team()} method
+    #'   of GitStats class object.
     #' @return A data.frame of repositories
-    get_repos_by_org = function(orgs = self$orgs) {
-      tryCatch(
-        {
-          repos_dt <- purrr::map(orgs, function(x) {
-            perform_get_request(
-              endpoint = paste0(self$rest_api_url, "/groups/", x, "/projects"),
-              token = private$token
-            ) %>%
-              private$tailor_repos_info() %>%
-              private$prepare_repos_table()
-          }) %>%
-            rbindlist()
-        },
-        error = function(e) {
-          warning(paste0("HTTP status ", e$status, " noted when performing request for ", self$rest_api_url, ". \n Are you sure you defined properly your organisations?"),
-            call. = FALSE
-          )
-        }
-      )
-
-      repos_dt
-    },
-
-    #' @description A method to list all repositories
-    #'   for a team.
-    #' @param team A list of team members. Specified
-    #'   by \code{set_team()} method of GitStats class
-    #'   object.
-    #' @param orgs A character vector of organisations (project groups).
-    #' @return A data.frame of repositories
-    get_repos_by_team = function(team,
-                                 orgs = self$orgs) {
+    get_repos = function(orgs = self$orgs,
+                         by,
+                         team) {
       repos_dt <- purrr::map(orgs, function(x) {
         perform_get_request(
           endpoint = paste0(self$rest_api_url, "/groups/", x, "/projects"),
           token = private$token
         ) %>%
-          private$filter_projects_by_team(team = team) %>%
+          {
+            if (by == "team") {
+              private$filter_projects_by_team(
+                projects_list = .,
+                team = team
+              )
+            } else {
+              .
+            }
+          } %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table()
       }) %>%
@@ -84,48 +69,40 @@ GitLab <- R6::R6Class("GitLab",
     },
 
     #' @description A method to get information on commits.
-    #' @param orgs
-    #' @param date_from
-    #' @param date_until
-    #' @return A data.frame
-    get_commits_by_org = function(orgs = self$orgs,
-                                  date_from,
-                                  date_until = Sys.time()) {
+    #' @param orgs A character vector of organisations (project groups).
+    #' @param date_from A starting date to look commits for
+    #' @param date_until An end date to look commits for
+    #' @param by A character, to choose between: \itemize{
+    #'   \item{org}{Organizations - groups of projects} \item(team){A team}}
+    #' @param team A list of team members. Specified by \code{set_team()} method
+    #'   of GitStats class object.
+    #' @return A data.frame of commits
+    get_commits = function(orgs = self$orgs,
+                           date_from,
+                           date_until = Sys.time(),
+                           by,
+                           team) {
       commits_dt <- purrr::map(orgs, function(x) {
         private$get_all_commits_from_group(
           x,
           date_from,
           date_until
         ) %>%
+          {
+            if (by == "team") {
+              private$filter_commits_by_team(
+                commits_list = .,
+                team = team
+              )
+            } else {
+              .
+            }
+          } %>%
           private$tailor_commits_info(group_name = x) %>%
           private$prepare_commits_table()
       }) %>% rbindlist()
 
-      return(commits_dt)
-    },
-
-    #' @description A method to get information on commits.
-    #' @param team
-    #' @param orgs
-    #' @param date_from
-    #' @param date_until
-    #' @return A data.frame
-    get_commits_by_team = function(team,
-                                   orgs = self$orgs,
-                                   date_from,
-                                   date_until = Sys.time()) {
-      commits_dt <- purrr::map(orgs, function(x) {
-        private$get_all_commits_from_group(
-          x,
-          date_from,
-          date_until
-        ) %>%
-          private$filter_commits_by_team(team) %>%
-          private$tailor_commits_info(group_name = x) %>%
-          private$prepare_commits_table()
-      }) %>% rbindlist()
-
-      return(commits_dt)
+      commits_dt
     },
 
     #' @description A print method for a GitLab object
@@ -165,8 +142,11 @@ GitLab <- R6::R6Class("GitLab",
     },
 
     #' @description Filter by contributors.
+    #' @details If at least one member of a team is a contributor than a project
+    #'   passes through the filter.
     #' @param projects_list A repository list to be filtered.
     #' @param team A character vector with team member names.
+    #' @return A list of repositories.
     filter_projects_by_team = function(projects_list,
                                        team) {
       purrr::map(projects_list, function(x) {

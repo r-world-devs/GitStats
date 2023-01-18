@@ -17,44 +17,39 @@ GitStats <- R6::R6Class("GitStats",
     initialize = function() {
 
     },
-    teams = NULL,
+    team = NULL,
     repos_dt = NULL,
     commits_dt = NULL,
 
-    #' @description A method to list all repositories by an organization.
+    #' @description A method to list all repositories by an organization or a
+    #'   team.
+    #' @param by A chararacter, to choose between: \itemize{
+    #'   \item{org}{Organizations} \item(team){Team}}
     #' @return A data.frame of repositories
-    get_repos_by_org = function() {
-      repos_dt <- purrr::map(self$clients, function(x) {
-        x$get_repos_by_org()
-      }) %>%
-        rbindlist() %>%
-        dplyr::arrange(last_activity_at)
+    get_repos = function(by = "org") {
+      by <- match.arg(
+        by,
+        c("org", "team")
+      )
 
-      self$repos_dt <- repos_dt
-
-      print(repos_dt)
-
-      invisible(self)
-    },
-
-    #' @description A method to list all repositories
-    #'   for a team.
-    #' @param team_name A name of a team
-    #' @return A data.frame of repositories
-    get_repos_by_team = function(team_name) {
-      if (is.null(self$teams)) {
-        stop("You have to specify a team first with 'set_team()' method.", call. = FALSE)
+      if (by == "org") {
+        repos_dt_list <- purrr::map(self$clients, ~ .$get_repos(by = by))
+      } else if (by == "team") {
+        if (is.null(self$team)) {
+          stop("You have to specify a team first with 'set_team()' method.", call. = FALSE)
+        }
+        team <- self$team[[1]]
+        repos_dt_list <- purrr::map(self$clients, ~ .$get_repos(
+          by = "team",
+          team = team
+        ))
       }
 
-      team <- self$teams[[team_name]]
-
-      repos_dt <- purrr::map(self$clients, ~ .$get_repos_by_team(team)) %>%
+      self$repos_dt <- repos_dt_list %>%
         rbindlist() %>%
         dplyr::arrange(last_activity_at)
 
-      self$repos_dt <- repos_dt
-
-      print(repos_dt)
+      print(self$repos_dt)
 
       invisible(self)
     },
@@ -77,55 +72,52 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     #' @description A method to get information on commits.
-    #' @param date_from
-    #' @param date_until
-    #' @return A data.frame
-    get_commits_by_org = function(date_from,
-                                  date_until = Sys.time()) {
-      commits_dt <- purrr::map(self$clients, function(x) {
-
-        x$get_commits_by_org(
-          date_from = date_from,
-          date_until = date_until
-        )
-
-      }) %>%
-        rbindlist(use.names = TRUE)
-
-      commits_dt$committedDate <- as.Date(commits_dt$committedDate)
-
-      self$commits_dt <- commits_dt
-
-      print(commits_dt)
-
-      invisible(self)
-    },
-
-    #' @description A method to get information on commits.
-    #' @param team_name
-    #' @param date_from
-    #' @param date_until
-    get_commits_by_team = function(team_name,
-                                   date_from,
-                                   date_until = Sys.time()) {
-      if (is.null(self$teams)) {
-        stop("You have to specify a team first with 'set_team()' method.", call. = FALSE)
+    #' @param date_from A starting date to look commits for
+    #' @param date_until An end date to look commits for
+    #' @param by A chararacter, to choose between: \itemize{
+    #'   \item{org}{Organizations} \item(team){Team}}
+    #' @return A data.frame of commits
+    get_commits = function(date_from = NULL,
+                           date_until = Sys.time(),
+                           by = "org") {
+      if (is.null(date_from)) {
+        stop("You need to define `date_from`.", call. = FALSE)
       }
 
-      team <- self$teams[[team_name]]
+      by <- match.arg(
+        by,
+        c("org", "team")
+      )
 
-      commits_dt <- purrr::map(self$clients, function(x) {
-        commits <- x$get_commits_by_team(
-          team,
-          x$orgs,
-          date_from,
-          date_until
-        )
+      if (by == "org") {
+        commits_dt <- purrr::map(self$clients, function(x) {
+          x$get_commits(
+            date_from = date_from,
+            date_until = date_until,
+            by = by
+          )
+        }) %>%
+          rbindlist(use.names = TRUE)
+      } else if (by == "team") {
+        if (is.null(self$team)) {
+          stop("You have to specify a team first with 'set_team()' method.", call. = FALSE)
+        }
 
-        message(self$clients$rest_api_url, " (", team_name, " team): pulled commits from ", length(unique(commits$repo_project)), " repositories.")
+        team <- self$team[[1]]
 
-        commits
-      }) %>% rbindlist(use.names = TRUE)
+        commits_dt <- purrr::map(self$clients, function(x) {
+          commits <- x$get_commits(
+            date_from = date_from,
+            date_until = date_until,
+            by = by,
+            team = team
+          )
+
+          message(self$clients$rest_api_url, " (", names(self$team), " team): pulled commits from ", length(unique(commits$repo_project)), " repositories.")
+
+          commits
+        }) %>% rbindlist(use.names = TRUE)
+      }
 
       commits_dt$committedDate <- as.Date(commits_dt$committedDate)
 
@@ -171,16 +163,15 @@ GitStats <- R6::R6Class("GitStats",
         private$check_client() %>%
         private$check_token() %>%
         append(self$clients, .)
-
     },
 
     #' @description A method to set your team.
     #' @param team_name A name of a team.
-    #' @return Nothing, puts team information into `$teams` slot.
+    #' @return Nothing, puts team information into `$team` slot.
     set_team = function(team_name, ...) {
-      self$teams <- list()
+      self$team <- list()
 
-      self$teams[[paste(team_name)]] <- unlist(list(...))
+      self$team[[paste(team_name)]] <- unlist(list(...))
     },
 
     #' @description A method to plot repositories outcome.
@@ -288,9 +279,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @param client An object of GitService class
     #' @return A GitService object
     check_client = function(client) {
-
-      if (length(self$clients) > 0){
-
+      if (length(self$clients) > 0) {
         clients_to_check <- append(client, self$clients)
 
         urls <- purrr::map_chr(clients_to_check, ~ .$rest_api_url)
@@ -301,14 +290,12 @@ GitStats <- R6::R6Class("GitStats",
       }
 
       client
-
     },
 
     #' @description Check whether the token exists.
     #' @param client An object of GitService class
     #' @return A GitService object
-    check_token = function(client){
-
+    check_token = function(client) {
       priv <- environment(client$initialize)$private
 
       if (nchar(priv$token) == 0) {
@@ -316,7 +303,6 @@ GitStats <- R6::R6Class("GitStats",
       }
 
       client
-
     }
   )
 )
