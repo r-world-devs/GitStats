@@ -4,6 +4,26 @@ git_lab_public <- GitLab$new(
   orgs = c("erasmusmc-public-health")
 )
 
+priv_publ <- environment(git_lab_public$initialize)$private
+
+test_that("Private get_all_repos_from_owner pulls correctly repositories", {
+  testthat::skip_on_ci()
+  orgs <- c("erasmusmc-public-health")
+
+  purrr::walk(orgs, function(group) {
+
+    repos_n <- length(perform_get_request(endpoint = paste0("https://gitlab.com/api/v4/groups/", group),
+                                          token = Sys.getenv("GITLAB_PAT"))[["projects"]])
+
+    expect_equal(
+      length(priv_publ$get_all_repos_from_group(project_group = group)),
+      repos_n
+    )
+
+  })
+
+})
+
 test_that("Get_repos methods pulls repositories from GitLab and translates output into data.frame", {
   testthat::skip_on_ci()
   repos <- git_lab_public$get_repos(by = "org")

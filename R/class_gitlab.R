@@ -23,10 +23,7 @@ GitLab <- R6::R6Class("GitLab",
                          by,
                          team) {
       repos_dt <- purrr::map(orgs, function(x) {
-        perform_get_request(
-          endpoint = paste0(self$rest_api_url, "/groups/", x, "/projects"),
-          token = private$token
-        ) %>%
+        private$get_all_repos_from_group(project_group = x) %>%
           {
             if (by == "team") {
               private$filter_projects_by_team(
@@ -114,6 +111,34 @@ GitLab <- R6::R6Class("GitLab",
     }
   ),
   private = list(
+
+    #' @description A method to pull all repositories for an owner.
+    #' @param project_group A character, a group of projects.
+    #' @param rest_api_url A url of a REST API.
+    #' @param token A token.
+    #' @return A list.
+    get_all_repos_from_group = function(project_group,
+                                        rest_api_url = self$rest_api_url,
+                                        token = private$token){
+
+      repos_list <- list()
+      r_page <- 1
+      repeat {
+        repos_page <- perform_get_request(
+          endpoint = paste0(rest_api_url, "/groups/", project_group, "/projects?per_page=100&page=", r_page),
+          token = token
+        )
+        if (length(repos_page) > 0) {
+          repos_list <- append(repos_list, repos_page)
+          r_page <- r_page + 1
+        } else {
+          break
+        }
+      }
+
+      repos_list
+
+    },
 
     #' @description A helper to prepare table for repositories content
     #' @param projects_list A projects list
@@ -289,27 +314,20 @@ GitLab <- R6::R6Class("GitLab",
 
     #' @description GitLab private method to derive
     #'   commits from repo with REST API.
-    #' @param project_group
-    #' @param date_from
-    #' @param date_until
+    #' @param project_group A character, a group of projects.
+    #' @param date_from A starting date to look commits for.
+    #' @param date_until An end date to look commits for.
     #' @return A list of commits
     get_all_commits_from_group = function(project_group,
                                           date_from,
-                                          date_until = Sys.date()) {
-      repos_list <- list()
-      r_page <- 1
-      repeat {
-        repos_page <- perform_get_request(
-          endpoint = paste0(self$rest_api_url, "/groups/", project_group, "/projects?per_page=100&page=", r_page),
-          token = private$token
-        )
-        if (length(repos_page) > 0) {
-          repos_list <- append(repos_list, repos_page)
-          r_page <- r_page + 1
-        } else {
-          break
-        }
-      }
+                                          date_until = Sys.date(),
+                                          rest_api_url = self$rest_api_url,
+                                          token = private$token
+                                          ) {
+
+      repos_list <- private$get_all_repos_from_group(project_group = project_group,
+                                                     rest_api_url = rest_api_url,
+                                                     token = token)
 
       repos_names <- purrr::map_chr(repos_list, ~ .$name)
       projects_ids <- purrr::map_chr(repos_list, ~ .$id)
