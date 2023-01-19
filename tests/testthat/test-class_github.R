@@ -29,6 +29,24 @@ test_that("Check correctly if API url is of Enterprise or Public Github", {
   expect_equal(priv_enterp$check_enterprise(git_hub_enterprise$rest_api_url), TRUE)
 })
 
+test_that("Private get_all_repos_from_owner pulls correctly repositories", {
+
+  orgs <- c("openpharma", "r-world-devs", "pharmaverse")
+
+  purrr::walk(orgs, function(org) {
+
+    repos_n <- perform_get_request(endpoint = paste0("https://api.github.com/orgs/", org),
+                                   token = Sys.getenv("GITHUB_PAT"))[["public_repos"]]
+
+    expect_equal(
+      length(priv_publ$get_all_repos_from_owner(repo_owner = org)),
+      repos_n
+    )
+
+  })
+
+})
+
 test_that("Get_repos methods pulls repositories from GitHub and translates output into data.frame", {
   repos <- git_hub_public$get_repos(by = "org")
 

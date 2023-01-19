@@ -22,10 +22,7 @@ GitHub <- R6::R6Class("GitHub",
                          by,
                          team) {
       repos_dt <- purrr::map(orgs, function(x) {
-        perform_get_request(
-          endpoint = paste0(self$rest_api_url, "/orgs/", x, "/repos"),
-          token = private$token
-        ) %>%
+        private$get_all_repos_from_owner(repo_owner = x) %>%
           {
             if (by == "team") {
               private$filter_repos_by_team(
@@ -112,6 +109,33 @@ GitHub <- R6::R6Class("GitHub",
     }
   ),
   private = list(
+
+    #' @description A method to pull all repositories for an owner.
+    #' @param repo_owner A character, an owner of repository.
+    #' @param rest_api_url A url of a REST API.
+    #' @param token A token.
+    #' @return A list.
+    get_all_repos_from_owner = function(repo_owner,
+                                        rest_api_url = self$rest_api_url,
+                                        token = private$token){
+
+      repos_list <- list()
+      r_page <- 1
+      repeat {
+        repos_page <- perform_get_request(
+          endpoint = paste0(rest_api_url, "/orgs/", repo_owner, "/repos?per_page=100&page=", r_page),
+          token = token
+        )
+        if (length(repos_page) > 0) {
+          repos_list <- append(repos_list, repos_page)
+          r_page <- r_page + 1
+        } else {
+          break
+        }
+      }
+
+      repos_list
+    },
 
     #' @description A helper to prepare table for repositories content
     #' @param repos_list A repository list.
@@ -227,37 +251,32 @@ GitHub <- R6::R6Class("GitHub",
       repos_list
     },
 
-    #' @description GitLab private method to derive
+    #' @description GitHub private method to pull
     #'   commits from repo with REST API.
-    #' @param repo_owner
-    #' @param date_from
-    #' @param date_until
-    #' @return A list of commits
+    #' @param repo_owner A character, an owner of repository.
+    #' @param date_from A starting date to look commits for.
+    #' @param date_until An end date to look commits for.
+    #' @param rest_api_url A url of a REST API.
+    #' @param token A token.
+    #' @return A list of commits.
     get_all_commits_from_owner = function(repo_owner,
                                           date_from,
-                                          date_until = Sys.date()) {
-      repos_list <- list()
-      r_page <- 1
-      repeat {
-        repos_page <- perform_get_request(
-          endpoint = paste0(self$rest_api_url, "/orgs/", repo_owner, "/repos?per_page=100&page=", r_page),
-          token = private$token
-        )
-        if (length(repos_page) > 0) {
-          repos_list <- append(repos_list, repos_page)
-          r_page <- r_page + 1
-        } else {
-          break
-        }
-      }
+                                          date_until = Sys.date(),
+                                          rest_api_url = self$rest_api_url,
+                                          token = private$token
+                                          ) {
 
-      repos_names <- purrr::map_chr(repos_list, ~ .$full_name)
+      repos_list <- private$get_all_repos_from_owner(repo_owner = repo_owner,
+                                                     rest_api_url = rest_api_url,
+                                                     token = token)
 
       enterprise_public <- if (self$enterprise) {
         "Enterprise"
       } else {
         "Public"
       }
+
+      repos_names <- purrr::map_chr(repos_list, ~ .$full_name)
 
       pb <- progress::progress_bar$new(
         format = paste0("GitHub (", enterprise_public, ") Client (", repo_owner, "). Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
@@ -270,7 +289,7 @@ GitHub <- R6::R6Class("GitHub",
           {
             perform_get_request(
               endpoint = paste0(
-                self$rest_api_url,
+                rest_api_url,
                 "/repos/",
                 x,
                 "/commits?since=",
@@ -278,7 +297,7 @@ GitHub <- R6::R6Class("GitHub",
                 "&until=",
                 git_time_stamp(date_until)
               ),
-              token = private$token
+              token = token
             )
           },
           error = function(e) {
