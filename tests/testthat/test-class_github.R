@@ -9,8 +9,8 @@ git_hub_enterprise <- GitHub$new(
   orgs = c("Avengers")
 )
 
-priv_publ <- environment(git_hub_public$get_repos_by_org)$private
-priv_enterp <- environment(git_hub_enterprise$get_repos_by_org)$private
+priv_publ <- environment(git_hub_public$initialize)$private
+priv_enterp <- environment(git_hub_enterprise$initialize)$private
 
 test_that("set_gql_url correctly sets gql api url - for public and private github", {
   expect_equal(
@@ -27,4 +27,23 @@ test_that("set_gql_url correctly sets gql api url - for public and private githu
 test_that("Check correctly if API url is of Enterprise or Public Github", {
   expect_equal(priv_publ$check_enterprise(git_hub_public$rest_api_url), FALSE)
   expect_equal(priv_enterp$check_enterprise(git_hub_enterprise$rest_api_url), TRUE)
+})
+
+test_that("Get_repos methods pulls repositories from GitHub and translates output into data.frame", {
+  repos <- git_hub_public$get_repos(by = "org")
+
+  expect_s3_class(repos, "data.frame")
+  expect_named(repos, c("organisation", "name", "created_at", "last_activity_at", "description", "git_platform", "api_url"))
+  expect_gt(nrow(repos), 0)
+
+  team <- c("galachad", "kalimu", "maciekbanas", "Cotau", "krystian8207", "marcinkowskak")
+
+  repos_by_team <- git_hub_public$get_repos(
+    by = "team",
+    team = team
+  )
+
+  expect_s3_class(repos_by_team, "data.frame")
+  expect_named(repos_by_team, c("organisation", "name", "created_at", "last_activity_at", "description", "git_platform", "api_url"))
+  expect_gt(nrow(repos_by_team), 0)
 })

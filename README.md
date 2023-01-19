@@ -13,7 +13,7 @@
 
 The goal of GitStats is to search through multiple GitHub and GitLab
 platforms for different statistics either by owners/groups of
-repositories, team members or searched codephrases.
+repositories, team members or searched code phrases.
 
 For the time being GitStats supports connections to public GitHub,
 enterprise GitHub and GitLab.
@@ -28,43 +28,40 @@ devtools::install_github("r-world-devs/GitStats")
 
 ## Start - set connections
 
-Start with setting your git connection.
+Start with setting your git connections.
+
+As GitStats provides possibility of showing stats through multiple
+platforms, you can pass more than one connection from other Git hosting
+service.
 
 ``` r
+
 library(GitStats)
 
 my_gitstats <- GitStats$new()
 
-my_gitstats$set_connection(api_url = "https://api.github.com",
-                           token = Sys.getenv("GITHUB_PAT"),
-                           owners_groups = c("r-world-devs", "openpharma"))
+my_gitstats$set_connection(
+  api_url = "https://api.github.com",
+  token = Sys.getenv("GITHUB_PAT"),
+  orgs = c("r-world-devs", "openpharma")
+)
+#> Set connection to GitHub.
+
+my_gitstats$set_connection(
+  api_url = "https://gitlab.com/api/v4",
+  token = Sys.getenv("GITLAB_PAT"),
+  orgs = c("erasmusmc-public-health")
+)
+#> Set connection to GitLab.
 
 my_gitstats
-```
-
-### Multiple connections
-
-As GitStats provides possibility of showing stats through multiple
-platforms, you can pass more than one connection.
-
-``` r
-cons <- tibble::tibble(api_url = c("https://api.github.com", 
-                                   "https://github.enterprise.com/api", 
-                                   "https://code.company.com/api"),
-                       token = c(Sys.getenv("GITHUB_PAT"), 
-                                 Sys.getenv("GITHUB_PAT_ENTERPRISE"),
-                                 Sys.getenv("GITLAB_PAT_COMPANY")),
-                       owners_groups = list(c("openpharma", "r-world-devs"),  
-                                            c("org1"), 
-                                            c("org2", "org3")))
-
-my_gitstats <- GitStats$new()
-
-purrr::pwalk(cons, function(api_url, token, owners_groups){
-  my_gitstats$set_connection(api_url = api_url,
-                             token = token,
-                             owners_groups = owners_groups)
-})
+#> A GitStats object (multi-API client platform) for 2 clients:
+#> GitHub API Client
+#>  url: https://api.github.com
+#>  orgs: r-world-devs, openpharma
+#> GitLab API Client
+#>  url: https://gitlab.com/api/v4
+#>  orgs: erasmusmc-public-health
 ```
 
 ## Explore
@@ -73,25 +70,15 @@ And start your exploration for repos and commits, e.g. by owners and
 groups:
 
 ``` r
-repos <- my_gitstats$get_repos_by_owner_or_group()
+repos <- my_gitstats$get_repos()
 
 head(repos)
 ```
 
 ``` r
-commits <- my_gitstats$get_commits_by_owner_or_group()
+commits <- my_gitstats$get_commits()
 
 head(commits)
-```
-
-### Codephrase
-
-You can search for repos by a keyword:
-
-``` r
-repos <- my_gitstats$get_repos_by_codephrase("Hobbits")
-
-head(repos)
 ```
 
 ### Team
@@ -101,9 +88,15 @@ is your team. First you need to specify your team members (by
 git-platform logins), then do the search.
 
 ``` r
-my_gitstats$set_team(team_name = "Avengers", "thor", "black_widow", "hulk", "spider-man", "iron-man")
+git_stats$set_team(team_name = "RWD-IE",
+                   "galachad",
+                   "krystian8207",
+                   "kalimu",
+                   "marcinkowskak",
+                   "Cotau",
+                   "maciekbanas")
 
-my_gitstats$get_repos_by_team("Avengers")
+git_stats$get_repos(by = "team")
 ```
 
 ## Plots
@@ -112,7 +105,7 @@ You can plot your exploration with chaining methods inside GitStats
 class object:
 
 ``` r
-my_gitstats$get_repos_by_owner_or_group()$plot_repos()
+my_gitstats$get_repos()$plot_repos()
 ```
 
 Once you’ve finished your exploration you can plot repos without calling

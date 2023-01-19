@@ -13,45 +13,29 @@ GitHub <- R6::R6Class("GitHub",
 
     #' @description A method to list all repositories for an organization.
     #' @param orgs A character vector of organizations (owners of repositories).
+    #' @param by A character, to choose between: \itemize{
+    #'   \item{org}{Organizations - owners of repositories} \item(team){A team}}
+    #' @param team A list of team members. Specified by \code{set_team()} method
+    #'   of GitStats class object.
     #' @return A data.frame of repositories.
-    get_repos_by_org = function(orgs = self$orgs) {
-      tryCatch(
-        {
-          repos_dt <- purrr::map(orgs, function(x) {
-            perform_get_request(
-              endpoint = paste0(self$rest_api_url, "/orgs/", x, "/repos"),
-              token = private$token
-            ) %>%
-              private$tailor_repos_info() %>%
-              private$prepare_repos_table()
-          }) %>%
-            rbindlist()
-        },
-        error = function(e) {
-          warning(paste0("HTTP status ", e$status, " noted when performing request for ", self$rest_api_url, ". \n Are you sure you defined properly your organisations?"),
-            call. = FALSE
-          )
-        }
-      )
-
-      repos_dt
-    },
-
-    #' @description A method to list all repositories
-    #'   for a team.
-    #' @param team A list of team members. Specified
-    #'   by \code{set_team()} method of GitStats class
-    #'   object.
-    #' @param orgs A character vector of organizations (owners of repositories).
-    #' @return A data.frame of repositories
-    get_repos_by_team = function(team,
-                                 orgs = self$orgs) {
+    get_repos = function(orgs = self$orgs,
+                         by,
+                         team) {
       repos_dt <- purrr::map(orgs, function(x) {
         perform_get_request(
           endpoint = paste0(self$rest_api_url, "/orgs/", x, "/repos"),
           token = private$token
         ) %>%
-          private$filter_repos_by_team(team = team) %>%
+          {
+            if (by == "team") {
+              private$filter_repos_by_team(
+                repos_list = .,
+                team = team
+              )
+            } else {
+              .
+            }
+          } %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table()
       }) %>%
@@ -82,50 +66,41 @@ GitHub <- R6::R6Class("GitHub",
     },
 
     #' @description A method to get information on commits.
-    #' @param orgs
-    #' @param date_from
-    #' @param date_until
-    #' @return A data.frame
-    get_commits_by_org = function(orgs = self$orgs,
-                                  date_from,
-                                  date_until = Sys.time()) {
+    #' @param orgs A character vector of organisations (repository owners).
+    #' @param date_from A starting date to look commits for
+    #' @param date_until An end date to look commits for
+    #' @param by A character, to choose between: \itemize{
+    #'   \item{org}{Organizations - owners of repositories} \item(team){A team}}
+    #' @param team A list of team members. Specified by \code{set_team()} method
+    #'   of GitStats class object.
+    #' @return A data.frame of commits
+    get_commits = function(orgs = self$orgs,
+                           date_from,
+                           date_until = Sys.time(),
+                           by,
+                           team) {
       commits_dt <- purrr::map(orgs, function(x) {
         private$get_all_commits_from_owner(
           x,
           date_from,
           date_until
         ) %>%
+          {
+            if (by == "team") {
+              private$filter_commits_by_team(
+                commits_list = .,
+                team = team
+              )
+            } else {
+              .
+            }
+          } %>%
           private$tailor_commits_info(org = x) %>%
           private$attach_commits_stats() %>%
           private$prepare_commits_table()
       }) %>% rbindlist()
 
-      return(commits_dt)
-    },
-
-    #' @description A method to get information on commits.
-    #' @param team
-    #' @param orgs
-    #' @param date_from
-    #' @param date_until
-    #' @return A data.frame
-    get_commits_by_team = function(team,
-                                   orgs = self$orgs,
-                                   date_from,
-                                   date_until = Sys.time()) {
-      commits_dt <- purrr::map(orgs, function(x) {
-        private$get_all_commits_from_owner(
-          x,
-          date_from,
-          date_until
-        ) %>%
-          private$filter_commits_by_team(team) %>%
-          private$tailor_commits_info(org = x) %>%
-          private$attach_commits_stats() %>%
-          private$prepare_commits_table()
-      }) %>% rbindlist()
-
-      return(commits_dt)
+      commits_dt
     },
 
     #' @description A print method for a GitHub object
@@ -136,7 +111,6 @@ GitHub <- R6::R6Class("GitHub",
       cat(paste0(" orgs: ", orgs), sep = "\n")
     }
   ),
-
   private = list(
 
     #' @description A helper to prepare table for repositories content
@@ -166,6 +140,8 @@ GitHub <- R6::R6Class("GitHub",
     },
 
     #' @description Filter by contributors.
+    #' @details If at least one member of a team is a contributor than a project
+    #'   passes through the filter.
     #' @param repos_list A repository list to be filtered.
     #' @param team A character vector with team member names.
     #' @return A list.
@@ -260,7 +236,6 @@ GitHub <- R6::R6Class("GitHub",
     get_all_commits_from_owner = function(repo_owner,
                                           date_from,
                                           date_until = Sys.date()) {
-
       repos_list <- list()
       r_page <- 1
       repeat {
@@ -412,8 +387,8 @@ GitHub <- R6::R6Class("GitHub",
 
         purrr::map2(repo, commit_stats, function(repo_commit, repo_stats) {
           purrr::list_modify(repo_commit,
-                             additions = repo_stats$additions,
-                             deletions = repo_stats$deletions
+            additions = repo_stats$additions,
+            deletions = repo_stats$deletions
           )
         })
       })
@@ -428,6 +403,5 @@ GitHub <- R6::R6Class("GitHub",
           rbindlist()
       }) %>% rbindlist()
     }
-
   )
 )

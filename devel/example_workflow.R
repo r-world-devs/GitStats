@@ -20,20 +20,13 @@ git_stats$set_connection(
 
 git_stats
 
-# examples for getting repos
+# examples for getting repos (default argument for parameter 'by' is 'org')
 
-git_stats$get_repos_by_org()
-
-# you can search repositories by a keyword in code
-
-git_stats$get_repos_by_codephrase("Dashboard")
-
-git_stats$get_repos_by_codephrase("Dashboard",
-                                  language = "Python")
+git_stats$get_repos()
 
 # set your team members
 
-git_stats$set_team(team_name = "RWD",
+git_stats$set_team(team_name = "RWD-IE",
                    "galachad",
                    "krystian8207",
                    "kalimu",
@@ -41,7 +34,7 @@ git_stats$set_team(team_name = "RWD",
                    "Cotau",
                    "maciekbanas")
 
-git_stats$get_repos_by_team("RWD")
+git_stats$get_repos(by = "team")
 
 # you can plot repos sorted by last activity
 
@@ -53,15 +46,18 @@ git_stats$plot_repos(repos_n = 20)
 
 # and reset your repos show and plot it once more
 
-git_stats$get_repos_by_org()$plot_repos(repos_n = 15)
+git_stats$get_repos(by = "org")$plot_repos(repos_n = 15)
 
 # examples for getting commits
-# still based on GraphQL for GitHub with poor performance
 
-git_stats$get_commits_by_team("RWD", date_from = "2022-01-01")$plot_commits(stats_by = "day")
+git_stats$get_commits(date_from = "2022-01-01")
 
-# may occur fatal Bad Gateway error - one of reasons to deprecate GraphQL in GitHub class
+git_stats$plot_commits(stats_by = "day")
 
-git_stats$get_commits_by_team("RWD", date_from = "2020-01-01")$plot_commits(stats_by = "month")
+git_stats$get_commits(date_from = "2022-01-01",
+                      by = "team")$plot_commits(stats_by = "day")
 
-git_stats$get_commits_by_org(date_from = "2022-01-01")$plot_commits(stats_by = "month")
+git_stats$get_commits(date_from = "2020-01-01",
+                      by = "team")$plot_commits(stats_by = "month")
+
+
