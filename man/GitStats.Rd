@@ -186,7 +186,7 @@ A plot.
 \if{html}{\out{<a id="method-plot_commits"></a>}}
 \if{latex}{\out{\hypertarget{method-plot_commits}{}}}
 \subsection{Method \code{plot_commits()}}{
-A method to plot basic commit stats
+A method to plot basic commit stats.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GitStats$plot_commits(
   commits_dt = self$commits_dt,
@@ -194,6 +194,13 @@ A method to plot basic commit stats
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{commits_dt}}{An output of one of \code{get_commits} methods.}
+}
+\if{html}{\out{</div>}}
+}
 \subsection{Returns}{
 A plot.
 }

@@ -11,25 +11,27 @@ test_that("Private get_all_repos_from_owner pulls correctly repositories", {
   orgs <- c("erasmusmc-public-health")
 
   purrr::walk(orgs, function(group) {
-
-    repos_n <- length(perform_get_request(endpoint = paste0("https://gitlab.com/api/v4/groups/", group),
-                                          token = Sys.getenv("GITLAB_PAT"))[["projects"]])
+    repos_n <- length(perform_get_request(
+      endpoint = paste0("https://gitlab.com/api/v4/groups/", group),
+      token = Sys.getenv("GITLAB_PAT")
+    )[["projects"]])
 
     expect_equal(
       length(priv_publ$get_all_repos_from_group(project_group = group)),
       repos_n
     )
-
   })
-
 })
 
 test_that("Get_repos methods pulls repositories from GitLab and translates output into data.frame", {
   testthat::skip_on_ci()
+
+  repo_cols <- c("organisation", "name", "created_at", "last_activity_at", "description", "api_url")
+
   repos <- git_lab_public$get_repos(by = "org")
 
   expect_s3_class(repos, "data.frame")
-  expect_named(repos, c("organisation", "name", "created_at", "last_activity_at", "description", "git_platform", "api_url"))
+  expect_named(repos, repo_cols)
   expect_gt(nrow(repos), 0)
 
   team <- c("davidblok", "erasmgz", "PetradeVries")
@@ -40,6 +42,12 @@ test_that("Get_repos methods pulls repositories from GitLab and translates outpu
   )
 
   expect_s3_class(repos_by_team, "data.frame")
-  expect_named(repos_by_team, c("organisation", "name", "created_at", "last_activity_at", "description", "git_platform", "api_url"))
+  expect_named(repos_by_team, repo_cols)
   expect_gt(nrow(repos_by_team), 0)
+})
+
+test_that("Language handler works properly", {
+  expect_equal(priv_publ$language_handler("r"), "R")
+  expect_equal(priv_publ$language_handler("python"), "Python")
+  expect_equal(priv_publ$language_handler("javascript"), "Javascript")
 })
