@@ -42,7 +42,7 @@ A new \code{GitStats} object
 A method to list all repositories by an organization or a
 team.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos(by = "org")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos(by = "org", print_out = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -50,6 +50,8 @@ team.
 \describe{
 \item{\code{by}}{A chararacter, to choose between: \itemize{
 \item{org}{Organizations} \item(team){Team}}}
+
+\item{\code{print_out}}{A boolean stating whether to print an output.}
 }
 \if{html}{\out{</div>}}
 }
@@ -63,7 +65,7 @@ A data.frame of repositories
 \subsection{Method \code{get_repos_by_codephrase()}}{
 A method to find repositories with given phrase in codelines.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos_by_codephrase(phrase, language = "R")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos_by_codephrase(phrase, language = "R", print_out = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -72,6 +74,8 @@ A method to find repositories with given phrase in codelines.
 \item{\code{phrase}}{A phrase to look for in codelines.}
 
 \item{\code{language}}{A character specifying language used in repositories.}
+
+\item{\code{print_out}}{A boolean stating whether to print an output.}
 }
 \if{html}{\out{</div>}}
 }
@@ -85,7 +89,12 @@ A data.frame of repositories
 \subsection{Method \code{get_commits()}}{
 A method to get information on commits.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits(date_from = NULL, date_until = Sys.time(), by = "org")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits(
+  date_from = NULL,
+  date_until = Sys.time(),
+  by = "org",
+  print_out = TRUE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -97,6 +106,8 @@ A method to get information on commits.
 
 \item{\code{by}}{A chararacter, to choose between: \itemize{
 \item{org}{Organizations} \item(team){Team}}}
+
+\item{\code{print_out}}{A boolean stating whether to print an output.}
 }
 \if{html}{\out{</div>}}
 }

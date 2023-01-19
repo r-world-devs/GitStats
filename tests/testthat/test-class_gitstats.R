@@ -94,7 +94,7 @@ test_that("Get_repos method returns invisible object", {
     orgs = "r-world-devs"
   )
 
-  expect_invisible(test_gitstats$get_repos())
+  expect_invisible(test_gitstats$get_repos(print_out = FALSE))
 })
 
 test_that("Proper information pops out when one wants to get team stats without specifying team", {
@@ -117,9 +117,9 @@ test_that("Setting team functionality and methods with team work correctly", {
     )
   )
 
-  expect_invisible(test_gitstats$get_repos(by = "team"))
+  expect_invisible(test_gitstats$get_repos(by = "team", print_out = FALSE))
   suppressMessages({
-    expect_invisible(test_gitstats$get_commits(date_from = "2022-06-01", by = "team"))
+    expect_invisible(test_gitstats$get_commits(date_from = "2022-06-01", by = "team", print_out = FALSE))
   })
 })
 

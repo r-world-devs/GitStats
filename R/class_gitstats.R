@@ -25,8 +25,10 @@ GitStats <- R6::R6Class("GitStats",
     #'   team.
     #' @param by A chararacter, to choose between: \itemize{
     #'   \item{org}{Organizations} \item(team){Team}}
+    #' @param print_out A boolean stating whether to print an output.
     #' @return A data.frame of repositories
-    get_repos = function(by = "org") {
+    get_repos = function(by = "org",
+                         print_out = TRUE) {
       by <- match.arg(
         by,
         c("org", "team")
@@ -49,7 +51,7 @@ GitStats <- R6::R6Class("GitStats",
         rbindlist() %>%
         dplyr::arrange(last_activity_at)
 
-      print(self$repos_dt)
+      if (print_out) print(self$repos_dt)
 
       invisible(self)
     },
@@ -57,16 +59,18 @@ GitStats <- R6::R6Class("GitStats",
     #' @description A method to find repositories with given phrase in codelines.
     #' @param phrase A phrase to look for in codelines.
     #' @param language A character specifying language used in repositories.
+    #' @param print_out A boolean stating whether to print an output.
     #' @return A data.frame of repositories
     get_repos_by_codephrase = function(phrase,
-                                       language = "R") {
+                                       language = "R",
+                                       print_out = TRUE) {
       repos_dt <- purrr::map(self$clients, ~ .$get_repos_by_codephrase(phrase, language)) %>%
         rbindlist() %>%
         dplyr::arrange(last_activity_at)
 
       self$repos_dt <- repos_dt
 
-      print(repos_dt)
+      if (print_out) print(repos_dt)
 
       invisible(self)
     },
@@ -76,10 +80,12 @@ GitStats <- R6::R6Class("GitStats",
     #' @param date_until An end date to look commits for
     #' @param by A chararacter, to choose between: \itemize{
     #'   \item{org}{Organizations} \item(team){Team}}
+    #' @param print_out A boolean stating whether to print an output.
     #' @return A data.frame of commits
     get_commits = function(date_from = NULL,
                            date_until = Sys.time(),
-                           by = "org") {
+                           by = "org",
+                           print_out = TRUE) {
       if (is.null(date_from)) {
         stop("You need to define `date_from`.", call. = FALSE)
       }
@@ -123,7 +129,7 @@ GitStats <- R6::R6Class("GitStats",
 
       self$commits_dt <- commits_dt
 
-      print(commits_dt)
+      if (print_out) print(commits_dt)
 
       invisible(self)
     },
