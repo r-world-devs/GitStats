@@ -4,7 +4,7 @@
 #' @importFrom rlang %||%
 #'
 #' @title A GitLab API Client class
-#' @description An object with methods to derive information form GitLab API.
+#' @description An object with methods to obtain information form GitLab API.
 
 GitLab <- R6::R6Class("GitLab",
   inherit = GitService,
@@ -119,8 +119,7 @@ GitLab <- R6::R6Class("GitLab",
     #' @return A list.
     get_all_repos_from_group = function(project_group,
                                         rest_api_url = self$rest_api_url,
-                                        token = private$token){
-
+                                        token = private$token) {
       repos_list <- list()
       r_page <- 1
       repeat {
@@ -137,33 +136,6 @@ GitLab <- R6::R6Class("GitLab",
       }
 
       repos_list
-
-    },
-
-    #' @description A helper to prepare table for repositories content
-    #' @param projects_list A projects list
-    #' @return A data.frame
-    prepare_repos_table = function(projects_list) {
-      projects_dt <- purrr::map(projects_list, function(project) {
-        project <- purrr::map(project, function(attr) {
-          attr <- attr %||% ""
-        })
-        data.frame(project)
-      }) %>%
-        data.table::rbindlist()
-
-      if (length(projects_dt) > 0) {
-        projects_dt <- dplyr::mutate(projects_dt,
-          git_platform = "GitLab",
-          api_url = self$rest_api_url,
-          created_at = as.POSIXct(created_at),
-          last_activity_at = difftime(Sys.time(), as.POSIXct(last_activity_at),
-            units = "days"
-          )
-        )
-      }
-
-      return(projects_dt)
     },
 
     #' @description Filter by contributors.
@@ -193,6 +165,23 @@ GitLab <- R6::R6Class("GitLab",
           return(NULL)
         }
       }) %>% purrr::keep(~ length(.) > 0)
+    },
+
+    #' @description A helper to retrieve only important info on repos
+    #' @param projects_list A list, a formatted content of response returned by GET API request
+    #' @return A list of repos with selected information
+    tailor_repos_info = function(projects_list) {
+      projects_list <- purrr::map(projects_list, function(x) {
+        list(
+          "organisation" = x$namespace$path,
+          "name" = x$name,
+          "created_at" = x$created_at,
+          "last_activity_at" = x$last_activity_at,
+          "description" = x$description
+        )
+      })
+
+      projects_list
     },
 
     #' @description Perform get request to search API.
@@ -244,23 +233,6 @@ GitLab <- R6::R6Class("GitLab",
       projects_list
     },
 
-    #' @description A helper to retrieve only important info on repos
-    #' @param projects_list A list, a formatted content of response returned by GET API request
-    #' @return A list of repos with selected information
-    tailor_repos_info = function(projects_list) {
-      projects_list <- purrr::map(projects_list, function(x) {
-        list(
-          "organisation" = x$namespace$path,
-          "name" = x$name,
-          "created_at" = x$created_at,
-          "last_activity_at" = x$last_activity_at,
-          "description" = x$description
-        )
-      })
-
-      projects_list
-    },
-
     #' @description Filter projects by programming
     #'   language
     #' @param projects_list A list of projects to be
@@ -302,16 +274,6 @@ GitLab <- R6::R6Class("GitLab",
       return(filtered_projects_list)
     },
 
-    #' @description
-    #' @param commits_list
-    #' @return A data.frame
-    prepare_commits_table = function(commits_list) {
-      purrr::map(commits_list, function(x) {
-        purrr::map(x, ~ data.frame(.)) %>%
-          rbindlist()
-      }) %>% rbindlist()
-    },
-
     #' @description GitLab private method to derive
     #'   commits from repo with REST API.
     #' @param project_group A character, a group of projects.
@@ -322,12 +284,12 @@ GitLab <- R6::R6Class("GitLab",
                                           date_from,
                                           date_until = Sys.date(),
                                           rest_api_url = self$rest_api_url,
-                                          token = private$token
-                                          ) {
-
-      repos_list <- private$get_all_repos_from_group(project_group = project_group,
-                                                     rest_api_url = rest_api_url,
-                                                     token = token)
+                                          token = private$token) {
+      repos_list <- private$get_all_repos_from_group(
+        project_group = project_group,
+        rest_api_url = rest_api_url,
+        token = token
+      )
 
       repos_names <- purrr::map_chr(repos_list, ~ .$name)
       projects_ids <- purrr::map_chr(repos_list, ~ .$id)
@@ -415,6 +377,7 @@ GitLab <- R6::R6Class("GitLab",
     #'   properly if you provide 'python' language
     #'   with small letter.
     #' @param language A character, language name
+    #' @return A character
     language_handler = function(language) {
       substr(language, 1, 1) <- toupper(substr(language, 1, 1))
 

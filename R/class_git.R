@@ -51,6 +51,41 @@ GitService <- R6::R6Class("GitService",
       } else {
         FALSE
       }
+    },
+
+    #' @description A helper to prepare table for repositories content
+    #' @param repos_list A repository list.
+    #' @return A data.frame.
+    prepare_repos_table = function(repos_list) {
+      repos_dt <- purrr::map(repos_list, function(repo) {
+        repo <- purrr::map(repo, function(attr) {
+          attr <- attr %||% ""
+        })
+        data.frame(repo)
+      }) %>%
+        data.table::rbindlist()
+
+      if (length(repos_dt) > 0) {
+        repos_dt <- dplyr::mutate(repos_dt,
+          api_url = self$rest_api_url,
+          created_at = as.POSIXct(created_at),
+          last_activity_at = difftime(Sys.time(), as.POSIXct(last_activity_at),
+            units = "days"
+          )
+        )
+      }
+
+      return(repos_dt)
+    },
+
+    #' @description A helper to turn list of data.frames into one data.frame
+    #' @param commits_list A list
+    #' @return A data.frame
+    prepare_commits_table = function(commits_list) {
+      purrr::map(commits_list, function(x) {
+        purrr::map(x, ~ data.frame(.)) %>%
+          rbindlist()
+      }) %>% rbindlist()
     }
   )
 )

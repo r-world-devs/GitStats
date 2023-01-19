@@ -4,7 +4,7 @@
 \alias{GitHub}
 \title{A GitHub API Client class}
 \description{
-An object with methods to derive information form GitHub API.
+An object with methods to obtain information form GitHub API.
 }
 \section{Super class}{
 \code{\link[GitStats:GitService]{GitStats::GitService}} -> \code{GitHub}

@@ -1,7 +1,7 @@
 #' @export
 #'
 #' @importFrom R6 R6Class
-#' @importFrom data.table rbindlist
+#' @importFrom data.table rbindlist :=
 #' @importFrom plotly plot_ly
 #' @importFrom purrr map
 #'
@@ -209,8 +209,8 @@ GitStats <- R6::R6Class("GitStats",
         )
     },
 
-    #' @importFrom data.table :=
-    #' @description A method to plot basic commit stats
+    #' @description A method to plot basic commit stats.
+    #' @param commits_dt An output of one of `get_commits` methods.
     #' @return A plot.
     plot_commits = function(commits_dt = self$commits_dt,
                             stats_by = c("day", "week", "month")) {

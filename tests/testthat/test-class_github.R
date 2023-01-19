@@ -30,28 +30,28 @@ test_that("Check correctly if API url is of Enterprise or Public Github", {
 })
 
 test_that("Private get_all_repos_from_owner pulls correctly repositories", {
-
   orgs <- c("openpharma", "r-world-devs", "pharmaverse")
 
   purrr::walk(orgs, function(org) {
-
-    repos_n <- perform_get_request(endpoint = paste0("https://api.github.com/orgs/", org),
-                                   token = Sys.getenv("GITHUB_PAT"))[["public_repos"]]
+    repos_n <- perform_get_request(
+      endpoint = paste0("https://api.github.com/orgs/", org),
+      token = Sys.getenv("GITHUB_PAT")
+    )[["public_repos"]]
 
     expect_equal(
       length(priv_publ$get_all_repos_from_owner(repo_owner = org)),
       repos_n
     )
-
   })
-
 })
 
 test_that("Get_repos methods pulls repositories from GitHub and translates output into data.frame", {
+  repo_cols <- c("organisation", "name", "created_at", "last_activity_at", "description", "api_url")
+
   repos <- git_hub_public$get_repos(by = "org")
 
   expect_s3_class(repos, "data.frame")
-  expect_named(repos, c("organisation", "name", "created_at", "last_activity_at", "description", "git_platform", "api_url"))
+  expect_named(repos, repo_cols)
   expect_gt(nrow(repos), 0)
 
   team <- c("galachad", "kalimu", "maciekbanas", "Cotau", "krystian8207", "marcinkowskak")
@@ -62,6 +62,6 @@ test_that("Get_repos methods pulls repositories from GitHub and translates outpu
   )
 
   expect_s3_class(repos_by_team, "data.frame")
-  expect_named(repos_by_team, c("organisation", "name", "created_at", "last_activity_at", "description", "git_platform", "api_url"))
+  expect_named(repos_by_team, repo_cols)
   expect_gt(nrow(repos_by_team), 0)
 })

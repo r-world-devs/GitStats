@@ -4,7 +4,7 @@
 \alias{GitLab}
 \title{A GitLab API Client class}
 \description{
-An object with methods to derive information form GitLab API.
+An object with methods to obtain information form GitLab API.
 }
 \section{Super class}{
 \code{\link[GitStats:GitService]{GitStats::GitService}} -> \code{GitLab}

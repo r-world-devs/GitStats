@@ -4,7 +4,7 @@
 #' @importFrom rlang %||%
 #'
 #' @title A GitHub API Client class
-#' @description An object with methods to derive information form GitHub API.
+#' @description An object with methods to obtain information form GitHub API.
 
 GitHub <- R6::R6Class("GitHub",
   inherit = GitService,
@@ -117,8 +117,7 @@ GitHub <- R6::R6Class("GitHub",
     #' @return A list.
     get_all_repos_from_owner = function(repo_owner,
                                         rest_api_url = self$rest_api_url,
-                                        token = private$token){
-
+                                        token = private$token) {
       repos_list <- list()
       r_page <- 1
       repeat {
@@ -135,32 +134,6 @@ GitHub <- R6::R6Class("GitHub",
       }
 
       repos_list
-    },
-
-    #' @description A helper to prepare table for repositories content
-    #' @param repos_list A repository list.
-    #' @return A data.frame.
-    prepare_repos_table = function(repos_list) {
-      repos_dt <- purrr::map(repos_list, function(repo) {
-        repo <- purrr::map(repo, function(attr) {
-          attr <- attr %||% ""
-        })
-        data.frame(repo)
-      }) %>%
-        data.table::rbindlist()
-
-      if (length(repos_dt) > 0) {
-        repos_dt <- dplyr::mutate(repos_dt,
-          git_platform = "GitHub",
-          api_url = self$rest_api_url,
-          created_at = as.POSIXct(created_at),
-          last_activity_at = difftime(Sys.time(), as.POSIXct(last_activity_at),
-            units = "days"
-          )
-        )
-      }
-
-      return(repos_dt)
     },
 
     #' @description Filter by contributors.
@@ -190,6 +163,23 @@ GitHub <- R6::R6Class("GitHub",
           return(NULL)
         }
       }) %>% purrr::keep(~ length(.) > 0)
+    },
+
+    #' @description A helper to retrieve only important info on repos
+    #' @param repos_list A list, a formatted content of response returned by GET API request
+    #' @return A list of repos with selected information
+    tailor_repos_info = function(repos_list) {
+      repos_list <- purrr::map(repos_list, function(x) {
+        list(
+          "organisation" = x$owner$login,
+          "name" = x$name,
+          "created_at" = x$created_at,
+          "last_activity_at" = x$updated_at,
+          "description" = x$description
+        )
+      })
+
+      repos_list
     },
 
     #' @description Search code by phrase
@@ -234,23 +224,6 @@ GitHub <- R6::R6Class("GitHub",
       repos_list
     },
 
-    #' @description A helper to retrieve only important info on repos
-    #' @param repos_list A list, a formatted content of response returned by GET API request
-    #' @return A list of repos with selected information
-    tailor_repos_info = function(repos_list) {
-      repos_list <- purrr::map(repos_list, function(x) {
-        list(
-          "organisation" = x$owner$login,
-          "name" = x$name,
-          "created_at" = x$created_at,
-          "last_activity_at" = x$updated_at,
-          "description" = x$description
-        )
-      })
-
-      repos_list
-    },
-
     #' @description GitHub private method to pull
     #'   commits from repo with REST API.
     #' @param repo_owner A character, an owner of repository.
@@ -263,12 +236,12 @@ GitHub <- R6::R6Class("GitHub",
                                           date_from,
                                           date_until = Sys.date(),
                                           rest_api_url = self$rest_api_url,
-                                          token = private$token
-                                          ) {
-
-      repos_list <- private$get_all_repos_from_owner(repo_owner = repo_owner,
-                                                     rest_api_url = rest_api_url,
-                                                     token = token)
+                                          token = private$token) {
+      repos_list <- private$get_all_repos_from_owner(
+        repo_owner = repo_owner,
+        rest_api_url = rest_api_url,
+        token = token
+      )
 
       enterprise_public <- if (self$enterprise) {
         "Enterprise"
@@ -411,16 +384,6 @@ GitHub <- R6::R6Class("GitHub",
           )
         })
       })
-    },
-
-    #' @description
-    #' @param commits_list
-    #' @return A data.frame
-    prepare_commits_table = function(commits_list) {
-      purrr::map(commits_list, function(x) {
-        purrr::map(x, ~ data.frame(.)) %>%
-          rbindlist()
-      }) %>% rbindlist()
     }
   )
 )
