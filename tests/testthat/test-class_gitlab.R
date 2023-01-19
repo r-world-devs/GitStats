@@ -1,5 +1,3 @@
-testthat::skip_on_ci()
-
 git_lab_public <- GitLab$new(
   rest_api_url = "https://gitlab.com/api/v4",
   token = Sys.getenv("GITLAB_PAT"),
@@ -7,6 +5,7 @@ git_lab_public <- GitLab$new(
 )
 
 test_that("Get_repos methods pulls repositories from GitLab and translates output into data.frame", {
+  testthat::skip_on_ci()
   repos <- git_lab_public$get_repos(by = "org")
 
   expect_s3_class(repos, "data.frame")
