@@ -1,3 +1,5 @@
+testthat::skip_on_ci()
+
 git_lab_public <- GitLab$new(
   rest_api_url = "https://gitlab.com/api/v4",
   token = Sys.getenv("GITLAB_PAT"),
