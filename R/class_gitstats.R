@@ -32,7 +32,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @return A data.frame of repositories
     get_repos = function(by = "org",
                          phrase = NULL,
-                         language = NULL,
+                         language = "R",
                          print_out = TRUE) {
       by <- match.arg(
         by,

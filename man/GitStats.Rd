@@ -41,12 +41,7 @@ A new \code{GitStats} object
 A method to list all repositories for an organization,
 a team or by a codephrase.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos(
-  by = "org",
-  phrase = NULL,
-  language = NULL,
-  print_out = TRUE
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos(by = "org", phrase = NULL, language = "R", print_out = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
