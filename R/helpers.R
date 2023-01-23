@@ -10,8 +10,8 @@
 search_request <- function(search_endpoint,
                            total_n,
                            byte_max,
-                           token,
-                           divider = 1e3) {
+                           token) {
+
   if (total_n > 0 & total_n < 100) {
     resp_list <- perform_get_request(paste0(search_endpoint, "+size:0..", byte_max, "&page=1&per_page=100"),
       token = token
@@ -31,7 +31,7 @@ search_request <- function(search_endpoint,
     resp_list
   } else if (total_n >= 1e3) {
     resp_list <- list()
-    index <- c(0, divider)
+    index <- c(0, 50)
 
     pb <- progress::progress_bar$new(
       format = "GitHub search limit (1000 results) exceeded. Results will be divided. :elapsedfull"
@@ -56,7 +56,7 @@ search_request <- function(search_endpoint,
       if (is.null(n_count)) {
         NULL
       } else if ((n_count - 1) %/% 100 > 0) {
-        for (page in (1:(n_count %/% 100))) {
+        for (page in (1:(n_count %/% 100) + 1)) {
           resp_list <- perform_get_request(paste0(search_endpoint, size_formula, "&page=", page, "&per_page=100"),
             token = token
           )[["items"]] %>% append(resp_list, .)
@@ -69,7 +69,16 @@ search_request <- function(search_endpoint,
       }
 
       index[1] <- index[2]
-      index[2] <- index[2] + divider
+
+      if (index[2] < 1e3)
+        index[2] <- index[2] + 50
+      if (index[2] >= 1e3 && index[2] < 1e4)
+        index[2] <- index[2] + 100
+      if (index[2] >= 1e4 && index[2] < 1e5)
+        index[2] <- index[2] + 1000
+      if (index[2] >= 1e5 && index[2] < 1e6)
+        index[2] <- index[2] + 10000
+
     }
 
     resp_list
@@ -126,24 +135,4 @@ resp_error_body <- function(resp) {
     message <- c(message, paste0("See docs at <", body$documentation_url, ">"))
   }
   message
-}
-
-#' @importFrom ghql GraphqlClient Query
-#' @description Get response form GitHub GraphQL API endpoint.
-#' @details Typically, you might get a HTTP 502 Error - an uninformative one. In
-#'   that case repeat the request.
-get_resp_gql <- function(api_url, token, query) {
-  con <- ghql::GraphqlClient$new(
-    url = api_url,
-    headers = list(Authorization = paste0("Bearer ", token))
-  )
-
-  qry <- ghql::Query$new()
-
-  qry$query("getcommits", query)
-
-  data_from_json <- con$exec(qry$queries$getcommits) %>%
-    jsonlite::fromJSON()
-
-  return(data_from_json)
 }

@@ -11,53 +11,51 @@ GitHub <- R6::R6Class("GitHub",
   cloneable = FALSE,
   public = list(
 
-    #' @description A method to list all repositories for an organization.
+    #' @description  A method to list all repositories for an organization,
+    #'   a team or by a codephrase.
     #' @param orgs A character vector of organizations (owners of repositories).
     #' @param by A character, to choose between: \itemize{
-    #'   \item{org}{Organizations - owners of repositories} \item(team){A team}}
+    #'   \item{org}{Organizations - owners of repositories} \item(team){A team}
+    #'   \item(phrase){A keyword in code blobs.}}
     #' @param team A list of team members. Specified by \code{set_team()} method
     #'   of GitStats class object.
+    #' @param phrase A character to look for in code blobs. Obligatory if
+    #'   \code{by} parameter set to \code{"phrase"}.
+    #' @param language A character specifying language used in repositories.
     #' @return A data.frame of repositories.
     get_repos = function(orgs = self$orgs,
                          by,
-                         team) {
+                         team,
+                         phrase,
+                         language = NULL) {
       repos_dt <- purrr::map(orgs, function(x) {
-        private$get_all_repos_from_owner(repo_owner = x) %>%
-          {
-            if (by == "team") {
-              private$filter_repos_by_team(
-                repos_list = .,
-                team = team
-              )
-            } else {
-              .
+        if (by == "phrase") {
+          repos_list <- private$search_by_codephrase(phrase,
+            repo_owner = x,
+            language = language
+          )
+
+          message(paste0("\n On GitHub platform (", self$rest_api_url, ") found ", length(repos_list), " repositories
+               with searched codephrase and concerning ", language, " language and ", x, " organization."))
+        } else {
+          repos_list <- private$get_all_repos_from_owner(repo_owner = x) %>%
+            {
+              if (by == "team") {
+                private$filter_repos_by_team(
+                  repos_list = .,
+                  team = team
+                )
+              } else {
+                .
+              }
             }
-          } %>%
+        }
+
+        repos_dt <- repos_list %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table()
       }) %>%
         rbindlist()
-
-      repos_dt
-    },
-
-    #' @description A method to find repositories with given phrase in codelines.
-    #' @param phrase A phrase to look for in codelines.
-    #' @param language A character specifying language used in repositories.
-    #' @return A data.frame of repositories.
-    get_repos_by_codephrase = function(phrase,
-                                       language = "R") {
-      repos_dt <- private$search_by_codephrase(phrase,
-        api_url = self$rest_api_url,
-        language = language
-      ) %>%
-        purrr::map_chr(~ .$repository$id) %>%
-        unique() %>%
-        private$find_repos_by_id() %>%
-        private$tailor_repos_info() %>%
-        private$prepare_repos_table()
-
-      message(paste0("On GitHub platform (", self$rest_api_url, ") found ", nrow(repos_dt), " repositories with searched codephrase and concerning ", language, " language."))
 
       repos_dt
     },
@@ -185,18 +183,20 @@ GitHub <- R6::R6Class("GitHub",
     #' @description Search code by phrase
     #' @param phrase A phrase to look for in
     #'   codelines.
+    #' @param repo_owner A character, an owner of repository.
     #' @param language A character specifying language used in repositories.
     #' @param byte_max According to GitHub
     #'   documentation only files smaller than 384 KB are searchable. See
     #'   \link{https://docs.github.com/en/rest/search?apiVersion=2022-11-28#search-code}
     #'
-    #' @return A list as a formatted content of a response.
+    #' @return A list of repositories.
     search_by_codephrase = function(phrase,
+                                    repo_owner,
                                     language,
                                     byte_max = "384000",
                                     api_url = self$rest_api_url,
                                     token = private$token) {
-      search_endpoint <- paste0(api_url, "/search/code?q='", phrase, "'+language:", language)
+      search_endpoint <- paste0(api_url, "/search/code?q='", phrase, "'+user:", repo_owner, "+language:", language)
       # byte_max <- as.character(byte_max)
 
       total_n <- perform_get_request(search_endpoint,
@@ -204,6 +204,10 @@ GitHub <- R6::R6Class("GitHub",
       )[["total_count"]]
 
       repos_list <- search_request(search_endpoint, total_n, byte_max, token)
+
+      repos_list <- purrr::map_chr(repos_list, ~ .$repository$id) %>%
+        unique() %>%
+        private$find_repos_by_id()
 
       return(repos_list)
     },

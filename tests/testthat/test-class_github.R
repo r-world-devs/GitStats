@@ -64,4 +64,29 @@ test_that("Get_repos methods pulls repositories from GitHub and translates outpu
   expect_s3_class(repos_by_team, "data.frame")
   expect_named(repos_by_team, repo_cols)
   expect_gt(nrow(repos_by_team), 0)
+
+  git_hub_public <- GitHub$new(
+    rest_api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("openpharma", "pharmaverse")
+  )
+
+  search_params <- tibble::tibble(
+    phrase = c("diabetes", "covid"),
+    language = c("R", "R")
+  )
+
+  purrr::pwalk(search_params, function(phrase, language) {
+    suppressMessages(
+      repos_by_key <- git_hub_public$get_repos(
+        by = "phrase",
+        phrase = phrase,
+        language = language
+      )
+    )
+
+    expect_s3_class(repos_by_key, "data.frame")
+    expect_named(repos_by_key, repo_cols)
+    expect_gt(nrow(repos_by_key), 0)
+  })
 })

@@ -11,7 +11,6 @@ An R6 class object with methods to derive information from multiple Git platform
 \itemize{
 \item \href{#method-new}{\code{GitStats$new()}}
 \item \href{#method-get_repos}{\code{GitStats$get_repos()}}
-\item \href{#method-get_repos_by_codephrase}{\code{GitStats$get_repos_by_codephrase()}}
 \item \href{#method-get_commits}{\code{GitStats$get_commits()}}
 \item \href{#method-set_connection}{\code{GitStats$set_connection()}}
 \item \href{#method-set_team}{\code{GitStats$set_team()}}
@@ -39,38 +38,24 @@ A new \code{GitStats} object
 \if{html}{\out{<a id="method-get_repos"></a>}}
 \if{latex}{\out{\hypertarget{method-get_repos}{}}}
 \subsection{Method \code{get_repos()}}{
-A method to list all repositories by an organization or a
-team.
+A method to list all repositories for an organization,
+a team or by a codephrase.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos(by = "org", print_out = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos(
+  by = "org",
+  phrase = NULL,
+  language = NULL,
+  print_out = TRUE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{by}}{A chararacter, to choose between: \itemize{
-\item{org}{Organizations} \item(team){Team}}}
+\item{\code{by}}{A character, to choose between: \itemize{
+\item{org}{Organizations - owners of repositories} \item(team){A team}
+\item(phrase){A keyword in code blobs.}}}
 
-\item{\code{print_out}}{A boolean stating whether to print an output.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A data.frame of repositories
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos_by_codephrase"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos_by_codephrase}{}}}
-\subsection{Method \code{get_repos_by_codephrase()}}{
-A method to find repositories with given phrase in codelines.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos_by_codephrase(phrase, language = "R", print_out = TRUE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
 \item{\code{phrase}}{A phrase to look for in codelines.}
 
 \item{\code{language}}{A character specifying language used in repositories.}

@@ -3,7 +3,7 @@ Title: Get Statistics from Git Hosting Services
 Version: 0.0.0.9000
 Authors@R: 
     person("Maciej", "Banas", , "banasmaciek@gmail.com", role = c("aut", "cre"))
-Description: Derives statistics in a standardized way from multiple Git services: GitHub and GitLab for the time-being. 
+Description: Obtain statistics in a standardized way from multiple Git services: GitHub and GitLab for the time-being. 
     Its main purpose is to help teams, whose activities are spread across multiple git platforms, get their repository 
     metadata in a standardized way from all these platforms.
 License: MIT + file LICENSE
