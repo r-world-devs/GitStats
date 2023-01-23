@@ -46,13 +46,20 @@ test_that("Private get_all_repos_from_owner pulls correctly repositories", {
 })
 
 test_that("Get_repos methods pulls repositories from GitHub and translates output into data.frame", {
-  repo_cols <- c("organisation", "name", "created_at", "last_activity_at", "description", "api_url")
 
   repos <- git_hub_public$get_repos(by = "org")
 
-  expect_s3_class(repos, "data.frame")
-  expect_named(repos, repo_cols)
-  expect_gt(nrow(repos), 0)
+  expect_repos_table(repos)
+
+  repos_R <- git_hub_public$get_repos(by = "org",
+                                      language = "R")
+
+  expect_repos_table(repos_R)
+
+  repos_Python <- git_hub_public$get_repos(by = "org",
+                                           language = "Python")
+
+  expect_empty_table(repos_Python)
 
   team <- c("galachad", "kalimu", "maciekbanas", "Cotau", "krystian8207", "marcinkowskak")
 
@@ -61,9 +68,7 @@ test_that("Get_repos methods pulls repositories from GitHub and translates outpu
     team = team
   )
 
-  expect_s3_class(repos_by_team, "data.frame")
-  expect_named(repos_by_team, repo_cols)
-  expect_gt(nrow(repos_by_team), 0)
+  expect_repos_table(repos_by_team)
 
   git_hub_public <- GitHub$new(
     rest_api_url = "https://api.github.com",
@@ -85,8 +90,6 @@ test_that("Get_repos methods pulls repositories from GitHub and translates outpu
       )
     )
 
-    expect_s3_class(repos_by_key, "data.frame")
-    expect_named(repos_by_key, repo_cols)
-    expect_gt(nrow(repos_by_key), 0)
+    expect_repos_table(repos_by_key)
   })
 })

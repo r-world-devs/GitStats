@@ -97,6 +97,18 @@ test_that("Get_repos method returns invisible object", {
   expect_invisible(test_gitstats$get_repos(print_out = FALSE))
 })
 
+test_that("Setting language works correctly", {
+
+  expect_invisible(test_gitstats$get_repos(language = "R",
+                                           print_out = FALSE))
+
+  expect_message(test_gitstats$get_repos(language = "Python",
+                                         print_out = FALSE),
+                 "Empty object")
+
+
+})
+
 test_that("Proper information pops out when one wants to get team stats without specifying team", {
   expect_error(
     test_gitstats$get_repos(by = "team"),
@@ -147,12 +159,10 @@ test_that("Get repos by phrase works correctly", {
                             print_out = FALSE)
   )
 
-  expect_invisible(
-    test_gitstats$get_repos(by = "phrase",
-                            phrase = "pokemon",
-                            language = "R",
-                            print_out = FALSE)
-  )
+  expect_message(test_gitstats$get_repos(by = "phrase",
+                                         phrase = "pokemon",
+                                         print_out = FALSE),
+                 "Empty object")
 
 })
 

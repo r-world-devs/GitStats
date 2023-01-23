@@ -33,8 +33,7 @@ GitLab <- R6::R6Class("GitLab",
       repos_dt <- purrr::map(orgs, function(x) {
         if (by == "phrase") {
           repos_list <- private$search_by_codephrase(phrase,
-            project_group = x,
-            language = language
+            project_group = x
           )
 
           message(paste0("\n On GitLab platform (", self$rest_api_url, ") found ", length(repos_list), " repositories
@@ -46,6 +45,15 @@ GitLab <- R6::R6Class("GitLab",
                 private$filter_projects_by_team(
                   projects_list = .,
                   team = team
+                )
+              } else {
+                .
+              }
+            } %>% {
+              if (!is.null(language)) {
+                private$filter_by_language(
+                  projects_list = .,
+                  language = language
                 )
               } else {
                 .
@@ -164,6 +172,50 @@ GitLab <- R6::R6Class("GitLab",
       }) %>% purrr::keep(~ length(.) > 0)
     },
 
+    #' @description Filter projects by programming
+    #'   language
+    #' @param projects_list A list of projects to be
+    #'   filtered.
+    #' @param language A character, name of a
+    #'   programming language.
+    #' @details This method is specific for GitLab
+    #'   Client class as there is no possibility
+    #'   currently to add language filter to search
+    #'   endpoint. As for now, an epic is in progress
+    #'   on GitLab to add this feature. For more
+    #'   details you can visit:
+    #'   \link{https://gitlab.com/gitlab-org/gitlab/-/issues/342648}
+    #' @return A list of projects where speicfied
+    #'   language is used.
+    filter_by_language = function(projects_list,
+                                  language,
+                                  api_url = self$rest_api_url,
+                                  token = private$token) {
+
+      projects_id <- unique(purrr::map_chr(projects_list, ~ .$id))
+
+      projects_language_list <- purrr::map(projects_id, function(x) {
+        perform_get_request(
+          endpoint = paste0(api_url, "/projects/", x, "/languages"),
+          token = token
+        )
+      })
+
+      names(projects_language_list) <- projects_id
+
+      filtered_projects <- purrr::map(projects_language_list, function(x) {
+        purrr::map_chr(x, ~.)
+      }) %>%
+        purrr::keep(~ language %in% names(.))
+
+      if (length(filtered_projects) > 0){
+        purrr::keep(projects_list, ~ .$id %in% names(filtered_projects))
+      } else {
+        list()
+      }
+
+    },
+
     #' @description A helper to retrieve only important info on repos
     #' @param projects_list A list, a formatted content of response returned by GET API request
     #' @return A list of repos with selected information
@@ -184,12 +236,10 @@ GitLab <- R6::R6Class("GitLab",
     #' @description Perform get request to search API.
     #' @param phrase A phrase to look for in codelines.
     #' @param project_group A character, a group of projects.
-    #' @param language A character specifying language used in repositories.
     #' @param page_max
     #' @return A list of repositories.
     search_by_codephrase = function(phrase,
                                     project_group,
-                                    language,
                                     page_max = 1e6,
                                     api_url = self$rest_api_url,
                                     token = private$token) {
@@ -212,9 +262,7 @@ GitLab <- R6::R6Class("GitLab",
         }
       }
 
-      repos_list <- private$filter_by_language(resp_list, language)
-
-      repos_list <- purrr::map_chr(repos_list, ~ .$project_id) %>%
+      repos_list <- purrr::map_chr(resp_list, ~ .$project_id) %>%
         unique() %>%
         private$find_projects_by_id()
 
@@ -235,47 +283,6 @@ GitLab <- R6::R6Class("GitLab",
       })
 
       projects_list
-    },
-
-    #' @description Filter projects by programming
-    #'   language
-    #' @param projects_list A list of projects to be
-    #'   filtered.
-    #' @param language A character, name of a
-    #'   programming language.
-    #' @details This method is specific for GitLab
-    #'   Client class as there is no possibility
-    #'   currently to add language filter to search
-    #'   endpoint. As for now, an epic is in progress
-    #'   on GitLab to add this feature. For more
-    #'   details you can visit:
-    #'   \link{https://gitlab.com/gitlab-org/gitlab/-/issues/342648}
-    #' @return A list of projects where speicfied
-    #'   language is used.
-    #'
-    filter_by_language = function(projects_list,
-                                  language,
-                                  api_url = self$rest_api_url,
-                                  token = private$token) {
-      projects_id <- unique(purrr::map_chr(projects_list, ~ .$project_id))
-
-      projects_language_list <- purrr::map(projects_id, function(x) {
-        perform_get_request(
-          endpoint = paste0(api_url, "/projects/", x, "/languages"),
-          token = token
-        )
-      })
-
-      names(projects_language_list) <- projects_id
-
-      filtered_projects <- purrr::map(projects_language_list, function(x) {
-        purrr::map_chr(x, ~.)
-      }) %>%
-        purrr::keep(~ language %in% names(.))
-
-      filtered_projects_list <- purrr::keep(projects_list, ~ .$project_id %in% names(filtered_projects))
-
-      return(filtered_projects_list)
     },
 
     #' @description GitLab private method to derive

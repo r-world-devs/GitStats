@@ -26,13 +26,19 @@ test_that("Private get_all_repos_from_owner pulls correctly repositories", {
 test_that("Get_repos methods pulls repositories from GitLab and translates output into data.frame", {
   testthat::skip_on_ci()
 
-  repo_cols <- c("organisation", "name", "created_at", "last_activity_at", "description", "api_url")
-
   repos <- git_lab_public$get_repos(by = "org")
 
-  expect_s3_class(repos, "data.frame")
-  expect_named(repos, repo_cols)
-  expect_gt(nrow(repos), 0)
+  expect_repos_table(repos)
+
+  repos_R <- git_lab_public$get_repos(by = "org",
+                                      language = "R")
+
+  expect_repos_table(repos_R)
+
+  repos_Python <- git_lab_public$get_repos(by = "org",
+                                           language = "Python")
+
+  expect_empty_table(repos_Python)
 
   team <- c("davidblok", "erasmgz", "PetradeVries")
 
@@ -41,9 +47,7 @@ test_that("Get_repos methods pulls repositories from GitLab and translates outpu
     team = team
   )
 
-  expect_s3_class(repos_by_team, "data.frame")
-  expect_named(repos_by_team, repo_cols)
-  expect_gt(nrow(repos_by_team), 0)
+  expect_repos_table(repos_by_team)
 
   repos_by_key <- git_lab_public$get_repos(
     by = "phrase",
@@ -51,18 +55,14 @@ test_that("Get_repos methods pulls repositories from GitLab and translates outpu
     language = "R"
   )
 
-  expect_s3_class(repos_by_key, "data.frame")
-  expect_named(repos_by_key, repo_cols)
-  expect_gt(nrow(repos_by_key), 0)
+  expect_repos_table(repos_by_key)
 
   repos_pokemon <- git_lab_public$get_repos(
     by = "phrase",
-    phrase = "pokemon",
-    language = "R"
+    phrase = "pokemon"
   )
 
-  expect_s3_class(repos_by_key, "data.frame")
-  expect_length(repos_pokemon, 0)
+  expect_empty_table(repos_pokemon)
 })
 
 test_that("Language handler works properly", {
