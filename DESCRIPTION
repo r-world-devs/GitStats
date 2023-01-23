@@ -13,15 +13,14 @@ RoxygenNote: 7.2.1
 Imports:
     data.table,
     dplyr,
-    jsonlite,
     magrittr,
-    ghql,
     httr2,
     plotly,
     progress,
     rlang,
     R6,
-    purrr
+    purrr,
+    tibble
 Suggests: 
     covr,
     testthat (>= 3.0.0)
