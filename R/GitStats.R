@@ -1,5 +1,3 @@
-#' @export
-#'
 #' @importFrom R6 R6Class
 #' @importFrom data.table rbindlist :=
 #' @importFrom plotly plot_ly
