@@ -32,7 +32,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @return A data.frame of repositories
     get_repos = function(by = "org",
                          phrase = NULL,
-                         language = "R",
+                         language = NULL,
                          print_out = TRUE) {
       by <- match.arg(
         by,
@@ -40,7 +40,8 @@ GitStats <- R6::R6Class("GitStats",
       )
 
       if (by == "org") {
-        repos_dt_list <- purrr::map(self$clients, ~ .$get_repos(by = by))
+        repos_dt_list <- purrr::map(self$clients, ~ .$get_repos(by = by,
+                                                                language = language))
       } else if (by == "team") {
         if (is.null(self$team)) {
           stop("You have to specify a team first with 'set_team()' method.", call. = FALSE)
@@ -48,6 +49,7 @@ GitStats <- R6::R6Class("GitStats",
         team <- self$team[[1]]
         repos_dt_list <- purrr::map(self$clients, ~ .$get_repos(
           by = "team",
+          language = language,
           team = team
         ))
       } else if (by == "phrase") {
@@ -68,6 +70,8 @@ GitStats <- R6::R6Class("GitStats",
 
         if (print_out) print(self$repos_dt)
 
+      } else {
+        message("Empty object - will not be saved.")
       }
 
       invisible(self)

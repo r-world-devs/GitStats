@@ -48,6 +48,15 @@ GitHub <- R6::R6Class("GitHub",
               } else {
                 .
               }
+            } %>% {
+              if (!is.null(language)) {
+                private$filter_by_language(
+                  repos_list = .,
+                  language = language
+                )
+              } else {
+                .
+              }
             }
         }
 
@@ -119,8 +128,10 @@ GitHub <- R6::R6Class("GitHub",
       repos_list <- list()
       r_page <- 1
       repeat {
+        repos_endpoint <- paste0(rest_api_url, "/orgs/", repo_owner, "/repos?per_page=100&page=", r_page)
+
         repos_page <- perform_get_request(
-          endpoint = paste0(rest_api_url, "/orgs/", repo_owner, "/repos?per_page=100&page=", r_page),
+          endpoint = repos_endpoint,
           token = token
         )
         if (length(repos_page) > 0) {
@@ -163,6 +174,17 @@ GitHub <- R6::R6Class("GitHub",
       }) %>% purrr::keep(~ length(.) > 0)
     },
 
+    #' @description Method to filter repositories by language used
+    #' @param repos_list A repository list to be filtered.
+    #' @param language A character specifying language used in repositories.
+    #' @return A list of repositories.
+    filter_by_language = function(repos_list,
+                                  language) {
+
+      purrr::keep(repos_list, ~length(intersect(.$language, language)) > 0)
+
+    },
+
     #' @description A helper to retrieve only important info on repos
     #' @param repos_list A list, a formatted content of response returned by GET API request
     #' @return A list of repos with selected information
@@ -196,8 +218,12 @@ GitHub <- R6::R6Class("GitHub",
                                     byte_max = "384000",
                                     api_url = self$rest_api_url,
                                     token = private$token) {
-      search_endpoint <- paste0(api_url, "/search/code?q='", phrase, "'+user:", repo_owner, "+language:", language)
-      # byte_max <- as.character(byte_max)
+
+      search_endpoint <- if (!is.null(language)) {
+        paste0(api_url, "/search/code?q='", phrase, "'+user:", repo_owner, "+language:", language)
+      } else {
+        paste0(api_url, "/search/code?q='", phrase, "'+user:", repo_owner)
+      }
 
       total_n <- perform_get_request(search_endpoint,
         token = token

@@ -54,6 +54,19 @@ test_that("Get_repos methods pulls repositories from GitHub and translates outpu
   expect_named(repos, repo_cols)
   expect_gt(nrow(repos), 0)
 
+  repos_R <- git_hub_public$get_repos(by = "org",
+                                      language = "R")
+
+  expect_s3_class(repos_R, "data.frame")
+  expect_named(repos_R, repo_cols)
+  expect_gt(nrow(repos_R), 0)
+
+  repos_Python <- git_hub_public$get_repos(by = "org",
+                                           language = "Python")
+
+  expect_s3_class(repos_Python, "data.frame")
+  expect_length(repos_Python, 0)
+
   team <- c("galachad", "kalimu", "maciekbanas", "Cotau", "krystian8207", "marcinkowskak")
 
   repos_by_team <- git_hub_public$get_repos(
