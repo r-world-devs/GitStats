@@ -312,3 +312,67 @@ GitStats <- R6::R6Class("GitStats",
     }
   )
 )
+
+#' @title Create a `GitStats` object
+#' @name create_gitstats
+#' @examples
+#'  my_gitstats <- create_gitstats()
+#' @return A `GitStats` object.
+#' @export
+create_gitstats <- function() {
+  GitStats$new()
+}
+
+#' @title Setting connections
+#' @name set_connection
+#' @param gitstats_obj A GitStats object.
+#' @examples
+#' \dontrun{
+#' my_gitstats <- create_gitstats %>%
+#'   set_connection(api_url = "https://api.github.com",
+#'                  token = Sys.getenv("GITHUB_PAT"),
+#'                  orgs = c("r-world-devs", "openpharma", "pharmaverse")) %>%
+#'   set_connection(api_url = "https://gitlab.com/api/v4",
+#'                  token = Sys.getenv("GITLAB_PAT"),
+#'                  orgs = "erasmusmc-public-health")
+#' }
+#' @return A `GitStats` class object with added connection information.
+#' @export
+set_connection <- function(gitstats_obj,
+                           api_url,
+                           token,
+                           orgs = NULL) {
+
+  gitstats_obj$set_connection(api_url = api_url,
+                              token = token,
+                              orgs = orgs)
+
+  return(invisible(gitstats_obj))
+}
+
+#' @title Get information on repositories
+#' @name get_repos
+#' @description  List all repositories for an organization, a team or by a
+#'   codephrase.
+#' @param gitstats_obj A GitStats object.
+#' @param by A character, to choose between: \itemize{ \item{org}{Organizations
+#'   - owners of repositories} \item(team){A team} \item(phrase){A keyword in
+#'   code blobs.}}
+#' @param phrase A phrase to look for in codelines.
+#' @param language A character specifying language used in repositories.
+#' @param print_out A boolean stating whether to print an output.
+#' @return A data.frame of repositories
+#' @export
+get_repos = function(gitstats_obj,
+                     by = "org",
+                     phrase = NULL,
+                     language = NULL,
+                     print_out = TRUE) {
+
+  gitstats_obj$get_repos(by = by,
+                         phrase = phrase,
+                         language = language,
+                         print_out = print_out)
+
+  return(invisible(gitstats_obj))
+}

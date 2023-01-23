@@ -1,28 +1,24 @@
 #file with example workflow for basic package functionality - will be helpful later tu build vignettes
 
-git_stats <- GitStats$new()
+# Start by creating your GitStats object and setting connections.
 
-git_stats$set_connection(
-  api_url = "https://api.github.com",
-  token = Sys.getenv("GITHUB_PAT"), # You can set up your own token as an environment variable in .Renviron file (based in home directory)
-  orgs = c("openpharma", "r-world-devs")
-)
-
-git_stats
-
-# you can add new connection, e.g. from GitLab
-
-git_stats$set_connection(
-  api_url = "https://gitlab.com/api/v4",
-  token = Sys.getenv("GITLAB_PAT"),
-  orgs = c("erasmusmc-public-health")
-)
+git_stats <- create_gitstats() %>%
+  set_connection(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"), # You can set up your own token as an environment variable in .Renviron file (based in home directory)
+    orgs = c("openpharma", "r-world-devs")
+  ) %>%
+  set_connection(
+    api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT"),
+    orgs = c("erasmusmc-public-health")
+  )
 
 git_stats
 
 # examples for getting repos (default argument for parameter 'by' is 'org')
 
-git_stats$get_repos()
+get_repos(git_stats)
 
 # set your team members
 
