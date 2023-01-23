@@ -44,10 +44,33 @@ test_that("Get_repos methods pulls repositories from GitLab and translates outpu
   expect_s3_class(repos_by_team, "data.frame")
   expect_named(repos_by_team, repo_cols)
   expect_gt(nrow(repos_by_team), 0)
+
+  repos_by_key <- git_lab_public$get_repos(
+    by = "phrase",
+    phrase = "clinical",
+    language = "R"
+  )
+
+  expect_s3_class(repos_by_key, "data.frame")
+  expect_named(repos_by_key, repo_cols)
+  expect_gt(nrow(repos_by_key), 0)
+
+  repos_pokemon <- git_lab_public$get_repos(
+    by = "phrase",
+    phrase = "pokemon",
+    language = "R"
+  )
+
+  expect_s3_class(repos_by_key, "data.frame")
+  expect_length(repos_pokemon, 0)
 })
 
 test_that("Language handler works properly", {
   expect_equal(priv_publ$language_handler("r"), "R")
   expect_equal(priv_publ$language_handler("python"), "Python")
   expect_equal(priv_publ$language_handler("javascript"), "Javascript")
+})
+
+test_that("Get_group_id gets group's id", {
+  expect_equal(priv_publ$get_group_id("erasmusmc-public-health"), 2853599)
 })

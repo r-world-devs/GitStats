@@ -11,56 +11,53 @@ GitLab <- R6::R6Class("GitLab",
   cloneable = FALSE,
   public = list(
 
-    #' @description A method to list all repositories for an organization or for
-    #'   a team.
+    #' @description A method to list all repositories for an organization, a
+    #'   team or by a codephrase.
     #' @param orgs A character vector of organisations (project groups).
     #' @param by A character, to choose between: \itemize{
-    #'   \item{org}{Organizations - groups of projects} \item(team){A team}}
+    #'   \item{org}{Organizations - groups of projects} \item(team){A team}
+    #'   \item(phrase){A keyword in code blobs.}}
     #' @param team A list of team members. Specified by \code{set_team()} method
     #'   of GitStats class object.
+    #' @param phrase A phrase to look for in codelines. Obligatory if \code{by}
+    #'   parameter set to \code{"phrase"}.
+    #' @param language A character specifying language used in repositories.
     #' @return A data.frame of repositories
     get_repos = function(orgs = self$orgs,
                          by,
-                         team) {
+                         team,
+                         phrase,
+                         language = NULL) {
+      language <- private$language_handler(language)
+
       repos_dt <- purrr::map(orgs, function(x) {
-        private$get_all_repos_from_group(project_group = x) %>%
-          {
-            if (by == "team") {
-              private$filter_projects_by_team(
-                projects_list = .,
-                team = team
-              )
-            } else {
-              .
+        if (by == "phrase") {
+          repos_list <- private$search_by_codephrase(phrase,
+            project_group = x,
+            language = language
+          )
+
+          message(paste0("\n On GitLab platform (", self$rest_api_url, ") found ", length(repos_list), " repositories
+                 with searched codephrase and concerning ", language, " language and ", x, " organization."))
+        } else {
+          repos_list <- private$get_all_repos_from_group(project_group = x) %>%
+            {
+              if (by == "team") {
+                private$filter_projects_by_team(
+                  projects_list = .,
+                  team = team
+                )
+              } else {
+                .
+              }
             }
-          } %>%
+        }
+
+        repos_dt <- repos_list %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table()
       }) %>%
         rbindlist()
-
-      repos_dt
-    },
-
-    #' @description A method to find repositories with given phrase in code lines.
-    #' @param phrase A phrase to look for in codelines.
-    #' @param language A character specifying language used in repositories.
-    #' @return A data.frame of repositories
-    get_repos_by_codephrase = function(phrase,
-                                       language = "R") {
-      language <- private$language_handler(language)
-
-      repos_dt <- private$search_by_codephrase(phrase,
-        api_url = self$rest_api_url,
-        language = language
-      ) %>%
-        purrr::map_chr(~ .$project_id) %>%
-        unique() %>%
-        private$find_projects_by_id() %>%
-        private$tailor_repos_info() %>%
-        private$prepare_repos_table()
-
-      message(paste0("On GitLab platform (", self$rest_api_url, ") found ", nrow(repos_dt), " repositories with searched codephrase and concerning ", language, " language."))
 
       repos_dt
     },
@@ -186,10 +183,12 @@ GitLab <- R6::R6Class("GitLab",
 
     #' @description Perform get request to search API.
     #' @param phrase A phrase to look for in codelines.
+    #' @param project_group A character, a group of projects.
     #' @param language A character specifying language used in repositories.
     #' @param page_max
-    #' @return A list as a formatted content of a reponse.
+    #' @return A list of repositories.
     search_by_codephrase = function(phrase,
+                                    project_group,
                                     language,
                                     page_max = 1e6,
                                     api_url = self$rest_api_url,
@@ -197,9 +196,10 @@ GitLab <- R6::R6Class("GitLab",
       page <- 1
       still_more_hits <- TRUE
       resp_list <- list()
+      groups_id <- private$get_group_id(project_group)
 
       while (still_more_hits | page < page_max) {
-        resp <- perform_get_request(paste0(api_url, "/search?scope=blobs&search='", phrase, "'&per_page=1000&page=", page),
+        resp <- perform_get_request(paste0(api_url, "/groups/", groups_id, "/search?scope=blobs&search=", phrase, "&per_page=100&page=", page),
           token = private$token
         )
 
@@ -213,6 +213,10 @@ GitLab <- R6::R6Class("GitLab",
       }
 
       repos_list <- private$filter_by_language(resp_list, language)
+
+      repos_list <- purrr::map_chr(repos_list, ~ .$project_id) %>%
+        unique() %>%
+        private$find_projects_by_id()
 
       return(repos_list)
     },
@@ -379,9 +383,20 @@ GitLab <- R6::R6Class("GitLab",
     #' @param language A character, language name
     #' @return A character
     language_handler = function(language) {
-      substr(language, 1, 1) <- toupper(substr(language, 1, 1))
+      if (!is.null(language)) {
+        substr(language, 1, 1) <- toupper(substr(language, 1, 1))
+      }
 
       language
+    },
+
+    #' @description A helper to get group's id
+    #' @param project_group A character, a group of projects.
+    #' @return An integer, id of group.
+    get_group_id = function(project_group) {
+      perform_get_request(paste0(self$rest_api_url, "/groups/", project_group),
+        token = private$token
+      )[["id"]]
     }
   )
 )

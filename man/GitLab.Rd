@@ -13,7 +13,6 @@ An object with methods to obtain information form GitLab API.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-get_repos}{\code{GitLab$get_repos()}}
-\item \href{#method-get_repos_by_codephrase}{\code{GitLab$get_repos_by_codephrase()}}
 \item \href{#method-get_commits}{\code{GitLab$get_commits()}}
 \item \href{#method-print}{\code{GitLab$print()}}
 }
@@ -29,10 +28,10 @@ An object with methods to obtain information form GitLab API.
 \if{html}{\out{<a id="method-get_repos"></a>}}
 \if{latex}{\out{\hypertarget{method-get_repos}{}}}
 \subsection{Method \code{get_repos()}}{
-A method to list all repositories for an organization or for
-a team.
+A method to list all repositories for an organization, a
+team or by a codephrase.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitLab$get_repos(orgs = self$orgs, by, team)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitLab$get_repos(orgs = self$orgs, by, team, phrase, language = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -41,30 +40,14 @@ a team.
 \item{\code{orgs}}{A character vector of organisations (project groups).}
 
 \item{\code{by}}{A character, to choose between: \itemize{
-\item{org}{Organizations - groups of projects} \item(team){A team}}}
+\item{org}{Organizations - groups of projects} \item(team){A team}
+\item(phrase){A keyword in code blobs.}}}
 
 \item{\code{team}}{A list of team members. Specified by \code{set_team()} method
 of GitStats class object.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A data.frame of repositories
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos_by_codephrase"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos_by_codephrase}{}}}
-\subsection{Method \code{get_repos_by_codephrase()}}{
-A method to find repositories with given phrase in code lines.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitLab$get_repos_by_codephrase(phrase, language = "R")}\if{html}{\out{</div>}}
-}
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{phrase}}{A phrase to look for in codelines.}
+\item{\code{phrase}}{A phrase to look for in codelines. Obligatory if \code{by}
+parameter set to \code{"phrase"}.}
 
 \item{\code{language}}{A character specifying language used in repositories.}
 }

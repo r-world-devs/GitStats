@@ -123,6 +123,39 @@ test_that("Setting team functionality and methods with team work correctly", {
   })
 })
 
+test_that("Proper information pops out when one wants to get stats by phrase without specifying phrase", {
+  expect_error(
+    test_gitstats$get_repos(by = "phrase"),
+    "You have to provide a phrase to look for"
+  )
+})
+
+test_that("Get repos by phrase works correctly", {
+
+  test_gitstats$clients <- list()
+
+  test_gitstats$set_connection(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = "pharmaverse"
+  )
+
+  expect_invisible(
+    test_gitstats$get_repos(by = "phrase",
+                            phrase = "covid",
+                            language = "R",
+                            print_out = FALSE)
+  )
+
+  expect_invisible(
+    test_gitstats$get_repos(by = "phrase",
+                            phrase = "pokemon",
+                            language = "R",
+                            print_out = FALSE)
+  )
+
+})
+
 test_that("Error shows when no `date_from` input to `get_commits`", {
   expect_error(
     test_gitstats$get_commits(),

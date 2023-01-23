@@ -21,17 +21,22 @@ GitStats <- R6::R6Class("GitStats",
     repos_dt = NULL,
     commits_dt = NULL,
 
-    #' @description A method to list all repositories by an organization or a
-    #'   team.
-    #' @param by A chararacter, to choose between: \itemize{
-    #'   \item{org}{Organizations} \item(team){Team}}
+    #' @description  A method to list all repositories for an organization,
+    #'   a team or by a codephrase.
+    #' @param by A character, to choose between: \itemize{
+    #'   \item{org}{Organizations - owners of repositories} \item(team){A team}
+    #'   \item(phrase){A keyword in code blobs.}}
+    #' @param phrase A phrase to look for in codelines.
+    #' @param language A character specifying language used in repositories.
     #' @param print_out A boolean stating whether to print an output.
     #' @return A data.frame of repositories
     get_repos = function(by = "org",
+                         phrase = NULL,
+                         language = "R",
                          print_out = TRUE) {
       by <- match.arg(
         by,
-        c("org", "team")
+        c("org", "team", "phrase")
       )
 
       if (by == "org") {
@@ -45,32 +50,25 @@ GitStats <- R6::R6Class("GitStats",
           by = "team",
           team = team
         ))
+      } else if (by == "phrase") {
+        if (is.null(phrase)) {
+          stop("You have to provide a phrase to look for.", call. = FALSE)
+        }
+        repos_dt_list <- purrr::map(self$clients, ~ .$get_repos(
+          by = "phrase",
+          phrase = phrase,
+          language = language))
       }
 
-      self$repos_dt <- repos_dt_list %>%
-        rbindlist() %>%
-        dplyr::arrange(last_activity_at)
+      if (purrr::map_lgl(repos_dt_list, ~length(.) != 0)){
 
-      if (print_out) print(self$repos_dt)
+        self$repos_dt <- repos_dt_list %>%
+          rbindlist() %>%
+          dplyr::arrange(last_activity_at)
 
-      invisible(self)
-    },
+        if (print_out) print(self$repos_dt)
 
-    #' @description A method to find repositories with given phrase in codelines.
-    #' @param phrase A phrase to look for in codelines.
-    #' @param language A character specifying language used in repositories.
-    #' @param print_out A boolean stating whether to print an output.
-    #' @return A data.frame of repositories
-    get_repos_by_codephrase = function(phrase,
-                                       language = "R",
-                                       print_out = TRUE) {
-      repos_dt <- purrr::map(self$clients, ~ .$get_repos_by_codephrase(phrase, language)) %>%
-        rbindlist() %>%
-        dplyr::arrange(last_activity_at)
-
-      self$repos_dt <- repos_dt
-
-      if (print_out) print(repos_dt)
+      }
 
       invisible(self)
     },
