@@ -41,7 +41,7 @@ jobs:
           R_VERSION="${{ inputs.r-version }}"
           if [ "$R_VERSION" == "" ]
           then {
-            R_VERSION="4.0"
+            R_VERSION="4.1.3"
           }
           fi
           echo "R_VERSION=$R_VERSION" >> $GITHUB_OUTPUT
