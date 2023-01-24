@@ -1,13 +1,6 @@
-test_that("GitStats object is created", {
-
-  test_gitstats <- create_gitstats()
-  expect_s3_class(test_gitstats, "GitStats")
-
-})
-
 test_that("Set connection returns appropriate messages", {
 
-  test_gitstats$clients <- list()
+  test_gitstats <- create_gitstats()
 
   expect_message(
     set_connection(

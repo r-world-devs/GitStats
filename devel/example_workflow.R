@@ -22,15 +22,15 @@ get_repos(git_stats)
 
 # set your team members
 
-git_stats$set_team(team_name = "RWD-IE",
-                   "galachad",
-                   "krystian8207",
-                   "kalimu",
-                   "marcinkowskak",
-                   "Cotau",
-                   "maciekbanas")
-
-git_stats$get_repos(by = "team")
+git_stats <- git_stats %>%
+  set_team(team_name = "RWD-IE",
+           "galachad",
+           "krystian8207",
+           "kalimu",
+           "marcinkowskak",
+           "Cotau",
+           "maciekbanas") %>%
+  get_repos(by = "team")
 
 # you can plot repos sorted by last activity
 
@@ -46,7 +46,7 @@ git_stats$get_repos(by = "org")$plot_repos(repos_n = 15)
 
 # examples for getting commits
 
-git_stats$get_commits(date_from = "2022-01-01")
+get_commits(git_stats, date_from = "2022-01-01")
 
 git_stats$plot_commits(stats_by = "day")
 

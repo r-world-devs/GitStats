@@ -20,7 +20,14 @@ test_that("Setting team works in pipeline with other functions", {
                 print_out = FALSE)
   )
 
-  # suppressMessages({
-  #   expect_invisible(test_gitstats$get_commits(date_from = "2022-06-01", by = "team", print_out = FALSE))
-  # })
+  expect_repos_table(test_gitstats$repos_dt)
+
+  suppressMessages({
+    expect_invisible(get_commits(gitstats_obj = test_gitstats,
+                                 date_from = "2022-09-01",
+                                 by = "team",
+                                 print_out = FALSE))
+  })
+
+  expect_commits_table(test_gitstats$commits_dt)
 })

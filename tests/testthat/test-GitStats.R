@@ -1,8 +1,6 @@
-test_gitstats <- create_gitstats()
+test_that("GitStats object is created", {
 
-test_that("Error shows when no `date_from` input to `get_commits`", {
-  expect_error(
-    test_gitstats$get_commits(),
-    "You need to define"
-  )
+  test_gitstats <- create_gitstats()
+  expect_s3_class(test_gitstats, "GitStats")
+
 })
