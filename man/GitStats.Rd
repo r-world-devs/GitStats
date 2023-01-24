@@ -91,7 +91,7 @@ A method to set your team.
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-Nothing, puts team information into \verb{$team} slot.
+Nothing, pass team information into \verb{$team} field.
 }
 }
 \if{html}{\out{<hr>}}

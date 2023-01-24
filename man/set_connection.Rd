@@ -10,7 +10,8 @@ set_connection(gitstats_obj, api_url, token, orgs = NULL)
 \item{gitstats_obj}{A GitStats object.}
 }
 \value{
-A \code{GitStats} class object with added connection information.
+A \code{GitStats} class object with added connection information
+(\verb{$clients} field).
 }
 \description{
 Setting connections

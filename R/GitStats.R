@@ -67,7 +67,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @description A method to set your team.
     #' @param team_name A name of a team.
     #' @param ... A charactger vector of team members (names and logins).
-    #' @return Nothing, puts team information into `$team` slot.
+    #' @return Nothing, pass team information into `$team` field.
     set_team = function(team_name, ...) {
       self$team <- list()
 
@@ -346,7 +346,8 @@ create_gitstats <- function() {
 #'                  token = Sys.getenv("GITLAB_PAT"),
 #'                  orgs = "erasmusmc-public-health")
 #' }
-#' @return A `GitStats` class object with added connection information.
+#' @return A `GitStats` class object with added connection information
+#'   (`$clients` field).
 #' @export
 set_connection <- function(gitstats_obj,
                            api_url,
@@ -356,6 +357,34 @@ set_connection <- function(gitstats_obj,
   gitstats_obj$set_connection(api_url = api_url,
                               token = token,
                               orgs = orgs)
+
+  return(invisible(gitstats_obj))
+}
+
+#' @title Set your team.
+#' @name set_team
+#' @description Declare your team members (logins, full names) to obtain
+#'   statistcis \code{by = "team"}.
+#' @details Bear in mind that on different Git platforms, team members may use
+#'   different logins. You have to specify all of them, if you want to get team
+#'   statitistics from all your Git clients.
+#' @param gitstats_obj A GitStats object.
+#' @param team_name A name of a team.
+#' @param ... A charactger vector of team members (names and logins).
+#' @return A `GitStats` class object with added information to `$team` field.
+#' @examples
+#' \dontrun{
+#' my_gitstats <- create_gitstats() %>%
+#'   set_connection(api_url = "https://api.github.com",
+#'                  token = Sys.getenv("GITHUB_PAT"),
+#'                  orgs = c("r-world-devs", "openpharma", "pharmaverse")) %>%
+#'   set_team("RWD-IE", "galachad", "kalimu", "Cotau", "krystian8207", "marcinkowskak", "maciekbanas") %>%
+#'   get_repos(by = "team")
+#' }
+#' @export
+set_team = function(gitstats_obj, team_name, ...) {
+
+  gitstats_obj$set_team(team_name, ...)
 
   return(invisible(gitstats_obj))
 }

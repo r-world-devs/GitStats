@@ -3,6 +3,7 @@
 export(create_gitstats)
 export(get_repos)
 export(set_connection)
+export(set_team)
 importFrom(R6,R6Class)
 importFrom(data.table,":=")
 importFrom(data.table,rbindlist)
