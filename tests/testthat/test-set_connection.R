@@ -56,7 +56,7 @@ test_that("Errors pop out, when wrong input is passed when setting connection", 
 })
 
 test_that("Error pops out, when two clients of the same url api are passed as input", {
-  test_gitstats$clients <- list()
+  test_gitstats <- create_gitstats()
 
   cons <- list(
     api_url = c("https://api.github.com", "https://api.github.com"),
