@@ -6,6 +6,29 @@
 \description{
 A superclass for GitHub and GitLab classes
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{rest_api_url}}{A character, url of REST API.}
+
+\item{\code{gql_api_url}}{A character, url of GraphQL API.}
+
+\item{\code{orgs}}{A character vector of organizations.}
+
+\item{\code{enterprise}}{A boolean defining whether Git Service is public or
+enterprise version.}
+
+\item{\code{token}}{A token authorizing acces to API.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{token}}{A token authorizing acces to API.}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{

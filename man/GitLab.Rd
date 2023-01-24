@@ -39,9 +39,9 @@ team or by a codephrase.
 \describe{
 \item{\code{orgs}}{A character vector of organisations (project groups).}
 
-\item{\code{by}}{A character, to choose between: \itemize{
-\item{org}{Organizations - groups of projects} \item(team){A team}
-\item(phrase){A keyword in code blobs.}}}
+\item{\code{by}}{A character, to choose between: \itemize{\item{org - organizations
+(owners of repositories)} \item{team - A team} \item{phrase - A keyword in
+code blobs.}}}
 
 \item{\code{team}}{A list of team members. Specified by \code{set_team()} method
 of GitStats class object.}
@@ -81,8 +81,9 @@ A method to get information on commits.
 
 \item{\code{date_until}}{An end date to look commits for}
 
-\item{\code{by}}{A character, to choose between: \itemize{
-\item{org}{Organizations - groups of projects} \item(team){A team}}}
+\item{\code{by}}{A character, to choose between: \itemize{\item{org - organizations
+(owners of repositories)} \item{team - A team} \item{phrase - A keyword in
+code blobs.}}}
 
 \item{\code{team}}{A list of team members. Specified by \code{set_team()} method
 of GitStats class object.}

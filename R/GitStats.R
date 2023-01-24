@@ -8,6 +8,8 @@
 #'
 GitStats <- R6::R6Class("GitStats",
   public = list(
+
+    #' @field clients A list of API connections information.
     clients = list(),
 
     #' @description Create a new `GitStats` object
@@ -15,16 +17,69 @@ GitStats <- R6::R6Class("GitStats",
     initialize = function() {
 
     },
+
+    #' @field team A character vector containig team members.
     team = NULL,
+
+    #' @field repos_dt An output table of repositories.
     repos_dt = NULL,
+
+    #' @field commits_dt An output table of commits.
     commits_dt = NULL,
+
+    #' @description Method to set connections to Git platforms
+    #' @param api_url A character, url address of API.
+    #' @param token A token.
+    #' @param orgs A character vector of organisations (owners of repositories
+    #'   in case of GitHub and groups of projects in case of GitLab).
+    #' @return Nothing, puts connection information into `$clients` slot
+    set_connection = function(api_url,
+                              token,
+                              orgs = NULL) {
+      if (is.null(orgs)) {
+        stop("You need to specify organisations of the repositories.", call. = FALSE)
+      }
+
+      if (grepl("github", api_url)) {
+        message("Set connection to GitHub.")
+        new_client <- GitHub$new(
+          rest_api_url = api_url,
+          token = token,
+          orgs = orgs
+        )
+      } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
+        message("Set connection to GitLab.")
+        new_client <- GitLab$new(
+          rest_api_url = api_url,
+          token = token,
+          orgs = orgs
+        )
+      } else {
+        stop("This connection is not supported by GitStats class object.")
+      }
+
+      self$clients <- new_client %>%
+        private$check_client() %>%
+        private$check_token() %>%
+        append(self$clients, .)
+    },
+
+    #' @description A method to set your team.
+    #' @param team_name A name of a team.
+    #' @param ... A charactger vector of team members (names and logins).
+    #' @return Nothing, puts team information into `$team` slot.
+    set_team = function(team_name, ...) {
+      self$team <- list()
+
+      self$team[[paste(team_name)]] <- unlist(list(...))
+    },
 
     #' @description  A method to list all repositories for an organization,
     #'   a team or by a codephrase.
-    #' @param by A character, to choose between: \itemize{
-    #'   \item{org}{Organizations - owners of repositories} \item(team){A team}
-    #'   \item(phrase){A keyword in code blobs.}}
-    #' @param phrase A phrase to look for in codelines.
+    #' @param by A character, to choose between: \itemize{\item{org - organizations
+    #'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in
+    #'   code blobs.}}
+    #' @param phrase A character, phrase to look for in codelines.
     #' @param language A character specifying language used in repositories.
     #' @param print_out A boolean stating whether to print an output.
     #' @return A data.frame of repositories
@@ -78,8 +133,9 @@ GitStats <- R6::R6Class("GitStats",
     #' @description A method to get information on commits.
     #' @param date_from A starting date to look commits for
     #' @param date_until An end date to look commits for
-    #' @param by A chararacter, to choose between: \itemize{
-    #'   \item{org}{Organizations} \item(team){Team}}
+    #' @param by A character, to choose between: \itemize{\item{org - organizations
+    #'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in
+    #'   code blobs.}}
     #' @param print_out A boolean stating whether to print an output.
     #' @return A data.frame of commits
     get_commits = function(date_from = NULL,
@@ -132,52 +188,6 @@ GitStats <- R6::R6Class("GitStats",
       if (print_out) print(commits_dt)
 
       invisible(self)
-    },
-
-    #' @description Method to set connections to Git platforms
-    #' @param api_url A character, url address of API.
-    #' @param token A token.
-    #' @param orgs A character vector of organisations (owners of repositories
-    #'   in case of GitHub and groups of projects in case of GitLab).
-    #' @return Nothing, puts connection information into `$clients` slot
-    set_connection = function(api_url,
-                              token,
-                              orgs = NULL) {
-      if (is.null(orgs)) {
-        stop("You need to specify organisations of the repositories.", call. = FALSE)
-      }
-
-      if (grepl("github", api_url)) {
-        message("Set connection to GitHub.")
-        new_client <- GitHub$new(
-          rest_api_url = api_url,
-          token = token,
-          orgs = orgs
-        )
-      } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
-        message("Set connection to GitLab.")
-        new_client <- GitLab$new(
-          rest_api_url = api_url,
-          token = token,
-          orgs = orgs
-        )
-      } else {
-        stop("This connection is not supported by GitStats class object.")
-      }
-
-      self$clients <- new_client %>%
-        private$check_client() %>%
-        private$check_token() %>%
-        append(self$clients, .)
-    },
-
-    #' @description A method to set your team.
-    #' @param team_name A name of a team.
-    #' @return Nothing, puts team information into `$team` slot.
-    set_team = function(team_name, ...) {
-      self$team <- list()
-
-      self$team[[paste(team_name)]] <- unlist(list(...))
     },
 
     #' @description A method to plot repositories outcome.
@@ -328,7 +338,7 @@ create_gitstats <- function() {
 #' @param gitstats_obj A GitStats object.
 #' @examples
 #' \dontrun{
-#' my_gitstats <- create_gitstats %>%
+#' my_gitstats <- create_gitstats() %>%
 #'   set_connection(api_url = "https://api.github.com",
 #'                  token = Sys.getenv("GITHUB_PAT"),
 #'                  orgs = c("r-world-devs", "openpharma", "pharmaverse")) %>%
@@ -355,13 +365,28 @@ set_connection <- function(gitstats_obj,
 #' @description  List all repositories for an organization, a team or by a
 #'   codephrase.
 #' @param gitstats_obj A GitStats object.
-#' @param by A character, to choose between: \itemize{ \item{org}{Organizations
-#'   - owners of repositories} \item(team){A team} \item(phrase){A keyword in
+#' @param by A character, to choose between: \itemize{\item{org - organizations
+#'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in
 #'   code blobs.}}
-#' @param phrase A phrase to look for in codelines.
+#' @param phrase A character, phrase to look for in codelines.
 #' @param language A character specifying language used in repositories.
 #' @param print_out A boolean stating whether to print an output.
 #' @return A data.frame of repositories
+#' @examples
+#' \dontrun{
+#' my_gitstats <- create_gitstats() %>%
+#'   set_connection(api_url = "https://api.github.com",
+#'                  token = Sys.getenv("GITHUB_PAT"),
+#'                  orgs = c("r-world-devs", "openpharma", "pharmaverse")) %>%
+#'   set_connection(api_url = "https://gitlab.com/api/v4",
+#'                  token = Sys.getenv("GITLAB_PAT"),
+#'                  orgs = "erasmusmc-public-health") %>%
+#'   get_repos(language = "R")
+#'
+#' my_gitstats$get_repos(by = "phrase",
+#'                       phrase = "diabetes",
+#'                       language = "R")
+#' }
 #' @export
 get_repos = function(gitstats_obj,
                      by = "org",

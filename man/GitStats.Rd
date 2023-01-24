@@ -6,14 +6,27 @@
 \description{
 An R6 class object with methods to derive information from multiple Git platforms.
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{clients}}{A list of API connections information.}
+
+\item{\code{team}}{A character vector containig team members.}
+
+\item{\code{repos_dt}}{An output table of repositories.}
+
+\item{\code{commits_dt}}{An output table of commits.}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{GitStats$new()}}
-\item \href{#method-get_repos}{\code{GitStats$get_repos()}}
-\item \href{#method-get_commits}{\code{GitStats$get_commits()}}
 \item \href{#method-set_connection}{\code{GitStats$set_connection()}}
 \item \href{#method-set_team}{\code{GitStats$set_team()}}
+\item \href{#method-get_repos}{\code{GitStats$get_repos()}}
+\item \href{#method-get_commits}{\code{GitStats$get_commits()}}
 \item \href{#method-plot_repos}{\code{GitStats$plot_repos()}}
 \item \href{#method-plot_commits}{\code{GitStats$plot_commits()}}
 \item \href{#method-plot_commit_lines}{\code{GitStats$plot_commit_lines()}}
@@ -32,72 +45,6 @@ Create a new \code{GitStats} object
 
 \subsection{Returns}{
 A new \code{GitStats} object
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos}{}}}
-\subsection{Method \code{get_repos()}}{
-A method to list all repositories for an organization,
-a team or by a codephrase.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos(
-  by = "org",
-  phrase = NULL,
-  language = NULL,
-  print_out = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{by}}{A character, to choose between: \itemize{
-\item{org}{Organizations - owners of repositories} \item(team){A team}
-\item(phrase){A keyword in code blobs.}}}
-
-\item{\code{phrase}}{A phrase to look for in codelines.}
-
-\item{\code{language}}{A character specifying language used in repositories.}
-
-\item{\code{print_out}}{A boolean stating whether to print an output.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A data.frame of repositories
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_commits"></a>}}
-\if{latex}{\out{\hypertarget{method-get_commits}{}}}
-\subsection{Method \code{get_commits()}}{
-A method to get information on commits.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits(
-  date_from = NULL,
-  date_until = Sys.time(),
-  by = "org",
-  print_out = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{date_from}}{A starting date to look commits for}
-
-\item{\code{date_until}}{An end date to look commits for}
-
-\item{\code{by}}{A chararacter, to choose between: \itemize{
-\item{org}{Organizations} \item(team){Team}}}
-
-\item{\code{print_out}}{A boolean stating whether to print an output.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A data.frame of commits
 }
 }
 \if{html}{\out{<hr>}}
@@ -138,11 +85,80 @@ A method to set your team.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{team_name}}{A name of a team.}
+
+\item{\code{...}}{A charactger vector of team members (names and logins).}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
 Nothing, puts team information into \verb{$team} slot.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_repos"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos}{}}}
+\subsection{Method \code{get_repos()}}{
+A method to list all repositories for an organization,
+a team or by a codephrase.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos(
+  by = "org",
+  phrase = NULL,
+  language = NULL,
+  print_out = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{by}}{A character, to choose between: \itemize{\item{org - organizations
+(owners of repositories)} \item{team - A team} \item{phrase - A keyword in
+code blobs.}}}
+
+\item{\code{phrase}}{A character, phrase to look for in codelines.}
+
+\item{\code{language}}{A character specifying language used in repositories.}
+
+\item{\code{print_out}}{A boolean stating whether to print an output.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A data.frame of repositories
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_commits"></a>}}
+\if{latex}{\out{\hypertarget{method-get_commits}{}}}
+\subsection{Method \code{get_commits()}}{
+A method to get information on commits.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits(
+  date_from = NULL,
+  date_until = Sys.time(),
+  by = "org",
+  print_out = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{date_from}}{A starting date to look commits for}
+
+\item{\code{date_until}}{An end date to look commits for}
+
+\item{\code{by}}{A character, to choose between: \itemize{\item{org - organizations
+(owners of repositories)} \item{team - A team} \item{phrase - A keyword in
+code blobs.}}}
+
+\item{\code{print_out}}{A boolean stating whether to print an output.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A data.frame of commits
 }
 }
 \if{html}{\out{<hr>}}

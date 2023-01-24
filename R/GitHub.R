@@ -14,9 +14,9 @@ GitHub <- R6::R6Class("GitHub",
     #' @description  A method to list all repositories for an organization,
     #'   a team or by a codephrase.
     #' @param orgs A character vector of organizations (owners of repositories).
-    #' @param by A character, to choose between: \itemize{
-    #'   \item{org}{Organizations - owners of repositories} \item(team){A team}
-    #'   \item(phrase){A keyword in code blobs.}}
+    #' @param by A character, to choose between: \itemize{\item{org - organizations
+    #'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in
+    #'   code blobs.}}
     #' @param team A list of team members. Specified by \code{set_team()} method
     #'   of GitStats class object.
     #' @param phrase A character to look for in code blobs. Obligatory if
@@ -73,8 +73,9 @@ GitHub <- R6::R6Class("GitHub",
     #' @param orgs A character vector of organisations (repository owners).
     #' @param date_from A starting date to look commits for
     #' @param date_until An end date to look commits for
-    #' @param by A character, to choose between: \itemize{
-    #'   \item{org}{Organizations - owners of repositories} \item(team){A team}}
+    #' @param by A character, to choose between: \itemize{\item{org - organizations
+    #'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in
+    #'   code blobs.}}
     #' @param team A list of team members. Specified by \code{set_team()} method
     #'   of GitStats class object.
     #' @return A data.frame of commits
