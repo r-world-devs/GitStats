@@ -27,9 +27,6 @@ An R6 class object with methods to derive information from multiple Git platform
 \item \href{#method-set_team}{\code{GitStats$set_team()}}
 \item \href{#method-get_repos}{\code{GitStats$get_repos()}}
 \item \href{#method-get_commits}{\code{GitStats$get_commits()}}
-\item \href{#method-plot_repos}{\code{GitStats$plot_repos()}}
-\item \href{#method-plot_commits}{\code{GitStats$plot_commits()}}
-\item \href{#method-plot_commit_lines}{\code{GitStats$plot_commit_lines()}}
 \item \href{#method-print}{\code{GitStats$print()}}
 \item \href{#method-clone}{\code{GitStats$clone()}}
 }
@@ -159,71 +156,6 @@ code blobs.}}}
 }
 \subsection{Returns}{
 A data.frame of commits
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-plot_repos"></a>}}
-\if{latex}{\out{\hypertarget{method-plot_repos}{}}}
-\subsection{Method \code{plot_repos()}}{
-A method to plot repositories outcome.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$plot_repos(repos_dt = self$repos_dt, repos_n = 10)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{repos_dt}}{An output of one of \code{get_repos} methods.}
-
-\item{\code{repos_n}}{An integer, a number of repos to show on the plot.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A plot.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-plot_commits"></a>}}
-\if{latex}{\out{\hypertarget{method-plot_commits}{}}}
-\subsection{Method \code{plot_commits()}}{
-A method to plot basic commit stats.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$plot_commits(
-  commits_dt = self$commits_dt,
-  stats_by = c("day", "week", "month")
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{commits_dt}}{An output of one of \code{get_commits} methods.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A plot.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-plot_commit_lines"></a>}}
-\if{latex}{\out{\hypertarget{method-plot_commit_lines}{}}}
-\subsection{Method \code{plot_commit_lines()}}{
-A method to plot commit additions and deletions.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$plot_commit_lines(commits_dt = self$commits_dt)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{commits_dt}}{An output of one of \code{get_commits} methods.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A plot.
 }
 }
 \if{html}{\out{<hr>}}

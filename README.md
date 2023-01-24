@@ -37,28 +37,27 @@ service.
 ``` r
 
 library(GitStats)
+library(magrittr)
 
-my_gitstats <- GitStats$new()
-
-my_gitstats$set_connection(
-  api_url = "https://api.github.com",
-  token = Sys.getenv("GITHUB_PAT"),
-  orgs = c("r-world-devs", "openpharma")
-)
+git_stats <- create_gitstats() %>%
+  set_connection(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"), # You can set up your own token as an environment variable in .Renviron file (based in home directory)
+    orgs = c("openpharma", "r-world-devs")
+  ) %>%
+  set_connection(
+    api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT"),
+    orgs = c("erasmusmc-public-health")
+  )
 #> Set connection to GitHub.
-
-my_gitstats$set_connection(
-  api_url = "https://gitlab.com/api/v4",
-  token = Sys.getenv("GITLAB_PAT"),
-  orgs = c("erasmusmc-public-health")
-)
 #> Set connection to GitLab.
 
-my_gitstats
+git_stats
 #> A GitStats object (multi-API client platform) for 2 clients:
 #> GitHub API Client
 #>  url: https://api.github.com
-#>  orgs: r-world-devs, openpharma
+#>  orgs: openpharma, r-world-devs
 #> GitLab API Client
 #>  url: https://gitlab.com/api/v4
 #>  orgs: erasmusmc-public-health
@@ -70,13 +69,14 @@ And start your exploration for repos and commits, e.g. by owners and
 groups:
 
 ``` r
-repos <- my_gitstats$get_repos()
+repos <- get_repos(git_stats)
 
 head(repos)
 ```
 
 ``` r
-commits <- my_gitstats$get_commits()
+commits <- get_commits(git_stats,
+                       date_from = "2022-06-01")
 
 head(commits)
 ```
@@ -88,36 +88,13 @@ is your team. First you need to specify your team members (by
 git-platform logins), then do the search.
 
 ``` r
-git_stats$set_team(team_name = "RWD-IE",
-                   "galachad",
-                   "krystian8207",
-                   "kalimu",
-                   "marcinkowskak",
-                   "Cotau",
-                   "maciekbanas")
-
-git_stats$get_repos(by = "team")
-```
-
-## Plots
-
-You can plot your exploration with chaining methods inside GitStats
-class object:
-
-``` r
-my_gitstats$get_repos()$plot_repos()
-```
-
-Once you’ve finished your exploration you can plot repos without calling
-exploration method:
-
-``` r
-my_gitstats$plot_repos()
-```
-
-By default 10 top repositories (last active) are shown, but you can set
-more to visualize:
-
-``` r
-my_gitstats$plot_repos(repos_n = 25)
+git_stats <- git_stats %>%
+  set_team(team_name = "RWD-IE",
+           "galachad",
+           "krystian8207",
+           "kalimu",
+           "marcinkowskak",
+           "Cotau",
+           "maciekbanas") %>%
+  get_repos(by = "team")
 ```

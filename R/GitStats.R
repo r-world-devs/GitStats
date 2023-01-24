@@ -1,6 +1,5 @@
 #' @importFrom R6 R6Class
 #' @importFrom data.table rbindlist :=
-#' @importFrom plotly plot_ly
 #' @importFrom purrr map
 #'
 #' @title A statistics platform for Git clients
@@ -115,7 +114,7 @@ GitStats <- R6::R6Class("GitStats",
           language = language))
       }
 
-      if (purrr::map_lgl(repos_dt_list, ~length(.) != 0)){
+      if (any(purrr::map_lgl(repos_dt_list, ~length(.) != 0))){
 
         self$repos_dt <- repos_dt_list %>%
           rbindlist() %>%
@@ -188,99 +187,6 @@ GitStats <- R6::R6Class("GitStats",
       if (print_out) print(commits_dt)
 
       invisible(self)
-    },
-
-    #' @description A method to plot repositories outcome.
-    #' @param repos_dt An output of one of `get_repos` methods.
-    #' @param repos_n An integer, a number of repos to show on the plot.
-    #' @return A plot.
-    plot_repos = function(repos_dt = self$repos_dt,
-                          repos_n = 10) {
-      if (is.null(self$repos_dt)) {
-        stop("You have to first construct your repos data.frame with one of 'get_repos' methods.",
-          call. = FALSE
-        )
-      }
-
-      repos_dt <- head(repos_dt, repos_n)
-      # repos_dt$last_activity_at <- -repos_dt$last_activity_at
-      repos_dt$name <- factor(repos_dt$name, levels = unique(repos_dt$name)[order(repos_dt$last_activity_at, decreasing = TRUE)])
-
-      plotly::plot_ly(repos_dt,
-        y = ~name,
-        x = ~last_activity_at,
-        color = ~organisation,
-        type = "bar",
-        orientation = "h"
-      ) %>%
-        plotly::layout(
-          yaxis = list(title = ""),
-          xaxis = list(title = "last activity - days ago")
-        )
-    },
-
-    #' @description A method to plot basic commit stats.
-    #' @param commits_dt An output of one of `get_commits` methods.
-    #' @return A plot.
-    plot_commits = function(commits_dt = self$commits_dt,
-                            stats_by = c("day", "week", "month")) {
-      if (is.null(self$commits_dt)) {
-        stop("You have to first construct your repos data.frame with one of 'get_commits' methods.",
-          call. = FALSE
-        )
-      }
-
-      stats_by <- match.arg(stats_by)
-
-      if (stats_by == "day") {
-        commits_dt[, statsDate := committedDate]
-      } else if (stats_by == "week") {
-        commits_dt[, statsDate := paste(format(committedDate, "%-V"), format(committedDate, "%G"), sep = "-")]
-      } else if (stats_by == "month") {
-        commits_dt[, statsDate := as.Date(paste0(substring(committedDate, 1, 7), "-01"))]
-      }
-
-      commits_n <- commits_dt[, .(commits_n = .N), by = .(statsDate, organisation)]
-      commits_n <- commits_n[order(statsDate)]
-
-      plotly::plot_ly(commits_n,
-        x = ~statsDate,
-        y = ~commits_n,
-        color = ~organisation,
-        type = "scatter",
-        mode = "lines+markers"
-      )
-    },
-
-    #' @description A method to plot commit additions and deletions.
-    #' @param commits_dt An output of one of `get_commits` methods.
-    #' @return A plot.
-    plot_commit_lines = function(commits_dt = self$commits_dt) {
-      if (is.null(self$commits_dt)) {
-        stop("You have to first construct your repos data.frame with one of 'get_commits' methods.",
-          call. = FALSE
-        )
-      }
-
-      commits_dt[, deletions := -deletions]
-
-      plotly::plot_ly(commits_dt) %>%
-        plotly::add_trace(
-          y = ~additions,
-          x = ~committedDate,
-          color = ~organisation,
-          type = "bar"
-        ) %>%
-        plotly::add_trace(
-          y = ~deletions,
-          x = ~committedDate,
-          color = ~organisation,
-          type = "bar"
-        ) %>%
-        plotly::layout(
-          yaxis = list(title = ""),
-          xaxis = list(title = "")
-        )
     },
 
     #' @description A print method for a GitStats object

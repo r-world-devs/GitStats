@@ -34,26 +34,24 @@ git_stats <- git_stats %>%
 
 # you can plot repos sorted by last activity
 
-git_stats$plot_repos()
+plot_repos(git_stats)
 
-# choose more repos to show
+# reset your repos and plot it once more
 
-git_stats$plot_repos(repos_n = 20)
+git_stats %>%
+  get_repos(by = "org") %>%
+  plot_repos(repos_n = 15)
 
-# and reset your repos show and plot it once more
+# examples for getting and plotting commits
 
-git_stats$get_repos(by = "org")$plot_repos(repos_n = 15)
+git_stats %>%
+  get_commits(date_from = "2022-01-01",
+              by = "team") %>%
+  plot_commits(stats_by = "day")
 
-# examples for getting commits
-
-get_commits(git_stats, date_from = "2022-01-01")
-
-git_stats$plot_commits(stats_by = "day")
-
-git_stats$get_commits(date_from = "2022-01-01",
-                      by = "team")$plot_commits(stats_by = "day")
-
-git_stats$get_commits(date_from = "2020-01-01",
-                      by = "team")$plot_commits(stats_by = "month")
+git_stats %>%
+  get_commits(date_from = "2020-01-01",
+              by = "team") %>%
+  plot_commits(stats_by = "month")
 
 
