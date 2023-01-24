@@ -5,10 +5,12 @@ test_gitstats <- create_gitstats() %>%
     orgs = "r-world-devs"
   )
 
-test_that("Get_repos returns invisible object", {
+test_that("Get_repos returns repos table", {
 
   expect_invisible(get_repos(gitstats_obj = test_gitstats,
                              print_out = FALSE))
+
+  expect_repos_table(test_gitstats$repos_dt)
 })
 
 
@@ -17,6 +19,8 @@ test_that("Setting language works correctly", {
   expect_invisible(get_repos(gitstats_obj = test_gitstats,
                              language = "R",
                              print_out = FALSE))
+
+  expect_repos_table(test_gitstats$repos_dt)
 
   expect_message(get_repos(gitstats_obj = test_gitstats,
                            language = "Python",
