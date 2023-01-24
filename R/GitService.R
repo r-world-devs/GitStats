@@ -5,9 +5,18 @@
 
 GitService <- R6::R6Class("GitService",
   public = list(
+
+    #' @field rest_api_url A character, url of REST API.
     rest_api_url = NULL,
+
+    #' @field gql_api_url A character, url of GraphQL API.
     gql_api_url = NULL,
+
+    #' @field orgs A character vector of organizations.
     orgs = NULL,
+
+    #' @field enterprise A boolean defining whether Git Service is public or
+    #'   enterprise version.
     enterprise = NULL,
 
     #' @description Create a new `GitService` object
@@ -33,10 +42,15 @@ GitService <- R6::R6Class("GitService",
     }
   ),
   private = list(
+
+    #' @field token A token authorizing acces to API.
     token = NULL,
 
 
     #' @description GraphQL url handler (if not provided)
+    #' @param gql_api_url A url of GraphQL API.
+    #' @param rest_api_url A url of REST API.
+    #' @return Nothing, passes proper url to `gql_api_url` field.
     set_gql_url = function(gql_api_url = self$gql_api_url,
                            rest_api_url = self$rest_api_url) {
       self$gql_api_url <- paste0(gsub("/v+.*", "", rest_api_url), "/graphql")

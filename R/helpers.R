@@ -11,7 +11,6 @@ search_request <- function(search_endpoint,
                            total_n,
                            byte_max,
                            token) {
-
   if (total_n > 0 & total_n < 100) {
     resp_list <- perform_get_request(paste0(search_endpoint, "+size:0..", byte_max, "&page=1&per_page=100"),
       token = token
@@ -70,15 +69,18 @@ search_request <- function(search_endpoint,
 
       index[1] <- index[2]
 
-      if (index[2] < 1e3)
+      if (index[2] < 1e3) {
         index[2] <- index[2] + 50
-      if (index[2] >= 1e3 && index[2] < 1e4)
+      }
+      if (index[2] >= 1e3 && index[2] < 1e4) {
         index[2] <- index[2] + 100
-      if (index[2] >= 1e4 && index[2] < 1e5)
+      }
+      if (index[2] >= 1e4 && index[2] < 1e5) {
         index[2] <- index[2] + 1000
-      if (index[2] >= 1e5 && index[2] < 1e6)
+      }
+      if (index[2] >= 1e5 && index[2] < 1e6) {
         index[2] <- index[2] + 10000
-
+      }
     }
 
     resp_list

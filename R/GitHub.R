@@ -14,9 +14,9 @@ GitHub <- R6::R6Class("GitHub",
     #' @description  A method to list all repositories for an organization,
     #'   a team or by a codephrase.
     #' @param orgs A character vector of organizations (owners of repositories).
-    #' @param by A character, to choose between: \itemize{
-    #'   \item{org}{Organizations - owners of repositories} \item(team){A team}
-    #'   \item(phrase){A keyword in code blobs.}}
+    #' @param by A character, to choose between: \itemize{\item{org - organizations
+    #'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in
+    #'   code blobs.}}
     #' @param team A list of team members. Specified by \code{set_team()} method
     #'   of GitStats class object.
     #' @param phrase A character to look for in code blobs. Obligatory if
@@ -48,7 +48,8 @@ GitHub <- R6::R6Class("GitHub",
               } else {
                 .
               }
-            } %>% {
+            } %>%
+            {
               if (!is.null(language)) {
                 private$filter_by_language(
                   repos_list = .,
@@ -73,8 +74,9 @@ GitHub <- R6::R6Class("GitHub",
     #' @param orgs A character vector of organisations (repository owners).
     #' @param date_from A starting date to look commits for
     #' @param date_until An end date to look commits for
-    #' @param by A character, to choose between: \itemize{
-    #'   \item{org}{Organizations - owners of repositories} \item(team){A team}}
+    #' @param by A character, to choose between: \itemize{\item{org - organizations
+    #'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in
+    #'   code blobs.}}
     #' @param team A list of team members. Specified by \code{set_team()} method
     #'   of GitStats class object.
     #' @return A data.frame of commits
@@ -180,9 +182,7 @@ GitHub <- R6::R6Class("GitHub",
     #' @return A list of repositories.
     filter_by_language = function(repos_list,
                                   language) {
-
-      purrr::keep(repos_list, ~length(intersect(.$language, language)) > 0)
-
+      purrr::keep(repos_list, ~ length(intersect(.$language, language)) > 0)
     },
 
     #' @description A helper to retrieve only important info on repos
@@ -218,7 +218,6 @@ GitHub <- R6::R6Class("GitHub",
                                     byte_max = "384000",
                                     api_url = self$rest_api_url,
                                     token = private$token) {
-
       search_endpoint <- if (!is.null(language)) {
         paste0(api_url, "/search/code?q='", phrase, "'+user:", repo_owner, "+language:", language)
       } else {

@@ -14,9 +14,9 @@ GitLab <- R6::R6Class("GitLab",
     #' @description A method to list all repositories for an organization, a
     #'   team or by a codephrase.
     #' @param orgs A character vector of organisations (project groups).
-    #' @param by A character, to choose between: \itemize{
-    #'   \item{org}{Organizations - groups of projects} \item(team){A team}
-    #'   \item(phrase){A keyword in code blobs.}}
+    #' @param by A character, to choose between: \itemize{\item{org - organizations
+    #'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in
+    #'   code blobs.}}
     #' @param team A list of team members. Specified by \code{set_team()} method
     #'   of GitStats class object.
     #' @param phrase A phrase to look for in codelines. Obligatory if \code{by}
@@ -49,7 +49,8 @@ GitLab <- R6::R6Class("GitLab",
               } else {
                 .
               }
-            } %>% {
+            } %>%
+            {
               if (!is.null(language)) {
                 private$filter_by_language(
                   projects_list = .,
@@ -74,8 +75,9 @@ GitLab <- R6::R6Class("GitLab",
     #' @param orgs A character vector of organisations (project groups).
     #' @param date_from A starting date to look commits for
     #' @param date_until An end date to look commits for
-    #' @param by A character, to choose between: \itemize{
-    #'   \item{org}{Organizations - groups of projects} \item(team){A team}}
+    #' @param by A character, to choose between: \itemize{\item{org - organizations
+    #'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in
+    #'   code blobs.}}
     #' @param team A list of team members. Specified by \code{set_team()} method
     #'   of GitStats class object.
     #' @return A data.frame of commits
@@ -191,7 +193,6 @@ GitLab <- R6::R6Class("GitLab",
                                   language,
                                   api_url = self$rest_api_url,
                                   token = private$token) {
-
       projects_id <- unique(purrr::map_chr(projects_list, ~ .$id))
 
       projects_language_list <- purrr::map(projects_id, function(x) {
@@ -208,12 +209,11 @@ GitLab <- R6::R6Class("GitLab",
       }) %>%
         purrr::keep(~ language %in% names(.))
 
-      if (length(filtered_projects) > 0){
+      if (length(filtered_projects) > 0) {
         purrr::keep(projects_list, ~ .$id %in% names(filtered_projects))
       } else {
         list()
       }
-
     },
 
     #' @description A helper to retrieve only important info on repos
