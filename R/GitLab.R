@@ -49,7 +49,8 @@ GitLab <- R6::R6Class("GitLab",
               } else {
                 .
               }
-            } %>% {
+            } %>%
+            {
               if (!is.null(language)) {
                 private$filter_by_language(
                   projects_list = .,
@@ -192,7 +193,6 @@ GitLab <- R6::R6Class("GitLab",
                                   language,
                                   api_url = self$rest_api_url,
                                   token = private$token) {
-
       projects_id <- unique(purrr::map_chr(projects_list, ~ .$id))
 
       projects_language_list <- purrr::map(projects_id, function(x) {
@@ -209,12 +209,11 @@ GitLab <- R6::R6Class("GitLab",
       }) %>%
         purrr::keep(~ language %in% names(.))
 
-      if (length(filtered_projects) > 0){
+      if (length(filtered_projects) > 0) {
         purrr::keep(projects_list, ~ .$id %in% names(filtered_projects))
       } else {
         list()
       }
-
     },
 
     #' @description A helper to retrieve only important info on repos

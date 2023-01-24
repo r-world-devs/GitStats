@@ -48,7 +48,8 @@ GitHub <- R6::R6Class("GitHub",
               } else {
                 .
               }
-            } %>% {
+            } %>%
+            {
               if (!is.null(language)) {
                 private$filter_by_language(
                   repos_list = .,
@@ -181,9 +182,7 @@ GitHub <- R6::R6Class("GitHub",
     #' @return A list of repositories.
     filter_by_language = function(repos_list,
                                   language) {
-
-      purrr::keep(repos_list, ~length(intersect(.$language, language)) > 0)
-
+      purrr::keep(repos_list, ~ length(intersect(.$language, language)) > 0)
     },
 
     #' @description A helper to retrieve only important info on repos
@@ -219,7 +218,6 @@ GitHub <- R6::R6Class("GitHub",
                                     byte_max = "384000",
                                     api_url = self$rest_api_url,
                                     token = private$token) {
-
       search_endpoint <- if (!is.null(language)) {
         paste0(api_url, "/search/code?q='", phrase, "'+user:", repo_owner, "+language:", language)
       } else {

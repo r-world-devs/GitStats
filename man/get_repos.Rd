@@ -35,16 +35,22 @@ codephrase.
 \examples{
 \dontrun{
 my_gitstats <- create_gitstats() \%>\%
-  set_connection(api_url = "https://api.github.com",
-                 token = Sys.getenv("GITHUB_PAT"),
-                 orgs = c("r-world-devs", "openpharma", "pharmaverse")) \%>\%
-  set_connection(api_url = "https://gitlab.com/api/v4",
-                 token = Sys.getenv("GITLAB_PAT"),
-                 orgs = "erasmusmc-public-health") \%>\%
+  set_connection(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("r-world-devs", "openpharma", "pharmaverse")
+  ) \%>\%
+  set_connection(
+    api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT"),
+    orgs = "erasmusmc-public-health"
+  ) \%>\%
   get_repos(language = "R")
 
-my_gitstats$get_repos(by = "phrase",
-                      phrase = "diabetes",
-                      language = "R")
+my_gitstats$get_repos(
+  by = "phrase",
+  phrase = "diabetes",
+  language = "R"
+)
 }
 }

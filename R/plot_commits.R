@@ -6,15 +6,15 @@
 #' @param stats_by
 #' @return A plot.
 #' @export
-plot_commits = function(gitstats_obj,
-                        stats_by = c("day", "week", "month")) {
+plot_commits <- function(gitstats_obj,
+                         stats_by = c("day", "week", "month")) {
   if (is.null(gitstats_obj$commits_dt)) {
     stop("You have to first construct your repos data.frame with 'get_commits' function.",
-         call. = FALSE
+      call. = FALSE
     )
   }
 
-  commits_dt = gitstats_obj$commits_dt
+  commits_dt <- gitstats_obj$commits_dt
 
   stats_by <- match.arg(stats_by)
 
@@ -30,11 +30,11 @@ plot_commits = function(gitstats_obj,
   commits_n <- commits_n[order(statsDate)]
 
   plotly::plot_ly(commits_n,
-                  x = ~statsDate,
-                  y = ~commits_n,
-                  color = ~organisation,
-                  type = "scatter",
-                  mode = "lines+markers"
+    x = ~statsDate,
+    y = ~commits_n,
+    color = ~organisation,
+    type = "scatter",
+    mode = "lines+markers"
   )
 }
 
@@ -43,14 +43,14 @@ plot_commits = function(gitstats_obj,
 #' @param gitstats_obj  A GitStats object.
 #' @return A plot.
 #' @export
-plot_commit_lines = function(gitstats_obj) {
+plot_commit_lines <- function(gitstats_obj) {
   if (is.null(gitstats_obj$commits_dt)) {
     stop("You have to first construct your repos data.frame with 'get_commits' function.",
-         call. = FALSE
+      call. = FALSE
     )
   }
 
-  commits_dt = gitstats_obj$commits_dt
+  commits_dt <- gitstats_obj$commits_dt
 
   commits_dt[, deletions := -deletions]
 

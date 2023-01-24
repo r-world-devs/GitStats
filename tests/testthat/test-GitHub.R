@@ -46,18 +46,21 @@ test_that("Private get_all_repos_from_owner pulls correctly repositories", {
 })
 
 test_that("Get_repos methods pulls repositories from GitHub and translates output into data.frame", {
-
   repos <- git_hub_public$get_repos(by = "org")
 
   expect_repos_table(repos)
 
-  repos_R <- git_hub_public$get_repos(by = "org",
-                                      language = "R")
+  repos_R <- git_hub_public$get_repos(
+    by = "org",
+    language = "R"
+  )
 
   expect_repos_table(repos_R)
 
-  repos_Python <- git_hub_public$get_repos(by = "org",
-                                           language = "Python")
+  repos_Python <- git_hub_public$get_repos(
+    by = "org",
+    language = "Python"
+  )
 
   expect_empty_table(repos_Python)
 

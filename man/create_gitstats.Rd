@@ -13,5 +13,5 @@ A \code{GitStats} object.
 Create a \code{GitStats} object
 }
 \examples{
- my_gitstats <- create_gitstats()
+my_gitstats <- create_gitstats()
 }

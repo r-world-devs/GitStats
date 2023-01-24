@@ -1,5 +1,4 @@
 test_that("Set connection returns appropriate messages", {
-
   test_gitstats <- create_gitstats()
 
   expect_message(

@@ -34,19 +34,24 @@ List all repositories for an organization, a team.
 \examples{
 \dontrun{
 my_gitstats <- create_gitstats() \%>\%
-  set_connection(api_url = "https://api.github.com",
-                 token = Sys.getenv("GITHUB_PAT"),
-                 orgs = c("r-world-devs", "openpharma", "pharmaverse")) \%>\%
-  set_connection(api_url = "https://gitlab.com/api/v4",
-                 token = Sys.getenv("GITLAB_PAT"),
-                 orgs = "erasmusmc-public-health") \%>\%
-  get_commits(date_from = '2020-01-01')
+  set_connection(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("r-world-devs", "openpharma", "pharmaverse")
+  ) \%>\%
+  set_connection(
+    api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT"),
+    orgs = "erasmusmc-public-health"
+  ) \%>\%
+  get_commits(date_from = "2020-01-01")
 
 my_gitstats \%>\%
   set_team("RWD-IE", "galachad", "kalimu", "Cotau", "krystian8207", "marcinkowskak", "maciekbanas") \%>\%
-  get_commits(date_from = '2020-01-01',
-              date_until = '2022-12-31',
-              by = "team"
-              )
+  get_commits(
+    date_from = "2020-01-01",
+    date_until = "2022-12-31",
+    by = "team"
+  )
 }
 }

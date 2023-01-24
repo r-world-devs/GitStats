@@ -92,8 +92,10 @@ GitStats <- R6::R6Class("GitStats",
       )
 
       if (by == "org") {
-        repos_dt_list <- purrr::map(self$clients, ~ .$get_repos(by = by,
-                                                                language = language))
+        repos_dt_list <- purrr::map(self$clients, ~ .$get_repos(
+          by = by,
+          language = language
+        ))
       } else if (by == "team") {
         if (is.null(self$team)) {
           stop("You have to specify a team first with 'set_team()' method.", call. = FALSE)
@@ -111,17 +113,16 @@ GitStats <- R6::R6Class("GitStats",
         repos_dt_list <- purrr::map(self$clients, ~ .$get_repos(
           by = "phrase",
           phrase = phrase,
-          language = language))
+          language = language
+        ))
       }
 
-      if (any(purrr::map_lgl(repos_dt_list, ~length(.) != 0))){
-
+      if (any(purrr::map_lgl(repos_dt_list, ~ length(.) != 0))) {
         self$repos_dt <- repos_dt_list %>%
           rbindlist() %>%
           dplyr::arrange(last_activity_at)
 
         if (print_out) print(self$repos_dt)
-
       } else {
         message("Empty object - will not be saved.")
       }
@@ -232,7 +233,7 @@ GitStats <- R6::R6Class("GitStats",
 #' @title Create a `GitStats` object
 #' @name create_gitstats
 #' @examples
-#'  my_gitstats <- create_gitstats()
+#' my_gitstats <- create_gitstats()
 #' @return A `GitStats` object.
 #' @export
 create_gitstats <- function() {
@@ -245,12 +246,16 @@ create_gitstats <- function() {
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
-#'   set_connection(api_url = "https://api.github.com",
-#'                  token = Sys.getenv("GITHUB_PAT"),
-#'                  orgs = c("r-world-devs", "openpharma", "pharmaverse")) %>%
-#'   set_connection(api_url = "https://gitlab.com/api/v4",
-#'                  token = Sys.getenv("GITLAB_PAT"),
-#'                  orgs = "erasmusmc-public-health")
+#'   set_connection(
+#'     api_url = "https://api.github.com",
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs", "openpharma", "pharmaverse")
+#'   ) %>%
+#'   set_connection(
+#'     api_url = "https://gitlab.com/api/v4",
+#'     token = Sys.getenv("GITLAB_PAT"),
+#'     orgs = "erasmusmc-public-health"
+#'   )
 #' }
 #' @return A `GitStats` class object with added connection information
 #'   (`$clients` field).
@@ -259,10 +264,11 @@ set_connection <- function(gitstats_obj,
                            api_url,
                            token,
                            orgs = NULL) {
-
-  gitstats_obj$set_connection(api_url = api_url,
-                              token = token,
-                              orgs = orgs)
+  gitstats_obj$set_connection(
+    api_url = api_url,
+    token = token,
+    orgs = orgs
+  )
 
   return(invisible(gitstats_obj))
 }
@@ -281,15 +287,16 @@ set_connection <- function(gitstats_obj,
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
-#'   set_connection(api_url = "https://api.github.com",
-#'                  token = Sys.getenv("GITHUB_PAT"),
-#'                  orgs = c("r-world-devs", "openpharma", "pharmaverse")) %>%
+#'   set_connection(
+#'     api_url = "https://api.github.com",
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs", "openpharma", "pharmaverse")
+#'   ) %>%
 #'   set_team("RWD-IE", "galachad", "kalimu", "Cotau", "krystian8207", "marcinkowskak", "maciekbanas") %>%
 #'   get_repos(by = "team")
 #' }
 #' @export
-set_team = function(gitstats_obj, team_name, ...) {
-
+set_team <- function(gitstats_obj, team_name, ...) {
   gitstats_obj$set_team(team_name, ...)
 
   return(invisible(gitstats_obj))
@@ -310,29 +317,36 @@ set_team = function(gitstats_obj, team_name, ...) {
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
-#'   set_connection(api_url = "https://api.github.com",
-#'                  token = Sys.getenv("GITHUB_PAT"),
-#'                  orgs = c("r-world-devs", "openpharma", "pharmaverse")) %>%
-#'   set_connection(api_url = "https://gitlab.com/api/v4",
-#'                  token = Sys.getenv("GITLAB_PAT"),
-#'                  orgs = "erasmusmc-public-health") %>%
+#'   set_connection(
+#'     api_url = "https://api.github.com",
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs", "openpharma", "pharmaverse")
+#'   ) %>%
+#'   set_connection(
+#'     api_url = "https://gitlab.com/api/v4",
+#'     token = Sys.getenv("GITLAB_PAT"),
+#'     orgs = "erasmusmc-public-health"
+#'   ) %>%
 #'   get_repos(language = "R")
 #'
-#' my_gitstats$get_repos(by = "phrase",
-#'                       phrase = "diabetes",
-#'                       language = "R")
+#' my_gitstats$get_repos(
+#'   by = "phrase",
+#'   phrase = "diabetes",
+#'   language = "R"
+#' )
 #' }
 #' @export
-get_repos = function(gitstats_obj,
-                     by = "org",
-                     phrase = NULL,
-                     language = NULL,
-                     print_out = TRUE) {
-
-  gitstats_obj$get_repos(by = by,
-                         phrase = phrase,
-                         language = language,
-                         print_out = print_out)
+get_repos <- function(gitstats_obj,
+                      by = "org",
+                      phrase = NULL,
+                      language = NULL,
+                      print_out = TRUE) {
+  gitstats_obj$get_repos(
+    by = by,
+    phrase = phrase,
+    language = language,
+    print_out = print_out
+  )
 
   return(invisible(gitstats_obj))
 }
@@ -351,32 +365,38 @@ get_repos = function(gitstats_obj,
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
-#'   set_connection(api_url = "https://api.github.com",
-#'                  token = Sys.getenv("GITHUB_PAT"),
-#'                  orgs = c("r-world-devs", "openpharma", "pharmaverse")) %>%
-#'   set_connection(api_url = "https://gitlab.com/api/v4",
-#'                  token = Sys.getenv("GITLAB_PAT"),
-#'                  orgs = "erasmusmc-public-health") %>%
-#'   get_commits(date_from = '2020-01-01')
+#'   set_connection(
+#'     api_url = "https://api.github.com",
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs", "openpharma", "pharmaverse")
+#'   ) %>%
+#'   set_connection(
+#'     api_url = "https://gitlab.com/api/v4",
+#'     token = Sys.getenv("GITLAB_PAT"),
+#'     orgs = "erasmusmc-public-health"
+#'   ) %>%
+#'   get_commits(date_from = "2020-01-01")
 #'
 #' my_gitstats %>%
 #'   set_team("RWD-IE", "galachad", "kalimu", "Cotau", "krystian8207", "marcinkowskak", "maciekbanas") %>%
-#'   get_commits(date_from = '2020-01-01',
-#'               date_until = '2022-12-31',
-#'               by = "team"
-#'               )
+#'   get_commits(
+#'     date_from = "2020-01-01",
+#'     date_until = "2022-12-31",
+#'     by = "team"
+#'   )
 #' }
 #' @export
-get_commits = function(gitstats_obj,
-                       date_from = NULL,
-                       date_until = Sys.time(),
-                       by = "org",
-                       print_out = TRUE) {
-
-  gitstats_obj$get_commits(date_from = date_from,
-                           date_until = date_until,
-                           by = by,
-                           print_out = print_out)
+get_commits <- function(gitstats_obj,
+                        date_from = NULL,
+                        date_until = Sys.time(),
+                        by = "org",
+                        print_out = TRUE) {
+  gitstats_obj$get_commits(
+    date_from = date_from,
+    date_until = date_until,
+    by = by,
+    print_out = print_out
+  )
 
   return(invisible(gitstats_obj))
 }

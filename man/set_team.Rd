@@ -28,9 +28,11 @@ statitistics from all your Git clients.
 \examples{
 \dontrun{
 my_gitstats <- create_gitstats() \%>\%
-  set_connection(api_url = "https://api.github.com",
-                 token = Sys.getenv("GITHUB_PAT"),
-                 orgs = c("r-world-devs", "openpharma", "pharmaverse")) \%>\%
+  set_connection(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("r-world-devs", "openpharma", "pharmaverse")
+  ) \%>\%
   set_team("RWD-IE", "galachad", "kalimu", "Cotau", "krystian8207", "marcinkowskak", "maciekbanas") \%>\%
   get_repos(by = "team")
 }

@@ -7,26 +7,26 @@
 #' @param repos_n An integer, a number of repos to show on the plot.
 #' @return A plot.
 #' @export
-plot_repos = function(gitstats_obj,
-                      repos_n = 10) {
+plot_repos <- function(gitstats_obj,
+                       repos_n = 10) {
   if (is.null(gitstats_obj$repos_dt)) {
     stop("You have to first construct your repos data.frame with 'get_repos' function.",
-         call. = FALSE
+      call. = FALSE
     )
   }
 
-  repos_dt = gitstats_obj$repos_dt
+  repos_dt <- gitstats_obj$repos_dt
 
   repos_dt <- head(repos_dt, repos_n)
 
   repos_dt$name <- factor(repos_dt$name, levels = unique(repos_dt$name)[order(repos_dt$last_activity_at, decreasing = TRUE)])
 
   plotly::plot_ly(repos_dt,
-                  y = ~name,
-                  x = ~last_activity_at,
-                  color = ~organisation,
-                  type = "bar",
-                  orientation = "h"
+    y = ~name,
+    x = ~last_activity_at,
+    color = ~organisation,
+    type = "bar",
+    orientation = "h"
   ) %>%
     plotly::layout(
       yaxis = list(title = ""),

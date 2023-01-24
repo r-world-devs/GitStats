@@ -30,13 +30,17 @@ test_that("Get_repos methods pulls repositories from GitLab and translates outpu
 
   expect_repos_table(repos)
 
-  repos_R <- git_lab_public$get_repos(by = "org",
-                                      language = "R")
+  repos_R <- git_lab_public$get_repos(
+    by = "org",
+    language = "R"
+  )
 
   expect_repos_table(repos_R)
 
-  repos_Python <- git_lab_public$get_repos(by = "org",
-                                           language = "Python")
+  repos_Python <- git_lab_public$get_repos(
+    by = "org",
+    language = "Python"
+  )
 
   expect_empty_table(repos_Python)
 
