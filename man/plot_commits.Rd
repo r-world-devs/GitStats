@@ -8,6 +8,8 @@ plot_commits(gitstats_obj, stats_by = c("day", "week", "month"))
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
+
+\item{stats_by}{A character, specifing time interval to show statistics.}
 }
 \value{
 A plot.

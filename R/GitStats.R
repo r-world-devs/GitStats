@@ -352,7 +352,7 @@ get_repos <- function(gitstats_obj,
 }
 
 #' @title Get information on commits.
-#' @get_commits
+#' @name get_commits
 #' @description List all repositories for an organization, a team.
 #' @param gitstats_obj  A GitStats object.
 #' @param date_from A starting date to look commits for

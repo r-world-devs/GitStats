@@ -211,7 +211,7 @@ GitLab <- R6::R6Class("GitLab",
     #' @description Perform get request to search API.
     #' @param phrase A phrase to look for in codelines.
     #' @param project_group A character, a group of projects.
-    #' @param page_max
+    #' @param page_max An integer, maximum number of pages.
     #' @return A list of repositories.
     search_by_codephrase = function(phrase,
                                     project_group,
