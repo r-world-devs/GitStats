@@ -52,9 +52,6 @@ jobs:
         with:
           r-version: ${{ steps.normalizer.outputs.R_VERSION }}
 
-      - name: Restore cache
-        uses: actions/cache@v3
-
       - name: Run Staged dependencies
         uses: insightsengineering/staged-dependencies-action@v1
         with:

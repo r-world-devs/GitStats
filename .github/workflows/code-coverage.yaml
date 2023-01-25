@@ -75,9 +75,6 @@ jobs:
         with:
           r-version: ${{ steps.normalizer.outputs.R_VERSION }}
 
-      - name: Restore cache
-        uses: actions/cache@v3
-
       - name: Setup Pandoc
         uses: r-lib/actions/setup-pandoc@v1
 
