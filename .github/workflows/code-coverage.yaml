@@ -77,12 +77,6 @@ jobs:
 
       - name: Restore cache
         uses: actions/cache@v3
-        with:
-          path: |
-            ~/.local/share/renv
-            ~/.staged.dependencies
-          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
-          restore-keys: ${{ runner.os }}-renv-
 
       - name: Setup Pandoc
         uses: r-lib/actions/setup-pandoc@v1
