@@ -1,11 +1,12 @@
-test_that("Private pull_repos_from_org pulls correctly repositories for GitHub", {
-  git_hub <- GitService$new(
-    rest_api_url = "https://api.github.com",
-    token = Sys.getenv("GITHUB_PAT"),
-    orgs = c("openpharma", "pharmaverse", "insightsengineering")
-  )
+git_hub <- GitService$new(
+  rest_api_url = "https://api.github.com",
+  token = Sys.getenv("GITHUB_PAT"),
+  orgs = c("openpharma", "pharmaverse", "insightsengineering")
+)
 
-  github_env <- environment(git_hub$initialize)$private
+github_env <- environment(git_hub$initialize)$private
+
+test_that("Private pull_repos_from_org pulls correctly repositories for GitHub", {
 
   orgs <- git_hub$orgs
 
@@ -48,4 +49,16 @@ test_that("Private pull_repos_from_rg pulls correctly repositories for GitLab", 
       repos_n
     )
   })
+})
+
+test_that("Private find_by_ids returns proper repo list", {
+  ids <- c("208896481", "402384343", "483601371")
+  names <- c("visR", "DataFakeR", "shinyGizmo")
+
+  result <- github_env$find_by_id(ids = ids,
+                                  objects = "repositories")
+
+  expect_type(result, "list")
+
+  expect_equal(purrr::map_chr(result, ~.$name), names)
 })

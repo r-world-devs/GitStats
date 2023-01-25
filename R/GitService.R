@@ -84,6 +84,26 @@ GitService <- R6::R6Class("GitService",
       repos_list
     },
 
+    #' @description Perform get request to find projects by ids.
+    #' @param ids A character vector of repositories or projects' ids.
+    #' @param objects A character to choose between 'repositories' (GitHub) and
+    #'   'projects' (GitLab).
+    #' @return A list of repositories.
+    find_by_id = function(ids,
+                          objects = c("repositories", "projects"),
+                          api_url = self$rest_api_url,
+                          token = private$token) {
+      objects <- match.arg(objects)
+      projects_list <- purrr::map(ids, function(x) {
+        content <- perform_get_request(
+          paste0(api_url, "/", objects, "/", x),
+          token
+        )
+      })
+
+      projects_list
+    },
+
     #' @description GraphQL url handler (if not provided)
     #' @param gql_api_url A url of GraphQL API.
     #' @param rest_api_url A url of REST API.

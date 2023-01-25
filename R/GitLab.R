@@ -239,25 +239,9 @@ GitLab <- R6::R6Class("GitLab",
 
       repos_list <- purrr::map_chr(resp_list, ~ .$project_id) %>%
         unique() %>%
-        private$find_projects_by_id()
+        private$find_by_id(objects = "projects")
 
       return(repos_list)
-    },
-
-    #' @description Perform get request to find projects by ids.
-    #' @param project_ids A character vector of projects' ids.
-    #' @return A list of projects.
-    find_projects_by_id = function(projects_ids,
-                                   api_url = self$rest_api_url,
-                                   token = private$token) {
-      projects_list <- purrr::map(projects_ids, function(x) {
-        content <- perform_get_request(
-          paste0(api_url, "/projects/", x, ""),
-          token
-        )
-      })
-
-      projects_list
     },
 
     #' @description GitLab private method to derive

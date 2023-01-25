@@ -205,25 +205,9 @@ GitHub <- R6::R6Class("GitHub",
 
       repos_list <- purrr::map_chr(repos_list, ~ .$repository$id) %>%
         unique() %>%
-        private$find_repos_by_id()
+        private$find_by_id(objects = "repositories")
 
       return(repos_list)
-    },
-
-    #' @description Perform get request to find repositories by ids
-    #' @param repos_ids A character vector of repositories' ids.
-    #' @return A list of repos.
-    find_repos_by_id = function(repos_ids,
-                                api_url = self$rest_api_url,
-                                token = private$token) {
-      repos_list <- purrr::map(repos_ids, function(x) {
-        content <- perform_get_request(
-          paste0(api_url, "/repositories/", x, ""),
-          token
-        )
-      })
-
-      repos_list
     },
 
     #' @description GitHub private method to pull
