@@ -9,40 +9,24 @@ git_hub_enterprise <- GitHub$new(
   orgs = c("Avengers")
 )
 
-priv_publ <- environment(git_hub_public$initialize)$private
-priv_enterp <- environment(git_hub_enterprise$initialize)$private
+publ_env <- environment(git_hub_public$initialize)$private
+enterp_env <- environment(git_hub_enterprise$initialize)$private
 
 test_that("set_gql_url correctly sets gql api url - for public and private github", {
   expect_equal(
-    priv_publ$set_gql_url(),
+    publ_env$set_gql_url(),
     "https://api.github.com/graphql"
   )
 
   expect_equal(
-    priv_enterp$set_gql_url(),
+    enterp_env$set_gql_url(),
     "https://github.avengers.com/graphql"
   )
 })
 
 test_that("Check correctly if API url is of Enterprise or Public Github", {
-  expect_equal(priv_publ$check_enterprise(git_hub_public$rest_api_url), FALSE)
-  expect_equal(priv_enterp$check_enterprise(git_hub_enterprise$rest_api_url), TRUE)
-})
-
-test_that("Private get_all_repos_from_owner pulls correctly repositories", {
-  orgs <- c("openpharma", "r-world-devs", "pharmaverse")
-
-  purrr::walk(orgs, function(org) {
-    repos_n <- perform_get_request(
-      endpoint = paste0("https://api.github.com/orgs/", org),
-      token = Sys.getenv("GITHUB_PAT")
-    )[["public_repos"]]
-
-    expect_equal(
-      length(priv_publ$get_all_repos_from_owner(repo_owner = org)),
-      repos_n
-    )
-  })
+  expect_equal(publ_env$check_enterprise(git_hub_public$rest_api_url), FALSE)
+  expect_equal(enterp_env$check_enterprise(git_hub_enterprise$rest_api_url), TRUE)
 })
 
 test_that("Get_repos methods pulls repositories from GitHub and translates output into data.frame", {

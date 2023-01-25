@@ -39,7 +39,8 @@ GitLab <- R6::R6Class("GitLab",
           message(paste0("\n On GitLab platform (", self$rest_api_url, ") found ", length(repos_list), " repositories
                  with searched codephrase and concerning ", language, " language and ", x, " organization."))
         } else {
-          repos_list <- private$get_all_repos_from_group(project_group = x) %>%
+          repos_list <- private$pull_repos_from_org(org = x,
+                                                    git_service = "GitLab") %>%
             {
               if (by == "team") {
                 private$filter_projects_by_team(
@@ -118,32 +119,6 @@ GitLab <- R6::R6Class("GitLab",
     }
   ),
   private = list(
-
-    #' @description A method to pull all repositories for an owner.
-    #' @param project_group A character, a group of projects.
-    #' @param rest_api_url A url of a REST API.
-    #' @param token A token.
-    #' @return A list.
-    get_all_repos_from_group = function(project_group,
-                                        rest_api_url = self$rest_api_url,
-                                        token = private$token) {
-      repos_list <- list()
-      r_page <- 1
-      repeat {
-        repos_page <- perform_get_request(
-          endpoint = paste0(rest_api_url, "/groups/", project_group, "/projects?per_page=100&page=", r_page),
-          token = token
-        )
-        if (length(repos_page) > 0) {
-          repos_list <- append(repos_list, repos_page)
-          r_page <- r_page + 1
-        } else {
-          break
-        }
-      }
-
-      repos_list
-    },
 
     #' @description Filter by contributors.
     #' @details If at least one member of a team is a contributor than a project
@@ -236,7 +211,7 @@ GitLab <- R6::R6Class("GitLab",
     #' @description Perform get request to search API.
     #' @param phrase A phrase to look for in codelines.
     #' @param project_group A character, a group of projects.
-    #' @param page_max
+    #' @param page_max An integer, maximum number of pages.
     #' @return A list of repositories.
     search_by_codephrase = function(phrase,
                                     project_group,
@@ -264,25 +239,9 @@ GitLab <- R6::R6Class("GitLab",
 
       repos_list <- purrr::map_chr(resp_list, ~ .$project_id) %>%
         unique() %>%
-        private$find_projects_by_id()
+        private$find_by_id(objects = "projects")
 
       return(repos_list)
-    },
-
-    #' @description Perform get request to find projects by ids.
-    #' @param project_ids A character vector of projects' ids.
-    #' @return A list of projects.
-    find_projects_by_id = function(projects_ids,
-                                   api_url = self$rest_api_url,
-                                   token = private$token) {
-      projects_list <- purrr::map(projects_ids, function(x) {
-        content <- perform_get_request(
-          paste0(api_url, "/projects/", x, ""),
-          token
-        )
-      })
-
-      projects_list
     },
 
     #' @description GitLab private method to derive
@@ -296,8 +255,9 @@ GitLab <- R6::R6Class("GitLab",
                                           date_until = Sys.date(),
                                           rest_api_url = self$rest_api_url,
                                           token = private$token) {
-      repos_list <- private$get_all_repos_from_group(
-        project_group = project_group,
+      repos_list <- private$pull_repos_from_org(
+        org = project_group,
+        git_service = "GitLab",
         rest_api_url = rest_api_url,
         token = token
       )
@@ -341,6 +301,7 @@ GitLab <- R6::R6Class("GitLab",
     #' @description Filter by contributors.
     #' @param commits_list A commits list to be filtered.
     #' @param team A character vector with team member names.
+    #' @return A list.
     filter_commits_by_team = function(commits_list,
                                       team) {
       commits_list <- purrr::map(commits_list, function(repo) {
@@ -357,7 +318,8 @@ GitLab <- R6::R6Class("GitLab",
     },
 
     #' @description A helper to retrieve only important info on commits
-    #' @param commits_list A list, a formatted content of response returned by GET API request
+    #' @param commits_list A list, a formatted content of response returned by
+    #'   GET API request
     #' @param group_name A character, name of a group
     #' @return A list of commits with selected information
     tailor_commits_info = function(commits_list,
@@ -367,14 +329,13 @@ GitLab <- R6::R6Class("GitLab",
           list(
             "id" = y$id,
             "organisation" = group_name,
-            "repo_project" = gsub(
+            "repository" = gsub(
               pattern = paste0("/-/commit/", y$id),
               replacement = "",
               x = gsub(paste0("(.*)", group_name, "/"), "", y$web_url)
             ),
             "additions" = y$stats$additions,
             "deletions" = y$stats$deletions,
-            # "commiterName" = y$committer_name,
             "committedDate" = y$committed_date
           )
         })
