@@ -38,7 +38,8 @@ GitHub <- R6::R6Class("GitHub",
           message(paste0("\n On GitHub platform (", self$rest_api_url, ") found ", length(repos_list), " repositories
                with searched codephrase and concerning ", language, " language and ", x, " organization."))
         } else {
-          repos_list <- private$get_all_repos_from_owner(repo_owner = x) %>%
+          repos_list <- private$pull_repos_from_org(org = x,
+                                                    git_service = "GitHub") %>%
             {
               if (by == "team") {
                 private$filter_repos_by_team(
@@ -118,34 +119,6 @@ GitHub <- R6::R6Class("GitHub",
     }
   ),
   private = list(
-
-    #' @description A method to pull all repositories for an owner.
-    #' @param repo_owner A character, an owner of repository.
-    #' @param rest_api_url A url of a REST API.
-    #' @param token A token.
-    #' @return A list.
-    get_all_repos_from_owner = function(repo_owner,
-                                        rest_api_url = self$rest_api_url,
-                                        token = private$token) {
-      repos_list <- list()
-      r_page <- 1
-      repeat {
-        repos_endpoint <- paste0(rest_api_url, "/orgs/", repo_owner, "/repos?per_page=100&page=", r_page)
-
-        repos_page <- perform_get_request(
-          endpoint = repos_endpoint,
-          token = token
-        )
-        if (length(repos_page) > 0) {
-          repos_list <- append(repos_list, repos_page)
-          r_page <- r_page + 1
-        } else {
-          break
-        }
-      }
-
-      repos_list
-    },
 
     #' @description Filter by contributors.
     #' @details If at least one member of a team is a contributor than a project
@@ -232,25 +205,9 @@ GitHub <- R6::R6Class("GitHub",
 
       repos_list <- purrr::map_chr(repos_list, ~ .$repository$id) %>%
         unique() %>%
-        private$find_repos_by_id()
+        private$find_by_id(objects = "repositories")
 
       return(repos_list)
-    },
-
-    #' @description Perform get request to find repositories by ids
-    #' @param repos_ids A character vector of repositories' ids.
-    #' @return A list of repos.
-    find_repos_by_id = function(repos_ids,
-                                api_url = self$rest_api_url,
-                                token = private$token) {
-      repos_list <- purrr::map(repos_ids, function(x) {
-        content <- perform_get_request(
-          paste0(api_url, "/repositories/", x, ""),
-          token
-        )
-      })
-
-      repos_list
     },
 
     #' @description GitHub private method to pull
@@ -266,8 +223,9 @@ GitHub <- R6::R6Class("GitHub",
                                           date_until = Sys.date(),
                                           rest_api_url = self$rest_api_url,
                                           token = private$token) {
-      repos_list <- private$get_all_repos_from_owner(
-        repo_owner = repo_owner,
+      repos_list <- private$pull_repos_from_org(
+        org = repo_owner,
+        git_service = "GitHub",
         rest_api_url = rest_api_url,
         token = token
       )
@@ -319,6 +277,7 @@ GitHub <- R6::R6Class("GitHub",
     #' @description Filter by contributors.
     #' @param commits_list A commits list to be filtered.
     #' @param team A character vector with team member names.
+    #' @return A list.
     filter_commits_by_team = function(commits_list,
                                       team) {
       commits_list <- purrr::map(commits_list, function(repo) {
@@ -364,14 +323,11 @@ GitHub <- R6::R6Class("GitHub",
           list(
             "id" = commit$sha,
             "organisation" = org,
-            "repo_project" = gsub(
+            "repository" = gsub(
               pattern = paste0(org, "/"),
               replacement = "",
               x = repo_name
             ),
-            # "additions" = commit$stats$additions,
-            # "deletions" = commit$stats$deletions,
-            # "commiterName" = commit$committer_name,
             "committedDate" = commit$commit$committer$date
           )
         })

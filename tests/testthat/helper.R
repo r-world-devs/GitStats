@@ -6,7 +6,7 @@ expect_repos_table <- function(get_repos_object) {
 }
 
 expect_commits_table <- function(get_commits_object) {
-  commit_cols <- c("id", "organisation", "repo_project", "committedDate", "additions", "deletions")
+  commit_cols <- c("id", "organisation", "repository", "committedDate", "additions", "deletions")
   expect_s3_class(get_commits_object, "data.frame")
   expect_named(get_commits_object, commit_cols)
   expect_gt(nrow(get_commits_object), 0)
