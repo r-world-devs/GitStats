@@ -7,6 +7,8 @@
 
 [![R-CMD-check](https://github.com/r-world-devs/GitStats/workflows/R-CMD-check/badge.svg)](https://github.com/r-world-devs/GitStats/actions)
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Codecov test
+coverage](https://codecov.io/gh/r-world-devs/GitStats/branch/devel/graph/badge.svg)](https://app.codecov.io/gh/r-world-devs/GitStats?branch=devel)
 <!-- badges: end -->
 
 ***WORK IN PROGRESS***
@@ -42,7 +44,7 @@ library(magrittr)
 git_stats <- create_gitstats() %>%
   set_connection(
     api_url = "https://api.github.com",
-    token = Sys.getenv("GITHUB_PAT"), # You can set up your own token as an environment variable in .Renviron file (based in home directory)
+    token = Sys.getenv("GITHUB_PAT"),
     orgs = c("openpharma", "r-world-devs")
   ) %>%
   set_connection(
