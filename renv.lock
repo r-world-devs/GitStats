@@ -4,11 +4,7 @@
     "Repositories": [
       {
         "Name": "CRAN",
-        "URL": "https://rspm.apollo.roche.com/CRAN/2022-04-27"
-      },
-      {
-        "Name": "ROCHE",
-        "URL": "https://rspm.apollo.roche.com/Roche/5381951"
+        "URL": "https://cloud.r-project.org"
       }
     ]
   },

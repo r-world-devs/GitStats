@@ -52,6 +52,15 @@ jobs:
         with:
           r-version: ${{ steps.normalizer.outputs.R_VERSION }}
 
+      - name: Restore cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.local/share/renv
+            ~/.staged.dependencies
+          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+          restore-keys: ${{ runner.os }}-renv-
+
       - name: Run Staged dependencies
         uses: insightsengineering/staged-dependencies-action@v1
         with:
