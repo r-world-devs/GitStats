@@ -33,7 +33,8 @@ my_gitstats <- create_gitstats() \%>\%
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma", "pharmaverse")
   ) \%>\%
-  set_team("RWD-IE", "galachad", "kalimu", "Cotau", "krystian8207", "marcinkowskak", "maciekbanas") \%>\%
+  set_team("RWD-IE", "galachad", "kalimu", "Cotau",
+           "krystian8207", "marcinkowskak", "maciekbanas") \%>\%
   get_repos(by = "team")
 }
 }

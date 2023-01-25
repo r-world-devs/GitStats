@@ -1,6 +1,7 @@
 #' @importFrom R6 R6Class
 #' @importFrom data.table rbindlist :=
 #' @importFrom purrr map
+#' @importFrom tibble tibble
 #'
 #' @title A statistics platform for Git clients
 #' @description An R6 class object with methods to derive information from multiple Git platforms.
@@ -243,6 +244,10 @@ create_gitstats <- function() {
 #' @title Setting connections
 #' @name set_connection
 #' @param gitstats_obj A GitStats object.
+#' @param api_url A character, url address of API.
+#' @param token A token.
+#' @param orgs A character vector of organisations (owners of repositories in
+#'   case of GitHub and groups of projects in case of GitLab).
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
@@ -257,7 +262,7 @@ create_gitstats <- function() {
 #'     orgs = "erasmusmc-public-health"
 #'   )
 #' }
-#' @return A `GitStats` class object with added connection information
+#' @return A `GitStats` class object with added information on connection
 #'   (`$clients` field).
 #' @export
 set_connection <- function(gitstats_obj,
@@ -292,7 +297,8 @@ set_connection <- function(gitstats_obj,
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma", "pharmaverse")
 #'   ) %>%
-#'   set_team("RWD-IE", "galachad", "kalimu", "Cotau", "krystian8207", "marcinkowskak", "maciekbanas") %>%
+#'   set_team("RWD-IE", "galachad", "kalimu", "Cotau",
+#'            "krystian8207", "marcinkowskak", "maciekbanas") %>%
 #'   get_repos(by = "team")
 #' }
 #' @export
@@ -378,7 +384,8 @@ get_repos <- function(gitstats_obj,
 #'   get_commits(date_from = "2020-01-01")
 #'
 #' my_gitstats %>%
-#'   set_team("RWD-IE", "galachad", "kalimu", "Cotau", "krystian8207", "marcinkowskak", "maciekbanas") %>%
+#'   set_team("RWD-IE", "galachad", "kalimu", "Cotau",
+#'            "krystian8207", "marcinkowskak", "maciekbanas") %>%
 #'   get_commits(
 #'     date_from = "2020-01-01",
 #'     date_until = "2022-12-31",
