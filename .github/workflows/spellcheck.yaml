@@ -84,6 +84,7 @@ jobs:
           enable-check: false
         env:
           GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+          USE_RENV: "FALSE"
       ##################### END boilerplate steps #####################
 
       - name: Run Spellcheck
