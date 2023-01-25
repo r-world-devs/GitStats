@@ -277,6 +277,7 @@ GitHub <- R6::R6Class("GitHub",
     #' @description Filter by contributors.
     #' @param commits_list A commits list to be filtered.
     #' @param team A character vector with team member names.
+    #' @return A list.
     filter_commits_by_team = function(commits_list,
                                       team) {
       commits_list <- purrr::map(commits_list, function(repo) {
@@ -322,14 +323,11 @@ GitHub <- R6::R6Class("GitHub",
           list(
             "id" = commit$sha,
             "organisation" = org,
-            "repo_project" = gsub(
+            "repository" = gsub(
               pattern = paste0(org, "/"),
               replacement = "",
               x = repo_name
             ),
-            # "additions" = commit$stats$additions,
-            # "deletions" = commit$stats$deletions,
-            # "commiterName" = commit$committer_name,
             "committedDate" = commit$commit$committer$date
           )
         })

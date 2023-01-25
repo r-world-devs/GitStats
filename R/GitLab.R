@@ -301,6 +301,7 @@ GitLab <- R6::R6Class("GitLab",
     #' @description Filter by contributors.
     #' @param commits_list A commits list to be filtered.
     #' @param team A character vector with team member names.
+    #' @return A list.
     filter_commits_by_team = function(commits_list,
                                       team) {
       commits_list <- purrr::map(commits_list, function(repo) {
@@ -317,7 +318,8 @@ GitLab <- R6::R6Class("GitLab",
     },
 
     #' @description A helper to retrieve only important info on commits
-    #' @param commits_list A list, a formatted content of response returned by GET API request
+    #' @param commits_list A list, a formatted content of response returned by
+    #'   GET API request
     #' @param group_name A character, name of a group
     #' @return A list of commits with selected information
     tailor_commits_info = function(commits_list,
@@ -327,14 +329,13 @@ GitLab <- R6::R6Class("GitLab",
           list(
             "id" = y$id,
             "organisation" = group_name,
-            "repo_project" = gsub(
+            "repository" = gsub(
               pattern = paste0("/-/commit/", y$id),
               replacement = "",
               x = gsub(paste0("(.*)", group_name, "/"), "", y$web_url)
             ),
             "additions" = y$stats$additions,
             "deletions" = y$stats$deletions,
-            # "commiterName" = y$committer_name,
             "committedDate" = y$committed_date
           )
         })
