@@ -39,7 +39,8 @@ GitLab <- R6::R6Class("GitLab",
           message(paste0("\n On GitLab platform (", self$rest_api_url, ") found ", length(repos_list), " repositories
                  with searched codephrase and concerning ", language, " language and ", x, " organization."))
         } else {
-          repos_list <- private$get_all_repos_from_group(project_group = x) %>%
+          repos_list <- private$pull_repos_from_org(org = x,
+                                                    git_service = "GitLab") %>%
             {
               if (by == "team") {
                 private$filter_projects_by_team(
@@ -118,32 +119,6 @@ GitLab <- R6::R6Class("GitLab",
     }
   ),
   private = list(
-
-    #' @description A method to pull all repositories for an owner.
-    #' @param project_group A character, a group of projects.
-    #' @param rest_api_url A url of a REST API.
-    #' @param token A token.
-    #' @return A list.
-    get_all_repos_from_group = function(project_group,
-                                        rest_api_url = self$rest_api_url,
-                                        token = private$token) {
-      repos_list <- list()
-      r_page <- 1
-      repeat {
-        repos_page <- perform_get_request(
-          endpoint = paste0(rest_api_url, "/groups/", project_group, "/projects?per_page=100&page=", r_page),
-          token = token
-        )
-        if (length(repos_page) > 0) {
-          repos_list <- append(repos_list, repos_page)
-          r_page <- r_page + 1
-        } else {
-          break
-        }
-      }
-
-      repos_list
-    },
 
     #' @description Filter by contributors.
     #' @details If at least one member of a team is a contributor than a project
@@ -296,8 +271,9 @@ GitLab <- R6::R6Class("GitLab",
                                           date_until = Sys.date(),
                                           rest_api_url = self$rest_api_url,
                                           token = private$token) {
-      repos_list <- private$get_all_repos_from_group(
-        project_group = project_group,
+      repos_list <- private$pull_repos_from_org(
+        org = project_group,
+        git_service = "GitLab",
         rest_api_url = rest_api_url,
         token = token
       )

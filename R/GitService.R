@@ -46,6 +46,43 @@ GitService <- R6::R6Class("GitService",
     #' @field token A token authorizing acces to API.
     token = NULL,
 
+    #' @description A method to pull all repositories for an organization.
+    #' @param org A character, an organization:\itemize{\item{GitHub - owners o
+    #'   repositories} \item{GitLab - group of projects.}}
+    #' @param git_service A character, to choose from "GitHub" or "GitLab".
+    #' @param rest_api_url A url of a REST API.
+    #' @param token A token.
+    #' @return A list.
+    pull_repos_from_org = function(org,
+                                   git_service = c("GitHub", "GitLab"),
+                                   rest_api_url = self$rest_api_url,
+                                   token = private$token) {
+      git_service <- match.arg(git_service)
+
+      repos_list <- list()
+      r_page <- 1
+      repeat {
+        repos_endpoint <- if (git_service == "GitHub") {
+          paste0("/orgs/", org, "/repos")
+        } else if (git_service == "GitLab") {
+          paste0("/groups/", org, "/projects")
+        }
+        endpoint <- paste0(rest_api_url, repos_endpoint,"?per_page=100&page=", r_page)
+
+        repos_page <- perform_get_request(
+          endpoint = endpoint,
+          token = token
+        )
+        if (length(repos_page) > 0) {
+          repos_list <- append(repos_list, repos_page)
+          r_page <- r_page + 1
+        } else {
+          break
+        }
+      }
+
+      repos_list
+    },
 
     #' @description GraphQL url handler (if not provided)
     #' @param gql_api_url A url of GraphQL API.
