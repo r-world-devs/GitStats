@@ -18,7 +18,7 @@ GitStats <- R6::R6Class("GitStats",
 
     },
 
-    #' @field team A character vector containig team members.
+    #' @field team A character vector containing team members.
     team = NULL,
 
     #' @field repos_dt An output table of repositories.
@@ -66,7 +66,7 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description A method to set your team.
     #' @param team_name A name of a team.
-    #' @param ... A charactger vector of team members (names and logins).
+    #' @param ... A character vector of team members (names and logins).
     #' @return Nothing, pass team information into `$team` field.
     set_team = function(team_name, ...) {
       self$team <- list()
@@ -75,7 +75,7 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     #' @description  A method to list all repositories for an organization,
-    #'   a team or by a codephrase.
+    #'   a team or by a keyword.
     #' @param by A character, to choose between: \itemize{\item{org - organizations
     #'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in
     #'   code blobs.}}
@@ -281,13 +281,13 @@ set_connection <- function(gitstats_obj,
 #' @title Set your team.
 #' @name set_team
 #' @description Declare your team members (logins, full names) to obtain
-#'   statistcis \code{by = "team"}.
+#'   statistics \code{by = "team"}.
 #' @details Bear in mind that on different Git platforms, team members may use
 #'   different logins. You have to specify all of them, if you want to get team
-#'   statitistics from all your Git clients.
+#'   statistics from all your Git clients.
 #' @param gitstats_obj A GitStats object.
 #' @param team_name A name of a team.
-#' @param ... A charactger vector of team members (names and logins).
+#' @param ... A character vector of team members (names and logins).
 #' @return A `GitStats` class object with added information to `$team` field.
 #' @examples
 #' \dontrun{
@@ -311,7 +311,7 @@ set_team <- function(gitstats_obj, team_name, ...) {
 #' @title Get information on repositories
 #' @name get_repos
 #' @description  List all repositories for an organization, a team or by a
-#'   codephrase.
+#'   keyword.
 #' @param gitstats_obj A GitStats object.
 #' @param by A character, to choose between: \itemize{\item{org - organizations
 #'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in

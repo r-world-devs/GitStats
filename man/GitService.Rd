@@ -18,14 +18,14 @@ A superclass for GitHub and GitLab classes
 \item{\code{enterprise}}{A boolean defining whether Git Service is public or
 enterprise version.}
 
-\item{\code{token}}{A token authorizing acces to API.}
+\item{\code{token}}{A token authorizing access to API.}
 }
 \if{html}{\out{</div>}}
 }
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
-\item{\code{token}}{A token authorizing acces to API.}
+\item{\code{token}}{A token authorizing access to API.}
 }
 \if{html}{\out{</div>}}
 }

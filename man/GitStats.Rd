@@ -11,7 +11,7 @@ An R6 class object with methods to derive information from multiple Git platform
 \describe{
 \item{\code{clients}}{A list of API connections information.}
 
-\item{\code{team}}{A character vector containig team members.}
+\item{\code{team}}{A character vector containing team members.}
 
 \item{\code{repos_dt}}{An output table of repositories.}
 
@@ -83,7 +83,7 @@ A method to set your team.
 \describe{
 \item{\code{team_name}}{A name of a team.}
 
-\item{\code{...}}{A charactger vector of team members (names and logins).}
+\item{\code{...}}{A character vector of team members (names and logins).}
 }
 \if{html}{\out{</div>}}
 }
@@ -96,7 +96,7 @@ Nothing, pass team information into \verb{$team} field.
 \if{latex}{\out{\hypertarget{method-get_repos}{}}}
 \subsection{Method \code{get_repos()}}{
 A method to list all repositories for an organization,
-a team or by a codephrase.
+a team or by a keyword.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos(
   by = "org",

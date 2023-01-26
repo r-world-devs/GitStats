@@ -29,7 +29,7 @@ An object with methods to obtain information form GitLab API.
 \if{latex}{\out{\hypertarget{method-get_repos}{}}}
 \subsection{Method \code{get_repos()}}{
 A method to list all repositories for an organization, a
-team or by a codephrase.
+team or by a keyword.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GitLab$get_repos(orgs = self$orgs, by, team, phrase, language = NULL)}\if{html}{\out{</div>}}
 }

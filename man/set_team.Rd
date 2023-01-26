@@ -11,19 +11,19 @@ set_team(gitstats_obj, team_name, ...)
 
 \item{team_name}{A name of a team.}
 
-\item{...}{A charactger vector of team members (names and logins).}
+\item{...}{A character vector of team members (names and logins).}
 }
 \value{
 A \code{GitStats} class object with added information to \verb{$team} field.
 }
 \description{
 Declare your team members (logins, full names) to obtain
-statistcis \code{by = "team"}.
+statistics \code{by = "team"}.
 }
 \details{
 Bear in mind that on different Git platforms, team members may use
 different logins. You have to specify all of them, if you want to get team
-statitistics from all your Git clients.
+statistics from all your Git clients.
 }
 \examples{
 \dontrun{

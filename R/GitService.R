@@ -43,7 +43,7 @@ GitService <- R6::R6Class("GitService",
   ),
   private = list(
 
-    #' @field token A token authorizing acces to API.
+    #' @field token A token authorizing access to API.
     token = NULL,
 
     #' @description A method to pull all repositories for an organization.
