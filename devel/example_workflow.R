@@ -54,4 +54,6 @@ git_stats %>%
               by = "team") %>%
   plot_commits(stats_by = "month")
 
-
+git_stats %>%
+  get_commits(date_from = "2020-06-01") %>%
+  plot_commit_lines()

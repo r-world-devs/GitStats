@@ -52,8 +52,6 @@ plot_commit_lines <- function(gitstats_obj) {
 
   commits_dt <- gitstats_obj$commits_dt
 
-  commits_dt[, deletions := -deletions]
-
   plotly::plot_ly(commits_dt) %>%
     plotly::add_trace(
       y = ~additions,
@@ -62,7 +60,7 @@ plot_commit_lines <- function(gitstats_obj) {
       type = "bar"
     ) %>%
     plotly::add_trace(
-      y = ~deletions,
+      y = ~(-deletions),
       x = ~committedDate,
       color = ~organisation,
       type = "bar"
