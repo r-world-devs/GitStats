@@ -63,9 +63,46 @@ GitStats <- R6::R6Class("GitStats",
         append(self$clients, .)
     },
 
+    #' @description A method to set you organizations.
+    #' @param ... A character vector of oganizations (repo owners or project
+    #'   groups).
+    #' @param api_url A url for connection.
+    #' @return Nothing pass information on organizations into `$orgs` field of
+    #'   `$clients`.
+    set_organizations = function(...,
+                                 api_url = NULL
+                                 ) {
+
+      if (length(self$clients) == 0) {
+        stop("Set your connections first with `set_connection()`.",
+             call. = FALSE)
+      }
+
+      if (is.null(api_url)) {
+        if (length(self$clients) == 1) {
+          api_url <- self$clients[[1]]$rest_api_url
+          self$clients[[1]]$orgs <- unlist(list(...))
+        } else if (length(self$clients) > 1) {
+          stop("You need to specify `api_url` of your Git Service.",
+               call. = FALSE)
+        }
+      } else {
+
+        purrr::iwalk(self$clients, function(client, index) {
+          if (grepl(api_url, client$rest_api_url)) {
+            self$clients[[index]]$orgs <- unlist(list(...))
+          }
+        })
+
+      }
+
+      message("New organizations set for [", api_url, "]: ", paste(unlist(list(...)), collapse = ", "))
+
+    },
+
     #' @description A method to set your team.
     #' @param team_name A name of a team.
-    #' @param ... A charactger vector of team members (names and logins).
+    #' @param ... A character vector of team members (names and logins).
     #' @return Nothing, pass team information into `$team` field.
     set_team = function(team_name, ...) {
       self$team <- list()
@@ -208,7 +245,9 @@ GitStats <- R6::R6Class("GitStats",
         urls <- purrr::map_chr(clients_to_check, ~ .$rest_api_url)
 
         if (length(urls) != length(unique(urls))) {
-          stop("You can not provide two clients of the same API urls.")
+          stop("You can not provide two clients of the same API urls.
+               If you wish to change/add more organizations you can do it with `set_organizations()` function.",
+               call. = FALSE)
         }
       }
 
@@ -243,6 +282,8 @@ create_gitstats <- function() {
 #' @title Setting connections
 #' @name set_connection
 #' @param gitstats_obj A GitStats object.
+#' @return A `GitStats` class object with added connection information
+#'   (`$clients` field).
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
@@ -257,8 +298,6 @@ create_gitstats <- function() {
 #'     orgs = "erasmusmc-public-health"
 #'   )
 #' }
-#' @return A `GitStats` class object with added connection information
-#'   (`$clients` field).
 #' @export
 set_connection <- function(gitstats_obj,
                            api_url,
@@ -269,6 +308,59 @@ set_connection <- function(gitstats_obj,
     token = token,
     orgs = orgs
   )
+
+  return(invisible(gitstats_obj))
+}
+
+#' @title Choose your organizations.
+#' @name set_organizations
+#' @description A method to set you organizations.
+#' @param gitstats_obj A GitStats object.
+#' @param ... A character vector of oganizations (repo owners or project
+#'   groups).
+#' @param api_url A url for connection.
+#' @return A `GitStats` class object with added information on organizations
+#'   into `$orgs` of a `client`.
+#' @examples
+#' \dontrun{
+#' ### with one connection,
+#' my_gitstats <- create_gitstats() %>%
+#'   set_connection(
+#'     api_url = "https://api.github.com",
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs")
+#'   )
+#'
+#' my_gitstats %>%
+#'   set_organizations("openpharma", "pharmaverse")
+#'
+#' ### with multiple connections - remember to specify
+#' `api_url` when setting organizations
+#'
+#' my_gitstats <- create_gitstats() %>%
+#'  set_connection(
+#'     api_url = "https://api.github.com",
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs")
+#'  ) %>%
+#'  set_connection(
+#'     api_url = "https://gitlab.com/api/v4",
+#'     token = Sys.getenv("GITLAB_PAT"),
+#'     orgs = "erasmusmc-public-health"
+#'  )
+#'
+#'  my_gitstats %>%
+#'   set_organizations(api_url = "https://api.github.com",
+#'                     "openpharma", "pharmaverse")
+#'
+#' }
+#' @export
+set_organizations = function(gitstats_obj,
+                             ...,
+                             api_url = NULL) {
+
+  gitstats_obj$set_organizations(api_url = api_url,
+                                 ... = ...)
 
   return(invisible(gitstats_obj))
 }

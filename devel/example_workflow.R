@@ -14,15 +14,13 @@ git_stats <- create_gitstats() %>%
     orgs = c("erasmusmc-public-health")
   )
 
-git_stats
-
 # examples for getting repos (default argument for parameter 'by' is 'org')
 
 get_repos(git_stats)
 
 # set your team members
 
-git_stats <- git_stats %>%
+git_stats %>%
   set_team(team_name = "RWD-IE",
            "galachad",
            "krystian8207",
@@ -54,4 +52,9 @@ git_stats %>%
               by = "team") %>%
   plot_commits(stats_by = "month")
 
+# you can change your organizations also
+
+git_stats %>%
+  set_organizations(api_url = "https://api.github.com",
+                    orgs = c("pharmaverse", "openpharma"))
 
