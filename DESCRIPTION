@@ -9,7 +9,7 @@ Description: Obtain statistics in a standardized way from multiple Git services:
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.1.2
 Imports:
     data.table,
     dplyr,

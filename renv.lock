@@ -4,11 +4,7 @@
     "Repositories": [
       {
         "Name": "CRAN",
-        "URL": "https://rspm.apollo.roche.com/CRAN/2022-04-27"
-      },
-      {
-        "Name": "ROCHE",
-        "URL": "https://rspm.apollo.roche.com/Roche/5381951"
+        "URL": "https://cloud.r-project.org"
       }
     ]
   },
@@ -871,6 +867,23 @@
         "glue",
         "magrittr",
         "stringi"
+      ]
+    },
+    "styler": {
+      "Package": "styler",
+      "Version": "1.8.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "c855e70eb69b3dd8883660b7110e0c44",
+      "Requirements": [
+        "R.cache",
+        "cli",
+        "magrittr",
+        "purrr",
+        "rlang",
+        "rprojroot",
+        "vctrs",
+        "withr"
       ]
     },
     "sys": {

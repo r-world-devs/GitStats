@@ -8,9 +8,16 @@ set_connection(gitstats_obj, api_url, token, orgs = NULL)
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
+
+\item{api_url}{A character, url address of API.}
+
+\item{token}{A token.}
+
+\item{orgs}{A character vector of organisations (owners of repositories in
+case of GitHub and groups of projects in case of GitLab).}
 }
 \value{
-A \code{GitStats} class object with added connection information
+A \code{GitStats} class object with added information on connection
 (\verb{$clients} field).
 }
 \description{

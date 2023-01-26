@@ -47,7 +47,8 @@ my_gitstats <- create_gitstats() \%>\%
   get_commits(date_from = "2020-01-01")
 
 my_gitstats \%>\%
-  set_team("RWD-IE", "galachad", "kalimu", "Cotau", "krystian8207", "marcinkowskak", "maciekbanas") \%>\%
+  set_team("RWD-IE", "galachad", "kalimu", "Cotau",
+           "krystian8207", "marcinkowskak", "maciekbanas") \%>\%
   get_commits(
     date_from = "2020-01-01",
     date_until = "2022-12-31",

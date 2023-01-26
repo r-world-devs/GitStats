@@ -12,7 +12,7 @@ GitHub <- R6::R6Class("GitHub",
   public = list(
 
     #' @description  A method to list all repositories for an organization,
-    #'   a team or by a codephrase.
+    #'   a team or by a keyword.
     #' @param orgs A character vector of organizations (owners of repositories).
     #' @param by A character, to choose between: \itemize{\item{org - organizations
     #'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in
@@ -30,13 +30,13 @@ GitHub <- R6::R6Class("GitHub",
                          language = NULL) {
       repos_dt <- purrr::map(orgs, function(x) {
         if (by == "phrase") {
-          repos_list <- private$search_by_codephrase(phrase,
+          repos_list <- private$search_by_keyword(phrase,
             repo_owner = x,
             language = language
           )
 
           message(paste0("\n On GitHub platform (", self$rest_api_url, ") found ", length(repos_list), " repositories
-               with searched codephrase and concerning ", language, " language and ", x, " organization."))
+               with searched keyword and concerning ", language, " language and ", x, " organization."))
         } else {
           repos_list <- private$pull_repos_from_org(org = x,
                                                     git_service = "GitHub") %>%
@@ -185,7 +185,7 @@ GitHub <- R6::R6Class("GitHub",
     #'   \link{https://docs.github.com/en/rest/search?apiVersion=2022-11-28#search-code}
     #'
     #' @return A list of repositories.
-    search_by_codephrase = function(phrase,
+    search_by_keyword = function(phrase,
                                     repo_owner,
                                     language,
                                     byte_max = "384000",

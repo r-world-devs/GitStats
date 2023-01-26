@@ -3,7 +3,7 @@
 #' @title Plot commits data.
 #' @name plot_commits
 #' @param gitstats_obj  A GitStats object.
-#' @param stats_by A character, specifing time interval to show statistics.
+#' @param stats_by A character, specifying time interval to show statistics.
 #' @return A plot.
 #' @export
 plot_commits <- function(gitstats_obj,

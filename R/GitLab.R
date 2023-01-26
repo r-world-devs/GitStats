@@ -12,7 +12,7 @@ GitLab <- R6::R6Class("GitLab",
   public = list(
 
     #' @description A method to list all repositories for an organization, a
-    #'   team or by a codephrase.
+    #'   team or by a keyword.
     #' @param orgs A character vector of organisations (project groups).
     #' @param by A character, to choose between: \itemize{\item{org - organizations
     #'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in
@@ -32,12 +32,12 @@ GitLab <- R6::R6Class("GitLab",
 
       repos_dt <- purrr::map(orgs, function(x) {
         if (by == "phrase") {
-          repos_list <- private$search_by_codephrase(phrase,
+          repos_list <- private$search_by_keyword(phrase,
             project_group = x
           )
 
           message(paste0("\n On GitLab platform (", self$rest_api_url, ") found ", length(repos_list), " repositories
-                 with searched codephrase and concerning ", language, " language and ", x, " organization."))
+                 with searched keyword and concerning ", language, " language and ", x, " organization."))
         } else {
           repos_list <- private$pull_repos_from_org(org = x,
                                                     git_service = "GitLab") %>%
@@ -213,7 +213,7 @@ GitLab <- R6::R6Class("GitLab",
     #' @param project_group A character, a group of projects.
     #' @param page_max An integer, maximum number of pages.
     #' @return A list of repositories.
-    search_by_codephrase = function(phrase,
+    search_by_keyword = function(phrase,
                                     project_group,
                                     page_max = 1e6,
                                     api_url = self$rest_api_url,

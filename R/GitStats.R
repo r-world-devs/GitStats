@@ -1,6 +1,7 @@
 #' @importFrom R6 R6Class
 #' @importFrom data.table rbindlist :=
 #' @importFrom purrr map
+#' @importFrom tibble tibble
 #'
 #' @title A statistics platform for Git clients
 #' @description An R6 class object with methods to derive information from multiple Git platforms.
@@ -17,7 +18,7 @@ GitStats <- R6::R6Class("GitStats",
 
     },
 
-    #' @field team A character vector containig team members.
+    #' @field team A character vector containing team members.
     team = NULL,
 
     #' @field repos_dt An output table of repositories.
@@ -65,7 +66,7 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description A method to set your team.
     #' @param team_name A name of a team.
-    #' @param ... A charactger vector of team members (names and logins).
+    #' @param ... A character vector of team members (names and logins).
     #' @return Nothing, pass team information into `$team` field.
     set_team = function(team_name, ...) {
       self$team <- list()
@@ -74,7 +75,7 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     #' @description  A method to list all repositories for an organization,
-    #'   a team or by a codephrase.
+    #'   a team or by a keyword.
     #' @param by A character, to choose between: \itemize{\item{org - organizations
     #'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in
     #'   code blobs.}}
@@ -243,6 +244,10 @@ create_gitstats <- function() {
 #' @title Setting connections
 #' @name set_connection
 #' @param gitstats_obj A GitStats object.
+#' @param api_url A character, url address of API.
+#' @param token A token.
+#' @param orgs A character vector of organisations (owners of repositories in
+#'   case of GitHub and groups of projects in case of GitLab).
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
@@ -257,7 +262,7 @@ create_gitstats <- function() {
 #'     orgs = "erasmusmc-public-health"
 #'   )
 #' }
-#' @return A `GitStats` class object with added connection information
+#' @return A `GitStats` class object with added information on connection
 #'   (`$clients` field).
 #' @export
 set_connection <- function(gitstats_obj,
@@ -276,13 +281,13 @@ set_connection <- function(gitstats_obj,
 #' @title Set your team.
 #' @name set_team
 #' @description Declare your team members (logins, full names) to obtain
-#'   statistcis \code{by = "team"}.
+#'   statistics \code{by = "team"}.
 #' @details Bear in mind that on different Git platforms, team members may use
 #'   different logins. You have to specify all of them, if you want to get team
-#'   statitistics from all your Git clients.
+#'   statistics from all your Git clients.
 #' @param gitstats_obj A GitStats object.
 #' @param team_name A name of a team.
-#' @param ... A charactger vector of team members (names and logins).
+#' @param ... A character vector of team members (names and logins).
 #' @return A `GitStats` class object with added information to `$team` field.
 #' @examples
 #' \dontrun{
@@ -292,7 +297,8 @@ set_connection <- function(gitstats_obj,
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma", "pharmaverse")
 #'   ) %>%
-#'   set_team("RWD-IE", "galachad", "kalimu", "Cotau", "krystian8207", "marcinkowskak", "maciekbanas") %>%
+#'   set_team("RWD-IE", "galachad", "kalimu", "Cotau",
+#'            "krystian8207", "marcinkowskak", "maciekbanas") %>%
 #'   get_repos(by = "team")
 #' }
 #' @export
@@ -305,7 +311,7 @@ set_team <- function(gitstats_obj, team_name, ...) {
 #' @title Get information on repositories
 #' @name get_repos
 #' @description  List all repositories for an organization, a team or by a
-#'   codephrase.
+#'   keyword.
 #' @param gitstats_obj A GitStats object.
 #' @param by A character, to choose between: \itemize{\item{org - organizations
 #'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in
@@ -378,7 +384,8 @@ get_repos <- function(gitstats_obj,
 #'   get_commits(date_from = "2020-01-01")
 #'
 #' my_gitstats %>%
-#'   set_team("RWD-IE", "galachad", "kalimu", "Cotau", "krystian8207", "marcinkowskak", "maciekbanas") %>%
+#'   set_team("RWD-IE", "galachad", "kalimu", "Cotau",
+#'            "krystian8207", "marcinkowskak", "maciekbanas") %>%
 #'   get_commits(
 #'     date_from = "2020-01-01",
 #'     date_until = "2022-12-31",

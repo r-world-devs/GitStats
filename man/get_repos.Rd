@@ -30,7 +30,7 @@ A \code{GitStats} class object with updated \verb{$repos_dt} field.
 }
 \description{
 List all repositories for an organization, a team or by a
-codephrase.
+keyword.
 }
 \examples{
 \dontrun{
