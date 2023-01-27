@@ -12,7 +12,7 @@ search_request <- function(search_endpoint,
                            byte_max,
                            token) {
   if (total_n > 0 & total_n < 100) {
-    resp_list <- perform_get_request(paste0(search_endpoint, "+size:0..", byte_max, "&page=1&per_page=100"),
+    resp_list <- get_response(paste0(search_endpoint, "+size:0..", byte_max, "&page=1&per_page=100"),
       token = token
     )[["items"]]
 
@@ -21,7 +21,7 @@ search_request <- function(search_endpoint,
     resp_list <- list()
 
     for (page in 1:(total_n %/% 100)) {
-      resp_list <- perform_get_request(paste0(search_endpoint, "+size:0..", byte_max, "&page=", page, "&per_page=100"),
+      resp_list <- get_response(paste0(search_endpoint, "+size:0..", byte_max, "&page=", page, "&per_page=100"),
         token = token
       )[["items"]] %>%
         append(resp_list, .)
@@ -43,7 +43,7 @@ search_request <- function(search_endpoint,
 
       n_count <- tryCatch(
         {
-          perform_get_request(paste0(search_endpoint, size_formula),
+          get_response(paste0(search_endpoint, size_formula),
             token = token
           )[["total_count"]]
         },
@@ -56,12 +56,12 @@ search_request <- function(search_endpoint,
         NULL
       } else if ((n_count - 1) %/% 100 > 0) {
         for (page in (1:(n_count %/% 100) + 1)) {
-          resp_list <- perform_get_request(paste0(search_endpoint, size_formula, "&page=", page, "&per_page=100"),
+          resp_list <- get_response(paste0(search_endpoint, size_formula, "&page=", page, "&per_page=100"),
             token = token
           )[["items"]] %>% append(resp_list, .)
         }
       } else if ((n_count - 1) %/% 100 == 0) {
-        resp_list <- perform_get_request(paste0(search_endpoint, size_formula, "&page=1&per_page=100"),
+        resp_list <- get_response(paste0(search_endpoint, size_formula, "&page=1&per_page=100"),
           token = token
         )[["items"]] %>%
           append(resp_list, .)
@@ -89,7 +89,7 @@ search_request <- function(search_endpoint,
 
 #' @importFrom httr2 request req_headers req_perform resp_body_json
 #'
-#' @name perform_get_request
+#' @name get_response
 #'
 #' @description A wrapper for httr2 functions to perform get request to REST API endpoints.
 #'
@@ -98,19 +98,44 @@ search_request <- function(search_endpoint,
 #'
 #' @returns A content of response formatted to list.
 #'
-perform_get_request <- function(endpoint, token) {
-  resp <- httr2::request(endpoint) %>%
+get_response <- function(endpoint, token) {
+
+  tryCatch({
+    resp <- perform_request(endpoint, token)
+    result <- resp %>% httr2::resp_body_json(check_type = FALSE)
+  },
+  error = function(e){
+    message(e)
+    result <<- list()
+  })
+
+  return(result)
+}
+
+perform_request <- function(endpoint, token) {
+
+  resp <- build_request(endpoint, token) %>%
+    httr2::req_perform()
+
+  return(resp)
+}
+
+#' @description A wrapper for httr2 functions to prepare get request to REST API endpoint.
+#'
+#' @param endpoint An API endpoint.
+#' @param token An API token.
+#'
+#' @returns A request.
+build_request <- function(endpoint, token) {
+
+  httr2::request(endpoint) %>%
     httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
     httr2::req_error(body = resp_error_body) %>%
     httr2::req_retry(
       is_transient = resp_is_transient,
       after = req_after
-    ) %>%
-    httr2::req_perform()
+    )
 
-  result <- resp %>% httr2::resp_body_json(check_type = FALSE)
-
-  return(result)
 }
 
 #' @description Handler for rate-limit error (403 on GitHub).

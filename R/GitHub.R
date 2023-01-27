@@ -38,8 +38,7 @@ GitHub <- R6::R6Class("GitHub",
           message(paste0("\n On GitHub platform (", self$rest_api_url, ") found ", length(repos_list), " repositories
                with searched codephrase and concerning ", language, " language and ", x, " organization."))
         } else {
-          repos_list <- private$pull_repos_from_org(org = x,
-                                                    git_service = "GitHub") %>%
+          repos_list <- private$pull_repos_from_org(org = x) %>%
             {
               if (by == "team") {
                 private$filter_repos_by_team(
@@ -131,7 +130,7 @@ GitHub <- R6::R6Class("GitHub",
       purrr::map(repos_list, function(x) {
         contributors <- tryCatch(
           {
-            perform_get_request(
+            get_response(
               endpoint = paste0(self$rest_api_url, "/repos/", x$full_name, "/contributors"),
               token = private$token
             ) %>% purrr::map_chr(~ .$login)
@@ -197,15 +196,18 @@ GitHub <- R6::R6Class("GitHub",
         paste0(api_url, "/search/code?q='", phrase, "'+user:", repo_owner)
       }
 
-      total_n <- perform_get_request(search_endpoint,
+      total_n <- get_response(search_endpoint,
         token = token
       )[["total_count"]]
 
-      repos_list <- search_request(search_endpoint, total_n, byte_max, token)
-
-      repos_list <- purrr::map_chr(repos_list, ~ .$repository$id) %>%
-        unique() %>%
-        private$find_by_id(objects = "repositories")
+      if (length(total_n) > 0) {
+        repos_list <- search_request(search_endpoint, total_n, byte_max, token)
+        repos_list <- purrr::map_chr(repos_list, ~ .$repository$id) %>%
+          unique() %>%
+          private$find_by_id(objects = "repositories")
+      } else {
+        repos_list <- list()
+      }
 
       return(repos_list)
     },
@@ -225,7 +227,6 @@ GitHub <- R6::R6Class("GitHub",
                                           token = private$token) {
       repos_list <- private$pull_repos_from_org(
         org = repo_owner,
-        git_service = "GitHub",
         rest_api_url = rest_api_url,
         token = token
       )
@@ -247,7 +248,7 @@ GitHub <- R6::R6Class("GitHub",
         pb$tick()
         tryCatch(
           {
-            perform_get_request(
+            get_response(
               endpoint = paste0(
                 rest_api_url,
                 "/repos/",
@@ -348,7 +349,7 @@ GitHub <- R6::R6Class("GitHub",
         pb$tick()
         commit_stats <- purrr::map_chr(repo, ~ .$id) %>%
           purrr::map(function(commit_id) {
-            commit_info <- perform_get_request(
+            commit_info <- get_response(
               endpoint = paste0(self$rest_api_url, "/repos/", repo_name, "/commits/", commit_id),
               token = private$token
             )
