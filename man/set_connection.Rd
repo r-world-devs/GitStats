@@ -4,10 +4,19 @@
 \alias{set_connection}
 \title{Setting connections}
 \usage{
-set_connection(gitstats_obj, api_url, token, orgs = NULL)
+set_connection(gitstats_obj, api_url, token, orgs = NULL, set_org_limit = 300)
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
+
+\item{api_url}{A character, url address of API.}
+
+\item{token}{A token.}
+
+\item{orgs}{A character vector of organisations (owners of repositories
+in case of GitHub and groups of projects in case of GitLab).}
+
+\item{set_org_limit}{An integer defining how many orgs API may pull.}
 }
 \value{
 A \code{GitStats} class object with added connection information

@@ -31,27 +31,28 @@ GitStats <- R6::R6Class("GitStats",
     #' @param token A token.
     #' @param orgs A character vector of organisations (owners of repositories
     #'   in case of GitHub and groups of projects in case of GitLab).
+    #' @param set_org_limit An integer defining how many orgs API may pull.
     #' @return Nothing, puts connection information into `$clients` slot
     set_connection = function(api_url,
                               token,
-                              orgs = NULL) {
-      if (is.null(orgs)) {
-        stop("You need to specify organisations of the repositories.", call. = FALSE)
-      }
+                              orgs = NULL,
+                              set_org_limit = 300) {
 
       if (grepl("github", api_url)) {
         message("Set connection to GitHub.")
         new_client <- GitHub$new(
           rest_api_url = api_url,
           token = token,
-          orgs = orgs
+          orgs = orgs,
+          org_limit = set_org_limit
         )
       } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
         message("Set connection to GitLab.")
         new_client <- GitLab$new(
           rest_api_url = api_url,
           token = token,
-          orgs = orgs
+          orgs = orgs,
+          org_limit = set_org_limit
         )
       } else {
         stop("This connection is not supported by GitStats class object.")
@@ -281,7 +282,12 @@ create_gitstats <- function() {
 
 #' @title Setting connections
 #' @name set_connection
+#' @param api_url A character, url address of API.
+#' @param token A token.
+#' @param orgs A character vector of organisations (owners of repositories
+#'   in case of GitHub and groups of projects in case of GitLab).
 #' @param gitstats_obj A GitStats object.
+#' @param set_org_limit An integer defining how many orgs API may pull.
 #' @return A `GitStats` class object with added connection information
 #'   (`$clients` field).
 #' @examples
@@ -302,11 +308,13 @@ create_gitstats <- function() {
 set_connection <- function(gitstats_obj,
                            api_url,
                            token,
-                           orgs = NULL) {
+                           orgs = NULL,
+                           set_org_limit = 300) {
   gitstats_obj$set_connection(
     api_url = api_url,
     token = token,
-    orgs = orgs
+    orgs = orgs,
+    set_org_limit = set_org_limit
   )
 
   return(invisible(gitstats_obj))
