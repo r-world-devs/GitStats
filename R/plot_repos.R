@@ -17,12 +17,13 @@ plot_repos <- function(gitstats_obj,
 
   repos_dt <- gitstats_obj$repos_dt
 
-  repos_dt$name <- factor(repos_dt$name, levels = unique(repos_dt$name)[order(repos_dt$last_activity_at, decreasing = TRUE)])
-
   repos_to_plot <- head(repos_dt, repos_n)
 
+  repos_to_plot[, fullname:= paste0(organisation, "/", name)
+                ][, fullname := factor(fullname, levels = unique(fullname)[order(last_activity_at, decreasing = TRUE)])]
+
   plotly::plot_ly(repos_to_plot,
-    y = ~name,
+    y = ~fullname,
     x = ~last_activity_at,
     color = ~organisation,
     type = "bar",
