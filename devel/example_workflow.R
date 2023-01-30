@@ -73,3 +73,24 @@ git_stats %>%
 #     api_url = "your_api",
 #     token = Sys.getenv("YOUR_TOKEN")
 #   )
+
+# You can set your storage to capture API results and automate your workflow.
+# Next your `get()` functions will retrieve only new data.
+
+set_storage(gitstats_obj = git_stats,
+            type = "SQLite",
+            dbname = 'devel/storage/my_sqlite'
+)
+
+git_stats$storage
+
+# set_storage(gitstats_obj = git_stats,
+#             type = "Postgres",
+#             dbname = 'dbname',
+#             host = 'host_url',
+#             port = 1111,
+#             user = Sys.getenv('TEAM_USERNAME'),
+#             password = Sys.getenv('TEAM_PASSWORD')
+# )
+#
+# git_stats$storage

@@ -13,6 +13,8 @@ An R6 class object with methods to derive information from multiple Git platform
 
 \item{\code{team}}{A character vector containing team members.}
 
+\item{\code{storage}}{A local database credentials to store output.}
+
 \item{\code{repos_dt}}{An output table of repositories.}
 
 \item{\code{commits_dt}}{An output table of commits.}
@@ -26,6 +28,7 @@ An R6 class object with methods to derive information from multiple Git platform
 \item \href{#method-set_connection}{\code{GitStats$set_connection()}}
 \item \href{#method-set_organizations}{\code{GitStats$set_organizations()}}
 \item \href{#method-set_team}{\code{GitStats$set_team()}}
+\item \href{#method-set_storage}{\code{GitStats$set_storage()}}
 \item \href{#method-get_repos}{\code{GitStats$get_repos()}}
 \item \href{#method-get_commits}{\code{GitStats$get_commits()}}
 \item \href{#method-print}{\code{GitStats$print()}}
@@ -116,6 +119,45 @@ A method to set your team.
 }
 \subsection{Returns}{
 Nothing, pass team information into \verb{$team} field.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-set_storage"></a>}}
+\if{latex}{\out{\hypertarget{method-set_storage}{}}}
+\subsection{Method \code{set_storage()}}{
+A method to set local storage for the output.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$set_storage(type, dbname, host, port, user, password)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{type}}{A character, type of storage.}
+
+\item{\code{dbname}}{Name of database.}
+
+\item{\code{host}}{A host.}
+
+\item{\code{port}}{An integer, port address.}
+
+\item{\code{user}}{Username.}
+
+\item{\code{password}}{A password.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+This is a wrapper over \code{DBI::dbConnect()} function. This functionality
+is meant among other to improve \code{GitStats} performance. Basically the
+idea is to cache your API responses in a database and retrieve them
+when necessary. E.g. when you call \code{get_commits(date_from = '2020-01-01')} it will save the results to your database and when you
+call it next time, \code{get_commits()} will retrieve from API only these
+results that do not exist in the databse (the new ones).
+}
+
+\subsection{Returns}{
+A \code{GitStats} object with information on local database.
 }
 }
 \if{html}{\out{<hr>}}

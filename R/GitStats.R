@@ -2,6 +2,10 @@
 #' @importFrom data.table rbindlist :=
 #' @importFrom purrr map
 #' @importFrom tibble tibble
+#' @importFrom DBI dbConnect
+#' @importFrom RPostgres Postgres
+#' @importFrom RSQLite SQLite
+#' @importFrom RMySQL MySQL
 #'
 #' @title A statistics platform for Git clients
 #' @description An R6 class object with methods to derive information from multiple Git platforms.
@@ -20,6 +24,9 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @field team A character vector containing team members.
     team = NULL,
+
+    #' @field storage A local database credentials to store output.
+    storage = NULL,
 
     #' @field repos_dt An output table of repositories.
     repos_dt = NULL,
@@ -110,6 +117,45 @@ GitStats <- R6::R6Class("GitStats",
       self$team <- list()
 
       self$team[[paste(team_name)]] <- unlist(list(...))
+    },
+
+    #' @description A method to set local storage for the output.
+    #' @details This is a wrapper over `DBI::dbConnect()` function. This functionality
+    #'   is meant among other to improve `GitStats` performance. Basically the
+    #'   idea is to cache your API responses in a database and retrieve them
+    #'   when necessary. E.g. when you call `get_commits(date_from =
+    #'   '2020-01-01')` it will save the results to your database and when you
+    #'   call it next time, `get_commits()` will retrieve from API only these
+    #'   results that do not exist in the databse (the new ones).
+    #' @param type A character, type of storage.
+    #' @param dbname Name of database.
+    #' @param host A host.
+    #' @param port An integer, port address.
+    #' @param user Username.
+    #' @param password A password.
+    #' @return A `GitStats` object with information on local database.
+    set_storage = function(type,
+                           dbname,
+                           host,
+                           port,
+                           user,
+                           password) {
+
+      self$storage <- DBI::dbConnect(
+        drv = if (type == "Postgres") {
+          RPostgres::Postgres()
+          } else if (type == "SQLite") {
+            RSQLite::SQLite()
+          } else if (type == "MySQL") {
+            RMySQL::MySQL()
+          },
+        dbname = dbname,
+        host = host,
+        port = port,
+        user = user,
+        password = password
+      )
+
     },
 
     #' @description  A method to list all repositories for an organization,
@@ -203,7 +249,7 @@ GitStats <- R6::R6Class("GitStats",
         if (is.null(self$team)) {
           stop("You have to specify a team first with 'set_team()' method.", call. = FALSE)
         }
-
+m
         team <- self$team[[1]]
 
         commits_dt <- purrr::map(self$clients, function(x) {
@@ -400,6 +446,40 @@ set_organizations = function(gitstats_obj,
 #' @export
 set_team <- function(gitstats_obj, team_name, ...) {
   gitstats_obj$set_team(team_name, ...)
+
+  return(invisible(gitstats_obj))
+}
+
+#' @title Set a storage for your output
+#' @name set_storage
+#' @description Function to set local storage (database) for the output.
+#' @details This is a wrapper over `dbConnect()` function. This functionality
+#'   is meant among other to improve `GitStats` performance. Basically the
+#'   idea is to cache your API responses in a database and retrieve them
+#'   when necessary. E.g. when you call `get_commits(date_from =
+#'   '2020-01-01')` it will save the results to your database and when you
+#'   call it next time, `get_commits()` will retrieve from API only these
+#'   results that do not exist in the databse (the new ones).
+#' @param gitstats_obj A GitStats object.
+#' @param type A character, type of storage.
+#' @param dbname Name of database.
+#' @param host A host.
+#' @param port An integer, port address.
+#' @param user Username.
+#' @param password A password.
+set_storage <- function(gitstats_obj,
+                        type,
+                        dbname,
+                        host = NULL,
+                        port = NULL,
+                        user = NULL,
+                        password = NULL) {
+  gitstats_obj$set_storage(type = type,
+                           dbname = dbname,
+                           host = host,
+                           port = port,
+                           user = user,
+                           password = password)
 
   return(invisible(gitstats_obj))
 }
