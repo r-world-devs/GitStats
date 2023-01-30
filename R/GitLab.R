@@ -39,8 +39,7 @@ GitLab <- R6::R6Class("GitLab",
           message(paste0("\n On GitLab platform (", self$rest_api_url, ") found ", length(repos_list), " repositories
                  with searched keyword and concerning ", language, " language and ", x, " organization."))
         } else {
-          repos_list <- private$pull_repos_from_org(org = x,
-                                                    git_service = "GitLab") %>%
+          repos_list <- private$pull_repos_from_org(org = x) %>%
             {
               if (by == "team") {
                 private$filter_projects_by_team(
@@ -131,7 +130,7 @@ GitLab <- R6::R6Class("GitLab",
       purrr::map(projects_list, function(x) {
         members <- tryCatch(
           {
-            perform_get_request(
+            get_response(
               endpoint = paste0(self$rest_api_url, "/projects/", x$id, "/members/all"),
               token = private$token
             ) %>% purrr::map_chr(~ .$username)
@@ -171,7 +170,7 @@ GitLab <- R6::R6Class("GitLab",
       projects_id <- unique(purrr::map_chr(projects_list, ~ .$id))
 
       projects_language_list <- purrr::map(projects_id, function(x) {
-        perform_get_request(
+        get_response(
           endpoint = paste0(api_url, "/projects/", x, "/languages"),
           token = token
         )
@@ -224,7 +223,7 @@ GitLab <- R6::R6Class("GitLab",
       groups_id <- private$get_group_id(project_group)
 
       while (still_more_hits | page < page_max) {
-        resp <- perform_get_request(paste0(api_url, "/groups/", groups_id, "/search?scope=blobs&search=", phrase, "&per_page=100&page=", page),
+        resp <- get_response(paste0(api_url, "/groups/", groups_id, "/search?scope=blobs&search=", phrase, "&per_page=100&page=", page),
           token = private$token
         )
 
@@ -257,7 +256,6 @@ GitLab <- R6::R6Class("GitLab",
                                           token = private$token) {
       repos_list <- private$pull_repos_from_org(
         org = project_group,
-        git_service = "GitLab",
         rest_api_url = rest_api_url,
         token = token
       )
@@ -273,7 +271,7 @@ GitLab <- R6::R6Class("GitLab",
       commits_list <- purrr::map(projects_ids, function(x) {
         pb$tick()
 
-        perform_get_request(
+        get_response(
           endpoint = paste0(
             self$rest_api_url,
             "/projects/",
@@ -362,9 +360,10 @@ GitLab <- R6::R6Class("GitLab",
     #' @param project_group A character, a group of projects.
     #' @return An integer, id of group.
     get_group_id = function(project_group) {
-      perform_get_request(paste0(self$rest_api_url, "/groups/", project_group),
+      get_response(paste0(self$rest_api_url, "/groups/", project_group),
         token = private$token
       )[["id"]]
     }
+
   )
 )

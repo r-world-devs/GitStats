@@ -24,6 +24,7 @@ An R6 class object with methods to derive information from multiple Git platform
 \itemize{
 \item \href{#method-new}{\code{GitStats$new()}}
 \item \href{#method-set_connection}{\code{GitStats$set_connection()}}
+\item \href{#method-set_organizations}{\code{GitStats$set_organizations()}}
 \item \href{#method-set_team}{\code{GitStats$set_team()}}
 \item \href{#method-get_repos}{\code{GitStats$get_repos()}}
 \item \href{#method-get_commits}{\code{GitStats$get_commits()}}
@@ -50,7 +51,7 @@ A new \code{GitStats} object
 \subsection{Method \code{set_connection()}}{
 Method to set connections to Git platforms
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$set_connection(api_url, token, orgs = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$set_connection(api_url, token, orgs = NULL, set_org_limit = 300)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -62,11 +63,37 @@ Method to set connections to Git platforms
 
 \item{\code{orgs}}{A character vector of organisations (owners of repositories
 in case of GitHub and groups of projects in case of GitLab).}
+
+\item{\code{set_org_limit}}{An integer defining how many orgs API may pull.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
 Nothing, puts connection information into \verb{$clients} slot
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-set_organizations"></a>}}
+\if{latex}{\out{\hypertarget{method-set_organizations}{}}}
+\subsection{Method \code{set_organizations()}}{
+A method to set you organizations.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$set_organizations(..., api_url = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{A character vector of oganizations (repo owners or project
+groups).}
+
+\item{\code{api_url}}{A url for connection.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Nothing pass information on organizations into \verb{$orgs} field of
+\verb{$clients}.
 }
 }
 \if{html}{\out{<hr>}}
