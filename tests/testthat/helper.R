@@ -19,3 +19,16 @@ expect_empty_table <- function(object) {
   expect_s3_class(object, "data.frame")
   expect_length(object, 0)
 }
+
+gs_mock <- function(name = "", func_call) {
+
+  rds_file <- paste0("mocked/", name, ".rds")
+
+  if (!file.exists(rds_file)) {
+    obj <- func_call
+    saveRDS(obj, rds_file)
+  } else {
+    readRDS(rds_file)
+  }
+
+}
