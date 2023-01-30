@@ -15,8 +15,12 @@ A superclass for GitHub and GitLab classes
 
 \item{\code{orgs}}{A character vector of organizations.}
 
+\item{\code{git_service}}{A character specifying whether GitHub or GitLab.}
+
 \item{\code{enterprise}}{A boolean defining whether Git Service is public or
 enterprise version.}
+
+\item{\code{org_limit}}{An integer defining how many org may API pull.}
 
 \item{\code{token}}{A token authorizing access to API.}
 }
@@ -42,7 +46,13 @@ enterprise version.}
 \subsection{Method \code{new()}}{
 Create a new \code{GitService} object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitService$new(rest_api_url = NA, gql_api_url = NA, token = NA, orgs = NA)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitService$new(
+  rest_api_url = NA,
+  gql_api_url = NA,
+  token = NA,
+  orgs = NA,
+  org_limit = NA
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

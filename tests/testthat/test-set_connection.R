@@ -33,17 +33,21 @@ test_that("Set connection returns appropriate messages", {
   )
 })
 
-test_that("Errors pop out, when wrong input is passed when setting connection", {
-  test_gitstats$clients <- list()
+test_that("Adequate condition shows if organizations are not specified", {
 
   expect_error(
-    set_connection(
-      gitstats_obj = test_gitstats,
-      api_url = "https://avengers.com",
-      token = Sys.getenv("GITLAB_PAT")
-    ),
-    "You need to specify organisations of the repositories."
+    create_gitstats() %>%
+      set_connection(
+        api_url = "https://api.github.com",
+        token = Sys.getenv("GITHUB_PAT")
+      ),
+    "No organizations specified."
   )
+
+})
+
+test_that("Errors pop out, when wrong input is passed when setting connection", {
+  test_gitstats$clients <- list()
 
   expect_error(
     set_connection(

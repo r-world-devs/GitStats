@@ -6,25 +6,36 @@ git_hub <- GitService$new(
 
 github_env <- environment(git_hub$initialize)$private
 
+test_that("Private check_git_service properly identifies GitHub and GitLab", {
+
+  urls <- c("https://api.github.com", "https://github.enterprise.com", "https://gitlab.com/api/v4", "https://code.enterprise.com")
+  services <- c(rep("GitHub", 2), rep("GitLab", 2))
+
+  purrr::walk2(urls, services, function(url, service) {
+    expect_equal(github_env$check_git_service(api_url = url),
+                 service)
+  })
+
+})
+
 test_that("Private pull_repos_from_org pulls correctly repositories for GitHub", {
 
   orgs <- git_hub$orgs
 
   purrr::walk(orgs, function(org) {
-    repos_n <- perform_get_request(
+    repos_n <- get_response(
       endpoint = paste0("https://api.github.com/orgs/", org),
       token = Sys.getenv("GITHUB_PAT")
     )[["public_repos"]]
 
     expect_equal(
-      length(github_env$pull_repos_from_org(org = org,
-                                            git_service = "GitHub")),
+      length(github_env$pull_repos_from_org(org = org)),
       repos_n
     )
   })
 })
 
-test_that("Private pull_repos_from_rg pulls correctly repositories for GitLab", {
+test_that("Private pull_repos_from_org pulls correctly repositories for GitLab", {
   testthat::skip_on_ci()
 
   git_lab <- GitService$new(
@@ -38,14 +49,13 @@ test_that("Private pull_repos_from_rg pulls correctly repositories for GitLab", 
   orgs <- git_lab$orgs
 
   purrr::walk(orgs, function(group) {
-    repos_n <- length(perform_get_request(
+    repos_n <- length(get_response(
       endpoint = paste0("https://gitlab.com/api/v4/groups/", group),
       token = Sys.getenv("GITLAB_PAT")
     )[["projects"]])
 
     expect_equal(
-      length(gitlab_env$pull_repos_from_org(org = group,
-                                            git_service = "GitLab")),
+      length(gitlab_env$pull_repos_from_org(org = group)),
       repos_n
     )
   })
