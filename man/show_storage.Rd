@@ -10,7 +10,7 @@ show_storage(gitstats_obj)
 \item{gitstats_obj}{A GitStats object.}
 }
 \value{
-A list of table names.
+A data.frame of table names.
 }
 \description{
 Print content of database.

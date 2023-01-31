@@ -2,7 +2,7 @@
 #' @importFrom data.table rbindlist :=
 #' @importFrom purrr map
 #' @importFrom tibble tibble
-#' @importFrom DBI dbConnect dbWriteTable dbReadTable dbListTables
+#' @importFrom DBI dbConnect dbWriteTable dbReadTable dbListTables Id
 #' @importFrom RPostgres Postgres
 #' @importFrom RSQLite SQLite
 #' @importFrom RMySQL MySQL
@@ -27,6 +27,9 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @field storage A local database credentials to store output.
     storage = NULL,
+
+    #' @field storage_schema A schema of database.
+    storage_schema = NULL,
 
     #' @field storage_on A boolean to check if storage is set.
     storage_on = FALSE,
@@ -132,6 +135,7 @@ GitStats <- R6::R6Class("GitStats",
     #'   results that do not exist in the databse (the new ones).
     #' @param type A character, type of storage.
     #' @param dbname Name of database.
+    #' @param schema A db schema.
     #' @param host A host.
     #' @param port An integer, port address.
     #' @param user Username.
@@ -139,6 +143,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @return A `GitStats` object with information on local database.
     set_storage = function(type,
                            dbname,
+                           schema,
                            host,
                            port,
                            user,
@@ -159,7 +164,18 @@ GitStats <- R6::R6Class("GitStats",
         password = password
       )
 
+      self$storage_schema <- schema
+
       self$storage_on <- TRUE
+
+    },
+
+    #' @description Print content of database.
+    #' @return A data.frame of table names.
+    show_storage = function() {
+
+      as.data.frame(DBI::dbListObjects(conn = self$storage,
+                                       prefix = DBI::Id(schema = self$storage_schema)))
 
     },
 
@@ -216,7 +232,7 @@ GitStats <- R6::R6Class("GitStats",
 
         if (self$storage_on) {
           private$save_storage(self$repos_dt,
-                             name = paste0("repos_by_", by))
+                               name = paste0("repos_by_", by))
         }
 
       } else {
@@ -306,10 +322,21 @@ GitStats <- R6::R6Class("GitStats",
     save_storage = function(object,
                             name) {
 
-      object[, last_activity_at := as.numeric(last_activity_at)]
+      if (!is.null(self$storage_schema)) {
+        dbname <- DBI::Id(
+          schema = self$storage_schema,
+          table = name
+        )
+      } else {
+        dbname <- name
+      }
+
+      if (grepl("repos", name)) {
+        object[, last_activity_at := as.numeric(last_activity_at)]
+      }
 
       DBI::dbWriteTable(conn = self$storage,
-                        name = name,
+                        name = dbname,
                         value = object,
                         overwrite = TRUE)
 
@@ -518,6 +545,7 @@ set_team <- function(gitstats_obj, team_name, ...) {
 #' @param gitstats_obj A GitStats object.
 #' @param type A character, type of storage.
 #' @param dbname Name of database.
+#' @param schema A db schema.
 #' @param host A host.
 #' @param port An integer, port address.
 #' @param user Username.
@@ -525,12 +553,14 @@ set_team <- function(gitstats_obj, team_name, ...) {
 set_storage <- function(gitstats_obj,
                         type,
                         dbname,
+                        schema = NULL,
                         host = NULL,
                         port = NULL,
                         user = NULL,
                         password = NULL) {
   gitstats_obj$set_storage(type = type,
                            dbname = dbname,
+                           schema = schema,
                            host = host,
                            port = port,
                            user = user,
@@ -543,11 +573,11 @@ set_storage <- function(gitstats_obj,
 #' @param gitstats_obj A GitStats object.
 #' @name show_storage
 #' @description Print content of database.
-#' @return A list of table names.
+#' @return A data.frame of table names.
 #' @export
 show_storage = function(gitstats_obj) {
 
-  as.data.frame(DBI::dbListTables(gitstats_obj$storage))
+  gitstats_obj$show_storage()
 
 }
 

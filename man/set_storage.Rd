@@ -8,6 +8,7 @@ set_storage(
   gitstats_obj,
   type,
   dbname,
+  schema = NULL,
   host = NULL,
   port = NULL,
   user = NULL,
@@ -20,6 +21,8 @@ set_storage(
 \item{type}{A character, type of storage.}
 
 \item{dbname}{Name of database.}
+
+\item{schema}{A db schema.}
 
 \item{host}{A host.}
 

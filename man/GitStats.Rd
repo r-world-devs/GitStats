@@ -15,6 +15,8 @@ An R6 class object with methods to derive information from multiple Git platform
 
 \item{\code{storage}}{A local database credentials to store output.}
 
+\item{\code{storage_schema}}{A schema of database.}
+
 \item{\code{storage_on}}{A boolean to check if storage is set.}
 
 \item{\code{repos_dt}}{An output table of repositories.}
@@ -31,6 +33,7 @@ An R6 class object with methods to derive information from multiple Git platform
 \item \href{#method-set_organizations}{\code{GitStats$set_organizations()}}
 \item \href{#method-set_team}{\code{GitStats$set_team()}}
 \item \href{#method-set_storage}{\code{GitStats$set_storage()}}
+\item \href{#method-show_storage}{\code{GitStats$show_storage()}}
 \item \href{#method-get_repos}{\code{GitStats$get_repos()}}
 \item \href{#method-get_commits}{\code{GitStats$get_commits()}}
 \item \href{#method-print}{\code{GitStats$print()}}
@@ -129,7 +132,7 @@ Nothing, pass team information into \verb{$team} field.
 \subsection{Method \code{set_storage()}}{
 A method to set local storage for the output.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$set_storage(type, dbname, host, port, user, password)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$set_storage(type, dbname, schema, host, port, user, password)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -138,6 +141,8 @@ A method to set local storage for the output.
 \item{\code{type}}{A character, type of storage.}
 
 \item{\code{dbname}}{Name of database.}
+
+\item{\code{schema}}{A db schema.}
 
 \item{\code{host}}{A host.}
 
@@ -160,6 +165,19 @@ results that do not exist in the databse (the new ones).
 
 \subsection{Returns}{
 A \code{GitStats} object with information on local database.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-show_storage"></a>}}
+\if{latex}{\out{\hypertarget{method-show_storage}{}}}
+\subsection{Method \code{show_storage()}}{
+Print content of database.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$show_storage()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A data.frame of table names.
 }
 }
 \if{html}{\out{<hr>}}
