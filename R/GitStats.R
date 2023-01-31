@@ -306,6 +306,8 @@ GitStats <- R6::R6Class("GitStats",
     save_storage = function(object,
                             name) {
 
+      object[, last_activity_at := as.numeric(last_activity_at)]
+
       DBI::dbWriteTable(conn = self$storage,
                         name = name,
                         value = object,
@@ -542,6 +544,7 @@ set_storage <- function(gitstats_obj,
 #' @name show_storage
 #' @description Print content of database.
 #' @return A list of table names.
+#' @export
 show_storage = function(gitstats_obj) {
 
   as.data.frame(DBI::dbListTables(gitstats_obj$storage))

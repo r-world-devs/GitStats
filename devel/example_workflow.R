@@ -30,6 +30,13 @@ git_stats %>%
            "maciekbanas") %>%
   get_repos(by = "team")
 
+# Search by phrase
+
+get_repos(git_stats,
+          by = "phrase",
+          phrase = "covid",
+          language = "R")
+
 # you can plot repos sorted by last activity
 
 plot_repos(git_stats)
@@ -80,9 +87,9 @@ git_stats %>%
 set_storage(gitstats_obj = git_stats,
             type = "SQLite",
             dbname = 'devel/storage/my_sqlite'
-)
-
-git_stats$storage
+) %>%
+  get_repos() %>%
+  get_commits(date_from = "2020-01-01")
 
 # set_storage(gitstats_obj = git_stats,
 #             type = "Postgres",
@@ -92,5 +99,8 @@ git_stats$storage
 #             user = Sys.getenv('TEAM_USERNAME'),
 #             password = Sys.getenv('TEAM_PASSWORD')
 # )
-#
-# git_stats$storage
+
+# You can have quick glimpse on your storage:
+
+show_storage(git_stats)
+
