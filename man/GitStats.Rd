@@ -15,6 +15,8 @@ An R6 class object with methods to derive information from multiple Git platform
 
 \item{\code{storage}}{A local database credentials to store output.}
 
+\item{\code{storage_on}}{A boolean to check if storage is set.}
+
 \item{\code{repos_dt}}{An output table of repositories.}
 
 \item{\code{commits_dt}}{An output table of commits.}

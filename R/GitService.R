@@ -267,7 +267,7 @@ GitService <- R6::R6Class("GitService",
           created_at = as.POSIXct(created_at),
           last_activity_at = difftime(Sys.time(), as.POSIXct(last_activity_at),
             units = "days"
-          )
+          ) %>% round(2)
         )
       }
 

@@ -2,7 +2,7 @@
 #' @importFrom data.table rbindlist :=
 #' @importFrom purrr map
 #' @importFrom tibble tibble
-#' @importFrom DBI dbConnect
+#' @importFrom DBI dbConnect dbWriteTable dbReadTable dbListTables
 #' @importFrom RPostgres Postgres
 #' @importFrom RSQLite SQLite
 #' @importFrom RMySQL MySQL
@@ -27,6 +27,9 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @field storage A local database credentials to store output.
     storage = NULL,
+
+    #' @field storage_on A boolean to check if storage is set.
+    storage_on = FALSE,
 
     #' @field repos_dt An output table of repositories.
     repos_dt = NULL,
@@ -156,6 +159,8 @@ GitStats <- R6::R6Class("GitStats",
         password = password
       )
 
+      self$storage_on <- TRUE
+
     },
 
     #' @description  A method to list all repositories for an organization,
@@ -208,6 +213,12 @@ GitStats <- R6::R6Class("GitStats",
           dplyr::arrange(last_activity_at)
 
         if (print_out) print(self$repos_dt)
+
+        if (self$storage_on) {
+          private$save_storage(self$repos_dt,
+                             name = paste0("repos_by_", by))
+        }
+
       } else {
         message("Empty object - will not be saved.")
       }
@@ -249,7 +260,7 @@ GitStats <- R6::R6Class("GitStats",
         if (is.null(self$team)) {
           stop("You have to specify a team first with 'set_team()' method.", call. = FALSE)
         }
-m
+
         team <- self$team[[1]]
 
         commits_dt <- purrr::map(self$clients, function(x) {
@@ -272,6 +283,11 @@ m
 
       if (print_out) print(commits_dt)
 
+      if (self$storage_on) {
+        private$save_storage(self$commits_dt,
+                             name = paste0("commits_by_", by))
+      }
+
       invisible(self)
     },
 
@@ -282,6 +298,43 @@ m
     }
   ),
   private = list(
+
+    #' @description Save objects to a database.
+    #' @param object A data.frame, an object to save.
+    #' @param name Name of table.
+    #' @return Nothing.
+    save_storage = function(object,
+                            name) {
+
+      DBI::dbWriteTable(conn = self$storage,
+                        name = name,
+                        value = object,
+                        overwrite = TRUE)
+
+    },
+
+    #' @description Pulls objects from a database.
+    #' @param name Name of table to retrieve.
+    #' @return A data.table.
+    read_storage = function(name) {
+
+      gs_table <- DBI::dbReadTable(conn = self$storage,
+                                   name = name) %>%
+        data.table::data.table()
+
+      if (grepl("repos", name)) {
+        gs_table[, created_at := as.POSIXct(x = created_at,
+                                            origin = "1970-01-01")
+        ][, last_activity_at := as.difftime(tim = last_activity_at,
+                                            units = "days")]
+      } else if (grepl("commits", name)) {
+        gs_table[, committedDate := as.Date(committedDate,
+                                            origin = "1970-01-01")]
+      }
+
+      gs_table
+
+    },
 
     #' @description Check whether the urls do not repeat in input.
     #' @param client An object of GitService class
@@ -410,7 +463,7 @@ set_connection <- function(gitstats_obj,
 #'
 #' }
 #' @export
-set_organizations = function(gitstats_obj,
+set_organizations <- function(gitstats_obj,
                              ...,
                              api_url = NULL) {
 
@@ -482,6 +535,17 @@ set_storage <- function(gitstats_obj,
                            password = password)
 
   return(invisible(gitstats_obj))
+}
+
+#' @title Show content of database.
+#' @param gitstats_obj A GitStats object.
+#' @name show_storage
+#' @description Print content of database.
+#' @return A list of table names.
+show_storage = function(gitstats_obj) {
+
+  as.data.frame(DBI::dbListTables(gitstats_obj$storage))
+
 }
 
 #' @title Get information on repositories

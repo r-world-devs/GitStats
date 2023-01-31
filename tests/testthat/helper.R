@@ -28,7 +28,12 @@ gs_mock <- function(name = "", func_call) {
     obj <- func_call
     saveRDS(obj, rds_file)
   } else {
-    readRDS(rds_file)
+    obj <- readRDS(rds_file)
+    if (any(class(obj) == "GitStats") && obj$storage_on) {
+      obj$storage <- DBI::dbConnect(RSQLite::SQLite(),
+                                       "storage/test_db.sqlite")
+    }
+    return(obj)
   }
 
 }
