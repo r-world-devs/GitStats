@@ -17,7 +17,7 @@ An R6 class object with methods to derive information from multiple Git platform
 
 \item{\code{storage_schema}}{A schema of database.}
 
-\item{\code{storage_on}}{A boolean to check if storage is set.}
+\item{\code{use_storage}}{A boolean to check if storage is set.}
 
 \item{\code{repos_dt}}{An output table of repositories.}
 
@@ -34,6 +34,8 @@ An R6 class object with methods to derive information from multiple Git platform
 \item \href{#method-set_team}{\code{GitStats$set_team()}}
 \item \href{#method-set_storage}{\code{GitStats$set_storage()}}
 \item \href{#method-show_storage}{\code{GitStats$show_storage()}}
+\item \href{#method-storage_off}{\code{GitStats$storage_off()}}
+\item \href{#method-storage_on}{\code{GitStats$storage_on()}}
 \item \href{#method-get_repos}{\code{GitStats$get_repos()}}
 \item \href{#method-get_commits}{\code{GitStats$get_commits()}}
 \item \href{#method-print}{\code{GitStats$print()}}
@@ -178,6 +180,32 @@ Print content of database.
 
 \subsection{Returns}{
 A data.frame of table names.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-storage_off"></a>}}
+\if{latex}{\out{\hypertarget{method-storage_off}{}}}
+\subsection{Method \code{storage_off()}}{
+Switch off storage of data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$storage_off()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Nothing, turns field \verb{$use_storage} to FALSE
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-storage_on"></a>}}
+\if{latex}{\out{\hypertarget{method-storage_on}{}}}
+\subsection{Method \code{storage_on()}}{
+Switch on storage of data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$storage_on()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Nothing, turns field \verb{$use_storage} to TRUE
 }
 }
 \if{html}{\out{<hr>}}

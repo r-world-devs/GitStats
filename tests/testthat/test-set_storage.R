@@ -8,7 +8,7 @@ test_that("Set_storage passes information to `storage` field", {
               dbname = "storage/test_db.sqlite")
 
   expect_length(test_gitstats$storage, 1)
-  expect_true(test_gitstats$storage_on)
+  expect_true(test_gitstats$use_storage)
 
 })
 

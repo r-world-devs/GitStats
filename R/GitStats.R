@@ -31,8 +31,8 @@ GitStats <- R6::R6Class("GitStats",
     #' @field storage_schema A schema of database.
     storage_schema = NULL,
 
-    #' @field storage_on A boolean to check if storage is set.
-    storage_on = FALSE,
+    #' @field use_storage A boolean to check if storage is set.
+    use_storage = FALSE,
 
     #' @field repos_dt An output table of repositories.
     repos_dt = NULL,
@@ -166,7 +166,7 @@ GitStats <- R6::R6Class("GitStats",
 
       self$storage_schema <- schema
 
-      self$storage_on <- TRUE
+      self$use_storage <- TRUE
 
     },
 
@@ -177,6 +177,19 @@ GitStats <- R6::R6Class("GitStats",
       as.data.frame(DBI::dbListObjects(conn = self$storage,
                                        prefix = DBI::Id(schema = self$storage_schema)))
 
+    },
+
+    #' @description Switch off storage of data.
+    #' @return Nothing, turns field `$use_storage` to FALSE
+    storage_off = function() {
+      message("Storage will not be used.")
+      self$use_storage <- FALSE
+    },
+
+    #' @description Switch on storage of data.
+    #' @return Nothing, turns field `$use_storage` to TRUE
+    storage_on = function() {
+      self$use_storage <- TRUE
     },
 
     #' @description  A method to list all repositories for an organization,
@@ -230,7 +243,7 @@ GitStats <- R6::R6Class("GitStats",
 
         if (print_out) print(self$repos_dt)
 
-        if (self$storage_on) {
+        if (self$use_storage) {
           private$save_storage(self$repos_dt,
                                name = paste0("repos_by_", by))
         }
@@ -299,7 +312,7 @@ GitStats <- R6::R6Class("GitStats",
 
       if (print_out) print(commits_dt)
 
-      if (self$storage_on) {
+      if (self$use_storage) {
         private$save_storage(self$commits_dt,
                              name = paste0("commits_by_", by))
       }
@@ -331,7 +344,7 @@ GitStats <- R6::R6Class("GitStats",
         dbname <- name
       }
 
-      if (grepl("repos", name)) {
+      if (class(self$storage)[1] != "SQLiteConnection" && grepl("repos", name)) {
         object[, last_activity_at := as.numeric(last_activity_at)]
       }
 
@@ -575,10 +588,30 @@ set_storage <- function(gitstats_obj,
 #' @description Print content of database.
 #' @return A data.frame of table names.
 #' @export
-show_storage = function(gitstats_obj) {
+show_storage <- function(gitstats_obj) {
 
   gitstats_obj$show_storage()
 
+}
+
+#' @title Switch off storage of data.
+#' @name storage_off
+#' @param gitstats_obj A GitStats object.
+#' @return A `GitStats` class object with field `$use_storage` turned to FALSE
+#' @export
+storage_off <- function(gitstats_obj) {
+  gitstats_obj$storage_off()
+  return(invisible(gitstats_obj))
+}
+
+#' @title Switch on storage of data.
+#' @name storage_on
+#' @param gitstats_obj A GitStats object.
+#' @return A `GitStats` class object with field `$use_storage` turned to TRUE
+#' @export
+storage_on <- function(gitstats_obj) {
+  gitstats_obj$storage_on()
+  return(invisible(gitstats_obj))
 }
 
 #' @title Get information on repositories

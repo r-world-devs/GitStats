@@ -104,3 +104,12 @@ set_storage(gitstats_obj = git_stats,
 
 show_storage(git_stats)
 
+# Still, if you wish to save your storage, but switch off saving results to
+# data.base for the time-being you can
+
+storage_off(git_stats) %>%
+  get_repos(by = "team")
+
+# And then, if you change your mind again
+
+storage_on(git_stats)
