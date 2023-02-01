@@ -210,6 +210,12 @@ GitStats <- R6::R6Class("GitStats",
         c("org", "team", "phrase")
       )
 
+      repo_storage <- private$check_storage()
+
+      if (!is.null(repo_storage)) {
+
+      }
+
       if (by == "org") {
         repos_dt_list <- purrr::map(self$clients, ~ .$get_repos(
           by = by,
@@ -376,6 +382,63 @@ GitStats <- R6::R6Class("GitStats",
 
       gs_table
 
+    },
+
+    #' @description Check if `GitStats` requests for something that is already in database.
+    #' @param table_name Name of table to retrieve.
+    #' @return A list.
+    check_storage = function(table_name) {
+
+      storage_list <- list()
+
+      if (table_name %in% DBI::dbListTables(self$storage)) {
+        message(table_name, " is stored in your local database.")
+        db_table <- DBI::dbReadTable(conn = self$storage,
+                                     name = table_name) %>%
+          private$check_storage_clients() %>%
+          private$check_storage_orgs()
+
+        storage_list[["db_table"]] <- db_table
+        last_date <- as.POSIXct(private$pull_last_date(db_table), origin = "1970-01-01")
+        storage_list[["last_date"]] <- last_date
+
+        message("Only repos created since ", last_date, " will be pulled from API.")
+
+        return(storage_list)
+      } else {
+        message("No tables found in local database. All repos will be pulled from API.")
+        return(NULL)
+      }
+
+    },
+
+    #' @description Check last date of creation.
+    #' @param db_table Table to check.
+    #' @return A date.
+    pull_last_date = function(db_table) {
+      max(db_table$created_at)
+    },
+
+    #' @description Check if organizations are in database.
+    #' @param db_table Table to check.
+    #' @return A data.frame.
+    check_storage_orgs = function(db_table) {
+      if (purrr::map_chr(self$clients, ~.$orgs) %in% unique(db_table$organisation)) {
+        return(db_table)
+      } else {
+        NULL
+      }
+    },
+
+    #' @description Check if clients are in database.
+    #' @param db_table Table to check.
+    #' @return A data.frame.
+    check_storage_clients = function(db_table) {
+      if (purrr::map_chr(self$clients, ~.$rest_api_url) %in% unique(db_table$api_url)) {
+        return(db_table)
+      } else {
+        NULL
+      }
     },
 
     #' @description Check whether the urls do not repeat in input.
