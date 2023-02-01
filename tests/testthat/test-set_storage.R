@@ -9,6 +9,7 @@ test_that("Set_storage passes information to `storage` field", {
 
   expect_length(test_gitstats$storage, 1)
   expect_true(test_gitstats$use_storage)
+  expect_s4_class(test_gitstats$storage, "SQLiteConnection")
 
 })
 
@@ -48,7 +49,8 @@ test_that("Saves pulled commits to database", {
     ) %>%
     set_storage(type = "SQLite",
                 dbname = "storage/test_db.sqlite") %>%
-    get_commits(date_from = "2022-10-01")
+    get_commits(date_from = "2022-10-01",
+                date_until = "2022-12-31")
   )
 
   gitstats_priv <- environment(test_gitstats$initialize)$private
