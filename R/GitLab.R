@@ -291,7 +291,7 @@ GitLab <- R6::R6Class("GitLab",
       commits_list <- commits_list %>%
         purrr::discard(~ length(.) == 0)
 
-      message("GitLab (", project_group, "): pulled commits from ", length(commits_list), " repositories.")
+      # message("GitLab (", project_group, "): pulled commits from ", length(commits_list), " repositories.")
 
       return(commits_list)
     },
@@ -334,7 +334,7 @@ GitLab <- R6::R6Class("GitLab",
             ),
             "additions" = y$stats$additions,
             "deletions" = y$stats$deletions,
-            "committedDate" = y$committed_date
+            "committed_date" = y$committed_date
           )
         })
       })

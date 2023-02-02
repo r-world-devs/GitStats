@@ -3,7 +3,7 @@ test_that("GitStats object is created", {
   expect_s3_class(test_gitstats, "GitStats")
 })
 
-test_that("check_storage_relevance works as expected", {
+test_that("check_storage works as expected", {
 
   test_gitstats <- create_gitstats() %>%
     set_connection(
@@ -17,13 +17,70 @@ test_that("check_storage_relevance works as expected", {
   gitstats_priv <- environment(test_gitstats$initialize)$private
 
   expect_message(
-    gitstats_priv$check_storage("repos_by_team"),
-    "No tables found in local database. All repos will be pulled from API."
+    gitstats_priv$check_storage("commits_by_team"),
+    "`commits_by_team` not found in local database. All commits will be pulled from API."
   )
 
   expect_message(
-    gitstats_priv$check_storage("repos_by_org"),
-    " is stored in your local database."
+    gitstats_priv$check_storage("commits_by_org"),
+    "`commits_by_org` is stored in your local database."
+  )
+
+  expect_message(
+    gitstats_priv$check_storage("commits_by_org"),
+    "Only commits created since "
+  )
+
+  test_gitstats <- create_gitstats() %>%
+    set_connection(
+      api_url = "https://github.avengers.com",
+      token = Sys.getenv("GITHUB_PAT"),
+      orgs = "avengers"
+    ) %>%
+    set_storage(type = "SQLite",
+                dbname = "storage/test_db.sqlite")
+
+  gitstats_priv <- environment(test_gitstats$initialize)$private
+
+  expect_message(
+    gitstats_priv$check_storage("commits_by_org"),
+    "`commits_by_org` is stored in your local database."
+  )
+
+  expect_message(
+    gitstats_priv$check_storage("commits_by_org"),
+    "No clients found in database table."
+  )
+
+  expect_message(
+    gitstats_priv$check_storage("commits_by_org"),
+    "All commits will be pulled from API."
+  )
+
+  test_gitstats <- create_gitstats() %>%
+    set_connection(
+      api_url = "https://api.github.com",
+      token = Sys.getenv("GITHUB_PAT"),
+      orgs = "openpharma"
+    ) %>%
+    set_storage(type = "SQLite",
+                dbname = "storage/test_db.sqlite")
+
+  gitstats_priv <- environment(test_gitstats$initialize)$private
+
+  expect_message(
+    gitstats_priv$check_storage("commits_by_org"),
+    "`commits_by_org` is stored in your local database."
+  )
+
+  expect_message(
+    gitstats_priv$check_storage("commits_by_org"),
+    "Organizations not found in database table."
+  )
+
+  expect_message(
+    gitstats_priv$check_storage("commits_by_org"),
+    "All commits will be pulled from API."
   )
 
 })

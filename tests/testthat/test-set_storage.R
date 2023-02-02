@@ -15,8 +15,11 @@ test_that("Set_storage passes information to `storage` field", {
 
 test_that("Saves pulled repos to database", {
 
-  test_gitstats <- gs_mock("get_repos_storage",
-                           create_gitstats() %>%
+  if (file.exists("storage/test_db.sqlite")) {
+    file.remove("storage/test_db.sqlite")
+  }
+
+  test_gitstats <- create_gitstats() %>%
     set_connection(
       api_url = "https://api.github.com",
       token = Sys.getenv("GITHUB_PAT"),
@@ -24,12 +27,12 @@ test_that("Saves pulled repos to database", {
     ) %>%
     set_storage(type = "SQLite",
                 dbname = "storage/test_db.sqlite") %>%
-    get_repos()
-  )
+    get_repos(print_out = FALSE)
+
 
   gitstats_priv <- environment(test_gitstats$initialize)$private
 
-  saved_output <- gitstats_priv$read_storage(name = "repos_by_org")
+  saved_output <- gitstats_priv$pull_storage(name = "repos_by_org")
 
   expect_repos_table(saved_output)
 
@@ -40,8 +43,7 @@ test_that("Saves pulled repos to database", {
 
 test_that("Saves pulled commits to database", {
 
-  test_gitstats <- gs_mock("get_commits_storage",
-                           create_gitstats() %>%
+  test_gitstats <- create_gitstats() %>%
     set_connection(
       api_url = "https://api.github.com",
       token = Sys.getenv("GITHUB_PAT"),
@@ -50,12 +52,12 @@ test_that("Saves pulled commits to database", {
     set_storage(type = "SQLite",
                 dbname = "storage/test_db.sqlite") %>%
     get_commits(date_from = "2022-10-01",
-                date_until = "2022-12-31")
-  )
+                date_until = "2022-12-31",
+                print_out = FALSE)
 
   gitstats_priv <- environment(test_gitstats$initialize)$private
 
-  saved_output <- gitstats_priv$read_storage(name = "commits_by_org")
+  saved_output <- gitstats_priv$pull_storage(name = "commits_by_org")
 
   expect_commits_table(saved_output)
 

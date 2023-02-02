@@ -270,7 +270,7 @@ GitHub <- R6::R6Class("GitHub",
 
       commits_list <- commits_list %>% purrr::discard(~ length(.) == 0)
 
-      message("GitHub (", enterprise_public, ") (", repo_owner, "): pulled commits from ", length(commits_list), " repositories.")
+      # message("GitHub (", enterprise_public, ") (", repo_owner, "): pulled commits from ", length(commits_list), " repositories.")
 
       commits_list
     },
@@ -329,7 +329,7 @@ GitHub <- R6::R6Class("GitHub",
               replacement = "",
               x = repo_name
             ),
-            "committedDate" = commit$commit$committer$date
+            "committed_date" = commit$commit$committer$date
           )
         })
       })

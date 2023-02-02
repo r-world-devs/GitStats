@@ -6,11 +6,11 @@ expect_repos_table <- function(get_repos_object) {
 }
 
 expect_commits_table <- function(get_commits_object) {
-  commit_cols <- c("id", "organisation", "repository", "committedDate", "additions", "deletions")
+  commit_cols <- c("id", "organisation", "repository", "committed_date", "additions", "deletions", "api_url")
   expect_s3_class(get_commits_object, "data.frame")
   expect_named(get_commits_object, commit_cols)
   expect_gt(nrow(get_commits_object), 0)
-  expect_s3_class(get_commits_object$committedDate, "Date")
+  expect_s3_class(get_commits_object$committed_date, "Date")
   expect_type(get_commits_object$additions, "integer")
   expect_type(get_commits_object$deletions, "integer")
 }

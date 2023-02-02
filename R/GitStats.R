@@ -210,37 +210,23 @@ GitStats <- R6::R6Class("GitStats",
         c("org", "team", "phrase")
       )
 
-      repo_storage <- private$check_storage()
-
-      if (!is.null(repo_storage)) {
-
-      }
-
-      if (by == "org") {
-        repos_dt_list <- purrr::map(self$clients, ~ .$get_repos(
-          by = by,
-          language = language
-        ))
-      } else if (by == "team") {
+      team <- NULL
+      if (by == "team") {
         if (is.null(self$team)) {
           stop("You have to specify a team first with 'set_team()' method.", call. = FALSE)
         }
         team <- self$team[[1]]
-        repos_dt_list <- purrr::map(self$clients, ~ .$get_repos(
-          by = "team",
-          language = language,
-          team = team
-        ))
       } else if (by == "phrase") {
         if (is.null(phrase)) {
           stop("You have to provide a phrase to look for.", call. = FALSE)
         }
-        repos_dt_list <- purrr::map(self$clients, ~ .$get_repos(
-          by = "phrase",
-          phrase = phrase,
-          language = language
-        ))
       }
+
+      repos_dt_list <- purrr::map(self$clients, ~ .$get_repos(
+        by = by,
+        language = language,
+        team = team
+      ))
 
       if (any(purrr::map_lgl(repos_dt_list, ~ length(.) != 0))) {
         self$repos_dt <- repos_dt_list %>%
@@ -282,37 +268,40 @@ GitStats <- R6::R6Class("GitStats",
         c("org", "team")
       )
 
-      if (by == "org") {
-        commits_dt <- purrr::map(self$clients, function(x) {
-          x$get_commits(
-            date_from = date_from,
-            date_until = date_until,
-            by = by
+      commits_storage <- if (self$use_storage) {
+        private$check_storage(
+          table_name = paste0("commits_by_", by)
           )
-        }) %>%
-          rbindlist(use.names = TRUE)
-      } else if (by == "team") {
+      }
+
+      if (!is.null(commits_storage)) {
+        date_from <- commits_storage[["last_date"]]
+      }
+
+      team <- NULL
+      if (by == "team") {
         if (is.null(self$team)) {
           stop("You have to specify a team first with 'set_team()' method.", call. = FALSE)
         }
-
         team <- self$team[[1]]
-
-        commits_dt <- purrr::map(self$clients, function(x) {
-          commits <- x$get_commits(
-            date_from = date_from,
-            date_until = date_until,
-            by = by,
-            team = team
-          )
-
-          message(self$clients$rest_api_url, " (", names(self$team), " team): pulled commits from ", length(unique(commits$repo_project)), " repositories.")
-
-          commits
-        }) %>% rbindlist(use.names = TRUE)
       }
 
-      commits_dt$committedDate <- as.Date(commits_dt$committedDate)
+      commits_dt <- purrr::map(self$clients, function(x) {
+        commits <- x$get_commits(
+          date_from = date_from,
+          date_until = date_until,
+          by = by,
+          team = team
+        )
+
+        if (!is.null(self$team)) {
+          message(x$git_service, " for '", names(self$team), "' team: pulled commits from ", length(unique(commits$repository)), " repositories.")
+        }
+
+        commits
+      }) %>% rbindlist(use.names = TRUE)
+
+      commits_dt$committed_date <- as.Date(commits_dt$committed_date)
 
       self$commits_dt <- commits_dt
 
@@ -320,7 +309,8 @@ GitStats <- R6::R6Class("GitStats",
 
       if (self$use_storage) {
         private$save_storage(self$commits_dt,
-                             name = paste0("commits_by_", by))
+                             name = paste0("commits_by_", by),
+                             append = is.null(commits_storage))
       }
 
       invisible(self)
@@ -337,9 +327,11 @@ GitStats <- R6::R6Class("GitStats",
     #' @description Save objects to a database.
     #' @param object A data.frame, an object to save.
     #' @param name Name of table.
+    #' @param append A boolean to decide whether to overwrite or append table.
     #' @return Nothing.
     save_storage = function(object,
-                            name) {
+                            name,
+                            append = FALSE) {
 
       if (!is.null(self$storage_schema)) {
         dbname <- DBI::Id(
@@ -354,18 +346,31 @@ GitStats <- R6::R6Class("GitStats",
         object[, last_activity_at := as.numeric(last_activity_at)]
       }
 
-      DBI::dbWriteTable(conn = self$storage,
-                        name = dbname,
-                        value = object,
-                        overwrite = TRUE)
-
+      if (!append) {
+        DBI::dbWriteTable(conn = self$storage,
+                          name = dbname,
+                          value = object,
+                          overwrite = TRUE)
+        message("`", name, "` saved to local database.")
+      } else {
+        DBI::dbAppendTable(conn = self$storage,
+                           name = dbname,
+                           value = object)
+        message("`", name, "` appended to local database.")
+      }
     },
 
     #' @description Pulls objects from a database.
     #' @param name Name of table to retrieve.
     #' @return A data.table.
-    read_storage = function(name) {
+    pull_storage = function(name) {
 
+      if (!is.null(self$storage_schema)) {
+        name <- DBI::Id(
+          schema = self$storage_schema,
+          table = name
+        )
+      }
       gs_table <- DBI::dbReadTable(conn = self$storage,
                                    name = name) %>%
         data.table::data.table()
@@ -376,7 +381,7 @@ GitStats <- R6::R6Class("GitStats",
         ][, last_activity_at := as.difftime(tim = last_activity_at,
                                             units = "days")]
       } else if (grepl("commits", name)) {
-        gs_table[, committedDate := as.Date(committedDate,
+        gs_table[, committed_date := as.Date(committed_date,
                                             origin = "1970-01-01")]
       }
 
@@ -391,22 +396,82 @@ GitStats <- R6::R6Class("GitStats",
 
       storage_list <- list()
 
-      if (table_name %in% DBI::dbListTables(self$storage)) {
-        message(table_name, " is stored in your local database.")
+      if (private$check_storage_table(table_name)) {
+        message("`", table_name, "` is stored in your local database.")
+        table_id <- DBI::Id(
+          schema = self$storage_schema,
+          table = table_name
+        )
         db_table <- DBI::dbReadTable(conn = self$storage,
-                                     name = table_name) %>%
+                                     name = table_id) %>%
           private$check_storage_clients() %>%
           private$check_storage_orgs()
 
-        storage_list[["db_table"]] <- db_table
-        last_date <- as.POSIXct(private$pull_last_date(db_table), origin = "1970-01-01")
-        storage_list[["last_date"]] <- last_date
+        if (is.null(db_table)) {
+          message("All commits will be pulled from API.")
+          return(NULL)
+        } else {
+          storage_list[["db_table"]] <- db_table
+          last_date <- as.POSIXct(private$pull_last_date(db_table), origin = "1970-01-01")
+          storage_list[["last_date"]] <- last_date
 
-        message("Only repos created since ", last_date, " will be pulled from API.")
+          message("Only commits created since ", last_date, " will be pulled from API.")
 
-        return(storage_list)
+          return(storage_list)
+        }
       } else {
-        message("No tables found in local database. All repos will be pulled from API.")
+        message("`", table_name, "` not found in local database. All commits will be pulled from API.")
+        return(NULL)
+      }
+
+    },
+
+    #' @description Check if table name matches one in database.
+    #' @param table_name Name of a table.
+    #' @return A boolean.
+    check_storage_table = function(table_name) {
+
+      any(
+        purrr::map(self$show_storage()["table"], ~grepl(table_name, .)) %>%
+          unlist()
+      )
+
+    },
+
+    #' @description Check if clients are in database.
+    #' @param db_table Table to check.
+    #' @return A data.frame.
+    check_storage_clients = function(db_table) {
+      check_urls <- purrr::map_chr(self$clients, ~.$rest_api_url) %in% unique(db_table$api_url)
+      if (all(check_urls)) {
+        return(db_table)
+      } else if (any(check_urls)) {
+        message("Not all clients found in database table.")
+        return(NULL)
+      } else {
+        message("No clients found in database table.")
+        return(NULL)
+      }
+    },
+
+    #' @description Check if organizations are in database.
+    #' @param db_table Table to check.
+    #' @return A data.frame.
+    check_storage_orgs = function(db_table) {
+      if (!is.null(db_table)) {
+        orgs_set <- purrr::map(self$clients, ~.$orgs) %>%
+          unlist()
+        check_orgs <- orgs_set %in% unique(db_table$organisation)
+        if (all(check_orgs)) {
+          return(db_table)
+        } else if (any(check_orgs)){
+          message("Not all organizations found in database table.")
+          return(NULL)
+        } else {
+          message("No organizations found in database table")
+          return(NULL)
+        }
+      } else {
         return(NULL)
       }
 
@@ -416,29 +481,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @param db_table Table to check.
     #' @return A date.
     pull_last_date = function(db_table) {
-      max(db_table$created_at)
-    },
-
-    #' @description Check if organizations are in database.
-    #' @param db_table Table to check.
-    #' @return A data.frame.
-    check_storage_orgs = function(db_table) {
-      if (purrr::map_chr(self$clients, ~.$orgs) %in% unique(db_table$organisation)) {
-        return(db_table)
-      } else {
-        NULL
-      }
-    },
-
-    #' @description Check if clients are in database.
-    #' @param db_table Table to check.
-    #' @return A data.frame.
-    check_storage_clients = function(db_table) {
-      if (purrr::map_chr(self$clients, ~.$rest_api_url) %in% unique(db_table$api_url)) {
-        return(db_table)
-      } else {
-        NULL
-      }
+      max(db_table$committed_date)
     },
 
     #' @description Check whether the urls do not repeat in input.

@@ -194,7 +194,6 @@ GitService <- R6::R6Class("GitService",
                                    rest_api_url = self$rest_api_url,
                                    token = private$token,
                                    git_service = self$git_service) {
-
       repos_list <- list()
       r_page <- 1
       repeat {
@@ -278,10 +277,18 @@ GitService <- R6::R6Class("GitService",
     #' @param commits_list A list
     #' @return A data.frame
     prepare_commits_table = function(commits_list) {
-      purrr::map(commits_list, function(x) {
+      commits_dt <- purrr::map(commits_list, function(x) {
         purrr::map(x, ~ data.frame(.)) %>%
           rbindlist()
       }) %>% rbindlist()
+
+      if (length(commits_dt) > 0) {
+        commits_dt <- dplyr::mutate(
+          commits_dt,
+          api_url = self$rest_api_url
+        )
+      }
+      return(commits_dt)
     }
   )
 )
