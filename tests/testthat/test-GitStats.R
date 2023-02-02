@@ -12,7 +12,10 @@ test_that("check_storage works as expected", {
       orgs = "r-world-devs"
     ) %>%
     set_storage(type = "SQLite",
-                dbname = "storage/test_db.sqlite")
+                dbname = "storage/test_db.sqlite") %>%
+    get_commits(date_from = "2022-12-01",
+               date_until = "2022-12-31",
+               print_out = FALSE)
 
   gitstats_priv <- environment(test_gitstats$initialize)$private
 
@@ -75,7 +78,7 @@ test_that("check_storage works as expected", {
 
   expect_message(
     gitstats_priv$check_storage("commits_by_org"),
-    "Organizations not found in database table."
+    "No organizations found in database table."
   )
 
   expect_message(

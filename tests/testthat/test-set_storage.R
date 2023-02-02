@@ -43,17 +43,20 @@ test_that("Saves pulled repos to database", {
 
 test_that("Saves pulled commits to database", {
 
-  test_gitstats <- create_gitstats() %>%
-    set_connection(
-      api_url = "https://api.github.com",
-      token = Sys.getenv("GITHUB_PAT"),
-      orgs = "r-world-devs"
-    ) %>%
-    set_storage(type = "SQLite",
-                dbname = "storage/test_db.sqlite") %>%
-    get_commits(date_from = "2022-10-01",
-                date_until = "2022-12-31",
-                print_out = FALSE)
+  expect_message(
+    test_gitstats <- create_gitstats() %>%
+      set_connection(
+        api_url = "https://api.github.com",
+        token = Sys.getenv("GITHUB_PAT"),
+        orgs = "r-world-devs"
+      ) %>%
+      set_storage(type = "SQLite",
+                  dbname = "storage/test_db.sqlite") %>%
+      get_commits(date_from = "2022-12-01",
+                  date_until = "2022-12-31",
+                  print_out = FALSE),
+    "`commits_by_org` saved to local database."
+  )
 
   gitstats_priv <- environment(test_gitstats$initialize)$private
 

@@ -2,7 +2,7 @@
 #' @importFrom data.table rbindlist :=
 #' @importFrom purrr map
 #' @importFrom tibble tibble
-#' @importFrom DBI dbConnect dbWriteTable dbReadTable dbListTables Id
+#' @importFrom DBI dbConnect dbWriteTable dbAppendTable dbReadTable dbListTables Id
 #' @importFrom RPostgres Postgres
 #' @importFrom RSQLite SQLite
 #' @importFrom RMySQL MySQL
@@ -310,7 +310,7 @@ GitStats <- R6::R6Class("GitStats",
       if (self$use_storage) {
         private$save_storage(self$commits_dt,
                              name = paste0("commits_by_", by),
-                             append = is.null(commits_storage))
+                             append = !is.null(commits_storage))
       }
 
       invisible(self)
@@ -412,7 +412,7 @@ GitStats <- R6::R6Class("GitStats",
           return(NULL)
         } else {
           storage_list[["db_table"]] <- db_table
-          last_date <- as.POSIXct(private$pull_last_date(db_table), origin = "1970-01-01")
+          last_date <- as.Date(private$pull_last_date(db_table), origin = "1970-01-01")
           storage_list[["last_date"]] <- last_date
 
           message("Only commits created since ", last_date, " will be pulled from API.")
@@ -468,7 +468,7 @@ GitStats <- R6::R6Class("GitStats",
           message("Not all organizations found in database table.")
           return(NULL)
         } else {
-          message("No organizations found in database table")
+          message("No organizations found in database table.")
           return(NULL)
         }
       } else {
