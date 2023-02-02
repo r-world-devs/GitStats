@@ -82,23 +82,19 @@ git_stats %>%
 #   )
 
 # You can set your storage to capture API results and automate your workflow.
-# Next your `get()` functions will retrieve only new data.
 
 set_storage(gitstats_obj = git_stats,
             type = "SQLite",
             dbname = 'devel/storage/my_sqlite'
 ) %>%
   get_repos() %>%
-  get_commits(date_from = "2020-01-01")
+  get_commits(by = "team",
+              date_from = "2020-01-01",
+              date_until = "2022-12-31")
 
-# set_storage(gitstats_obj = git_stats,
-#             type = "Postgres",
-#             dbname = 'dbname',
-#             host = 'host_url',
-#             port = 1111,
-#             user = Sys.getenv('TEAM_USERNAME'),
-#             password = Sys.getenv('TEAM_PASSWORD')
-# )
+# Next your `get()` functions will retrieve only new data.
+get_commits(gitstats_obj = git_stats,
+            date_from = "2020-01-01")
 
 # You can have quick glimpse on your storage:
 
@@ -113,3 +109,15 @@ storage_off(git_stats) %>%
 # And then, if you change your mind again
 
 storage_on(git_stats)
+
+# A Postgres connection requires more credentials. You can also pass your schema.
+
+# set_storage(gitstats_obj = git_stats,
+#             type = "Postgres",
+#             dbname = 'dbname',
+#             schema = 'my_schema',
+#             host = 'host_url',
+#             port = 1111,
+#             user = Sys.getenv('TEAM_USERNAME'),
+#             password = Sys.getenv('TEAM_PASSWORD')
+# )
