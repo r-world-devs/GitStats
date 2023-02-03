@@ -277,9 +277,9 @@ GitLab <- R6::R6Class("GitLab",
             "/projects/",
             x,
             "/repository/commits?since='",
-            git_time_stamp(date_from),
+            date_to_gts(date_from),
             "'&until='",
-            git_time_stamp(date_until),
+            date_to_gts(date_until),
             "'&with_stats=true"
           ),
           token = private$token

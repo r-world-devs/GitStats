@@ -10,7 +10,7 @@ expect_commits_table <- function(get_commits_object) {
   expect_s3_class(get_commits_object, "data.frame")
   expect_named(get_commits_object, commit_cols)
   expect_gt(nrow(get_commits_object), 0)
-  expect_s3_class(get_commits_object$committed_date, "Date")
+  expect_s3_class(get_commits_object$committed_date, "POSIXt")
   expect_type(get_commits_object$additions, "integer")
   expect_type(get_commits_object$deletions, "integer")
 }
