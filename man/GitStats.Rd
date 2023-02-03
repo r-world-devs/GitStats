@@ -215,12 +215,7 @@ Nothing, turns field \verb{$use_storage} to TRUE
 A method to list all repositories for an organization,
 a team or by a keyword.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos(
-  by = "org",
-  phrase = NULL,
-  language = NULL,
-  print_out = TRUE
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos(by, phrase, language, print_out)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -248,12 +243,7 @@ A data.frame of repositories
 \subsection{Method \code{get_commits()}}{
 A method to get information on commits.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits(
-  date_from = NULL,
-  date_until = Sys.time(),
-  by = "org",
-  print_out = TRUE
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits(date_from, date_until, by, print_out)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

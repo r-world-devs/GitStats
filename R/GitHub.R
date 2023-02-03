@@ -119,35 +119,6 @@ GitHub <- R6::R6Class("GitHub",
   ),
   private = list(
 
-    #' @description Filter by contributors.
-    #' @details If at least one member of a team is a contributor than a project
-    #'   passes through the filter.
-    #' @param repos_list A repository list to be filtered.
-    #' @param team A character vector with team member names.
-    #' @return A list.
-    filter_repos_by_team = function(repos_list,
-                                    team) {
-      purrr::map(repos_list, function(x) {
-        contributors <- tryCatch(
-          {
-            get_response(
-              endpoint = paste0(self$rest_api_url, "/repos/", x$full_name, "/contributors"),
-              token = private$token
-            ) %>% purrr::map_chr(~ .$login)
-          },
-          error = function(e) {
-            NA
-          }
-        )
-
-        if (length(intersect(team, contributors)) > 0) {
-          return(x)
-        } else {
-          return(NULL)
-        }
-      }) %>% purrr::keep(~ length(.) > 0)
-    },
-
     #' @description Method to filter repositories by language used
     #' @param repos_list A repository list to be filtered.
     #' @param language A character specifying language used in repositories.
@@ -167,6 +138,9 @@ GitHub <- R6::R6Class("GitHub",
           "name" = x$name,
           "created_at" = x$created_at,
           "last_activity_at" = x$updated_at,
+          "forks" = x$forks_count,
+          "stars" = x$stargazers_count,
+          "contributors" = paste0(x$contributors, collapse = ","),
           "description" = x$description
         )
       })

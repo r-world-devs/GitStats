@@ -70,7 +70,7 @@ test_that("Get_repos methods pulls repositories from GitHub and translates outpu
 
   purrr::pwalk(search_params, function(phrase, language) {
     suppressMessages(
-      repos_by_key <- gs_mock(paste0("github_by_phrase_", phrase),
+      repos_by_key <- gs_mock(paste0("github_repos_by_phrase_", phrase),
                               git_hub_public$get_repos(
                                  by = "phrase",
                                  phrase = phrase,

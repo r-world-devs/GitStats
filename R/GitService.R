@@ -1,4 +1,5 @@
 #' @importFrom R6 R6Class
+#' @importFrom rlang expr
 
 #' @title A Git Service API Client superclass
 #' @description  A superclass for GitHub and GitLab classes
@@ -216,7 +217,66 @@ GitService <- R6::R6Class("GitService",
         }
       }
 
+      repos_list <- private$pull_repos_contributors(repos_list)
+
       repos_list
+    },
+
+    #' @description A method to add information on repository contributors.
+    #' @param repos_list A list of repositories.
+    #' @return A list of repositories with added information on contributors.
+    pull_repos_contributors = function(repos_list) {
+
+      repos_list <- purrr::map(repos_list, function(repo) {
+
+        if (self$git_service == "GitHub") {
+          endpoint <- paste0(self$rest_api_url, "/repos/", repo$full_name, "/contributors")
+          user_name <- rlang::expr(.$login)
+        } else if (self$git_service == "GitLab") {
+          endpoint <- paste0(self$rest_api_url, "/projects/", repo$id, "/repository/contributors")
+          user_name <- rlang::expr(.$name)
+        }
+
+        contributors <- tryCatch(
+          {
+            get_response(
+              endpoint = endpoint,
+              token = private$token
+            ) %>% purrr::map_chr(~ eval(user_name))
+          },
+          error = function(e) {
+            NA
+          }
+        )
+
+        contributors
+      }) %>%
+        purrr::map2(repos_list, function(contributor, repository) {
+
+          purrr::list_modify(repository,
+                             contributors = contributor
+        )
+      })
+
+      repos_list
+    },
+
+    #' @description Filter repositories by contributors.
+    #' @details If at least one member of a team is a contributor than a project
+    #'   passes through the filter.
+    #' @param repos_list A repository list to be filtered.
+    #' @param team A character vector with team member names.
+    #' @return A list.
+    filter_repos_by_team = function(repos_list,
+                                    team) {
+      purrr::map(repos_list, function(x) {
+
+        if (length(intersect(team, x$contributors)) > 0) {
+          return(x)
+        } else {
+          return(NULL)
+        }
+      }) %>% purrr::keep(~ length(.) > 0)
     },
 
     #' @description Perform get request to find projects by ids.

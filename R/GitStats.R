@@ -201,10 +201,10 @@ GitStats <- R6::R6Class("GitStats",
     #' @param language A character specifying language used in repositories.
     #' @param print_out A boolean stating whether to print an output.
     #' @return A data.frame of repositories
-    get_repos = function(by = "org",
-                         phrase = NULL,
-                         language = NULL,
-                         print_out = TRUE) {
+    get_repos = function(by,
+                         phrase,
+                         language,
+                         print_out) {
       by <- match.arg(
         by,
         c("org", "team", "phrase")
@@ -224,6 +224,7 @@ GitStats <- R6::R6Class("GitStats",
 
       repos_dt_list <- purrr::map(self$clients, ~ .$get_repos(
         by = by,
+        phrase = phrase,
         language = language,
         team = team
       ))
@@ -255,10 +256,10 @@ GitStats <- R6::R6Class("GitStats",
     #'   code blobs.}}
     #' @param print_out A boolean stating whether to print an output.
     #' @return A data.frame of commits
-    get_commits = function(date_from = NULL,
-                           date_until = Sys.time(),
-                           by = "org",
-                           print_out = TRUE) {
+    get_commits = function(date_from,
+                           date_until,
+                           by,
+                           print_out) {
       if (is.null(date_from)) {
         stop("You need to define `date_from`.", call. = FALSE)
       }

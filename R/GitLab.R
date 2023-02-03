@@ -42,8 +42,8 @@ GitLab <- R6::R6Class("GitLab",
           repos_list <- private$pull_repos_from_org(org = x) %>%
             {
               if (by == "team") {
-                private$filter_projects_by_team(
-                  projects_list = .,
+                private$filter_repos_by_team(
+                  repos_list = .,
                   team = team
                 )
               } else {
@@ -119,35 +119,6 @@ GitLab <- R6::R6Class("GitLab",
   ),
   private = list(
 
-    #' @description Filter by contributors.
-    #' @details If at least one member of a team is a contributor than a project
-    #'   passes through the filter.
-    #' @param projects_list A repository list to be filtered.
-    #' @param team A character vector with team member names.
-    #' @return A list of repositories.
-    filter_projects_by_team = function(projects_list,
-                                       team) {
-      purrr::map(projects_list, function(x) {
-        members <- tryCatch(
-          {
-            get_response(
-              endpoint = paste0(self$rest_api_url, "/projects/", x$id, "/members/all"),
-              token = private$token
-            ) %>% purrr::map_chr(~ .$username)
-          },
-          error = function(e) {
-            NA
-          }
-        )
-
-        if (length(intersect(team, members)) > 0) {
-          return(x)
-        } else {
-          return(NULL)
-        }
-      }) %>% purrr::keep(~ length(.) > 0)
-    },
-
     #' @description Filter projects by programming
     #'   language
     #' @param projects_list A list of projects to be
@@ -200,6 +171,9 @@ GitLab <- R6::R6Class("GitLab",
           "name" = x$name,
           "created_at" = x$created_at,
           "last_activity_at" = x$last_activity_at,
+          "forks" = x$fork_count,
+          "stars" = x$star_count,
+          "contributors" = paste0(x$contributors, collapse = ","),
           "description" = x$description
         )
       })
