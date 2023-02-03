@@ -29,7 +29,6 @@ test_that("Saves pulled repos to database", {
                 dbname = "storage/test_db.sqlite") %>%
     get_repos(print_out = FALSE)
 
-
   gitstats_priv <- environment(test_gitstats$initialize)$private
 
   saved_output <- gitstats_priv$pull_storage(name = "repos_by_org")
@@ -41,30 +40,32 @@ test_that("Saves pulled repos to database", {
 
 })
 
-test_that("Saves pulled commits to database", {
+test_that("Saves pulled commits to database, pulled commit have proper format", {
+
+  test_gitstats <- create_gitstats() %>%
+    set_connection(
+      api_url = "https://api.github.com",
+      token = Sys.getenv("GITHUB_PAT"),
+      orgs = "r-world-devs"
+    ) %>%
+    set_storage(type = "SQLite",
+                dbname = "storage/test_db.sqlite")
 
   expect_message(
-    test_gitstats <- create_gitstats() %>%
-      set_connection(
-        api_url = "https://api.github.com",
-        token = Sys.getenv("GITHUB_PAT"),
-        orgs = "r-world-devs"
-      ) %>%
-      set_storage(type = "SQLite",
-                  dbname = "storage/test_db.sqlite") %>%
-      get_commits(date_from = "2022-12-01",
-                  date_until = "2022-12-31",
-                  print_out = FALSE),
+     test_gitstats %>%
+       get_commits(date_from = "2022-12-01",
+                   date_until = "2022-12-31",
+                   print_out = FALSE),
     "`commits_by_org` saved to local database."
   )
 
   gitstats_priv <- environment(test_gitstats$initialize)$private
 
-  saved_output <- gitstats_priv$pull_storage(name = "commits_by_org")
+  pulled_output <- gitstats_priv$pull_storage(name = "commits_by_org")
 
-  expect_commits_table(saved_output)
+  expect_commits_table(pulled_output)
 
   expect_equal(test_gitstats$commits_dt,
-               saved_output)
+               pulled_output)
 
 })

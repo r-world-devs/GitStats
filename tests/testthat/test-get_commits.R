@@ -44,8 +44,11 @@ test_that("When storage is set, `get_commits()` first saves tables and for the s
       dbname = "storage/test_db.sqlite"
     )
 
-  DBI::dbRemoveTable(conn = test_gitstats$storage,
-                     name = "commits_by_org")
+  tryCatch({
+    DBI::dbRemoveTable(conn = test_gitstats$storage,
+                       name = "commits_by_org")
+  },
+  error = function(e) message("`commits_by_org` not found in db."))
 
   commits_stored <- testthat::capture_messages(test_gitstats %>%
                                  get_commits(date_from = "2022-10-01",
@@ -77,7 +80,7 @@ test_that("When storage is set, `get_commits()` first saves tables and for the s
 
   expect_gt(diff_rows, 0)
 
-  # expect no duplicates of commits
+  # expect no duplicates of commits (the dates from are set correctly)
   expect_equal(length(unique(commits_after$id)), nrow(commits_after))
 
 })

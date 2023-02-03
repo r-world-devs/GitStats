@@ -275,7 +275,8 @@ GitStats <- R6::R6Class("GitStats",
       }
 
       if (!is.null(commits_storage)) {
-        date_from <- commits_storage[["last_date"]]
+        #need to move date to get only new commits
+        date_from <- commits_storage[["last_date"]] + lubridate::seconds(1)
       }
 
       team <- NULL
@@ -301,7 +302,7 @@ GitStats <- R6::R6Class("GitStats",
         commits
       }) %>% rbindlist(use.names = TRUE)
 
-      commits_dt$committed_date <- as.Date(commits_dt$committed_date)
+      commits_dt$committed_date <- gts_to_posixt(commits_dt$committed_date)
 
       self$commits_dt <- commits_dt
 
@@ -381,8 +382,8 @@ GitStats <- R6::R6Class("GitStats",
         ][, last_activity_at := as.difftime(tim = last_activity_at,
                                             units = "days")]
       } else if (grepl("commits", name)) {
-        gs_table[, committed_date := as.Date(committed_date,
-                                            origin = "1970-01-01")]
+        gs_table[, committed_date := as.POSIXct(committed_date,
+                                                origin = "1970-01-01")]
       }
 
       gs_table
@@ -412,7 +413,7 @@ GitStats <- R6::R6Class("GitStats",
           return(NULL)
         } else {
           storage_list[["db_table"]] <- db_table
-          last_date <- as.Date(private$pull_last_date(db_table), origin = "1970-01-01")
+          last_date <- as.POSIXct(private$pull_last_date(db_table), origin = "1970-01-01")
           storage_list[["last_date"]] <- last_date
 
           message("Only commits created since ", last_date, " will be pulled from API.")

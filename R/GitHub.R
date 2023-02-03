@@ -254,9 +254,9 @@ GitHub <- R6::R6Class("GitHub",
                 "/repos/",
                 x,
                 "/commits?since=",
-                git_time_stamp(date_from),
+                date_to_gts(date_from),
                 "&until=",
-                git_time_stamp(date_until)
+                date_to_gts(date_until)
               ),
               token = token
             )
