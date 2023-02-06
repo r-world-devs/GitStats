@@ -34,25 +34,31 @@ test_that("Get_repos methods pulls repositories from GitHub and translates outpu
 
   expect_repos_table(repos)
 
-  repos_R <- git_hub_public$get_repos(
-    by = "org",
-    language = "R"
+  repos_R <- gs_mock("github_repos_by_R",
+    git_hub_public$get_repos(
+      by = "org",
+      language = "R"
+    )
   )
 
   expect_repos_table(repos_R)
 
-  repos_Python <- git_hub_public$get_repos(
-    by = "org",
-    language = "Python"
+  repos_Python <- gs_mock("github_repos_by_Python",
+    git_hub_public$get_repos(
+      by = "org",
+      language = "Python"
+    )
   )
 
   expect_empty_table(repos_Python)
 
   team <- c("galachad", "kalimu", "maciekbanas", "Cotau", "krystian8207", "marcinkowskak")
 
-  repos_by_team <- git_hub_public$get_repos(
-    by = "team",
-    team = team
+  repos_by_team <- gs_mock("github_repos_by_team",
+    git_hub_public$get_repos(
+      by = "team",
+      team = team
+    )
   )
 
   expect_repos_table(repos_by_team)

@@ -125,22 +125,16 @@ GitService <- R6::R6Class("GitService",
     #' @param org A character, an organization:\itemize{\item{GitHub - owners o
     #'   repositories} \item{GitLab - group of projects.}}
     #' @param repos_endpoint An expression for repositories endpoint.
-    #' @param token A token.
-    #' @param git_service A character, to choose from "GitHub" or "GitLab".
     #' @return A list.
     pull_repos_from_org = function(org,
-                                   repos_endpoint = self$repos_endpoint,
-                                   token = private$token,
-                                   git_service = self$git_service) {
+                                   repos_endpoint = self$repos_endpoint) {
       repos_list <- list()
       r_page <- 1
       repeat {
 
-        endpoint <- paste0(eval(repos_endpoint), "?per_page=100&page=", r_page)
-
         repos_page <- get_response(
-          endpoint = endpoint,
-          token = token
+          endpoint = paste0(eval(repos_endpoint), "?per_page=100&page=", r_page),
+          token = private$token
         )
         if (length(repos_page) > 0) {
           repos_list <- append(repos_list, repos_page)
@@ -218,27 +212,22 @@ GitService <- R6::R6Class("GitService",
     #'   'projects' (GitLab).
     #' @return A list of repositories.
     find_by_id = function(ids,
-                          objects = c("repositories", "projects"),
-                          api_url = self$rest_api_url,
-                          token = private$token) {
+                          objects = c("repositories", "projects")) {
       objects <- match.arg(objects)
       projects_list <- purrr::map(ids, function(x) {
         content <- get_response(
-          paste0(api_url, "/", objects, "/", x),
-          token
+          endpoint = paste0(self$rest_api_url, "/", objects, "/", x),
+          token = private$token
         )
       })
 
       projects_list
     },
 
-    #' @description GraphQL url handler (if not provided)
-    #' @param gql_api_url A url of GraphQL API.
-    #' @param rest_api_url A url of REST API.
+    #' @description GraphQL url handler (if not provided).
     #' @return Nothing, passes proper url to `gql_api_url` field.
-    set_gql_url = function(gql_api_url = self$gql_api_url,
-                           rest_api_url = self$rest_api_url) {
-      self$gql_api_url <- paste0(gsub("/v+.*", "", rest_api_url), "/graphql")
+    set_gql_url = function() {
+      self$gql_api_url <- paste0(gsub("/v+.*", "", self$rest_api_url), "/graphql")
     },
 
     #' @description A helper to prepare table for repositories content
