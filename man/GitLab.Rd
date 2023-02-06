@@ -9,6 +9,13 @@ An object with methods to obtain information form GitLab API.
 \section{Super class}{
 \code{\link[GitStats:GitService]{GitStats::GitService}} -> \code{GitLab}
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{repos_endpoint}}{An expression for repositories endpoint.}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{

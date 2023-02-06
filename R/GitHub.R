@@ -1,7 +1,7 @@
 #' @importFrom R6 R6Class
 #' @importFrom dplyr mutate
 #' @importFrom magrittr %>%
-#' @importFrom rlang %||%
+#' @importFrom rlang expr %||%
 #'
 #' @title A GitHub API Client class
 #' @description An object with methods to obtain information form GitHub API.
@@ -10,6 +10,9 @@ GitHub <- R6::R6Class("GitHub",
   inherit = GitService,
   cloneable = FALSE,
   public = list(
+
+    #' @field repos_endpoint An expression for repositories endpoint.
+    repos_endpoint = rlang::expr(paste0(self$rest_api_url, "/orgs/", org, "/repos")),
 
     #' @description  A method to list all repositories for an organization,
     #'   a team or by a keyword.
@@ -243,7 +246,6 @@ GitHub <- R6::R6Class("GitHub",
                                           token = private$token) {
       repos_list <- private$pull_repos_from_org(
         org = repo_owner,
-        rest_api_url = rest_api_url,
         token = token
       )
 

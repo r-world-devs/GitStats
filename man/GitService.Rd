@@ -22,6 +22,8 @@ enterprise version.}
 
 \item{\code{org_limit}}{An integer defining how many org may API pull.}
 
+\item{\code{repos_endpoint}}{An expression for repositories endpoint.}
+
 \item{\code{token}}{A token authorizing access to API.}
 }
 \if{html}{\out{</div>}}
@@ -51,7 +53,8 @@ Create a new \code{GitService} object
   gql_api_url = NA,
   token = NA,
   orgs = NA,
-  org_limit = NA
+  org_limit = NA,
+  repos_endpoint = self$repos_endpoint
 )}\if{html}{\out{</div>}}
 }
 
@@ -66,6 +69,9 @@ Create a new \code{GitService} object
 
 \item{\code{orgs}}{A character vector of organisations (owners of repositories
 in case of GitHub and groups of projects in case of GitLab).}
+
+\item{\code{org_limit}}{An integer to set maximum number of organizations to be
+pulled from Git Service.}
 }
 \if{html}{\out{</div>}}
 }
