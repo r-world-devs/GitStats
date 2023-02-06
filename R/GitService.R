@@ -54,7 +54,7 @@ GitService <- R6::R6Class("GitService",
           warning("No organizations specified.",
                   call. = FALSE,
                   immediate. = TRUE)
-          pull_all_orgs <- menu(c("Yes", "No"), title="Do you want to pull all orgs from the API?")
+          pull_all_orgs <- menu(c("Yes", "No"), title = "Do you want to pull all orgs from the API?")
 
           if (pull_all_orgs == 1) {
             orgs <- private$pull_organizations()
