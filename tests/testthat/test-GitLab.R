@@ -33,7 +33,7 @@ test_that("Get_repos methods pulls repositories from GitLab and translates outpu
 
   expect_empty_table(repos_Python)
 
-  team <- c("davidblok", "erasmgz", "PetradeVries")
+  team <- c("Rinke Hoekstra")
 
   repos_by_team <- gs_mock("gitlab_repos_by_team",
                            git_lab$get_repos(
