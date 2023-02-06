@@ -93,7 +93,7 @@ GitLab <- R6::R6Class("GitLab",
                            by,
                            team) {
       commits_dt <- purrr::map(orgs, function(x) {
-        private$get_all_commits_from_group(
+        private$pull_commits_from_group(
           x,
           date_from,
           date_until
@@ -259,7 +259,7 @@ GitLab <- R6::R6Class("GitLab",
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
     #' @return A list of commits
-    get_all_commits_from_group = function(project_group,
+    pull_commits_from_group = function(project_group,
                                           date_from,
                                           date_until = Sys.date()) {
       repos_list <- private$pull_repos_from_org(

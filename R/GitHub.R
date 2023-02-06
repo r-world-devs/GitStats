@@ -92,7 +92,7 @@ GitHub <- R6::R6Class("GitHub",
                            by,
                            team) {
       commits_dt <- purrr::map(orgs, function(x) {
-        private$get_all_commits_from_owner(
+        private$pull_commits_from_org(
           x,
           date_from,
           date_until
@@ -237,7 +237,7 @@ GitHub <- R6::R6Class("GitHub",
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
     #' @return A list of commits.
-    get_all_commits_from_owner = function(repo_owner,
+    pull_commits_from_org = function(repo_owner,
                                           date_from,
                                           date_until = Sys.date()) {
       repos_list <- private$pull_repos_from_org(
