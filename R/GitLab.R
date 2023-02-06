@@ -1,7 +1,7 @@
 #' @importFrom R6 R6Class
 #' @importFrom dplyr mutate
 #' @importFrom magrittr %>%
-#' @importFrom rlang %||%
+#' @importFrom rlang expr %||%
 #'
 #' @title A GitLab API Client class
 #' @description An object with methods to obtain information form GitLab API.
@@ -10,6 +10,12 @@ GitLab <- R6::R6Class("GitLab",
   inherit = GitService,
   cloneable = FALSE,
   public = list(
+
+    #' @field repos_endpoint An expression for repositories endpoint.
+    repos_endpoint = rlang::expr(paste0(self$rest_api_url, "/groups/", org, "/projects")),
+
+    #' @field repo_contributors_endpoint An expression for repositories contributors endpoint.
+    repo_contributors_endpoint = rlang::expr(paste0(self$rest_api_url, "/projects/", repo$id, "/repository/contributors")),
 
     #' @description A method to list all repositories for an organization, a
     #'   team or by a keyword.

@@ -1,7 +1,8 @@
 git_hub <- GitService$new(
   rest_api_url = "https://api.github.com",
   token = Sys.getenv("GITHUB_PAT"),
-  orgs = c("openpharma", "pharmaverse", "insightsengineering")
+  orgs = c("openpharma", "pharmaverse", "insightsengineering"),
+  repos_endpoint = rlang::expr(paste0(self$rest_api_url, "/orgs/", org, "/repos"))
 )
 
 github_env <- environment(git_hub$initialize)$private
@@ -41,7 +42,8 @@ test_that("Private pull_repos_from_org pulls correctly repositories for GitLab",
   git_lab <- GitService$new(
     rest_api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT"),
-    orgs = c("erasmusmc-public-health")
+    orgs = c("erasmusmc-public-health"),
+    repos_endpoint = rlang::expr(paste0(self$rest_api_url, "/groups/", org, "/projects"))
   )
 
   gitlab_env <- environment(git_lab$initialize)$private
