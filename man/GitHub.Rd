@@ -13,6 +13,8 @@ An object with methods to obtain information form GitHub API.
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{repos_endpoint}}{An expression for repositories endpoint.}
+
+\item{\code{repo_contributors_endpoint}}{An expression for repositories contributors endpoint.}
 }
 \if{html}{\out{</div>}}
 }

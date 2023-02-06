@@ -14,6 +14,9 @@ GitLab <- R6::R6Class("GitLab",
     #' @field repos_endpoint An expression for repositories endpoint.
     repos_endpoint = rlang::expr(paste0(self$rest_api_url, "/groups/", org, "/projects")),
 
+    #' @field repo_contributors_endpoint An expression for repositories contributors endpoint.
+    repo_contributors_endpoint = rlang::expr(paste0(self$rest_api_url, "/projects/", repo$id, "/repository/contributors")),
+
     #' @description A method to list all repositories for an organization, a
     #'   team or by a keyword.
     #' @param orgs A character vector of organisations (project groups).

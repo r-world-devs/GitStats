@@ -24,6 +24,9 @@ enterprise version.}
 
 \item{\code{repos_endpoint}}{An expression for repositories endpoint.}
 
+\item{\code{repo_contributors_endpoint}}{An expression for repositories'
+contributors endpoint.}
+
 \item{\code{token}}{A token authorizing access to API.}
 }
 \if{html}{\out{</div>}}
@@ -54,7 +57,8 @@ Create a new \code{GitService} object
   token = NA,
   orgs = NA,
   org_limit = NA,
-  repos_endpoint = self$repos_endpoint
+  repos_endpoint = self$repos_endpoint,
+  repo_contributors_endpoint = self$repo_contributors_endpoint
 )}\if{html}{\out{</div>}}
 }
 
@@ -72,6 +76,11 @@ in case of GitHub and groups of projects in case of GitLab).}
 
 \item{\code{org_limit}}{An integer to set maximum number of organizations to be
 pulled from Git Service.}
+
+\item{\code{repos_endpoint}}{An expression for repositories endpoint.}
+
+\item{\code{repo_contributors_endpoint}}{An expression for repositories'
+contributors endpoint.}
 }
 \if{html}{\out{</div>}}
 }

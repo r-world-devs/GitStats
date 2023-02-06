@@ -29,6 +29,10 @@ GitService <- R6::R6Class("GitService",
     #' @field repos_endpoint An expression for repositories endpoint.
     repos_endpoint = NULL,
 
+    #' @field repo_contributors_endpoint An expression for repositories'
+    #'   contributors endpoint.
+    repo_contributors_endpoint = NULL,
+
     #' @description Create a new `GitService` object
     #' @param rest_api_url A url of rest API.
     #' @param gql_api_url A url of GraphQL API.
@@ -37,13 +41,17 @@ GitService <- R6::R6Class("GitService",
     #'   in case of GitHub and groups of projects in case of GitLab).
     #' @param org_limit An integer to set maximum number of organizations to be
     #'   pulled from Git Service.
+    #' @param repos_endpoint An expression for repositories endpoint.
+    #' @param repo_contributors_endpoint An expression for repositories'
+    #'   contributors endpoint.
     #' @return A new `GitService` object
     initialize = function(rest_api_url = NA,
                           gql_api_url = NA,
                           token = NA,
                           orgs = NA,
                           org_limit = NA,
-                          repos_endpoint = self$repos_endpoint) {
+                          repos_endpoint = self$repos_endpoint,
+                          repo_contributors_endpoint = self$repo_contributors_endpoint) {
       self$rest_api_url <- rest_api_url
       if (is.na(gql_api_url)) {
         private$set_gql_url()
@@ -79,6 +87,7 @@ GitService <- R6::R6Class("GitService",
       self$orgs <- orgs
 
       self$repos_endpoint <- repos_endpoint
+      self$repo_contributors_endpoint <- repo_contributors_endpoint
     }
   ),
   private = list(
@@ -148,23 +157,23 @@ GitService <- R6::R6Class("GitService",
 
     #' @description A method to add information on repository contributors.
     #' @param repos_list A list of repositories.
+    #' @param repo_contributors_endpoint An expression for repositories' contributors endpoint.
     #' @return A list of repositories with added information on contributors.
-    pull_repos_contributors = function(repos_list) {
+    pull_repos_contributors = function(repos_list,
+                                       repo_contributors_endpoint = self$repo_contributors_endpoint) {
 
       repos_list <- purrr::map(repos_list, function(repo) {
 
         if (self$git_service == "GitHub") {
-          endpoint <- paste0(self$rest_api_url, "/repos/", repo$full_name, "/contributors")
           user_name <- rlang::expr(.$login)
         } else if (self$git_service == "GitLab") {
-          endpoint <- paste0(self$rest_api_url, "/projects/", repo$id, "/repository/contributors")
           user_name <- rlang::expr(.$name)
         }
 
         contributors <- tryCatch(
           {
             get_response(
-              endpoint = endpoint,
+              endpoint = eval(repo_contributors_endpoint),
               token = private$token
             ) %>% purrr::map_chr(~ eval(user_name))
           },
