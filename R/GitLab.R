@@ -126,16 +126,12 @@ GitLab <- R6::R6Class("GitLab",
   private = list(
 
     #' @description Pull all groups form API.
-    #' @param api_url An url of an API.
-    #' @param token A token.
     #' @param org_limit An integer defining how many org may API pull.
     #' @return A character vector of groups names.
-    pull_organizations = function(api_url = self$rest_api_url,
-                                  token = private$token,
-                                  org_limit = self$org_limit) {
+    pull_organizations = function(org_limit = self$org_limit) {
 
-      resp <- perform_request(endpoint = paste0(api_url, "/groups?all_available=true&per_page=50&page=1"),
-                              token = token)
+      resp <- perform_request(endpoint = paste0(self$rest_api_url, "/groups?all_available=true&per_page=50&page=1"),
+                              token = private$token)
 
       if (length(resp$headers$`x-total-pages`) > 0){
         total_pages <- resp$headers$`x-total-pages`
@@ -147,8 +143,8 @@ GitLab <- R6::R6Class("GitLab",
       o_page <- 1
       still_more_hits <- TRUE
       while(length(orgs_list) < total_pages || !still_more_hits){
-        orgs_page <- get_response(endpoint = paste0(api_url, "/groups?all_available=true&per_page=50&page=", o_page),
-                                  token = token)
+        orgs_page <- get_response(endpoint = paste0(self$rest_api_url, "/groups?all_available=true&per_page=50&page=", o_page),
+                                  token = private$token)
         if (length(orgs_page) > 0) {
           orgs_list <- append(orgs_list, orgs_page)
           o_page <- o_page + 1
@@ -179,15 +175,13 @@ GitLab <- R6::R6Class("GitLab",
     #' @return A list of projects where speicfied
     #'   language is used.
     filter_by_language = function(projects_list,
-                                  language,
-                                  api_url = self$rest_api_url,
-                                  token = private$token) {
+                                  language) {
       projects_id <- unique(purrr::map_chr(projects_list, ~ .$id))
 
       projects_language_list <- purrr::map(projects_id, function(x) {
         get_response(
-          endpoint = paste0(api_url, "/projects/", x, "/languages"),
-          token = token
+          endpoint = paste0(self$rest_api_url, "/projects/", x, "/languages"),
+          token = private$token
         )
       })
 
@@ -231,17 +225,15 @@ GitLab <- R6::R6Class("GitLab",
     #' @param page_max An integer, maximum number of pages.
     #' @return A list of repositories.
     search_by_keyword = function(phrase,
-                                    project_group,
-                                    page_max = 1e6,
-                                    api_url = self$rest_api_url,
-                                    token = private$token) {
+                                 project_group,
+                                 page_max = 1e6) {
       page <- 1
       still_more_hits <- TRUE
       resp_list <- list()
       groups_id <- private$get_group_id(project_group)
 
       while (still_more_hits | page < page_max) {
-        resp <- get_response(paste0(api_url, "/groups/", groups_id, "/search?scope=blobs&search=", phrase, "&per_page=100&page=", page),
+        resp <- get_response(paste0(self$rest_api_url, "/groups/", groups_id, "/search?scope=blobs&search=", phrase, "&per_page=100&page=", page),
           token = private$token
         )
 
@@ -269,13 +261,9 @@ GitLab <- R6::R6Class("GitLab",
     #' @return A list of commits
     get_all_commits_from_group = function(project_group,
                                           date_from,
-                                          date_until = Sys.date(),
-                                          rest_api_url = self$rest_api_url,
-                                          token = private$token) {
+                                          date_until = Sys.date()) {
       repos_list <- private$pull_repos_from_org(
-        org = project_group,
-        rest_api_url = rest_api_url,
-        token = token
+        org = project_group
       )
 
       repos_names <- purrr::map_chr(repos_list, ~ .$name)

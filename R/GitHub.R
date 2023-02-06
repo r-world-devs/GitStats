@@ -126,16 +126,12 @@ GitHub <- R6::R6Class("GitHub",
   private = list(
 
     #' @description Pull all organisations form API.
-    #' @param api_url An url of an API.
-    #' @param token A token.
     #' @param org_limit An integer defining how many org may API pull.
     #' @return A character vector of organizations names.
-    pull_organizations = function(api_url = self$rest_api_url,
-                                  token = private$token,
-                                  org_limit = self$org_limit) {
+    pull_organizations = function(org_limit = self$org_limit) {
 
-      total_count <- get_response(endpoint = paste0(api_url, "/search/users?q=type%3Aorg"),
-                                    token = token)[["total_count"]]
+      total_count <- get_response(endpoint = paste0(self$rest_api_url, "/search/users?q=type%3Aorg"),
+                                  token = private$token)[["total_count"]]
 
       if (total_count > org_limit) {
         warning("Number of organizations exceeds limit (", org_limit, "). I will pull only first ", org_limit, " organizations.",
@@ -146,17 +142,17 @@ GitHub <- R6::R6Class("GitHub",
         org_n <- total_count
       }
 
-      endpoint <- paste0(api_url,"/organizations?per_page=100")
+      endpoint <- paste0(self$rest_api_url, "/organizations?per_page=100")
 
       orgs_list <- get_response(endpoint = endpoint,
-                                token = token)
+                                token = private$token)
 
       if (org_n > 100) {
         while (length(orgs_list) < org_n) {
           last_id <- tail(purrr::map_dbl(orgs_list, ~.$id), 1)
-          endpoint <- paste0(api_url,"/organizations?per_page=100&since=", last_id)
+          endpoint <- paste0(self$rest_api_url, "/organizations?per_page=100&since=", last_id)
           orgs_list <- get_response(endpoint = endpoint,
-                                    token = token) %>%
+                                    token = private$token) %>%
             append(orgs_list, .)
         }
       }
@@ -207,23 +203,24 @@ GitHub <- R6::R6Class("GitHub",
     #'
     #' @return A list of repositories.
     search_by_keyword = function(phrase,
-                                    repo_owner,
-                                    language,
-                                    byte_max = "384000",
-                                    api_url = self$rest_api_url,
-                                    token = private$token) {
+                                 repo_owner,
+                                 language,
+                                 byte_max = "384000") {
       search_endpoint <- if (!is.null(language)) {
-        paste0(api_url, "/search/code?q='", phrase, "'+user:", repo_owner, "+language:", language)
+        paste0(self$rest_api_url, "/search/code?q='", phrase, "'+user:", repo_owner, "+language:", language)
       } else {
-        paste0(api_url, "/search/code?q='", phrase, "'+user:", repo_owner)
+        paste0(self$rest_api_url, "/search/code?q='", phrase, "'+user:", repo_owner)
       }
 
       total_n <- get_response(search_endpoint,
-        token = token
+        token = private$token
       )[["total_count"]]
 
       if (length(total_n) > 0) {
-        repos_list <- search_request(search_endpoint, total_n, byte_max, token)
+        repos_list <- search_request(search_endpoint = search_endpoint,
+                                     total_n = total_n,
+                                     byte_max = byte_max,
+                                     token = private$token)
         repos_list <- purrr::map_chr(repos_list, ~ .$repository$id) %>%
           unique() %>%
           private$find_by_id(objects = "repositories")
@@ -239,17 +236,12 @@ GitHub <- R6::R6Class("GitHub",
     #' @param repo_owner A character, an owner of repository.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
-    #' @param rest_api_url A url of a REST API.
-    #' @param token A token.
     #' @return A list of commits.
     get_all_commits_from_owner = function(repo_owner,
                                           date_from,
-                                          date_until = Sys.date(),
-                                          rest_api_url = self$rest_api_url,
-                                          token = private$token) {
+                                          date_until = Sys.date()) {
       repos_list <- private$pull_repos_from_org(
-        org = repo_owner,
-        token = token
+        org = repo_owner
       )
 
       enterprise_public <- if (self$enterprise) {
@@ -271,7 +263,7 @@ GitHub <- R6::R6Class("GitHub",
           {
             get_response(
               endpoint = paste0(
-                rest_api_url,
+                self$rest_api_url,
                 "/repos/",
                 x,
                 "/commits?since=",
@@ -279,7 +271,7 @@ GitHub <- R6::R6Class("GitHub",
                 "&until=",
                 date_to_gts(date_until)
               ),
-              token = token
+              token = private$token
             )
           },
           error = function(e) {
