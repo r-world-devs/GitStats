@@ -119,6 +119,44 @@ GitLab <- R6::R6Class("GitLab",
   ),
   private = list(
 
+    #' @description Pull all groups form API.
+    #' @param api_url An url of an API.
+    #' @param token A token.
+    #' @param org_limit An integer defining how many org may API pull.
+    #' @return A character vector of groups names.
+    pull_organizations = function(api_url = self$rest_api_url,
+                                  token = private$token,
+                                  org_limit = self$org_limit) {
+
+      resp <- perform_request(endpoint = paste0(api_url, "/groups?all_available=true&per_page=50&page=1"),
+                              token = token)
+
+      if (length(resp$headers$`x-total-pages`) > 0){
+        total_pages <- resp$headers$`x-total-pages`
+      } else {
+        total_pages <- org_limit %/% 50
+      }
+
+      orgs_list <- list()
+      o_page <- 1
+      still_more_hits <- TRUE
+      while(length(orgs_list) < total_pages || !still_more_hits){
+        orgs_page <- get_response(endpoint = paste0(api_url, "/groups?all_available=true&per_page=50&page=", o_page),
+                                  token = token)
+        if (length(orgs_page) > 0) {
+          orgs_list <- append(orgs_list, orgs_page)
+          o_page <- o_page + 1
+        } else {
+          still_more_hits <- FALSE
+        }
+      }
+
+      org_names <- purrr::map_chr(orgs_list, ~.$path)
+
+      return(org_names)
+
+    },
+
     #' @description Filter projects by programming
     #'   language
     #' @param projects_list A list of projects to be

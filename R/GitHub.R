@@ -119,6 +119,48 @@ GitHub <- R6::R6Class("GitHub",
   ),
   private = list(
 
+    #' @description Pull all organisations form API.
+    #' @param api_url An url of an API.
+    #' @param token A token.
+    #' @param org_limit An integer defining how many org may API pull.
+    #' @return A character vector of organizations names.
+    pull_organizations = function(api_url = self$rest_api_url,
+                                  token = private$token,
+                                  org_limit = self$org_limit) {
+
+      total_count <- get_response(endpoint = paste0(api_url, "/search/users?q=type%3Aorg"),
+                                    token = token)[["total_count"]]
+
+      if (total_count > org_limit) {
+        warning("Number of organizations exceeds limit (", org_limit, "). I will pull only first ", org_limit, " organizations.",
+                call. = FALSE,
+                immediate. = FALSE)
+        org_n <- org_limit
+      } else {
+        org_n <- total_count
+      }
+
+      endpoint <- paste0(api_url,"/organizations?per_page=100")
+
+      orgs_list <- get_response(endpoint = endpoint,
+                                token = token)
+
+      if (org_n > 100) {
+        while (length(orgs_list) < org_n) {
+          last_id <- tail(purrr::map_dbl(orgs_list, ~.$id), 1)
+          endpoint <- paste0(api_url,"/organizations?per_page=100&since=", last_id)
+          orgs_list <- get_response(endpoint = endpoint,
+                                    token = token) %>%
+            append(orgs_list, .)
+        }
+      }
+
+      org_names <- purrr::map_chr(orgs_list, ~.$login)
+
+      return(org_names)
+
+    },
+
     #' @description Method to filter repositories by language used
     #' @param repos_list A repository list to be filtered.
     #' @param language A character specifying language used in repositories.
