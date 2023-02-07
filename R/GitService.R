@@ -1,4 +1,5 @@
 #' @importFrom R6 R6Class
+#' @importFrom rlang expr
 
 #' @title A Git Service API Client superclass
 #' @description  A superclass for GitHub and GitLab classes
@@ -25,18 +26,32 @@ GitService <- R6::R6Class("GitService",
     #' @field org_limit An integer defining how many org may API pull.
     org_limit = NULL,
 
+    #' @field repos_endpoint An expression for repositories endpoint.
+    repos_endpoint = NULL,
+
+    #' @field repo_contributors_endpoint An expression for repositories'
+    #'   contributors endpoint.
+    repo_contributors_endpoint = NULL,
+
     #' @description Create a new `GitService` object
     #' @param rest_api_url A url of rest API.
     #' @param gql_api_url A url of GraphQL API.
     #' @param token A token.
     #' @param orgs A character vector of organisations (owners of repositories
     #'   in case of GitHub and groups of projects in case of GitLab).
+    #' @param org_limit An integer to set maximum number of organizations to be
+    #'   pulled from Git Service.
+    #' @param repos_endpoint An expression for repositories endpoint.
+    #' @param repo_contributors_endpoint An expression for repositories'
+    #'   contributors endpoint.
     #' @return A new `GitService` object
     initialize = function(rest_api_url = NA,
                           gql_api_url = NA,
                           token = NA,
                           orgs = NA,
-                          org_limit = NA) {
+                          org_limit = NA,
+                          repos_endpoint = self$repos_endpoint,
+                          repo_contributors_endpoint = self$repo_contributors_endpoint) {
       self$rest_api_url <- rest_api_url
       if (is.na(gql_api_url)) {
         private$set_gql_url()
@@ -53,7 +68,7 @@ GitService <- R6::R6Class("GitService",
           warning("No organizations specified.",
                   call. = FALSE,
                   immediate. = TRUE)
-          pull_all_orgs <- menu(c("Yes", "No"), title="Do you want to pull all orgs from the API?")
+          pull_all_orgs <- menu(c("Yes", "No"), title = "Do you want to pull all orgs from the API?")
 
           if (pull_all_orgs == 1) {
             orgs <- private$pull_organizations()
@@ -70,6 +85,9 @@ GitService <- R6::R6Class("GitService",
 
       }
       self$orgs <- orgs
+
+      self$repos_endpoint <- repos_endpoint
+      self$repo_contributors_endpoint <- repo_contributors_endpoint
     }
   ),
   private = list(
@@ -103,110 +121,20 @@ GitService <- R6::R6Class("GitService",
 
     },
 
-    #' @description Pull all organisations/groups form API.
-    #' @param api_url An url of an API.
-    #' @param git_service A character specifying whether Git Client is GitHub or
-    #'   GitLab.
-    #' @param token A token.
-    #' @param org_limit An integer defining how many org may API pull.
-    #' @return A character vector of organizations/groups names.
-    pull_organizations = function(api_url = self$rest_api_url,
-                                  git_service = self$git_service,
-                                  token = private$token,
-                                  org_limit = self$org_limit) {
-
-      if (git_service == "GitHub") {
-
-        total_count <- get_response(endpoint = paste0(api_url, "/search/users?q=type%3Aorg"),
-                                           token = token)[["total_count"]]
-
-        if (total_count > org_limit) {
-          warning("Number of organizations exceeds limit (", org_limit, "). I will pull only first ", org_limit, " organizations.",
-                  call. = FALSE,
-                  immediate. = FALSE)
-          org_n <- org_limit
-        } else {
-          org_n <- total_count
-        }
-
-        endpoint <- paste0(api_url,"/organizations?per_page=100")
-
-        orgs_list <- get_response(endpoint = endpoint,
-                                  token = token)
-
-        if (org_n > 100) {
-          while (length(orgs_list) < org_n) {
-            last_id <- tail(purrr::map_dbl(orgs_list, ~.$id), 1)
-            endpoint <- paste0(api_url,"/organizations?per_page=100&since=", last_id)
-            orgs_list <- get_response(endpoint = endpoint,
-                                      token = token) %>%
-              append(orgs_list, .)
-          }
-        }
-
-      } else if (git_service == "GitLab") {
-
-        resp <- perform_request(endpoint = paste0(api_url, "/groups?all_available=true&per_page=50&page=1"),
-                                token = token)
-
-        if (length(resp$headers$`x-total-pages`) > 0){
-          total_pages <- resp$headers$`x-total-pages`
-        } else {
-          total_pages <- org_limit %/% 50
-        }
-
-        orgs_list <- list()
-        o_page <- 1
-        still_more_hits <- TRUE
-        while(length(orgs_list) < total_pages || !still_more_hits){
-          orgs_page <- get_response(endpoint = paste0(api_url, "/groups?all_available=true&per_page=50&page=", o_page),
-                                    token = token)
-          if (length(orgs_page) > 0) {
-            orgs_list <- append(orgs_list, orgs_page)
-            o_page <- o_page + 1
-          } else {
-            still_more_hits <- FALSE
-          }
-        }
-
-      }
-      org_names <- purrr::map_chr(orgs_list, ~{
-        if (git_service == "GitHub") {
-          .$login
-        } else if (git_service == "GitLab") {
-          .$path
-        }
-
-      })
-
-      return(org_names)
-
-    },
-
     #' @description A method to pull all repositories for an organization.
     #' @param org A character, an organization:\itemize{\item{GitHub - owners o
     #'   repositories} \item{GitLab - group of projects.}}
-    #' @param rest_api_url A url of a REST API.
-    #' @param token A token.
-    #' @param git_service A character, to choose from "GitHub" or "GitLab".
+    #' @param repos_endpoint An expression for repositories endpoint.
     #' @return A list.
     pull_repos_from_org = function(org,
-                                   rest_api_url = self$rest_api_url,
-                                   token = private$token,
-                                   git_service = self$git_service) {
+                                   repos_endpoint = self$repos_endpoint) {
       repos_list <- list()
       r_page <- 1
       repeat {
-        repos_endpoint <- if (git_service == "GitHub") {
-          paste0("/orgs/", org, "/repos")
-        } else if (git_service == "GitLab") {
-          paste0("/groups/", org, "/projects")
-        }
-        endpoint <- paste0(rest_api_url, repos_endpoint,"?per_page=100&page=", r_page)
 
         repos_page <- get_response(
-          endpoint = endpoint,
-          token = token
+          endpoint = paste0(eval(repos_endpoint), "?per_page=100&page=", r_page),
+          token = private$token
         )
         if (length(repos_page) > 0) {
           repos_list <- append(repos_list, repos_page)
@@ -216,7 +144,68 @@ GitService <- R6::R6Class("GitService",
         }
       }
 
+      repos_list <- repos_list %>%
+        private$pull_repos_contributors() %>%
+        private$pull_repos_issues()
+
       repos_list
+    },
+
+    #' @description A method to add information on repository contributors.
+    #' @param repos_list A list of repositories.
+    #' @param repo_contributors_endpoint An expression for repositories' contributors endpoint.
+    #' @return A list of repositories with added information on contributors.
+    pull_repos_contributors = function(repos_list,
+                                       repo_contributors_endpoint = self$repo_contributors_endpoint) {
+
+      repos_list <- purrr::map(repos_list, function(repo) {
+
+        if (self$git_service == "GitHub") {
+          user_name <- rlang::expr(.$login)
+        } else if (self$git_service == "GitLab") {
+          user_name <- rlang::expr(.$name)
+        }
+
+        contributors <- tryCatch(
+          {
+            get_response(
+              endpoint = eval(repo_contributors_endpoint),
+              token = private$token
+            ) %>% purrr::map_chr(~ eval(user_name))
+          },
+          error = function(e) {
+            NA
+          }
+        )
+
+        contributors
+      }) %>%
+        purrr::map2(repos_list, function(contributor, repository) {
+
+          purrr::list_modify(repository,
+                             contributors = contributor
+        )
+      })
+
+      repos_list
+    },
+
+    #' @description Filter repositories by contributors.
+    #' @details If at least one member of a team is a contributor than a project
+    #'   passes through the filter.
+    #' @param repos_list A repository list to be filtered.
+    #' @param team A character vector with team member names.
+    #' @return A list.
+    filter_repos_by_team = function(repos_list,
+                                    team) {
+      purrr::map(repos_list, function(x) {
+
+        if (length(intersect(team, x$contributors)) > 0) {
+          return(x)
+        } else {
+          return(NULL)
+        }
+      }) %>% purrr::keep(~ length(.) > 0)
     },
 
     #' @description Perform get request to find projects by ids.
@@ -225,27 +214,22 @@ GitService <- R6::R6Class("GitService",
     #'   'projects' (GitLab).
     #' @return A list of repositories.
     find_by_id = function(ids,
-                          objects = c("repositories", "projects"),
-                          api_url = self$rest_api_url,
-                          token = private$token) {
+                          objects = c("repositories", "projects")) {
       objects <- match.arg(objects)
       projects_list <- purrr::map(ids, function(x) {
         content <- get_response(
-          paste0(api_url, "/", objects, "/", x),
-          token
+          endpoint = paste0(self$rest_api_url, "/", objects, "/", x),
+          token = private$token
         )
       })
 
       projects_list
     },
 
-    #' @description GraphQL url handler (if not provided)
-    #' @param gql_api_url A url of GraphQL API.
-    #' @param rest_api_url A url of REST API.
+    #' @description GraphQL url handler (if not provided).
     #' @return Nothing, passes proper url to `gql_api_url` field.
-    set_gql_url = function(gql_api_url = self$gql_api_url,
-                           rest_api_url = self$rest_api_url) {
-      self$gql_api_url <- paste0(gsub("/v+.*", "", rest_api_url), "/graphql")
+    set_gql_url = function() {
+      self$gql_api_url <- paste0(gsub("/v+.*", "", self$rest_api_url), "/graphql")
     },
 
     #' @description A helper to prepare table for repositories content
