@@ -9,9 +9,9 @@ gitlab_env <- environment(git_lab$initialize)$private
 test_that("`pull_repos_contributors()` adds contributors' statistics to repositories list", {
   testthat::skip_on_ci()
 
-  repos_list <- gs_mock("gitlab_repos_raw", NULL)
+  repos_list <- readRDS("mocked/gitlab/gitlab_repos_raw.rds")
 
-  repos_list_with_contributors <- gs_mock("gilab_pull_repos_contributors",
+  repos_list_with_contributors <- gs_mock("gitlab/gitlab_pull_repos_contributors",
     gitlab_env$pull_repos_contributors(repos_list)
   )
 
@@ -24,9 +24,9 @@ test_that("`pull_repos_contributors()` adds contributors' statistics to reposito
 test_that("`pull_repos_issues()` adds issues statistics to repositories list", {
   testthat::skip_on_ci()
 
-  repos_list <- gs_mock("gitlab_repos_raw", NULL)
+  repos_list <- readRDS("mocked/gitlab/gitlab_repos_raw.rds")
 
-  repos_list_with_issues <- gs_mock("gitlab_pull_repos_issues",
+  repos_list_with_issues <- gs_mock("gitlab/gitlab_pull_repos_issues",
     gitlab_env$pull_repos_issues(repos_list)
   )
 
@@ -38,7 +38,7 @@ test_that("`pull_repos_issues()` adds issues statistics to repositories list", {
 
 })
 
-test_that("`Pull_repos_from_org()` pulls correctly repositories for GitLab", {
+test_that("`pull_repos_from_org()` pulls correctly repositories for GitLab", {
   testthat::skip_on_ci()
 
   orgs <- git_lab$orgs
@@ -49,7 +49,7 @@ test_that("`Pull_repos_from_org()` pulls correctly repositories for GitLab", {
       token = Sys.getenv("GITLAB_PAT")
     )[["projects"]])
 
-    pulled_repos_list <- gs_mock(paste0("gitlab_pull_repos_by_", group),
+    pulled_repos_list <- gs_mock(paste0("gitlab/gitlab_pull_repos_by_", group),
                                  gitlab_env$pull_repos_from_org(org = group)
     )
 
@@ -60,16 +60,35 @@ test_that("`Pull_repos_from_org()` pulls correctly repositories for GitLab", {
   })
 })
 
-test_that("`Get_repos()` methods pulls repositories from GitLab and translates output into `data.frame`", {
+test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
+
+  repos_full <- readRDS("mocked/gitlab/gitlab_pull_repos_by_erasmusmc-public-health.rds")
+
+  tailored_repos <- gs_mock("gitlab/gitlab_tailored_repos",
+                            gitlab_env$tailor_repos_info(repos_full)
+  )
+
+  tailored_repos %>%
+    expect_type("list") %>%
+    expect_length(length(repos_full)) %>%
+    expect_list_contains(c("organisation", "name", "created_at", "last_activity_at",
+                           "forks", "stars", "contributors", "issues", "issues_open", "issues_closed",
+                           "description"))
+
+  expect_lt(length(tailored_repos[[1]]), length(repos_full[[1]]))
+
+})
+
+test_that("`get_repos()` methods pulls repositories from GitLab and translates output into `data.frame`", {
   testthat::skip_on_ci()
 
-  repos <- gs_mock("gitlab_repos_by_org",
+  repos <- gs_mock("gitlab/gitlab_repos_by_org",
                    git_lab$get_repos(by = "org")
   )
 
   expect_repos_table(repos)
 
-  repos_R <- gs_mock("gitlab_repos_by_R",
+  repos_R <- gs_mock("gitlab/gitlab_repos_by_R",
                      git_lab$get_repos(
                       by = "org",
                       language = "R"
@@ -78,7 +97,7 @@ test_that("`Get_repos()` methods pulls repositories from GitLab and translates o
 
   expect_repos_table(repos_R)
 
-  repos_Python <- gs_mock("gitlab_repos_Python",
+  repos_Python <- gs_mock("gitlab/gitlab_repos_Python",
                           git_lab$get_repos(
                             by = "org",
                             language = "Python"
@@ -89,7 +108,7 @@ test_that("`Get_repos()` methods pulls repositories from GitLab and translates o
 
   team <- c("Rinke Hoekstra")
 
-  repos_by_team <- gs_mock("gitlab_repos_by_team",
+  repos_by_team <- gs_mock("gitlab/gitlab_repos_by_team",
                            git_lab$get_repos(
                              by = "team",
                              team = team
@@ -98,7 +117,7 @@ test_that("`Get_repos()` methods pulls repositories from GitLab and translates o
 
   expect_repos_table(repos_by_team)
 
-  repos_by_key <- gs_mock("gitlab_repos_by_phrase",
+  repos_by_key <- gs_mock("gitlab/gitlab_repos_by_phrase",
                           git_lab$get_repos(
                             by = "phrase",
                             phrase = "clinical",
@@ -108,7 +127,7 @@ test_that("`Get_repos()` methods pulls repositories from GitLab and translates o
 
   expect_repos_table(repos_by_key)
 
-  repos_pokemon <- gs_mock("gitlab_repos_empty",
+  repos_pokemon <- gs_mock("gitlab/gitlab_repos_empty",
                            git_lab$get_repos(
                              by = "phrase",
                              phrase = "pokemon"
@@ -124,6 +143,6 @@ test_that("Language handler works properly", {
   expect_equal(gitlab_env$language_handler("javascript"), "Javascript")
 })
 
-test_that("Get_group_id gets group's id", {
+test_that("`get_group_id()` gets group's id", {
   expect_equal(gitlab_env$get_group_id("erasmusmc-public-health"), 2853599)
 })

@@ -218,6 +218,9 @@ GitHub <- R6::R6Class("GitHub",
           "forks" = x$forks_count,
           "stars" = x$stargazers_count,
           "contributors" = paste0(x$contributors, collapse = ","),
+          "issues" = x$issues,
+          "issues_open" = x$issues_open,
+          "issues_closed" = x$issues_closed,
           "description" = x$description
         )
       })

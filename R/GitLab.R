@@ -242,6 +242,9 @@ GitLab <- R6::R6Class("GitLab",
           "forks" = x$fork_count,
           "stars" = x$star_count,
           "contributors" = paste0(x$contributors, collapse = ","),
+          "issues" = x$issues,
+          "issues_open" = x$issues_open,
+          "issues_closed" = x$issues_closed,
           "description" = x$description
         )
       })
