@@ -35,6 +35,7 @@ test_that("`pull_repos_issues()` adds issues statistics to repositories list", {
   expect_type(repos_list_with_issues[[1]]$issues, "integer")
   expect_type(repos_list_with_issues[[1]]$issues_open, "integer")
   expect_type(repos_list_with_issues[[1]]$issues_closed, "integer")
+  purrr::walk(repos_list_with_issues, ~expect_equal(.$issues, .$issues_open + .$issues_closed))
 
 })
 
