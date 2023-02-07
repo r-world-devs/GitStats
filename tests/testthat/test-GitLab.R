@@ -6,7 +6,53 @@ git_lab <- GitLab$new(
 
 gitlab_env <- environment(git_lab$initialize)$private
 
-test_that("Get_repos methods pulls repositories from GitLab and translates output into data.frame", {
+test_that("`Pull_repos_contributors()` adds contributors' statistics to repositories list", {
+  testthat::skip_on_ci()
+
+  repos_list <- gs_mock("repos_raw", NULL)
+
+  repos_list_with_contributors <- gitlab_env$pull_repos_contributors(repos_list)
+
+  expect_gt(length(repos_list_with_contributors[[1]]), length(repos_list[[1]]))
+  expect_list_contains(repos_list_with_contributors, c("contributors"))
+
+})
+
+test_that("`Pull_repos_issues()` adds issues statistics to repositories list", {
+  testthat::skip_on_ci()
+
+  repos_list <- gs_mock("repos_raw", NULL)
+
+  repos_list_with_issues <- gitlab_env$pull_repos_issues(repos_list)
+
+  expect_gt(length(repos_list_with_issues[[1]]), length(repos_list[[1]]))
+  expect_list_contains(repos_list_with_issues, c("issues", "issues_open", "issues_closed"))
+
+})
+
+test_that("`Pull_repos_from_org()` pulls correctly repositories for GitLab", {
+  testthat::skip_on_ci()
+
+  orgs <- git_lab$orgs
+
+  purrr::walk(orgs, function(group) {
+    repos_n <- length(get_response(
+      endpoint = paste0("https://gitlab.com/api/v4/groups/", group),
+      token = Sys.getenv("GITLAB_PAT")
+    )[["projects"]])
+
+    pulled_repos_list <- gs_mock(paste0("gitlab_pull_repos_by_", group),
+                                 gitlab_env$pull_repos_from_org(org = group)
+    )
+
+    expect_equal(
+      length(pulled_repos_list),
+      repos_n
+    )
+  })
+})
+
+test_that("`Get_repos()` methods pulls repositories from GitLab and translates output into `data.frame`", {
   testthat::skip_on_ci()
 
   repos <- gs_mock("gitlab_repos_by_org",

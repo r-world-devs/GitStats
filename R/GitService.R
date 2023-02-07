@@ -144,7 +144,9 @@ GitService <- R6::R6Class("GitService",
         }
       }
 
-      repos_list <- private$pull_repos_contributors(repos_list)
+      repos_list <- repos_list %>%
+        private$pull_repos_contributors() %>%
+        private$pull_repos_issues()
 
       repos_list
     },

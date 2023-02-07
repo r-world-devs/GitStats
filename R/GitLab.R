@@ -159,6 +159,36 @@ GitLab <- R6::R6Class("GitLab",
 
     },
 
+    #' @description Method to pull repositories' issues.
+    #' @param repos_list A list of repositories.
+    #' @return A list of repositories.
+    pull_repos_issues = function(repos_list) {
+
+      projects_ids <- unique(purrr::map_chr(repos_list, ~ .$id))
+
+      repos_list <- purrr::map(projects_ids, function(project_id) {
+
+        issues_stats <- get_response(
+              endpoint = paste0(self$rest_api_url, "/projects/", project_id, "/issues_statistics"),
+              token = private$token
+            )
+
+        issues_stats
+
+      }) %>%
+        purrr::map2(repos_list, function(issue, repository) {
+
+          purrr::list_modify(repository,
+                             issues = issue$statistics$counts$all,
+                             issues_open = issue$statistics$counts$opened,
+                             issues_closed = issue$statistics$counts$closed
+          )
+        })
+
+      repos_list
+
+    },
+
     #' @description Filter projects by programming
     #'   language
     #' @param projects_list A list of projects to be

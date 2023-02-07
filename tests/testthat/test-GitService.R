@@ -36,33 +36,6 @@ test_that("Private pull_repos_from_org pulls correctly repositories for GitHub",
   })
 })
 
-test_that("Private pull_repos_from_org pulls correctly repositories for GitLab", {
-  testthat::skip_on_ci()
-
-  git_lab <- GitService$new(
-    rest_api_url = "https://gitlab.com/api/v4",
-    token = Sys.getenv("GITLAB_PAT"),
-    orgs = c("erasmusmc-public-health"),
-    repos_endpoint = rlang::expr(paste0(self$rest_api_url, "/groups/", org, "/projects"))
-  )
-
-  gitlab_env <- environment(git_lab$initialize)$private
-
-  orgs <- git_lab$orgs
-
-  purrr::walk(orgs, function(group) {
-    repos_n <- length(get_response(
-      endpoint = paste0("https://gitlab.com/api/v4/groups/", group),
-      token = Sys.getenv("GITLAB_PAT")
-    )[["projects"]])
-
-    expect_equal(
-      length(gitlab_env$pull_repos_from_org(org = group)),
-      repos_n
-    )
-  })
-})
-
 test_that("Private find_by_ids returns proper repo list", {
   ids <- c("208896481", "402384343", "483601371")
   names <- c("visR", "DataFakeR", "shinyGizmo")

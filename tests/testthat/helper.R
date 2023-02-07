@@ -1,3 +1,17 @@
+expect_list_contains <- function(object, elements) {
+
+  act <- quasi_label(rlang::enquo(object), arg = "object")
+
+  act$elements <- all(purrr::map_lgl(act$val, ~all(elements %in% names(.))))
+  expect(
+    act$elements == TRUE,
+    sprintf("%s does not contain specified elements", act$lab, act$elemetns, elements)
+  )
+
+  invisible(act$val)
+
+}
+
 expect_repos_table <- function(get_repos_object) {
   repo_cols <- c("organisation", "name", "created_at", "last_activity_at", "forks", "stars", "contributors", "description", "api_url")
   expect_s3_class(get_repos_object, "data.frame")
