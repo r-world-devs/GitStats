@@ -63,11 +63,11 @@ GitService <- R6::R6Class("GitService",
       self$enterprise <- private$check_enterprise(self$rest_api_url)
       self$org_limit <- org_limit
       if (is.null(orgs)) {
-
         if (self$enterprise) {
           warning("No organizations specified.",
-                  call. = FALSE,
-                  immediate. = TRUE)
+            call. = FALSE,
+            immediate. = TRUE
+          )
           pull_all_orgs <- menu(c("Yes", "No"), title = "Do you want to pull all orgs from the API?")
 
           if (pull_all_orgs == 1) {
@@ -75,14 +75,14 @@ GitService <- R6::R6Class("GitService",
             message("Pulled ", length(orgs), " organizations.")
           } else {
             stop("No organizations specified for ", self$git_service, ". Pass your organizations to `orgs` parameter.",
-                 call. = FALSE)
+              call. = FALSE
+            )
           }
-
         } else {
           stop("No organizations specified for public ", self$git_service, ". Pass your organizations to `orgs` parameter.",
-               call. = FALSE)
+            call. = FALSE
+          )
         }
-
       }
       self$orgs <- orgs
 
@@ -100,8 +100,8 @@ GitService <- R6::R6Class("GitService",
     #' @return A boolean.
     check_enterprise = function(api_url) {
       if (api_url != "https://api.github.com" &&
-          api_url != "https://gitlab.api.com" &&
-          (grepl("github", api_url)) || self$git_service == "GitLab") {
+        api_url != "https://gitlab.api.com" &&
+        (grepl("github", api_url)) || self$git_service == "GitLab") {
         TRUE
       } else {
         FALSE
@@ -112,13 +112,11 @@ GitService <- R6::R6Class("GitService",
     #' @param api_url A character, a url of API.
     #' @return A character.
     check_git_service = function(api_url) {
-
       if (grepl("github", api_url)) {
         "GitHub"
       } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
         "GitLab"
       }
-
     },
 
     #' @description A method to pull all repositories for an organization.
@@ -131,7 +129,6 @@ GitService <- R6::R6Class("GitService",
       repos_list <- list()
       r_page <- 1
       repeat {
-
         repos_page <- get_response(
           endpoint = paste0(eval(repos_endpoint), "?per_page=100&page=", r_page),
           token = private$token
@@ -157,9 +154,7 @@ GitService <- R6::R6Class("GitService",
     #' @return A list of repositories with added information on contributors.
     pull_repos_contributors = function(repos_list,
                                        repo_contributors_endpoint = self$repo_contributors_endpoint) {
-
       repos_list <- purrr::map(repos_list, function(repo) {
-
         if (self$git_service == "GitHub") {
           user_name <- rlang::expr(.$login)
         } else if (self$git_service == "GitLab") {
@@ -181,11 +176,10 @@ GitService <- R6::R6Class("GitService",
         contributors
       }) %>%
         purrr::map2(repos_list, function(contributor, repository) {
-
           purrr::list_modify(repository,
-                             contributors = contributor
-        )
-      })
+            contributors = contributor
+          )
+        })
 
       repos_list
     },
@@ -199,7 +193,6 @@ GitService <- R6::R6Class("GitService",
     filter_repos_by_team = function(repos_list,
                                     team) {
       purrr::map(repos_list, function(x) {
-
         if (length(intersect(team, x$contributors)) > 0) {
           return(x)
         } else {

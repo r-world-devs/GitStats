@@ -1,15 +1,13 @@
 expect_list_contains <- function(object, elements) {
-
   act <- quasi_label(rlang::enquo(object), arg = "object")
 
-  act$elements <- all(purrr::map_lgl(act$val, ~all(elements %in% names(.))))
+  act$elements <- all(purrr::map_lgl(act$val, ~ all(elements %in% names(.))))
   expect(
     act$elements == TRUE,
     sprintf("%s does not contain specified elements", act$lab, act$elemetns, elements)
   )
 
   invisible(act$val)
-
 }
 
 expect_repos_table <- function(get_repos_object) {
@@ -35,7 +33,6 @@ expect_empty_table <- function(object) {
 }
 
 gs_mock <- function(name = "", func_call) {
-
   rds_file <- paste0("mocked/", name, ".rds")
 
   if (!file.exists(rds_file)) {
@@ -44,10 +41,11 @@ gs_mock <- function(name = "", func_call) {
   } else {
     obj <- readRDS(rds_file)
     if (any(class(obj) == "GitStats") && obj$use_storage) {
-      obj$storage <- DBI::dbConnect(RSQLite::SQLite(),
-                                       "storage/test_db.sqlite")
+      obj$storage <- DBI::dbConnect(
+        RSQLite::SQLite(),
+        "storage/test_db.sqlite"
+      )
     }
   }
   return(obj)
-
 }

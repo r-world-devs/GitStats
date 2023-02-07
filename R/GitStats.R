@@ -593,7 +593,7 @@ set_connection <- function(gitstats_obj,
 #'   set_organizations("openpharma", "pharmaverse")
 #'
 #' ### with multiple connections - remember to specify
-#' `api_url` when setting organizations
+#' `api_url`, when setting organizations
 #'
 #' my_gitstats <- create_gitstats() %>%
 #'  set_connection(

@@ -4,21 +4,25 @@ test_that("GitStats object is created", {
 })
 
 test_that("private `check_storage()` works as expected", {
-
   test_gitstats <- create_gitstats() %>%
     set_connection(
       api_url = "https://api.github.com",
       token = Sys.getenv("GITHUB_PAT"),
       orgs = "r-world-devs"
     ) %>%
-    set_storage(type = "SQLite",
-                dbname = "storage/test_db.sqlite")
+    set_storage(
+      type = "SQLite",
+      dbname = "storage/test_db.sqlite"
+    )
 
-  test_gitstats <- gs_mock("check_storage",
-                           test_gitstats %>%
-                             get_commits(date_from = "2022-12-01",
-                                         date_until = "2022-12-31",
-                                         print_out = FALSE)
+  test_gitstats <- gs_mock(
+    "check_storage",
+    test_gitstats %>%
+      get_commits(
+        date_from = "2022-12-01",
+        date_until = "2022-12-31",
+        print_out = FALSE
+      )
   )
 
   gitstats_priv <- environment(test_gitstats$initialize)$private
@@ -44,8 +48,10 @@ test_that("private `check_storage()` works as expected", {
       token = Sys.getenv("GITHUB_PAT"),
       orgs = "avengers"
     ) %>%
-    set_storage(type = "SQLite",
-                dbname = "storage/test_db.sqlite")
+    set_storage(
+      type = "SQLite",
+      dbname = "storage/test_db.sqlite"
+    )
 
   gitstats_priv <- environment(test_gitstats$initialize)$private
 
@@ -70,8 +76,10 @@ test_that("private `check_storage()` works as expected", {
       token = Sys.getenv("GITHUB_PAT"),
       orgs = "openpharma"
     ) %>%
-    set_storage(type = "SQLite",
-                dbname = "storage/test_db.sqlite")
+    set_storage(
+      type = "SQLite",
+      dbname = "storage/test_db.sqlite"
+    )
 
   gitstats_priv <- environment(test_gitstats$initialize)$private
 
@@ -89,5 +97,4 @@ test_that("private `check_storage()` works as expected", {
     gitstats_priv$check_storage("commits_by_org"),
     "All commits will be pulled from API."
   )
-
 })

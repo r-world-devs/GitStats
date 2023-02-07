@@ -1,5 +1,4 @@
 test_that("Switch storage on and off works", {
-
   expect_message(
     test_gitstats <- create_gitstats() %>%
       set_connection(
@@ -7,10 +6,13 @@ test_that("Switch storage on and off works", {
         token = Sys.getenv("GITHUB_PAT"),
         orgs = "r-world-devs"
       ) %>%
-      set_storage(type = "SQLite",
-                  dbname = "storage/test_db.sqlite") %>%
+      set_storage(
+        type = "SQLite",
+        dbname = "storage/test_db.sqlite"
+      ) %>%
       storage_off(),
-    "Storage will not be used.")
+    "Storage will not be used."
+  )
 
   expect_false(test_gitstats$use_storage)
 
@@ -18,5 +20,4 @@ test_that("Switch storage on and off works", {
     storage_on()
 
   expect_true(test_gitstats$use_storage)
-
 })

@@ -1,7 +1,6 @@
 test_gitstats <- create_gitstats()
 
 test_that("Set connection returns appropriate messages", {
-
   expect_message(
     set_connection(
       gitstats_obj = test_gitstats,
@@ -34,7 +33,6 @@ test_that("Set connection returns appropriate messages", {
 })
 
 test_that("Adequate condition shows if organizations are not specified", {
-
   expect_error(
     create_gitstats() %>%
       set_connection(
@@ -43,7 +41,6 @@ test_that("Adequate condition shows if organizations are not specified", {
       ),
     "No organizations specified."
   )
-
 })
 
 test_that("Errors pop out, when wrong input is passed when setting connection", {

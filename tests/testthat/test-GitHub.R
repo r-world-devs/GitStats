@@ -30,25 +30,24 @@ test_that("Check correctly if API url is of Enterprise or Public Github", {
 })
 
 test_that("`pull_repos_contributors()` adds contributors' statistics to repositories list", {
-
   repos_list <- readRDS("mocked/github/github_repos_raw.rds")
 
-  repos_list_with_contributors <- gs_mock("github/github_pull_repos_contributors",
-                                          publ_env$pull_repos_contributors(repos_list)
+  repos_list_with_contributors <- gs_mock(
+    "github/github_pull_repos_contributors",
+    publ_env$pull_repos_contributors(repos_list)
   )
 
   expect_gt(length(repos_list_with_contributors[[1]]), length(repos_list[[1]]))
   expect_list_contains(repos_list_with_contributors, c("contributors"))
   expect_type(repos_list_with_contributors[[1]]$contributors, "character")
-
 })
 
 test_that("`pull_repos_issues()` adds issues statistics to repositories list", {
-
   repos_list <- readRDS("mocked/github/github_repos_raw.rds")
 
-  repos_list_with_issues <- gs_mock("github/github_pull_repos_issues",
-                                    publ_env$pull_repos_issues(repos_list)
+  repos_list_with_issues <- gs_mock(
+    "github/github_pull_repos_issues",
+    publ_env$pull_repos_issues(repos_list)
   )
 
   expect_gt(length(repos_list_with_issues[[1]]), length(repos_list[[1]]))
@@ -56,12 +55,10 @@ test_that("`pull_repos_issues()` adds issues statistics to repositories list", {
   expect_type(repos_list_with_issues[[1]]$issues, "integer")
   expect_type(repos_list_with_issues[[1]]$issues_open, "integer")
   expect_type(repos_list_with_issues[[1]]$issues_closed, "integer")
-  purrr::walk(repos_list_with_issues, ~expect_equal(.$issues, .$issues_open + .$issues_closed))
-
+  purrr::walk(repos_list_with_issues, ~ expect_equal(.$issues, .$issues_open + .$issues_closed))
 })
 
 test_that("`pull_repos_from_org()` pulls correctly repositories for GitHub", {
-
   orgs <- git_hub_public$orgs
 
   purrr::walk(orgs, function(org) {
@@ -70,8 +67,9 @@ test_that("`pull_repos_from_org()` pulls correctly repositories for GitHub", {
       token = Sys.getenv("GITHUB_PAT")
     )[["public_repos"]]
 
-    pulled_repos_list <- gs_mock(paste0("github/github_pull_repos_by_", org),
-                                 publ_env$pull_repos_from_org(org = org)
+    pulled_repos_list <- gs_mock(
+      paste0("github/github_pull_repos_by_", org),
+      publ_env$pull_repos_from_org(org = org)
     )
 
     expect_equal(
@@ -82,32 +80,35 @@ test_that("`pull_repos_from_org()` pulls correctly repositories for GitHub", {
 })
 
 test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
-
   repos_full <- readRDS("mocked/github/github_pull_repos_by_openpharma.rds")
 
-  tailored_repos <- gs_mock("github/github_tailored_repos",
-                            publ_env$tailor_repos_info(repos_full)
+  tailored_repos <- gs_mock(
+    "github/github_tailored_repos",
+    publ_env$tailor_repos_info(repos_full)
   )
 
   tailored_repos %>%
     expect_type("list") %>%
     expect_length(length(repos_full)) %>%
-    expect_list_contains(c("organisation", "name", "created_at", "last_activity_at",
-                         "forks", "stars", "contributors", "issues", "issues_open", "issues_closed",
-                         "description"))
+    expect_list_contains(c(
+      "organisation", "name", "created_at", "last_activity_at",
+      "forks", "stars", "contributors", "issues", "issues_open", "issues_closed",
+      "description"
+    ))
 
   expect_lt(length(tailored_repos[[1]]), length(repos_full[[1]]))
-
 })
 
 test_that("`get_repos()` methods pulls repositories from GitHub and translates output into `data.frame`", {
-  repos <- gs_mock("github/github_repos_by_og",
+  repos <- gs_mock(
+    "github/github_repos_by_og",
     git_hub_public$get_repos(by = "org")
   )
 
   expect_repos_table(repos)
 
-  repos_R <- gs_mock("github/github_repos_by_R",
+  repos_R <- gs_mock(
+    "github/github_repos_by_R",
     git_hub_public$get_repos(
       by = "org",
       language = "R"
@@ -116,7 +117,8 @@ test_that("`get_repos()` methods pulls repositories from GitHub and translates o
 
   expect_repos_table(repos_R)
 
-  repos_Python <- gs_mock("github/github_repos_by_Python",
+  repos_Python <- gs_mock(
+    "github/github_repos_by_Python",
     git_hub_public$get_repos(
       by = "org",
       language = "Python"
@@ -125,7 +127,8 @@ test_that("`get_repos()` methods pulls repositories from GitHub and translates o
 
   expect_repos_table(repos_Python)
 
-  repos_JS <- gs_mock("github/github_repos_by_Javascript",
+  repos_JS <- gs_mock(
+    "github/github_repos_by_Javascript",
     git_hub_public$get_repos(
       by = "org",
       language = "Javascript"
@@ -136,7 +139,8 @@ test_that("`get_repos()` methods pulls repositories from GitHub and translates o
 
   team <- c("galachad", "kalimu", "maciekbanas", "Cotau", "krystian8207", "marcinkowskak")
 
-  repos_by_team <- gs_mock("github/github_repos_by_team",
+  repos_by_team <- gs_mock(
+    "github/github_repos_by_team",
     git_hub_public$get_repos(
       by = "team",
       team = team
@@ -158,12 +162,13 @@ test_that("`get_repos()` methods pulls repositories from GitHub and translates o
 
   purrr::pwalk(search_params, function(phrase, language) {
     suppressMessages(
-      repos_by_key <- gs_mock(paste0("github/github_repos_by_phrase_", phrase),
-                              git_hub_public$get_repos(
-                                 by = "phrase",
-                                 phrase = phrase,
-                                 language = language
-                               )
+      repos_by_key <- gs_mock(
+        paste0("github/github_repos_by_phrase_", phrase),
+        git_hub_public$get_repos(
+          by = "phrase",
+          phrase = phrase,
+          language = language
+        )
       )
     )
 

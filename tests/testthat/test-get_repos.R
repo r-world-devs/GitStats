@@ -6,25 +6,26 @@ test_gitstats <- create_gitstats() %>%
   )
 
 test_that("Get_repos returns repos table", {
-
-  test_gitstats <- gs_mock("get_repos_by_org",
-                           get_repos(
-                             gitstats_obj = test_gitstats,
-                             print_out = FALSE
-                           ))
+  test_gitstats <- gs_mock(
+    "get_repos_by_org",
+    get_repos(
+      gitstats_obj = test_gitstats,
+      print_out = FALSE
+    )
+  )
 
   expect_repos_table(test_gitstats$repos_dt)
 })
 
 
 test_that("Setting language works correctly", {
-
-  test_gitstats <- gs_mock("get_repos_by_R",
-                           get_repos(
-                             gitstats_obj = test_gitstats,
-                             language = "R",
-                             print_out = FALSE
-                           )
+  test_gitstats <- gs_mock(
+    "get_repos_by_R",
+    get_repos(
+      gitstats_obj = test_gitstats,
+      language = "R",
+      print_out = FALSE
+    )
   )
 
   expect_repos_table(test_gitstats$repos_dt)
@@ -67,15 +68,16 @@ test_that("Get repos by phrase works correctly", {
       orgs = "pharmaverse"
     )
 
-  test_gitstats <- gs_mock("get_repos_by_phrase",
-                           get_repos(
-                             gitstats_obj = test_gitstats,
-                             by = "phrase",
-                             phrase = "covid",
-                             language = "R",
-                             print_out = FALSE
-                           )
+  test_gitstats <- gs_mock(
+    "get_repos_by_phrase",
+    get_repos(
+      gitstats_obj = test_gitstats,
+      by = "phrase",
+      phrase = "covid",
+      language = "R",
+      print_out = FALSE
     )
+  )
 
   expect_message(
     get_repos(
