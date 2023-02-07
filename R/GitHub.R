@@ -163,6 +163,39 @@ GitHub <- R6::R6Class("GitHub",
 
     },
 
+    #' @description Method to pull repositories' issues.
+    #' @param repos_list A list of repositories.
+    #' @return A list of repositories.
+    pull_repos_issues = function(repos_list) {
+
+      repos_list <- purrr::map(repos_list, function(repo) {
+
+        issues <- get_response(
+              endpoint = paste0(self$rest_api_url, "/repos/", repo$full_name, "/issues"),
+              token = private$token
+            )
+
+        issues_stats <- list()
+        issues_stats[["issues"]] <- length(issues)
+        issues_stats[["issues_open"]] <- length(purrr::keep(issues, ~.$state == "open"))
+        issues_stats[["issues_closed"]] <- length(purrr::keep(issues, ~.$state == "closed"))
+
+        return(issues_stats)
+
+      }) %>%
+        purrr::map2(repos_list, function(issue, repository) {
+
+          purrr::list_modify(repository,
+                             issues = issue$issues,
+                             issues_open = issue$issues_open,
+                             issues_closed = issue$issues_closed
+          )
+        })
+
+      repos_list
+
+    },
+
     #' @description Method to filter repositories by language used
     #' @param repos_list A repository list to be filtered.
     #' @param language A character specifying language used in repositories.

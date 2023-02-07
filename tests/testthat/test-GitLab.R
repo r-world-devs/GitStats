@@ -6,27 +6,35 @@ git_lab <- GitLab$new(
 
 gitlab_env <- environment(git_lab$initialize)$private
 
-test_that("`Pull_repos_contributors()` adds contributors' statistics to repositories list", {
+test_that("`pull_repos_contributors()` adds contributors' statistics to repositories list", {
   testthat::skip_on_ci()
 
-  repos_list <- gs_mock("repos_raw", NULL)
+  repos_list <- gs_mock("gitlab_repos_raw", NULL)
 
-  repos_list_with_contributors <- gitlab_env$pull_repos_contributors(repos_list)
+  repos_list_with_contributors <- gs_mock("gilab_pull_repos_contributors",
+    gitlab_env$pull_repos_contributors(repos_list)
+  )
 
   expect_gt(length(repos_list_with_contributors[[1]]), length(repos_list[[1]]))
   expect_list_contains(repos_list_with_contributors, c("contributors"))
+  expect_type(repos_list_with_contributors[[1]]$contributors, "character")
 
 })
 
-test_that("`Pull_repos_issues()` adds issues statistics to repositories list", {
+test_that("`pull_repos_issues()` adds issues statistics to repositories list", {
   testthat::skip_on_ci()
 
-  repos_list <- gs_mock("repos_raw", NULL)
+  repos_list <- gs_mock("gitlab_repos_raw", NULL)
 
-  repos_list_with_issues <- gitlab_env$pull_repos_issues(repos_list)
+  repos_list_with_issues <- gs_mock("gitlab_pull_repos_issues",
+    gitlab_env$pull_repos_issues(repos_list)
+  )
 
   expect_gt(length(repos_list_with_issues[[1]]), length(repos_list[[1]]))
   expect_list_contains(repos_list_with_issues, c("issues", "issues_open", "issues_closed"))
+  expect_type(repos_list_with_issues[[1]]$issues, "integer")
+  expect_type(repos_list_with_issues[[1]]$issues_open, "integer")
+  expect_type(repos_list_with_issues[[1]]$issues_closed, "integer")
 
 })
 

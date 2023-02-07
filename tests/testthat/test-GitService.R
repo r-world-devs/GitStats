@@ -1,8 +1,7 @@
 git_hub <- GitService$new(
   rest_api_url = "https://api.github.com",
   token = Sys.getenv("GITHUB_PAT"),
-  orgs = c("openpharma", "pharmaverse", "insightsengineering"),
-  repos_endpoint = rlang::expr(paste0(self$rest_api_url, "/orgs/", org, "/repos"))
+  orgs = c("openpharma", "pharmaverse", "insightsengineering")
 )
 
 github_env <- environment(git_hub$initialize)$private
@@ -17,23 +16,6 @@ test_that("Private check_git_service properly identifies GitHub and GitLab", {
                  service)
   })
 
-})
-
-test_that("Private pull_repos_from_org pulls correctly repositories for GitHub", {
-
-  orgs <- git_hub$orgs
-
-  purrr::walk(orgs, function(org) {
-    repos_n <- get_response(
-      endpoint = paste0("https://api.github.com/orgs/", org),
-      token = Sys.getenv("GITHUB_PAT")
-    )[["public_repos"]]
-
-    expect_equal(
-      length(github_env$pull_repos_from_org(org = org)),
-      repos_n
-    )
-  })
 })
 
 test_that("Private find_by_ids returns proper repo list", {
