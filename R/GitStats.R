@@ -52,7 +52,7 @@ GitStats <- R6::R6Class("GitStats",
                               orgs = NULL,
                               set_org_limit = 300) {
 
-      if (grepl("github", api_url)) {
+      if (grepl("https://", api_url) && grepl("github", api_url)) {
         message("Set connection to GitHub.")
         new_client <- GitHub$new(
           rest_api_url = api_url,
