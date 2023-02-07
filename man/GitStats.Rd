@@ -13,6 +13,12 @@ An R6 class object with methods to derive information from multiple Git platform
 
 \item{\code{team}}{A character vector containing team members.}
 
+\item{\code{storage}}{A local database credentials to store output.}
+
+\item{\code{storage_schema}}{A schema of database.}
+
+\item{\code{use_storage}}{A boolean to check if storage is set.}
+
 \item{\code{repos_dt}}{An output table of repositories.}
 
 \item{\code{commits_dt}}{An output table of commits.}
@@ -26,6 +32,10 @@ An R6 class object with methods to derive information from multiple Git platform
 \item \href{#method-set_connection}{\code{GitStats$set_connection()}}
 \item \href{#method-set_organizations}{\code{GitStats$set_organizations()}}
 \item \href{#method-set_team}{\code{GitStats$set_team()}}
+\item \href{#method-set_storage}{\code{GitStats$set_storage()}}
+\item \href{#method-show_storage}{\code{GitStats$show_storage()}}
+\item \href{#method-storage_off}{\code{GitStats$storage_off()}}
+\item \href{#method-storage_on}{\code{GitStats$storage_on()}}
 \item \href{#method-get_repos}{\code{GitStats$get_repos()}}
 \item \href{#method-get_commits}{\code{GitStats$get_commits()}}
 \item \href{#method-print}{\code{GitStats$print()}}
@@ -119,18 +129,93 @@ Nothing, pass team information into \verb{$team} field.
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-set_storage"></a>}}
+\if{latex}{\out{\hypertarget{method-set_storage}{}}}
+\subsection{Method \code{set_storage()}}{
+A method to set local storage for the output.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$set_storage(type, dbname, schema, host, port, user, password)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{type}}{A character, type of storage.}
+
+\item{\code{dbname}}{Name of database.}
+
+\item{\code{schema}}{A db schema.}
+
+\item{\code{host}}{A host.}
+
+\item{\code{port}}{An integer, port address.}
+
+\item{\code{user}}{Username.}
+
+\item{\code{password}}{A password.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+This is a wrapper over \code{DBI::dbConnect()} function. This functionality
+is meant among other to improve \code{GitStats} performance. Basically the
+idea is to cache your API responses in a database and retrieve them
+when necessary. E.g. when you call \code{get_commits(date_from = '2020-01-01')} it will save the results to your database and when you
+call it next time, \code{get_commits()} will retrieve from API only these
+results that do not exist in the databse (the new ones).
+}
+
+\subsection{Returns}{
+A \code{GitStats} object with information on local database.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-show_storage"></a>}}
+\if{latex}{\out{\hypertarget{method-show_storage}{}}}
+\subsection{Method \code{show_storage()}}{
+Print content of database.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$show_storage()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A data.frame of table names.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-storage_off"></a>}}
+\if{latex}{\out{\hypertarget{method-storage_off}{}}}
+\subsection{Method \code{storage_off()}}{
+Switch off storage of data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$storage_off()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Nothing, turns field \verb{$use_storage} to FALSE
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-storage_on"></a>}}
+\if{latex}{\out{\hypertarget{method-storage_on}{}}}
+\subsection{Method \code{storage_on()}}{
+Switch on storage of data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$storage_on()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Nothing, turns field \verb{$use_storage} to TRUE
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-get_repos"></a>}}
 \if{latex}{\out{\hypertarget{method-get_repos}{}}}
 \subsection{Method \code{get_repos()}}{
 A method to list all repositories for an organization,
 a team or by a keyword.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos(
-  by = "org",
-  phrase = NULL,
-  language = NULL,
-  print_out = TRUE
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos(by, phrase, language, print_out)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -158,12 +243,7 @@ A data.frame of repositories
 \subsection{Method \code{get_commits()}}{
 A method to get information on commits.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits(
-  date_from = NULL,
-  date_until = Sys.time(),
-  by = "org",
-  print_out = TRUE
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits(date_from, date_until, by, print_out)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

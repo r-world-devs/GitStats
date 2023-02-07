@@ -1,7 +1,7 @@
 #' @importFrom R6 R6Class
 #' @importFrom dplyr mutate
 #' @importFrom magrittr %>%
-#' @importFrom rlang %||%
+#' @importFrom rlang expr %||%
 #'
 #' @title A GitLab API Client class
 #' @description An object with methods to obtain information form GitLab API.
@@ -10,6 +10,12 @@ GitLab <- R6::R6Class("GitLab",
   inherit = GitService,
   cloneable = FALSE,
   public = list(
+
+    #' @field repos_endpoint An expression for repositories endpoint.
+    repos_endpoint = rlang::expr(paste0(self$rest_api_url, "/groups/", org, "/projects")),
+
+    #' @field repo_contributors_endpoint An expression for repositories contributors endpoint.
+    repo_contributors_endpoint = rlang::expr(paste0(self$rest_api_url, "/projects/", repo$id, "/repository/contributors")),
 
     #' @description A method to list all repositories for an organization, a
     #'   team or by a keyword.
@@ -42,8 +48,8 @@ GitLab <- R6::R6Class("GitLab",
           repos_list <- private$pull_repos_from_org(org = x) %>%
             {
               if (by == "team") {
-                private$filter_projects_by_team(
-                  projects_list = .,
+                private$filter_repos_by_team(
+                  repos_list = .,
                   team = team
                 )
               } else {
@@ -87,7 +93,7 @@ GitLab <- R6::R6Class("GitLab",
                            by,
                            team) {
       commits_dt <- purrr::map(orgs, function(x) {
-        private$get_all_commits_from_group(
+        private$pull_commits_from_group(
           x,
           date_from,
           date_until
@@ -119,33 +125,65 @@ GitLab <- R6::R6Class("GitLab",
   ),
   private = list(
 
-    #' @description Filter by contributors.
-    #' @details If at least one member of a team is a contributor than a project
-    #'   passes through the filter.
-    #' @param projects_list A repository list to be filtered.
-    #' @param team A character vector with team member names.
+    #' @description Pull all groups form API.
+    #' @param org_limit An integer defining how many org may API pull.
+    #' @return A character vector of groups names.
+    pull_organizations = function(org_limit = self$org_limit) {
+      resp <- perform_request(
+        endpoint = paste0(self$rest_api_url, "/groups?all_available=true&per_page=50&page=1"),
+        token = private$token
+      )
+
+      if (length(resp$headers$`x-total-pages`) > 0) {
+        total_pages <- resp$headers$`x-total-pages`
+      } else {
+        total_pages <- org_limit %/% 50
+      }
+
+      orgs_list <- list()
+      o_page <- 1
+      still_more_hits <- TRUE
+      while (length(orgs_list) < total_pages || !still_more_hits) {
+        orgs_page <- get_response(
+          endpoint = paste0(self$rest_api_url, "/groups?all_available=true&per_page=50&page=", o_page),
+          token = private$token
+        )
+        if (length(orgs_page) > 0) {
+          orgs_list <- append(orgs_list, orgs_page)
+          o_page <- o_page + 1
+        } else {
+          still_more_hits <- FALSE
+        }
+      }
+
+      org_names <- purrr::map_chr(orgs_list, ~ .$path)
+
+      return(org_names)
+    },
+
+    #' @description Method to pull repositories' issues.
+    #' @param repos_list A list of repositories.
     #' @return A list of repositories.
-    filter_projects_by_team = function(projects_list,
-                                       team) {
-      purrr::map(projects_list, function(x) {
-        members <- tryCatch(
-          {
-            get_response(
-              endpoint = paste0(self$rest_api_url, "/projects/", x$id, "/members/all"),
-              token = private$token
-            ) %>% purrr::map_chr(~ .$username)
-          },
-          error = function(e) {
-            NA
-          }
+    pull_repos_issues = function(repos_list) {
+      projects_ids <- unique(purrr::map_chr(repos_list, ~ .$id))
+
+      repos_list <- purrr::map(projects_ids, function(project_id) {
+        issues_stats <- get_response(
+          endpoint = paste0(self$rest_api_url, "/projects/", project_id, "/issues_statistics"),
+          token = private$token
         )
 
-        if (length(intersect(team, members)) > 0) {
-          return(x)
-        } else {
-          return(NULL)
-        }
-      }) %>% purrr::keep(~ length(.) > 0)
+        issues_stats
+      }) %>%
+        purrr::map2(repos_list, function(issue, repository) {
+          purrr::list_modify(repository,
+            issues = issue$statistics$counts$all,
+            issues_open = issue$statistics$counts$opened,
+            issues_closed = issue$statistics$counts$closed
+          )
+        })
+
+      repos_list
     },
 
     #' @description Filter projects by programming
@@ -164,15 +202,13 @@ GitLab <- R6::R6Class("GitLab",
     #' @return A list of projects where speicfied
     #'   language is used.
     filter_by_language = function(projects_list,
-                                  language,
-                                  api_url = self$rest_api_url,
-                                  token = private$token) {
+                                  language) {
       projects_id <- unique(purrr::map_chr(projects_list, ~ .$id))
 
       projects_language_list <- purrr::map(projects_id, function(x) {
         get_response(
-          endpoint = paste0(api_url, "/projects/", x, "/languages"),
-          token = token
+          endpoint = paste0(self$rest_api_url, "/projects/", x, "/languages"),
+          token = private$token
         )
       })
 
@@ -200,6 +236,12 @@ GitLab <- R6::R6Class("GitLab",
           "name" = x$name,
           "created_at" = x$created_at,
           "last_activity_at" = x$last_activity_at,
+          "forks" = x$fork_count,
+          "stars" = x$star_count,
+          "contributors" = paste0(x$contributors, collapse = ","),
+          "issues" = x$issues,
+          "issues_open" = x$issues_open,
+          "issues_closed" = x$issues_closed,
           "description" = x$description
         )
       })
@@ -213,17 +255,15 @@ GitLab <- R6::R6Class("GitLab",
     #' @param page_max An integer, maximum number of pages.
     #' @return A list of repositories.
     search_by_keyword = function(phrase,
-                                    project_group,
-                                    page_max = 1e6,
-                                    api_url = self$rest_api_url,
-                                    token = private$token) {
+                                 project_group,
+                                 page_max = 1e6) {
       page <- 1
       still_more_hits <- TRUE
       resp_list <- list()
       groups_id <- private$get_group_id(project_group)
 
       while (still_more_hits | page < page_max) {
-        resp <- get_response(paste0(api_url, "/groups/", groups_id, "/search?scope=blobs&search=", phrase, "&per_page=100&page=", page),
+        resp <- get_response(paste0(self$rest_api_url, "/groups/", groups_id, "/search?scope=blobs&search=", phrase, "&per_page=100&page=", page),
           token = private$token
         )
 
@@ -249,15 +289,11 @@ GitLab <- R6::R6Class("GitLab",
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
     #' @return A list of commits
-    get_all_commits_from_group = function(project_group,
-                                          date_from,
-                                          date_until = Sys.date(),
-                                          rest_api_url = self$rest_api_url,
-                                          token = private$token) {
+    pull_commits_from_group = function(project_group,
+                                       date_from,
+                                       date_until = Sys.date()) {
       repos_list <- private$pull_repos_from_org(
-        org = project_group,
-        rest_api_url = rest_api_url,
-        token = token
+        org = project_group
       )
 
       repos_names <- purrr::map_chr(repos_list, ~ .$name)
@@ -277,9 +313,9 @@ GitLab <- R6::R6Class("GitLab",
             "/projects/",
             x,
             "/repository/commits?since='",
-            git_time_stamp(date_from),
+            date_to_gts(date_from),
             "'&until='",
-            git_time_stamp(date_until),
+            date_to_gts(date_until),
             "'&with_stats=true"
           ),
           token = private$token
@@ -291,7 +327,7 @@ GitLab <- R6::R6Class("GitLab",
       commits_list <- commits_list %>%
         purrr::discard(~ length(.) == 0)
 
-      message("GitLab (", project_group, "): pulled commits from ", length(commits_list), " repositories.")
+      # message("GitLab (", project_group, "): pulled commits from ", length(commits_list), " repositories.")
 
       return(commits_list)
     },
@@ -334,7 +370,7 @@ GitLab <- R6::R6Class("GitLab",
             ),
             "additions" = y$stats$additions,
             "deletions" = y$stats$deletions,
-            "committedDate" = y$committed_date
+            "committed_date" = y$committed_date
           )
         })
       })
@@ -364,6 +400,5 @@ GitLab <- R6::R6Class("GitLab",
         token = private$token
       )[["id"]]
     }
-
   )
 )

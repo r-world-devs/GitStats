@@ -99,21 +99,21 @@ search_request <- function(search_endpoint,
 #' @returns A content of response formatted to list.
 #'
 get_response <- function(endpoint, token) {
-
-  tryCatch({
-    resp <- perform_request(endpoint, token)
-    result <- resp %>% httr2::resp_body_json(check_type = FALSE)
-  },
-  error = function(e){
-    message(e)
-    result <<- list()
-  })
+  tryCatch(
+    {
+      resp <- perform_request(endpoint, token)
+      result <- resp %>% httr2::resp_body_json(check_type = FALSE)
+    },
+    error = function(e) {
+      message(e)
+      result <<- list()
+    }
+  )
 
   return(result)
 }
 
 perform_request <- function(endpoint, token) {
-
   resp <- build_request(endpoint, token) %>%
     httr2::req_perform()
 
@@ -127,7 +127,6 @@ perform_request <- function(endpoint, token) {
 #'
 #' @returns A request.
 build_request <- function(endpoint, token) {
-
   httr2::request(endpoint) %>%
     httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
     httr2::req_error(body = resp_error_body) %>%
@@ -135,7 +134,6 @@ build_request <- function(endpoint, token) {
       is_transient = resp_is_transient,
       after = req_after
     )
-
 }
 
 #' @description Handler for rate-limit error (403 on GitHub).

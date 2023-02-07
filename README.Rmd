@@ -59,7 +59,6 @@ git_stats <- create_gitstats() %>%
   )
 
 git_stats
-
 ```
 
 ## Explore

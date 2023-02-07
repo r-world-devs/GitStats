@@ -30,6 +30,13 @@ git_stats %>%
            "maciekbanas") %>%
   get_repos(by = "team")
 
+# Search by phrase
+
+get_repos(git_stats,
+          by = "phrase",
+          phrase = "covid",
+          language = "R")
+
 # you can plot repos sorted by last activity
 
 plot_repos(git_stats)
@@ -73,3 +80,44 @@ git_stats %>%
 #     api_url = "your_api",
 #     token = Sys.getenv("YOUR_TOKEN")
 #   )
+
+# You can set your storage to capture API results and automate your workflow.
+
+set_storage(gitstats_obj = git_stats,
+            type = "SQLite",
+            dbname = 'devel/storage/my_sqlite'
+) %>%
+  get_repos() %>%
+  get_commits(by = "team",
+              date_from = "2020-01-01",
+              date_until = "2022-12-31")
+
+# Next your `get()` functions will retrieve only new data.
+get_commits(gitstats_obj = git_stats,
+            date_from = "2020-01-01")
+
+# You can have quick glimpse on your storage:
+
+show_storage(git_stats)
+
+# Still, if you wish to save your storage, but switch off saving results to
+# data.base for the time-being you can
+
+storage_off(git_stats) %>%
+  get_repos(by = "team")
+
+# And then, if you change your mind again
+
+storage_on(git_stats)
+
+# A Postgres connection requires more credentials. You can also pass your schema.
+
+# set_storage(gitstats_obj = git_stats,
+#             type = "Postgres",
+#             dbname = 'dbname',
+#             schema = 'my_schema',
+#             host = 'host_url',
+#             port = 1111,
+#             user = Sys.getenv('TEAM_USERNAME'),
+#             password = Sys.getenv('TEAM_PASSWORD')
+# )
