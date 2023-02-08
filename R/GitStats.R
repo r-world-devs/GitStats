@@ -1,5 +1,6 @@
 #' @importFrom R6 R6Class
 #' @importFrom data.table rbindlist :=
+#' @importFrom dplyr glimpse
 #' @importFrom purrr map
 #' @importFrom tibble tibble
 #' @importFrom DBI dbConnect dbWriteTable dbAppendTable dbReadTable dbListTables Id
@@ -234,7 +235,7 @@ GitStats <- R6::R6Class("GitStats",
           rbindlist() %>%
           dplyr::arrange(last_activity_at)
 
-        if (print_out) print(self$repos_dt)
+        if (print_out) dplyr::glimpse(self$repos_dt)
 
         if (self$use_storage) {
           private$save_storage(self$repos_dt,
@@ -307,7 +308,7 @@ GitStats <- R6::R6Class("GitStats",
 
       self$commits_dt <- commits_dt
 
-      if (print_out) print(commits_dt)
+      if (print_out) dplyr::glimpse(commits_dt)
 
       if (self$use_storage) {
         private$save_storage(self$commits_dt,
