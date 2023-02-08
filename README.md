@@ -74,61 +74,25 @@ git-platform logins), then do the search.
 ``` r
 git_stats <- git_stats %>%
   set_team(team_name = "RWD-IE",
-           "galachad", 
+           "galachad",
            "krystian8207",
            "kalimu",
            "marcinkowskak",
            "Cotau",
            "maciekbanas") %>%
   get_repos(by = "team")
-#>    organisation               name created_at last_activity_at forks stars
-#> 1:   openpharma          DataFakeR 2021-09-02        1.38 days     4    10
-#> 2:   openpharma               visR 2019-09-16        5.38 days    30   173
-#> 3: r-world-devs      cohortBuilder 2022-05-22        8.38 days     0     1
-#> 4: r-world-devs           GitStats 2023-01-09        8.38 days     0     1
-#> 5: r-world-devs         shinyGizmo 2022-04-20       30.38 days     0    10
-#> 6:   openpharma            facetsr 2020-11-26      163.38 days     0     4
-#> 7:   openpharma                RDO 2020-01-18      184.38 days     1     9
-#> 8: r-world-devs shinyCohortBuilder 2022-05-22      249.38 days     0     1
-#> 9: r-world-devs   cohortBuilder.db 2022-05-22      262.38 days     0     0
-#>                                                                                                                                                                                     contributors
-#> 1:                                                                                                                                                            krystian8207,hadley,MichaelChirico
-#> 2: timtreis,bailliem,SHAESEN2,epijim,rebecca-albrecht,ddsjoberg,cschaerfe,actions-user,Jonnie-Bevan,diego-s,kentm4,ardeeshany,kawap,galachad,AlexandraP-21,joanacmbarros,ginberg,thanos-siadimas
-#> 3:                                                                                                                                                                                  krystian8207
-#> 4:                                                                                                                                                                             maciekbanas,Cotau
-#> 5:                                                                                                                                                            krystian8207,stla,galachad,stlagsk
-#> 6:                                                                                                                                                                                      galachad
-#> 7:                                                                                                                                                                                        kalimu
-#> 8:                                                                                                                                                                         krystian8207,galachad
-#> 9:                                                                                                                                                                                  krystian8207
-#>    issues issues_open issues_closed
-#> 1:      2           2             0
-#> 2:     30          30             0
-#> 3:     24          24             0
-#> 4:     29          29             0
-#> 5:      4           4             0
-#> 6:      1           1             0
-#> 7:      0           0             0
-#> 8:     29          29             0
-#> 9:      3           3             0
-#>                                                                                                                             description
-#> 1: DataFakeR is an R package designed to help you generate sample of fake data preserving specified assumptions about the original one.
-#> 2:                                     A package to wrap functionality for plots, tables and diagrams adhering to graphical principles.
-#> 3:                                                                                                                                     
-#> 4:     An R package to get statistics in a standardized form from different git hosting services: GitHub and GitLab for the time-being.
-#> 5:                                                                                                                                     
-#> 6:                                                                             This package is using html widgets to wrap facets into R
-#> 7:                                                                                                Reproducible Data Objects (RDO) in R 
-#> 8:                                                                                                                                     
-#> 9:                                                                                                                                     
-#>                   api_url
-#> 1: https://api.github.com
-#> 2: https://api.github.com
-#> 3: https://api.github.com
-#> 4: https://api.github.com
-#> 5: https://api.github.com
-#> 6: https://api.github.com
-#> 7: https://api.github.com
-#> 8: https://api.github.com
-#> 9: https://api.github.com
+#> Rows: 9
+#> Columns: 12
+#> $ organisation     <chr> "openpharma", "openpharma", "r-world-devs", "r-world-…
+#> $ name             <chr> "DataFakeR", "visR", "cohortBuilder", "GitStats", "sh…
+#> $ created_at       <dttm> 2021-09-02, 2019-09-16, 2022-05-22, 2023-01-09, 2022…
+#> $ last_activity_at <drtn> 1.39 days, 5.39 days, 8.39 days, 8.39 days, 30.39 da…
+#> $ forks            <int> 4, 30, 0, 0, 0, 0, 1, 0, 0
+#> $ stars            <int> 10, 173, 1, 1, 10, 4, 9, 1, 0
+#> $ contributors     <chr> "krystian8207,hadley,MichaelChirico", "timtreis,baill…
+#> $ issues           <int> 2, 30, 24, 28, 4, 1, 0, 29, 3
+#> $ issues_open      <int> 2, 30, 24, 28, 4, 1, 0, 29, 3
+#> $ issues_closed    <int> 0, 0, 0, 0, 0, 0, 0, 0, 0
+#> $ description      <chr> "DataFakeR is an R package designed to help you gener…
+#> $ api_url          <chr> "https://api.github.com", "https://api.github.com", "…
 ```
