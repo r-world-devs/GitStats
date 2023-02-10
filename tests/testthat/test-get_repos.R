@@ -126,7 +126,12 @@ test_that("`get_repos()` by team in case when no `orgs` are specified", {
   )
 
   expect_match(wgs_no_orgs, "No organizations specified for GitHub.")
-  expect_match(msg_no_orgs, "Pulling organizations by team.")
+
+  expected_messages <- c("Pulling organizations by team.",
+                         "Pulled 1 organizations.",
+                         "Pulling repositories...")
+
+  purrr::walk(expected_messages, ~expect_match(msg_no_orgs, ., all = FALSE))
 
   expect_repos_table(test_gitstats$repos_dt)
 })

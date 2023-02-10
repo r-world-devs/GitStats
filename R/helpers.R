@@ -16,8 +16,11 @@ get_response <- function(endpoint, token) {
       result <- resp %>% httr2::resp_body_json(check_type = FALSE)
     },
     error = function(e) {
-      if (e$status == 400) {
-        message("HTTP 400 Bad Request.")
+      # if (e$status == 400) {
+      #   message("HTTP 400 Bad Request.")
+      # }
+      if (e$status == 403) {
+        message("HTTP 403 API limit reached.")
       }
       result <<- list()
     }

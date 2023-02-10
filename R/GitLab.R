@@ -69,11 +69,11 @@ GitLab <- R6::R6Class("GitLab",
     #' @param org_limit An integer defining how many org may API pull.
     #' @return A character vector of groups names.
     pull_all_organizations = function(org_limit = self$org_limit) {
-
+      cli::cli_alert("Pulling all organizations...")
       total_pages <- org_limit %/% 100
 
       pb <- progress::progress_bar$new(
-        format = paste0("GitLab pulls all orgs [:bar] page: :current/:total"),
+        format = paste0("[:bar] page: :current/:total"),
         total = total_pages
       )
       pb$tick(-1)
@@ -95,6 +95,10 @@ GitLab <- R6::R6Class("GitLab",
       }
 
       org_names <- purrr::map_chr(orgs_list, ~ .$path)
+      org_n <- length(org_names)
+
+      cli::cli_alert_success(cli::col_green(
+        "Pulled {org_n} organizations."))
 
       return(org_names)
     },
@@ -106,6 +110,7 @@ GitLab <- R6::R6Class("GitLab",
     #' @param team A character vector of team members.
     #' @return A character vector of organizations names.
     pull_team_organizations = function(team) {
+      cli::cli_alert("Pulling organizations by team.")
 
       team <- paste0(team, collapse = '", "')
 
@@ -119,9 +124,14 @@ GitLab <- R6::R6Class("GitLab",
 
       org_names <- purrr::map(json_data$data$users$nodes, function(node) {
         if (length(node$groups) > 0) {
-          full_id <- purrr::map_chr(node$groups$edges, ~.$node$name)
+          full_id <- purrr::map_chr(node$groups$edges, ~.$node$path)
         }
       }) %>% purrr::discard(~length(.) == 0) %>% unlist()
+
+      org_n <- length(org_names)
+
+      cli::cli_alert_success(cli::col_green(
+        "Pulled {org_n} organizations."))
 
       return(org_names)
     },

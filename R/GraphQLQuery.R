@@ -8,7 +8,7 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
                          #' @param team A string of team members.
                          #' @return A character.
                          groups_by_user = function(team) {
-                           paste0('{ users(usernames: ["', team, '"]) { pageInfo { endCursor startCursor hasNextPage } nodes { id username, groups { edges { node { name } } } } } }')
+                           paste0('{ users(usernames: ["', team, '"]) { pageInfo { endCursor startCursor hasNextPage } nodes { id username, groups { edges { node { path } } } } } }')
                          }
                        )
 )

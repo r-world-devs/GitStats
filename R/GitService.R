@@ -107,9 +107,10 @@ GitService <- R6::R6Class("GitService",
         orgs <- private$pull_organizations(type = by,
                                            team = team)
       }
+      cli::cli_alert("Pulling repositories...")
 
       pb <- progress::progress_bar$new(
-        format = paste0("Pull ", self$git_service, " repos from {:what}: [:bar] :current/:total"),
+        format = paste0("...from {:what}: [:bar] :current/:total"),
         total = length(orgs)
       )
 
@@ -199,9 +200,9 @@ GitService <- R6::R6Class("GitService",
                               title = "I need organizations specified to pull repos. Do you want me to pull all orgs from the API?")
 
         if (pull_all_orgs == 1) {
-          orgs_names <- private$pull_all_organizations()
+          org_names <- private$pull_all_organizations()
         } else {
-          message("Good choice. Specify your organizations with `set_orgnizations()` or set your preferences to look by `team`.")
+          message("Specify your organizations with `set_orgnizations()` or set your preferences to look by `team`.")
           return(NULL)
         }
 

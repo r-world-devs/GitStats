@@ -83,7 +83,7 @@ GitHub <- R6::R6Class("GitHub",
         )
         org_n <- org_limit
       } else {
-        message("Pulling all organizations.")
+        cli::cli_alert("Pulling all organizations.")
         org_n <- total_count
       }
 
@@ -105,11 +105,10 @@ GitHub <- R6::R6Class("GitHub",
       }
 
       org_names <- purrr::map_chr(orgs_list, ~ .$login)
-
-      org_number <- cli::col_magenta(length(org_names))
+      org_n <- length(org_names)
 
       cli::cli_alert_success(cli::col_green(
-        "Pulled {org_number} organizations."))
+        "Pulled {org_n} organizations."))
 
       return(org_names)
     },
@@ -118,7 +117,7 @@ GitHub <- R6::R6Class("GitHub",
     #' @param team A character vector of team members.
     #' @return A character vector of organizations names.
     pull_team_organizations = function(team) {
-      message("Pulling organizations by team.")
+      cli::cli_alert("Pulling organizations by team.")
       orgs_list <- purrr::map(team, function(team_member) {
         get_response(
           endpoint = paste0(self$rest_api_url, "/users/", team_member, "/orgs"),
@@ -128,7 +127,11 @@ GitHub <- R6::R6Class("GitHub",
         purrr::keep(~length(.) > 0) %>%
         unique()
 
-      org_names <- purrr::map_chr(orgs_list, ~purrr::map_chr(., ~ .$login))
+      org_names <- purrr::map(orgs_list, ~purrr::map_chr(., ~ .$login)) %>% unlist()
+      org_n <- length(org_names)
+
+      cli::cli_alert_success(cli::col_green(
+        "Pulled {org_n} organizations."))
 
       return(org_names)
     },
