@@ -89,3 +89,49 @@ test_that("Get repos by phrase works correctly", {
     "Empty object"
   )
 })
+
+test_that("`get_repos()` by team in case when no `orgs` are specified", {
+
+  suppressWarnings(
+    test_gitstats <- create_gitstats() %>%
+    set_connection(
+      api_url = "https://api.github.com",
+      token = Sys.getenv("GITHUB_PAT")
+    )
+  )
+
+  get_repos_no_org <- expr(
+    test_gitstats %>%
+      set_team(
+        team_name = "RWD-IE",
+        "galachad",
+        "kalimu",
+        "maciekbanas",
+        "Cotau",
+        "krystian8207",
+        "marcinkowskak"
+      ) %>%
+      get_repos(
+        by = "team",
+        print_out = FALSE
+      )
+  )
+
+  wgs_no_orgs <- capture_warnings(
+    suppressMessages(test_gitstats <- eval(get_repos_no_org))
+  )
+
+  msg_no_orgs <- capture_messages(
+    suppressWarnings(eval(get_repos_no_org))
+  )
+
+  expect_match(wgs_no_orgs, "No organizations specified for GitHub.")
+
+  expected_messages <- c("Pulling organizations by team.",
+                         "Pulled 1 organizations.",
+                         "Pulling repositories...")
+
+  purrr::walk(expected_messages, ~expect_match(msg_no_orgs, ., all = FALSE))
+
+  expect_repos_table(test_gitstats$repos_dt)
+})

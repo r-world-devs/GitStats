@@ -4,7 +4,7 @@
 \alias{set_connection}
 \title{Setting connections}
 \usage{
-set_connection(gitstats_obj, api_url, token, orgs = NULL, set_org_limit = 300)
+set_connection(gitstats_obj, api_url, token, orgs = NULL, set_org_limit = 1000)
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}

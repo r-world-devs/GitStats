@@ -50,8 +50,8 @@ GitStats <- R6::R6Class("GitStats",
     #' @return Nothing, puts connection information into `$clients` slot
     set_connection = function(api_url,
                               token,
-                              orgs = NULL,
-                              set_org_limit = 300) {
+                              orgs,
+                              set_org_limit) {
 
       if (grepl("https://", api_url) && grepl("github", api_url)) {
         message("Set connection to GitHub.")
@@ -560,7 +560,7 @@ set_connection <- function(gitstats_obj,
                            api_url,
                            token,
                            orgs = NULL,
-                           set_org_limit = 300) {
+                           set_org_limit = 1000) {
   gitstats_obj$set_connection(
     api_url = api_url,
     token = token,

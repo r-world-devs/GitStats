@@ -31,3 +31,10 @@ test_that("Private find_by_ids returns proper repo list", {
 
   expect_equal(purrr::map_chr(result, ~ .$name), names)
 })
+
+test_that("GraphQL API is set correctly", {
+
+  expect_s3_class(git_hub$gql_query, "GraphQLQuery")
+  expect_s3_class(git_hub$gql_query, "R6")
+
+})

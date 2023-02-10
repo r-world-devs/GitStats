@@ -33,10 +33,19 @@ test_that("Set connection returns appropriate messages", {
 })
 
 test_that("Adequate condition shows if organizations are not specified", {
-  expect_error(
+  expect_warning(
     create_gitstats() %>%
       set_connection(
         api_url = "https://api.github.com",
+        token = Sys.getenv("GITHUB_PAT")
+      ),
+    "No organizations specified."
+  )
+
+  expect_warning(
+    create_gitstats() %>%
+      set_connection(
+        api_url = "https://github.company.com",
         token = Sys.getenv("GITHUB_PAT")
       ),
     "No organizations specified."

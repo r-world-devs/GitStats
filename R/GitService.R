@@ -13,6 +13,9 @@ GitService <- R6::R6Class("GitService",
     #' @field gql_api_url A character, url of GraphQL API.
     gql_api_url = NULL,
 
+    #' @field gql_query An environment for GraphQLQuery class object.
+    gql_query = NULL,
+
     #' @field orgs A character vector of organizations.
     orgs = NULL,
 
@@ -58,36 +61,147 @@ GitService <- R6::R6Class("GitService",
       } else {
         self$gql_api_url <- gql_api_url
       }
+      self$gql_query <- GraphQLQuery$new()
       private$token <- token
       self$git_service <- private$check_git_service(self$rest_api_url)
       self$enterprise <- private$check_enterprise(self$rest_api_url)
       self$org_limit <- org_limit
       if (is.null(orgs)) {
-        if (self$enterprise) {
-          warning("No organizations specified.",
-            call. = FALSE,
-            immediate. = TRUE
-          )
-          pull_all_orgs <- menu(c("Yes", "No"), title = "Do you want to pull all orgs from the API?")
-
-          if (pull_all_orgs == 1) {
-            orgs <- private$pull_organizations()
-            message("Pulled ", length(orgs), " organizations.")
-          } else {
-            stop("No organizations specified for ", self$git_service, ". Pass your organizations to `orgs` parameter.",
-              call. = FALSE
-            )
-          }
-        } else {
-          stop("No organizations specified for public ", self$git_service, ". Pass your organizations to `orgs` parameter.",
-            call. = FALSE
-          )
-        }
+        warning("No organizations specified.",
+          call. = FALSE,
+          immediate. = TRUE
+        )
       }
       self$orgs <- orgs
 
       self$repos_endpoint <- repos_endpoint
       self$repo_contributors_endpoint <- repo_contributors_endpoint
+    },
+
+    #' @description  A method to list all repositories for an organization, a
+    #'   team or by a keyword.
+    #' @param orgs A character vector of organizations (owners of repositories).
+    #' @param by A character, to choose between: \itemize{\item{org -
+    #'   organizations (owners of repositories or project groups)} \item{team -
+    #'   A team} \item{phrase - A keyword in code blobs.}}
+    #' @param team A list of team members. Specified by \code{set_team()} method
+    #'   of GitStats class object.
+    #' @param phrase A character to look for in code blobs. Obligatory if
+    #'   \code{by} parameter set to \code{"phrase"}.
+    #' @param language A character specifying language used in repositories.
+    #' @return A data.frame of repositories.
+    get_repos = function(orgs = self$orgs,
+                         by,
+                         team,
+                         phrase,
+                         language = NULL) {
+
+      if (self$git_service == "GitLab") {
+        language <- private$language_handler(language)
+      }
+
+      if (is.null(orgs)) {
+        warning(paste0("No organizations specified for ", self$git_service, "."),
+                call. = FALSE,
+                immediate. = TRUE)
+        orgs <- private$pull_organizations(type = by,
+                                           team = team)
+      }
+      cli::cli_alert("Pulling repositories...")
+
+      pb <- progress::progress_bar$new(
+        format = paste0("...from {:what}: [:bar] :current/:total"),
+        total = length(orgs)
+      )
+
+      repos_dt <- purrr::map(orgs, function(org) {
+        pb$tick(tokens = list(what = org))
+        if (by == "phrase") {
+          repos_list <- private$search_by_keyword(phrase,
+                                                  org = org,
+                                                  language = language
+          )
+
+          message(paste0("\n On ", self$git_service, " platform (", self$rest_api_url, ") found ", length(repos_list), " repositories
+               with searched keyword and concerning ", language, " language and ", org, " organization."))
+        } else {
+          repos_list <- private$pull_repos_from_org(org = org) %>%
+            {
+              if (by == "team") {
+                private$filter_repos_by_team(
+                  repos_list = .,
+                  team = team
+                )
+              } else {
+                .
+              }
+            } %>%
+            {
+              if (!is.null(language)) {
+                private$filter_by_language(
+                  repos_list = .,
+                  language = language
+                )
+              } else {
+                .
+              }
+            }
+        }
+
+        repos_dt <- repos_list %>%
+          private$tailor_repos_info() %>%
+          private$prepare_repos_table()
+      }) %>%
+        rbindlist()
+
+      repos_dt
+    },
+
+    #' @description A method to get information on commits.
+    #' @param orgs A character vector of organisations.
+    #' @param date_from A starting date to look commits for
+    #' @param date_until An end date to look commits for
+    #' @param by A character, to choose between: \itemize{\item{org -
+    #'   organizations (owners of repositories or project groups)} \item{team -
+    #'   A team} \item{phrase - A keyword in code blobs.}}
+    #' @param team A list of team members. Specified by \code{set_team()} method
+    #'   of GitStats class object.
+    #' @return A data.frame of commits
+    get_commits = function(orgs = self$orgs,
+                           date_from,
+                           date_until = Sys.time(),
+                           by,
+                           team) {
+      commits_dt <- purrr::map(orgs, function(x) {
+        private$pull_commits_from_org(
+          x,
+          date_from,
+          date_until
+        ) %>%
+          {
+            if (by == "team") {
+              private$filter_commits_by_team(
+                commits_list = .,
+                team = team
+              )
+            } else {
+              .
+            }
+          } %>%
+          private$tailor_commits_info(org = x) %>%
+          {
+            if (self$git_service == "GitHub") {
+              private$attach_commits_stats(
+                commits_list = .
+              )
+            } else if (self$git_service == "GitLab"){
+              .
+            }
+          } %>%
+          private$prepare_commits_table()
+      }) %>% rbindlist()
+
+      commits_dt
     }
   ),
   private = list(
@@ -117,6 +231,33 @@ GitService <- R6::R6Class("GitService",
       } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
         "GitLab"
       }
+    },
+
+    #' @description Pull organisations form API.
+    #' @param type A character.
+    #' @param team A character vector of team members.
+    #' @return A character vector of organizations names.
+    pull_organizations = function(type,
+                                  team) {
+
+      if (type %in% c("org", "phrase")) {
+
+        pull_all_orgs <- menu(c("Yes (this may take a while)",
+                                "No (I want to specify orgs by myself)"),
+                              title = "I need organizations specified to pull repos. Do you want me to pull all orgs from the API?")
+
+        if (pull_all_orgs == 1) {
+          org_names <- private$pull_all_organizations()
+        } else {
+          message("Specify your organizations with `set_orgnizations()` or set your preferences to look by `team`.")
+          return(NULL)
+        }
+
+      } else if (type == "team") {
+        org_names <- private$pull_team_organizations(team)
+      }
+
+      return(org_names)
     },
 
     #' @description A method to pull all repositories for an organization.
