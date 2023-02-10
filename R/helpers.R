@@ -161,3 +161,20 @@ resp_error_body <- function(resp) {
   }
   message
 }
+
+#' @description Wrapper of GraphQL API request and response.
+#' @param api_url A url of GraphQL API.
+#' @param gql_query A string with GraphQL query.
+#' @param token a token.
+#' @return A list.
+gql_response <- function(api_url,
+                         gql_query,
+                         token) {
+
+  request(paste0(api_url, "?")) %>%
+    httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
+    httr2::req_body_json(list(query=gql_query, variables="null")) %>%
+    httr2::req_perform() %>%
+    httr2::resp_body_json()
+
+}

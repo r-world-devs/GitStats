@@ -69,11 +69,12 @@ git_stats %>%
   set_organizations(api_url = "https://api.github.com",
                     orgs = c("pharmaverse", "openpharma"))
 
-# You do not need to enter `orgs` when setting connection for the private Git
-# Hosting Service, but if there are more than specified in your `set_org_limit`
-# (default to 300) it will pull only up to that limit. It may be really useful
-# for enterprise Git Services, where you have limited number of repo
-# owners/project groups and want to pull stats from all of them.
+# You do not need to enter `orgs` when setting connection for the Git Hosting
+# Service, but if there are more than specified in your `set_org_limit` (default
+# to 300) it will pull only up to that limit. This may make sense and be useful
+# only in case of enterprise Git Hosting Services, where you have limited number
+# of repo owners/project groups and want to pull stats from all of them. Still,
+# it may be an overkill, if you have lot of them.
 
 # git_stats <- create_gitstats() %>%
 #   set_connection(

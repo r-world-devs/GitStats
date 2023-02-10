@@ -1,6 +1,20 @@
 git_lab <- GitLab$new(
   rest_api_url = "https://gitlab.com/api/v4",
   token = Sys.getenv("GITLAB_PAT"),
+  orgs = c("mbtests")
+)
+
+gitlab_env <- environment(git_lab$initialize)$private
+
+test_that("`pull_team_organizations()` returns character vector of organization names", {
+  team = c("adam.forys", "kamil.wais1", "krystianigras", "maciekbanas")
+  orgs_by_team <- gitlab_env$pull_team_organizations(team)
+  expect_type(orgs_by_team, "character")
+})
+
+git_lab <- GitLab$new(
+  rest_api_url = "https://gitlab.com/api/v4",
+  token = Sys.getenv("GITLAB_PAT"),
   orgs = c("erasmusmc-public-health")
 )
 
