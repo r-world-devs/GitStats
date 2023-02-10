@@ -17,44 +17,6 @@ GitLab <- R6::R6Class("GitLab",
     #' @field repo_contributors_endpoint An expression for repositories contributors endpoint.
     repo_contributors_endpoint = rlang::expr(paste0(self$rest_api_url, "/projects/", repo$id, "/repository/contributors")),
 
-    #' @description A method to get information on commits.
-    #' @param orgs A character vector of organisations (project groups).
-    #' @param date_from A starting date to look commits for
-    #' @param date_until An end date to look commits for
-    #' @param by A character, to choose between: \itemize{\item{org - organizations
-    #'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in
-    #'   code blobs.}}
-    #' @param team A list of team members. Specified by \code{set_team()} method
-    #'   of GitStats class object.
-    #' @return A data.frame of commits
-    get_commits = function(orgs = self$orgs,
-                           date_from,
-                           date_until = Sys.time(),
-                           by,
-                           team) {
-      commits_dt <- purrr::map(orgs, function(x) {
-        private$pull_commits_from_group(
-          x,
-          date_from,
-          date_until
-        ) %>%
-          {
-            if (by == "team") {
-              private$filter_commits_by_team(
-                commits_list = .,
-                team = team
-              )
-            } else {
-              .
-            }
-          } %>%
-          private$tailor_commits_info(group_name = x) %>%
-          private$prepare_commits_table()
-      }) %>% rbindlist()
-
-      commits_dt
-    },
-
     #' @description A print method for a GitLab object
     print = function() {
       cat("GitLab API Client", sep = "\n")
@@ -262,22 +224,22 @@ GitLab <- R6::R6Class("GitLab",
 
     #' @description GitLab private method to derive
     #'   commits from repo with REST API.
-    #' @param project_group A character, a group of projects.
+    #' @param org A character, a group of projects.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
     #' @return A list of commits
-    pull_commits_from_group = function(project_group,
+    pull_commits_from_org = function(org,
                                        date_from,
                                        date_until = Sys.date()) {
       repos_list <- private$pull_repos_from_org(
-        org = project_group
+        org = org
       )
 
       repos_names <- purrr::map_chr(repos_list, ~ .$name)
       projects_ids <- purrr::map_chr(repos_list, ~ .$id)
 
       pb <- progress::progress_bar$new(
-        format = paste0("GitLab Client (", project_group, "). Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
+        format = paste0("GitLab Client (", org, "). Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
         total = length(repos_names)
       )
 
@@ -304,7 +266,7 @@ GitLab <- R6::R6Class("GitLab",
       commits_list <- commits_list %>%
         purrr::discard(~ length(.) == 0)
 
-      # message("GitLab (", project_group, "): pulled commits from ", length(commits_list), " repositories.")
+      # message("GitLab (", org, "): pulled commits from ", length(commits_list), " repositories.")
 
       return(commits_list)
     },
@@ -331,19 +293,19 @@ GitLab <- R6::R6Class("GitLab",
     #' @description A helper to retrieve only important info on commits
     #' @param commits_list A list, a formatted content of response returned by
     #'   GET API request
-    #' @param group_name A character, name of a group
+    #' @param org A character, name of a group
     #' @return A list of commits with selected information
     tailor_commits_info = function(commits_list,
-                                   group_name) {
+                                   org) {
       commits_list <- purrr::map(commits_list, function(x) {
         purrr::map(x, function(y) {
           list(
             "id" = y$id,
-            "organisation" = group_name,
+            "organisation" = org,
             "repository" = gsub(
               pattern = paste0("/-/commit/", y$id),
               replacement = "",
-              x = gsub(paste0("(.*)", group_name, "/"), "", y$web_url)
+              x = gsub(paste0("(.*)", org, "/"), "", y$web_url)
             ),
             "additions" = y$stats$additions,
             "deletions" = y$stats$deletions,

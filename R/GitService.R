@@ -78,12 +78,12 @@ GitService <- R6::R6Class("GitService",
       self$repo_contributors_endpoint <- repo_contributors_endpoint
     },
 
-    #' @description  A method to list all repositories for an organization,
-    #'   a team or by a keyword.
+    #' @description  A method to list all repositories for an organization, a
+    #'   team or by a keyword.
     #' @param orgs A character vector of organizations (owners of repositories).
-    #' @param by A character, to choose between: \itemize{\item{org - organizations
-    #'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in
-    #'   code blobs.}}
+    #' @param by A character, to choose between: \itemize{\item{org -
+    #'   organizations (owners of repositories or project groups)} \item{team -
+    #'   A team} \item{phrase - A keyword in code blobs.}}
     #' @param team A list of team members. Specified by \code{set_team()} method
     #'   of GitStats class object.
     #' @param phrase A character to look for in code blobs. Obligatory if
@@ -155,6 +155,53 @@ GitService <- R6::R6Class("GitService",
         rbindlist()
 
       repos_dt
+    },
+
+    #' @description A method to get information on commits.
+    #' @param orgs A character vector of organisations.
+    #' @param date_from A starting date to look commits for
+    #' @param date_until An end date to look commits for
+    #' @param by A character, to choose between: \itemize{\item{org -
+    #'   organizations (owners of repositories or project groups)} \item{team -
+    #'   A team} \item{phrase - A keyword in code blobs.}}
+    #' @param team A list of team members. Specified by \code{set_team()} method
+    #'   of GitStats class object.
+    #' @return A data.frame of commits
+    get_commits = function(orgs = self$orgs,
+                           date_from,
+                           date_until = Sys.time(),
+                           by,
+                           team) {
+      commits_dt <- purrr::map(orgs, function(x) {
+        private$pull_commits_from_org(
+          x,
+          date_from,
+          date_until
+        ) %>%
+          {
+            if (by == "team") {
+              private$filter_commits_by_team(
+                commits_list = .,
+                team = team
+              )
+            } else {
+              .
+            }
+          } %>%
+          private$tailor_commits_info(org = x) %>%
+          {
+            if (self$git_service == "GitHub") {
+              private$attach_commits_stats(
+                commits_list = .
+              )
+            } else if (self$git_service == "GitLab"){
+              .
+            }
+          } %>%
+          private$prepare_commits_table()
+      }) %>% rbindlist()
+
+      commits_dt
     }
   ),
   private = list(

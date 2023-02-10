@@ -17,45 +17,6 @@ GitHub <- R6::R6Class("GitHub",
     #' @field repo_contributors_endpoint An expression for repositories contributors endpoint.
     repo_contributors_endpoint = rlang::expr(paste0(self$rest_api_url, "/repos/", repo$full_name, "/contributors")),
 
-    #' @description A method to get information on commits.
-    #' @param orgs A character vector of organisations (repository owners).
-    #' @param date_from A starting date to look commits for
-    #' @param date_until An end date to look commits for
-    #' @param by A character, to choose between: \itemize{\item{org - organizations
-    #'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in
-    #'   code blobs.}}
-    #' @param team A list of team members. Specified by \code{set_team()} method
-    #'   of GitStats class object.
-    #' @return A data.frame of commits
-    get_commits = function(orgs = self$orgs,
-                           date_from,
-                           date_until = Sys.time(),
-                           by,
-                           team) {
-      commits_dt <- purrr::map(orgs, function(x) {
-        private$pull_commits_from_org(
-          x,
-          date_from,
-          date_until
-        ) %>%
-          {
-            if (by == "team") {
-              private$filter_commits_by_team(
-                commits_list = .,
-                team = team
-              )
-            } else {
-              .
-            }
-          } %>%
-          private$tailor_commits_info(org = x) %>%
-          private$attach_commits_stats() %>%
-          private$prepare_commits_table()
-      }) %>% rbindlist()
-
-      commits_dt
-    },
-
     #' @description A print method for a GitHub object
     print = function() {
       cat("GitHub API Client", sep = "\n")
@@ -239,15 +200,15 @@ GitHub <- R6::R6Class("GitHub",
 
     #' @description GitHub private method to pull
     #'   commits from repo with REST API.
-    #' @param repo_owner A character, an owner of repository.
+    #' @param org A character, an owner of repository.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
     #' @return A list of commits.
-    pull_commits_from_org = function(repo_owner,
+    pull_commits_from_org = function(org,
                                      date_from,
                                      date_until = Sys.date()) {
       repos_list <- private$pull_repos_from_org(
-        org = repo_owner
+        org = org
       )
 
       enterprise_public <- if (self$enterprise) {
@@ -259,7 +220,7 @@ GitHub <- R6::R6Class("GitHub",
       repos_names <- purrr::map_chr(repos_list, ~ .$full_name)
 
       pb <- progress::progress_bar$new(
-        format = paste0("GitHub (", enterprise_public, ") Client (", repo_owner, "). Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
+        format = paste0("GitHub (", enterprise_public, ") Client (", org, "). Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
         total = length(repos_names)
       )
 
@@ -289,7 +250,7 @@ GitHub <- R6::R6Class("GitHub",
 
       commits_list <- commits_list %>% purrr::discard(~ length(.) == 0)
 
-      # message("GitHub (", enterprise_public, ") (", repo_owner, "): pulled commits from ", length(commits_list), " repositories.")
+      # message("GitHub (", enterprise_public, ") (", org, "): pulled commits from ", length(commits_list), " repositories.")
 
       commits_list
     },
