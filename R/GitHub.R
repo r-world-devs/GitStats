@@ -118,6 +118,7 @@ GitHub <- R6::R6Class("GitHub",
     #' @param team A character vector of team members.
     #' @return A character vector of organizations names.
     pull_team_organizations = function(team) {
+      message("Pulling organizations by team.")
       orgs_list <- purrr::map(team, function(team_member) {
         get_response(
           endpoint = paste0(self$rest_api_url, "/users/", team_member, "/orgs"),
