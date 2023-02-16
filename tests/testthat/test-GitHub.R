@@ -29,6 +29,12 @@ test_that("Check correctly if API url is of Enterprise or Public Github", {
   expect_equal(enterp_env$check_enterprise(git_hub_enterprise$rest_api_url), TRUE)
 })
 
+test_that("`pull_team_organizations()` returns character vector of organization names", {
+  team = c("galachad", "kalimu", "maciekbanas", "Cotau", "krystian8207", "marcinkowskak")
+  orgs_by_team <- publ_env$pull_team_organizations(team)
+  expect_type(orgs_by_team, "character")
+})
+
 test_that("`pull_repos_contributors()` adds contributors' statistics to repositories list", {
   repos_list <- readRDS("mocked/github/github_repos_raw.rds")
 

@@ -69,17 +69,45 @@ git_stats %>%
   set_organizations(api_url = "https://api.github.com",
                     orgs = c("pharmaverse", "openpharma"))
 
-# You do not need to enter `orgs` when setting connection for the private Git
-# Hosting Service, but if there are more than specified in your `set_org_limit`
-# (default to 300) it will pull only up to that limit. It may be really useful
-# for enterprise Git Services, where you have limited number of repo
-# owners/project groups and want to pull stats from all of them.
+########## HANDLING ORGANIZATIONS ##########
 
-# git_stats <- create_gitstats() %>%
-#   set_connection(
-#     api_url = "your_api",
-#     token = Sys.getenv("YOUR_TOKEN")
-#   )
+# You do not need to enter `orgs` when setting connection for the Git Hosting
+# Service.
+
+git_stats <- create_gitstats() %>%
+  set_connection(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT")
+  )
+
+# Still, you will have to decide on orgs when you choose to explore your
+# repositories. This may make sense and be useful in case when you specify team.
+# `GitStats` will automatically pull oganizations that are linkeds to your team
+# members.
+
+git_stats %>%
+  set_team(team_name = "RWD-IE",
+           "galachad",
+           "krystian8207",
+           "kalimu",
+           "marcinkowskak",
+           "Cotau",
+           "maciekbanas") %>%
+  get_repos(by = "team")
+
+# There is also possibility to pull automatically organizations when not
+# specifying team, but due to possible large number of repositories this may be
+# rather tricky. Therefore if there are more than specified in your
+# `set_org_limit` (default to 1000) it will pull only up to that limit.
+
+git_stats <- create_gitstats() %>%
+  set_connection(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT")
+  ) %>%
+  get_repos()
+
+########## SETTING STORAGE ##########
 
 # You can set your storage to capture API results and automate your workflow.
 

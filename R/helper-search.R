@@ -1,0 +1,88 @@
+#' @importFrom progress progress_bar
+#' @importFrom magrittr %>%
+
+#' @name search_request
+#' @description A wrapper for proper pagination of GitHub search REST API
+#' @param search_endpoint A character, a search endpoint
+#' @param total_n Number of results
+#' @param byte_max Max byte size
+#' @param token a token
+search_request <- function(search_endpoint,
+                           total_n,
+                           byte_max,
+                           token) {
+  if (total_n > 0 & total_n < 100) {
+    resp_list <- get_response(paste0(search_endpoint, "+size:0..", byte_max, "&page=1&per_page=100"),
+                              token = token
+    )[["items"]]
+
+    resp_list
+  } else if (total_n >= 100 & total_n < 1e3) {
+    resp_list <- list()
+
+    for (page in 1:(total_n %/% 100)) {
+      resp_list <- get_response(paste0(search_endpoint, "+size:0..", byte_max, "&page=", page, "&per_page=100"),
+                                token = token
+      )[["items"]] %>%
+        append(resp_list, .)
+    }
+
+    resp_list
+  } else if (total_n >= 1e3) {
+    resp_list <- list()
+    index <- c(0, 50)
+
+    pb <- progress::progress_bar$new(
+      format = "GitHub search limit (1000 results) exceeded. Results will be divided. :elapsedfull"
+    )
+
+    while (index[2] < as.numeric(byte_max)) {
+      size_formula <- paste0("+size:", as.character(index[1]), "..", as.character(index[2]))
+
+      pb$tick(0)
+
+      n_count <- tryCatch(
+        {
+          get_response(paste0(search_endpoint, size_formula),
+                       token = token
+          )[["total_count"]]
+        },
+        error = function(e) {
+          NULL
+        }
+      )
+
+      if (is.null(n_count)) {
+        NULL
+      } else if ((n_count - 1) %/% 100 > 0) {
+        for (page in (1:(n_count %/% 100) + 1)) {
+          resp_list <- get_response(paste0(search_endpoint, size_formula, "&page=", page, "&per_page=100"),
+                                    token = token
+          )[["items"]] %>% append(resp_list, .)
+        }
+      } else if ((n_count - 1) %/% 100 == 0) {
+        resp_list <- get_response(paste0(search_endpoint, size_formula, "&page=1&per_page=100"),
+                                  token = token
+        )[["items"]] %>%
+          append(resp_list, .)
+      }
+
+      index[1] <- index[2]
+
+      if (index[2] < 1e3) {
+        index[2] <- index[2] + 50
+      }
+      if (index[2] >= 1e3 && index[2] < 1e4) {
+        index[2] <- index[2] + 100
+      }
+      if (index[2] >= 1e4 && index[2] < 1e5) {
+        index[2] <- index[2] + 1000
+      }
+      if (index[2] >= 1e5 && index[2] < 1e6) {
+        index[2] <- index[2] + 10000
+      }
+    }
+
+    resp_list
+  }
+}
