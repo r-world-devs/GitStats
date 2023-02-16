@@ -6,7 +6,7 @@ test_that("Set connection returns appropriate messages", {
       gitstats_obj = test_gitstats,
       api_url = "https://api.github.com",
       token = Sys.getenv("GITHUB_PAT"),
-      orgs = c("avengers", "cocktail_party")
+      orgs = c("openpharma", "r-world-devs")
     ),
     "Set connection to GitHub."
   )
@@ -14,19 +14,9 @@ test_that("Set connection returns appropriate messages", {
   expect_message(
     set_connection(
       gitstats_obj = test_gitstats,
-      api_url = "https://github.company.com",
-      token = Sys.getenv("GITHUB_PAT"),
-      orgs = "owner_1"
-    ),
-    "Set connection to GitHub."
-  )
-
-  expect_message(
-    set_connection(
-      gitstats_obj = test_gitstats,
-      api_url = "https://code.pharma.com",
+      api_url = "https://gitlab.com/api/v4",
       token = Sys.getenv("GITLAB_PAT"),
-      orgs = c("good_drugs", "vaccine_science")
+      orgs = c("mbtests")
     ),
     "Set connection to GitLab."
   )
@@ -59,8 +49,7 @@ test_that("Errors pop out, when wrong input is passed when setting connection", 
     set_connection(
       gitstats_obj = test_gitstats,
       api_url = "https://avengers.com",
-      token = Sys.getenv("GITLAB_PAT"),
-      orgs = c("good_drugs", "vaccine_science")
+      token = Sys.getenv("GITLAB_PAT")
     ),
     "This connection is not supported by GitStats class object."
   )
@@ -72,7 +61,7 @@ test_that("Error pops out, when two clients of the same url api are passed as in
   cons <- list(
     api_url = c("https://api.github.com", "https://api.github.com"),
     token = c(Sys.getenv("GITHUB_PAT"), Sys.getenv("GITHUB_PAT")),
-    orgs = list(c("justice_league"), c("avengers"))
+    orgs = list(c("pharmaverse"), c("openpharma"))
   )
 
 
@@ -101,4 +90,37 @@ test_that("Warning shows up, when token is empty", {
     ),
     "No token provided for `https://api.github.com`. Your access to API is unauthorized."
   )
+})
+
+test_that("Expected behaviour if one of orgs is wrong", {
+
+  expect_message(
+    test_gitstats <- create_gitstats() %>%
+      set_connection(
+        api_url = "https://api.github.com",
+        token = Sys.getenv("GITHUB_PAT"),
+        orgs = c("openparma")
+      ),
+    "Organization you provided does not exist. Check spelling in: openparma"
+  )
+
+  expect_null(
+    test_gitstats$clients[[1]]$orgs
+  )
+
+  expect_message(
+    test_gitstats <- create_gitstats() %>%
+      set_connection(
+        api_url = "https://gitlab.com/api/v4",
+        token = Sys.getenv("GITLAB_PAT"),
+        orgs = c("openparma", "mbtests")
+      ),
+    "Organization you provided does not exist. Check spelling in: openparma"
+  )
+
+  expect_equal(
+    test_gitstats$clients[[1]]$orgs,
+    "mbtests"
+  )
+
 })

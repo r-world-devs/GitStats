@@ -44,9 +44,9 @@ test_that("private `check_storage()` works as expected", {
 
   test_gitstats <- create_gitstats() %>%
     set_connection(
-      api_url = "https://github.avengers.com",
-      token = Sys.getenv("GITHUB_PAT"),
-      orgs = "avengers"
+      api_url = "https://gitlab.com/api/v4",
+      token = Sys.getenv("GITLAB_PAT"),
+      orgs = c("mbtests")
     ) %>%
     set_storage(
       type = "SQLite",
