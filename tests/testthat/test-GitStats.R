@@ -98,3 +98,25 @@ test_that("private `check_storage()` works as expected", {
     "All commits will be pulled from API."
   )
 })
+
+test_that("`get_repos()` and `get_commits()` throws warning when access is unauthorized.", {
+
+  suppressWarnings({
+    test_gitstats <- create_gitstats() %>%
+      set_connection(
+        api_url = "https://api.github.com",
+        token = Sys.getenv("FAKE_TOKEN"),
+        orgs = "openpharma"
+      )
+  })
+
+  expect_message(get_repos(test_gitstats),
+                 "! No token provided for `https://api.github.com`. Your access to API is unauthorized."
+   )
+
+  expect_message(get_commits(test_gitstats,
+                             date_from = "2020-01-01"),
+                 "! No token provided for `https://api.github.com`. Your access to API is unauthorized."
+  )
+
+})

@@ -92,13 +92,13 @@ test_that("Error pops out, when two clients of the same url api are passed as in
 test_that("Warning shows up, when token is empty", {
   test_gitstats$clients <- list()
 
-  expect_warning(
+  expect_message(
     set_connection(
       gitstats_obj = test_gitstats,
       api_url = "https://api.github.com",
       token = Sys.getenv("TOKEN_THAT_DOES_NOT_EXIST"),
       orgs = "r-world-devs"
     ),
-    "No token provided for `https://api.github.com`. Your access to API will be unauthorized."
+    "No token provided for `https://api.github.com`. Your access to API is unauthorized."
   )
 })
