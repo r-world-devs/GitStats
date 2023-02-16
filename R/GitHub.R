@@ -2,6 +2,7 @@
 #' @importFrom dplyr mutate
 #' @importFrom magrittr %>%
 #' @importFrom rlang expr %||%
+#' @importFrom cli cli_alert cli_alert_success col_green
 #'
 #' @title A GitHub API Client class
 #' @description An object with methods to obtain information form GitHub API.
