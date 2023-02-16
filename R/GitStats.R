@@ -54,21 +54,21 @@ GitStats <- R6::R6Class("GitStats",
                               set_org_limit) {
 
       if (grepl("https://", api_url) && grepl("github", api_url)) {
-        message("Set connection to GitHub.")
         new_client <- GitHub$new(
           rest_api_url = api_url,
           token = token,
           orgs = orgs,
           org_limit = set_org_limit
         )
+        cli::cli_alert_success("Set connection to GitHub.")
       } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
-        message("Set connection to GitLab.")
         new_client <- GitLab$new(
           rest_api_url = api_url,
           token = token,
           orgs = orgs,
           org_limit = set_org_limit
         )
+        cli::cli_alert_success("Set connection to GitLab.")
       } else {
         stop("This connection is not supported by GitStats class object.")
       }

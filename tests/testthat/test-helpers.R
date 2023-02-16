@@ -1,5 +1,16 @@
-test_that("`get_response()` returns proper status", {
+test_that("`get_response()` throws error on bad host", {
+  bad_host <- "https://github.bad_host.com"
 
+  expect_error(
+    get_response(
+      endpoint = paste0(bad_host, "/orgs/good_org"),
+      token = Sys.getenv("GITHUB_PAT")
+    ),
+    "Could not resolve host"
+  )
+})
+
+test_that("`get_response()` returns proper status", {
   bad_endpoint <- "https://api.github.com/orgs/everybody_loves_somebody"
 
   expect_message(
@@ -9,7 +20,6 @@ test_that("`get_response()` returns proper status", {
     ),
     "HTTP 404 No such address"
   )
-
 })
 
 test_that("`gql_response()` returns list", {
