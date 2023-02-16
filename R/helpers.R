@@ -19,10 +19,19 @@ get_response <- function(endpoint, token) {
       # if (e$status == 400) {
       #   message("HTTP 400 Bad Request.")
       # }
-      if (e$status == 403) {
-        message("HTTP 403 API limit reached.")
+      if (!is.null(e$status)) {
+        if (e$status == 403) {
+          message("HTTP 403 API limit reached.")
+        } else if (e$status == 404) {
+          message("HTTP 404 No such address")
+        }
+        result <<- list()
+      } else if (grepl("Could not resolve host", e)) {
+        cli::cli_abort(c(
+          "Could not resolve host {endpoint}",
+          "x" = "'GitStats' object will not be created."
+        ))
       }
-      result <<- list()
     }
   )
 

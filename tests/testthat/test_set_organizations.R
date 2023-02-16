@@ -11,7 +11,7 @@ test_that("Needs to specify `api_url` when multiple connections", {
     set_connection(
       api_url = "https://api.github.com",
       token = Sys.getenv("GITHUB_PAT"),
-      orgs = c("avengers", "cocktail_party")
+      orgs = c("pharmaverse")
     ) %>%
     set_connection(
       api_url = "https://gitlab.com/api/v4",
@@ -31,7 +31,7 @@ test_that("Set_organizations sets properly organizations to client", {
     set_connection(
       api_url = "https://api.github.com",
       token = Sys.getenv("GITHUB_PAT"),
-      orgs = c("avengers", "cocktail_party")
+      orgs = c("pharmaverse", "insightsengineering")
     )
 
   expect_message(
@@ -49,7 +49,7 @@ test_that("Set_organizations sets properly organizations to client", {
     set_connection(
       api_url = "https://api.github.com",
       token = Sys.getenv("GITHUB_PAT"),
-      orgs = c("avengers", "cocktail_party")
+      orgs = c("r-world-devs", "insightsengineering")
     ) %>%
     set_connection(
       api_url = "https://gitlab.com/api/v4",

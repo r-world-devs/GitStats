@@ -54,21 +54,21 @@ GitStats <- R6::R6Class("GitStats",
                               set_org_limit) {
 
       if (grepl("https://", api_url) && grepl("github", api_url)) {
-        message("Set connection to GitHub.")
         new_client <- GitHub$new(
           rest_api_url = api_url,
           token = token,
           orgs = orgs,
           org_limit = set_org_limit
         )
+        cli::cli_alert_success("Set connection to GitHub.")
       } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
-        message("Set connection to GitLab.")
         new_client <- GitLab$new(
           rest_api_url = api_url,
           token = token,
           orgs = orgs,
           org_limit = set_org_limit
         )
+        cli::cli_alert_success("Set connection to GitLab.")
       } else {
         stop("This connection is not supported by GitStats class object.")
       }
@@ -223,6 +223,8 @@ GitStats <- R6::R6Class("GitStats",
         }
       }
 
+      purrr::walk(self$clients, ~private$check_token(.))
+
       repos_dt_list <- purrr::map(self$clients, ~ .$get_repos(
         by = by,
         phrase = phrase,
@@ -269,6 +271,8 @@ GitStats <- R6::R6Class("GitStats",
         by,
         c("org", "team")
       )
+
+      purrr::walk(self$clients, ~private$check_token(.))
 
       commits_storage <- if (self$use_storage) {
         private$check_storage(
@@ -513,7 +517,11 @@ GitStats <- R6::R6Class("GitStats",
       priv <- environment(client$initialize)$private
 
       if (nchar(priv$token) == 0) {
-        warning(paste0("No token provided for `", client$rest_api_url, "`. Your access to API will be unauthorized."), call. = FALSE)
+        cli::cli_alert_warning(
+          cli::col_yellow(
+            "No token provided for `{client$rest_api_url}`. Your access to API is unauthorized."
+                          )
+          )
       }
 
       client

@@ -71,6 +71,8 @@ GitService <- R6::R6Class("GitService",
           call. = FALSE,
           immediate. = TRUE
         )
+      } else {
+        orgs <- private$check_orgs(orgs)
       }
       self$orgs <- orgs
 
@@ -172,6 +174,15 @@ GitService <- R6::R6Class("GitService",
                            date_until = Sys.time(),
                            by,
                            team) {
+
+      if (is.null(orgs)) {
+        warning(paste0("No organizations specified for ", self$git_service, "."),
+                call. = FALSE,
+                immediate. = TRUE)
+        orgs <- private$pull_organizations(type = by,
+                                           team = team)
+      }
+
       commits_dt <- purrr::map(orgs, function(x) {
         private$pull_commits_from_org(
           x,
@@ -407,6 +418,37 @@ GitService <- R6::R6Class("GitService",
         )
       }
       return(commits_dt)
+    },
+
+    #' @description Check if an organization exists
+    #' @param orgs A character vector of organizations
+    #' @return orgs or NULL.
+    check_orgs = function(orgs) {
+      orgs <- purrr::map(orgs, function(org) {
+        org_endpoint <- if (self$git_service == "GitHub") {
+          "/orgs/"
+        } else if (self$git_service == "GitLab") {
+          "/groups/"
+        }
+        withCallingHandlers({
+          get_response(endpoint = paste0(self$rest_api_url, org_endpoint, org),
+                       token = private$token)
+        },
+        message = function(m) {
+          if (grepl("404", m)) {
+            cli::cli_alert_danger("Organization you provided does not exist. Check spelling in: {org}")
+            org <<- NULL
+          }
+        })
+        return(org)
+      }) %>%
+        purrr::keep(~length(.) > 0) %>%
+        unlist()
+
+      if (length(orgs) == 0) {
+        return(NULL)
+      }
+      orgs
     }
   )
 )
