@@ -35,8 +35,8 @@ test_that("Adequate condition shows if organizations are not specified", {
   expect_warning(
     create_gitstats() %>%
       set_connection(
-        api_url = "https://github.company.com",
-        token = Sys.getenv("GITHUB_PAT")
+        api_url = "https://gitlab.com/api/v4",
+        token = Sys.getenv("GITLAB_PAT")
       ),
     "No organizations specified."
   )
@@ -78,21 +78,46 @@ test_that("Error pops out, when two clients of the same url api are passed as in
   )
 })
 
-test_that("Warning shows up, when token is empty", {
+test_that("When token is empty throw error and do not pass connection", {
   test_gitstats$clients <- list()
 
-  expect_message(
+  expect_error(
     set_connection(
       gitstats_obj = test_gitstats,
       api_url = "https://api.github.com",
       token = Sys.getenv("TOKEN_THAT_DOES_NOT_EXIST"),
       orgs = "r-world-devs"
     ),
-    "No token provided for `https://api.github.com`. Your access to API is unauthorized."
+    "No token provided for `https://api.github.com`."
   )
+
+  expect_length(
+    test_gitstats$clients,
+    0
+  )
+
 })
 
-test_that("Expected behaviour if one of orgs is wrong", {
+test_that("Warning shows up, when token is invalid", {
+
+  expect_error(
+    set_connection(
+      gitstats_obj = test_gitstats,
+      api_url = "https://api.github.com",
+      token = "INVALID_TOKEN",
+      orgs = "r-world-devs"
+    ),
+    "Token provided for `https://api.github.com` is invalid."
+  )
+
+  expect_length(
+    test_gitstats$clients,
+    0
+  )
+
+})
+
+test_that("`Org` name is not passed to the object if it does not exist", {
 
   expect_message(
     test_gitstats <- create_gitstats() %>%

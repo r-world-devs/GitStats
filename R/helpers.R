@@ -21,7 +21,9 @@ get_response <- function(endpoint, token) {
       #   message("HTTP 400 Bad Request.")
       # }
       if (!is.null(e$status)) {
-        if (e$status == 403) {
+        if (e$status == 401) {
+          message("HTTP 401 Unauthorized.")
+        } else if (e$status == 403) {
           message("HTTP 403 API limit reached.")
         } else if (e$status == 404) {
           message("HTTP 404 No such address")
