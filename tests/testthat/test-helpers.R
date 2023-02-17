@@ -1,3 +1,21 @@
+test_that("`get_response()` returns proper status when token is empty or invalid", {
+  testthat::skip_on_ci()
+
+  wrong_tokens <- c("","bad_token")
+
+  purrr::walk(
+    wrong_tokens,
+    ~expect_message(
+       get_response(
+         endpoint = "https://api.github.com/org/openpharma",
+         token = .
+       ),
+       "HTTP 401 Unauthorized."
+    )
+  )
+
+})
+
 test_that("`get_response()` throws error on bad host", {
   bad_host <- "https://github.bad_host.com"
 

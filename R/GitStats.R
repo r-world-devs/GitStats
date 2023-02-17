@@ -224,8 +224,6 @@ GitStats <- R6::R6Class("GitStats",
         }
       }
 
-      purrr::walk(self$clients, ~private$check_token(.))
-
       repos_dt_list <- purrr::map(self$clients, ~ .$get_repos(
         by = by,
         phrase = phrase,
@@ -272,8 +270,6 @@ GitStats <- R6::R6Class("GitStats",
         by,
         c("org", "team")
       )
-
-      purrr::walk(self$clients, ~private$check_token(.))
 
       commits_storage <- if (self$use_storage) {
         private$check_storage(
@@ -518,11 +514,23 @@ GitStats <- R6::R6Class("GitStats",
       priv <- environment(client$initialize)$private
 
       if (nchar(priv$token) == 0) {
-        cli::cli_alert_warning(
-          cli::col_yellow(
-            "No token provided for `{client$rest_api_url}`. Your access to API is unauthorized."
-                          )
-          )
+        cli::cli_abort(c(
+          "i" = "No token provided for `{client$rest_api_url}`.",
+          "x" = "Host will not be passed to `GitStats` object."
+        ))
+      } else if (nchar(priv$token) > 0) {
+        withCallingHandlers({
+          get_response(endpoint = client$rest_api_url,
+                       token = priv$token)
+        },
+        message = function(m) {
+          if (grepl("401", m)) {
+            cli::cli_abort(c(
+              "i" = "Token provided for `{client$rest_api_url}` is invalid.",
+              "x" = "Host will not be passed to `GitStats` object."
+            ))
+          }
+        })
       }
 
       client
