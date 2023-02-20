@@ -149,3 +149,35 @@ test_that("`Org` name is not passed to the object if it does not exist", {
   )
 
 })
+
+test_that("Error with message pops out, when you pass to your `GitLab` connection group name as you see it on the page (not from url)", {
+
+  expect_message(
+    test_gitstats <- create_gitstats() %>%
+      set_connection(
+        api_url = "https://gitlab.com/api/v4",
+        token = Sys.getenv("GITLAB_PAT"),
+        orgs = "MB Tests"
+      ),
+    "Group name passed in a wrong way."
+  )
+
+  expect_null(
+    test_gitstats$clients[[1]]$orgs
+  )
+
+  expect_message(
+    test_gitstats <- create_gitstats() %>%
+      set_connection(
+        api_url = "https://gitlab.com/api/v4",
+        token = Sys.getenv("GITLAB_PAT"),
+        orgs = c("mbtests", "MB Tests")
+      ),
+    "Group name passed in a wrong way."
+  )
+
+  expect_equal(
+    test_gitstats$clients[[1]]$orgs,
+    "mbtests"
+  )
+})

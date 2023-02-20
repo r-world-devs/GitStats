@@ -437,7 +437,13 @@ GitService <- R6::R6Class("GitService",
         },
         message = function(m) {
           if (grepl("404", m)) {
-            cli::cli_alert_danger("Organization you provided does not exist. Check spelling in: {org}")
+            if (grepl(" ", org) & self$git_service == "GitLab") {
+              cli::cli_alert_danger("Group name passed in a wrong way: {org}")
+              cli::cli_alert_warning("If you are using `GitLab`, please type your group name as you see it in `url`.")
+              cli::cli_alert_info("E.g. do not use spaces. Group names as you see on the page may differ from their 'address' name.")
+            } else {
+              cli::cli_alert_danger("Organization you provided does not exist. Check spelling in: {org}")
+            }
             org <<- NULL
           }
         })

@@ -11,15 +11,24 @@
 #' @returns A content of response formatted to list.
 #'
 get_response <- function(endpoint, token) {
-  tryCatch(
-    {
-      resp <- perform_request(endpoint, token)
-      result <- resp %>% httr2::resp_body_json(check_type = FALSE)
+
+  resp <- perform_request(endpoint, token)
+  if (!is.null(resp)) {
+    result <- resp %>% httr2::resp_body_json(check_type = FALSE)
+  } else {
+    result <- list()
+  }
+
+  return(result)
+}
+
+perform_request <- function(endpoint, token) {
+
+  tryCatch({
+      resp <- build_request(endpoint, token) %>%
+      httr2::req_perform()
     },
     error = function(e) {
-      # if (e$status == 400) {
-      #   message("HTTP 400 Bad Request.")
-      # }
       if (!is.null(e$status)) {
         if (e$status == 401) {
           message("HTTP 401 Unauthorized.")
@@ -28,7 +37,7 @@ get_response <- function(endpoint, token) {
         } else if (e$status == 404) {
           message("HTTP 404 No such address")
         }
-        result <<- list()
+        resp <<- NULL
       } else if (grepl("Could not resolve host", e)) {
         cli::cli_abort(c(
           "Could not resolve host {endpoint}",
@@ -37,14 +46,6 @@ get_response <- function(endpoint, token) {
       }
     }
   )
-
-  return(result)
-}
-
-perform_request <- function(endpoint, token) {
-  resp <- build_request(endpoint, token) %>%
-    httr2::req_perform()
-
   return(resp)
 }
 
