@@ -1,25 +1,24 @@
 test_gitstats <- create_gitstats()
 
 test_that("Set connection returns appropriate messages", {
-  expect_message(
+  msgs <- capture_messages(
     set_connection(
       gitstats_obj = test_gitstats,
       api_url = "https://api.github.com",
       token = Sys.getenv("GITHUB_PAT"),
       orgs = c("openpharma", "r-world-devs")
-    ),
-    "Set connection to GitHub."
-  )
-
-  expect_message(
+    ) %>%
     set_connection(
-      gitstats_obj = test_gitstats,
       api_url = "https://gitlab.com/api/v4",
       token = Sys.getenv("GITLAB_PAT"),
       orgs = c("mbtests")
-    ),
-    "Set connection to GitLab."
+    )
   )
+
+  exp_msgs <- c("v Set connection to GitHub.\n",
+                "v Set connection to GitLab.\n")
+
+  expect_true(all(msgs %in% exp_msgs))
 })
 
 test_that("Adequate condition shows if organizations are not specified", {
