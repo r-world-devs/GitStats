@@ -520,7 +520,12 @@ GitStats <- R6::R6Class("GitStats",
         ))
       } else if (nchar(priv$token) > 0) {
         withCallingHandlers({
-          get_response(endpoint = client$rest_api_url,
+          check_endpoint <- if (client$git_service == "GitLab") {
+            paste0(client$rest_api_url, "/projects")
+          } else if (client$git_service == "GitHub") {
+            client$rest_api_url
+          }
+          get_response(endpoint = check_endpoint,
                        token = priv$token)
         },
         message = function(m) {
