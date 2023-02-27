@@ -16,7 +16,7 @@ test_that("Needs to specify `api_url` when multiple connections", {
     set_connection(
       api_url = "https://gitlab.com/api/v4",
       token = Sys.getenv("GITLAB_PAT"),
-      orgs = "erasmusmc-public-health"
+      orgs = "mbtests"
     )
 
   expect_error(
