@@ -151,6 +151,8 @@ test_that("`Org` name is not passed to the object if it does not exist", {
 
 test_that("Error with message pops out, when you pass to your `GitLab` connection group name as you see it on the page (not from url)", {
 
+  testthat::skip_on_ci()
+
   expect_message(
     test_gitstats <- create_gitstats() %>%
       set_connection(
