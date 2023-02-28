@@ -604,7 +604,7 @@ set_connection <- function(gitstats_obj,
 #'   into `$orgs` of a `client`.
 #' @examples
 #' \dontrun{
-#' ### with one connection,
+#' ### with one connection:
 #' my_gitstats <- create_gitstats() %>%
 #'   set_connection(
 #'     api_url = "https://api.github.com",
@@ -616,7 +616,7 @@ set_connection <- function(gitstats_obj,
 #'   set_organizations("openpharma", "pharmaverse")
 #'
 #' ### with multiple connections - remember to specify
-#' `api_url`, when setting organizations
+#' ### `api_url`, when setting organizations:
 #'
 #' my_gitstats <- create_gitstats() %>%
 #'  set_connection(
