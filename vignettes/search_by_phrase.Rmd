@@ -1,0 +1,39 @@
+---
+title: "Search by phrase"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{search_by_phrase}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(GitStats)
+library(magrittr)
+git_stats <- create_gitstats() %>%
+  set_connection(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("openpharma", "r-world-devs")
+  ) %>%
+  set_connection(
+    api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT"),
+    orgs = c("erasmusmc-public-health")
+  )
+```
+
+```{r}
+get_repos(git_stats,
+          by = "phrase",
+          phrase = "covid",
+          language = "R") %>% 
+  plot_repos()
+```
