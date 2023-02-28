@@ -2,7 +2,7 @@
 title: "Introduction to GitStats"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{gitstats}
+  %\VignetteIndexEntry{Introduction to GitStats}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -21,7 +21,11 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/r-world-devs/GitStats/workflows/R-CMD-check/badge.svg)](https://github.com/r-world-devs/GitStats/actions)
 [![Codecov test coverage](https://codecov.io/gh/r-world-devs/GitStats/branch/devel/graph/badge.svg)](https://app.codecov.io/gh/r-world-devs/GitStats?branch=devel)
 
-The purpose of this package is to gather statistics on the developers' activity from multiple git platforms, e.g. GitHub public, GitHub enterprise and GitLab. You can look through these platforms to search for activity by:
+<img src="../man/figures/GitStats_logo.png" align="right" height="138" style="float:right; height:138px;"/>
+
+The purpose of this package is to gather statistics on the developers' activity from multiple git platforms, e.g. GitHub public, GitHub enterprise and GitLab. 
+
+You can look through these platforms to search for activity by:
 
 - your team,
 
@@ -33,7 +37,9 @@ The purpose of this package is to gather statistics on the developers' activity 
 
 You can start by creating your `GitStats` object with `create_gitstats()` where you will hold information on your multiple connections.
 
-```{r setup}
+You can set up your team to explore it's activity:
+
+```{r}
 library(GitStats)
 library(magrittr)
 
@@ -47,9 +53,16 @@ git_stats <- create_gitstats() %>%
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT"),
     orgs = c("mbtests")
-  )
+  ) 
 
-git_stats
+git_stats %>%
+  set_team(team_name = "RWD-IE",
+           "galachad",
+           "krystian8207",
+           "kalimu",
+           "marcinkowskak",
+           "Cotau",
+           "Maciej Banaś", "maciekbanas") %>%
+  get_repos(by = "team") %>% 
+  plot_repos(repos_n = 15)
 ```
-
-

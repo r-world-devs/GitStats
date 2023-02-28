@@ -11,7 +11,7 @@ git_stats <- create_gitstats() %>%
   set_connection(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT"),
-    orgs = c("erasmusmc-public-health")
+    orgs = c("mbtests")
   )
 
 # examples for getting repos (default argument for parameter 'by' is 'org')

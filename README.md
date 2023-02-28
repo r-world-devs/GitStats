@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# GitStats <img src="man/figures/GitStats_logo.png" align="right" height="138" />
+# GitStats <img src="man/figures/GitStats_logo.png" align="right" height="138" style="float:right; height:138px;"/>
 
 <!-- badges: start -->
 
@@ -50,8 +50,8 @@ git_stats <- create_gitstats() %>%
     token = Sys.getenv("GITLAB_PAT"),
     orgs = c("mbtests")
   )
-#> Set connection to GitHub.
-#> Set connection to GitLab.
+#> ✔ Set connection to GitHub.
+#> ✔ Set connection to GitLab.
 
 git_stats
 #> A GitStats object (multi-API client platform) for 2 clients:
@@ -77,20 +77,26 @@ git_stats <- git_stats %>%
            "kalimu",
            "marcinkowskak",
            "Cotau",
-           "maciekbanas") %>%
+           "Maciej Banaś") %>%
   get_repos(by = "team")
-#> Rows: 10
+#> → Pulling repositories...
+#> → Pulling repositories...
+#> Warning: Automatic coercion from integer to character was deprecated in purrr 1.0.0.
+#> ℹ Please use an explicit call to `as.character()` within `map_chr()` instead.
+#> ℹ The deprecated feature was likely used in the GitStats package.
+#>   Please report the issue to the authors.
+#> Rows: 13
 #> Columns: 12
-#> $ organisation     <chr> "r-world-devs", "openpharma", "r-world-devs", "openph…
-#> $ name             <chr> "shinyTimelines", "DataFakeR", "shinyCohortBuilder", …
-#> $ created_at       <dttm> 2023-02-21, 2021-09-02, 2022-05-22, 2019-09-16, 2022…
-#> $ last_activity_at <drtn> 3.36 days, 5.36 days, 16.36 days, 21.36 days, 24.36 …
-#> $ forks            <int> 0, 5, 0, 31, 0, 0, 0, 0, 1, 0
-#> $ stars            <int> 0, 21, 2, 173, 1, 1, 10, 4, 9, 0
-#> $ contributors     <chr> "krystian8207", "krystian8207,hadley,MichaelChirico",…
-#> $ issues           <int> 0, 0, 30, 30, 23, 28, 6, 1, 0, 3
-#> $ issues_open      <int> 0, 0, 30, 30, 23, 28, 6, 1, 0, 3
-#> $ issues_closed    <int> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-#> $ description      <chr> "", "DataFakeR is an R package designed to help you g…
-#> $ api_url          <chr> "https://api.github.com", "https://api.github.com", "…
+#> $ organisation     <chr> "mbtests", "r-world-devs", "openpharma", "mbtests", "…
+#> $ name             <chr> "RM Tests", "shinyTimelines", "DataFakeR", "GitStats …
+#> $ created_at       <dttm> 2023-02-27, 2023-02-21, 2021-09-02, 2023-02-10, 2023…
+#> $ last_activity_at <drtn> 1.6 days, 7.6 days, 9.6 days, 18.6 days, 18.6 days, …
+#> $ forks            <chr> "", "0", "5", "", "", "0", "31", "0", "0", "0", "0", …
+#> $ stars            <int> 0, 0, 21, 0, 0, 2, 173, 1, 1, 10, 4, 9, 0
+#> $ contributors     <chr> "Maciej Banaś", "krystian8207", "krystian8207,hadley,…
+#> $ issues           <int> 0, 0, 0, 1, 2, 30, 30, 23, 30, 6, 1, 0, 3
+#> $ issues_open      <int> 0, 0, 0, 1, 1, 30, 30, 23, 30, 6, 1, 0, 3
+#> $ issues_closed    <int> 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0
+#> $ description      <chr> "", "", "DataFakeR is an R package designed to help y…
+#> $ api_url          <chr> "https://gitlab.com/api/v4", "https://api.github.com"…
 ```
