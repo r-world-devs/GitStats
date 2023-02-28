@@ -21,8 +21,6 @@ knitr::opts_chunk$set(
 [![Codecov test coverage](https://codecov.io/gh/r-world-devs/GitStats/branch/devel/graph/badge.svg)](https://app.codecov.io/gh/r-world-devs/GitStats?branch=devel)
 <!-- badges: end -->
 
-***WORK IN PROGRESS***
-
 The goal of GitStats is to search through multiple GitHub and GitLab platforms for different statistics either by owners/groups of repositories, team members or searched code phrases.
 
 For the time being GitStats supports connections to public GitHub, enterprise GitHub and GitLab.
@@ -55,7 +53,7 @@ git_stats <- create_gitstats() %>%
   set_connection(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT"),
-    orgs = c("erasmusmc-public-health")
+    orgs = c("mbtests")
   )
 
 git_stats
