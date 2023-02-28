@@ -7,7 +7,6 @@ git_lab <- GitLab$new(
 gitlab_env <- environment(git_lab$initialize)$private
 
 test_that("`pull_team_organizations()` returns character vector of organization names", {
-  testthat::skip_on_ci()
   team = c("adam.forys", "kamil.wais1", "krystianigras", "maciekbanas")
   orgs_by_team <- gitlab_env$pull_team_organizations(team)
   expect_type(orgs_by_team, "character")
@@ -22,8 +21,6 @@ git_lab <- GitLab$new(
 gitlab_env <- environment(git_lab$initialize)$private
 
 test_that("`pull_repos_contributors()` adds contributors' statistics to repositories list", {
-  testthat::skip_on_ci()
-
   repos_list <- readRDS("mocked/gitlab/gitlab_repos_raw.rds")
 
   repos_list_with_contributors <- gs_mock(
@@ -37,8 +34,6 @@ test_that("`pull_repos_contributors()` adds contributors' statistics to reposito
 })
 
 test_that("`pull_repos_issues()` adds issues statistics to repositories list", {
-  testthat::skip_on_ci()
-
   repos_list <- readRDS("mocked/gitlab/gitlab_repos_raw.rds")
 
   repos_list_with_issues <- gs_mock(
@@ -55,8 +50,6 @@ test_that("`pull_repos_issues()` adds issues statistics to repositories list", {
 })
 
 test_that("`pull_repos_from_org()` pulls correctly repositories for GitLab", {
-  testthat::skip_on_ci()
-
   orgs <- git_lab$orgs
 
   purrr::walk(orgs, function(group) {
@@ -98,8 +91,6 @@ test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
 })
 
 test_that("`get_repos()` methods pulls repositories from GitLab and translates output into `data.frame`", {
-  testthat::skip_on_ci()
-
   repos <- gs_mock(
     "gitlab/gitlab_repos_by_org",
     git_lab$get_repos(by = "org")

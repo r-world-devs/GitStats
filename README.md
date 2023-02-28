@@ -11,8 +11,6 @@
 coverage](https://codecov.io/gh/r-world-devs/GitStats/branch/devel/graph/badge.svg)](https://app.codecov.io/gh/r-world-devs/GitStats?branch=devel)
 <!-- badges: end -->
 
-***WORK IN PROGRESS***
-
 The goal of GitStats is to search through multiple GitHub and GitLab
 platforms for different statistics either by owners/groups of
 repositories, team members or searched code phrases.
@@ -50,7 +48,7 @@ git_stats <- create_gitstats() %>%
   set_connection(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT"),
-    orgs = c("erasmusmc-public-health")
+    orgs = c("mbtests")
   )
 #> Set connection to GitHub.
 #> Set connection to GitLab.
@@ -62,7 +60,7 @@ git_stats
 #>  orgs: openpharma, r-world-devs
 #> GitLab API Client
 #>  url: https://gitlab.com/api/v4
-#>  orgs: erasmusmc-public-health
+#>  orgs: mbtests
 ```
 
 ## Explore
@@ -81,18 +79,18 @@ git_stats <- git_stats %>%
            "Cotau",
            "maciekbanas") %>%
   get_repos(by = "team")
-#> Rows: 9
+#> Rows: 10
 #> Columns: 12
-#> $ organisation     <chr> "openpharma", "r-world-devs", "openpharma", "r-world-…
-#> $ name             <chr> "DataFakeR", "shinyCohortBuilder", "visR", "cohortBui…
-#> $ created_at       <dttm> 2021-09-02, 2022-05-22, 2019-09-16, 2022-05-22, 2023…
-#> $ last_activity_at <drtn> 3.64 days, 8.64 days, 13.64 days, 16.64 days, 16.64 …
-#> $ forks            <int> 5, 0, 31, 0, 0, 0, 0, 1, 0
-#> $ stars            <int> 19, 2, 173, 1, 1, 10, 4, 9, 0
-#> $ contributors     <chr> "krystian8207,hadley,MichaelChirico", "krystian8207,g…
-#> $ issues           <int> 0, 30, 30, 24, 29, 8, 1, 0, 3
-#> $ issues_open      <int> 0, 30, 30, 24, 29, 8, 1, 0, 3
-#> $ issues_closed    <int> 0, 0, 0, 0, 0, 0, 0, 0, 0
-#> $ description      <chr> "DataFakeR is an R package designed to help you gener…
+#> $ organisation     <chr> "r-world-devs", "openpharma", "r-world-devs", "openph…
+#> $ name             <chr> "shinyTimelines", "DataFakeR", "shinyCohortBuilder", …
+#> $ created_at       <dttm> 2023-02-21, 2021-09-02, 2022-05-22, 2019-09-16, 2022…
+#> $ last_activity_at <drtn> 3.36 days, 5.36 days, 16.36 days, 21.36 days, 24.36 …
+#> $ forks            <int> 0, 5, 0, 31, 0, 0, 0, 0, 1, 0
+#> $ stars            <int> 0, 21, 2, 173, 1, 1, 10, 4, 9, 0
+#> $ contributors     <chr> "krystian8207", "krystian8207,hadley,MichaelChirico",…
+#> $ issues           <int> 0, 0, 30, 30, 23, 28, 6, 1, 0, 3
+#> $ issues_open      <int> 0, 0, 30, 30, 23, 28, 6, 1, 0, 3
+#> $ issues_closed    <int> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+#> $ description      <chr> "", "DataFakeR is an R package designed to help you g…
 #> $ api_url          <chr> "https://api.github.com", "https://api.github.com", "…
 ```
