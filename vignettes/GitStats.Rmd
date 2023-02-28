@@ -35,9 +35,7 @@ You can look through these platforms to search for activity by:
 
 # Getting started
 
-You can start by creating your `GitStats` object with `create_gitstats()` where you will hold information on your multiple connections.
-
-You can set up your team to explore it's activity:
+You can start by creating your `GitStats` object, where you will hold information on your multiple connections.
 
 ```{r}
 library(GitStats)
@@ -54,7 +52,11 @@ git_stats <- create_gitstats() %>%
     token = Sys.getenv("GITLAB_PAT"),
     orgs = c("mbtests")
   ) 
+```
 
+You can set up your team to explore it's activity:
+
+```{r}
 git_stats %>%
   set_team(team_name = "RWD-IE",
            "galachad",
