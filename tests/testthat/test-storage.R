@@ -119,23 +119,37 @@ test_that("`GitStats$check_storage()` finds table, but does not find orgs", {
   )
 })
 
+test_that("`GitStats$save_storage()` saves table to db", {
+  expect_snapshot(
+    test_gitstats_priv$save_storage(test_table,
+                                    "test_table")
+  )
+})
+
+test_that("`GitStats$save_storage()` appends table to db", {
+  expect_snapshot(
+    test_gitstats_priv$save_storage(test_table,
+                                    "test_table",
+                                    append = TRUE)
+  )
+})
+
 DBI::dbRemoveTable(conn = test_gitstats$storage,
                    name = "test_table")
 
 # test_that("When storage is set, `GitStats` saves pulled repos to database", {
 #
-#   tryCatch(
-#     {
-#       DBI::dbRemoveTable(
-#         conn = test_gitstats$storage,
-#         name = "repos_by_org"
-#       )
-#     },
-#     error = function(e) message("`repos_by_org` not found in db.")
+#   test_gitstats$clients <- list()
+#   test_gitstats$clients[[1]] <- GitHub$new(
+#     rest_api_url = "https://api.github.com",
+#     token = Sys.getenv("GITHUB_PAT"),
+#     orgs = c("r-world-devs")
 #   )
 #
-#   test_gitstats %>%
-#     get_repos(print_out = FALSE)
+#   expect_snapshot(
+#     test_gitstats %>%
+#       get_repos(print_out = FALSE)
+#   )
 #
 #   gitstats_priv <- environment(test_gitstats$initialize)$private
 #
@@ -149,18 +163,10 @@ DBI::dbRemoveTable(conn = test_gitstats$storage,
 #   )
 # })
 #
-# test_that("When storage is set, `GitStats` with `get_commits()` first saves tables, pulls all given commits
-#   and saves them to table.", {
-#
-#   tryCatch(
-#     {
-#       DBI::dbRemoveTable(
-#         conn = test_gitstats$storage,
-#         name = "commits_by_org"
-#       )
-#     },
-#     error = function(e) message("`commits_by_org` not found in db.")
-#   )
+# DBI::dbRemoveTable(conn = test_gitstats$storage,
+#                    name = "repos_by_org")
+
+# test_that("When storage is set, `GitStats` with `get_commits()` first pulls all given commits and saves them to table.", {
 #
 #   testthat::expect_snapshot(test_gitstats %>%
 #                               get_commits(
@@ -179,7 +185,7 @@ DBI::dbRemoveTable(conn = test_gitstats$storage,
 #     commits_before
 #   )
 # })
-#
+
 # test_that("When storage is set and table stores commits, it pulls from API only recent commits
 #   and then appends to the database only these new ones.", {
 #

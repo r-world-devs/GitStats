@@ -107,3 +107,17 @@
     Output
       NULL
 
+# `GitStats$save_storage()` saves table to db
+
+    Code
+      test_gitstats_priv$save_storage(test_table, "test_table")
+    Message <cliMessage>
+      v `test_table` saved to local database.
+
+# `GitStats$save_storage()` appends table to db
+
+    Code
+      test_gitstats_priv$save_storage(test_table, "test_table", append = TRUE)
+    Message <cliMessage>
+      v `test_table` appended to local database.
+

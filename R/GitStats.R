@@ -355,12 +355,12 @@ GitStats <- R6::R6Class("GitStats",
                           name = dbname,
                           value = object,
                           overwrite = TRUE)
-        message("`", name, "` saved to local database.")
+        cli::cli_alert_success(paste0("`", name, "` saved to local database."))
       } else {
         DBI::dbAppendTable(conn = self$storage,
                            name = dbname,
                            value = object)
-        message("`", name, "` appended to local database.")
+        cli::cli_alert_success(paste0("`", name, "` appended to local database."))
       }
     },
 
