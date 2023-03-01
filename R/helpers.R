@@ -37,13 +37,13 @@ perform_request <- function(endpoint, token) {
         } else if (e$status == 404) {
           message("HTTP 404 No such address")
         }
-        resp <<- NULL
       } else if (grepl("Could not resolve host", e)) {
         cli::cli_abort(c(
           "Could not resolve host {endpoint}",
           "x" = "'GitStats' object will not be created."
         ))
       }
+      resp <<- NULL
     }
   )
   return(resp)
