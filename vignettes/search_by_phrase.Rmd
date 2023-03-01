@@ -14,6 +14,8 @@ knitr::opts_chunk$set(
 )
 ```
 
+With `GitStats` you can look for the activity connected to a certain phrase.
+
 ```{r setup}
 library(GitStats)
 library(magrittr)
@@ -21,16 +23,14 @@ git_stats <- create_gitstats() %>%
   set_connection(
     api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
-    orgs = c("openpharma", "r-world-devs")
+    orgs = c("pharmaverse")
   ) %>%
   set_connection(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT"),
-    orgs = c("erasmusmc-public-health")
+    orgs = c("erasmusmc-public-health", "doctorworld")
   )
-```
 
-```{r}
 get_repos(git_stats,
           by = "phrase",
           phrase = "covid",
