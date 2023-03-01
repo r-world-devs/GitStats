@@ -1,6 +1,6 @@
 #' @importFrom R6 R6Class
 #' @importFrom rlang expr
-#' @importFrom cli cli_alert_danger
+#' @importFrom cli cli_alert_danger cli_alert_success
 
 #' @title A Git Service API Client superclass
 #' @description  A superclass for GitHub and GitLab classes
@@ -124,9 +124,7 @@ GitService <- R6::R6Class("GitService",
                                                   org = org,
                                                   language = language
           )
-
-          message(paste0("\n On ", self$git_service, " platform (", self$rest_api_url, ") found ", length(repos_list), " repositories
-               with searched keyword and concerning ", language, " language and ", org, " organization."))
+          cli::cli_alert_success(paste0("\n On ", self$git_service, " ('", org, "') found ", length(repos_list), " repositories."))
         } else {
           repos_list <- private$pull_repos_from_org(org = org) %>%
             {
