@@ -23,7 +23,7 @@ A method to set you organizations.
 }
 \examples{
 \dontrun{
-### with one connection,
+### with one connection:
 my_gitstats <- create_gitstats() \%>\%
   set_connection(
     api_url = "https://api.github.com",
@@ -35,7 +35,7 @@ my_gitstats \%>\%
   set_organizations("openpharma", "pharmaverse")
 
 ### with multiple connections - remember to specify
-`api_url`, when setting organizations
+`api_url`, when setting organizations:
 
 my_gitstats <- create_gitstats() \%>\%
  set_connection(
