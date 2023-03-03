@@ -1,7 +1,7 @@
 test_gitstats <- create_gitstats()
 
 test_that("Set connection returns appropriate messages", {
-  msgs <- capture_messages(
+  expect_snapshot(
     set_connection(
       gitstats_obj = test_gitstats,
       api_url = "https://api.github.com",
@@ -14,11 +14,6 @@ test_that("Set connection returns appropriate messages", {
       orgs = c("mbtests")
     )
   )
-
-  exp_msgs <- c("v Set connection to GitHub.\n",
-                "v Set connection to GitLab.\n")
-
-  expect_true(all(msgs %in% exp_msgs))
 })
 
 test_that("Adequate condition shows if organizations are not specified", {
