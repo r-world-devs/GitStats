@@ -51,6 +51,7 @@ gs_mock <- function(name = "", func_call) {
 }
 
 TestClient <- R6::R6Class("TestClient",
+                          inherit = GitService,
                           public = list(
                             rest_api_url = NULL,
                             orgs = NULL,
