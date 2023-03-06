@@ -1,6 +1,7 @@
-test_gitstats <- create_gitstats() %>%
-  set_connection(
-    api_url = "https://api.github.com",
+test_gitstats <- create_gitstats()
+
+test_gitstats$clients[[1]] <- GitHub$new(
+    rest_api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma")
   )
