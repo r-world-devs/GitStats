@@ -355,12 +355,12 @@ GitStats <- R6::R6Class("GitStats",
                           name = dbname,
                           value = object,
                           overwrite = TRUE)
-        message("`", name, "` saved to local database.")
+        cli::cli_alert_success(paste0("`", name, "` saved to local database."))
       } else {
         DBI::dbAppendTable(conn = self$storage,
                            name = dbname,
                            value = object)
-        message("`", name, "` appended to local database.")
+        cli::cli_alert_success(paste0("`", name, "` appended to local database."))
       }
     },
 
@@ -447,13 +447,14 @@ GitStats <- R6::R6Class("GitStats",
     #' @return A data.frame.
     check_storage_clients = function(db_table) {
       check_urls <- purrr::map_chr(self$clients, ~.$rest_api_url) %in% unique(db_table$api_url)
-      if (all(check_urls)) {
+      if (length(check_urls) > 0 & all(check_urls)) {
+        cli::cli_alert_success("Clients already in database table.")
         return(db_table)
       } else if (any(check_urls)) {
-        message("Not all clients found in database table.")
+        cli::cli_alert_warning("Not all clients found in database table.")
         return(NULL)
       } else {
-        message("No clients found in database table.")
+        cli::cli_alert_warning("No clients found in database table.")
         return(NULL)
       }
     },
@@ -466,13 +467,14 @@ GitStats <- R6::R6Class("GitStats",
         orgs_set <- purrr::map(self$clients, ~.$orgs) %>%
           unlist()
         check_orgs <- orgs_set %in% unique(db_table$organisation)
-        if (all(check_orgs)) {
+        if (length(check_orgs) > 0 & all(check_orgs)) {
+          cli::cli_alert_success("Organizations already in database table.")
           return(db_table)
         } else if (any(check_orgs)){
-          message("Not all organizations found in database table.")
+          cli::cli_alert_warning("Not all organizations found in database table.")
           return(NULL)
         } else {
-          message("No organizations found in database table.")
+          cli::cli_alert_warning("No organizations found in database table.")
           return(NULL)
         }
       } else {
