@@ -324,7 +324,7 @@ GitHub <- R6::R6Class("GitHub",
         format = paste0("Attaching commits stats: [:bar] repo: :current/:total"),
         total = length(commits_list)
       )
-      purrr::imap(commits_list, function(repo, repo_name) {
+      commits_list <- purrr::imap(commits_list, function(repo, repo_name) {
         pb$tick()
         commit_stats <- purrr::map_chr(repo, ~ .$id) %>%
           purrr::map(function(commit_id) {
@@ -349,6 +349,7 @@ GitHub <- R6::R6Class("GitHub",
           )
         })
       })
+      return(commits_list)
     }
   )
 )
