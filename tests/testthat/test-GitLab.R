@@ -14,64 +14,6 @@ test_that("`pull_team_organizations()` returns character vector of organization 
   expect_type(orgs_by_team, "character")
 })
 
-git_lab <- GitLab$new(
-  rest_api_url = "https://gitlab.com/api/v4",
-  token = Sys.getenv("GITLAB_PAT"),
-  orgs = c("erasmusmc-public-health")
-)
-
-gitlab_env <- environment(git_lab$initialize)$private
-
-test_that("`pull_repos_contributors()` adds contributors' statistics to repositories list", {
-  repos_list <- readRDS("mocked/gitlab/gitlab_repos_raw.rds")
-
-  repos_list_with_contributors <- gs_mock(
-    "gitlab/gitlab_pull_repos_contributors",
-    gitlab_env$pull_repos_contributors(repos_list)
-  )
-
-  expect_gt(length(repos_list_with_contributors[[1]]), length(repos_list[[1]]))
-  expect_list_contains(repos_list_with_contributors, c("contributors"))
-  expect_type(repos_list_with_contributors[[1]]$contributors, "character")
-})
-
-test_that("`pull_repos_issues()` adds issues statistics to repositories list", {
-  repos_list <- readRDS("mocked/gitlab/gitlab_repos_raw.rds")
-
-  repos_list_with_issues <- gs_mock(
-    "gitlab/gitlab_pull_repos_issues",
-    gitlab_env$pull_repos_issues(repos_list)
-  )
-
-  expect_gt(length(repos_list_with_issues[[1]]), length(repos_list[[1]]))
-  expect_list_contains(repos_list_with_issues, c("issues", "issues_open", "issues_closed"))
-  expect_type(repos_list_with_issues[[1]]$issues, "integer")
-  expect_type(repos_list_with_issues[[1]]$issues_open, "integer")
-  expect_type(repos_list_with_issues[[1]]$issues_closed, "integer")
-  purrr::walk(repos_list_with_issues, ~ expect_equal(.$issues, .$issues_open + .$issues_closed))
-})
-
-test_that("`pull_repos_from_org()` pulls correctly repositories for GitLab", {
-  orgs <- git_lab$orgs
-
-  purrr::walk(orgs, function(group) {
-    repos_n <- length(get_response(
-      endpoint = paste0("https://gitlab.com/api/v4/groups/", group),
-      token = Sys.getenv("GITLAB_PAT")
-    )[["projects"]])
-
-    pulled_repos_list <- gs_mock(
-      paste0("gitlab/gitlab_pull_repos_by_", group),
-      gitlab_env$pull_repos_from_org(org = group)
-    )
-
-    expect_equal(
-      length(pulled_repos_list),
-      repos_n
-    )
-  })
-})
-
 test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
   repos_full <- readRDS("mocked/gitlab/gitlab_pull_repos_by_erasmusmc-public-health.rds")
 

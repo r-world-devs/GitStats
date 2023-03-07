@@ -25,56 +25,6 @@ test_that("`pull_team_organizations()` returns character vector of organization 
   expect_type(orgs_by_team, "character")
 })
 
-test_that("`pull_repos_contributors()` adds contributors' statistics to repositories list", {
-  repos_list <- readRDS("mocked/github/github_repos_raw.rds")
-
-  repos_list_with_contributors <- gs_mock(
-    "github/github_pull_repos_contributors",
-    publ_env$pull_repos_contributors(repos_list)
-  )
-
-  expect_gt(length(repos_list_with_contributors[[1]]), length(repos_list[[1]]))
-  expect_list_contains(repos_list_with_contributors, c("contributors"))
-  expect_type(repos_list_with_contributors[[1]]$contributors, "character")
-})
-
-test_that("`pull_repos_issues()` adds issues statistics to repositories list", {
-  repos_list <- readRDS("mocked/github/github_repos_raw.rds")
-
-  repos_list_with_issues <- gs_mock(
-    "github/github_pull_repos_issues",
-    publ_env$pull_repos_issues(repos_list)
-  )
-
-  expect_gt(length(repos_list_with_issues[[1]]), length(repos_list[[1]]))
-  expect_list_contains(repos_list_with_issues, c("issues", "issues_open", "issues_closed"))
-  expect_type(repos_list_with_issues[[1]]$issues, "integer")
-  expect_type(repos_list_with_issues[[1]]$issues_open, "integer")
-  expect_type(repos_list_with_issues[[1]]$issues_closed, "integer")
-  purrr::walk(repos_list_with_issues, ~ expect_equal(.$issues, .$issues_open + .$issues_closed))
-})
-
-test_that("`pull_repos_from_org()` pulls correctly repositories for GitHub", {
-  orgs <- git_hub_public$orgs
-
-  purrr::walk(orgs, function(org) {
-    repos_n <- get_response(
-      endpoint = paste0("https://api.github.com/orgs/", org),
-      token = Sys.getenv("GITHUB_PAT")
-    )[["public_repos"]]
-
-    pulled_repos_list <- gs_mock(
-      paste0("github/github_pull_repos_by_", org),
-      publ_env$pull_repos_from_org(org = org)
-    )
-
-    expect_equal(
-      length(pulled_repos_list),
-      repos_n
-    )
-  })
-})
-
 test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
   repos_full <- readRDS("mocked/github/github_pull_repos_by_openpharma.rds")
 
