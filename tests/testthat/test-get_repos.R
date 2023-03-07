@@ -11,7 +11,7 @@ test_that("`get_repos()` returns repos table", {
   mockery::stub(
     get_repos,
     'private$pull_repos_from_org',
-    readRDS("test_files/pulled_repos_by_org.rds")
+    readRDS("test_files/github_repos_by_org.rds")
   )
 
   expect_message(

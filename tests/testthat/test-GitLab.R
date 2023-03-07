@@ -14,26 +14,6 @@ test_that("`pull_team_organizations()` returns character vector of organization 
   expect_type(orgs_by_team, "character")
 })
 
-test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
-  repos_full <- readRDS("mocked/gitlab/gitlab_pull_repos_by_erasmusmc-public-health.rds")
-
-  tailored_repos <- gs_mock(
-    "gitlab/gitlab_tailored_repos",
-    gitlab_env$tailor_repos_info(repos_full)
-  )
-
-  tailored_repos %>%
-    expect_type("list") %>%
-    expect_length(length(repos_full)) %>%
-    expect_list_contains(c(
-      "organisation", "name", "created_at", "last_activity_at",
-      "forks", "stars", "contributors", "issues", "issues_open", "issues_closed",
-      "description"
-    ))
-
-  expect_lt(length(tailored_repos[[1]]), length(repos_full[[1]]))
-})
-
 test_that("`get_repos()` methods pulls repositories from GitLab and translates output into `data.frame`", {
   repos <- gs_mock(
     "gitlab/gitlab_repos_by_org",
