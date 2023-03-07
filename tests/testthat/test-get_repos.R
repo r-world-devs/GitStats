@@ -80,6 +80,31 @@ test_that("Proper information pops out when one wants to get stats by phrase wit
   )
 })
 
+test_that("Getting repositories by teams works", {
+  test_github <- GitHub$new(
+    rest_api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = "r-world-devs"
+  )
+  mockery::stub(
+    test_github$get_repos,
+    'private$filter_repos_by_team',
+    readRDS("test_files/github_repos_filtered_by_team.rds")
+  )
+  expect_snapshot(
+    result <- test_github$get_repos(
+        by = "team",
+        team = c("kalimu",
+                 "maciekbanas"
+                 )
+      )
+  )
+  expect_repos_table(result)
+  expect_true(
+    grepl("kalimu|maciekbanas", result$contributors)
+  )
+})
+
 test_that("`get_repos()` by team in case when no `orgs` are specified pulls organizations first, then repos", {
 
   suppressMessages(
@@ -88,7 +113,6 @@ test_that("`get_repos()` by team in case when no `orgs` are specified pulls orga
       token = Sys.getenv("GITHUB_PAT")
     )
   )
-
   expect_snapshot(
     test_gitstats %>%
       set_team(

@@ -23,6 +23,13 @@
     Error <simpleError>
       You have to provide a phrase to look for.
 
+# Getting repositories by teams works
+
+    Code
+      result <- test_github$get_repos(by = "team", team = c("kalimu", "maciekbanas"))
+    Message <cliMessage>
+      > Pulling repositories...
+
 # `get_repos()` by team in case when no `orgs` are specified pulls organizations first, then repos
 
     Code
