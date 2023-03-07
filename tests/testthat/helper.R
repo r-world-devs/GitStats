@@ -1,10 +1,10 @@
 expect_list_contains <- function(object, elements) {
   act <- quasi_label(rlang::enquo(object), arg = "object")
 
-  act$elements <- all(purrr::map_lgl(act$val, ~ any(elements %in% names(.))))
+  act$check <- all(purrr::map_lgl(act$val, ~ any(elements %in% names(.))))
   expect(
-    act$elements == TRUE,
-    sprintf("%s does not contain specified elements", act$lab, act$elemetns, elements)
+    act$check == TRUE,
+    sprintf("%s does not contain specified elements", act$lab)
   )
 
   invisible(act$val)
@@ -13,10 +13,10 @@ expect_list_contains <- function(object, elements) {
 expect_list_contains_only <- function(object, elements) {
   act <- quasi_label(rlang::enquo(object), arg = "object")
 
-  act$elements <- all(purrr::map_lgl(act$val, ~ all(elements %in% names(.))))
+  act$check <- all(purrr::map_lgl(act$val, ~ all(elements %in% names(.))))
   expect(
-    act$elements == TRUE,
-    sprintf("%s does not contain specified elements", act$lab, act$elemetns, elements)
+    act$check == TRUE,
+    sprintf("%s does not contain specified elements", act$lab)
   )
 
   invisible(act$val)

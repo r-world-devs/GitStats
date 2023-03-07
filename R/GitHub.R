@@ -207,7 +207,7 @@ GitHub <- R6::R6Class("GitHub",
     #' @return A list of commits.
     pull_commits_from_org = function(org,
                                      date_from,
-                                     date_until = Sys.date()) {
+                                     date_until = Sys.Date()) {
       repos_list <- private$pull_repos_from_org(
         org = org
       )
@@ -221,7 +221,7 @@ GitHub <- R6::R6Class("GitHub",
       repos_names <- purrr::map_chr(repos_list, ~ .$full_name)
 
       pb <- progress::progress_bar$new(
-        format = paste0("GitHub (", enterprise_public, ") Client (", org, "). Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
+        format = paste0("GitHub ", enterprise_public, " (", org, "). Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
         total = length(repos_names)
       )
 
@@ -250,8 +250,6 @@ GitHub <- R6::R6Class("GitHub",
       names(commits_list) <- repos_names
 
       commits_list <- commits_list %>% purrr::discard(~ length(.) == 0)
-
-      # message("GitHub (", enterprise_public, ") (", org, "): pulled commits from ", length(commits_list), " repositories.")
 
       commits_list
     },
