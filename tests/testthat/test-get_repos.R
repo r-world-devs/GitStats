@@ -113,12 +113,11 @@ test_gitlab <- GitLab$new(
   token = Sys.getenv("GITLAB_PAT"),
   orgs = c("mbtests")
 )
-test_gitlab_priv <- environment(test_gitlab$initialize)$private
 
 test_that("`get_repos()` methods pulls repositories from GitLab and translates output into `data.frame`", {
   mockery::stub(
     test_gitlab$get_repos,
-    'test_gitlab_priv$pull_repos_by_org',
+    'private$pull_repos_from_org',
     readRDS("test_files/gitlab_repos_by_org.rds")
   )
 
@@ -145,12 +144,11 @@ test_github <- GitHub$new(
   token = Sys.getenv("GITHUB_PAT"),
   orgs = "r-world-devs"
 )
-test_github_priv <- environment(test_github$initialize)$private
 
 test_that("`get_repos()` methods pulls repositories from GitHub and translates output into `data.frame`", {
   mockery::stub(
     test_github$get_repos,
-    'test_github_priv$pull_repos_from_org',
+    'private$pull_repos_from_org',
     readRDS("test_files/github_repos_by_org.rds")
   )
 
