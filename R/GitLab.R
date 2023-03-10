@@ -216,7 +216,7 @@ GitLab <- R6::R6Class("GitLab",
         }
       }
 
-      repos_list <- purrr::map_chr(resp_list, ~ .$project_id) %>%
+      repos_list <- purrr::map_chr(resp_list, ~ as.character(.$project_id)) %>%
         unique() %>%
         private$find_by_id(objects = "projects")
 

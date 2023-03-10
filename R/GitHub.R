@@ -326,7 +326,7 @@ GitHub <- R6::R6Class("GitHub",
       )
       commits_list <- purrr::imap(commits_list, function(repo, repo_name) {
         pb$tick()
-        commit_stats <- purrr::map_chr(repo, ~ .$id) %>%
+        commit_stats <- purrr::map_chr(repo, ~ as.character(.$id)) %>%
           purrr::map(function(commit_id) {
             commit_info <- get_response(
               endpoint = paste0(self$rest_api_url, "/repos/", repo_name, "/commits/", commit_id),
