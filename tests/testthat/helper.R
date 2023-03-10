@@ -1,10 +1,22 @@
 expect_list_contains <- function(object, elements) {
   act <- quasi_label(rlang::enquo(object), arg = "object")
 
-  act$elements <- all(purrr::map_lgl(act$val, ~ all(elements %in% names(.))))
+  act$check <- all(purrr::map_lgl(act$val, ~ any(elements %in% names(.))))
   expect(
-    act$elements == TRUE,
-    sprintf("%s does not contain specified elements", act$lab, act$elemetns, elements)
+    act$check == TRUE,
+    sprintf("%s does not contain specified elements", act$lab)
+  )
+
+  invisible(act$val)
+}
+
+expect_list_contains_only <- function(object, elements) {
+  act <- quasi_label(rlang::enquo(object), arg = "object")
+
+  act$check <- all(purrr::map_lgl(act$val, ~ all(elements %in% names(.))))
+  expect(
+    act$check == TRUE,
+    sprintf("%s does not contain specified elements", act$lab)
   )
 
   invisible(act$val)
@@ -30,24 +42,6 @@ expect_commits_table <- function(get_commits_object) {
 expect_empty_table <- function(object) {
   expect_s3_class(object, "data.frame")
   expect_length(object, 0)
-}
-
-gs_mock <- function(name = "", func_call) {
-  rds_file <- paste0("mocked/", name, ".rds")
-
-  if (!file.exists(rds_file)) {
-    obj <- func_call
-    saveRDS(obj, rds_file)
-  } else {
-    obj <- readRDS(rds_file)
-    if (any(class(obj) == "GitStats") && obj$use_storage) {
-      obj$storage <- DBI::dbConnect(
-        RSQLite::SQLite(),
-        "storage/test_db.sqlite"
-      )
-    }
-  }
-  return(obj)
 }
 
 TestClient <- R6::R6Class("TestClient",

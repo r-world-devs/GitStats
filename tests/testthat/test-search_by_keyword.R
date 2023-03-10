@@ -8,7 +8,7 @@ test_github_priv <- environment(test_github$initialize)$private
 
 test_that("`search_by_keyword()` for GitHub prepares a list of repositories", {
 
-  mocked_search_result <- readRDS("test_files/repos_searched_by_phrase_medium.rds")
+  mocked_search_result <- readRDS("test_files/github_repos_searched_by_phrase.rds")
 
   mockery::stub(
     test_github_priv$search_by_keyword,

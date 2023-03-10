@@ -240,7 +240,7 @@ GitLab <- R6::R6Class("GitLab",
       projects_ids <- purrr::map_chr(repos_list, ~ .$id)
 
       pb <- progress::progress_bar$new(
-        format = paste0("GitLab Client (", org, "). Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
+        format = paste0("GitLab (", org, "). Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
         total = length(repos_names)
       )
 

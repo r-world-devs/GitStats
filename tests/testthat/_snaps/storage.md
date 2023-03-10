@@ -1,13 +1,32 @@
+# `GitStats$save_storage()` saves table to db
+
+    Code
+      test_gitstats_priv$save_storage(test_commits, "test_commits")
+    Message <cliMessage>
+      v `test_commits` saved to local database.
+
+---
+
+    Code
+      test_gitstats_priv$save_storage(commits_before, "commits_by_org")
+    Message <cliMessage>
+      v `commits_by_org` saved to local database.
+
+# `GitStats$save_storage()` appends table to db
+
+    Code
+      test_gitstats_priv$save_storage(test_commits_new, "test_commits", append = TRUE)
+    Message <cliMessage>
+      v `test_commits` appended to local database.
+
 # `GitStats$check_storage()` finds tables in db
 
     Code
       test_gitstats_priv$check_storage("test_commits")
-    Message <simpleMessage>
-      `test_commits` is stored in your local database.
     Message <cliMessage>
+      i `test_commits` is stored in your local database.
       ! No clients found in database table.
-    Message <simpleMessage>
-      All commits will be pulled from API.
+      i All commits will be pulled from API.
     Output
       NULL
 
@@ -15,12 +34,12 @@
 
     Code
       test_gitstats_priv$check_storage("test_table_non_existent")
-    Message <simpleMessage>
-      `test_table_non_existent` not found in local database. All commits will be pulled from API.
+    Message <cliMessage>
+      i `test_table_non_existent` not found in local database. All commits will be pulled from API.
     Output
       NULL
 
-# `GitStats$check_storage_clients()` finds clients (api urls) in db
+# `GitStats$check_storage_clients()` finds clients (api urls) in db and returns output (table)
 
     Code
       test_gitstats_priv$check_storage_clients(test_commits)
@@ -28,9 +47,9 @@
       v Clients already in database table.
     Output
         id organisation repository committed_date additions deletions
-      1  1 r-world-devs       Test     2022-01-01        22        22
-      2  2 r-world-devs       Test     2022-01-01        22        22
-      3  3 r-world-devs       Test     2022-01-01        22        22
+      1  1 r-world-devs       Test     2022-03-01        12        20
+      2  2 r-world-devs       Test     2022-10-05        12        20
+      3  3 r-world-devs       Test     2022-12-31        12        20
                        api_url
       1 https://api.github.com
       2 https://api.github.com
@@ -58,16 +77,14 @@
 
     Code
       test_gitstats_priv$check_storage("test_commits")
-    Message <simpleMessage>
-      `test_commits` is stored in your local database.
     Message <cliMessage>
+      i `test_commits` is stored in your local database.
       ! No clients found in database table.
-    Message <simpleMessage>
-      All commits will be pulled from API.
+      i All commits will be pulled from API.
     Output
       NULL
 
-# `GitStats$check_storage_orgs()` finds organizations in db
+# `GitStats$check_storage_orgs()` finds organizations in db and returns output (table)
 
     Code
       test_gitstats_priv$check_storage_orgs(test_commits)
@@ -75,9 +92,9 @@
       v Organizations already in database table.
     Output
         id organisation repository committed_date additions deletions
-      1  1 r-world-devs       Test     2022-01-01        22        22
-      2  2 r-world-devs       Test     2022-01-01        22        22
-      3  3 r-world-devs       Test     2022-01-01        22        22
+      1  1 r-world-devs       Test     2022-03-01        12        20
+      2  2 r-world-devs       Test     2022-10-05        12        20
+      3  3 r-world-devs       Test     2022-12-31        12        20
                        api_url
       1 https://api.github.com
       2 https://api.github.com
@@ -105,29 +122,13 @@
 
     Code
       test_gitstats_priv$check_storage("test_commits")
-    Message <simpleMessage>
-      `test_commits` is stored in your local database.
     Message <cliMessage>
+      i `test_commits` is stored in your local database.
       v Clients already in database table.
       ! No organizations found in database table.
-    Message <simpleMessage>
-      All commits will be pulled from API.
+      i All commits will be pulled from API.
     Output
       NULL
-
-# `GitStats$save_storage()` saves table to db
-
-    Code
-      test_gitstats_priv$save_storage(test_commits, "test_commits")
-    Message <cliMessage>
-      v `test_commits` saved to local database.
-
-# `GitStats$save_storage()` appends table to db
-
-    Code
-      test_gitstats_priv$save_storage(test_commits, "test_commits", append = TRUE)
-    Message <cliMessage>
-      v `test_commits` appended to local database.
 
 # When storage is set, `GitStats` saves pulled repos to database
 
@@ -136,4 +137,11 @@
     Message <cliMessage>
       > Pulling repositories...
       v `repos_by_org` saved to local database.
+
+# Switching storage on and off works
+
+    Code
+      test_gitstats %>% storage_off()
+    Message <simpleMessage>
+      Storage will not be used.
 

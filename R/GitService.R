@@ -343,13 +343,14 @@ GitService <- R6::R6Class("GitService",
     #' @return A list.
     filter_repos_by_team = function(repos_list,
                                     team) {
-      purrr::map(repos_list, function(x) {
+      repos_list <- purrr::map(repos_list, function(x) {
         if (length(intersect(team, x$contributors)) > 0) {
           return(x)
         } else {
           return(NULL)
         }
       }) %>% purrr::keep(~ length(.) > 0)
+      return(repos_list)
     },
 
     #' @description Perform get request to find projects by ids.
