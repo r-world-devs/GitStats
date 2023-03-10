@@ -81,10 +81,12 @@ GitHub <- R6::R6Class("GitHub",
     pull_team_organizations = function(team) {
       cli::cli_alert("Pulling organizations by team.")
       orgs_list <- purrr::map(team, function(team_member) {
-        get_response(
-          endpoint = paste0(self$rest_api_url, "/users/", team_member, "/orgs"),
-          token = private$token
-        )
+        suppressMessages({
+          get_response(
+            endpoint = paste0(self$rest_api_url, "/users/", team_member, "/orgs"),
+            token = private$token
+          )
+        })
       }) %>%
         purrr::keep(~length(.) > 0) %>%
         unique()
