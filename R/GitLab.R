@@ -267,8 +267,6 @@ GitLab <- R6::R6Class("GitLab",
       commits_list <- commits_list %>%
         purrr::discard(~ length(.) == 0)
 
-      # message("GitLab (", org, "): pulled commits from ", length(commits_list), " repositories.")
-
       return(commits_list)
     },
 

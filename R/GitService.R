@@ -68,10 +68,7 @@ GitService <- R6::R6Class("GitService",
       self$enterprise <- private$check_enterprise(self$rest_api_url)
       self$org_limit <- org_limit
       if (is.null(orgs)) {
-        warning("No organizations specified.",
-          call. = FALSE,
-          immediate. = TRUE
-        )
+        cli::cli_alert_warning("No organizations specified.")
       } else {
         orgs <- private$check_orgs(orgs)
       }
@@ -104,13 +101,11 @@ GitService <- R6::R6Class("GitService",
       }
 
       if (is.null(orgs)) {
-        warning(paste0("No organizations specified for ", self$git_service, "."),
-                call. = FALSE,
-                immediate. = TRUE)
+        cli::cli_alert_warning(paste0("No organizations specified for ", self$git_service, "."))
         orgs <- private$pull_organizations(type = by,
                                            team = team)
       }
-      cli::cli_alert("Pulling repositories...")
+      cli::cli_alert(paste0("[", self$git_service, "] Pulling repositories..."))
 
       pb <- progress::progress_bar$new(
         format = paste0("...from {:what}: [:bar] :current/:total"),
