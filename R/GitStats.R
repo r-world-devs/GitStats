@@ -1,5 +1,5 @@
 #' @importFrom R6 R6Class
-#' @importFrom cli cli_alert_success cli_alert_warning col_yellow
+#' @importFrom cli cli_alert_info cli_alert_success cli_alert_warning col_yellow
 #' @importFrom data.table rbindlist :=
 #' @importFrom dplyr glimpse
 #' @importFrom purrr map
@@ -401,7 +401,7 @@ GitStats <- R6::R6Class("GitStats",
       storage_list <- list()
 
       if (private$check_storage_table(table_name)) {
-        message("`", table_name, "` is stored in your local database.")
+        cli::cli_alert_info(paste0("`", table_name, "` is stored in your local database."))
         table_id <- DBI::Id(
           schema = self$storage_schema,
           table = table_name
@@ -412,19 +412,19 @@ GitStats <- R6::R6Class("GitStats",
           private$check_storage_orgs()
 
         if (is.null(db_table)) {
-          message("All commits will be pulled from API.")
+          cli::cli_alert_info("All commits will be pulled from API.")
           return(NULL)
         } else {
           storage_list[["db_table"]] <- db_table
           last_date <- as.POSIXct(private$pull_last_date(db_table), origin = "1970-01-01")
           storage_list[["last_date"]] <- last_date
 
-          message("Only commits created since ", last_date, " will be pulled from API.")
+          cli::cli_alert_info(paste0("Only commits created since ", last_date, " will be pulled from API."))
 
           return(storage_list)
         }
       } else {
-        message("`", table_name, "` not found in local database. All commits will be pulled from API.")
+        cli::cli_alert_info(paste0("`", table_name, "` not found in local database. All commits will be pulled from API."))
         return(NULL)
       }
 
@@ -434,12 +434,10 @@ GitStats <- R6::R6Class("GitStats",
     #' @param table_name Name of a table.
     #' @return A boolean.
     check_storage_table = function(table_name) {
-
       any(
         purrr::map(self$show_storage()["table"], ~grepl(table_name, .)) %>%
           unlist()
       )
-
     },
 
     #' @description Check if clients are in database.

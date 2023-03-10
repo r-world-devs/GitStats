@@ -1,11 +1,6 @@
 test_that("Setting team works", {
   test_gitstats <-
     create_gitstats() %>%
-      set_connection(
-        api_url = "https://api.github.com",
-        token = Sys.getenv("GITHUB_PAT"),
-        orgs = c("r-world-devs")
-      ) %>%
       set_team(
         team_name = "RWD-IE",
         "galachad",
