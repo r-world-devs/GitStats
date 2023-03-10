@@ -189,7 +189,7 @@ GitHub <- R6::R6Class("GitHub",
           byte_max = byte_max,
           token = private$token
         )
-        repos_list <- purrr::map_chr(repos_list, ~ .$repository$id) %>%
+        repos_list <- purrr::map_chr(repos_list, ~ as.character(.$repository$id)) %>%
           unique() %>%
           private$find_by_id(objects = "repositories")
       } else {

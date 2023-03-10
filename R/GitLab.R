@@ -103,7 +103,7 @@ GitLab <- R6::R6Class("GitLab",
     #' @param repos_list A list of repositories.
     #' @return A list of repositories.
     pull_repos_issues = function(repos_list) {
-      projects_ids <- unique(purrr::map_chr(repos_list, ~ .$id))
+      projects_ids <- unique(purrr::map_chr(repos_list, ~ as.character(.$id)))
 
       repos_list <- purrr::map(projects_ids, function(project_id) {
         issues_stats <- get_response(
