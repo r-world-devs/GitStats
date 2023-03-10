@@ -299,7 +299,9 @@ GitStats <- R6::R6Class("GitStats",
         )
 
         if (!is.null(self$team)) {
-          message(x$git_service, " for '", names(self$team), "' team: pulled commits from ", length(unique(commits$repository)), " repositories.")
+          cli::cli_alert_success(
+            paste0(x$git_service, " for '", names(self$team), "' team: pulled commits from ",
+                   length(unique(commits$repository)), " repositories."))
         }
 
         commits
