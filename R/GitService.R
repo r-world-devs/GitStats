@@ -170,9 +170,7 @@ GitService <- R6::R6Class("GitService",
                            team) {
 
       if (is.null(orgs)) {
-        warning(paste0("No organizations specified for ", self$git_service, "."),
-                call. = FALSE,
-                immediate. = TRUE)
+        cli::cli_alert_warning(paste0("No organizations specified for ", self$git_service, "."))
         orgs <- private$pull_organizations(type = by,
                                            team = team)
       }
