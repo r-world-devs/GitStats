@@ -12,7 +12,7 @@ test_that("`search_by_keyword()` for GitHub prepares a list of repositories", {
 
   mockery::stub(
     test_github_priv$search_by_keyword,
-    'search_request',
+    'search_response',
     mocked_search_result
   )
 
