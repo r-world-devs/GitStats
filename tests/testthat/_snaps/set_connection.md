@@ -14,9 +14,8 @@
     Code
       test_gitstats %>% set_connection(api_url = "https://api.github.com", token = Sys.getenv(
         "GITHUB_PAT"))
-    Warning <simpleWarning>
-      No organizations specified.
     Message <cliMessage>
+      ! No organizations specified.
       v Set connection to GitHub.
 
 ---
@@ -24,9 +23,8 @@
     Code
       test_gitstats %>% set_connection(api_url = "https://gitlab.com/api/v4", token = Sys.getenv(
         "GITLAB_PAT"))
-    Warning <simpleWarning>
-      No organizations specified.
     Message <cliMessage>
+      ! No organizations specified.
       v Set connection to GitLab.
 
 # Errors pop out, when wrong input is passed when setting connection
