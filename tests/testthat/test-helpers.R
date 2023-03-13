@@ -41,7 +41,7 @@ test_that("`get_response()` returns proper status", {
 })
 
 test_that("`gql_response()` returns list", {
-  gql_query <- GraphQLQuery$new()
+  gql_query <- GraphQL$new()
   query <- gql_query$groups_by_user("maciekbanas")
 
   expect_type(

@@ -14,8 +14,8 @@ GitService <- R6::R6Class("GitService",
     #' @field gql_api_url A character, url of GraphQL API.
     gql_api_url = NULL,
 
-    #' @field gql_query An environment for GraphQLQuery class object.
-    gql_query = NULL,
+    #' @field graphql An environment for GraphQL class object.
+    graphql = NULL,
 
     #' @field orgs A character vector of organizations.
     orgs = NULL,
@@ -62,7 +62,7 @@ GitService <- R6::R6Class("GitService",
       } else {
         self$gql_api_url <- gql_api_url
       }
-      self$gql_query <- GraphQLQuery$new()
+      self$graphql <- GraphQL$new()
       private$token <- token
       self$git_service <- private$check_git_service(self$rest_api_url)
       self$enterprise <- private$check_enterprise(self$rest_api_url)

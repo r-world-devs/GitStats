@@ -77,7 +77,7 @@ GitLab <- R6::R6Class("GitLab",
 
       team <- paste0(team, collapse = '", "')
 
-      gql_query <- self$gql_query$groups_by_user(team)
+      gql_query <- self$graphql$groups_by_user(team)
 
       json_data <- gql_response(
                      api_url = paste0(self$gql_api_url),

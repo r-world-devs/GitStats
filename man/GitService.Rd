@@ -13,7 +13,7 @@ A superclass for GitHub and GitLab classes
 
 \item{\code{gql_api_url}}{A character, url of GraphQL API.}
 
-\item{\code{gql_query}}{An environment for GraphQLQuery class object.}
+\item{\code{gql_query}}{An environment for GraphQL class object.}
 
 \item{\code{orgs}}{A character vector of organizations.}
 
