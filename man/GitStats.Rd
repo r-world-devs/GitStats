@@ -11,7 +11,13 @@ An R6 class object with methods to derive information from multiple Git platform
 \describe{
 \item{\code{clients}}{A list of API connections information.}
 
+\item{\code{search_param}}{A team, org or keyword.}
+
 \item{\code{team}}{A character vector containing team members.}
+
+\item{\code{phrase}}{A phrase to search.}
+
+\item{\code{language}}{A programming language of repositories to look for.}
 
 \item{\code{storage}}{A local database credentials to store output.}
 
@@ -29,6 +35,7 @@ An R6 class object with methods to derive information from multiple Git platform
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{GitStats$new()}}
+\item \href{#method-setup_preferences}{\code{GitStats$setup_preferences()}}
 \item \href{#method-set_connection}{\code{GitStats$set_connection()}}
 \item \href{#method-set_organizations}{\code{GitStats$set_organizations()}}
 \item \href{#method-set_team}{\code{GitStats$set_team()}}
@@ -53,6 +60,26 @@ Create a new \code{GitStats} object
 
 \subsection{Returns}{
 A new \code{GitStats} object
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-setup_preferences"></a>}}
+\if{latex}{\out{\hypertarget{method-setup_preferences}{}}}
+\subsection{Method \code{setup_preferences()}}{
+Set up your search parameters.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$setup_preferences(search_param, team, orgs, phrase, language)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{search_param}}{One of three: \code{team}, \code{org} or \code{phrase}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Nothing.
 }
 }
 \if{html}{\out{<hr>}}

@@ -21,11 +21,20 @@ GitStats <- R6::R6Class("GitStats",
     #' @description Create a new `GitStats` object
     #' @return A new `GitStats` object
     initialize = function() {
-
+      self$search_param <- "org"
     },
+
+    #' @field search_param A team, org or keyword.
+    search_param = NULL,
 
     #' @field team A character vector containing team members.
     team = NULL,
+
+    #' @field phrase A phrase to search.
+    phrase = NULL,
+
+    #' @field language A programming language of repositories to look for.
+    language = NULL,
 
     #' @field storage A local database credentials to store output.
     storage = NULL,
@@ -41,6 +50,54 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @field commits_dt An output table of commits.
     commits_dt = NULL,
+
+    #' @description Set up your search parameters.
+    #' @param search_param One of three: `team`, `org` or `phrase`.
+    #' @return Nothing.
+    setup_preferences = function(search_param,
+                                 team,
+                                 orgs,
+                                 phrase,
+                                 language) {
+
+      search_param <- match.arg(
+        search_param,
+        c("org", "team", "phrase")
+      )
+
+      if (search_param == "team") {
+        cli::cli_alert_success(
+          "Your search preferences set to {cli::col_green('team')}."
+        )
+        if (is.null(team)) {
+          cli::cli_alert_warning(
+            cli::col_yellow(
+              "You did not define your team."
+            )
+          )
+        }
+      }
+
+      if (search_param == "phrase") {
+       if (is.null(phrase)) {
+        cli::cli_abort(
+          "You did not define your phrase."
+        )
+       } else {
+         self$phrase <- phrase
+         cli::cli_alert_success(
+           paste0("Your search preferences set to {cli::col_green('phrase: ", phrase, "')}.")
+         )
+       }
+      }
+      self$search_param <- search_param
+      if (!is.null(language)) {
+        self$language <- language
+        cli::cli_alert_success(
+          paste0("Your language is set to <", language, ">.")
+        )
+      }
+    },
 
     #' @description Method to set connections to Git platforms
     #' @param api_url A character, url address of API.
@@ -226,7 +283,7 @@ GitStats <- R6::R6Class("GitStats",
 
       repos_dt_list <- purrr::map(self$clients, ~ .$get_repos(
         by = by,
-        phrase = phrase,
+        phrase = self$phrase,
         language = language,
         team = team
       ))
@@ -331,6 +388,8 @@ GitStats <- R6::R6Class("GitStats",
       cat(paste0(cli::col_blue("Organisations: "), ifelse(is.null(orgs), cli::col_grey("<not defined>"), orgs), "\n"))
       cat(paste0(cli::col_blue("Search preference: "), ifelse(is.null(self$search_param), cli::col_grey("<not defined>"), self$search_param), "\n"))
       cat(paste0(cli::col_blue("Team: "), ifelse(is.null(self$team), cli::col_grey("<not defined>"), names(self$team)), "\n"))
+      cat(paste0(cli::col_blue("Phrase: "), ifelse(is.null(self$phrase), cli::col_grey("<not defined>"), self$phrase), "\n"))
+      cat(paste0(cli::col_blue("Language: "), ifelse(is.null(self$language), cli::col_grey("<not defined>"), self$language), "\n"))
       cat(paste0(cli::col_blue("Storage: "), ifelse(is.null(self$storage), cli::col_grey("<not defined>"), class(self$storage)[1]), "\n"))
       cat(paste0(cli::col_blue("Storage On/Off: "), ifelse(self$use_storage, "ON", cli::col_grey("OFF"))))
     }
@@ -602,6 +661,28 @@ set_connection <- function(gitstats_obj,
   return(invisible(gitstats_obj))
 }
 
+#' @title Set up your search parameters.
+#' @name setup_preferences
+#' @param gitstats_obj A GitStats object.
+#' @param search_param One of three: team, orgs or phrase.
+#' @return A `GitStats` object.
+#' @export
+setup_preferences <- function(gitstats_obj,
+                              search_param = NULL,
+                              team = NULL,
+                              orgs = NULL,
+                              phrase = NULL,
+                              language = NULL) {
+
+  gitstats_obj$setup_preferences(search_param = search_param,
+                                 team = team,
+                                 orgs = orgs,
+                                 phrase = phrase,
+                                 language = language)
+
+  return(gitstats_obj)
+}
+
 #' @title Choose your organizations.
 #' @name set_organizations
 #' @description A method to set you organizations.
@@ -789,9 +870,9 @@ storage_on <- function(gitstats_obj) {
 #' }
 #' @export
 get_repos <- function(gitstats_obj,
-                      by = "org",
-                      phrase = NULL,
-                      language = NULL,
+                      by = gitstats_obj$search_param,
+                      phrase = gitstats_obj$phrase,
+                      language = gitstats_obj$language,
                       print_out = TRUE) {
   gitstats_obj$get_repos(
     by = by,
@@ -842,7 +923,7 @@ get_repos <- function(gitstats_obj,
 get_commits <- function(gitstats_obj,
                         date_from = NULL,
                         date_until = Sys.time(),
-                        by = "org",
+                        by = gitstats_obj$search_param,
                         print_out = TRUE) {
   gitstats_obj$get_commits(
     date_from = date_from,

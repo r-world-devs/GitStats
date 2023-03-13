@@ -105,7 +105,7 @@ GitService <- R6::R6Class("GitService",
         orgs <- private$pull_organizations(type = by,
                                            team = team)
       }
-      cli::cli_alert(paste0("[", self$git_service, "] Pulling repositories..."))
+      cli::cli_alert(paste0("[", self$git_service, "] Pulling repositories by ", by, "..."))
 
       pb <- progress::progress_bar$new(
         format = paste0("...from {:what}: [:bar] :current/:total"),

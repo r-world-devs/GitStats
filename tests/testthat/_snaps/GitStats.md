@@ -6,8 +6,10 @@
       A <GitStats> object for 2 clients:
       Clients: https://api.github.com, https://gitlab.com/api/v4
       Organisations: r-world-devs, openpharma, mbtests
-      Search preference: <not defined>
+      Search preference: org
       Team: <not defined>
+      Phrase: <not defined>
+      Language: <not defined>
       Storage: <not defined>
       Storage On/Off: OFF
 
@@ -19,8 +21,10 @@
       A <GitStats> object for 2 clients:
       Clients: https://api.github.com, https://gitlab.com/api/v4
       Organisations: r-world-devs, openpharma, mbtests
-      Search preference: <not defined>
+      Search preference: org
       Team: RWD-IE
+      Phrase: <not defined>
+      Language: <not defined>
       Storage: <not defined>
       Storage On/Off: OFF
 
@@ -32,8 +36,10 @@
       A <GitStats> object for 2 clients:
       Clients: https://api.github.com, https://gitlab.com/api/v4
       Organisations: r-world-devs, openpharma, mbtests
-      Search preference: <not defined>
+      Search preference: org
       Team: RWD-IE
+      Phrase: <not defined>
+      Language: <not defined>
       Storage: SQLiteConnection
       Storage On/Off: ON
 
