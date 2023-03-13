@@ -103,7 +103,7 @@ GitLab <- R6::R6Class("GitLab",
     #' @param repos_list A list of repositories.
     #' @return A list of repositories.
     pull_repos_issues = function(repos_list) {
-      projects_ids <- unique(purrr::map_chr(repos_list, ~ .$id))
+      projects_ids <- unique(purrr::map_chr(repos_list, ~ as.character(.$id)))
 
       repos_list <- purrr::map(projects_ids, function(project_id) {
         issues_stats <- get_response(
@@ -141,7 +141,7 @@ GitLab <- R6::R6Class("GitLab",
     #'   language is used.
     filter_by_language = function(repos_list,
                                   language) {
-      projects_id <- unique(purrr::map_chr(repos_list, ~ .$id))
+      projects_id <- unique(purrr::map_chr(repos_list, ~ as.character(.$id)))
 
       projects_language_list <- purrr::map(projects_id, function(x) {
         get_response(
@@ -216,7 +216,7 @@ GitLab <- R6::R6Class("GitLab",
         }
       }
 
-      repos_list <- purrr::map_chr(resp_list, ~ .$project_id) %>%
+      repos_list <- purrr::map_chr(resp_list, ~ as.character(.$project_id)) %>%
         unique() %>%
         private$find_by_id(objects = "projects")
 
@@ -237,7 +237,7 @@ GitLab <- R6::R6Class("GitLab",
       )
 
       repos_names <- purrr::map_chr(repos_list, ~ .$name)
-      projects_ids <- purrr::map_chr(repos_list, ~ .$id)
+      projects_ids <- purrr::map_chr(repos_list, ~ as.character(.$id))
 
       pb <- progress::progress_bar$new(
         format = paste0("GitLab (", org, "). Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
