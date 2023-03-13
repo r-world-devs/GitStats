@@ -324,8 +324,15 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description A print method for a GitStats object
     print = function() {
-      cat(paste0("A GitStats object (multi-API client platform) for ", length(self$clients), " clients:"), sep = "\n")
-      purrr::walk(self$clients, ~ .$print())
+      cat(paste0("A <GitStats> object for ", length(self$clients), " clients:"), sep = "\n")
+      clients <- purrr::map_chr(self$clients, ~ .$rest_api_url)
+      cat(paste0(cli::col_blue("Clients: "), paste0(clients, collapse = ", "), "\n"))
+      orgs <- purrr::map(self$clients, ~ paste0(.$orgs, collapse = ", ")) %>% paste0(collapse = ", ")
+      cat(paste0(cli::col_blue("Organisations: "), ifelse(is.null(orgs), cli::col_grey("<not defined>"), orgs), "\n"))
+      cat(paste0(cli::col_blue("Search preference: "), ifelse(is.null(self$search_param), cli::col_grey("<not defined>"), self$search_param), "\n"))
+      cat(paste0(cli::col_blue("Team: "), ifelse(is.null(self$team), cli::col_grey("<not defined>"), names(self$team)), "\n"))
+      cat(paste0(cli::col_blue("Storage: "), ifelse(is.null(self$storage), cli::col_grey("<not defined>"), class(self$storage)[1]), "\n"))
+      cat(paste0(cli::col_blue("Storage On/Off: "), ifelse(self$use_storage, "ON", cli::col_grey("OFF"))))
     }
   ),
   private = list(
