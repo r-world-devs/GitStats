@@ -11,13 +11,15 @@ GraphQL <- R6::R6Class("GraphQL",
                                         target {
                                           ... on Commit {
                                             history(since: "', since, '" until: "', until, '") {
+                                              pageInfo {
+                                                hasNextPage
+                                              }
                                               edges {
                                                 node {
                                                   ... on Commit {
                                                     id
                                                     committedDate
                                                     author {
-                                                      email
                                                       name
                                                     }
                                                     additions

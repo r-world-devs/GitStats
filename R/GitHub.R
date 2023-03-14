@@ -34,7 +34,7 @@ GitHub <- R6::R6Class("GitHub",
           "Public"
         }
 
-        repos_names <- purrr::map_chr(repos_list, ~ .$full_name)
+        repos_names <- purrr::map_chr(repos_list, ~ .$name)
 
         pb <- progress::progress_bar$new(
           format = paste0("GitHub ", enterprise_public, " (", org, "). Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
@@ -42,34 +42,35 @@ GitHub <- R6::R6Class("GitHub",
         )
 
         commits_list <- purrr::map(repos_names, function(repo) {
+          next_page <- TRUE
+          full_response <- list()
           pb$tick()
-          tryCatch(
-            {
-              gql <- GraphQL$new()
-              commits_by_org_query <- gql$commits_by_org(
-                org = org,
-                repo = repo,
-                since = date_to_gts(date_from),
-                until = date_to_gts(date_to)
-              )
-              gql_response(
-                api_url = self$gql_api_url,
-                gql_query = commits_by_org_query,
-                token = private$token
-              )
-            },
-            error = function(e) {
-              NULL
-            }
-          )
+          while (next_page) {
+            gql <- GraphQL$new()
+            commits_by_org_query <- gql$commits_by_org(
+              org = org,
+              repo = repo,
+              since = date_to_gts(date_from),
+              until = date_to_gts(date_to)
+            )
+            response <- gql_response(
+              api_url = self$gql_api_url,
+              gql_query = commits_by_org_query,
+              token = private$token
+            )
+            next_page <- response$data$repository$defaultBranchRef$target$history$pageInfo$hasNextPage
+            append(full_response, response)
+          }
         })
+
         names(commits_list) <- repos_names
 
         commits_list <- commits_list %>% purrr::discard(~ length(.) == 0)
 
         commits_list %>%
-          private$prepare_commits_table()
-      })
+          private$prepare_commits_table_gql()
+      }) %>%
+        rbindlist()
 
     },
 
@@ -490,6 +491,20 @@ GitHub <- R6::R6Class("GitHub",
 
         resp_list
       }
+    },
+
+    prepare_commits_table_gql = function(repos_list_with_commits) {
+      commits_table <- purrr::imap(repos_list_with_commits, function(repo, repo_name) {
+        commits_table <- purrr::map_dfr(repo$data$repository$defaultBranchRef$target$history$edges, function(edge) {
+          edge$node$author <- edge$node$author$name
+          edge$node
+        })
+        commits_table$repository <- repo_name
+        commits_table
+      }) %>%
+        purrr::discard(~length(.) == 1) %>%
+        rbindlist()
+      commits_table
     }
   )
 )
