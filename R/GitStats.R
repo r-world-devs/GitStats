@@ -283,7 +283,7 @@ GitStats <- R6::R6Class("GitStats",
 
       repos_dt_list <- purrr::map(self$clients, ~ .$get_repos(
         by = by,
-        phrase = self$phrase,
+        phrase = phrase,
         language = language,
         team = team
       ))
