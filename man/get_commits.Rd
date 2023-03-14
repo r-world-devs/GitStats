@@ -8,7 +8,7 @@ get_commits(
   gitstats_obj,
   date_from = NULL,
   date_until = Sys.time(),
-  by = "org",
+  by = gitstats_obj$search_param,
   print_out = TRUE
 )
 }
