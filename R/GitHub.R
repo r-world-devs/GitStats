@@ -19,6 +19,60 @@ GitHub <- R6::R6Class("GitHub",
     #' @field repo_contributors_endpoint An expression for repositories contributors endpoint.
     repo_contributors_endpoint = rlang::expr(paste0(self$rest_api_url, "/repos/", repo$full_name, "/contributors")),
 
+    get_commits_gql = function(orgs = self$orgs,
+                               date_from,
+                               date_to) {
+
+      purrr::map(orgs, function(org) {
+        repos_list <- private$pull_repos_from_org(
+          org = org
+        )
+
+        enterprise_public <- if (self$enterprise) {
+          "Enterprise"
+        } else {
+          "Public"
+        }
+
+        repos_names <- purrr::map_chr(repos_list, ~ .$full_name)
+
+        pb <- progress::progress_bar$new(
+          format = paste0("GitHub ", enterprise_public, " (", org, "). Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
+          total = length(repos_names)
+        )
+
+        commits_list <- purrr::map(repos_names, function(repo) {
+          pb$tick()
+          tryCatch(
+            {
+              gql <- GraphQL$new()
+              commits_by_org_query <- gql$commits_by_org(
+                org = org,
+                repo = repo,
+                since = date_to_gts(date_from),
+                until = date_to_gts(date_to)
+              )
+              gql_response(
+                api_url = self$gql_api_url,
+                gql_query = commits_by_org_query,
+                token = private$token
+              )
+            },
+            error = function(e) {
+              NULL
+            }
+          )
+        })
+        names(commits_list) <- repos_names
+
+        commits_list <- commits_list %>% purrr::discard(~ length(.) == 0)
+
+        commits_list %>%
+          private$prepare_commits_table()
+      })
+
+    },
+
     #' @description A print method for a GitHub object
     print = function() {
       cat("GitHub API Client", sep = "\n")
