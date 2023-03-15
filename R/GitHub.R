@@ -43,7 +43,8 @@ GitHub <- R6::R6Class("GitHub",
 
         commits_list <- purrr::map(repos_names, function(repo) {
           next_page <- TRUE
-          full_response <- list()
+          full_commits_list <- list()
+          end_cursor <- ''
           pb$tick()
           while (next_page) {
             gql <- GraphQL$new()
@@ -51,18 +52,28 @@ GitHub <- R6::R6Class("GitHub",
               org = org,
               repo = repo,
               since = date_to_gts(date_from),
-              until = date_to_gts(date_to)
+              until = date_to_gts(date_to),
+              cursor = end_cursor
             )
             response <- gql_response(
               api_url = self$gql_api_url,
               gql_query = commits_by_org_query,
               token = private$token
             )
+            commits_list <- response$data$repository$defaultBranchRef$target$history$edges
             next_page <- response$data$repository$defaultBranchRef$target$history$pageInfo$hasNextPage
-            append(full_response, response)
+            if (is.null(next_page)) next_page <- FALSE
+            if (is.null(commits_list)) commits_list <- list()
+            if (next_page) {
+              end_cursor <- response$data$repository$defaultBranchRef$target$history$pageInfo$endCursor
+            } else {
+              end_cursor <- ''
+            }
+            full_commits_list <- append(full_commits_list, commits_list)
           }
+          full_commits_list
         })
-
+browser()
         names(commits_list) <- repos_names
 
         commits_list <- commits_list %>% purrr::discard(~ length(.) == 0)
