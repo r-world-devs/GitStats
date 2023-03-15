@@ -1,4 +1,5 @@
 #file with example workflow for basic package functionality - will be helpful later tu build vignettes
+pkgload::load_all()
 
 # Start by creating your GitStats object and setting connections.
 
