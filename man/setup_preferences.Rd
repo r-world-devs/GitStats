@@ -8,7 +8,6 @@ setup_preferences(
   gitstats_obj,
   search_param = NULL,
   team = NULL,
-  orgs = NULL,
   phrase = NULL,
   language = NULL
 )
@@ -17,6 +16,12 @@ setup_preferences(
 \item{gitstats_obj}{A GitStats object.}
 
 \item{search_param}{One of three: team, orgs or phrase.}
+
+\item{team}{A named character of team members.}
+
+\item{phrase}{A phrase to look for.}
+
+\item{language}{A language of programming code.}
 }
 \value{
 A \code{GitStats} object.

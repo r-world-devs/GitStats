@@ -68,13 +68,19 @@ A new \code{GitStats} object
 \subsection{Method \code{setup_preferences()}}{
 Set up your search parameters.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$setup_preferences(search_param, team, orgs, phrase, language)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$setup_preferences(search_param, team, phrase, language)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{search_param}}{One of three: \code{team}, \code{org} or \code{phrase}.}
+
+\item{\code{team}}{A named character vector of team members.}
+
+\item{\code{phrase}}{A phrase to look for.}
+
+\item{\code{language}}{A language of programming code.}
 }
 \if{html}{\out{</div>}}
 }

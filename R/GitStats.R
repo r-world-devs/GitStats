@@ -53,10 +53,12 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description Set up your search parameters.
     #' @param search_param One of three: `team`, `org` or `phrase`.
+    #' @param team A named character vector of team members.
+    #' @param phrase A phrase to look for.
+    #' @param language A language of programming code.
     #' @return Nothing.
     setup_preferences = function(search_param,
                                  team,
-                                 orgs,
                                  phrase,
                                  language) {
 
@@ -680,18 +682,19 @@ set_connection <- function(gitstats_obj,
 #' @name setup_preferences
 #' @param gitstats_obj A GitStats object.
 #' @param search_param One of three: team, orgs or phrase.
+#' @param team A named character of team members.
+#' @param phrase A phrase to look for.
+#' @param language A language of programming code.
 #' @return A `GitStats` object.
 #' @export
 setup_preferences <- function(gitstats_obj,
                               search_param = NULL,
                               team = NULL,
-                              orgs = NULL,
                               phrase = NULL,
                               language = NULL) {
 
   gitstats_obj$setup_preferences(search_param = search_param,
                                  team = team,
-                                 orgs = orgs,
                                  phrase = phrase,
                                  language = language)
 
