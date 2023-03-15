@@ -135,7 +135,7 @@
     Code
       test_gitstats %>% get_repos(print_out = FALSE)
     Message <cliMessage>
-      > [GitHub] Pulling repositories...
+      > [GitHub] Pulling repositories by org...
       v `repos_by_org` saved to local database.
 
 # Switching storage on and off works
