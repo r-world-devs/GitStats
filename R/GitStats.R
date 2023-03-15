@@ -383,15 +383,16 @@ GitStats <- R6::R6Class("GitStats",
     print = function() {
       cat(paste0("A <GitStats> object for ", length(self$clients), " clients:"), sep = "\n")
       clients <- purrr::map_chr(self$clients, ~ .$rest_api_url)
-      cat(paste0(cli::col_blue("Clients: "), paste0(clients, collapse = ", "), "\n"))
+      private$print_item("Clients", clients, paste0(clients, collapse = ", "))
       orgs <- purrr::map(self$clients, ~ paste0(.$orgs, collapse = ", ")) %>% paste0(collapse = ", ")
-      cat(paste0(cli::col_blue("Organisations: "), ifelse(is.null(orgs), cli::col_grey("<not defined>"), orgs), "\n"))
-      cat(paste0(cli::col_blue("Search preference: "), ifelse(is.null(self$search_param), cli::col_grey("<not defined>"), self$search_param), "\n"))
-      cat(paste0(cli::col_blue("Team: "), ifelse(is.null(self$team), cli::col_grey("<not defined>"), names(self$team)), "\n"))
-      cat(paste0(cli::col_blue("Phrase: "), ifelse(is.null(self$phrase), cli::col_grey("<not defined>"), self$phrase), "\n"))
-      cat(paste0(cli::col_blue("Language: "), ifelse(is.null(self$language), cli::col_grey("<not defined>"), self$language), "\n"))
-      cat(paste0(cli::col_blue("Storage: "), ifelse(is.null(self$storage), cli::col_grey("<not defined>"), class(self$storage)[1]), "\n"))
-      cat(paste0(cli::col_blue("Storage On/Off: "), ifelse(self$use_storage, "ON", cli::col_grey("OFF"))))
+      private$print_item("Organisations", orgs)
+      private$print_item("Search preference", self$search_param)
+      private$print_item("Team", self$team, names(self$team))
+      private$print_item("Phrase", self$phrase)
+      private$print_item("Language", self$language)
+      private$print_item("Storage", self$storage, class(self$storage)[1])
+      cat(paste0(cli::col_blue("Storage On/Off: "),
+                 ifelse(self$use_storage, "ON", cli::col_grey("OFF"))))
     }
   ),
   private = list(
@@ -607,6 +608,20 @@ GitStats <- R6::R6Class("GitStats",
       }
 
       client
+    },
+
+    #' @description A helper to manage printing `GitStats` object.
+    #' @param name Name of item to print.
+    #' @param item_to_check Item to check for emptiness.
+    #' @param item_to_print Item to print, if not defined it is item that is checked.
+    #' @return Nothing, prints object.
+    print_item = function(item_name,
+                          item_to_check,
+                          item_to_print = item_to_check) {
+      cat(paste0(cli::col_blue(paste0(item_name, ": ")),
+                 ifelse(is.null(item_to_check),
+                        cli::col_grey("<not defined>"),
+                        item_to_print), "\n"))
     }
   )
 )

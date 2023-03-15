@@ -4,6 +4,12 @@ test_that("GitStats object is created", {
   expect_s3_class(test_gitstats, "GitStats")
 })
 
+test_that("GitStats prints empty fields.", {
+
+  expect_snapshot(test_gitstats)
+
+})
+
 test_gitstats$clients[[1]] <- GitHub$new(
   rest_api_url = "https://api.github.com",
   token = Sys.getenv("GITHUB_PAT"),
@@ -16,7 +22,7 @@ test_gitstats$clients[[2]] <- GitLab$new(
   orgs = "mbtests"
 )
 
-test_that("GitStats prints the proper info.", {
+test_that("GitStats prints the proper info when connections are added.", {
 
   expect_snapshot(test_gitstats)
 
