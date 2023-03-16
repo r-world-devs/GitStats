@@ -19,68 +19,26 @@ GitHub <- R6::R6Class("GitHub",
     #' @field repo_contributors_endpoint An expression for repositories contributors endpoint.
     repo_contributors_endpoint = rlang::expr(paste0(self$rest_api_url, "/repos/", repo$full_name, "/contributors")),
 
-    get_commits_gql = function(orgs = self$orgs,
-                               date_from,
-                               date_to) {
+    #' @description A method to get information on commits.
+    #' @param orgs A character vector of organisations.
+    #' @param date_from A starting date to look commits for.
+    #' @param date_until An end date to look commits for.
+    #' @param by A character, to choose between: \itemize{\item{org -
+    #'   organizations (owners of repositories or project groups)} \item{team -
+    #'   A team} \item{phrase - A keyword in code blobs.}}
+    #' @param team A list of team members. Specified by \code{set_team()} method
+    #'   of GitStats class object.
+    #' @return A data.frame of commits
+    get_commits = function(orgs = self$orgs,
+                           date_from,
+                           date_until = Sys.Date(),
+                           by,
+                           team) {
 
       purrr::map(orgs, function(org) {
-        repos_list <- private$pull_repos_from_org(
-          org = org
-        )
-
-        enterprise_public <- if (self$enterprise) {
-          "Enterprise"
-        } else {
-          "Public"
-        }
-
-        repos_names <- purrr::map_chr(repos_list, ~ .$name)
-
-        pb <- progress::progress_bar$new(
-          format = paste0("GitHub ", enterprise_public, " (", org, "). Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
-          total = length(repos_names)
-        )
-
-        repos_list_with_commits <- purrr::map(repos_names, function(repo) {
-          next_page <- TRUE
-          full_commits_list <- list()
-          end_cursor <- ''
-          pb$tick()
-          while (next_page) {
-            gql <- GraphQL$new()
-            commits_by_org_query <- gql$commits_by_org(
-              org = org,
-              repo = repo,
-              since = date_to_gts(date_from),
-              until = date_to_gts(date_to),
-              cursor = end_cursor
-            )
-            response <- gql_response(
-              api_url = self$gql_api_url,
-              gql_query = commits_by_org_query,
-              token = private$token
-            )
-            commits_list <- response$data$repository$defaultBranchRef$target$history$edges
-            next_page <- response$data$repository$defaultBranchRef$target$history$pageInfo$hasNextPage
-            if (is.null(next_page)) next_page <- FALSE
-            if (is.null(commits_list)) commits_list <- list()
-            if (next_page) {
-              end_cursor <- response$data$repository$defaultBranchRef$target$history$pageInfo$endCursor
-            } else {
-              end_cursor <- ''
-            }
-            full_commits_list <- append(full_commits_list, commits_list)
-          }
-          full_commits_list
-        })
-
-        names(repos_list_with_commits) <- repos_names
-
-        repos_list_with_commits <- repos_list_with_commits %>%
-          purrr::discard(~ length(.) == 0)
-
-        repos_list_with_commits %>%
-          private$prepare_commits_table_gql()
+        private$get_commits_from_org(org,
+                                     date_from = date_from,
+                                     date_until = date_until)
       }) %>%
         rbindlist()
 
@@ -95,6 +53,75 @@ GitHub <- R6::R6Class("GitHub",
     }
   ),
   private = list(
+
+    #' @description
+    #' @param org
+    #' @param date_from A starting date to look commits for.
+    #' @param date_until An end date to look commits for.
+    #' @return A table of commits
+    get_commits_from_org = function(org,
+                                    date_from,
+                                    date_until) {
+
+      repos_list <- private$pull_repos_from_org(
+        org = org
+      )
+
+      enterprise_public <- if (self$enterprise) {
+        "Enterprise"
+      } else {
+        "Public"
+      }
+
+      repos_names <- purrr::map_chr(repos_list, ~ .$name)
+
+      pb <- progress::progress_bar$new(
+        format = paste0("GitHub ", enterprise_public, " (", org, "). Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
+        total = length(repos_names)
+      )
+
+      repos_list_with_commits <- purrr::map(repos_names, function(repo) {
+        next_page <- TRUE
+        full_commits_list <- list()
+        end_cursor <- ''
+        pb$tick()
+        while (next_page) {
+          gql <- GraphQL$new()
+          commits_by_org_query <- gql$gh_commits_by_org(
+            org = org,
+            repo = repo,
+            since = date_to_gts(date_from),
+            until = date_to_gts(date_until),
+            cursor = end_cursor
+          )
+          response <- gql_response(
+            api_url = self$gql_api_url,
+            gql_query = commits_by_org_query,
+            token = private$token
+          )
+          commits_list <- response$data$repository$defaultBranchRef$target$history$edges
+          next_page <- response$data$repository$defaultBranchRef$target$history$pageInfo$hasNextPage
+          if (is.null(next_page)) next_page <- FALSE
+          if (is.null(commits_list)) commits_list <- list()
+          if (next_page) {
+            end_cursor <- response$data$repository$defaultBranchRef$target$history$pageInfo$endCursor
+          } else {
+            end_cursor <- ''
+          }
+          full_commits_list <- append(full_commits_list, commits_list)
+        }
+        full_commits_list
+      })
+
+      names(repos_list_with_commits) <- repos_names
+
+      repos_list_with_commits <- repos_list_with_commits %>%
+        purrr::discard(~ length(.) == 0)
+
+      repos_list_with_commits %>%
+        private$prepare_commits_table_gql()
+
+    },
 
     #' @description Pull all organisations form API.
     #' @param org_limit An integer defining how many org may API pull.

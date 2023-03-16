@@ -4,7 +4,30 @@
 GraphQL <- R6::R6Class("GraphQL",
                        public = list(
 
-                         commits_by_org = function(org, repo, since, until, cursor = '') {
+                         gh_repos_by_user = function(user) {
+
+                           paste0('{
+                            user(login: "', user, '"){
+                              repositories (first:100) {
+                                pageInfo {
+                                   hasNextPage
+                                   endCursor
+                                }
+                                edges {
+                                  node {
+                                    name
+                                    stargazerCount
+                                    forkCount
+                                  }
+                                }
+                              }
+                            }
+                          }')
+
+                         },
+
+                         #' @description GitHub
+                         gh_commits_by_org = function(org, repo, since, until, cursor = '') {
 
                            if (nchar(cursor) == 0) {
                              after_cursor <- cursor
@@ -44,10 +67,10 @@ GraphQL <- R6::R6Class("GraphQL",
                                   }')
                          },
 
-                         #' @description Method to build query to pull groups by users.
+                         #' @description GitLab. Method to build query to pull groups by users.
                          #' @param team A string of team members.
                          #' @return A character.
-                         groups_by_user = function(team) {
+                         gl_groups_by_user = function(team) {
                            paste0('{
                                     users(usernames: ["', team, '"]) {
                                       pageInfo {
