@@ -1,5 +1,5 @@
 #' @importFrom R6 R6Class
-#' @importFrom dplyr mutate
+#' @importFrom dplyr mutate rename
 #' @importFrom magrittr %>%
 #' @importFrom progress progress_bar
 #' @importFrom rlang expr %||%
@@ -41,7 +41,7 @@ GitHub <- R6::R6Class("GitHub",
           total = length(repos_names)
         )
 
-        commits_list <- purrr::map(repos_names, function(repo) {
+        repos_list_with_commits <- purrr::map(repos_names, function(repo) {
           next_page <- TRUE
           full_commits_list <- list()
           end_cursor <- ''
@@ -73,12 +73,13 @@ GitHub <- R6::R6Class("GitHub",
           }
           full_commits_list
         })
-browser()
-        names(commits_list) <- repos_names
 
-        commits_list <- commits_list %>% purrr::discard(~ length(.) == 0)
+        names(repos_list_with_commits) <- repos_names
 
-        commits_list %>%
+        repos_list_with_commits <- repos_list_with_commits %>%
+          purrr::discard(~ length(.) == 0)
+
+        repos_list_with_commits %>%
           private$prepare_commits_table_gql()
       }) %>%
         rbindlist()
@@ -506,16 +507,16 @@ browser()
 
     prepare_commits_table_gql = function(repos_list_with_commits) {
       commits_table <- purrr::imap(repos_list_with_commits, function(repo, repo_name) {
-        commits_table <- purrr::map_dfr(repo$data$repository$defaultBranchRef$target$history$edges, function(edge) {
-          edge$node$author <- edge$node$author$name
-          edge$node
+        commits_row <- purrr::map_dfr(repo, function(commit) {
+          commit$node$author <- commit$node$author$name
+          commit$node
         })
-        commits_table$repository <- repo_name
-        commits_table
+        commits_row$repository <- repo_name
+        commits_row
       }) %>%
         purrr::discard(~length(.) == 1) %>%
-        rbindlist()
-      commits_table
+        rbindlist() %>%
+        dplyr::rename(changed_files = changedFilesIfAvailable)
     }
   )
 )
