@@ -82,7 +82,6 @@ GraphQL <- R6::R6Class("GraphQL",
                                                     }
                                                     additions
                                                     deletions
-                                                    changedFilesIfAvailable
                                                   }
                                                 }
                                               }
