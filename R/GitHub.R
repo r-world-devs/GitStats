@@ -33,15 +33,23 @@ GitHub <- R6::R6Class("GitHub",
                            date_from,
                            date_until = Sys.Date(),
                            by,
-                           team) {
+                           team = NULL) {
 
-      purrr::map(orgs, function(org) {
-        private$get_commits_from_org(org,
+      if (is.null(orgs)) {
+        cli::cli_alert_warning(paste0("No organizations specified for ", self$git_service, "."))
+        orgs <- private$pull_organizations(type = by,
+                                           team = team)
+      }
+
+      commits_table <- purrr::map(orgs, function(org) {
+        private$pull_commits_from_org(org,
                                      date_from = date_from,
-                                     date_until = date_until)
+                                     date_until = date_until,
+                                     team = team)
       }) %>%
         rbindlist()
 
+      return(commits_table)
     },
 
     #' @description A print method for a GitHub object
@@ -54,14 +62,17 @@ GitHub <- R6::R6Class("GitHub",
   ),
   private = list(
 
-    #' @description
-    #' @param org
+    #' @description Method to pull all commits from organization, optionally
+    #'   filtered by team members.
+    #' @param org An organization.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
-    #' @return A table of commits
-    get_commits_from_org = function(org,
-                                    date_from,
-                                    date_until) {
+    #' @param team A character vector of team members.
+    #' @return A table of commits.
+    pull_commits_from_org = function(org,
+                                     date_from,
+                                     date_until,
+                                     team) {
 
       repos_list <- private$pull_repos_from_org(
         org = org
@@ -80,44 +91,64 @@ GitHub <- R6::R6Class("GitHub",
         total = length(repos_names)
       )
 
-      repos_list_with_commits <- purrr::map(repos_names, function(repo) {
-        pb$tick()
-        private$get_commits_from_repo(org,
-                                      repo,
-                                      date_from,
-                                      date_until)
-      })
-
+      if (is.null(team)) {
+        repos_list_with_commits <- purrr::map(repos_names, function(repo) {
+          pb$tick()
+          private$pull_commits_from_repo(org,
+                                        repo,
+                                        date_from,
+                                        date_until)
+        })
+      }
+      if (!is.null(team)) {
+        message("Team ON.")
+        authors_ids <- private$get_authors_ids(team)
+        repos_list_with_commits <- purrr::map(repos_names, function(repo) {
+          pb$tick()
+          full_commits_list <- list()
+          for (author_id in authors_ids) {
+            commits_by_author <-
+              private$pull_commits_from_repo(org,
+                                            repo,
+                                            date_from,
+                                            date_until,
+                                            author_id)
+            full_commits_list <-
+              append(full_commits_list, commits_by_author)
+          }
+          return(full_commits_list)
+        })
+      }
       names(repos_list_with_commits) <- repos_names
 
-      repos_list_with_commits <- repos_list_with_commits %>%
-        purrr::discard(~ length(.) == 0)
-
-      repos_list_with_commits %>%
+      commits_table <- repos_list_with_commits %>%
+        purrr::discard(~ length(.) == 0) %>%
         private$prepare_commits_table_gql()
 
+      return(commits_table)
     },
 
-    #' @description
-    #' @param org
+    #' @description A paginating wrapper over GraphQL commit query.
+    #' @param org An organization.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
-    #' @return A table of commits
-    get_commits_from_repo = function(org,
+    #' @return A list of commits.
+    pull_commits_from_repo = function(org,
                                      repo,
                                      date_from,
-                                     date_until) {
+                                     date_until,
+                                     author_id = '') {
       next_page <- TRUE
       full_commits_list <- list()
       end_cursor <- ''
       while (next_page) {
-        gql <- GraphQL$new()
-        commits_by_org_query <- gql$gh_commits_by_org(
+        commits_by_org_query <- self$graphql$gh_commits(
           org = org,
           repo = repo,
           since = date_to_gts(date_from),
           until = date_to_gts(date_until),
-          cursor = end_cursor
+          cursor = end_cursor,
+          author_id = author_id
         )
         response <- gql_response(
           api_url = self$gql_api_url,
@@ -136,6 +167,23 @@ GitHub <- R6::R6Class("GitHub",
         full_commits_list <- append(full_commits_list, commits_list)
       }
       full_commits_list
+    },
+
+    #' @description Wrapper over GraphQL response.
+    #' @param team A character vector of team members.
+    #' @return A character vector of GitHub's author's IDs.
+    get_authors_ids = function(team) {
+
+      purrr::map_chr(team, ~{
+        authors_id_query <- self$graphql$users_id(.)
+        authors_id_response <- gql_response(
+          api_url = self$gql_api_url,
+          gql_query = authors_id_query,
+          token = private$token
+        )
+        authors_id_response$data$user$id
+        })
+
     },
 
     #' @description Pull all organisations form API.
@@ -310,159 +358,6 @@ GitHub <- R6::R6Class("GitHub",
       return(repos_list)
     },
 
-    #' @description GitHub private method to pull
-    #'   commits from repo with REST API.
-    #' @param org A character, an owner of repository.
-    #' @param date_from A starting date to look commits for.
-    #' @param date_until An end date to look commits for.
-    #' @return A list of commits.
-    pull_commits_from_org = function(org,
-                                     date_from,
-                                     date_until = Sys.Date()) {
-      repos_list <- private$pull_repos_from_org(
-        org = org
-      )
-
-      enterprise_public <- if (self$enterprise) {
-        "Enterprise"
-      } else {
-        "Public"
-      }
-
-      repos_names <- purrr::map_chr(repos_list, ~ .$full_name)
-
-      pb <- progress::progress_bar$new(
-        format = paste0("GitHub ", enterprise_public, " (", org, "). Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
-        total = length(repos_names)
-      )
-
-      commits_list <- purrr::map(repos_names, function(x) {
-        pb$tick()
-        tryCatch(
-          {
-            get_response(
-              endpoint = paste0(
-                self$rest_api_url,
-                "/repos/",
-                x,
-                "/commits?since=",
-                date_to_gts(date_from),
-                "&until=",
-                date_to_gts(date_until)
-              ),
-              token = private$token
-            )
-          },
-          error = function(e) {
-            NULL
-          }
-        )
-      })
-      names(commits_list) <- repos_names
-
-      commits_list <- commits_list %>% purrr::discard(~ length(.) == 0)
-
-      commits_list
-    },
-
-    #' @description Filter by contributors.
-    #' @param commits_list A commits list to be filtered.
-    #' @param team A character vector with team member names.
-    #' @return A list.
-    filter_commits_by_team = function(commits_list,
-                                      team) {
-      commits_list <- purrr::map(commits_list, function(repo) {
-        purrr::keep(repo, function(commit) {
-          if (length(commit$author$login > 0)) {
-            commit$author$login %in% team
-          } else {
-            FALSE
-          }
-        })
-      }) %>% purrr::discard(~ length(.) == 0)
-
-      commits_list
-    },
-
-    #' @description A helper to retrieve
-    #'   only important info on commits
-    #' @details In case of GitHub REST API
-    #'   there is no possibility to retrieve
-    #'   stats from basic get commits API
-    #'   endpoint. It is necessary to reach
-    #'   to the API endpoint of single
-    #'   commit, which is done in
-    #'   \code{attach_commit_stats()}
-    #'   method. Therefore
-    #'   \code{tailor_commits_info()} is
-    #'   'poorer" than the same method for
-    #'   GitLab Client class, where you can
-    #'   derive stats directly from commits
-    #'   API endpoint with \code{with_stats}
-    #'   attribute.
-    #' @param commits_list A list, a
-    #'   formatted content of response
-    #'   returned by GET API request
-    #' @param org A character, name
-    #'   of an organisation
-    #' @return A list of commits with
-    #'   selected information
-    tailor_commits_info = function(commits_list,
-                                   org) {
-      commits_list <- purrr::imap(commits_list, function(repo, repo_name) {
-        purrr::map(repo, function(commit) {
-          list(
-            "id" = commit$sha,
-            "organisation" = org,
-            "repository" = gsub(
-              pattern = paste0(org, "/"),
-              replacement = "",
-              x = repo_name
-            ),
-            "committed_date" = commit$commit$committer$date
-          )
-        })
-      })
-
-      commits_list
-    },
-
-    #' @description A method to retrieve statistics for commits.
-    #' @param commits_list A list of commits.
-    #' @return A list.
-    attach_commits_stats = function(commits_list) {
-      pb <- progress::progress_bar$new(
-        format = paste0("Attaching commits stats: [:bar] repo: :current/:total"),
-        total = length(commits_list)
-      )
-      commits_list <- purrr::imap(commits_list, function(repo, repo_name) {
-        pb$tick()
-        commit_stats <- purrr::map_chr(repo, ~ as.character(.$id)) %>%
-          purrr::map(function(commit_id) {
-            commit_info <- get_response(
-              endpoint = paste0(self$rest_api_url, "/repos/", repo_name, "/commits/", commit_id),
-              token = private$token
-            )
-
-            list(
-              additions = commit_info$stats$additions,
-              deletions = commit_info$stats$deletions,
-              files_changes = length(commit_info$files),
-              files_added = length(grep("added", purrr::map_chr(commit_info$files, ~ .$status))),
-              files_modified = length(grep("modified", purrr::map_chr(commit_info$files, ~ .$status)))
-            )
-          })
-
-        purrr::map2(repo, commit_stats, function(repo_commit, repo_stats) {
-          purrr::list_modify(repo_commit,
-            additions = repo_stats$additions,
-            deletions = repo_stats$deletions
-          )
-        })
-      })
-      return(commits_list)
-    },
-
     #' @description A wrapper for proper pagination of GitHub search REST API
     #' @param search_endpoint A character, a search endpoint
     #' @param total_n Number of results
@@ -557,8 +452,13 @@ GitHub <- R6::R6Class("GitHub",
         commits_row
       }) %>%
         purrr::discard(~length(.) == 1) %>%
-        rbindlist() %>%
-        dplyr::rename(changed_files = changedFilesIfAvailable)
+        rbindlist()
+
+      if (nrow(commits_table) > 0) {
+        commits_table <- commits_table %>%
+          dplyr::rename(changed_files = changedFilesIfAvailable,
+                        committed_date = committedDate)
+      }
     }
   )
 )

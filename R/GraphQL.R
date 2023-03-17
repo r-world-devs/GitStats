@@ -26,8 +26,26 @@ GraphQL <- R6::R6Class("GraphQL",
 
                          },
 
-                         #' @description GitHub
-                         gh_commits_by_org = function(org, repo, since, until, cursor = '') {
+                         #' @description Gets ID of a user
+                         #' @param login A login of a user.
+                         #' @return A query string.
+                         users_id = function(login) {
+                            paste0('{
+                              user(login: "', login, '") {
+                                id
+                              }
+                            }')
+                         },
+
+                         #' @description Query to get commits on GitHub
+                         #' @param org A GitHub organization
+                         #' @param repo Name of a repository
+                         #' @param since Git Time Stamp of starting date of commits.
+                         #' @param until Git Time STamp of end date of commits.
+                         #' @param cursor An endCursor.
+                         #' @param author_id An Id of an author.
+                         #' @return A query string.
+                         gh_commits = function(org, repo, since, until, cursor = '', author_id = '') {
 
                            if (nchar(cursor) == 0) {
                              after_cursor <- cursor
@@ -35,12 +53,21 @@ GraphQL <- R6::R6Class("GraphQL",
                              after_cursor <- paste0('after: "', cursor, '"')
                            }
 
+                           if (nchar(author_id) == 0) {
+                             author_filter <- author_id
+                           } else {
+                             author_filter <- paste0('author: { id: "', author_id, '"}')
+                           }
+
                            paste0('{
                                     repository(name: "', repo, '", owner: "', org, '") {
                                       defaultBranchRef {
                                         target {
                                           ... on Commit {
-                                            history(since: "', since, '" until: "', until, '"', after_cursor, ') {
+                                            history(since: "', since, '"
+                                                    until: "', until, '"
+                                                    ', after_cursor, '
+                                                    ', author_filter, ') {
                                               pageInfo {
                                                 hasNextPage
                                                 endCursor
@@ -69,7 +96,7 @@ GraphQL <- R6::R6Class("GraphQL",
 
                          #' @description GitLab. Method to build query to pull groups by users.
                          #' @param team A string of team members.
-                         #' @return A character.
+                         #' @return A query string.
                          gl_groups_by_user = function(team) {
                            paste0('{
                                     users(usernames: ["', team, '"]) {

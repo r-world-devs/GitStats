@@ -21,17 +21,54 @@ An object with methods to obtain information form GitHub API.
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
+\item \href{#method-get_commits}{\code{GitHub$get_commits()}}
 \item \href{#method-print}{\code{GitHub$print()}}
 }
 }
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
-\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="GitService" data-id="get_commits">}\href{../../GitStats/html/GitService.html#method-get_commits}{\code{GitStats::GitService$get_commits()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="GitService" data-id="get_repos">}\href{../../GitStats/html/GitService.html#method-get_repos}{\code{GitStats::GitService$get_repos()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="GitService" data-id="initialize">}\href{../../GitStats/html/GitService.html#method-initialize}{\code{GitStats::GitService$initialize()}}\out{</span>}
 }
 \out{</details>}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_commits"></a>}}
+\if{latex}{\out{\hypertarget{method-get_commits}{}}}
+\subsection{Method \code{get_commits()}}{
+A method to get information on commits.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitHub$get_commits(
+  orgs = self$orgs,
+  date_from,
+  date_until = Sys.Date(),
+  by,
+  team = NULL
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{orgs}}{A character vector of organisations.}
+
+\item{\code{date_from}}{A starting date to look commits for.}
+
+\item{\code{date_until}}{An end date to look commits for.}
+
+\item{\code{by}}{A character, to choose between: \itemize{\item{org -
+organizations (owners of repositories or project groups)} \item{team -
+A team} \item{phrase - A keyword in code blobs.}}}
+
+\item{\code{team}}{A list of team members. Specified by \code{set_team()} method
+of GitStats class object.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A data.frame of commits
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-print"></a>}}
