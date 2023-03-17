@@ -191,16 +191,7 @@ GitService <- R6::R6Class("GitService",
               .
             }
           } %>%
-          private$tailor_commits_info(org = x) %>%
-          {
-            if (self$git_service == "GitHub") {
-              private$attach_commits_stats(
-                commits_list = .
-              )
-            } else if (self$git_service == "GitLab"){
-              .
-            }
-          } %>%
+          private$tailor_commits_info(org = x)  %>%
           private$prepare_commits_table()
       }) %>% rbindlist()
 
