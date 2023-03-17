@@ -81,36 +81,11 @@ GitHub <- R6::R6Class("GitHub",
       )
 
       repos_list_with_commits <- purrr::map(repos_names, function(repo) {
-        next_page <- TRUE
-        full_commits_list <- list()
-        end_cursor <- ''
         pb$tick()
-        while (next_page) {
-          gql <- GraphQL$new()
-          commits_by_org_query <- gql$gh_commits_by_org(
-            org = org,
-            repo = repo,
-            since = date_to_gts(date_from),
-            until = date_to_gts(date_until),
-            cursor = end_cursor
-          )
-          response <- gql_response(
-            api_url = self$gql_api_url,
-            gql_query = commits_by_org_query,
-            token = private$token
-          )
-          commits_list <- response$data$repository$defaultBranchRef$target$history$edges
-          next_page <- response$data$repository$defaultBranchRef$target$history$pageInfo$hasNextPage
-          if (is.null(next_page)) next_page <- FALSE
-          if (is.null(commits_list)) commits_list <- list()
-          if (next_page) {
-            end_cursor <- response$data$repository$defaultBranchRef$target$history$pageInfo$endCursor
-          } else {
-            end_cursor <- ''
-          }
-          full_commits_list <- append(full_commits_list, commits_list)
-        }
-        full_commits_list
+        private$get_commits_from_repo(org,
+                                      repo,
+                                      date_from,
+                                      date_until)
       })
 
       names(repos_list_with_commits) <- repos_names
@@ -121,6 +96,46 @@ GitHub <- R6::R6Class("GitHub",
       repos_list_with_commits %>%
         private$prepare_commits_table_gql()
 
+    },
+
+    #' @description
+    #' @param org
+    #' @param date_from A starting date to look commits for.
+    #' @param date_until An end date to look commits for.
+    #' @return A table of commits
+    get_commits_from_repo = function(org,
+                                     repo,
+                                     date_from,
+                                     date_until) {
+      next_page <- TRUE
+      full_commits_list <- list()
+      end_cursor <- ''
+      while (next_page) {
+        gql <- GraphQL$new()
+        commits_by_org_query <- gql$gh_commits_by_org(
+          org = org,
+          repo = repo,
+          since = date_to_gts(date_from),
+          until = date_to_gts(date_until),
+          cursor = end_cursor
+        )
+        response <- gql_response(
+          api_url = self$gql_api_url,
+          gql_query = commits_by_org_query,
+          token = private$token
+        )
+        commits_list <- response$data$repository$defaultBranchRef$target$history$edges
+        next_page <- response$data$repository$defaultBranchRef$target$history$pageInfo$hasNextPage
+        if (is.null(next_page)) next_page <- FALSE
+        if (is.null(commits_list)) commits_list <- list()
+        if (next_page) {
+          end_cursor <- response$data$repository$defaultBranchRef$target$history$pageInfo$endCursor
+        } else {
+          end_cursor <- ''
+        }
+        full_commits_list <- append(full_commits_list, commits_list)
+      }
+      full_commits_list
     },
 
     #' @description Pull all organisations form API.
