@@ -19,6 +19,15 @@ GitHub <- R6::R6Class("GitHub",
     #' @field repo_contributors_endpoint An expression for repositories contributors endpoint.
     repo_contributors_endpoint = rlang::expr(paste0(self$rest_api_url, "/repos/", repo$full_name, "/contributors")),
 
+    #' @description A method to list all repositories for an organization.
+    #' @return A data.frame of repositories.
+    get_repos = function() {
+
+      purrr::map(self$orgs, ~private$pull_repos_from_org(.)) %>%
+        rbindlist()
+
+    },
+
     #' @description A method to get information on commits.
     #' @param orgs A character vector of organisations.
     #' @param date_from A starting date to look commits for.
@@ -62,6 +71,39 @@ GitHub <- R6::R6Class("GitHub",
   ),
   private = list(
 
+    #' @description Method to pull all repositories from organization.
+    #' @param org An organization.
+    #' @return A table of repositories
+    pull_repos_from_org = function(org) {
+      cli::cli_alert_info("Pulling repositories...")
+      next_page <- TRUE
+      full_repos_list <- list()
+      repo_cursor <- ''
+      while (next_page) {
+        repos_by_org_query <- self$graphql$gh_repos_by_org(org,
+                                                           cursor = repo_cursor)
+
+        response <- gql_response(
+          api_url = self$gql_api_url,
+          gql_query = repos_by_org_query,
+          token = private$token
+        )
+        repos_list <- response$data$search$edges
+        next_page <- response$data$search$pageInfo$hasNextPage
+        cli::cli_alert_info(response$data$search$repositoryCount)
+        if (is.null(next_page)) next_page <- FALSE
+        if (is.null(repos_list)) repos_list <- list()
+        if (next_page) {
+          repo_cursor <- response$data$search$pageInfo$endCursor
+        } else {
+          repo_cursor <- ''
+        }
+        full_repos_list <- append(full_repos_list, repos_list)
+      }
+      repos_table <- private$prepare_repos_table_gql(full_repos_list)
+      return(repos_table)
+    },
+
     #' @description Method to pull all commits from organization, optionally
     #'   filtered by team members.
     #' @param org An organization.
@@ -74,17 +116,16 @@ GitHub <- R6::R6Class("GitHub",
                                      date_until,
                                      team) {
 
-      repos_list <- private$pull_repos_from_org(
-        org = org
-      )
-
       enterprise_public <- if (self$enterprise) {
         "Enterprise"
       } else {
         "Public"
       }
 
-      repos_names <- purrr::map_chr(repos_list, ~ .$name)
+      repos_table <- private$pull_repos_from_org(
+        org = org
+      )
+      repos_names <- repos_table$name
 
       pb <- progress::progress_bar$new(
         format = paste0("GitHub ", enterprise_public, " (", org, "). Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
@@ -442,6 +483,25 @@ GitHub <- R6::R6Class("GitHub",
       }
     },
 
+    #' @description Parses repositories list into table.
+    #' @param repos_list A list of repositories
+    #' @return Table of repositories.
+    prepare_repos_table_gql = function(repos_list) {
+
+      repo_table <- purrr::map_dfr(repos_list, function(repo) {
+        data.frame(repo)
+      })
+      colnames(repo_table) <- gsub("node.", "", colnames(repo_table))
+      repo_table <- dplyr::rename(
+        repo_table,
+        stars = stargazerCount,
+        forks = forkCount
+      )
+    },
+
+    #' @description Parses repositories' list with commits into table of commits.
+    #' @param repos_list_with_commits A list of repositories with commits.
+    #' @return Table of commits.
     prepare_commits_table_gql = function(repos_list_with_commits) {
       commits_table <- purrr::imap(repos_list_with_commits, function(repo, repo_name) {
         commits_row <- purrr::map_dfr(repo, function(commit) {
@@ -456,8 +516,7 @@ GitHub <- R6::R6Class("GitHub",
 
       if (nrow(commits_table) > 0) {
         commits_table <- commits_table %>%
-          dplyr::rename(changed_files = changedFilesIfAvailable,
-                        committed_date = committedDate)
+          dplyr::rename(committed_date = committedDate)
       }
     }
   )

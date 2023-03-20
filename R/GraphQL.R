@@ -4,6 +4,46 @@
 GraphQL <- R6::R6Class("GraphQL",
                        public = list(
 
+                         #' @description Prepare query to pull repositories for GitHub organization.
+                         #' @param org An organization.
+                         #' @param cursor An endCursor.
+                         #' @return A query.
+                         gh_repos_by_org = function(org, cursor) {
+
+                           if (nchar(cursor) == 0) {
+                             after_cursor <- cursor
+                           } else {
+                             after_cursor <- paste0('after: "', cursor, '"')
+                           }
+
+                           paste0('{
+                              search(query: "org:', org, '"
+                                     type: REPOSITORY
+                                     first: 100
+                                     ', after_cursor, '
+                                     ) {
+                                repositoryCount
+                                pageInfo{
+                                  hasNextPage
+                                  endCursor
+                                }
+                                edges {
+                                  node {
+                                    ... on Repository {
+                                      name
+                                      stargazerCount
+                                      forkCount
+                                    }
+                                  }
+                                }
+                              }
+                            }')
+                         },
+
+                         #' @description Prepare query to pull repositories for GitHub user.
+                         #' @param user A user login.
+                         #' @param cursor An endCursor.
+                         #' @return A query.
                          gh_repos_by_user = function(user) {
 
                            paste0('{
@@ -26,9 +66,9 @@ GraphQL <- R6::R6Class("GraphQL",
 
                          },
 
-                         #' @description Gets ID of a user
+                         #' @description Prepare query to get ID of a GitHub user
                          #' @param login A login of a user.
-                         #' @return A query string.
+                         #' @return A query.
                          users_id = function(login) {
                             paste0('{
                               user(login: "', login, '") {
@@ -37,14 +77,14 @@ GraphQL <- R6::R6Class("GraphQL",
                             }')
                          },
 
-                         #' @description Query to get commits on GitHub
+                         #' @description Prepare query to get commits on GitHub
                          #' @param org A GitHub organization
                          #' @param repo Name of a repository
                          #' @param since Git Time Stamp of starting date of commits.
                          #' @param until Git Time STamp of end date of commits.
                          #' @param cursor An endCursor.
                          #' @param author_id An Id of an author.
-                         #' @return A query string.
+                         #' @return A query.
                          gh_commits = function(org, repo, since, until, cursor = '', author_id = '') {
 
                            if (nchar(cursor) == 0) {
@@ -95,7 +135,7 @@ GraphQL <- R6::R6Class("GraphQL",
 
                          #' @description GitLab. Method to build query to pull groups by users.
                          #' @param team A string of team members.
-                         #' @return A query string.
+                         #' @return A query.
                          gl_groups_by_user = function(team) {
                            paste0('{
                                     users(usernames: ["', team, '"]) {
