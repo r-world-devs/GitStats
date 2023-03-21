@@ -14,8 +14,8 @@ GitService <- R6::R6Class("GitService",
     #' @field gql_api_url A character, url of GraphQL API.
     gql_api_url = NULL,
 
-    #' @field graphql An environment for GraphQL class object.
-    graphql = NULL,
+    #' @field gql_query An environment for GraphQL queries.
+    gql_query = NULL,
 
     #' @field orgs A character vector of organizations.
     orgs = NULL,
@@ -23,19 +23,12 @@ GitService <- R6::R6Class("GitService",
     #' @field git_service A character specifying whether GitHub or GitLab.
     git_service = NULL,
 
-    #' @field enterprise A boolean defining whether Git Service is public or
+    #' @field enterprise A character defining whether Git Service is public or
     #'   enterprise version.
     enterprise = NULL,
 
     #' @field org_limit An integer defining how many org may API pull.
     org_limit = NULL,
-
-    #' @field repos_endpoint An expression for repositories endpoint.
-    repos_endpoint = NULL,
-
-    #' @field repo_contributors_endpoint An expression for repositories'
-    #'   contributors endpoint.
-    repo_contributors_endpoint = NULL,
 
     #' @description Create a new `GitService` object
     #' @param rest_api_url A url of rest API.
@@ -45,24 +38,19 @@ GitService <- R6::R6Class("GitService",
     #'   in case of GitHub and groups of projects in case of GitLab).
     #' @param org_limit An integer to set maximum number of organizations to be
     #'   pulled from Git Service.
-    #' @param repos_endpoint An expression for repositories endpoint.
-    #' @param repo_contributors_endpoint An expression for repositories'
-    #'   contributors endpoint.
     #' @return A new `GitService` object
     initialize = function(rest_api_url = NA,
                           gql_api_url = NA,
                           token = NA,
                           orgs = NA,
-                          org_limit = NA,
-                          repos_endpoint = self$repos_endpoint,
-                          repo_contributors_endpoint = self$repo_contributors_endpoint) {
+                          org_limit = NA) {
       self$rest_api_url <- rest_api_url
       if (is.na(gql_api_url)) {
         private$set_gql_url()
       } else {
         self$gql_api_url <- gql_api_url
       }
-      self$graphql <- GraphQL$new()
+      self$gql_query <- GraphQLQuery$new()
       private$token <- token
       self$git_service <- private$check_git_service(self$rest_api_url)
       self$enterprise <- private$check_enterprise(self$rest_api_url)
@@ -73,130 +61,8 @@ GitService <- R6::R6Class("GitService",
         orgs <- private$check_orgs(orgs)
       }
       self$orgs <- orgs
-
-      self$repos_endpoint <- repos_endpoint
-      self$repo_contributors_endpoint <- repo_contributors_endpoint
-    },
-
-    #' @description  A method to list all repositories for an organization, a
-    #'   team or by a keyword.
-    #' @param orgs A character vector of organizations (owners of repositories).
-    #' @param by A character, to choose between: \itemize{\item{org -
-    #'   organizations (owners of repositories or project groups)} \item{team -
-    #'   A team} \item{phrase - A keyword in code blobs.}}
-    #' @param team A list of team members. Specified by \code{set_team()} method
-    #'   of GitStats class object.
-    #' @param phrase A character to look for in code blobs. Obligatory if
-    #'   \code{by} parameter set to \code{"phrase"}.
-    #' @param language A character specifying language used in repositories.
-    #' @return A data.frame of repositories.
-    get_repos = function(orgs = self$orgs,
-                         by,
-                         team,
-                         phrase,
-                         language = NULL) {
-
-      if (self$git_service == "GitLab") {
-        language <- private$language_handler(language)
-      }
-
-      if (is.null(orgs)) {
-        cli::cli_alert_warning(paste0("No organizations specified for ", self$git_service, "."))
-        orgs <- private$pull_organizations(type = by,
-                                           team = team)
-      }
-      cli::cli_alert(paste0("[", self$git_service, "] Pulling repositories..."))
-
-      pb <- progress::progress_bar$new(
-        format = paste0("...from {:what}: [:bar] :current/:total"),
-        total = length(orgs)
-      )
-
-      repos_dt <- purrr::map(orgs, function(org) {
-        pb$tick(tokens = list(what = org))
-        if (by == "phrase") {
-          repos_list <- private$search_by_keyword(phrase,
-                                                  org = org,
-                                                  language = language
-          )
-          cli::cli_alert_success(paste0("\n On ", self$git_service, " ('", org, "') found ", length(repos_list), " repositories."))
-        } else {
-          repos_list <- private$pull_repos_from_org(org = org) %>%
-            {
-              if (by == "team") {
-                private$filter_repos_by_team(
-                  repos_list = .,
-                  team = team
-                )
-              } else {
-                .
-              }
-            } %>%
-            {
-              if (!is.null(language)) {
-                private$filter_by_language(
-                  repos_list = .,
-                  language = language
-                )
-              } else {
-                .
-              }
-            }
-        }
-
-        repos_dt <- repos_list %>%
-          private$tailor_repos_info() %>%
-          private$prepare_repos_table()
-      }) %>%
-        rbindlist()
-
-      repos_dt
-    },
-
-    #' @description A method to get information on commits.
-    #' @param orgs A character vector of organisations.
-    #' @param date_from A starting date to look commits for
-    #' @param date_until An end date to look commits for
-    #' @param by A character, to choose between: \itemize{\item{org -
-    #'   organizations (owners of repositories or project groups)} \item{team -
-    #'   A team} \item{phrase - A keyword in code blobs.}}
-    #' @param team A list of team members. Specified by \code{set_team()} method
-    #'   of GitStats class object.
-    #' @return A data.frame of commits
-    get_commits = function(orgs = self$orgs,
-                           date_from,
-                           date_until = Sys.time(),
-                           by,
-                           team) {
-
-      if (is.null(orgs)) {
-        cli::cli_alert_warning(paste0("No organizations specified for ", self$git_service, "."))
-        orgs <- private$pull_organizations(type = by,
-                                           team = team)
-      }
-
-      commits_dt <- purrr::map(orgs, function(x) {
-        private$pull_commits_from_org(
-          x,
-          date_from,
-          date_until
-        ) %>%
-          {
-            if (by == "team") {
-              private$filter_commits_by_team(
-                commits_list = .,
-                team = team
-              )
-            } else {
-              .
-            }
-          } %>%
-          private$tailor_commits_info(org = x)  %>%
-          private$prepare_commits_table()
-      }) %>% rbindlist()
-
-      commits_dt
     }
+
   ),
   private = list(
 
@@ -210,9 +76,9 @@ GitService <- R6::R6Class("GitService",
       if (api_url != "https://api.github.com" &&
         api_url != "https://gitlab.api.com" &&
         (grepl("github", api_url)) || self$git_service == "GitLab") {
-        TRUE
+        "Enterprise"
       } else {
-        FALSE
+        "Public"
       }
     },
 
@@ -254,60 +120,28 @@ GitService <- R6::R6Class("GitService",
       return(org_names)
     },
 
-    #' @description A method to pull all repositories for an organization.
-    #' @param org A character, an organization:\itemize{\item{GitHub - owners o
-    #'   repositories} \item{GitLab - group of projects.}}
-    #' @param repos_endpoint An expression for repositories endpoint.
-    #' @return A list.
-    pull_repos_from_org = function(org,
-                                   repos_endpoint = self$repos_endpoint) {
-      repos_list <- list()
-      r_page <- 1
-      repeat {
-        repos_page <- get_response(
-          endpoint = paste0(eval(repos_endpoint), "?per_page=100&page=", r_page),
-          token = private$token
-        )
-        if (length(repos_page) > 0) {
-          repos_list <- append(repos_list, repos_page)
-          r_page <- r_page + 1
-        } else {
-          break
-        }
-      }
-
-      repos_list <- repos_list %>%
-        private$pull_repos_contributors() %>%
-        private$pull_repos_issues()
-
-      repos_list
-    },
-
     #' @description A method to add information on repository contributors.
     #' @param repos_list A list of repositories.
-    #' @param repo_contributors_endpoint An expression for repositories' contributors endpoint.
     #' @return A list of repositories with added information on contributors.
-    pull_repos_contributors = function(repos_list,
-                                       repo_contributors_endpoint = self$repo_contributors_endpoint) {
+    pull_repos_contributors = function(repos_list) {
       repos_list <- purrr::map(repos_list, function(repo) {
         if (self$git_service == "GitHub") {
           user_name <- rlang::expr(.$login)
+          contributors_endpoint <- paste0(self$rest_api_url, "/repos/", repo$full_name, "/contributors")
         } else if (self$git_service == "GitLab") {
           user_name <- rlang::expr(.$name)
+          contributors_endpoint <- paste0(self$rest_api_url, "/projects/", repo$id, "/repository/contributors")
         }
-
         contributors <- tryCatch(
           {
-            get_response(
-              endpoint = eval(repo_contributors_endpoint),
-              token = private$token
+            private$rest_response(
+              endpoint = contributors_endpoint
             ) %>% purrr::map_chr(~ eval(user_name))
           },
           error = function(e) {
             NA
           }
         )
-
         contributors
       }) %>%
         purrr::map2(repos_list, function(contributor, repository) {
@@ -346,9 +180,8 @@ GitService <- R6::R6Class("GitService",
                           objects = c("repositories", "projects")) {
       objects <- match.arg(objects)
       projects_list <- purrr::map(ids, function(x) {
-        content <- get_response(
-          endpoint = paste0(self$rest_api_url, "/", objects, "/", x),
-          token = private$token
+        content <- private$rest_response(
+          endpoint = paste0(self$rest_api_url, "/", objects, "/", x)
         )
       })
 
@@ -415,8 +248,7 @@ GitService <- R6::R6Class("GitService",
           "/groups/"
         }
         withCallingHandlers({
-          get_response(endpoint = paste0(self$rest_api_url, org_endpoint, org),
-                       token = private$token)
+          private$rest_response(endpoint = paste0(self$rest_api_url, org_endpoint, org))
         },
         message = function(m) {
           if (grepl("404", m)) {
@@ -439,6 +271,35 @@ GitService <- R6::R6Class("GitService",
         return(NULL)
       }
       orgs
+    },
+
+    #' @description A wrapper for httr2 functions to perform get request to REST API endpoints.
+    #' @param endpoint An API endpoint.
+    #' @return A content of response formatted to list.
+    rest_response = function(endpoint) {
+
+      resp <- perform_request(endpoint, private$token)
+      if (!is.null(resp)) {
+        result <- resp %>% httr2::resp_body_json(check_type = FALSE)
+      } else {
+        result <- list()
+      }
+
+      return(result)
+    },
+
+    #' @description Wrapper of GraphQL API request and response.
+    #' @param gql_query A string with GraphQL query.
+    #' @return A list.
+    gql_response = function(gql_query) {
+
+      request(paste0(self$gql_api_url, "?")) %>%
+        httr2::req_headers("Authorization" = paste0("Bearer ", private$token)) %>%
+        httr2::req_body_json(list(query=gql_query, variables="null")) %>%
+        httr2::req_perform() %>%
+        httr2::resp_body_json()
+
     }
+
   )
 )

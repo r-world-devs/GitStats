@@ -1,4 +1,4 @@
-test_that("`get_response()` returns proper status when token is empty or invalid", {
+test_that("`private$rest_response()` returns proper status when token is empty or invalid", {
   testthat::skip_on_ci()
 
   wrong_tokens <- c("","bad_token")
@@ -6,7 +6,7 @@ test_that("`get_response()` returns proper status when token is empty or invalid
   purrr::walk(
     wrong_tokens,
     ~expect_message(
-       get_response(
+       private$rest_response(
          endpoint = "https://api.github.com/org/openpharma",
          token = .
        ),
@@ -16,11 +16,11 @@ test_that("`get_response()` returns proper status when token is empty or invalid
 
 })
 
-test_that("`get_response()` throws error on bad host", {
+test_that("`private$rest_response()` throws error on bad host", {
   bad_host <- "https://github.bad_host.com"
 
   expect_error(
-    get_response(
+    private$rest_response(
       endpoint = paste0(bad_host, "/orgs/good_org"),
       token = Sys.getenv("GITHUB_PAT")
     ),
@@ -28,11 +28,11 @@ test_that("`get_response()` throws error on bad host", {
   )
 })
 
-test_that("`get_response()` returns proper status", {
+test_that("`private$rest_response()` returns proper status", {
   bad_endpoint <- "https://api.github.com/orgs/everybody_loves_somebody"
 
   expect_message(
-    get_response(
+    private$rest_response(
       endpoint = bad_endpoint,
       token = Sys.getenv("GITHUB_PAT")
     ),

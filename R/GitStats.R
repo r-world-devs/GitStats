@@ -527,8 +527,8 @@ GitStats <- R6::R6Class("GitStats",
           } else if (client$git_service == "GitHub") {
             client$rest_api_url
           }
-          get_response(endpoint = check_endpoint,
-                       token = priv$token)
+          client_env <- environment(client$initialize)$private
+          client_env$rest_response(endpoint = check_endpoint)
         },
         message = function(m) {
           if (grepl("401", m)) {

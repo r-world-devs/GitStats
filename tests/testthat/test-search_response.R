@@ -8,7 +8,7 @@ test_github_priv <- environment(test_github$initialize)$private
 
 test_that("`search_response()` performs search with limit under 100", {
   search_endpoint <- "https://api.github.com/search/code?q='covid'+user:pharmaverse"
-  total_n <- get_response(search_endpoint,
+  total_n <- private$rest_response(search_endpoint,
                           token = Sys.getenv("GITHUB_PAT"))[["total_count"]]
   expect_type(
     test_github_priv$search_response(
@@ -22,7 +22,7 @@ test_that("`search_response()` performs search with limit under 100", {
 
 test_that("`search_response()` performs search with limit over 100 and under 1000", {
   search_endpoint <- "https://api.github.com/search/code?q='maps'+user:eurostat"
-  total_n <- get_response(search_endpoint,
+  total_n <- private$rest_response(search_endpoint,
                           token = Sys.getenv("GITHUB_PAT"))[["total_count"]]
   expect_type(
     test_github_priv$search_response(
