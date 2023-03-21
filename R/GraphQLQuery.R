@@ -34,8 +34,6 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
                                       name
                                       stargazerCount
                                       forkCount
-                                      createdAt
-                                      pushedAt
                                     }
                                   }
                                 }
