@@ -37,15 +37,9 @@ GitLab <- R6::R6Class("GitLab",
         orgs <- private$pull_organizations(type = by,
                                            team = team)
       }
-      cli::cli_alert(paste0("[", self$git_service, "] Pulling repositories..."))
-
-      pb <- progress::progress_bar$new(
-        format = paste0("...from {:what}: [:bar] :current/:total"),
-        total = length(orgs)
-      )
 
       repos_dt <- purrr::map(orgs, function(org) {
-        pb$tick(tokens = list(what = org))
+        cli::cli_alert_info(paste0("[GitLab][", org, "] Pulling repositories..."))
         if (by == "phrase") {
           repos_list <- private$search_by_keyword(phrase,
                                                   org = org,
@@ -305,17 +299,15 @@ GitLab <- R6::R6Class("GitLab",
     tailor_repos_info = function(projects_list) {
       projects_list <- purrr::map(projects_list, function(x) {
         list(
-          "organisation" = x$namespace$path,
+          "organization" = x$namespace$path,
           "name" = x$name,
           "created_at" = x$created_at,
           "last_activity_at" = x$last_activity_at,
           "forks" = x$fork_count,
           "stars" = x$star_count,
           "contributors" = paste0(x$contributors, collapse = ","),
-          "issues" = x$issues,
           "issues_open" = x$issues_open,
-          "issues_closed" = x$issues_closed,
-          "description" = x$description
+          "issues_closed" = x$issues_closed
         )
       })
 

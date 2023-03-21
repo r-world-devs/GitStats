@@ -101,6 +101,74 @@ GitHub <- R6::R6Class("GitHub",
   ),
   private = list(
 
+    #' @description Pull all organisations form API.
+    #' @param org_limit An integer defining how many org may API pull.
+    #' @return A character vector of organizations names.
+    pull_all_organizations = function(org_limit = self$org_limit) {
+
+      total_count <- private$rest_response(
+        endpoint = paste0(self$rest_api_url, "/search/users?q=type:org")
+      )[["total_count"]]
+
+      if (total_count > org_limit) {
+        warning("Number of organizations exceeds limit (", org_limit, "). I will pull only first ", org_limit, " organizations.",
+                call. = FALSE,
+                immediate. = FALSE
+        )
+        org_n <- org_limit
+      } else {
+        cli::cli_alert("Pulling all organizations.")
+        org_n <- total_count
+      }
+
+      orgs_endpoint <- paste0(self$rest_api_url, "/organizations?per_page=100")
+
+      orgs_list <- private$rest_response(
+        endpoint = orgs_endpoint
+      )
+
+      while (length(orgs_list) < org_n) {
+        last_id <- tail(purrr::map_dbl(orgs_list, ~ .$id), 1)
+        endpoint <- paste0(orgs_endpoint, "&since=", last_id)
+        orgs_list <- private$rest_response(
+          endpoint = endpoint
+        ) %>%
+          append(orgs_list, .)
+      }
+
+      org_names <- purrr::map_chr(orgs_list, ~ .$login)
+      org_n <- length(org_names)
+
+      cli::cli_alert_success(cli::col_green(
+        "Pulled {org_n} organizations."))
+
+      return(org_names)
+    },
+
+    #' @description Pull organisations from API in which are engaged team members.
+    #' @param team A character vector of team members.
+    #' @return A character vector of organizations names.
+    pull_team_organizations = function(team) {
+      cli::cli_alert("Pulling organizations by team.")
+      orgs_list <- purrr::map(team, function(team_member) {
+        suppressMessages({
+          private$rest_response(
+            endpoint = paste0(self$rest_api_url, "/users/", team_member, "/orgs")
+          )
+        })
+      }) %>%
+        purrr::keep(~length(.) > 0) %>%
+        unique()
+
+      org_names <- purrr::map(orgs_list, ~purrr::map_chr(., ~ .$login)) %>% unlist()
+      org_n <- length(org_names)
+
+      cli::cli_alert_success(cli::col_green(
+        "Pulled {org_n} organizations."))
+
+      return(org_names)
+    },
+
     #' @description Method to pull all repositories from organization.
     #' @param org An organization.
     #' @param language Language of repositories.
@@ -296,74 +364,6 @@ GitHub <- R6::R6Class("GitHub",
 
     },
 
-    #' @description Pull all organisations form API.
-    #' @param org_limit An integer defining how many org may API pull.
-    #' @return A character vector of organizations names.
-    pull_all_organizations = function(org_limit = self$org_limit) {
-
-      total_count <- private$rest_response(
-        endpoint = paste0(self$rest_api_url, "/search/users?q=type:org")
-      )[["total_count"]]
-
-      if (total_count > org_limit) {
-        warning("Number of organizations exceeds limit (", org_limit, "). I will pull only first ", org_limit, " organizations.",
-                call. = FALSE,
-                immediate. = FALSE
-        )
-        org_n <- org_limit
-      } else {
-        cli::cli_alert("Pulling all organizations.")
-        org_n <- total_count
-      }
-
-      orgs_endpoint <- paste0(self$rest_api_url, "/organizations?per_page=100")
-
-      orgs_list <- private$rest_response(
-        endpoint = orgs_endpoint
-      )
-
-      while (length(orgs_list) < org_n) {
-        last_id <- tail(purrr::map_dbl(orgs_list, ~ .$id), 1)
-        endpoint <- paste0(orgs_endpoint, "&since=", last_id)
-        orgs_list <- private$rest_response(
-          endpoint = endpoint
-        ) %>%
-          append(orgs_list, .)
-      }
-
-      org_names <- purrr::map_chr(orgs_list, ~ .$login)
-      org_n <- length(org_names)
-
-      cli::cli_alert_success(cli::col_green(
-        "Pulled {org_n} organizations."))
-
-      return(org_names)
-    },
-
-    #' @description Pull organisations from API in which are engaged team members.
-    #' @param team A character vector of team members.
-    #' @return A character vector of organizations names.
-    pull_team_organizations = function(team) {
-      cli::cli_alert("Pulling organizations by team.")
-      orgs_list <- purrr::map(team, function(team_member) {
-        suppressMessages({
-          private$rest_response(
-            endpoint = paste0(self$rest_api_url, "/users/", team_member, "/orgs")
-          )
-        })
-      }) %>%
-        purrr::keep(~length(.) > 0) %>%
-        unique()
-
-      org_names <- purrr::map(orgs_list, ~purrr::map_chr(., ~ .$login)) %>% unlist()
-      org_n <- length(org_names)
-
-      cli::cli_alert_success(cli::col_green(
-        "Pulled {org_n} organizations."))
-
-      return(org_names)
-    },
-
     #' @description Method to pull repositories' issues.
     #' @param repos_list A list of repositories.
     #' @return A list of repositories.
@@ -374,7 +374,6 @@ GitHub <- R6::R6Class("GitHub",
         )
 
         issues_stats <- list()
-        issues_stats[["issues"]] <- length(issues)
         issues_stats[["issues_open"]] <- length(purrr::keep(issues, ~ .$state == "open"))
         issues_stats[["issues_closed"]] <- length(purrr::keep(issues, ~ .$state == "closed"))
 
@@ -382,7 +381,6 @@ GitHub <- R6::R6Class("GitHub",
       }) %>%
         purrr::map2(repos_list, function(issue, repository) {
           purrr::list_modify(repository,
-                             issues = issue$issues,
                              issues_open = issue$issues_open,
                              issues_closed = issue$issues_closed
           )
