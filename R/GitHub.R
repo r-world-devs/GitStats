@@ -114,7 +114,7 @@ GitHub <- R6::R6Class("GitHub",
     pull_repos_page_from_org = function(org,
                                         repo_cursor = '') {
       repos_by_org <- self$gql_query$repos_by_org(org,
-                                                    cursor = repo_cursor)
+                                                  cursor = repo_cursor)
       response <- private$gql_response(
         gql_query = repos_by_org
       )
@@ -508,9 +508,12 @@ GitHub <- R6::R6Class("GitHub",
                                        org) {
 
       repo_table <- purrr::map_dfr(repos_list, function(repo) {
-        data.frame(repo)
+        repo$node$issues_open <- repo$node$open_issues$totalCount
+        repo$node$issues_closed <- repo$node$closed_issues$totalCount
+        repo$node$open_issues <- NULL
+        repo$node$closed_issues <- NULL
+        data.frame(repo$node)
       })
-      colnames(repo_table) <- gsub("node.", "", colnames(repo_table))
       repo_table <- dplyr::rename(
         repo_table,
         stars = stargazerCount,

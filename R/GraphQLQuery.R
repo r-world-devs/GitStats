@@ -34,6 +34,14 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
                                       name
                                       stargazerCount
                                       forkCount
+                                      createdAt
+                                      pushedAt
+                                      open_issues: issues (first: 100 states: [OPEN]) {
+                                        totalCount
+                                      }
+                                      closed_issues: issues (first: 100 states: [CLOSED]) {
+                                        totalCount
+                                      }
                                     }
                                   }
                                 }
