@@ -36,6 +36,7 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
                                       forkCount
                                       createdAt
                                       pushedAt
+                                      updatedAt
                                       open_issues: issues (first: 100 states: [OPEN]) {
                                         totalCount
                                       }

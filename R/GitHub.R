@@ -322,33 +322,6 @@ GitHub <- R6::R6Class("GitHub",
       return(org_names)
     },
 
-    #' @description Method to pull repositories' issues.
-    #' @param repos_list A list of repositories.
-    #' @return A list of repositories.
-    pull_repos_issues = function(repos_list) {
-      repos_list <- purrr::map(repos_list, function(repo) {
-        issues <- private$rest_response(
-          endpoint = paste0(self$rest_api_url, "/repos/", repo$full_name, "/issues")
-        )
-
-        issues_stats <- list()
-        issues_stats[["issues"]] <- length(issues)
-        issues_stats[["issues_open"]] <- length(purrr::keep(issues, ~ .$state == "open"))
-        issues_stats[["issues_closed"]] <- length(purrr::keep(issues, ~ .$state == "closed"))
-
-        return(issues_stats)
-      }) %>%
-        purrr::map2(repos_list, function(issue, repository) {
-          purrr::list_modify(repository,
-            issues = issue$issues,
-            issues_open = issue$issues_open,
-            issues_closed = issue$issues_closed
-          )
-        })
-
-      repos_list
-    },
-
     #' @description Method to filter repositories by language used
     #' @param repos_list A repository list to be filtered.
     #' @param language A character specifying language used in repositories.
@@ -501,8 +474,8 @@ GitHub <- R6::R6Class("GitHub",
     },
 
     #' @description Parses repositories list into table.
-    #' @param repos_list A list of repositories
-    #' @param org An organization of repositories
+    #' @param repos_list A list of repositories.
+    #' @param org An organization of repositories.
     #' @return Table of repositories.
     prepare_repos_table_gql = function(repos_list,
                                        org) {
@@ -519,7 +492,8 @@ GitHub <- R6::R6Class("GitHub",
         stars = stargazerCount,
         forks = forkCount,
         created_at = createdAt,
-        last_push = pushedAt
+        last_push = pushedAt,
+        last_activity = updatedAt
       ) %>%
         dplyr::mutate(
           organization = org,
