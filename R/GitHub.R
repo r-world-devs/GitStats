@@ -29,28 +29,28 @@ GitHub <- R6::R6Class("GitHub",
                          phrase = NULL,
                          language = NULL) {
 
-      if (by %in% "org") {
-        repos_dt <- purrr::map(self$orgs, ~private$pull_repos_from_org(org = .,
-                                                           language = language)) %>%
-          rbindlist(use.names = TRUE)
-      }
-      if (by == "team") {
-        repos_dt <- purrr::map(self$orgs, function(org) {
+      repos_dt <- purrr::map(self$orgs, function(org) {
+        if (by %in% c("org", "team")) {
           repos_table <- private$pull_repos_from_org(org = org,
-                                      language = language)
-          private$filter_repos_by_team(repos_table,
-                                       team)}) %>%
-          rbindlist(use.names = TRUE)
-      }
-      if (by == "phrase") {
-        repos_list <- private$search_by_keyword(phrase,
-                                                org = org,
-                                                language = language
-        )
-        cli::cli_alert_success(paste0("\n On ", self$git_service,
-                                      " ('", org, "') found ",
-                                      length(repos_list), " repositories."))
-      }
+                                                     language = language)
+          if (by == "team") {
+            repos_table <- private$filter_repos_by_team(repos_table,
+                                                        team)
+          }
+        }
+        if (by == "phrase") {
+          repos_table <- private$search_by_keyword(phrase,
+                                                   org = org,
+                                                   language = language
+          ) %>%
+            private$tailor_repos_info() %>%
+            private$prepare_repos_table()
+          cli::cli_alert_success(paste0("\n On GitHub [", org, "] found ",
+                                        nrow(repos_table), " repositories."))
+        }
+        return(repos_table)
+      }) %>%
+        rbindlist(use.names = TRUE)
 
       return(repos_dt)
 
