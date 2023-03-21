@@ -127,21 +127,21 @@ GitService <- R6::R6Class("GitService",
       repos_list <- purrr::map(repos_list, function(repo) {
         if (self$git_service == "GitHub") {
           user_name <- rlang::expr(.$login)
+          contributors_endpoint <- paste0(self$rest_api_url, "/repos/", repo$full_name, "/contributors")
         } else if (self$git_service == "GitLab") {
           user_name <- rlang::expr(.$name)
+          contributors_endpoint <- paste0(self$rest_api_url, "/projects/", repo$id, "/repository/contributors")
         }
-
         contributors <- tryCatch(
           {
             private$rest_response(
-              endpoint = paste0(self$rest_api_url, "/projects/", repo$id, "/repository/contributors")
+              endpoint = contributors_endpoint
             ) %>% purrr::map_chr(~ eval(user_name))
           },
           error = function(e) {
             NA
           }
         )
-
         contributors
       }) %>%
         purrr::map2(repos_list, function(contributor, repository) {
