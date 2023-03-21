@@ -1,14 +1,15 @@
 #' @title A GraphQL class
 #' @description An object with methods to build GraphQL Queries.
 
-GraphQL <- R6::R6Class("GraphQL",
+GraphQLQuery <- R6::R6Class("GraphQLQuery",
+
                        public = list(
 
                          #' @description Prepare query to pull repositories for GitHub organization.
                          #' @param org An organization.
                          #' @param cursor An endCursor.
                          #' @return A query.
-                         gh_repos_by_org = function(org, cursor) {
+                         repos_by_org = function(org, cursor) {
 
                            if (nchar(cursor) == 0) {
                              after_cursor <- cursor
@@ -33,6 +34,8 @@ GraphQL <- R6::R6Class("GraphQL",
                                       name
                                       stargazerCount
                                       forkCount
+                                      createdAt
+                                      pushedAt
                                     }
                                   }
                                 }
@@ -44,7 +47,7 @@ GraphQL <- R6::R6Class("GraphQL",
                          #' @param user A user login.
                          #' @param cursor An endCursor.
                          #' @return A query.
-                         gh_repos_by_user = function(user) {
+                         repos_by_user = function(user) {
 
                            paste0('{
                             user(login: "', user, '"){
@@ -85,7 +88,7 @@ GraphQL <- R6::R6Class("GraphQL",
                          #' @param cursor An endCursor.
                          #' @param author_id An Id of an author.
                          #' @return A query.
-                         gh_commits = function(org, repo, since, until, cursor = '', author_id = '') {
+                         commits_by_repo = function(org, repo, since, until, cursor = '', author_id = '') {
 
                            if (nchar(cursor) == 0) {
                              after_cursor <- cursor
@@ -136,7 +139,7 @@ GraphQL <- R6::R6Class("GraphQL",
                          #' @description GitLab. Method to build query to pull groups by users.
                          #' @param team A string of team members.
                          #' @return A query.
-                         gl_groups_by_user = function(team) {
+                         groups_by_user = function(team) {
                            paste0('{
                                     users(usernames: ["', team, '"]) {
                                       pageInfo {
@@ -157,6 +160,6 @@ GraphQL <- R6::R6Class("GraphQL",
                                       }
                                     }
                                   }')
-                         }
+                          }
                        )
 )

@@ -14,8 +14,8 @@ GitService <- R6::R6Class("GitService",
     #' @field gql_api_url A character, url of GraphQL API.
     gql_api_url = NULL,
 
-    #' @field graphql An environment for GraphQL class object.
-    graphql = NULL,
+    #' @field gql_query An environment for GraphQL queries.
+    gql_query = NULL,
 
     #' @field orgs A character vector of organizations.
     orgs = NULL,
@@ -23,15 +23,12 @@ GitService <- R6::R6Class("GitService",
     #' @field git_service A character specifying whether GitHub or GitLab.
     git_service = NULL,
 
-    #' @field enterprise A boolean defining whether Git Service is public or
+    #' @field enterprise A character defining whether Git Service is public or
     #'   enterprise version.
     enterprise = NULL,
 
     #' @field org_limit An integer defining how many org may API pull.
     org_limit = NULL,
-
-    #' @field repos_endpoint An expression for repositories endpoint.
-    repos_endpoint = NULL,
 
     #' @field repo_contributors_endpoint An expression for repositories'
     #'   contributors endpoint.
@@ -45,7 +42,6 @@ GitService <- R6::R6Class("GitService",
     #'   in case of GitHub and groups of projects in case of GitLab).
     #' @param org_limit An integer to set maximum number of organizations to be
     #'   pulled from Git Service.
-    #' @param repos_endpoint An expression for repositories endpoint.
     #' @param repo_contributors_endpoint An expression for repositories'
     #'   contributors endpoint.
     #' @return A new `GitService` object
@@ -54,7 +50,6 @@ GitService <- R6::R6Class("GitService",
                           token = NA,
                           orgs = NA,
                           org_limit = NA,
-                          repos_endpoint = self$repos_endpoint,
                           repo_contributors_endpoint = self$repo_contributors_endpoint) {
       self$rest_api_url <- rest_api_url
       if (is.na(gql_api_url)) {
@@ -62,7 +57,7 @@ GitService <- R6::R6Class("GitService",
       } else {
         self$gql_api_url <- gql_api_url
       }
-      self$graphql <- GraphQL$new()
+      self$gql_query <- GraphQLQuery$new()
       private$token <- token
       self$git_service <- private$check_git_service(self$rest_api_url)
       self$enterprise <- private$check_enterprise(self$rest_api_url)
@@ -74,7 +69,6 @@ GitService <- R6::R6Class("GitService",
       }
       self$orgs <- orgs
 
-      self$repos_endpoint <- repos_endpoint
       self$repo_contributors_endpoint <- repo_contributors_endpoint
     },
 
@@ -210,9 +204,9 @@ GitService <- R6::R6Class("GitService",
       if (api_url != "https://api.github.com" &&
         api_url != "https://gitlab.api.com" &&
         (grepl("github", api_url)) || self$git_service == "GitLab") {
-        TRUE
+        "Enterprise"
       } else {
-        FALSE
+        "Public"
       }
     },
 
@@ -254,35 +248,6 @@ GitService <- R6::R6Class("GitService",
       return(org_names)
     },
 
-    #' @description A method to pull all repositories for an organization.
-    #' @param org A character, an organization:\itemize{\item{GitHub - owners o
-    #'   repositories} \item{GitLab - group of projects.}}
-    #' @param repos_endpoint An expression for repositories endpoint.
-    #' @return A list.
-    pull_repos_from_org = function(org,
-                                   repos_endpoint = self$repos_endpoint) {
-      repos_list <- list()
-      r_page <- 1
-      repeat {
-        repos_page <- get_response(
-          endpoint = paste0(eval(repos_endpoint), "?per_page=100&page=", r_page),
-          token = private$token
-        )
-        if (length(repos_page) > 0) {
-          repos_list <- append(repos_list, repos_page)
-          r_page <- r_page + 1
-        } else {
-          break
-        }
-      }
-
-      repos_list <- repos_list %>%
-        private$pull_repos_contributors() %>%
-        private$pull_repos_issues()
-
-      repos_list
-    },
-
     #' @description A method to add information on repository contributors.
     #' @param repos_list A list of repositories.
     #' @param repo_contributors_endpoint An expression for repositories' contributors endpoint.
@@ -298,9 +263,8 @@ GitService <- R6::R6Class("GitService",
 
         contributors <- tryCatch(
           {
-            get_response(
-              endpoint = eval(repo_contributors_endpoint),
-              token = private$token
+            private$rest_response(
+              endpoint = eval(repo_contributors_endpoint)
             ) %>% purrr::map_chr(~ eval(user_name))
           },
           error = function(e) {
@@ -346,9 +310,8 @@ GitService <- R6::R6Class("GitService",
                           objects = c("repositories", "projects")) {
       objects <- match.arg(objects)
       projects_list <- purrr::map(ids, function(x) {
-        content <- get_response(
-          endpoint = paste0(self$rest_api_url, "/", objects, "/", x),
-          token = private$token
+        content <- private$rest_response(
+          endpoint = paste0(self$rest_api_url, "/", objects, "/", x)
         )
       })
 
@@ -415,8 +378,7 @@ GitService <- R6::R6Class("GitService",
           "/groups/"
         }
         withCallingHandlers({
-          get_response(endpoint = paste0(self$rest_api_url, org_endpoint, org),
-                       token = private$token)
+          private$rest_response(endpoint = paste0(self$rest_api_url, org_endpoint, org))
         },
         message = function(m) {
           if (grepl("404", m)) {
@@ -439,6 +401,35 @@ GitService <- R6::R6Class("GitService",
         return(NULL)
       }
       orgs
+    },
+
+    #' @description A wrapper for httr2 functions to perform get request to REST API endpoints.
+    #' @param endpoint An API endpoint.
+    #' @return A content of response formatted to list.
+    rest_response = function(endpoint) {
+
+      resp <- perform_request(endpoint, private$token)
+      if (!is.null(resp)) {
+        result <- resp %>% httr2::resp_body_json(check_type = FALSE)
+      } else {
+        result <- list()
+      }
+
+      return(result)
+    },
+
+    #' @description Wrapper of GraphQL API request and response.
+    #' @param gql_query A string with GraphQL query.
+    #' @return A list.
+    gql_response = function(gql_query) {
+
+      request(paste0(self$gql_api_url, "?")) %>%
+        httr2::req_headers("Authorization" = paste0("Bearer ", private$token)) %>%
+        httr2::req_body_json(list(query=gql_query, variables="null")) %>%
+        httr2::req_perform() %>%
+        httr2::resp_body_json()
+
     }
+
   )
 )

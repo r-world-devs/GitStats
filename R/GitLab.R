@@ -12,9 +12,6 @@ GitLab <- R6::R6Class("GitLab",
   cloneable = FALSE,
   public = list(
 
-    #' @field repos_endpoint An expression for repositories endpoint.
-    repos_endpoint = rlang::expr(paste0(self$rest_api_url, "/groups/", org, "/projects")),
-
     #' @field repo_contributors_endpoint An expression for repositories contributors endpoint.
     repo_contributors_endpoint = rlang::expr(paste0(self$rest_api_url, "/projects/", repo$id, "/repository/contributors")),
 
@@ -45,9 +42,8 @@ GitLab <- R6::R6Class("GitLab",
       still_more_hits <- TRUE
       while (length(orgs_list) < org_limit || !still_more_hits) {
         pb$tick()
-        orgs_page <- get_response(
-          endpoint = paste0(self$rest_api_url, "/groups?all_available=true&per_page=100&page=", o_page),
-          token = private$token
+        orgs_page <- private$rest_response(
+          endpoint = paste0(self$rest_api_url, "/groups?all_available=true&per_page=100&page=", o_page)
         )
         if (length(orgs_page) > 0) {
           orgs_list <- append(orgs_list, orgs_page)
@@ -77,7 +73,7 @@ GitLab <- R6::R6Class("GitLab",
 
       team <- paste0(team, collapse = '", "')
 
-      gql_query <- self$graphql$groups_by_user(team)
+      gql_query <- self$groups_by_user(team)
 
       json_data <- gql_response(
                      api_url = paste0(self$gql_api_url),
@@ -99,6 +95,32 @@ GitLab <- R6::R6Class("GitLab",
       return(org_names)
     },
 
+    #' @description A method to pull all repositories for an organization.
+    #' @param org A character, an organization:\itemize{\item{GitHub - owners o
+    #'   repositories} \item{GitLab - group of projects.}}
+    #' @return A list.
+    pull_repos_from_org = function(org) {
+      repos_list <- list()
+      r_page <- 1
+      repeat {
+        repos_page <- private$rest_response(
+          endpoint = paste0(self$rest_api_url, "/groups/", org, "/projects?per_page=100&page=", r_page)
+        )
+        if (length(repos_page) > 0) {
+          repos_list <- append(repos_list, repos_page)
+          r_page <- r_page + 1
+        } else {
+          break
+        }
+      }
+
+      repos_list <- repos_list %>%
+        private$pull_repos_contributors() %>%
+        private$pull_repos_issues()
+
+      repos_list
+    },
+
     #' @description Method to pull repositories' issues.
     #' @param repos_list A list of repositories.
     #' @return A list of repositories.
@@ -106,9 +128,8 @@ GitLab <- R6::R6Class("GitLab",
       projects_ids <- unique(purrr::map_chr(repos_list, ~ as.character(.$id)))
 
       repos_list <- purrr::map(projects_ids, function(project_id) {
-        issues_stats <- get_response(
-          endpoint = paste0(self$rest_api_url, "/projects/", project_id, "/issues_statistics"),
-          token = private$token
+        issues_stats <- private$rest_response(
+          endpoint = paste0(self$rest_api_url, "/projects/", project_id, "/issues_statistics")
         )
 
         issues_stats
@@ -144,9 +165,8 @@ GitLab <- R6::R6Class("GitLab",
       projects_id <- unique(purrr::map_chr(repos_list, ~ as.character(.$id)))
 
       projects_language_list <- purrr::map(projects_id, function(x) {
-        get_response(
-          endpoint = paste0(self$rest_api_url, "/projects/", x, "/languages"),
-          token = private$token
+        private$rest_response(
+          endpoint = paste0(self$rest_api_url, "/projects/", x, "/languages")
         )
       })
 
@@ -203,8 +223,9 @@ GitLab <- R6::R6Class("GitLab",
       groups_id <- private$get_group_id(org)
 
       while (still_more_hits | page < page_max) {
-        resp <- get_response(paste0(self$rest_api_url, "/groups/", groups_id, "/search?scope=blobs&search=", phrase, "&per_page=100&page=", page),
-          token = private$token
+        resp <- private$rest_response(
+          paste0(self$rest_api_url, "/groups/", groups_id,
+                 "/search?scope=blobs&search=", phrase, "&per_page=100&page=", page)
         )
 
         if (length(resp) == 0) {
@@ -247,7 +268,7 @@ GitLab <- R6::R6Class("GitLab",
       commits_list <- purrr::map(projects_ids, function(x) {
         pb$tick()
 
-        get_response(
+        private$rest_response(
           endpoint = paste0(
             self$rest_api_url,
             "/projects/",
@@ -257,8 +278,7 @@ GitLab <- R6::R6Class("GitLab",
             "'&until='",
             date_to_gts(date_until),
             "'&with_stats=true"
-          ),
-          token = private$token
+          )
         )
       })
 
@@ -334,8 +354,7 @@ GitLab <- R6::R6Class("GitLab",
     #' @param project_group A character, a group of projects.
     #' @return An integer, id of group.
     get_group_id = function(project_group) {
-      get_response(paste0(self$rest_api_url, "/groups/", project_group),
-        token = private$token
+      private$rest_response(paste0(self$rest_api_url, "/groups/", project_group)
       )[["id"]]
     }
   )
