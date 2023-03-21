@@ -13,15 +13,46 @@ GitHub <- R6::R6Class("GitHub",
   cloneable = FALSE,
   public = list(
 
-    #' @field repo_contributors_endpoint An expression for repositories contributors endpoint.
-    repo_contributors_endpoint = rlang::expr(paste0(self$rest_api_url, "/repos/", repo$full_name, "/contributors")),
-
-    #' @description A method to list all repositories for an organization.
+    #' @description  A method to list all repositories for an organization, a
+    #'   team or by a keyword.
+    #' @param by A character, to choose between: \itemize{\item{org -
+    #'   organizations (owners of repositories or project groups)} \item{team -
+    #'   A team} \item{phrase - A keyword in code blobs.}}
+    #' @param team A list of team members. Specified by \code{set_team()} method
+    #'   of GitStats class object.
+    #' @param phrase A character to look for in code blobs. Obligatory if
+    #'   \code{by} parameter set to \code{"phrase"}.
+    #' @param language A character specifying language used in repositories.
     #' @return A data.frame of repositories.
-    get_repos = function() {
+    get_repos = function(by,
+                         team = NULL,
+                         phrase = NULL,
+                         language = NULL) {
 
-      purrr::map(self$orgs, ~private$pull_repos_from_org(.)) %>%
-        rbindlist()
+      if (by %in% "org") {
+        repos_dt <- purrr::map(self$orgs, ~private$pull_repos_from_org(org = .,
+                                                           language = language)) %>%
+          rbindlist(use.names = TRUE)
+      }
+      if (by == "team") {
+        repos_dt <- purrr::map(self$orgs, function(org) {
+          repos_table <- private$pull_repos_from_org(org = org,
+                                      language = language)
+          private$filter_repos_by_team(repos_table,
+                                       team)}) %>%
+          rbindlist(use.names = TRUE)
+      }
+      if (by == "phrase") {
+        repos_list <- private$search_by_keyword(phrase,
+                                                org = org,
+                                                language = language
+        )
+        cli::cli_alert_success(paste0("\n On ", self$git_service,
+                                      " ('", org, "') found ",
+                                      length(repos_list), " repositories."))
+      }
+
+      return(repos_dt)
 
     },
 
@@ -70,10 +101,14 @@ GitHub <- R6::R6Class("GitHub",
 
     #' @description Method to pull all repositories from organization.
     #' @param org An organization.
+    #' @param language Language of repositories.
     #' @return A table of repositories
-    pull_repos_from_org = function(org) {
+    pull_repos_from_org = function(org,
+                                   language) {
+
       cli::cli_alert_info("[GitHub {self$enterprise}][{org}] Pulling repositories...")
-      repos_response <- private$pull_repos_page_from_org(org)
+      repos_response <- private$pull_repos_page_from_org(org = org,
+                                                         language = language)
       repos_count <- repos_response$data$search$repositoryCount
       cli::cli_alert_info("Number of repositories: {repos_count}")
       if (repos_count > 1000) {
@@ -88,8 +123,9 @@ GitHub <- R6::R6Class("GitHub",
         repo_cursor <- ''
       }
       while (next_page) {
-        repos_response <- private$pull_repos_page_from_org(org,
-                                                        repo_cursor = repo_cursor)
+        repos_response <- private$pull_repos_page_from_org(org = org,
+                                                           language = language,
+                                                           repo_cursor = repo_cursor)
         repos_list <- repos_response$data$search$edges
         next_page <- repos_response$data$search$pageInfo$hasNextPage
         if (is.null(next_page)) next_page <- FALSE
@@ -109,11 +145,15 @@ GitHub <- R6::R6Class("GitHub",
     },
 
     #' @description
-    #' @param
+    #' @param org
+    #' @param language
+    #' @param repo_cursor
     #' @return
     pull_repos_page_from_org = function(org,
+                                        language,
                                         repo_cursor = '') {
       repos_by_org <- self$gql_query$repos_by_org(org,
+                                                  language = language,
                                                   cursor = repo_cursor)
       response <- private$gql_response(
         gql_query = repos_by_org
@@ -473,6 +513,20 @@ GitHub <- R6::R6Class("GitHub",
       }
     },
 
+    #' @description Filter repositories by contributors.
+    #' @details If at least one member of a team is a contributor than a project
+    #'   passes through the filter.
+    #' @param repos_table A repository table to be filtered.
+    #' @param team A character vector with team member names.
+    #' @return A repos table.
+    filter_repos_by_team = function(repos_table,
+                                    team) {
+      cli::cli_alert_info("Filtering by team members.")
+      repos_table <- repos_table %>%
+        dplyr::filter(contributors %in% team)
+      return(repos_table)
+    },
+
     #' @description Parses repositories list into table.
     #' @param repos_list A list of repositories.
     #' @param org An organization of repositories.
@@ -481,11 +535,22 @@ GitHub <- R6::R6Class("GitHub",
                                        org) {
 
       repo_table <- purrr::map_dfr(repos_list, function(repo) {
-        repo$node$issues_open <- repo$node$open_issues$totalCount
-        repo$node$issues_closed <- repo$node$closed_issues$totalCount
-        repo$node$open_issues <- NULL
-        repo$node$closed_issues <- NULL
+        repo$node$languages <- purrr::map_chr(repo$node$languages$nodes, ~.$name) %>%
+          paste0(collapse = ", ")
+        repo$node$contributors <- purrr::map_chr(repo$node$contributors$target$history$edges,
+                                                     ~{if (!is.null(.$node$committer$user)){
+                                                         .$node$committer$user$login
+                                                       } else {
+                                                         ""
+                                                       }
+                                                       }) %>%
+          purrr::discard(~. == "") %>%
+          unique() %>%
+          paste0(collapse = ", ")
+        repo$node$issues_open <- repo$node$issues_open$totalCount
+        repo$node$issues_closed <- repo$node$issues_closed$totalCount
         data.frame(repo$node)
+
       })
       repo_table <- dplyr::rename(
         repo_table,

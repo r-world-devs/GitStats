@@ -7,9 +7,19 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
 
                          #' @description Prepare query to pull repositories for GitHub organization.
                          #' @param org An organization.
+                         #' @param language Language of a repository.
                          #' @param cursor An endCursor.
                          #' @return A query.
-                         repos_by_org = function(org, cursor) {
+                         repos_by_org = function(org, language, cursor) {
+
+
+
+                           if (!is.null(language)) {
+                             search_query <-
+                               paste0('query: "org:', org, ' language:', language, '"')
+                           } else {
+                             search_query <- paste0('query: "org:', org, '"')
+                           }
 
                            if (nchar(cursor) == 0) {
                              after_cursor <- cursor
@@ -18,7 +28,7 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
                            }
 
                            paste0('{
-                              search(query: "org:', org, '"
+                              search(', search_query, '
                                      type: REPOSITORY
                                      first: 100
                                      ', after_cursor, '
@@ -37,43 +47,37 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
                                       createdAt
                                       pushedAt
                                       updatedAt
-                                      open_issues: issues (first: 100 states: [OPEN]) {
+                                      languages (first: 5) { nodes {name} }
+                                      issues_open: issues (first: 100 states: [OPEN]) {
                                         totalCount
                                       }
-                                      closed_issues: issues (first: 100 states: [CLOSED]) {
+                                      issues_closed: issues (first: 100 states: [CLOSED]) {
                                         totalCount
+                                      }
+                                      contributors: defaultBranchRef {
+                                        target {
+                                          ... on Commit {
+                                            id
+                                            history(since: "2020-01-01T00:00:00Z") {
+                                              edges {
+                                                node {
+                                                  committer {
+                                                    user {
+                                                      login
+                                                      id
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
                                       }
                                     }
                                   }
                                 }
                               }
                             }')
-                         },
-
-                         #' @description Prepare query to pull repositories for GitHub user.
-                         #' @param user A user login.
-                         #' @param cursor An endCursor.
-                         #' @return A query.
-                         repos_by_user = function(user) {
-
-                           paste0('{
-                            user(login: "', user, '"){
-                              repositories (first:100) {
-                                pageInfo {
-                                   hasNextPage
-                                   endCursor
-                                }
-                                edges {
-                                  node {
-                                    name
-                                    stargazerCount
-                                    forkCount
-                                  }
-                                }
-                              }
-                            }
-                          }')
-
                          },
 
                          #' @description Prepare query to get ID of a GitHub user
