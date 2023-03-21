@@ -111,7 +111,7 @@ test_that("`pull_repos_from_org()` pulls correctly repositories for GitLab", {
   )
 
   purrr::walk(orgs, function(group) {
-    repos_n <- length(get_response(
+    repos_n <- length(private$rest_response(
       endpoint = paste0("https://gitlab.com/api/v4/groups/", group),
       token = Sys.getenv("GITLAB_PAT")
     )[["projects"]])
