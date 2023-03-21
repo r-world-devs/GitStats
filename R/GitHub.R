@@ -244,7 +244,8 @@ GitHub <- R6::R6Class("GitHub",
                                      team) {
 
       repos_table <- private$pull_repos_from_org(
-        org = org
+        org = org,
+        language = NULL
       )
       repos_names <- repos_table$name
 
