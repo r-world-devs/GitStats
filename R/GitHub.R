@@ -189,7 +189,7 @@ GitHub <- R6::R6Class("GitHub",
                                                            repo_cursor = repo_cursor)
         repositories <- repos_response$data$search
         if (length(full_repos_list) == 0) {
-          repos_count <- repositories$totalCount
+          repos_count <- repositories$repositoryCount
           cli::cli_alert_info("Number of repositories: {repos_count}")
         }
         repos_list <- repositories$edges
@@ -524,20 +524,6 @@ GitHub <- R6::R6Class("GitHub",
 
         resp_list
       }
-    },
-
-    #' @description Filter repositories by contributors.
-    #' @details If at least one member of a team is a contributor than a project
-    #'   passes through the filter.
-    #' @param repos_table A repository table to be filtered.
-    #' @param team A character vector with team member names.
-    #' @return A repos table.
-    filter_repos_by_team = function(repos_table,
-                                    team) {
-      cli::cli_alert_info("Filtering by team members.")
-      repos_table <- repos_table %>%
-        dplyr::filter(contributors %in% team)
-      return(repos_table)
     },
 
     #' @description Parses repositories list into table.

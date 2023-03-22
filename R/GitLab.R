@@ -40,21 +40,21 @@ GitLab <- R6::R6Class("GitLab",
 
       repos_dt <- purrr::map(orgs, function(org) {
         if (by %in% c("org", "team")) {
-          repos_list <- private$pull_repos_from_org(org = org,
+          repos_table <- private$pull_repos_from_org(org = org,
                                                     language = language)
           if (by == "team") {
-            repos_list <- private$filter_repos_by_team(
-              repos_list = repos_list,
+            repos_table <- private$filter_repos_by_team(
+              repos_table = repos_table,
               team = team
             )
           }
           if (!is.null(language)) {
-            repos_list <- private$filter_by_language(
-              repos_list = repos_list,
+            repos_table <- private$filter_by_language(
+              repos_table = repos_table,
               language = language
             )
           }
-          return(repos_list)
+          return(repos_table)
         }
 
         if (by == "phrase") {
@@ -263,45 +263,6 @@ GitLab <- R6::R6Class("GitLab",
         })
 
       repos_list
-    },
-
-    #' @description Filter projects by programming
-    #'   language
-    #' @param repos_list A list of repositories to be
-    #'   filtered.
-    #' @param language A character, name of a
-    #'   programming language.
-    #' @details This method is specific for GitLab
-    #'   Client class as there is no possibility
-    #'   currently to add language filter to search
-    #'   endpoint. As for now, an epic is in progress
-    #'   on GitLab to add this feature. For more
-    #'   details you can visit:
-    #'   \link{https://gitlab.com/gitlab-org/gitlab/-/issues/342648}
-    #' @return A list of projects where speicfied
-    #'   language is used.
-    filter_by_language = function(repos_list,
-                                  language) {
-      projects_id <- unique(purrr::map_chr(repos_list, ~ as.character(.$id)))
-
-      projects_language_list <- purrr::map(projects_id, function(x) {
-        private$rest_response(
-          endpoint = paste0(self$rest_api_url, "/projects/", x, "/languages")
-        )
-      })
-
-      names(projects_language_list) <- projects_id
-
-      filtered_projects <- purrr::map(projects_language_list, function(x) {
-        purrr::map_chr(x, ~.)
-      }) %>%
-        purrr::keep(~ language %in% names(.))
-
-      if (length(filtered_projects) > 0) {
-        purrr::keep(repos_list, ~ .$id %in% names(filtered_projects))
-      } else {
-        list()
-      }
     },
 
     #' @description A helper to retrieve only important info on repos
