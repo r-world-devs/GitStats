@@ -227,7 +227,7 @@ GitLab <- R6::R6Class("GitLab",
       }
 
       repos_table <- repos_list %>%
-        private$prepare_repos_table_gql()
+        private$prepare_repos_table_gql(org = org)
         # private$pull_repos_contributors()
 
       return(repos_table)
@@ -454,24 +454,34 @@ GitLab <- R6::R6Class("GitLab",
       commits_list
     },
 
-    prepare_repos_table_gql = function(repos_list) {
+    #' @description
+    #' @param
+    #' @return
+    prepare_repos_table_gql = function(repos_list,
+                                       org) {
 
       repos_table <- purrr::map_dfr(repos_list, function(repo) {
-        data.frame(
+        repo_row <- data.frame(
           "id" = repo$node$id,
           "name" = repo$node$name,
           "created_at" = repo$node$createdAt,
+          "last_push" = NA,
           "last_activity_at" = repo$node$last_activity_at,
           "stars" = repo$node$stars,
           "forks" = repo$node$forks,
           "languages" = if (length(repo$node$languages) > 0) {
-            purrr::map_chr(repo$node$languages, ~.$name)
+            purrr::map_chr(repo$node$languages, ~.$name) %>%
+              paste0(collapse = ", ")
           } else {
             ''
           },
           "issues_open" = repo$node$issueStatusCounts$opened,
-          "issues_closed" = repo$node$issueStatusCounts$closed
+          "issues_closed" = repo$node$issueStatusCounts$closed,
+          "contributors" = NA,
+          "organization" = org,
+          "api_url" = self$rest_api_url
         )
+        repo_row
       })
       return(repos_table)
     },

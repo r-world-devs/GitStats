@@ -177,31 +177,27 @@ GitHub <- R6::R6Class("GitHub",
                                    language) {
 
       cli::cli_alert_info("[GitHub {self$enterprise}][{org}] Pulling repositories...")
-      repos_response <- private$pull_repos_page_from_org(org = org,
-                                                         language = language)
-      repos_count <- repos_response$data$search$repositoryCount
-      cli::cli_alert_info("Number of repositories: {repos_count}")
-      if (repos_count > 1000) {
-        cli::cli_alert_warning("Repos limit hit. Only 1000 repos will be pulled.")
-      }
-      full_repos_list <- repos_response$data$search$edges
-      next_page <- repos_response$data$search$pageInfo$hasNextPage
-      if (is.null(full_repos_list)) full_repos_list <- list()
-      if (next_page) {
-        repo_cursor <- repos_response$data$search$pageInfo$endCursor
-      } else {
-        repo_cursor <- ''
-      }
+      full_repos_list <- list()
+      next_page <- TRUE
+      repo_cursor <- ''
+      pb <- progress::progress_bar$new(format = "Pulling page: :current",
+                                       clear = FALSE)
       while (next_page) {
+        pb$tick()
         repos_response <- private$pull_repos_page_from_org(org = org,
                                                            language = language,
                                                            repo_cursor = repo_cursor)
-        repos_list <- repos_response$data$search$edges
-        next_page <- repos_response$data$search$pageInfo$hasNextPage
+        repositories <- repos_response$data$search
+        if (length(full_repos_list) == 0) {
+          repos_count <- repositories$totalCount
+          cli::cli_alert_info("Number of repositories: {repos_count}")
+        }
+        repos_list <- repositories$edges
+        next_page <- repositories$pageInfo$hasNextPage
         if (is.null(next_page)) next_page <- FALSE
         if (is.null(repos_list)) repos_list <- list()
         if (next_page) {
-          repo_cursor <- repos_response$data$search$pageInfo$endCursor
+          repo_cursor <- repositories$pageInfo$endCursor
         } else {
           repo_cursor <- ''
         }
@@ -210,7 +206,7 @@ GitHub <- R6::R6Class("GitHub",
       repos_table <- private$prepare_repos_table_gql(
         full_repos_list,
         org = org
-        )
+      )
       return(repos_table)
     },
 
@@ -567,15 +563,15 @@ GitHub <- R6::R6Class("GitHub",
         repo$node$issues_open <- repo$node$issues_open$totalCount
         repo$node$issues_closed <- repo$node$issues_closed$totalCount
         data.frame(repo$node)
-
       })
+
       repo_table <- dplyr::rename(
         repo_table,
         stars = stargazerCount,
         forks = forkCount,
         created_at = createdAt,
         last_push = pushedAt,
-        last_activity = updatedAt
+        last_activity_at = updatedAt
       ) %>%
         dplyr::mutate(
           organization = org,
