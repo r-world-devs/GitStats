@@ -31,11 +31,14 @@ GitHub <- R6::R6Class("GitHub",
 
       repos_dt <- purrr::map(self$orgs, function(org) {
         if (by %in% c("org", "team")) {
-          repos_table <- private$pull_repos_from_org(org = org,
-                                                     language = language)
+          repos_table <- private$pull_repos_from_org(org = org)
           if (by == "team") {
             repos_table <- private$filter_repos_by_team(repos_table,
                                                         team)
+          }
+          if (!is.null(language)) {
+            repos_table <- private$filter_repos_by_language(repos_table,
+                                                            language)
           }
         }
         if (by == "phrase") {
@@ -171,37 +174,30 @@ GitHub <- R6::R6Class("GitHub",
 
     #' @description Method to pull all repositories from organization.
     #' @param org An organization.
-    #' @param language Language of repositories.
     #' @return A table of repositories
-    pull_repos_from_org = function(org,
-                                   language) {
+    pull_repos_from_org = function(org) {
 
       cli::cli_alert_info("[GitHub {self$enterprise}][{org}] Pulling repositories...")
-      repos_response <- private$pull_repos_page_from_org(org = org,
-                                                         language = language)
-      repos_count <- repos_response$data$search$repositoryCount
-      cli::cli_alert_info("Number of repositories: {repos_count}")
-      if (repos_count > 1000) {
-        cli::cli_alert_warning("Repos limit hit. Only 1000 repos will be pulled.")
-      }
-      full_repos_list <- repos_response$data$search$edges
-      next_page <- repos_response$data$search$pageInfo$hasNextPage
-      if (is.null(full_repos_list)) full_repos_list <- list()
-      if (next_page) {
-        repo_cursor <- repos_response$data$search$pageInfo$endCursor
-      } else {
-        repo_cursor <- ''
-      }
+      full_repos_list <- list()
+      next_page <- TRUE
+      repo_cursor <- ''
+      pb <- progress::progress_bar$new(format = "Pulling page: :current",
+                                       clear = FALSE)
       while (next_page) {
+        pb$tick()
         repos_response <- private$pull_repos_page_from_org(org = org,
-                                                           language = language,
                                                            repo_cursor = repo_cursor)
-        repos_list <- repos_response$data$search$edges
-        next_page <- repos_response$data$search$pageInfo$hasNextPage
+        repositories <- repos_response$data$repositoryOwner$repositories
+        if (length(full_repos_list) == 0) {
+          repos_count <- repositories$totalCount
+          cli::cli_alert_info("Number of repositories: {repos_count}")
+        }
+        repos_list <- repositories$nodes
+        next_page <- repositories$pageInfo$hasNextPage
         if (is.null(next_page)) next_page <- FALSE
         if (is.null(repos_list)) repos_list <- list()
         if (next_page) {
-          repo_cursor <- repos_response$data$search$pageInfo$endCursor
+          repo_cursor <- repositories$pageInfo$endCursor
         } else {
           repo_cursor <- ''
         }
@@ -220,10 +216,8 @@ GitHub <- R6::R6Class("GitHub",
     #' @param repo_cursor
     #' @return
     pull_repos_page_from_org = function(org,
-                                        language,
                                         repo_cursor = '') {
-      repos_by_org <- self$gql_query$repos_by_org(org,
-                                                  language = language,
+      repos_by_org <- self$gql_query$repos_by_org_test(org,
                                                   cursor = repo_cursor)
       response <- private$gql_response(
         gql_query = repos_by_org
@@ -544,6 +538,20 @@ GitHub <- R6::R6Class("GitHub",
       return(repos_table)
     },
 
+    #' @description Filter repositories by contributors.
+    #' @details If at least one member of a team is a contributor than a project
+    #'   passes through the filter.
+    #' @param repos_table A repository table to be filtered.
+    #' @param language A language used in repository.
+    #' @return A repos table.
+    filter_repos_by_language = function(repos_table,
+                                    language) {
+      cli::cli_alert_info("Filtering by language.")
+      repos_table <- repos_table %>%
+        dplyr::filter(languages %in% language)
+      return(repos_table)
+    },
+
     #' @description Parses repositories list into table.
     #' @param repos_list A list of repositories.
     #' @param org An organization of repositories.
@@ -552,9 +560,9 @@ GitHub <- R6::R6Class("GitHub",
                                        org) {
 
       repo_table <- purrr::map_dfr(repos_list, function(repo) {
-        repo$node$languages <- purrr::map_chr(repo$node$languages$nodes, ~.$name) %>%
+        repo$languages <- purrr::map_chr(repo$languages$nodes, ~.$name) %>%
           paste0(collapse = ", ")
-        repo$node$contributors <- purrr::map_chr(repo$node$contributors$target$history$edges,
+        repo$contributors <- purrr::map_chr(repo$contributors$target$history$edges,
                                                      ~{if (!is.null(.$node$committer$user)){
                                                          .$node$committer$user$login
                                                        } else {
@@ -564,20 +572,12 @@ GitHub <- R6::R6Class("GitHub",
           purrr::discard(~. == "") %>%
           unique() %>%
           paste0(collapse = ", ")
-        repo$node$issues_open <- repo$node$issues_open$totalCount
-        repo$node$issues_closed <- repo$node$issues_closed$totalCount
-        data.frame(repo$node)
-
+        repo$issues_open <- repo$issues_open$totalCount
+        repo$issues_closed <- repo$issues_closed$totalCount
+        data.frame(repo)
       })
-      repo_table <- dplyr::rename(
-        repo_table,
-        stars = stargazerCount,
-        forks = forkCount,
-        created_at = createdAt,
-        last_push = pushedAt,
-        last_activity = updatedAt
-      ) %>%
-        dplyr::mutate(
+      repo_table <- dplyr::mutate(
+          repo_table,
           organization = org,
           api_url = self$rest_api_url
         )

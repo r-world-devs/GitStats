@@ -5,14 +5,70 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
 
                        public = list(
 
+                         repos_by_org_test = function(org, cursor) {
+
+                           if (nchar(cursor) == 0) {
+                             after_cursor <- cursor
+                           } else {
+                             after_cursor <- paste0('after: "', cursor, '" ')
+                           }
+
+                           paste0('
+                                  query {
+                                    repositoryOwner(login: "', org, '") {
+                                      ... on Organization {
+                                        repositories(first: 100 ', after_cursor, ') {
+                                        totalCount
+                                        pageInfo {
+                                          endCursor
+                                          hasNextPage
+                                        }
+                                        nodes {
+                                          name
+                                          stars: stargazerCount
+                                          forks: forkCount
+                                          created_at: createdAt
+                                          pushed_at: pushedAt
+                                          last_activity_at: updatedAt
+                                          languages (first: 5) { nodes {name} }
+                                          issues_open: issues (first: 100 states: [OPEN]) {
+                                            totalCount
+                                          }
+                                          issues_closed: issues (first: 100 states: [CLOSED]) {
+                                            totalCount
+                                          }
+                                          contributors: defaultBranchRef {
+                                            target {
+                                              ... on Commit {
+                                                id
+                                                history(since: "2020-01-01T00:00:00Z") {
+                                                  edges {
+                                                    node {
+                                                      committer {
+                                                        user {
+                                                          login
+                                                          id
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                      }
+                                    }
+                                  }')
+                         },
+
                          #' @description Prepare query to pull repositories for GitHub organization.
                          #' @param org An organization.
                          #' @param language Language of a repository.
                          #' @param cursor An endCursor.
                          #' @return A query.
                          repos_by_org = function(org, language, cursor) {
-
-
 
                            if (!is.null(language)) {
                              search_query <-
