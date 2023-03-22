@@ -62,7 +62,7 @@ GitLab <- R6::R6Class("GitLab",
                                                   org = org,
                                                   language = language
           )
-          cli::cli_alert_success(paste0("\n On ", self$git_service, " ('", org, "') found ", length(repos_list), " repositories."))
+          cli::cli_alert_success(paste0("\n On GitLab [", org, "] found ", length(repos_list), " repositories."))
         }
 
         repos_dt <- repos_list %>%
