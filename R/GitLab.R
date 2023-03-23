@@ -67,7 +67,8 @@ GitLab <- R6::R6Class("GitLab",
 
         repos_dt <- repos_list %>%
           private$tailor_repos_info() %>%
-          private$prepare_repos_table()
+          private$prepare_repos_table() %>%
+          private$pull_repos_contributors()
       }) %>%
         rbindlist()
 
@@ -296,11 +297,11 @@ GitLab <- R6::R6Class("GitLab",
         list(
           "organization" = x$namespace$path,
           "name" = x$name,
+          "id" = x$id,
           "created_at" = x$created_at,
           "last_activity_at" = x$last_activity_at,
           "forks" = x$fork_count,
           "stars" = x$star_count,
-          "contributors" = paste0(x$contributors, collapse = ","),
           "issues_open" = x$issues_open,
           "issues_closed" = x$issues_closed
         )
