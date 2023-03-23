@@ -227,8 +227,8 @@ GitLab <- R6::R6Class("GitLab",
       }
 
       repos_table <- repos_list %>%
-        private$prepare_repos_table_gql(org = org)
-        # private$pull_repos_contributors()
+        private$prepare_repos_table_gql(org = org) %>%
+        private$pull_repos_contributors()
 
       return(repos_table)
     },
@@ -264,6 +264,28 @@ GitLab <- R6::R6Class("GitLab",
         })
 
       repos_list
+    },
+
+    #' @description A method to add information on repository contributors.
+    #' @param repos_table A table of repositories.
+    #' @return A table of repositories with added information on contributors.
+    pull_repos_contributors = function(repos_table) {
+      repos_table$contributors <- purrr::map(repos_table$id, function(repos_id) {
+        id <- gsub("gid://gitlab/Project/", "", repos_id)
+        contributors_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/repository/contributors")
+        tryCatch(
+          {
+            private$rest_response(
+              endpoint = contributors_endpoint
+            ) %>% purrr::map_chr(~ .$name) %>%
+              paste0(collapse = ", ")
+          },
+          error = function(e) {
+            NA
+          }
+        )
+      })
+      return(repos_table)
     },
 
     #' @description A helper to retrieve only important info on repos
