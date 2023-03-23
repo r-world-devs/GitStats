@@ -220,7 +220,7 @@ GitHub <- R6::R6Class("GitHub",
                                         repo_cursor = '') {
       repos_by_org <- self$gql_query$repos_by_org(org,
                                                   language = language,
-                                                  cursor = repo_cursor)
+                                                  repo_cursor = repo_cursor)
       response <- private$gql_response(
         gql_query = repos_by_org
       )
@@ -337,7 +337,7 @@ GitHub <- R6::R6Class("GitHub",
         repo = repo,
         since = date_to_gts(date_from),
         until = date_to_gts(date_until),
-        cursor = commits_cursor,
+        commits_cursor = commits_cursor,
         author_id = author_id
       )
       response <- private$gql_response(
