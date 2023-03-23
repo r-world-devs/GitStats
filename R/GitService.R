@@ -123,7 +123,7 @@ GitService <- R6::R6Class("GitService",
     #' @description A method to add information on repository contributors.
     #' @param repos_list A list of repositories.
     #' @return A list of repositories with added information on contributors.
-    pull_repos_contributors = function(repos_list) {
+    add_repos_contributors = function(repos_list) {
       repos_list <- purrr::map(repos_list, function(repo) {
         if (self$git_service == "GitHub") {
           user_name <- rlang::expr(.$login)

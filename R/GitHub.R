@@ -43,7 +43,7 @@ GitHub <- R6::R6Class("GitHub",
                                                    org = org,
                                                    language = language
           ) %>%
-            private$pull_repos_contributors() %>%
+            private$add_repos_contributors() %>%
             private$pull_repos_issues() %>%
             private$tailor_repos_info() %>%
             private$prepare_repos_table()

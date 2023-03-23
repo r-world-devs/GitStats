@@ -68,7 +68,7 @@ GitLab <- R6::R6Class("GitLab",
         repos_dt <- repos_list %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
-          private$pull_repos_contributors()
+          private$add_repos_contributors()
       }) %>%
         rbindlist()
 
@@ -229,7 +229,7 @@ GitLab <- R6::R6Class("GitLab",
 
       repos_table <- repos_list %>%
         private$prepare_repos_table_gql(org = org) %>%
-        private$pull_repos_contributors()
+        private$add_repos_contributors()
 
       return(repos_table)
     },
@@ -270,7 +270,7 @@ GitLab <- R6::R6Class("GitLab",
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
-    pull_repos_contributors = function(repos_table) {
+    add_repos_contributors = function(repos_table) {
       repos_table$contributors <- purrr::map(repos_table$id, function(repos_id) {
         id <- gsub("gid://gitlab/Project/", "", repos_id)
         contributors_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/repository/contributors")
