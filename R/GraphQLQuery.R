@@ -8,11 +8,9 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
                          #' @description Prepare query to pull repositories for GitHub organization.
                          #' @param org An organization.
                          #' @param language Language of a repository.
-                         #' @param cursor An endCursor.
+                         #' @param repo_cursor An endCursor.
                          #' @return A query.
-                         repos_by_org = function(org, language, cursor) {
-
-
+                         repos_by_org = function(org, language, repo_cursor) {
 
                            if (!is.null(language)) {
                              search_query <-
@@ -21,17 +19,11 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
                              search_query <- paste0('query: "org:', org, '"')
                            }
 
-                           if (nchar(cursor) == 0) {
-                             after_cursor <- cursor
-                           } else {
-                             after_cursor <- paste0('after: "', cursor, '"')
-                           }
-
                            paste0('{
                               search(', search_query, '
                                      type: REPOSITORY
                                      first: 100
-                                     ', after_cursor, '
+                                     ', private$add_cursor(repo_cursor), '
                                      ) {
                                 repositoryCount
                                 pageInfo{
@@ -97,16 +89,10 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
                          #' @param repo Name of a repository
                          #' @param since Git Time Stamp of starting date of commits.
                          #' @param until Git Time STamp of end date of commits.
-                         #' @param cursor An endCursor.
+                         #' @param commits_cursor An endCursor.
                          #' @param author_id An Id of an author.
                          #' @return A query.
-                         commits_by_repo = function(org, repo, since, until, cursor = '', author_id = '') {
-
-                           if (nchar(cursor) == 0) {
-                             after_cursor <- cursor
-                           } else {
-                             after_cursor <- paste0('after: "', cursor, '"')
-                           }
+                         commits_by_repo = function(org, repo, since, until, commits_cursor = '', author_id = '') {
 
                            if (nchar(author_id) == 0) {
                              author_filter <- author_id
@@ -121,7 +107,7 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
                                           ... on Commit {
                                             history(since: "', since, '"
                                                     until: "', until, '"
-                                                    ', after_cursor, '
+                                                    ', private$add_cursor(commits_cursor), '
                                                     ', author_filter, ') {
                                               pageInfo {
                                                 hasNextPage
@@ -174,14 +160,16 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
                                   }')
                           },
 
-                         #' @description description
-                         #' @param group
-                         #' @return return
-                         projects_by_group = function(group){
+                         #' @description GitLab. Method to build query to pull projects by group.
+                         #' @param group A group of projects.
+                         #' @param projects_cursor A cursor.
+                         #' @return A query.
+                         projects_by_group = function(group,
+                                                      projects_cursor){
 
                            paste0('{
                             group(fullPath: "', group, '") {
-                              projects(first: 100) {
+                              projects(first: 100', private$add_cursor(projects_cursor),') {
                                 count
                                 pageInfo {
                                   hasNextPage
@@ -209,6 +197,21 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
                             }
                           }')
 
+                         }
+                       ),
+
+                       private = list(
+
+                         #' @description Helper over defining cursor agument for the query.
+                         #' @param cursor A cursor.
+                         #' @return A string of cursor argument.
+                         add_cursor = function(cursor) {
+                           if (nchar(cursor) == 0) {
+                             cursor_argument <- cursor
+                           } else {
+                             cursor_argument <- paste0('after: "', cursor, '"')
+                           }
+                           return(cursor_argument)
                          }
 
                        )

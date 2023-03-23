@@ -234,7 +234,8 @@ GitLab <- R6::R6Class("GitLab",
     },
 
     pull_repos_page_from_org = function(org, language, repo_cursor) {
-      repos_by_org <- self$gql_query$projects_by_group(group = org)
+      repos_by_org <- self$gql_query$projects_by_group(group = org,
+                                                       projects_cursor = repo_cursor)
       response <- private$gql_response(
         gql_query = repos_by_org
       )
