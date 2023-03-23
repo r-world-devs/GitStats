@@ -41,12 +41,13 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
                                 edges {
                                   node {
                                     ... on Repository {
+                                      id
                                       name
-                                      stargazerCount
-                                      forkCount
                                       createdAt
                                       pushedAt
                                       updatedAt
+                                      stargazerCount
+                                      forkCount
                                       languages (first: 5) { nodes {name} }
                                       issues_open: issues (first: 100 states: [OPEN]) {
                                         totalCount
@@ -171,6 +172,44 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
                                       }
                                     }
                                   }')
-                          }
+                          },
+
+                         #' @description description
+                         #' @param group
+                         #' @return return
+                         projects_by_group = function(group){
+
+                           paste0('{
+                            group(fullPath: "', group, '") {
+                              projects(first: 100) {
+                                count
+                                pageInfo {
+                                  hasNextPage
+                                  endCursor
+                                }
+                                edges {
+                                  node {
+                                    id
+                                    name
+                                    createdAt
+                                    stars: starCount
+                                    forks: forksCount
+                                    last_activity_at: lastActivityAt
+                                    languages {
+                                      name
+                                    }
+                                    issueStatusCounts {
+                                      all
+                                      closed
+                                      opened
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }')
+
+                         }
+
                        )
 )

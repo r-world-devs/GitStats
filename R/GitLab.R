@@ -39,35 +39,30 @@ GitLab <- R6::R6Class("GitLab",
       }
 
       repos_dt <- purrr::map(orgs, function(org) {
-        cli::cli_alert_info(paste0("[GitLab][", org, "] Pulling repositories..."))
+        if (by %in% c("org", "team")) {
+          repos_table <- private$pull_repos_from_org(org = org,
+                                                    language = language)
+          if (by == "team") {
+            repos_table <- private$filter_repos_by_team(
+              repos_table = repos_table,
+              team = team
+            )
+          }
+          if (!is.null(language)) {
+            repos_table <- private$filter_by_language(
+              repos_table = repos_table,
+              language = language
+            )
+          }
+          return(repos_table)
+        }
+
         if (by == "phrase") {
           repos_list <- private$search_by_keyword(phrase,
                                                   org = org,
                                                   language = language
           )
-          cli::cli_alert_success(paste0("\n On ", self$git_service, " ('", org, "') found ", length(repos_list), " repositories."))
-        } else {
-          repos_list <- private$pull_repos_from_org(org = org) %>%
-            {
-              if (by == "team") {
-                private$filter_repos_by_team(
-                  repos_list = .,
-                  team = team
-                )
-              } else {
-                .
-              }
-            } %>%
-            {
-              if (!is.null(language)) {
-                private$filter_by_language(
-                  repos_list = .,
-                  language = language
-                )
-              } else {
-                .
-              }
-            }
+          cli::cli_alert_success(paste0("\n On GitLab [", org, "] found ", length(repos_list), " repositories."))
         }
 
         repos_dt <- repos_list %>%
@@ -207,27 +202,43 @@ GitLab <- R6::R6Class("GitLab",
     #' @description A method to pull all repositories for an organization.
     #' @param org A character, an organization:\itemize{\item{GitHub - owners o
     #'   repositories} \item{GitLab - group of projects.}}
+    #' @param language
     #' @return A list.
-    pull_repos_from_org = function(org) {
-      repos_list <- list()
-      r_page <- 1
-      repeat {
-        repos_page <- private$rest_response(
-          endpoint = paste0(self$rest_api_url, "/groups/", org, "/projects?per_page=100&page=", r_page)
-        )
-        if (length(repos_page) > 0) {
-          repos_list <- append(repos_list, repos_page)
-          r_page <- r_page + 1
-        } else {
-          break
+    pull_repos_from_org = function(org,
+                                   language) {
+
+      cli::cli_alert_info("[GitLab][{org}] Pulling repositories...")
+      next_page <- TRUE
+      full_repos_list <- list()
+      repo_cursor <- ''
+      while (next_page) {
+        repos_response <- private$pull_repos_page_from_org(org = org,
+                                                           language = language,
+                                                           repo_cursor = repo_cursor)
+        repositories <- repos_response$data$group$projects
+        if (length(full_repos_list) == 0) {
+          cli::cli_alert_info("Number of repositories: {repositories$count}")
         }
+        repos_list <- repositories$edges
+        next_page <- repositories$pageInfo$hasNextPage
+        repo_cursor <- repositories$pageInfo$endCursor
+
+        full_repos_list <- append(full_repos_list, repos_list)
       }
 
-      repos_list <- repos_list %>%
-        private$pull_repos_contributors() %>%
-        private$pull_repos_issues()
+      repos_table <- repos_list %>%
+        private$prepare_repos_table_gql(org = org)
+        # private$pull_repos_contributors()
 
-      repos_list
+      return(repos_table)
+    },
+
+    pull_repos_page_from_org = function(org, language, repo_cursor) {
+      repos_by_org <- self$gql_query$projects_by_group(group = org)
+      response <- private$gql_response(
+        gql_query = repos_by_org
+      )
+      response
     },
 
     #' @description Method to pull repositories' issues.
@@ -252,45 +263,6 @@ GitLab <- R6::R6Class("GitLab",
         })
 
       repos_list
-    },
-
-    #' @description Filter projects by programming
-    #'   language
-    #' @param repos_list A list of repositories to be
-    #'   filtered.
-    #' @param language A character, name of a
-    #'   programming language.
-    #' @details This method is specific for GitLab
-    #'   Client class as there is no possibility
-    #'   currently to add language filter to search
-    #'   endpoint. As for now, an epic is in progress
-    #'   on GitLab to add this feature. For more
-    #'   details you can visit:
-    #'   \link{https://gitlab.com/gitlab-org/gitlab/-/issues/342648}
-    #' @return A list of projects where speicfied
-    #'   language is used.
-    filter_by_language = function(repos_list,
-                                  language) {
-      projects_id <- unique(purrr::map_chr(repos_list, ~ as.character(.$id)))
-
-      projects_language_list <- purrr::map(projects_id, function(x) {
-        private$rest_response(
-          endpoint = paste0(self$rest_api_url, "/projects/", x, "/languages")
-        )
-      })
-
-      names(projects_language_list) <- projects_id
-
-      filtered_projects <- purrr::map(projects_language_list, function(x) {
-        purrr::map_chr(x, ~.)
-      }) %>%
-        purrr::keep(~ language %in% names(.))
-
-      if (length(filtered_projects) > 0) {
-        purrr::keep(repos_list, ~ .$id %in% names(filtered_projects))
-      } else {
-        list()
-      }
     },
 
     #' @description A helper to retrieve only important info on repos
@@ -441,6 +413,38 @@ GitLab <- R6::R6Class("GitLab",
       })
 
       commits_list
+    },
+
+    #' @description
+    #' @param
+    #' @return
+    prepare_repos_table_gql = function(repos_list,
+                                       org) {
+
+      repos_table <- purrr::map_dfr(repos_list, function(repo) {
+        repo_row <- data.frame(
+          "id" = repo$node$id,
+          "name" = repo$node$name,
+          "created_at" = repo$node$createdAt,
+          "last_push" = NA,
+          "last_activity_at" = repo$node$last_activity_at,
+          "stars" = repo$node$stars,
+          "forks" = repo$node$forks,
+          "languages" = if (length(repo$node$languages) > 0) {
+            purrr::map_chr(repo$node$languages, ~.$name) %>%
+              paste0(collapse = ", ")
+          } else {
+            ''
+          },
+          "issues_open" = repo$node$issueStatusCounts$opened,
+          "issues_closed" = repo$node$issueStatusCounts$closed,
+          "contributors" = NA,
+          "organization" = org,
+          "api_url" = self$rest_api_url
+        )
+        repo_row
+      })
+      return(repos_table)
     },
 
     #' @description Switcher to manage language names
