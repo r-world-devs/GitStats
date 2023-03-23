@@ -329,37 +329,40 @@ GitLab <- R6::R6Class("GitLab",
     #' @param org A character, a group of projects.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
-    #' @return A list of commits
+    #' @return A list of commits.
     pull_commits_from_org = function(org,
-                                       date_from,
-                                       date_until = Sys.date()) {
-      repos_list <- private$pull_repos_from_org(
+                                     date_from,
+                                     date_until = Sys.date()) {
+      repos_table <- private$pull_repos_from_org(
         org = org
       )
+      repos_names <- repos_table$name
+      projects_ids <- gsub("gid://gitlab/Project/", "", repos_table$id)
 
-      repos_names <- purrr::map_chr(repos_list, ~ .$name)
-      projects_ids <- purrr::map_chr(repos_list, ~ as.character(.$id))
+      cli::cli_alert_info("[GitLab][{org}] Pulling commits...")
 
       pb <- progress::progress_bar$new(
-        format = paste0("GitLab (", org, "). Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
+        format = paste0("Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
         total = length(repos_names)
       )
 
-      commits_list <- purrr::map(projects_ids, function(x) {
+      commits_list <- purrr::map(projects_ids, function(project_id) {
         pb$tick()
-
-        private$rest_response(
-          endpoint = paste0(
-            self$rest_api_url,
-            "/projects/",
-            x,
-            "/repository/commits?since='",
-            date_to_gts(date_from),
-            "'&until='",
-            date_to_gts(date_until),
-            "'&with_stats=true"
-          )
-        )
+        all_commits_in_repo <- list()
+        page <- 1
+        repeat {
+          commits_page <- private$pull_commits_page_from_repo(project_id = project_id,
+                                                              date_from = date_from,
+                                                              date_until = date_until,
+                                                              page = page)
+          if (length(commits_page) > 0) {
+            all_commits_in_repo <- append(all_commits_in_repo, commits_page)
+            page <- page + 1
+          } else {
+            break
+          }
+        }
+        return(all_commits_in_repo)
       })
 
       names(commits_list) <- repos_names
@@ -368,6 +371,31 @@ GitLab <- R6::R6Class("GitLab",
         purrr::discard(~ length(.) == 0)
 
       return(commits_list)
+    },
+
+    #' @description Handler for pagination of commits response.
+    #' @param project_id Id of a project.
+    #' @param date_from A starting date to look commits for.
+    #' @param date_until An end date to look commits for.
+    #' @param page Page of a response.
+    #' @return A list of commits.
+    pull_commits_page_from_repo = function(project_id,
+                                           date_from,
+                                           date_until,
+                                           page) {
+        private$rest_response(
+          endpoint = paste0(
+            self$rest_api_url,
+            "/projects/",
+            project_id,
+            "/repository/commits?since='",
+            date_to_gts(date_from),
+            "'&until='",
+            date_to_gts(date_until),
+            "'&with_stats=true",
+            "&page=", page
+          )
+        )
     },
 
     #' @description Filter by contributors.
@@ -400,7 +428,7 @@ GitLab <- R6::R6Class("GitLab",
         purrr::map(x, function(y) {
           list(
             "id" = y$id,
-            "organisation" = org,
+            "organization" = org,
             "repository" = gsub(
               pattern = paste0("/-/commit/", y$id),
               replacement = "",
@@ -408,7 +436,8 @@ GitLab <- R6::R6Class("GitLab",
             ),
             "additions" = y$stats$additions,
             "deletions" = y$stats$deletions,
-            "committed_date" = y$committed_date
+            "committed_date" = y$committed_date,
+            "author" = y$author_name
           )
         })
       })
