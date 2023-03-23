@@ -284,7 +284,7 @@ GitHub <- R6::R6Class("GitHub",
 
       commits_table <- repos_list_with_commits %>%
         purrr::discard(~ length(.) == 0) %>%
-        private$prepare_commits_table_gql()
+        private$prepare_commits_table_gql(org)
 
       return(commits_table)
     },
@@ -320,7 +320,7 @@ GitHub <- R6::R6Class("GitHub",
         }
         full_commits_list <- append(full_commits_list, commits_list)
       }
-      full_commits_list
+      return(full_commits_list)
     },
 
     #' @description
@@ -567,8 +567,10 @@ GitHub <- R6::R6Class("GitHub",
 
     #' @description Parses repositories' list with commits into table of commits.
     #' @param repos_list_with_commits A list of repositories with commits.
+    #' @param org An organization of repositories.
     #' @return Table of commits.
-    prepare_commits_table_gql = function(repos_list_with_commits) {
+    prepare_commits_table_gql = function(repos_list_with_commits,
+                                         org) {
       commits_table <- purrr::imap(repos_list_with_commits, function(repo, repo_name) {
         commits_row <- purrr::map_dfr(repo, function(commit) {
           commit$node$author <- commit$node$author$name
@@ -582,7 +584,9 @@ GitHub <- R6::R6Class("GitHub",
 
       if (nrow(commits_table) > 0) {
         commits_table <- commits_table %>%
-          dplyr::rename(committed_date = committedDate)
+          dplyr::rename(committed_date = committedDate) %>%
+          dplyr::mutate(organization = org,
+                        api_url = self$rest_api_url)
       }
     }
   )
