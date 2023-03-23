@@ -12,8 +12,6 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
                          #' @return A query.
                          repos_by_org = function(org, language, cursor) {
 
-
-
                            if (!is.null(language)) {
                              search_query <-
                                paste0('query: "org:', org, ' language:', language, '"')
@@ -176,12 +174,14 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
 
                          #' @description description
                          #' @param group
+                         #' @param projects_cursor
                          #' @return return
-                         projects_by_group = function(group){
+                         projects_by_group = function(group,
+                                                      projects_cursor){
 
                            paste0('{
                             group(fullPath: "', group, '") {
-                              projects(first: 100) {
+                              projects(first: 100', private$add_cursor(projects_cursor),') {
                                 count
                                 pageInfo {
                                   hasNextPage
@@ -209,6 +209,21 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
                             }
                           }')
 
+                         }
+                       ),
+
+                       private = list(
+
+                         #' @description Helper over defining cursor agument for the query.
+                         #' @param cursor A cursor.
+                         #' @return A string of cursor argument.
+                         add_cursor = function(cursor) {
+                           if (nchar(cursor) == 0) {
+                             cursor_argument <- cursor
+                           } else {
+                             cursor_argument <- paste0('after: "', cursor, '"')
+                           }
+                           return(cursor_argument)
                          }
 
                        )
