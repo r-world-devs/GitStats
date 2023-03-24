@@ -68,7 +68,8 @@ GitLab <- R6::R6Class("GitLab",
         repos_dt <- repos_list %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
-          private$add_repos_contributors()
+          private$add_repos_contributors() %>%
+          private$add_repos_issues()
       }) %>%
         rbindlist()
 
@@ -243,49 +244,46 @@ GitLab <- R6::R6Class("GitLab",
       response
     },
 
-    #' @description Method to pull repositories' issues.
-    #' @param repos_list A list of repositories.
-    #' @return A list of repositories.
-    pull_repos_issues = function(repos_list) {
-      projects_ids <- unique(purrr::map_chr(repos_list, ~ as.character(.$id)))
+    #' @description A method to add information on repository contributors.
+    #' @param repos_table A table of repositories.
+    #' @return A table of repositories with added information on contributors.
+    add_repos_issues = function(repos_table) {
+      if (nrow(repos_table) > 0) {
+        issues <- purrr::map(repos_table$id, function(repos_id) {
+          id <- gsub("gid://gitlab/Project/", "", repos_id)
+          issues_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/issues_statistics")
 
-      repos_list <- purrr::map(projects_ids, function(project_id) {
-        issues_stats <- private$rest_response(
-          endpoint = paste0(self$rest_api_url, "/projects/", project_id, "/issues_statistics")
-        )
-
-        issues_stats
-      }) %>%
-        purrr::map2(repos_list, function(issue, repository) {
-          purrr::list_modify(repository,
-            issues = issue$statistics$counts$all,
-            issues_open = issue$statistics$counts$opened,
-            issues_closed = issue$statistics$counts$closed
-          )
+          private$rest_response(
+            endpoint = issues_endpoint
+          )[["statistics"]][["counts"]]
         })
-
-      repos_list
+        repos_table$issues_open <- purrr::map_dbl(issues, ~.$opened)
+        repos_table$issues_closed <- purrr::map_dbl(issues, ~.$closed)
+      }
+      return(repos_table)
     },
 
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
     add_repos_contributors = function(repos_table) {
-      repos_table$contributors <- purrr::map(repos_table$id, function(repos_id) {
-        id <- gsub("gid://gitlab/Project/", "", repos_id)
-        contributors_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/repository/contributors")
-        tryCatch(
-          {
-            private$rest_response(
-              endpoint = contributors_endpoint
-            ) %>% purrr::map_chr(~ .$name) %>%
-              paste0(collapse = ", ")
-          },
-          error = function(e) {
-            NA
-          }
-        )
-      })
+      if (nrow(repos_table) > 0) {
+        repos_table$contributors <- purrr::map(repos_table$id, function(repos_id) {
+          id <- gsub("gid://gitlab/Project/", "", repos_id)
+          contributors_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/repository/contributors")
+          tryCatch(
+            {
+              private$rest_response(
+                endpoint = contributors_endpoint
+              ) %>% purrr::map_chr(~ .$name) %>%
+                paste0(collapse = ", ")
+            },
+            error = function(e) {
+              NA
+            }
+          )
+        })
+      }
       return(repos_table)
     },
 
