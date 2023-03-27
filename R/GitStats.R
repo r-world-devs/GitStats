@@ -24,8 +24,11 @@ GitStats <- R6::R6Class("GitStats",
 
     },
 
-    #' @field team A character vector containing team members.
-    team = NULL,
+    #' @field team_name Name of a team.
+    team_name = NULL,
+
+    #' @field team A list containing team members.
+    team = list(),
 
     #' @field storage A local database credentials to store output.
     storage = NULL,
@@ -119,12 +122,25 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description A method to set your team.
     #' @param team_name A name of a team.
-    #' @param ... A character vector of team members (names and logins).
     #' @return Nothing, pass team information into `$team` field.
-    set_team = function(team_name, ...) {
-      self$team <- list()
+    set_team = function(team_name) {
+      self$team_name <- team_name
+    },
 
-      self$team[[paste(team_name)]] <- unlist(list(...))
+    #' @description A method to add a team member.
+    #' @param member_name Name of a member.
+    #' @param ... User names on Git platforms.
+    #' @return Nothing, pass information on team member to `GitStats`.
+    add_team_member = function(member_name,
+                               ...) {
+      team_member <- list(
+        "name" = member_name,
+        "logins" = unlist(list(...))
+      )
+
+      self$team[[paste0(member_name)]] <- team_member
+
+      cli::cli_alert_success("{member_name} successfully added to team.")
     },
 
     #' @description A method to set local storage for the output.
@@ -214,10 +230,10 @@ GitStats <- R6::R6Class("GitStats",
 
       team <- NULL
       if (by == "team") {
-        if (is.null(self$team)) {
+        if (length(self$team) == 0) {
           stop("You have to specify a team first with 'set_team()' method.", call. = FALSE)
         }
-        team <- self$team[[1]]
+        team <- self$team
       } else if (by == "phrase") {
         if (is.null(phrase)) {
           stop("You have to provide a phrase to look for.", call. = FALSE)
@@ -284,10 +300,10 @@ GitStats <- R6::R6Class("GitStats",
 
       team <- NULL
       if (by == "team") {
-        if (is.null(self$team)) {
+        if (length(self$team) == 0) {
           stop("You have to specify a team first with 'set_team()' method.", call. = FALSE)
         }
-        team <- self$team[[1]]
+        team <- self$team
       }
 
       commits_dt <- purrr::map(self$clients, function(x) {
@@ -300,7 +316,7 @@ GitStats <- R6::R6Class("GitStats",
 
         if (!is.null(self$team)) {
           cli::cli_alert_success(
-            paste0(x$git_service, " for '", names(self$team), "' team: pulled commits from ",
+            paste0(x$git_service, " for '", self$team_name, "' team: pulled commits from ",
                    length(unique(commits$repository)), " repositories."))
         }
 
@@ -650,14 +666,9 @@ set_organizations <- function(gitstats_obj,
 
 #' @title Set your team.
 #' @name set_team
-#' @description Declare your team members (logins, full names) to obtain
-#'   statistics \code{by = "team"}.
-#' @details Bear in mind that on different Git platforms, team members may use
-#'   different logins. You have to specify all of them, if you want to get team
-#'   statistics from all your Git clients.
+#' @description Declare your team.
 #' @param gitstats_obj A GitStats object.
 #' @param team_name A name of a team.
-#' @param ... A character vector of team members (names and logins).
 #' @return A `GitStats` class object with added information to `$team` field.
 #' @examples
 #' \dontrun{
@@ -667,13 +678,11 @@ set_organizations <- function(gitstats_obj,
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma", "pharmaverse")
 #'   ) %>%
-#'   set_team("RWD-IE", "galachad", "kalimu", "Cotau",
-#'            "krystian8207", "marcinkowskak", "maciekbanas") %>%
-#'   get_repos(by = "team")
+#'   set_team("RWD-IE")
 #' }
 #' @export
-set_team <- function(gitstats_obj, team_name, ...) {
-  gitstats_obj$set_team(team_name, ...)
+set_team <- function(gitstats_obj, team_name) {
+  gitstats_obj$set_team(team_name)
 
   return(invisible(gitstats_obj))
 }

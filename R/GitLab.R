@@ -425,10 +425,11 @@ GitLab <- R6::R6Class("GitLab",
     #' @return A list.
     filter_commits_by_team = function(commits_list,
                                       team) {
+      team_names <- purrr::map_chr(team, ~.$name)
       commits_list <- purrr::map(commits_list, function(repo) {
         purrr::keep(repo, function(commit) {
           if (length(commit$author_name > 0)) {
-            commit$author_name %in% team
+            commit$author_name %in% team_names
           } else {
             FALSE
           }

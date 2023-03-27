@@ -163,7 +163,7 @@ GitService <- R6::R6Class("GitService",
                                     team) {
       cli::cli_alert_info("Filtering by team members.")
       repos_table <- repos_table %>%
-        dplyr::filter(contributors %in% team)
+        dplyr::filter(contributors %in% unlist(team))
       return(repos_table)
     },
 
