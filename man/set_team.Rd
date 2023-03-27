@@ -4,26 +4,18 @@
 \alias{set_team}
 \title{Set your team.}
 \usage{
-set_team(gitstats_obj, team_name, ...)
+set_team(gitstats_obj, team_name)
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
 
 \item{team_name}{A name of a team.}
-
-\item{...}{A character vector of team members (names and logins).}
 }
 \value{
 A \code{GitStats} class object with added information to \verb{$team} field.
 }
 \description{
-Declare your team members (logins, full names) to obtain
-statistics \code{by = "team"}.
-}
-\details{
-Bear in mind that on different Git platforms, team members may use
-different logins. You have to specify all of them, if you want to get team
-statistics from all your Git clients.
+Declare your team.
 }
 \examples{
 \dontrun{
@@ -33,8 +25,6 @@ my_gitstats <- create_gitstats() \%>\%
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma", "pharmaverse")
   ) \%>\%
-  set_team("RWD-IE", "galachad", "kalimu", "Cotau",
-           "krystian8207", "marcinkowskak", "maciekbanas") \%>\%
-  get_repos(by = "team")
+  set_team("RWD-IE")
 }
 }
