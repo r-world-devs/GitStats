@@ -24,6 +24,9 @@ GitStats <- R6::R6Class("GitStats",
 
     },
 
+    #' @field team_name Name of a team.
+    team_name = NULL,
+
     #' @field team A list containing team members.
     team = list(),
 
@@ -121,21 +124,18 @@ GitStats <- R6::R6Class("GitStats",
     #' @param team_name A name of a team.
     #' @return Nothing, pass team information into `$team` field.
     set_team = function(team_name) {
-      self$team[[paste(team_name)]] <- list()
+      self$team_name <- team_name
     },
 
     #' @description A method to add a team member.
     #' @param member_name Name of a member.
-    #' @param gh_login A GitHub login.
-    #' @param gl_login A GitLab login.
+    #' @param ... User names on Git platforms.
     #' @return Nothing, pass information on team member to `GitStats`.
     add_team_member = function(member_name,
-                               gh_login,
-                               gl_login) {
+                               ...) {
       team_member <- list(
         "name" = member_name,
-        "gh_login" = gh_login,
-        "gl_login" = gl_login
+        "logins" = unlist(list(...))
       )
 
       self$team[[paste0(member_name)]] <- team_member
@@ -230,10 +230,10 @@ GitStats <- R6::R6Class("GitStats",
 
       team <- NULL
       if (by == "team") {
-        if (is.null(self$team)) {
+        if (length(self$team) == 0) {
           stop("You have to specify a team first with 'set_team()' method.", call. = FALSE)
         }
-        team <- self$team[[1]]
+        team <- self$team
       } else if (by == "phrase") {
         if (is.null(phrase)) {
           stop("You have to provide a phrase to look for.", call. = FALSE)
@@ -300,10 +300,10 @@ GitStats <- R6::R6Class("GitStats",
 
       team <- NULL
       if (by == "team") {
-        if (is.null(self$team)) {
+        if (length(self$team) == 0) {
           stop("You have to specify a team first with 'set_team()' method.", call. = FALSE)
         }
-        team <- self$team[[1]]
+        team <- self$team
       }
 
       commits_dt <- purrr::map(self$clients, function(x) {
@@ -316,7 +316,7 @@ GitStats <- R6::R6Class("GitStats",
 
         if (!is.null(self$team)) {
           cli::cli_alert_success(
-            paste0(x$git_service, " for '", names(self$team), "' team: pulled commits from ",
+            paste0(x$git_service, " for '", self$team_name, "' team: pulled commits from ",
                    length(unique(commits$repository)), " repositories."))
         }
 

@@ -262,8 +262,8 @@ GitHub <- R6::R6Class("GitHub",
         })
       }
       if (!is.null(team)) {
-        message("Team ON.")
-        authors_ids <- private$get_authors_ids(team)
+        authors_ids <- private$get_authors_ids(team) %>%
+          purrr::discard(~.=="")
         repos_list_with_commits <- purrr::map(repos_names, function(repo) {
           pb$tick()
           full_commits_list <- list()
@@ -350,15 +350,19 @@ GitHub <- R6::R6Class("GitHub",
     #' @param team A character vector of team members.
     #' @return A character vector of GitHub's author's IDs.
     get_authors_ids = function(team) {
-
-      purrr::map_chr(team, ~{
+      logins <- purrr::map(team, ~.$logins) %>%
+        unlist()
+      purrr::map_chr(logins, ~{
         authors_id_query <- self$gql_query$users_id(.)
         authors_id_response <- private$gql_response(
           gql_query = authors_id_query
         )
-        authors_id_response$data$user$id
-        })
-
+        result <- authors_id_response$data$user$id
+        if (is.null(result)){
+          result <- ''
+        }
+        return(result)
+      })
     },
 
     #' @description Method to pull repositories' issues.

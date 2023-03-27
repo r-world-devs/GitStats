@@ -11,6 +11,8 @@ An R6 class object with methods to derive information from multiple Git platform
 \describe{
 \item{\code{clients}}{A list of API connections information.}
 
+\item{\code{team_name}}{Name of a team.}
+
 \item{\code{team}}{A list containing team members.}
 
 \item{\code{storage}}{A local database credentials to store output.}
@@ -133,7 +135,7 @@ Nothing, pass team information into \verb{$team} field.
 \subsection{Method \code{add_team_member()}}{
 A method to add a team member.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$add_team_member(member_name, gh_login, gl_login)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$add_team_member(member_name, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -141,9 +143,7 @@ A method to add a team member.
 \describe{
 \item{\code{member_name}}{Name of a member.}
 
-\item{\code{gh_login}}{A GitHub login.}
-
-\item{\code{gl_login}}{A GitLab login.}
+\item{\code{...}}{User names on Git platforms.}
 }
 \if{html}{\out{</div>}}
 }

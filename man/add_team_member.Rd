@@ -4,16 +4,14 @@
 \alias{add_team_member}
 \title{Add your team member}
 \usage{
-add_team_member(gitstats_obj, member_name, gh_login = NULL, gl_login = NULL)
+add_team_member(gitstats_obj, member_name, ...)
 }
 \arguments{
 \item{gitstats_obj}{\code{GitStats} object.}
 
 \item{member_name}{Name of a member.}
 
-\item{gh_login}{A GitHub login.}
-
-\item{gl_login}{A GitLab login.}
+\item{...}{All user logins.}
 }
 \value{
 \code{GitStats} object with new information on team member.
