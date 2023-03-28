@@ -39,26 +39,55 @@ git_stats <- create_gitstats() %>%
   set_connection(
     api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
-    orgs = c("openpharma", "r-world-devs")
+    orgs = c("r-world-devs", "openpharma", "pharmaverse")
   ) %>%
   set_connection(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT"),
-    orgs = c("mbtests")
+    orgs = c("mbtests", "erasmusmc-public-health")
   ) 
 ```
 
-You can set up your team to explore it's activity:
+# Setup preferences
+
+You can setup your search preferences, either to organizations, team or phrase. 
+
+## Team
+
+If you setup your preferences to team, name it, add your team members:
 
 ```{r}
+setup_preferences(git_stats,
+                  search_param = "team",
+                  team_name = "RWD")
+
+# set your team members
 git_stats %>%
-  set_team(team_name = "RWD-IE",
-           "galachad",
-           "krystian8207",
-           "kalimu",
-           "marcinkowskak",
-           "Cotau",
-           "Maciej Banaś", "maciekbanas") %>%
-  get_repos(by = "team") %>% 
-  plot_repos(repos_n = 15)
+  add_team_member("Adam Foryś", "galachad") %>%
+  add_team_member("Kamil Wais", "kalimu") %>%
+  add_team_member("Krystian Igras", "krystian8207") %>%
+  add_team_member("Karolina Marcinkowska", "marcinkowskak") %>%
+  add_team_member("Kamil Koziej", "Cotau") %>%
+  add_team_member("Maciej Banaś", "maciekbanas")
+
+# check your settings
+git_stats
+
+# now pull repos by default by team
+get_repos(git_stats)
+
+```
+
+## Keyword
+
+With `GitStats` you can look for the activity connected to a certain phrase.
+
+```{r}
+setup_preferences(git_stats,
+                  search_param = "phrase",
+                  phrase = "covid")
+
+# now pull repos by default by phrase
+get_repos(git_stats)
+
 ```
