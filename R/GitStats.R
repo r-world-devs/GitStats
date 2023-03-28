@@ -21,7 +21,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @description Create a new `GitStats` object
     #' @return A new `GitStats` object
     initialize = function() {
-
+      self$search_param <- "org"
     },
 
     #' @field team_name Name of a team.
@@ -29,6 +29,15 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @field team A list containing team members.
     team = list(),
+
+    #' @field search_param A team, org or keyword.
+    search_param = NULL,
+
+    #' @field phrase A phrase to search.
+    phrase = NULL,
+
+    #' @field language A programming language of repositories to look for.
+    language = NULL,
 
     #' @field storage A local database credentials to store output.
     storage = NULL,
@@ -44,6 +53,56 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @field commits_dt An output table of commits.
     commits_dt = NULL,
+
+    #' @description Set up your search parameters.
+    #' @param search_param One of three: `team`, `org` or `phrase`.
+    #' @param team A named character vector of team members.
+    #' @param phrase A phrase to look for.
+    #' @param language A language of programming code.
+    #' @return Nothing.
+    setup_preferences = function(search_param,
+                                 team,
+                                 phrase,
+                                 language) {
+
+      search_param <- match.arg(
+        search_param,
+        c("org", "team", "phrase")
+      )
+
+      if (search_param == "team") {
+        cli::cli_alert_success(
+          "Your search preferences set to {cli::col_green('team')}."
+        )
+        if (is.null(team)) {
+          cli::cli_alert_warning(
+            cli::col_yellow(
+              "You did not define your team."
+            )
+          )
+        }
+      }
+
+      if (search_param == "phrase") {
+       if (is.null(phrase)) {
+        cli::cli_abort(
+          "You did not define your phrase."
+        )
+       } else {
+         self$phrase <- phrase
+         cli::cli_alert_success(
+           paste0("Your search preferences set to {cli::col_green('phrase: ", phrase, "')}.")
+         )
+       }
+      }
+      self$search_param <- search_param
+      if (!is.null(language)) {
+        self$language <- language
+        cli::cli_alert_success(
+          paste0("Your language is set to <", language, ">.")
+        )
+      }
+    },
 
     #' @description Method to set connections to Git platforms
     #' @param api_url A character, url address of API.
@@ -341,8 +400,18 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description A print method for a GitStats object
     print = function() {
-      cat(paste0("A GitStats object (multi-API client platform) for ", length(self$clients), " clients:"), sep = "\n")
-      purrr::walk(self$clients, ~ .$print())
+      cat(paste0("A <GitStats> object for ", length(self$clients), " clients:"), sep = "\n")
+      clients <- purrr::map_chr(self$clients, ~ .$rest_api_url)
+      private$print_item("Clients", clients, paste0(clients, collapse = ", "))
+      orgs <- purrr::map(self$clients, ~ paste0(.$orgs, collapse = ", ")) %>% paste0(collapse = ", ")
+      private$print_item("Organisations", orgs)
+      private$print_item("Search preference", self$search_param)
+      private$print_item("Team", self$team, names(self$team))
+      private$print_item("Phrase", self$phrase)
+      private$print_item("Language", self$language)
+      private$print_item("Storage", self$storage, class(self$storage)[1])
+      cat(paste0(cli::col_blue("Storage On/Off: "),
+                 ifelse(self$use_storage, "ON", cli::col_grey("OFF"))))
     }
   ),
   private = list(
@@ -558,6 +627,20 @@ GitStats <- R6::R6Class("GitStats",
       }
 
       client
+    },
+
+    #' @description A helper to manage printing `GitStats` object.
+    #' @param name Name of item to print.
+    #' @param item_to_check Item to check for emptiness.
+    #' @param item_to_print Item to print, if not defined it is item that is checked.
+    #' @return Nothing, prints object.
+    print_item = function(item_name,
+                          item_to_check,
+                          item_to_print = item_to_check) {
+      cat(paste0(cli::col_blue(paste0(item_name, ": ")),
+                 ifelse(is.null(item_to_check),
+                        cli::col_grey("<not defined>"),
+                        item_to_print), "\n"))
     }
   )
 )
@@ -610,6 +693,29 @@ set_connection <- function(gitstats_obj,
   )
 
   return(invisible(gitstats_obj))
+}
+
+#' @title Set up your search parameters.
+#' @name setup_preferences
+#' @param gitstats_obj A GitStats object.
+#' @param search_param One of three: team, orgs or phrase.
+#' @param team A named character of team members.
+#' @param phrase A phrase to look for.
+#' @param language A language of programming code.
+#' @return A `GitStats` object.
+#' @export
+setup_preferences <- function(gitstats_obj,
+                              search_param = NULL,
+                              team = NULL,
+                              phrase = NULL,
+                              language = NULL) {
+
+  gitstats_obj$setup_preferences(search_param = search_param,
+                                 team = team,
+                                 phrase = phrase,
+                                 language = language)
+
+  return(gitstats_obj)
 }
 
 #' @title Choose your organizations.
@@ -792,9 +898,9 @@ storage_on <- function(gitstats_obj) {
 #' }
 #' @export
 get_repos <- function(gitstats_obj,
-                      by = "org",
-                      phrase = NULL,
-                      language = NULL,
+                      by = gitstats_obj$search_param,
+                      phrase = gitstats_obj$phrase,
+                      language = gitstats_obj$language,
                       print_out = TRUE) {
   gitstats_obj$get_repos(
     by = by,
@@ -845,7 +951,7 @@ get_repos <- function(gitstats_obj,
 get_commits <- function(gitstats_obj,
                         date_from = NULL,
                         date_until = Sys.time(),
-                        by = "org",
+                        by = gitstats_obj$search_param,
                         print_out = TRUE) {
   gitstats_obj$get_commits(
     date_from = date_from,

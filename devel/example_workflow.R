@@ -1,4 +1,5 @@
 #file with example workflow for basic package functionality - will be helpful later tu build vignettes
+pkgload::load_all()
 
 # Start by creating your GitStats object and setting connections.
 
@@ -15,11 +16,16 @@ git_stats <- create_gitstats() %>%
   )
 
 # examples for getting repos (default argument for parameter 'by' is 'org')
+get_repos(git_stats)
 
+# You can set your search preferences
+setup_preferences(git_stats,
+                  search_param = "team")
+
+# now getting repos will throw error as you did not define your team
 get_repos(git_stats)
 
 # set your team members
-
 git_stats %>%
   set_team(team_name = "RWD-IE",
            "galachad",
@@ -27,15 +33,23 @@ git_stats %>%
            "kalimu",
            "marcinkowskak",
            "Cotau",
-           "maciekbanas") %>%
-  get_repos(by = "team")
+           "maciekbanas")
+
+# check your settings
+git_stats
+
+# now pull repos by default by team
+git_stats %>%
+  get_repos()
+
+# Change your settings to searches by phrase:
+setup_preferences(git_stats,
+                  search_param = "phrase",
+                  phrase = "covid",
+                  language = "R")
 
 # Search by phrase
-
-get_repos(git_stats,
-          by = "phrase",
-          phrase = "covid",
-          language = "R")
+get_repos(git_stats)
 
 # you can plot repos sorted by last activity
 

@@ -6,9 +6,9 @@
 \usage{
 get_repos(
   gitstats_obj,
-  by = "org",
-  phrase = NULL,
-  language = NULL,
+  by = gitstats_obj$search_param,
+  phrase = gitstats_obj$phrase,
+  language = gitstats_obj$language,
   print_out = TRUE
 )
 }
