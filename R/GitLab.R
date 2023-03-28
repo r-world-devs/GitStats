@@ -1,6 +1,7 @@
 #' @importFrom R6 R6Class
 #' @importFrom dplyr mutate
 #' @importFrom magrittr %>%
+#' @importFrom rlang %||%
 #' @importFrom cli cli_alert cli_alert_success col_green
 #'
 #' @title A GitLab API Client class
@@ -17,8 +18,7 @@ GitLab <- R6::R6Class("GitLab",
     #' @param by A character, to choose between: \itemize{\item{org -
     #'   organizations (owners of repositories or project groups)} \item{team -
     #'   A team} \item{phrase - A keyword in code blobs.}}
-    #' @param team A list of team members. Specified by \code{set_team()} method
-    #'   of GitStats class object.
+    #' @param team A list of team members.
     #' @param phrase A character to look for in code blobs. Obligatory if
     #'   \code{by} parameter set to \code{"phrase"}.
     #' @param language A character specifying language used in repositories.
@@ -82,8 +82,7 @@ GitLab <- R6::R6Class("GitLab",
     #' @param by A character, to choose between: \itemize{\item{org -
     #'   organizations (owners of repositories or project groups)} \item{team -
     #'   A team} \item{phrase - A keyword in code blobs.}}
-    #' @param team A list of team members. Specified by \code{set_team()} method
-    #'   of GitStats class object.
+    #' @param team A list of team members.
     #' @return A data.frame of commits
     get_commits = function(orgs = self$orgs,
                            date_from,

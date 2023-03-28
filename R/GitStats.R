@@ -56,12 +56,12 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description Set up your search parameters.
     #' @param search_param One of three: `team`, `org` or `phrase`.
-    #' @param team A named character vector of team members.
+    #' @param team_name A name of a team.
     #' @param phrase A phrase to look for.
     #' @param language A language of programming code.
     #' @return Nothing.
     setup_preferences = function(search_param,
-                                 team,
+                                 team_name,
                                  phrase,
                                  language) {
 
@@ -71,22 +71,29 @@ GitStats <- R6::R6Class("GitStats",
       )
 
       if (search_param == "team") {
-        cli::cli_alert_success(
-          "Your search preferences set to {cli::col_green('team')}."
-        )
-        if (is.null(team)) {
-          cli::cli_alert_warning(
-            cli::col_yellow(
-              "You did not define your team."
-            )
+        if (is.null(team_name)) {
+          cli::cli_abort(
+            "You need to define your `team_name`."
           )
+        } else {
+          self$team_name <- team_name
+          cli::cli_alert_success(
+            paste0("Your search preferences set to {cli::col_green('team: ", team_name, "')}.")
+          )
+          if (length(self$team) == 0) {
+            cli::cli_alert_warning(
+              cli::col_yellow(
+                "No team members in the team. Add them with `add_team_member()`."
+              )
+            )
+          }
         }
       }
 
       if (search_param == "phrase") {
        if (is.null(phrase)) {
         cli::cli_abort(
-          "You did not define your phrase."
+          "You need to define your phrase."
         )
        } else {
          self$phrase <- phrase
@@ -177,13 +184,6 @@ GitStats <- R6::R6Class("GitStats",
 
       message("New organizations set for [", api_url, "]: ", paste(unlist(list(...)), collapse = ", "))
 
-    },
-
-    #' @description A method to set your team.
-    #' @param team_name A name of a team.
-    #' @return Nothing, pass team information into `$team` field.
-    set_team = function(team_name) {
-      self$team_name <- team_name
     },
 
     #' @description A method to add a team member.
@@ -290,12 +290,12 @@ GitStats <- R6::R6Class("GitStats",
       team <- NULL
       if (by == "team") {
         if (length(self$team) == 0) {
-          stop("You have to specify a team first with 'set_team()' method.", call. = FALSE)
+          cli::cli_abort("You have to specify a team first with 'set_team()' method.")
         }
         team <- self$team
       } else if (by == "phrase") {
         if (is.null(phrase)) {
-          stop("You have to provide a phrase to look for.", call. = FALSE)
+          cli::cli_abort("You have to provide a phrase to look for.")
         }
       }
 
@@ -376,7 +376,7 @@ GitStats <- R6::R6Class("GitStats",
         if (!is.null(self$team)) {
           cli::cli_alert_success(
             paste0(x$git_service, " for '", self$team_name, "' team: pulled ",
-                   nrow(commits_dt), "commits from ",
+                   nrow(commits), " commits from ",
                    length(unique(commits$repository)), " repositories."))
         }
 
@@ -406,7 +406,7 @@ GitStats <- R6::R6Class("GitStats",
       orgs <- purrr::map(self$clients, ~ paste0(.$orgs, collapse = ", ")) %>% paste0(collapse = ", ")
       private$print_item("Organisations", orgs)
       private$print_item("Search preference", self$search_param)
-      private$print_item("Team", self$team, names(self$team))
+      private$print_item("Team", self$team_name, paste0(self$team_name, " (", length(self$team), " members)"))
       private$print_item("Phrase", self$phrase)
       private$print_item("Language", self$language)
       private$print_item("Storage", self$storage, class(self$storage)[1])
@@ -695,29 +695,6 @@ set_connection <- function(gitstats_obj,
   return(invisible(gitstats_obj))
 }
 
-#' @title Set up your search parameters.
-#' @name setup_preferences
-#' @param gitstats_obj A GitStats object.
-#' @param search_param One of three: team, orgs or phrase.
-#' @param team A named character of team members.
-#' @param phrase A phrase to look for.
-#' @param language A language of programming code.
-#' @return A `GitStats` object.
-#' @export
-setup_preferences <- function(gitstats_obj,
-                              search_param = NULL,
-                              team = NULL,
-                              phrase = NULL,
-                              language = NULL) {
-
-  gitstats_obj$setup_preferences(search_param = search_param,
-                                 team = team,
-                                 phrase = phrase,
-                                 language = language)
-
-  return(gitstats_obj)
-}
-
 #' @title Choose your organizations.
 #' @name set_organizations
 #' @description A method to set you organizations.
@@ -767,29 +744,6 @@ set_organizations <- function(gitstats_obj,
 
   gitstats_obj$set_organizations(api_url = api_url,
                                  ... = ...)
-
-  return(invisible(gitstats_obj))
-}
-
-#' @title Set your team.
-#' @name set_team
-#' @description Declare your team.
-#' @param gitstats_obj A GitStats object.
-#' @param team_name A name of a team.
-#' @return A `GitStats` class object with added information to `$team` field.
-#' @examples
-#' \dontrun{
-#' my_gitstats <- create_gitstats() %>%
-#'   set_connection(
-#'     api_url = "https://api.github.com",
-#'     token = Sys.getenv("GITHUB_PAT"),
-#'     orgs = c("r-world-devs", "openpharma", "pharmaverse")
-#'   ) %>%
-#'   set_team("RWD-IE")
-#' }
-#' @export
-set_team <- function(gitstats_obj, team_name) {
-  gitstats_obj$set_team(team_name)
 
   return(invisible(gitstats_obj))
 }

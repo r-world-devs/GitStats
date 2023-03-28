@@ -43,8 +43,7 @@ team or by a keyword.
 organizations (owners of repositories or project groups)} \item{team -
 A team} \item{phrase - A keyword in code blobs.}}}
 
-\item{\code{team}}{A list of team members. Specified by \code{set_team()} method
-of GitStats class object.}
+\item{\code{team}}{A list of team members.}
 
 \item{\code{phrase}}{A character to look for in code blobs. Obligatory if
 \code{by} parameter set to \code{"phrase"}.}
@@ -85,8 +84,7 @@ A method to get information on commits.
 organizations (owners of repositories or project groups)} \item{team -
 A team} \item{phrase - A keyword in code blobs.}}}
 
-\item{\code{team}}{A list of team members. Specified by \code{set_team()} method
-of GitStats class object.}
+\item{\code{team}}{A list of team members.}
 }
 \if{html}{\out{</div>}}
 }

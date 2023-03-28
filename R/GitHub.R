@@ -2,6 +2,7 @@
 #' @importFrom dplyr mutate rename
 #' @importFrom magrittr %>%
 #' @importFrom progress progress_bar
+#' @importFrom rlang %||%
 #' @importFrom cli cli_alert cli_alert_success col_green
 #'
 #' @title A GitHub API Client class
@@ -17,8 +18,7 @@ GitHub <- R6::R6Class("GitHub",
     #' @param by A character, to choose between: \itemize{\item{org -
     #'   organizations (owners of repositories or project groups)} \item{team -
     #'   A team} \item{phrase - A keyword in code blobs.}}
-    #' @param team A list of team members. Specified by \code{set_team()} method
-    #'   of GitStats class object.
+    #' @param team A list of team members.
     #' @param phrase A character to look for in code blobs. Obligatory if
     #'   \code{by} parameter set to \code{"phrase"}.
     #' @param language A character specifying language used in repositories.
@@ -69,14 +69,13 @@ GitHub <- R6::R6Class("GitHub",
     #' @param by A character, to choose between: \itemize{\item{org -
     #'   organizations (owners of repositories or project groups)} \item{team -
     #'   A team} \item{phrase - A keyword in code blobs.}}
-    #' @param team A list of team members. Specified by \code{set_team()} method
-    #'   of GitStats class object.
+    #' @param team A list of team members.
     #' @return A data.frame of commits
     get_commits = function(orgs = self$orgs,
                            date_from,
                            date_until = Sys.Date(),
                            by,
-                           team = NULL) {
+                           team) {
 
       if (is.null(orgs)) {
         cli::cli_alert_warning(paste0("No organizations specified for ", self$git_service, "."))
