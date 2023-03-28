@@ -21,25 +21,10 @@ An object with methods to build GraphQL Queries.
 \if{html}{\out{<a id="method-repos_by_org"></a>}}
 \if{latex}{\out{\hypertarget{method-repos_by_org}{}}}
 \subsection{Method \code{repos_by_org()}}{
-Prepare query to pull repositories for GitHub organization.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GraphQLQuery$repos_by_org(org, language, repo_cursor)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GraphQLQuery$repos_by_org(org, cursor)}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{org}}{An organization.}
-
-\item{\code{language}}{Language of a repository.}
-
-\item{\code{repo_cursor}}{An endCursor.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A query.
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-users_id"></a>}}
