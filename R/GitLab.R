@@ -39,8 +39,7 @@ GitLab <- R6::R6Class("GitLab",
 
       repos_dt <- purrr::map(orgs, function(org) {
         if (by %in% c("org", "team")) {
-          repos_table <- private$pull_repos_from_org(org = org,
-                                                    language = language)
+          repos_table <- private$pull_repos_from_org(org = org)
           if (by == "team") {
             repos_table <- private$filter_repos_by_team(
               repos_table = repos_table,
@@ -202,10 +201,8 @@ GitLab <- R6::R6Class("GitLab",
     #' @description A method to pull all repositories for an organization.
     #' @param org A character, an organization:\itemize{\item{GitHub - owners o
     #'   repositories} \item{GitLab - group of projects.}}
-    #' @param language
     #' @return A list.
-    pull_repos_from_org = function(org,
-                                   language) {
+    pull_repos_from_org = function(org) {
 
       cli::cli_alert_info("[GitLab][{org}] Pulling repositories...")
       next_page <- TRUE
@@ -213,7 +210,6 @@ GitLab <- R6::R6Class("GitLab",
       repo_cursor <- ''
       while (next_page) {
         repos_response <- private$pull_repos_page_from_org(org = org,
-                                                           language = language,
                                                            repo_cursor = repo_cursor)
         repositories <- repos_response$data$group$projects
         if (length(full_repos_list) == 0) {
@@ -233,7 +229,11 @@ GitLab <- R6::R6Class("GitLab",
       return(repos_table)
     },
 
-    pull_repos_page_from_org = function(org, language, repo_cursor) {
+    #' @description Wrapper over building GraphQL query and response.
+    #' @param org An organization
+    #' @param repo_cursor An end cursor for repos page.
+    #' @return A list.
+    pull_repos_page_from_org = function(org, repo_cursor) {
       repos_by_org <- self$gql_query$projects_by_group(group = org,
                                                        projects_cursor = repo_cursor)
       response <- private$gql_response(
@@ -472,6 +472,7 @@ GitLab <- R6::R6Class("GitLab",
                                        org) {
 
       repos_table <- purrr::map_dfr(repos_list, function(repo) {
+        issues_counts <- repo$node$issueStatusCounts
         repo_row <- data.frame(
           "id" = repo$node$id,
           "name" = repo$node$name,
@@ -486,8 +487,16 @@ GitLab <- R6::R6Class("GitLab",
           } else {
             ''
           },
-          "issues_open" = repo$node$issueStatusCounts$opened,
-          "issues_closed" = repo$node$issueStatusCounts$closed,
+          "issues_open" = if (!is.null(issues_counts)) {
+            issues_counts$opened
+            } else {
+              NA
+            },
+          "issues_closed" = if (!is.null(issues_counts)) {
+            issues_counts$closed
+          } else {
+            NA
+          },
           "contributors" = NA,
           "organization" = org,
           "api_url" = self$rest_api_url
