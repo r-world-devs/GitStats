@@ -568,6 +568,9 @@ GitHub <- R6::R6Class("GitHub",
           paste0(collapse = ", ")
         repo$issues_open <- repo$issues_open$totalCount
         repo$issues_closed <- repo$issues_closed$totalCount
+        repo$last_activity_at <- difftime(Sys.time(), as.POSIXct(repo$last_activity_at),
+                                          units = "days"
+        ) %>% round(2)
         data.frame(repo)
       })
       repo_table <- dplyr::mutate(
