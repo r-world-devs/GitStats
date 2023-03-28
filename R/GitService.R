@@ -123,7 +123,7 @@ GitService <- R6::R6Class("GitService",
     #' @description A method to add information on repository contributors.
     #' @param repos_list A list of repositories.
     #' @return A list of repositories with added information on contributors.
-    pull_repos_contributors = function(repos_list) {
+    add_repos_contributors = function(repos_list) {
       repos_list <- purrr::map(repos_list, function(repo) {
         if (self$git_service == "GitHub") {
           user_name <- rlang::expr(.$login)
@@ -156,19 +156,30 @@ GitService <- R6::R6Class("GitService",
     #' @description Filter repositories by contributors.
     #' @details If at least one member of a team is a contributor than a project
     #'   passes through the filter.
-    #' @param repos_list A repository list to be filtered.
+    #' @param repos_table A repository table to be filtered.
     #' @param team A character vector with team member names.
-    #' @return A list.
-    filter_repos_by_team = function(repos_list,
+    #' @return A repos table.
+    filter_repos_by_team = function(repos_table,
                                     team) {
-      repos_list <- purrr::map(repos_list, function(x) {
-        if (length(intersect(team, x$contributors)) > 0) {
-          return(x)
-        } else {
-          return(NULL)
-        }
-      }) %>% purrr::keep(~ length(.) > 0)
-      return(repos_list)
+      cli::cli_alert_info("Filtering by team members.")
+      repos_table <- repos_table %>%
+        dplyr::filter(contributors %in% unlist(team))
+      return(repos_table)
+    },
+
+    #' @description Filter projects by programming
+    #'   language
+    #' @param repos_table A list of repositories to be
+    #'   filtered.
+    #' @param language A character, name of a
+    #'   programming language.
+    #' @return A repos table.
+    filter_by_language = function(repos_table,
+                                  language) {
+      cli::cli_alert_info("Filtering by language.")
+      repos_table <- repos_table %>%
+        dplyr::filter(languages %in% language)
+      return(repos_table)
     },
 
     #' @description Perform get request to find projects by ids.

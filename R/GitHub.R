@@ -46,7 +46,7 @@ GitHub <- R6::R6Class("GitHub",
                                                    org = org,
                                                    language = language
           ) %>%
-            private$pull_repos_contributors() %>%
+            private$add_repos_contributors() %>%
             private$pull_repos_issues() %>%
             private$tailor_repos_info() %>%
             private$prepare_repos_table()
@@ -187,6 +187,7 @@ GitHub <- R6::R6Class("GitHub",
         pb$tick()
         repos_response <- private$pull_repos_page_from_org(org = org,
                                                            repo_cursor = repo_cursor)
+
         repositories <- repos_response$data$repositoryOwner$repositories
         if (length(full_repos_list) == 0) {
           repos_count <- repositories$totalCount
@@ -206,7 +207,7 @@ GitHub <- R6::R6Class("GitHub",
       repos_table <- private$prepare_repos_table_gql(
         full_repos_list,
         org = org
-        )
+      )
       return(repos_table)
     },
 
@@ -217,7 +218,8 @@ GitHub <- R6::R6Class("GitHub",
     #' @return
     pull_repos_page_from_org = function(org,
                                         repo_cursor = '') {
-      repos_by_org <- self$gql_query$repos_by_org_test(org,
+
+      repos_by_org <- self$gql_query$repos_by_org(org,
                                                   cursor = repo_cursor)
       response <- private$gql_response(
         gql_query = repos_by_org
@@ -260,8 +262,8 @@ GitHub <- R6::R6Class("GitHub",
         })
       }
       if (!is.null(team)) {
-        message("Team ON.")
-        authors_ids <- private$get_authors_ids(team)
+        authors_ids <- private$get_authors_ids(team) %>%
+          purrr::discard(~.=="")
         repos_list_with_commits <- purrr::map(repos_names, function(repo) {
           pb$tick()
           full_commits_list <- list()
@@ -282,7 +284,7 @@ GitHub <- R6::R6Class("GitHub",
 
       commits_table <- repos_list_with_commits %>%
         purrr::discard(~ length(.) == 0) %>%
-        private$prepare_commits_table_gql()
+        private$prepare_commits_table_gql(org)
 
       return(commits_table)
     },
@@ -318,7 +320,7 @@ GitHub <- R6::R6Class("GitHub",
         }
         full_commits_list <- append(full_commits_list, commits_list)
       }
-      full_commits_list
+      return(full_commits_list)
     },
 
     #' @description
@@ -335,7 +337,7 @@ GitHub <- R6::R6Class("GitHub",
         repo = repo,
         since = date_to_gts(date_from),
         until = date_to_gts(date_until),
-        cursor = commits_cursor,
+        commits_cursor = commits_cursor,
         author_id = author_id
       )
       response <- private$gql_response(
@@ -348,15 +350,19 @@ GitHub <- R6::R6Class("GitHub",
     #' @param team A character vector of team members.
     #' @return A character vector of GitHub's author's IDs.
     get_authors_ids = function(team) {
-
-      purrr::map_chr(team, ~{
+      logins <- purrr::map(team, ~.$logins) %>%
+        unlist()
+      purrr::map_chr(logins, ~{
         authors_id_query <- self$gql_query$users_id(.)
         authors_id_response <- private$gql_response(
           gql_query = authors_id_query
         )
-        authors_id_response$data$user$id
-        })
-
+        result <- authors_id_response$data$user$id
+        if (is.null(result)){
+          result <- ''
+        }
+        return(result)
+      })
     },
 
     #' @description Method to pull repositories' issues.
@@ -585,8 +591,10 @@ GitHub <- R6::R6Class("GitHub",
 
     #' @description Parses repositories' list with commits into table of commits.
     #' @param repos_list_with_commits A list of repositories with commits.
+    #' @param org An organization of repositories.
     #' @return Table of commits.
-    prepare_commits_table_gql = function(repos_list_with_commits) {
+    prepare_commits_table_gql = function(repos_list_with_commits,
+                                         org) {
       commits_table <- purrr::imap(repos_list_with_commits, function(repo, repo_name) {
         commits_row <- purrr::map_dfr(repo, function(commit) {
           commit$node$author <- commit$node$author$name
@@ -600,7 +608,9 @@ GitHub <- R6::R6Class("GitHub",
 
       if (nrow(commits_table) > 0) {
         commits_table <- commits_table %>%
-          dplyr::rename(committed_date = committedDate)
+          dplyr::rename(committed_date = committedDate) %>%
+          dplyr::mutate(organization = org,
+                        api_url = self$rest_api_url)
       }
     }
   )

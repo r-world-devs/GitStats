@@ -39,40 +39,37 @@ GitLab <- R6::R6Class("GitLab",
       }
 
       repos_dt <- purrr::map(orgs, function(org) {
-        cli::cli_alert_info(paste0("[GitLab][", org, "] Pulling repositories..."))
+        if (by %in% c("org", "team")) {
+          repos_table <- private$pull_repos_from_org(org = org,
+                                                    language = language)
+          if (by == "team") {
+            repos_table <- private$filter_repos_by_team(
+              repos_table = repos_table,
+              team = team
+            )
+          }
+          if (!is.null(language)) {
+            repos_table <- private$filter_by_language(
+              repos_table = repos_table,
+              language = language
+            )
+          }
+          return(repos_table)
+        }
+
         if (by == "phrase") {
           repos_list <- private$search_by_keyword(phrase,
                                                   org = org,
                                                   language = language
           )
-          cli::cli_alert_success(paste0("\n On ", self$git_service, " ('", org, "') found ", length(repos_list), " repositories."))
-        } else {
-          repos_list <- private$pull_repos_from_org(org = org) %>%
-            {
-              if (by == "team") {
-                private$filter_repos_by_team(
-                  repos_list = .,
-                  team = team
-                )
-              } else {
-                .
-              }
-            } %>%
-            {
-              if (!is.null(language)) {
-                private$filter_by_language(
-                  repos_list = .,
-                  language = language
-                )
-              } else {
-                .
-              }
-            }
+          cli::cli_alert_success(paste0("\n On GitLab [", org, "] found ", length(repos_list), " repositories."))
         }
 
         repos_dt <- repos_list %>%
           private$tailor_repos_info() %>%
-          private$prepare_repos_table()
+          private$prepare_repos_table() %>%
+          private$add_repos_contributors() %>%
+          private$add_repos_issues()
       }) %>%
         rbindlist()
 
@@ -207,90 +204,87 @@ GitLab <- R6::R6Class("GitLab",
     #' @description A method to pull all repositories for an organization.
     #' @param org A character, an organization:\itemize{\item{GitHub - owners o
     #'   repositories} \item{GitLab - group of projects.}}
+    #' @param language
     #' @return A list.
-    pull_repos_from_org = function(org) {
-      repos_list <- list()
-      r_page <- 1
-      repeat {
-        repos_page <- private$rest_response(
-          endpoint = paste0(self$rest_api_url, "/groups/", org, "/projects?per_page=100&page=", r_page)
-        )
-        if (length(repos_page) > 0) {
-          repos_list <- append(repos_list, repos_page)
-          r_page <- r_page + 1
-        } else {
-          break
+    pull_repos_from_org = function(org,
+                                   language) {
+
+      cli::cli_alert_info("[GitLab][{org}] Pulling repositories...")
+      next_page <- TRUE
+      full_repos_list <- list()
+      repo_cursor <- ''
+      while (next_page) {
+        repos_response <- private$pull_repos_page_from_org(org = org,
+                                                           language = language,
+                                                           repo_cursor = repo_cursor)
+        repositories <- repos_response$data$group$projects
+        if (length(full_repos_list) == 0) {
+          cli::cli_alert_info("Number of repositories: {repositories$count}")
         }
+        repos_list <- repositories$edges
+        next_page <- repositories$pageInfo$hasNextPage
+        repo_cursor <- repositories$pageInfo$endCursor
+
+        full_repos_list <- append(full_repos_list, repos_list)
       }
 
-      repos_list <- repos_list %>%
-        private$pull_repos_contributors() %>%
-        private$pull_repos_issues()
+      repos_table <- repos_list %>%
+        private$prepare_repos_table_gql(org = org) %>%
+        private$add_repos_contributors()
 
-      repos_list
+      return(repos_table)
     },
 
-    #' @description Method to pull repositories' issues.
-    #' @param repos_list A list of repositories.
-    #' @return A list of repositories.
-    pull_repos_issues = function(repos_list) {
-      projects_ids <- unique(purrr::map_chr(repos_list, ~ as.character(.$id)))
+    pull_repos_page_from_org = function(org, language, repo_cursor) {
+      repos_by_org <- self$gql_query$projects_by_group(group = org,
+                                                       projects_cursor = repo_cursor)
+      response <- private$gql_response(
+        gql_query = repos_by_org
+      )
+      response
+    },
 
-      repos_list <- purrr::map(projects_ids, function(project_id) {
-        issues_stats <- private$rest_response(
-          endpoint = paste0(self$rest_api_url, "/projects/", project_id, "/issues_statistics")
-        )
+    #' @description A method to add information on repository contributors.
+    #' @param repos_table A table of repositories.
+    #' @return A table of repositories with added information on contributors.
+    add_repos_issues = function(repos_table) {
+      if (nrow(repos_table) > 0) {
+        issues <- purrr::map(repos_table$id, function(repos_id) {
+          id <- gsub("gid://gitlab/Project/", "", repos_id)
+          issues_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/issues_statistics")
 
-        issues_stats
-      }) %>%
-        purrr::map2(repos_list, function(issue, repository) {
-          purrr::list_modify(repository,
-            issues = issue$statistics$counts$all,
-            issues_open = issue$statistics$counts$opened,
-            issues_closed = issue$statistics$counts$closed
+          private$rest_response(
+            endpoint = issues_endpoint
+          )[["statistics"]][["counts"]]
+        })
+        repos_table$issues_open <- purrr::map_dbl(issues, ~.$opened)
+        repos_table$issues_closed <- purrr::map_dbl(issues, ~.$closed)
+      }
+      return(repos_table)
+    },
+
+    #' @description A method to add information on repository contributors.
+    #' @param repos_table A table of repositories.
+    #' @return A table of repositories with added information on contributors.
+    add_repos_contributors = function(repos_table) {
+      if (nrow(repos_table) > 0) {
+        repos_table$contributors <- purrr::map(repos_table$id, function(repos_id) {
+          id <- gsub("gid://gitlab/Project/", "", repos_id)
+          contributors_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/repository/contributors")
+          tryCatch(
+            {
+              private$rest_response(
+                endpoint = contributors_endpoint
+              ) %>% purrr::map_chr(~ .$name) %>%
+                paste0(collapse = ", ")
+            },
+            error = function(e) {
+              NA
+            }
           )
         })
-
-      repos_list
-    },
-
-    #' @description Filter projects by programming
-    #'   language
-    #' @param repos_list A list of repositories to be
-    #'   filtered.
-    #' @param language A character, name of a
-    #'   programming language.
-    #' @details This method is specific for GitLab
-    #'   Client class as there is no possibility
-    #'   currently to add language filter to search
-    #'   endpoint. As for now, an epic is in progress
-    #'   on GitLab to add this feature. For more
-    #'   details you can visit:
-    #'   \link{https://gitlab.com/gitlab-org/gitlab/-/issues/342648}
-    #' @return A list of projects where speicfied
-    #'   language is used.
-    filter_by_language = function(repos_list,
-                                  language) {
-      projects_id <- unique(purrr::map_chr(repos_list, ~ as.character(.$id)))
-
-      projects_language_list <- purrr::map(projects_id, function(x) {
-        private$rest_response(
-          endpoint = paste0(self$rest_api_url, "/projects/", x, "/languages")
-        )
-      })
-
-      names(projects_language_list) <- projects_id
-
-      filtered_projects <- purrr::map(projects_language_list, function(x) {
-        purrr::map_chr(x, ~.)
-      }) %>%
-        purrr::keep(~ language %in% names(.))
-
-      if (length(filtered_projects) > 0) {
-        purrr::keep(repos_list, ~ .$id %in% names(filtered_projects))
-      } else {
-        list()
       }
+      return(repos_table)
     },
 
     #' @description A helper to retrieve only important info on repos
@@ -301,11 +295,11 @@ GitLab <- R6::R6Class("GitLab",
         list(
           "organization" = x$namespace$path,
           "name" = x$name,
+          "id" = x$id,
           "created_at" = x$created_at,
           "last_activity_at" = x$last_activity_at,
           "forks" = x$fork_count,
           "stars" = x$star_count,
-          "contributors" = paste0(x$contributors, collapse = ","),
           "issues_open" = x$issues_open,
           "issues_closed" = x$issues_closed
         )
@@ -356,37 +350,40 @@ GitLab <- R6::R6Class("GitLab",
     #' @param org A character, a group of projects.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
-    #' @return A list of commits
+    #' @return A list of commits.
     pull_commits_from_org = function(org,
-                                       date_from,
-                                       date_until = Sys.date()) {
-      repos_list <- private$pull_repos_from_org(
+                                     date_from,
+                                     date_until = Sys.date()) {
+      repos_table <- private$pull_repos_from_org(
         org = org
       )
+      repos_names <- repos_table$name
+      projects_ids <- gsub("gid://gitlab/Project/", "", repos_table$id)
 
-      repos_names <- purrr::map_chr(repos_list, ~ .$name)
-      projects_ids <- purrr::map_chr(repos_list, ~ as.character(.$id))
+      cli::cli_alert_info("[GitLab][{org}] Pulling commits...")
 
       pb <- progress::progress_bar$new(
-        format = paste0("GitLab (", org, "). Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
+        format = paste0("Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
         total = length(repos_names)
       )
 
-      commits_list <- purrr::map(projects_ids, function(x) {
+      commits_list <- purrr::map(projects_ids, function(project_id) {
         pb$tick()
-
-        private$rest_response(
-          endpoint = paste0(
-            self$rest_api_url,
-            "/projects/",
-            x,
-            "/repository/commits?since='",
-            date_to_gts(date_from),
-            "'&until='",
-            date_to_gts(date_until),
-            "'&with_stats=true"
-          )
-        )
+        all_commits_in_repo <- list()
+        page <- 1
+        repeat {
+          commits_page <- private$pull_commits_page_from_repo(project_id = project_id,
+                                                              date_from = date_from,
+                                                              date_until = date_until,
+                                                              page = page)
+          if (length(commits_page) > 0) {
+            all_commits_in_repo <- append(all_commits_in_repo, commits_page)
+            page <- page + 1
+          } else {
+            break
+          }
+        }
+        return(all_commits_in_repo)
       })
 
       names(commits_list) <- repos_names
@@ -397,16 +394,42 @@ GitLab <- R6::R6Class("GitLab",
       return(commits_list)
     },
 
+    #' @description Handler for pagination of commits response.
+    #' @param project_id Id of a project.
+    #' @param date_from A starting date to look commits for.
+    #' @param date_until An end date to look commits for.
+    #' @param page Page of a response.
+    #' @return A list of commits.
+    pull_commits_page_from_repo = function(project_id,
+                                           date_from,
+                                           date_until,
+                                           page) {
+        private$rest_response(
+          endpoint = paste0(
+            self$rest_api_url,
+            "/projects/",
+            project_id,
+            "/repository/commits?since='",
+            date_to_gts(date_from),
+            "'&until='",
+            date_to_gts(date_until),
+            "'&with_stats=true",
+            "&page=", page
+          )
+        )
+    },
+
     #' @description Filter by contributors.
     #' @param commits_list A commits list to be filtered.
     #' @param team A character vector with team member names.
     #' @return A list.
     filter_commits_by_team = function(commits_list,
                                       team) {
+      team_names <- purrr::map_chr(team, ~.$name)
       commits_list <- purrr::map(commits_list, function(repo) {
         purrr::keep(repo, function(commit) {
           if (length(commit$author_name > 0)) {
-            commit$author_name %in% team
+            commit$author_name %in% team_names
           } else {
             FALSE
           }
@@ -427,7 +450,7 @@ GitLab <- R6::R6Class("GitLab",
         purrr::map(x, function(y) {
           list(
             "id" = y$id,
-            "organisation" = org,
+            "organization" = org,
             "repository" = gsub(
               pattern = paste0("/-/commit/", y$id),
               replacement = "",
@@ -435,12 +458,45 @@ GitLab <- R6::R6Class("GitLab",
             ),
             "additions" = y$stats$additions,
             "deletions" = y$stats$deletions,
-            "committed_date" = y$committed_date
+            "committed_date" = y$committed_date,
+            "author" = y$author_name
           )
         })
       })
 
       commits_list
+    },
+
+    #' @description
+    #' @param
+    #' @return
+    prepare_repos_table_gql = function(repos_list,
+                                       org) {
+
+      repos_table <- purrr::map_dfr(repos_list, function(repo) {
+        repo_row <- data.frame(
+          "id" = repo$node$id,
+          "name" = repo$node$name,
+          "created_at" = repo$node$createdAt,
+          "last_push" = NA,
+          "last_activity_at" = repo$node$last_activity_at,
+          "stars" = repo$node$stars,
+          "forks" = repo$node$forks,
+          "languages" = if (length(repo$node$languages) > 0) {
+            purrr::map_chr(repo$node$languages, ~.$name) %>%
+              paste0(collapse = ", ")
+          } else {
+            ''
+          },
+          "issues_open" = repo$node$issueStatusCounts$opened,
+          "issues_closed" = repo$node$issueStatusCounts$closed,
+          "contributors" = NA,
+          "organization" = org,
+          "api_url" = self$rest_api_url
+        )
+        repo_row
+      })
+      return(repos_table)
     },
 
     #' @description Switcher to manage language names
