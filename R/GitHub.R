@@ -536,22 +536,6 @@ GitHub <- R6::R6Class("GitHub",
     #' @details If at least one member of a team is a contributor than a project
     #'   passes through the filter.
     #' @param repos_table A repository table to be filtered.
-    #' @param team A list with team members.
-    #' @return A repos table.
-    filter_repos_by_team = function(repos_table,
-                                    team) {
-      cli::cli_alert_info("Filtering by team members.")
-      team_logins <- purrr::map(team, ~.$logins) %>%
-        unlist()
-      repos_table <- repos_table %>%
-        dplyr::filter(contributors %in% team_logins)
-      return(repos_table)
-    },
-
-    #' @description Filter repositories by contributors.
-    #' @details If at least one member of a team is a contributor than a project
-    #'   passes through the filter.
-    #' @param repos_table A repository table to be filtered.
     #' @param language A language used in repository.
     #' @return A repos table.
     filter_repos_by_language = function(repos_table,

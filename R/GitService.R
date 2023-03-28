@@ -162,13 +162,19 @@ GitService <- R6::R6Class("GitService",
     #' @details If at least one member of a team is a contributor than a project
     #'   passes through the filter.
     #' @param repos_table A repository table to be filtered.
-    #' @param team A character vector with team member names.
+    #' @param team A list with team members.
     #' @return A repos table.
     filter_repos_by_team = function(repos_table,
                                     team) {
       cli::cli_alert_info("Filtering by team members.")
-      repos_table <- repos_table %>%
-        dplyr::filter(contributors %in% unlist(team))
+      team_logins <- purrr::map(team, ~.$logins) %>%
+        unlist()
+      if (nrow(repos_table) > 0) {
+        repos_table <- repos_table %>%
+          dplyr::filter(contributors %in% team_logins)
+      } else {
+        repos_table
+      }
       return(repos_table)
     },
 
