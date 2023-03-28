@@ -1,7 +1,6 @@
 #' @importFrom R6 R6Class
 #' @importFrom dplyr mutate
 #' @importFrom magrittr %>%
-#' @importFrom rlang expr %||%
 #' @importFrom cli cli_alert cli_alert_success col_green
 #'
 #' @title A GitLab API Client class
