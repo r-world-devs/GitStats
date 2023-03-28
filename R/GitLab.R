@@ -12,68 +12,6 @@ GitLab <- R6::R6Class("GitLab",
   cloneable = FALSE,
   public = list(
 
-    #' @description  A method to list all repositories for an organization, a
-    #'   team or by a keyword.
-    #' @param orgs A character vector of organizations (owners of repositories).
-    #' @param by A character, to choose between: \itemize{\item{org -
-    #'   organizations (owners of repositories or project groups)} \item{team -
-    #'   A team} \item{phrase - A keyword in code blobs.}}
-    #' @param team A list of team members.
-    #' @param phrase A character to look for in code blobs. Obligatory if
-    #'   \code{by} parameter set to \code{"phrase"}.
-    #' @param language A character specifying language used in repositories.
-    #' @return A data.frame of repositories.
-    get_repos = function(orgs = self$orgs,
-                         by,
-                         team,
-                         phrase,
-                         language = NULL) {
-
-      language <- private$language_handler(language)
-
-      if (is.null(orgs)) {
-        cli::cli_alert_warning(paste0("No organizations specified for ", self$git_service, "."))
-        orgs <- private$pull_organizations(type = by,
-                                           team = team)
-      }
-
-      repos_dt <- purrr::map(orgs, function(org) {
-        if (by %in% c("org", "team")) {
-          repos_table <- private$pull_repos_from_org(org = org)
-          if (by == "team") {
-            repos_table <- private$filter_repos_by_team(
-              repos_table = repos_table,
-              team = team
-            )
-          }
-          if (!is.null(language)) {
-            repos_table <- private$filter_by_language(
-              repos_table = repos_table,
-              language = language
-            )
-          }
-          return(repos_table)
-        }
-
-        if (by == "phrase") {
-          repos_list <- private$search_by_keyword(phrase,
-                                                  org = org,
-                                                  language = language
-          )
-          cli::cli_alert_success(paste0("\n On GitLab [", org, "] found ", length(repos_list), " repositories."))
-        }
-
-        repos_dt <- repos_list %>%
-          private$tailor_repos_info() %>%
-          private$prepare_repos_table() %>%
-          private$add_repos_contributors() %>%
-          private$add_repos_issues()
-      }) %>%
-        rbindlist()
-
-      repos_dt
-    },
-
     #' @description A method to get information on commits.
     #' @param orgs A character vector of organisations.
     #' @param date_from A starting date to look commits for
@@ -257,30 +195,6 @@ GitLab <- R6::R6Class("GitLab",
         })
         repos_table$issues_open <- purrr::map_dbl(issues, ~.$opened)
         repos_table$issues_closed <- purrr::map_dbl(issues, ~.$closed)
-      }
-      return(repos_table)
-    },
-
-    #' @description A method to add information on repository contributors.
-    #' @param repos_table A table of repositories.
-    #' @return A table of repositories with added information on contributors.
-    add_repos_contributors = function(repos_table) {
-      if (nrow(repos_table) > 0) {
-        repos_table$contributors <- purrr::map(repos_table$id, function(repos_id) {
-          id <- gsub("gid://gitlab/Project/", "", repos_id)
-          contributors_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/repository/contributors")
-          tryCatch(
-            {
-              private$rest_response(
-                endpoint = contributors_endpoint
-              ) %>% purrr::map_chr(~ .$name) %>%
-                paste0(collapse = ", ")
-            },
-            error = function(e) {
-              NA
-            }
-          )
-        })
       }
       return(repos_table)
     },
