@@ -24,11 +24,12 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
                                           hasNextPage
                                         }
                                         nodes {
+                                          id
                                           name
                                           stars: stargazerCount
                                           forks: forkCount
                                           created_at: createdAt
-                                          pushed_at: pushedAt
+                                          last_push: pushedAt
                                           last_activity_at: updatedAt
                                           languages (first: 5) { nodes {name} }
                                           issues_open: issues (first: 100 states: [OPEN]) {

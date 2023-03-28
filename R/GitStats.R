@@ -249,7 +249,7 @@ GitStats <- R6::R6Class("GitStats",
 
       if (any(purrr::map_lgl(repos_dt_list, ~ length(.) != 0))) {
         self$repos_dt <- repos_dt_list %>%
-          rbindlist() %>%
+          rbindlist(use.names = TRUE) %>%
           dplyr::arrange(last_activity_at)
 
         if (print_out) dplyr::glimpse(self$repos_dt)
@@ -316,7 +316,8 @@ GitStats <- R6::R6Class("GitStats",
 
         if (!is.null(self$team)) {
           cli::cli_alert_success(
-            paste0(x$git_service, " for '", self$team_name, "' team: pulled commits from ",
+            paste0(x$git_service, " for '", self$team_name, "' team: pulled ",
+                   nrow(commits_dt), "commits from ",
                    length(unique(commits$repository)), " repositories."))
         }
 

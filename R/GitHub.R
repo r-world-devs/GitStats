@@ -30,6 +30,7 @@ GitHub <- R6::R6Class("GitHub",
                          language = NULL) {
 
       repos_dt <- purrr::map(self$orgs, function(org) {
+
         if (by %in% c("org", "team")) {
           repos_table <- private$pull_repos_from_org(org = org)
           if (by == "team") {
@@ -41,13 +42,14 @@ GitHub <- R6::R6Class("GitHub",
                                                             language)
           }
         }
+
         if (by == "phrase") {
           repos_table <- private$search_by_keyword(phrase,
                                                    org = org,
                                                    language = language
           ) %>%
             private$add_repos_contributors() %>%
-            private$pull_repos_issues() %>%
+            private$add_repos_issues() %>%
             private$tailor_repos_info() %>%
             private$prepare_repos_table()
           cli::cli_alert_success(paste0("\n On GitHub [", org, "] found ",
@@ -181,10 +183,7 @@ GitHub <- R6::R6Class("GitHub",
       full_repos_list <- list()
       next_page <- TRUE
       repo_cursor <- ''
-      pb <- progress::progress_bar$new(format = "Pulling page: :current",
-                                       clear = FALSE)
       while (next_page) {
-        pb$tick()
         repos_response <- private$pull_repos_page_from_org(org = org,
                                                            repo_cursor = repo_cursor)
 
@@ -211,11 +210,10 @@ GitHub <- R6::R6Class("GitHub",
       return(repos_table)
     },
 
-    #' @description
-    #' @param org
-    #' @param language
-    #' @param repo_cursor
-    #' @return
+    #' @description Wrapper over building GraphQL query and response.
+    #' @param org An organization
+    #' @param repo_cursor An end cursor for repos page.
+    #' @return A list.
     pull_repos_page_from_org = function(org,
                                         repo_cursor = '') {
 
@@ -240,8 +238,7 @@ GitHub <- R6::R6Class("GitHub",
                                      team) {
 
       repos_table <- private$pull_repos_from_org(
-        org = org,
-        language = NULL
+        org = org
       )
       repos_names <- repos_table$name
 
@@ -293,6 +290,7 @@ GitHub <- R6::R6Class("GitHub",
     #' @param org An organization.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
+    #' @param author_id Id of an author.
     #' @return A list of commits.
     pull_commits_from_repo = function(org,
                                      repo,
@@ -323,9 +321,14 @@ GitHub <- R6::R6Class("GitHub",
       return(full_commits_list)
     },
 
-    #' @description
-    #' @param
-    #' @return
+    #' @description Wrapper over building GraphQL query and response.
+    #' @param org An organization
+    #' @param repo A repository.
+    #' @param date_from A starting date to look commits for.
+    #' @param date_until An end date to look commits for.
+    #' @param commits_cursor An end cursor for commits page.
+    #' @param author_id Id of an author.
+    #' @return A list.
     pull_commits_page_from_repo = function(org,
                                            repo,
                                            date_from,
@@ -368,7 +371,7 @@ GitHub <- R6::R6Class("GitHub",
     #' @description Method to pull repositories' issues.
     #' @param repos_list A list of repositories.
     #' @return A list of repositories.
-    pull_repos_issues = function(repos_list) {
+    add_repos_issues = function(repos_list) {
       repos_list <- purrr::map(repos_list, function(repo) {
         issues <- private$rest_response(
           endpoint = paste0(self$rest_api_url, "/repos/", repo$full_name, "/issues")
@@ -398,6 +401,7 @@ GitHub <- R6::R6Class("GitHub",
         list(
           "organization" = x$owner$login,
           "name" = x$name,
+          "id" = x$id,
           "created_at" = x$created_at,
           "last_activity_at" = x$updated_at,
           "forks" = x$forks_count,
@@ -534,13 +538,15 @@ GitHub <- R6::R6Class("GitHub",
     #' @details If at least one member of a team is a contributor than a project
     #'   passes through the filter.
     #' @param repos_table A repository table to be filtered.
-    #' @param team A character vector with team member names.
+    #' @param team A list with team members.
     #' @return A repos table.
     filter_repos_by_team = function(repos_table,
                                     team) {
       cli::cli_alert_info("Filtering by team members.")
+      team_logins <- purrr::map(team, ~.$logins) %>%
+        unlist()
       repos_table <- repos_table %>%
-        dplyr::filter(contributors %in% team)
+        dplyr::filter(contributors %in% team_logins)
       return(repos_table)
     },
 
