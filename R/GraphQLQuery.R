@@ -5,59 +5,51 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
 
                        public = list(
 
-                         #' @description Prepare query to pull repositories for GitHub organization.
-                         #' @param org An organization.
-                         #' @param language Language of a repository.
-                         #' @param repo_cursor An endCursor.
-                         #' @return A query.
-                         repos_by_org = function(org, language, repo_cursor) {
+                         repos_by_org = function(org, cursor) {
 
-                           if (!is.null(language)) {
-                             search_query <-
-                               paste0('query: "org:', org, ' language:', language, '"')
+                           if (nchar(cursor) == 0) {
+                             after_cursor <- cursor
                            } else {
-                             search_query <- paste0('query: "org:', org, '"')
+                             after_cursor <- paste0('after: "', cursor, '" ')
                            }
 
-                           paste0('{
-                              search(', search_query, '
-                                     type: REPOSITORY
-                                     first: 100
-                                     ', private$add_cursor(repo_cursor), '
-                                     ) {
-                                repositoryCount
-                                pageInfo{
-                                  hasNextPage
-                                  endCursor
-                                }
-                                edges {
-                                  node {
-                                    ... on Repository {
-                                      id
-                                      name
-                                      createdAt
-                                      pushedAt
-                                      updatedAt
-                                      stargazerCount
-                                      forkCount
-                                      languages (first: 5) { nodes {name} }
-                                      issues_open: issues (first: 100 states: [OPEN]) {
+                           paste0('
+                                  query {
+                                    repositoryOwner(login: "', org, '") {
+                                      ... on Organization {
+                                        repositories(first: 100 ', after_cursor, ') {
                                         totalCount
-                                      }
-                                      issues_closed: issues (first: 100 states: [CLOSED]) {
-                                        totalCount
-                                      }
-                                      contributors: defaultBranchRef {
-                                        target {
-                                          ... on Commit {
-                                            id
-                                            history(since: "2020-01-01T00:00:00Z") {
-                                              edges {
-                                                node {
-                                                  committer {
-                                                    user {
-                                                      login
-                                                      id
+                                        pageInfo {
+                                          endCursor
+                                          hasNextPage
+                                        }
+                                        nodes {
+                                          name
+                                          stars: stargazerCount
+                                          forks: forkCount
+                                          created_at: createdAt
+                                          pushed_at: pushedAt
+                                          last_activity_at: updatedAt
+                                          languages (first: 5) { nodes {name} }
+                                          issues_open: issues (first: 100 states: [OPEN]) {
+                                            totalCount
+                                          }
+                                          issues_closed: issues (first: 100 states: [CLOSED]) {
+                                            totalCount
+                                          }
+                                          contributors: defaultBranchRef {
+                                            target {
+                                              ... on Commit {
+                                                id
+                                                history(since: "2020-01-01T00:00:00Z") {
+                                                  edges {
+                                                    node {
+                                                      committer {
+                                                        user {
+                                                          login
+                                                          id
+                                                        }
+                                                      }
                                                     }
                                                   }
                                                 }
@@ -66,11 +58,9 @@ GraphQLQuery <- R6::R6Class("GraphQLQuery",
                                           }
                                         }
                                       }
+                                      }
                                     }
-                                  }
-                                }
-                              }
-                            }')
+                                  }')
                          },
 
                          #' @description Prepare query to get ID of a GitHub user
