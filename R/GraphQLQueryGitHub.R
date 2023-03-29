@@ -119,7 +119,7 @@ GraphQLQueryGitHub <- R6::R6Class("GraphQLQueryGitHub",
                       node {
                         ... on Commit {
                           id
-                          committedDate
+                          committed_date: committedDate
                           author {
                             name
                           }

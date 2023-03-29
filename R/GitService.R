@@ -113,10 +113,12 @@ GitService <- R6::R6Class("GitService",
         }
 
         if (by == "phrase") {
-          repos_table <- private$search_by_keyword(phrase,
-                                                   org = org,
-                                                   language = language
-          ) %>%
+          repos_list <- private$search_by_keyword(
+            phrase,
+            org = org,
+            language = language
+          )
+          repos_table <- repos_list %>%
             private$tailor_repos_info() %>%
             private$prepare_repos_table() %>%
             private$add_repos_contributors() %>%

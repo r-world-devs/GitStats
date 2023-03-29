@@ -6,23 +6,43 @@ test_github <- GitHub$new(
 
 test_github_priv <- environment(test_github$initialize)$private
 
-test_that("`GitHub` pulls commits from organization", {
+test_that("`GitHub` pulls commits from organization in a form of table", {
   mockery::stub(
     test_github_priv$pull_commits_from_org,
     'private$pull_repos_from_org',
-    readRDS("test_files/github_repos_by_org.rds")
+    data.frame("organizations" = "r-world-devs",
+               "name" = "GitStats")
   )
-  pulled_commits <- test_github_priv$pull_commits_from_org(
+  mockery::stub(
+    test_github_priv$pull_commits_from_org,
+    'private$pull_commits_from_repo',
+    readRDS("test_files/github_commits_list_from_repo.rds")
+  )
+  expect_snapshot(
+    result <- test_github_priv$pull_commits_from_org(
+      org = "r-world-devs",
+      date_from = "2023-01-01",
+      date_until = "2023-02-28",
+      team = NULL
+    )
+  )
+
+  expect_commits_table(
+    result
+  )
+})
+
+test_that("`GitHub` pulls commits from repository", {
+
+  commits <- test_github_priv$pull_commits_from_repo(
     org = "r-world-devs",
-    date_from = "2023-01-01"
+    repo = "GitStats",
+    date_from = "2023-01-01",
+    date_until = "2023-02-28"
   )
   expect_type(
-    pulled_commits,
+    commits,
     "list"
   )
-  purrr::walk(pulled_commits, ~{
-    expect_list_contains(
-      ., c("sha", "node_id", "commit")
-    )
-  })
+
 })

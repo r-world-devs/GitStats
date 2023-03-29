@@ -7,22 +7,18 @@ test_that("By default search param is set to 'orgs'", {
   )
 })
 
-test_that("Setting up parameters to `team` throws warning when team is not defined", {
-  expect_snapshot(
+test_that("Setting up parameters to `team` throws error when team_name is not defined", {
+  expect_snapshot_error(
     setup_preferences(test_gitstats,
                       search_param = "team")
   )
-  expect_equal(
-    test_gitstats$search_param,
-    "team"
-  )
 })
 
-test_that("Setting up parameters to `team` throws only success when team is defined", {
-  expect_snapshot(
+test_that("Setting up parameters to `team` passes information to 'team' field", {
+  suppressMessages(
     setup_preferences(test_gitstats,
                  search_param = "team",
-                 team = c("maciekbanas", "kalimu", "Cotau", "marcinkowskak", "galachad", "krystian8207"))
+                 team_name = "RWD-IE")
   )
   expect_equal(
     test_gitstats$search_param,

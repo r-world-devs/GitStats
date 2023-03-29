@@ -6,17 +6,29 @@ test_github <- GitHub$new(
 test_github_priv <- environment(test_github$initialize)$private
 
 test_that("`GitService` filters repositories' list by team members", {
-  repo_list <- readRDS("test_files/github_repos_by_org.rds")
-  result <- test_github_priv$filter_repos_by_team(
-    repo_list,
-    team = c("kalimu",
-             "maciekbanas")
+  repos_table <- readRDS("test_files/github_repos_table.rds")
+  expect_snapshot(
+    result <- test_github_priv$filter_repos_by_team(
+      repos_table,
+      team = list(
+        "Member1" = list(
+          logins = "kalimu"
+        ),
+        "Member2" = list(
+          logins = "epijim"
+        )
+      )
+    )
   )
   expect_type(
     result,
     "list"
   )
+  expect_length(
+    result,
+    length(repos_table)
+  )
   expect_true(
-    any(result[[1]]$contributors %in% c("maciekbanas", "kalimu"))
+    all(result$contributors %in% c("epijim", "kalimu"))
   )
 })

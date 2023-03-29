@@ -14,7 +14,7 @@ test_that("`set_gql_url()` correctly sets gql api url - for public and private g
 })
 
 test_that("Check correctly if API url is of Enterprise or Public Github", {
-  expect_equal(publ_env$check_enterprise(git_hub_public$rest_api_url), FALSE)
+  expect_equal(publ_env$check_enterprise(git_hub_public$rest_api_url), 'Public')
 })
 
 test_that("`pull_team_organizations()` returns character vector of organization names", {
