@@ -35,10 +35,13 @@ GitHub <- R6::R6Class("GitHub",
       }
 
       commits_table <- purrr::map(orgs, function(org) {
-        private$pull_commits_from_org(org,
-                                     date_from = date_from,
-                                     date_until = date_until,
-                                     team = team)
+        commits <- private$pull_commits_from_org(
+          org,
+          date_from = date_from,
+          date_until = date_until,
+          team = team
+        )
+        commits
       }) %>%
         rbindlist()
 
@@ -201,10 +204,12 @@ GitHub <- R6::R6Class("GitHub",
       if (is.null(team)) {
         repos_list_with_commits <- purrr::map(repos_names, function(repo) {
           pb$tick()
-          private$pull_commits_from_repo(org,
-                                        repo,
-                                        date_from,
-                                        date_until)
+          private$pull_commits_from_repo(
+            org,
+            repo,
+            date_from,
+            date_until
+          )
         })
       }
       if (!is.null(team)) {
@@ -304,7 +309,7 @@ GitHub <- R6::R6Class("GitHub",
     get_authors_ids = function(team) {
       logins <- purrr::map(team, ~.$logins) %>%
         unlist()
-      purrr::map_chr(logins, ~{
+      ids <- purrr::map_chr(logins, ~{
         authors_id_query <- self$gql_query$users_id(.)
         authors_id_response <- private$gql_response(
           gql_query = authors_id_query
@@ -315,6 +320,7 @@ GitHub <- R6::R6Class("GitHub",
         }
         return(result)
       })
+      return(unname(ids))
     },
 
     #' @description A method to add information on repository contributors.
@@ -349,16 +355,18 @@ GitHub <- R6::R6Class("GitHub",
     tailor_repos_info = function(repos_list) {
       repos_list <- purrr::map(repos_list, function(x) {
         list(
-          "organization" = x$owner$login,
-          "name" = x$name,
           "id" = x$id,
-          "created_at" = x$created_at,
-          "last_activity_at" = x$updated_at,
-          "forks" = x$forks_count,
+          "name" = x$name,
           "stars" = x$stargazers_count,
-          "contributors" = paste0(x$contributors, collapse = ","),
+          "forks" = x$forks_count,
+          "created_at" = x$created_at,
+          "last_push" = x$pushed_at,
+          "last_activity_at" = x$updated_at,
+          "languages" = x$language,
           "issues_open" = x$issues_open,
-          "issues_closed" = x$issues_closed
+          "issues_closed" = x$issues_closed,
+          "contributors" = paste0(x$contributors, collapse = ","),
+          "organization" = x$owner$login
         )
       })
 
@@ -504,6 +512,7 @@ GitHub <- R6::R6Class("GitHub",
           purrr::discard(~. == "") %>%
           unique() %>%
           paste0(collapse = ", ")
+        repo$created_at <- gts_to_posixt(repo$created_at)
         repo$issues_open <- repo$issues_open$totalCount
         repo$issues_closed <- repo$issues_closed$totalCount
         repo$last_activity_at <- difftime(Sys.time(), as.POSIXct(repo$last_activity_at),
@@ -527,6 +536,7 @@ GitHub <- R6::R6Class("GitHub",
       commits_table <- purrr::imap(repos_list_with_commits, function(repo, repo_name) {
         commits_row <- purrr::map_dfr(repo, function(commit) {
           commit$node$author <- commit$node$author$name
+          commit$node$committed_date <- gts_to_posixt(commit$node$committed_date)
           commit$node
         })
         commits_row$repository <- repo_name
@@ -537,7 +547,6 @@ GitHub <- R6::R6Class("GitHub",
 
       if (nrow(commits_table) > 0) {
         commits_table <- commits_table %>%
-          dplyr::rename(committed_date = committedDate) %>%
           dplyr::mutate(organization = org,
                         api_url = self$rest_api_url)
       }

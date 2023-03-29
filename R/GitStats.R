@@ -552,7 +552,7 @@ GitStats <- R6::R6Class("GitStats",
       if (!is.null(db_table)) {
         orgs_set <- purrr::map(self$clients, ~.$orgs) %>%
           unlist()
-        check_orgs <- orgs_set %in% unique(db_table$organisation)
+        check_orgs <- orgs_set %in% unique(db_table$organization)
         if (length(check_orgs) > 0 & all(check_orgs)) {
           cli::cli_alert_success("Organizations already in database table.")
           return(db_table)

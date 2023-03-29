@@ -14,10 +14,7 @@
       $`John Test`$name
       [1] "John Test"
       
-      $`John Test`$gh_login
-      NULL
-      
-      $`John Test`$gl_login
+      $`John Test`$logins
       NULL
       
       
@@ -38,10 +35,7 @@
       $`John Test`$name
       [1] "John Test"
       
-      $`John Test`$gh_login
-      NULL
-      
-      $`John Test`$gl_login
+      $`John Test`$logins
       NULL
       
       
@@ -49,11 +43,8 @@
       $`George Test`$name
       [1] "George Test"
       
-      $`George Test`$gh_login
+      $`George Test`$logins
       [1] "george_test"
-      
-      $`George Test`$gl_login
-      NULL
       
       
 

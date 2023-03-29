@@ -53,9 +53,9 @@ GraphQLQueryGitLab <- R6::R6Class("GraphQLQueryGitLab",
               node {
                 id
                 name
-                createdAt
                 stars: starCount
                 forks: forksCount
+                createdAt
                 last_activity_at: lastActivityAt
                 languages {
                   name

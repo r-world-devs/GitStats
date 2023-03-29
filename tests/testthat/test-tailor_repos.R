@@ -16,9 +16,9 @@ test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
     expect_type("list") %>%
     expect_length(length(repos_full)) %>%
     expect_list_contains_only(c(
-      "organisation", "name", "created_at", "last_activity_at",
-      "forks", "stars", "contributors", "issues", "issues_open", "issues_closed",
-      "description"
+      "id", "name", "created_at", "last_activity_at",
+      "forks", "stars", "contributors", "issues_open", "issues_closed",
+      "organization"
     ))
 
   expect_lt(length(tailored_repos[[1]]), length(repos_full[[1]]))
@@ -42,9 +42,9 @@ test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
     expect_type("list") %>%
     expect_length(length(repos_full)) %>%
     expect_list_contains_only(c(
-      "organisation", "name", "created_at", "last_activity_at",
-      "forks", "stars", "contributors", "issues", "issues_open", "issues_closed",
-      "description"
+      "id", "name", "created_at", "last_activity_at",
+      "forks", "stars", "issues_open", "issues_closed",
+      "organization"
     ))
 
   expect_lt(length(tailored_repos[[1]]), length(repos_full[[1]]))

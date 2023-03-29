@@ -7,7 +7,17 @@ git_hub_public <- GitHub$new(
 publ_env <- environment(git_hub_public$initialize)$private
 
 test_that("`get_authors_ids()` works as expected", {
-  team <- c("galachad", "Cotau", "maciekbanas")
+  team <- list(
+    "Member1" = list(
+      logins = "galachad"
+    ),
+    "Member2" = list(
+      logins = "Cotau"
+    ),
+    "Member3" = list(
+      logins = "maciekbanas"
+    )
+  )
   expect_snapshot(
     publ_env$get_authors_ids(team)
   )

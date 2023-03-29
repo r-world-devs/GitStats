@@ -39,8 +39,7 @@ git_stats %>%
 git_stats
 
 # now pull repos by default by team
-git_stats %>%
-  get_repos()
+get_repos(git_stats)
 
 # Change your settings to searches by phrase:
 setup_preferences(git_stats,

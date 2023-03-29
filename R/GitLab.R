@@ -114,12 +114,10 @@ GitLab <- R6::R6Class("GitLab",
 
       team <- paste0(team, collapse = '", "')
 
-      gql_query <- self$groups_by_user(team)
+      gql_query <- self$gql_query$groups_by_user(team)
 
-      json_data <- gql_response(
-                     api_url = paste0(self$gql_api_url),
-                     gql_query = gql_query,
-                     token = private$token
+      json_data <- private$gql_response(
+                     gql_query = gql_query
                    )
 
       org_names <- purrr::map(json_data$data$users$nodes, function(node) {
@@ -205,15 +203,15 @@ GitLab <- R6::R6Class("GitLab",
     tailor_repos_info = function(projects_list) {
       projects_list <- purrr::map(projects_list, function(x) {
         list(
-          "organization" = x$namespace$path,
-          "name" = x$name,
           "id" = x$id,
+          "name" = x$name,
+          "stars" = x$star_count,
+          "forks" = x$fork_count,
           "created_at" = x$created_at,
           "last_activity_at" = x$last_activity_at,
-          "forks" = x$fork_count,
-          "stars" = x$star_count,
           "issues_open" = x$issues_open,
-          "issues_closed" = x$issues_closed
+          "issues_closed" = x$issues_closed,
+          "organization" = x$namespace$path
         )
       })
 
@@ -390,13 +388,13 @@ GitLab <- R6::R6Class("GitLab",
         repo_row <- data.frame(
           "id" = repo$node$id,
           "name" = repo$node$name,
+          "stars" = repo$node$stars,
+          "forks" = repo$node$forks,
           "created_at" = repo$node$createdAt,
           "last_push" = NA,
           "last_activity_at" = difftime(Sys.time(),
                                         as.POSIXct(repo$node$last_activity_at),
                                         units = "days") %>% round(2),
-          "stars" = repo$node$stars,
-          "forks" = repo$node$forks,
           "languages" = if (length(repo$node$languages) > 0) {
             purrr::map_chr(repo$node$languages, ~.$name) %>%
               paste0(collapse = ", ")

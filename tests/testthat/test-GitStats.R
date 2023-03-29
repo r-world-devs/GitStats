@@ -28,16 +28,13 @@ test_that("GitStats prints the proper info when connections are added.", {
 
 })
 
-set_team(
-  test_gitstats,
-  team_name = "RWD-IE",
-  "Adam Forys", "galachad",
-  "Kamil Wais", "kalimu",
-  "Krystian Igras", "krystian8207",
-  "Karolina Marcinkowska", "marcinkowskak",
-  "Kamil Koziej", "Cotau",
-  "Maciej Banas", "maciekbanas"
-)
+suppressMessages({
+  setup_preferences(
+    test_gitstats,
+    search_param = "team",
+    team_name = "RWD-IE"
+  )
+})
 
 test_that("GitStats prints team name when team is added.", {
 

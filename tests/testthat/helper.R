@@ -23,14 +23,17 @@ expect_list_contains_only <- function(object, elements) {
 }
 
 expect_repos_table <- function(get_repos_object) {
-  repo_cols <- c("organisation", "name", "created_at", "last_activity_at", "forks", "stars", "contributors", "issues", "issues_open", "issues_closed", "description", "api_url")
+  repo_cols <- c('id', 'name', 'stars', 'forks', 'created_at', 'last_push',
+                 'last_activity_at', 'languages', 'issues_open', 'issues_closed',
+                 'contributors', 'organization', 'api_url')
   expect_s3_class(get_repos_object, "data.frame")
   expect_named(get_repos_object, repo_cols)
   expect_gt(nrow(get_repos_object), 0)
 }
 
 expect_commits_table <- function(get_commits_object) {
-  commit_cols <- c("id", "organisation", "repository", "committed_date", "additions", "deletions", "api_url")
+  commit_cols <- c('id', 'committed_date', 'author', 'additions', 'deletions',
+                   'repository', 'organization', 'api_url')
   expect_s3_class(get_commits_object, "data.frame")
   expect_named(get_commits_object, commit_cols)
   expect_gt(nrow(get_commits_object), 0)
@@ -41,7 +44,7 @@ expect_commits_table <- function(get_commits_object) {
 
 expect_empty_table <- function(object) {
   expect_s3_class(object, "data.frame")
-  expect_length(object, 0)
+  expect_equal(nrow(object), 0)
 }
 
 TestClient <- R6::R6Class("TestClient",
