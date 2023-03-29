@@ -368,7 +368,7 @@ GitLab <- R6::R6Class("GitLab",
             ),
             "additions" = y$stats$additions,
             "deletions" = y$stats$deletions,
-            "committed_date" = y$committed_date,
+            "committed_date" = gts_to_posixt(y$committed_date),
             "author" = y$author_name
           )
         })
@@ -377,9 +377,10 @@ GitLab <- R6::R6Class("GitLab",
       commits_list
     },
 
-    #' @description
-    #' @param
-    #' @return
+    #' @description Parses repositories list into table.
+    #' @param repos_list A list of repositories.
+    #' @param org An organization of repositories.
+    #' @return Table of repositories.
     prepare_repos_table_gql = function(repos_list,
                                        org) {
 
@@ -390,7 +391,7 @@ GitLab <- R6::R6Class("GitLab",
           "name" = repo$node$name,
           "stars" = repo$node$stars,
           "forks" = repo$node$forks,
-          "created_at" = repo$node$createdAt,
+          "created_at" = gts_to_posixt(repo$node$createdAt),
           "last_push" = NA,
           "last_activity_at" = difftime(Sys.time(),
                                         as.POSIXct(repo$node$last_activity_at),
