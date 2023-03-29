@@ -50,9 +50,14 @@ GitService <- R6::R6Class("GitService",
       } else {
         self$gql_api_url <- gql_api_url
       }
-      self$gql_query <- GraphQLQuery$new()
       private$token <- token
       self$git_service <- private$check_git_service(self$rest_api_url)
+      if (self$git_service == "GitHub") {
+        self$gql_query <- GraphQLQueryGitHub$new()
+      }
+      if (self$git_service == "GitLab") {
+        self$gql_query <- GraphQLQueryGitLab$new()
+      }
       self$enterprise <- private$check_enterprise(self$rest_api_url)
       self$org_limit <- org_limit
       if (is.null(orgs)) {
@@ -61,6 +66,70 @@ GitService <- R6::R6Class("GitService",
         orgs <- private$check_orgs(orgs)
       }
       self$orgs <- orgs
+    },
+
+    #' @description  A method to list all repositories for an organization, a
+    #'   team or by a keyword.
+    #' @param by A character, to choose between: \itemize{\item{org -
+    #'   organizations (project groups)} \item{team -
+    #'   A team} \item{phrase - A keyword in code blobs.}}
+    #' @param team A list of team members.
+    #' @param phrase A character to look for in code blobs. Obligatory if
+    #'   \code{by} parameter set to \code{"phrase"}.
+    #' @param language A character specifying language used in repositories.
+    #' @return A data.frame of repositories.
+    get_repos = function(by,
+                         team,
+                         phrase,
+                         language = NULL) {
+
+      if (self$git_service == "GitLab") {
+        language <- private$language_handler(language)
+      }
+
+      if (is.null(self$orgs)) {
+        cli::cli_alert_warning(paste0("No organizations specified for ", self$git_service, "."))
+        self$orgs <- private$pull_organizations(
+          type = by,
+          team = team
+        )
+      }
+
+      repos_dt <- purrr::map(self$orgs, function(org) {
+        if (by %in% c("org", "team")) {
+          repos_table <- private$pull_repos_from_org(org = org)
+          if (by == "team") {
+            repos_table <- private$filter_repos_by_team(
+              repos_table = repos_table,
+              team = team
+            )
+          }
+          if (!is.null(language)) {
+            repos_table <- private$filter_repos_by_language(
+              repos_table = repos_table,
+              language = language
+            )
+          }
+        }
+
+        if (by == "phrase") {
+          repos_table <- private$search_by_keyword(phrase,
+                                                   org = org,
+                                                   language = language
+          ) %>%
+            private$tailor_repos_info() %>%
+            private$prepare_repos_table() %>%
+            private$add_repos_contributors() %>%
+            private$add_repos_issues()
+          cli::cli_alert_success(paste0("\n On ", self$git_service,
+                                        " [", org, "] found ",
+                                        nrow(repos_table), " repositories."))
+        }
+        return(repos_table)
+      }) %>%
+        rbindlist(use.names = TRUE)
+
+      return(repos_dt)
     }
 
   ),
@@ -121,61 +190,68 @@ GitService <- R6::R6Class("GitService",
     },
 
     #' @description A method to add information on repository contributors.
-    #' @param repos_list A list of repositories.
-    #' @return A list of repositories with added information on contributors.
-    add_repos_contributors = function(repos_list) {
-      repos_list <- purrr::map(repos_list, function(repo) {
+    #' @param repos_table A table of repositories.
+    #' @return A table of repositories with added information on contributors.
+    add_repos_contributors = function(repos_table) {
+      if (nrow(repos_table) > 0) {
         if (self$git_service == "GitHub") {
+          repo_iterator <- paste0(repos_table$organization, "/", repos_table$name)
           user_name <- rlang::expr(.$login)
-          contributors_endpoint <- paste0(self$rest_api_url, "/repos/", repo$full_name, "/contributors")
         } else if (self$git_service == "GitLab") {
+          repo_iterator <- repos_table$id
           user_name <- rlang::expr(.$name)
-          contributors_endpoint <- paste0(self$rest_api_url, "/projects/", repo$id, "/repository/contributors")
         }
-        contributors <- tryCatch(
-          {
-            private$rest_response(
-              endpoint = contributors_endpoint
-            ) %>% purrr::map_chr(~ eval(user_name))
-          },
-          error = function(e) {
-            NA
+        repos_table$contributors <- purrr::map(repo_iterator, function(repos_id) {
+          if (self$git_service == "GitHub") {
+            contributors_endpoint <- paste0(self$rest_api_url, "/repos/", repos_id, "/contributors")
+          } else if (self$git_service == "GitLab") {
+            id <- gsub("gid://gitlab/Project/", "", repos_id)
+            contributors_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/repository/contributors")
           }
-        )
-        contributors
-      }) %>%
-        purrr::map2(repos_list, function(contributor, repository) {
-          purrr::list_modify(repository,
-            contributors = contributor
+          tryCatch(
+            {
+              private$rest_response(
+                endpoint = contributors_endpoint
+              ) %>% purrr::map_chr(~eval(user_name)) %>%
+                paste0(collapse = ", ")
+            },
+            error = function(e) {
+              NA
+            }
           )
         })
-
-      repos_list
+      }
+      return(repos_table)
     },
 
     #' @description Filter repositories by contributors.
     #' @details If at least one member of a team is a contributor than a project
     #'   passes through the filter.
     #' @param repos_table A repository table to be filtered.
-    #' @param team A character vector with team member names.
+    #' @param team A list with team members.
     #' @return A repos table.
     filter_repos_by_team = function(repos_table,
                                     team) {
       cli::cli_alert_info("Filtering by team members.")
-      repos_table <- repos_table %>%
-        dplyr::filter(contributors %in% unlist(team))
+      team_logins <- purrr::map(team, ~.$logins) %>%
+        unlist()
+      if (nrow(repos_table) > 0) {
+        repos_table <- repos_table %>%
+          dplyr::filter(contributors %in% team_logins)
+      } else {
+        repos_table
+      }
       return(repos_table)
     },
 
-    #' @description Filter projects by programming
-    #'   language
-    #' @param repos_table A list of repositories to be
-    #'   filtered.
-    #' @param language A character, name of a
-    #'   programming language.
+    #' @description Filter repositories by contributors.
+    #' @details If at least one member of a team is a contributor than a project
+    #'   passes through the filter.
+    #' @param repos_table A repository table to be filtered.
+    #' @param language A language used in repository.
     #' @return A repos table.
-    filter_by_language = function(repos_table,
-                                  language) {
+    filter_repos_by_language = function(repos_table,
+                                        language) {
       cli::cli_alert_info("Filtering by language.")
       repos_table <- repos_table %>%
         dplyr::filter(languages %in% language)

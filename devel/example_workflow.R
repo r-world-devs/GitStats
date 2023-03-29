@@ -20,20 +20,20 @@ get_repos(git_stats)
 
 # You can set your search preferences
 setup_preferences(git_stats,
-                  search_param = "team")
+                  search_param = "team",
+                  team_name = "RWD")
 
 # now getting repos will throw error as you did not define your team
 get_repos(git_stats)
 
 # set your team members
 git_stats %>%
-  set_team(team_name = "RWD-IE",
-           "galachad",
-           "krystian8207",
-           "kalimu",
-           "marcinkowskak",
-           "Cotau",
-           "maciekbanas")
+  add_team_member("Adam Foryś", "galachad") %>%
+  add_team_member("Kamil Wais", "kalimu") %>%
+  add_team_member("Krystian Igras", "krystian8207") %>%
+  add_team_member("Karolina Marcinkowska", "marcinkowskak") %>%
+  add_team_member("Kamil Koziej", "Cotau") %>%
+  add_team_member("Maciej Banaś", "maciekbanas")
 
 # check your settings
 git_stats

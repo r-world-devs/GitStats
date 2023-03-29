@@ -56,12 +56,12 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description Set up your search parameters.
     #' @param search_param One of three: `team`, `org` or `phrase`.
-    #' @param team A named character vector of team members.
+    #' @param team_name A name of a team.
     #' @param phrase A phrase to look for.
     #' @param language A language of programming code.
     #' @return Nothing.
     setup_preferences = function(search_param,
-                                 team,
+                                 team_name,
                                  phrase,
                                  language) {
 
@@ -71,22 +71,29 @@ GitStats <- R6::R6Class("GitStats",
       )
 
       if (search_param == "team") {
-        cli::cli_alert_success(
-          "Your search preferences set to {cli::col_green('team')}."
-        )
-        if (is.null(team)) {
-          cli::cli_alert_warning(
-            cli::col_yellow(
-              "You did not define your team."
-            )
+        if (is.null(team_name)) {
+          cli::cli_abort(
+            "You need to define your `team_name`."
           )
+        } else {
+          self$team_name <- team_name
+          cli::cli_alert_success(
+            paste0("Your search preferences set to {cli::col_green('team: ", team_name, "')}.")
+          )
+          if (length(self$team) == 0) {
+            cli::cli_alert_warning(
+              cli::col_yellow(
+                "No team members in the team. Add them with `add_team_member()`."
+              )
+            )
+          }
         }
       }
 
       if (search_param == "phrase") {
        if (is.null(phrase)) {
         cli::cli_abort(
-          "You did not define your phrase."
+          "You need to define your phrase."
         )
        } else {
          self$phrase <- phrase
@@ -177,13 +184,6 @@ GitStats <- R6::R6Class("GitStats",
 
       message("New organizations set for [", api_url, "]: ", paste(unlist(list(...)), collapse = ", "))
 
-    },
-
-    #' @description A method to set your team.
-    #' @param team_name A name of a team.
-    #' @return Nothing, pass team information into `$team` field.
-    set_team = function(team_name) {
-      self$team_name <- team_name
     },
 
     #' @description A method to add a team member.
@@ -290,12 +290,12 @@ GitStats <- R6::R6Class("GitStats",
       team <- NULL
       if (by == "team") {
         if (length(self$team) == 0) {
-          stop("You have to specify a team first with 'set_team()' method.", call. = FALSE)
+          cli::cli_abort("You have to specify a team first with 'add_team_member()'.")
         }
         team <- self$team
       } else if (by == "phrase") {
         if (is.null(phrase)) {
-          stop("You have to provide a phrase to look for.", call. = FALSE)
+          cli::cli_abort("You have to provide a phrase to look for.")
         }
       }
 
@@ -360,7 +360,7 @@ GitStats <- R6::R6Class("GitStats",
       team <- NULL
       if (by == "team") {
         if (length(self$team) == 0) {
-          stop("You have to specify a team first with 'set_team()' method.", call. = FALSE)
+          cli::cli_abort("You have to specify a team first with 'add_team_member()'.")
         }
         team <- self$team
       }
@@ -376,7 +376,7 @@ GitStats <- R6::R6Class("GitStats",
         if (!is.null(self$team)) {
           cli::cli_alert_success(
             paste0(x$git_service, " for '", self$team_name, "' team: pulled ",
-                   nrow(commits_dt), "commits from ",
+                   nrow(commits), " commits from ",
                    length(unique(commits$repository)), " repositories."))
         }
 
@@ -406,7 +406,7 @@ GitStats <- R6::R6Class("GitStats",
       orgs <- purrr::map(self$clients, ~ paste0(.$orgs, collapse = ", ")) %>% paste0(collapse = ", ")
       private$print_item("Organisations", orgs)
       private$print_item("Search preference", self$search_param)
-      private$print_item("Team", self$team, names(self$team))
+      private$print_item("Team", self$team_name, paste0(self$team_name, " (", length(self$team), " members)"))
       private$print_item("Phrase", self$phrase)
       private$print_item("Language", self$language)
       private$print_item("Storage", self$storage, class(self$storage)[1])
@@ -644,321 +644,3 @@ GitStats <- R6::R6Class("GitStats",
     }
   )
 )
-
-#' @title Create a `GitStats` object
-#' @name create_gitstats
-#' @examples
-#' my_gitstats <- create_gitstats()
-#' @return A `GitStats` object.
-#' @export
-create_gitstats <- function() {
-  GitStats$new()
-}
-
-#' @title Setting connections
-#' @name set_connection
-#' @param api_url A character, url address of API.
-#' @param token A token.
-#' @param orgs A character vector of organisations (owners of repositories
-#'   in case of GitHub and groups of projects in case of GitLab).
-#' @param gitstats_obj A GitStats object.
-#' @param set_org_limit An integer defining how many orgs API may pull.
-#' @return A `GitStats` class object with added information on connection
-#'   (`$clients` field).
-#' @examples
-#' \dontrun{
-#' my_gitstats <- create_gitstats() %>%
-#'   set_connection(
-#'     api_url = "https://api.github.com",
-#'     token = Sys.getenv("GITHUB_PAT"),
-#'     orgs = c("r-world-devs", "openpharma", "pharmaverse")
-#'   ) %>%
-#'   set_connection(
-#'     api_url = "https://gitlab.com/api/v4",
-#'     token = Sys.getenv("GITLAB_PAT"),
-#'     orgs = "erasmusmc-public-health"
-#'   )
-#' }
-#' @export
-set_connection <- function(gitstats_obj,
-                           api_url,
-                           token,
-                           orgs = NULL,
-                           set_org_limit = 1000) {
-  gitstats_obj$set_connection(
-    api_url = api_url,
-    token = token,
-    orgs = orgs,
-    set_org_limit = set_org_limit
-  )
-
-  return(invisible(gitstats_obj))
-}
-
-#' @title Set up your search parameters.
-#' @name setup_preferences
-#' @param gitstats_obj A GitStats object.
-#' @param search_param One of three: team, orgs or phrase.
-#' @param team A named character of team members.
-#' @param phrase A phrase to look for.
-#' @param language A language of programming code.
-#' @return A `GitStats` object.
-#' @export
-setup_preferences <- function(gitstats_obj,
-                              search_param = NULL,
-                              team = NULL,
-                              phrase = NULL,
-                              language = NULL) {
-
-  gitstats_obj$setup_preferences(search_param = search_param,
-                                 team = team,
-                                 phrase = phrase,
-                                 language = language)
-
-  return(gitstats_obj)
-}
-
-#' @title Choose your organizations.
-#' @name set_organizations
-#' @description A method to set you organizations.
-#' @param gitstats_obj A GitStats object.
-#' @param ... A character vector of oganizations (repo owners or project
-#'   groups).
-#' @param api_url A url for connection.
-#' @return A `GitStats` class object with added information on organizations
-#'   into `$orgs` of a `client`.
-#' @examples
-#' \dontrun{
-#' ### with one connection:
-#' my_gitstats <- create_gitstats() %>%
-#'   set_connection(
-#'     api_url = "https://api.github.com",
-#'     token = Sys.getenv("GITHUB_PAT"),
-#'     orgs = c("r-world-devs")
-#'   )
-#'
-#' my_gitstats %>%
-#'   set_organizations("openpharma", "pharmaverse")
-#'
-#' ### with multiple connections - remember to specify
-#' `api_url`, when setting organizations:
-#'
-#' my_gitstats <- create_gitstats() %>%
-#'  set_connection(
-#'     api_url = "https://api.github.com",
-#'     token = Sys.getenv("GITHUB_PAT"),
-#'     orgs = c("r-world-devs")
-#'  ) %>%
-#'  set_connection(
-#'     api_url = "https://gitlab.com/api/v4",
-#'     token = Sys.getenv("GITLAB_PAT"),
-#'     orgs = "erasmusmc-public-health"
-#'  )
-#'
-#'  my_gitstats %>%
-#'   set_organizations(api_url = "https://api.github.com",
-#'                     "openpharma", "pharmaverse")
-#'
-#' }
-#' @export
-set_organizations <- function(gitstats_obj,
-                             ...,
-                             api_url = NULL) {
-
-  gitstats_obj$set_organizations(api_url = api_url,
-                                 ... = ...)
-
-  return(invisible(gitstats_obj))
-}
-
-#' @title Set your team.
-#' @name set_team
-#' @description Declare your team.
-#' @param gitstats_obj A GitStats object.
-#' @param team_name A name of a team.
-#' @return A `GitStats` class object with added information to `$team` field.
-#' @examples
-#' \dontrun{
-#' my_gitstats <- create_gitstats() %>%
-#'   set_connection(
-#'     api_url = "https://api.github.com",
-#'     token = Sys.getenv("GITHUB_PAT"),
-#'     orgs = c("r-world-devs", "openpharma", "pharmaverse")
-#'   ) %>%
-#'   set_team("RWD-IE")
-#' }
-#' @export
-set_team <- function(gitstats_obj, team_name) {
-  gitstats_obj$set_team(team_name)
-
-  return(invisible(gitstats_obj))
-}
-
-#' @title Set a storage for your output
-#' @name set_storage
-#' @description Function to set local storage (database) for the output.
-#' @details This is a wrapper over `dbConnect()` function. This functionality
-#'   is meant among other to improve `GitStats` performance. Basically the
-#'   idea is to cache your API responses in a database and retrieve them
-#'   when necessary. E.g. when you call `get_commits(date_from =
-#'   '2020-01-01')` it will save the results to your database and when you
-#'   call it next time, `get_commits()` will retrieve from API only these
-#'   results that do not exist in the databse (the new ones).
-#' @param gitstats_obj A GitStats object.
-#' @param type A character, type of storage.
-#' @param dbname Name of database.
-#' @param schema A db schema.
-#' @param host A host.
-#' @param port An integer, port address.
-#' @param user Username.
-#' @param password A password.
-set_storage <- function(gitstats_obj,
-                        type,
-                        dbname,
-                        schema = NULL,
-                        host = NULL,
-                        port = NULL,
-                        user = NULL,
-                        password = NULL) {
-  gitstats_obj$set_storage(type = type,
-                           dbname = dbname,
-                           schema = schema,
-                           host = host,
-                           port = port,
-                           user = user,
-                           password = password)
-
-  return(invisible(gitstats_obj))
-}
-
-#' @title Show content of database.
-#' @param gitstats_obj A GitStats object.
-#' @name show_storage
-#' @description Print content of database.
-#' @return A data.frame of table names.
-#' @export
-show_storage <- function(gitstats_obj) {
-
-  gitstats_obj$show_storage()
-
-}
-
-#' @title Switch off storage of data.
-#' @name storage_off
-#' @param gitstats_obj A GitStats object.
-#' @return A `GitStats` class object with field `$use_storage` turned to FALSE
-#' @export
-storage_off <- function(gitstats_obj) {
-  gitstats_obj$storage_off()
-  return(invisible(gitstats_obj))
-}
-
-#' @title Switch on storage of data.
-#' @name storage_on
-#' @param gitstats_obj A GitStats object.
-#' @return A `GitStats` class object with field `$use_storage` turned to TRUE
-#' @export
-storage_on <- function(gitstats_obj) {
-  gitstats_obj$storage_on()
-  return(invisible(gitstats_obj))
-}
-
-#' @title Get information on repositories
-#' @name get_repos
-#' @description  List all repositories for an organization, a team or by a
-#'   keyword.
-#' @param gitstats_obj A GitStats object.
-#' @param by A character, to choose between: \itemize{\item{org - organizations
-#'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in
-#'   code blobs.}}
-#' @param phrase A character, phrase to look for in codelines.
-#' @param language A character specifying language used in repositories.
-#' @param print_out A boolean stating whether to print an output.
-#' @return A `GitStats` class object with updated `$repos_dt` field.
-#' @examples
-#' \dontrun{
-#' my_gitstats <- create_gitstats() %>%
-#'   set_connection(
-#'     api_url = "https://api.github.com",
-#'     token = Sys.getenv("GITHUB_PAT"),
-#'     orgs = c("r-world-devs", "openpharma", "pharmaverse")
-#'   ) %>%
-#'   set_connection(
-#'     api_url = "https://gitlab.com/api/v4",
-#'     token = Sys.getenv("GITLAB_PAT"),
-#'     orgs = "erasmusmc-public-health"
-#'   ) %>%
-#'   get_repos(language = "R")
-#'
-#' my_gitstats$get_repos(
-#'   by = "phrase",
-#'   phrase = "diabetes",
-#'   language = "R"
-#' )
-#' }
-#' @export
-get_repos <- function(gitstats_obj,
-                      by = gitstats_obj$search_param,
-                      phrase = gitstats_obj$phrase,
-                      language = gitstats_obj$language,
-                      print_out = TRUE) {
-  gitstats_obj$get_repos(
-    by = by,
-    phrase = phrase,
-    language = language,
-    print_out = print_out
-  )
-
-  return(invisible(gitstats_obj))
-}
-
-#' @title Get information on commits.
-#' @name get_commits
-#' @description List all repositories for an organization, a team.
-#' @param gitstats_obj  A GitStats object.
-#' @param date_from A starting date to look commits for
-#' @param date_until An end date to look commits for
-#' @param by A character, to choose between: \itemize{\item{org - organizations
-#'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in
-#'   code blobs.}}
-#' @param print_out A boolean stating whether to print an output.
-#' @return A `GitStats` class object with updated `$commits_dt` field.
-#' @examples
-#' \dontrun{
-#' my_gitstats <- create_gitstats() %>%
-#'   set_connection(
-#'     api_url = "https://api.github.com",
-#'     token = Sys.getenv("GITHUB_PAT"),
-#'     orgs = c("r-world-devs", "openpharma", "pharmaverse")
-#'   ) %>%
-#'   set_connection(
-#'     api_url = "https://gitlab.com/api/v4",
-#'     token = Sys.getenv("GITLAB_PAT"),
-#'     orgs = "erasmusmc-public-health"
-#'   ) %>%
-#'   get_commits(date_from = "2020-01-01")
-#'
-#' my_gitstats %>%
-#'   set_team("RWD-IE", "galachad", "kalimu", "Cotau",
-#'            "krystian8207", "marcinkowskak", "maciekbanas") %>%
-#'   get_commits(
-#'     date_from = "2020-01-01",
-#'     date_until = "2022-12-31",
-#'     by = "team"
-#'   )
-#' }
-#' @export
-get_commits <- function(gitstats_obj,
-                        date_from = NULL,
-                        date_until = Sys.time(),
-                        by = gitstats_obj$search_param,
-                        print_out = TRUE) {
-  gitstats_obj$get_commits(
-    date_from = date_from,
-    date_until = date_until,
-    by = by,
-    print_out = print_out
-  )
-
-  return(invisible(gitstats_obj))
-}

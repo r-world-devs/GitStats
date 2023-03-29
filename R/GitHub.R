@@ -2,7 +2,7 @@
 #' @importFrom dplyr mutate rename
 #' @importFrom magrittr %>%
 #' @importFrom progress progress_bar
-#' @importFrom rlang expr %||%
+#' @importFrom rlang %||%
 #' @importFrom cli cli_alert cli_alert_success col_green
 #'
 #' @title A GitHub API Client class
@@ -13,56 +13,6 @@ GitHub <- R6::R6Class("GitHub",
   cloneable = FALSE,
   public = list(
 
-    #' @description  A method to list all repositories for an organization, a
-    #'   team or by a keyword.
-    #' @param by A character, to choose between: \itemize{\item{org -
-    #'   organizations (owners of repositories or project groups)} \item{team -
-    #'   A team} \item{phrase - A keyword in code blobs.}}
-    #' @param team A list of team members. Specified by \code{set_team()} method
-    #'   of GitStats class object.
-    #' @param phrase A character to look for in code blobs. Obligatory if
-    #'   \code{by} parameter set to \code{"phrase"}.
-    #' @param language A character specifying language used in repositories.
-    #' @return A data.frame of repositories.
-    get_repos = function(by,
-                         team = NULL,
-                         phrase = NULL,
-                         language = NULL) {
-
-      repos_dt <- purrr::map(self$orgs, function(org) {
-
-        if (by %in% c("org", "team")) {
-          repos_table <- private$pull_repos_from_org(org = org)
-          if (by == "team") {
-            repos_table <- private$filter_repos_by_team(repos_table,
-                                                        team)
-          }
-          if (!is.null(language)) {
-            repos_table <- private$filter_repos_by_language(repos_table,
-                                                            language)
-          }
-        }
-
-        if (by == "phrase") {
-          repos_table <- private$search_by_keyword(phrase,
-                                                   org = org,
-                                                   language = language
-          ) %>%
-            private$add_repos_contributors() %>%
-            private$add_repos_issues() %>%
-            private$tailor_repos_info() %>%
-            private$prepare_repos_table()
-          cli::cli_alert_success(paste0("\n On GitHub [", org, "] found ",
-                                        nrow(repos_table), " repositories."))
-        }
-        return(repos_table)
-      }) %>%
-        rbindlist(use.names = TRUE)
-
-      return(repos_dt)
-
-    },
-
     #' @description A method to get information on commits.
     #' @param orgs A character vector of organisations.
     #' @param date_from A starting date to look commits for.
@@ -70,14 +20,13 @@ GitHub <- R6::R6Class("GitHub",
     #' @param by A character, to choose between: \itemize{\item{org -
     #'   organizations (owners of repositories or project groups)} \item{team -
     #'   A team} \item{phrase - A keyword in code blobs.}}
-    #' @param team A list of team members. Specified by \code{set_team()} method
-    #'   of GitStats class object.
+    #' @param team A list of team members.
     #' @return A data.frame of commits
     get_commits = function(orgs = self$orgs,
                            date_from,
                            date_until = Sys.Date(),
                            by,
-                           team = NULL) {
+                           team) {
 
       if (is.null(orgs)) {
         cli::cli_alert_warning(paste0("No organizations specified for ", self$git_service, "."))
@@ -368,29 +317,30 @@ GitHub <- R6::R6Class("GitHub",
       })
     },
 
-    #' @description Method to pull repositories' issues.
-    #' @param repos_list A list of repositories.
-    #' @return A list of repositories.
-    add_repos_issues = function(repos_list) {
-      repos_list <- purrr::map(repos_list, function(repo) {
-        issues <- private$rest_response(
-          endpoint = paste0(self$rest_api_url, "/repos/", repo$full_name, "/issues")
-        )
+    #' @description A method to add information on repository contributors.
+    #' @param repos_table A table of repositories.
+    #' @return A table of repositories with added information on contributors.
+    add_repos_issues = function(repos_table) {
+      if (nrow(repos_table) > 0) {
+        repos_iterator <- paste0(repos_table$organization, "/", repos_table$name)
+        issues <- purrr::map_dfr(repos_iterator, function(repo_path) {
 
-        issues_stats <- list()
-        issues_stats[["issues_open"]] <- length(purrr::keep(issues, ~ .$state == "open"))
-        issues_stats[["issues_closed"]] <- length(purrr::keep(issues, ~ .$state == "closed"))
+          issues_endpoint <- paste0(self$rest_api_url, "/repos/", repo_path, "/issues")
 
-        return(issues_stats)
-      }) %>%
-        purrr::map2(repos_list, function(issue, repository) {
-          purrr::list_modify(repository,
-                             issues_open = issue$issues_open,
-                             issues_closed = issue$issues_closed
+          issues <- private$rest_response(
+            endpoint = issues_endpoint
           )
-        })
 
-      repos_list
+          data.frame(
+            "open" = length(purrr::keep(issues, ~ .$state == "open")),
+            "closed" = length(purrr::keep(issues, ~ .$state == "closed"))
+          )
+
+        })
+        repos_table$issues_open <- issues$open
+        repos_table$issues_closed <- issues$closed
+      }
+      return(repos_table)
     },
 
     #' @description A helper to retrieve only important info on repos
@@ -534,36 +484,6 @@ GitHub <- R6::R6Class("GitHub",
       }
     },
 
-    #' @description Filter repositories by contributors.
-    #' @details If at least one member of a team is a contributor than a project
-    #'   passes through the filter.
-    #' @param repos_table A repository table to be filtered.
-    #' @param team A list with team members.
-    #' @return A repos table.
-    filter_repos_by_team = function(repos_table,
-                                    team) {
-      cli::cli_alert_info("Filtering by team members.")
-      team_logins <- purrr::map(team, ~.$logins) %>%
-        unlist()
-      repos_table <- repos_table %>%
-        dplyr::filter(contributors %in% team_logins)
-      return(repos_table)
-    },
-
-    #' @description Filter repositories by contributors.
-    #' @details If at least one member of a team is a contributor than a project
-    #'   passes through the filter.
-    #' @param repos_table A repository table to be filtered.
-    #' @param language A language used in repository.
-    #' @return A repos table.
-    filter_repos_by_language = function(repos_table,
-                                    language) {
-      cli::cli_alert_info("Filtering by language.")
-      repos_table <- repos_table %>%
-        dplyr::filter(languages %in% language)
-      return(repos_table)
-    },
-
     #' @description Parses repositories list into table.
     #' @param repos_list A list of repositories.
     #' @param org An organization of repositories.
@@ -586,6 +506,9 @@ GitHub <- R6::R6Class("GitHub",
           paste0(collapse = ", ")
         repo$issues_open <- repo$issues_open$totalCount
         repo$issues_closed <- repo$issues_closed$totalCount
+        repo$last_activity_at <- difftime(Sys.time(), as.POSIXct(repo$last_activity_at),
+                                          units = "days"
+        ) %>% round(2)
         data.frame(repo)
       })
       repo_table <- dplyr::mutate(

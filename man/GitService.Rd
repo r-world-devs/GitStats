@@ -39,6 +39,7 @@ enterprise version.}
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{GitService$new()}}
+\item \href{#method-get_repos}{\code{GitService$get_repos()}}
 \item \href{#method-clone}{\code{GitService$clone()}}
 }
 }
@@ -76,6 +77,36 @@ pulled from Git Service.}
 }
 \subsection{Returns}{
 A new \code{GitService} object
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_repos"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos}{}}}
+\subsection{Method \code{get_repos()}}{
+A method to list all repositories for an organization, a
+team or by a keyword.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitService$get_repos(by, team, phrase, language = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{by}}{A character, to choose between: \itemize{\item{org -
+organizations (project groups)} \item{team -
+A team} \item{phrase - A keyword in code blobs.}}}
+
+\item{\code{team}}{A list of team members.}
+
+\item{\code{phrase}}{A character to look for in code blobs. Obligatory if
+\code{by} parameter set to \code{"phrase"}.}
+
+\item{\code{language}}{A character specifying language used in repositories.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A data.frame of repositories.
 }
 }
 \if{html}{\out{<hr>}}

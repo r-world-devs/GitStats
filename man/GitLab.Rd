@@ -12,7 +12,6 @@ An object with methods to obtain information form GitLab API.
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-get_repos}{\code{GitLab$get_repos()}}
 \item \href{#method-get_commits}{\code{GitLab$get_commits()}}
 \item \href{#method-print}{\code{GitLab$print()}}
 }
@@ -20,42 +19,10 @@ An object with methods to obtain information form GitLab API.
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
+\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="GitService" data-id="get_repos">}\href{../../GitStats/html/GitService.html#method-get_repos}{\code{GitStats::GitService$get_repos()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="GitService" data-id="initialize">}\href{../../GitStats/html/GitService.html#method-initialize}{\code{GitStats::GitService$initialize()}}\out{</span>}
 }
 \out{</details>}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos}{}}}
-\subsection{Method \code{get_repos()}}{
-A method to list all repositories for an organization, a
-team or by a keyword.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitLab$get_repos(orgs = self$orgs, by, team, phrase, language = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{orgs}}{A character vector of organizations (owners of repositories).}
-
-\item{\code{by}}{A character, to choose between: \itemize{\item{org -
-organizations (owners of repositories or project groups)} \item{team -
-A team} \item{phrase - A keyword in code blobs.}}}
-
-\item{\code{team}}{A list of team members. Specified by \code{set_team()} method
-of GitStats class object.}
-
-\item{\code{phrase}}{A character to look for in code blobs. Obligatory if
-\code{by} parameter set to \code{"phrase"}.}
-
-\item{\code{language}}{A character specifying language used in repositories.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A data.frame of repositories.
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-get_commits"></a>}}
@@ -85,8 +52,7 @@ A method to get information on commits.
 organizations (owners of repositories or project groups)} \item{team -
 A team} \item{phrase - A keyword in code blobs.}}}
 
-\item{\code{team}}{A list of team members. Specified by \code{set_team()} method
-of GitStats class object.}
+\item{\code{team}}{A list of team members.}
 }
 \if{html}{\out{</div>}}
 }
