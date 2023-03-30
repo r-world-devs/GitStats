@@ -19,3 +19,9 @@ add_team_member(gitstats_obj, member_name, ...)
 \description{
 Passes information on team member to your \code{team} field.
 }
+\examples{
+\dontrun{ my_gitstats <- create_gitstats() \%>\%
+  add_team_member("Peter Parker", "spider_man", "spidey") \%>\%
+  add_team_member("Tony Stark", "ironMan", "tony_s")
+  }
+}
