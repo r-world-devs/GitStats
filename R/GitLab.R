@@ -13,7 +13,6 @@ GitLab <- R6::R6Class("GitLab",
   public = list(
 
     #' @description A method to get information on commits.
-    #' @param orgs A character vector of organisations.
     #' @param date_from A starting date to look commits for
     #' @param date_until An end date to look commits for
     #' @param by A character, to choose between: \itemize{\item{org -
@@ -21,21 +20,14 @@ GitLab <- R6::R6Class("GitLab",
     #'   A team} \item{phrase - A keyword in code blobs.}}
     #' @param team A list of team members.
     #' @return A data.frame of commits
-    get_commits = function(orgs = self$orgs,
-                           date_from,
+    get_commits = function(date_from,
                            date_until = Sys.time(),
                            by,
                            team) {
 
-      if (is.null(orgs)) {
-        cli::cli_alert_warning(paste0("No organizations specified for ", self$git_service, "."))
-        orgs <- private$pull_organizations(type = by,
-                                           team = team)
-      }
-
-      commits_dt <- purrr::map(orgs, function(x) {
+      commits_dt <- purrr::map(self$orgs, function(org) {
         private$pull_commits_from_org(
-          x,
+          org,
           date_from,
           date_until
         ) %>%
@@ -65,74 +57,6 @@ GitLab <- R6::R6Class("GitLab",
     }
   ),
   private = list(
-
-    #' @description Pull all groups form API.
-    #' @param org_limit An integer defining how many org may API pull.
-    #' @return A character vector of groups names.
-    pull_all_organizations = function(org_limit = self$org_limit) {
-      cli::cli_alert("Pulling all organizations...")
-      total_pages <- org_limit %/% 100
-
-      pb <- progress::progress_bar$new(
-        format = paste0("[:bar] page: :current/:total"),
-        total = total_pages
-      )
-      pb$tick(-1)
-      orgs_list <- list()
-      o_page <- 1
-      still_more_hits <- TRUE
-      while (length(orgs_list) < org_limit || !still_more_hits) {
-        pb$tick()
-        orgs_page <- private$rest_response(
-          endpoint = paste0(self$rest_api_url, "/groups?all_available=true&per_page=100&page=", o_page)
-        )
-        if (length(orgs_page) > 0) {
-          orgs_list <- append(orgs_list, orgs_page)
-          o_page <- o_page + 1
-        } else {
-          still_more_hits <- FALSE
-        }
-      }
-
-      org_names <- purrr::map_chr(orgs_list, ~ .$path)
-      org_n <- length(org_names)
-
-      cli::cli_alert_success(cli::col_green(
-        "Pulled {org_n} organizations."))
-
-      return(org_names)
-    },
-
-    #' @description Pull organisations from API in which are engaged team
-    #'   members.
-    #' @details Makes use of GraphQL API as there is no reasonable way to do it
-    #'   in GitLab's REST API.
-    #' @param team A character vector of team members.
-    #' @return A character vector of organizations names.
-    pull_team_organizations = function(team) {
-      cli::cli_alert("Pulling organizations by team.")
-
-      team <- paste0(team, collapse = '", "')
-
-      gql_query <- self$gql_query$groups_by_user(team)
-
-      json_data <- private$gql_response(
-                     gql_query = gql_query
-                   )
-
-      org_names <- purrr::map(json_data$data$users$nodes, function(node) {
-        if (length(node$groups) > 0) {
-          full_id <- purrr::map_chr(node$groups$edges, ~.$node$path)
-        }
-      }) %>% purrr::discard(~length(.) == 0) %>% unlist()
-
-      org_n <- length(org_names)
-
-      cli::cli_alert_success(cli::col_green(
-        "Pulled {org_n} organizations."))
-
-      return(org_names)
-    },
 
     #' @description A method to pull all repositories for an organization.
     #' @param org A character, an organization:\itemize{\item{GitHub - owners o

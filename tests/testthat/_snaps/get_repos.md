@@ -1,3 +1,7 @@
+# Error appears when no orgs are specified when pulling repos
+
+    Please specify first organizations for [https://api.github.com] with `set_organizations()`.
+
 # `get_repos()` returns repos table
 
     Code

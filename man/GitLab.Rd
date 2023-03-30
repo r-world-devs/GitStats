@@ -30,20 +30,12 @@ An object with methods to obtain information form GitLab API.
 \subsection{Method \code{get_commits()}}{
 A method to get information on commits.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitLab$get_commits(
-  orgs = self$orgs,
-  date_from,
-  date_until = Sys.time(),
-  by,
-  team
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitLab$get_commits(date_from, date_until = Sys.time(), by, team)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{orgs}}{A character vector of organisations.}
-
 \item{\code{date_from}}{A starting date to look commits for}
 
 \item{\code{date_until}}{An end date to look commits for}
