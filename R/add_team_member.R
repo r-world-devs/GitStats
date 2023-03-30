@@ -5,7 +5,8 @@
 #' @param member_name Name of a member.
 #' @param ... All user logins.
 #' @return `GitStats` object with new information on team member.
-#' @example \dontrun{ my_gitstats <- create_gitstats() %>%
+#' @examples
+#' \dontrun{ my_gitstats <- create_gitstats() %>%
 #'   add_team_member("Peter Parker", "spider_man", "spidey") %>%
 #'   add_team_member("Tony Stark", "ironMan", "tony_s")
 #'   }

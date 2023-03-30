@@ -12,7 +12,6 @@ A class with methods to build GraphQL Queries for GitLab.
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-groups_by_user}{\code{GraphQLQueryGitLab$groups_by_user()}}
 \item \href{#method-projects_by_group}{\code{GraphQLQueryGitLab$projects_by_group()}}
 \item \href{#method-clone}{\code{GraphQLQueryGitLab$clone()}}
 }
@@ -22,26 +21,6 @@ A class with methods to build GraphQL Queries for GitLab.
 \itemize{
 }
 \out{</details>}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-groups_by_user"></a>}}
-\if{latex}{\out{\hypertarget{method-groups_by_user}{}}}
-\subsection{Method \code{groups_by_user()}}{
-Method to build query to pull GitLab groups by users.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GraphQLQueryGitLab$groups_by_user(team)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{team}}{A string of team members.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A query.
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-projects_by_group"></a>}}

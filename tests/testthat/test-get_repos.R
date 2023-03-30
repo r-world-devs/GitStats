@@ -1,5 +1,22 @@
 test_gitstats <- create_gitstats()
 
+test_that("Error appears when no orgs are specified when pulling repos", {
+
+  suppressMessages(
+    test_gitstats$clients[[1]] <- GitHub$new(
+      rest_api_url = "https://api.github.com",
+      token = Sys.getenv("GITHUB_PAT")
+    )
+  )
+
+  expect_snapshot_error(
+    get_repos(
+      gitstats_obj = test_gitstats,
+      by = "org"
+    )
+  )
+})
+
 test_that("`get_repos()` returns repos table", {
 
   test_gitstats$clients[[1]] <- GitHub$new(

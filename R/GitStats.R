@@ -288,7 +288,9 @@ GitStats <- R6::R6Class("GitStats",
       )
 
       team <- NULL
-      if (by == "team") {
+      if (by == "org") {
+        private$check_organizations()
+      } else if (by == "team") {
         if (length(self$team) == 0) {
           cli::cli_abort("You have to specify a team first with 'add_team_member()'.")
         }
@@ -358,7 +360,9 @@ GitStats <- R6::R6Class("GitStats",
       }
 
       team <- NULL
-      if (by == "team") {
+      if (by == "org") {
+        private$check_organizations()
+      } else if (by == "team") {
         if (length(self$team) == 0) {
           cli::cli_abort("You have to specify a team first with 'add_team_member()'.")
         }
@@ -627,6 +631,22 @@ GitStats <- R6::R6Class("GitStats",
       }
 
       client
+    },
+
+    #' @description Check if organizations are defined.
+    check_organizations = function() {
+      clients <- purrr::map(self$clients, function(client) {
+        if (is.null(client$orgs)) {
+          client$rest_api_url
+        }
+      }) %>% purrr::discard(~is.null(.))
+
+      if (length(clients) > 0) {
+        print_clients <- clients %>% unlist() %>% paste0(collapse = ", ")
+        cli::cli_abort(c(
+          "Please specify first organizations for [{print_clients}] with `set_organizations()`."
+        ))
+      }
     },
 
     #' @description A helper to manage printing `GitStats` object.

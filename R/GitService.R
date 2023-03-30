@@ -87,14 +87,6 @@ GitService <- R6::R6Class("GitService",
         language <- private$language_handler(language)
       }
 
-      if (is.null(self$orgs)) {
-        cli::cli_alert_warning(paste0("No organizations specified for ", self$git_service, "."))
-        self$orgs <- private$pull_organizations(
-          type = by,
-          team = team
-        )
-      }
-
       repos_dt <- purrr::map(self$orgs, function(org) {
         if (by %in% c("org", "team")) {
           repos_table <- private$pull_repos_from_org(org = org)
@@ -162,33 +154,6 @@ GitService <- R6::R6Class("GitService",
       } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
         "GitLab"
       }
-    },
-
-    #' @description Pull organisations form API.
-    #' @param type A character.
-    #' @param team A character vector of team members.
-    #' @return A character vector of organizations names.
-    pull_organizations = function(type,
-                                  team) {
-
-      if (type %in% c("org", "phrase")) {
-
-        pull_all_orgs <- menu(c("Yes (this may take a while)",
-                                "No (I want to specify orgs by myself)"),
-                              title = "I need organizations specified to pull repos. Do you want me to pull all orgs from the API?")
-
-        if (pull_all_orgs == 1) {
-          org_names <- private$pull_all_organizations()
-        } else {
-          message("Specify your organizations with `set_orgnizations()` or set your preferences to look by `team`.")
-          return(NULL)
-        }
-
-      } else if (type == "team") {
-        org_names <- private$pull_team_organizations(team)
-      }
-
-      return(org_names)
     },
 
     #' @description A method to add information on repository contributors.

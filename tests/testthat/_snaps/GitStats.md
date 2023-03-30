@@ -58,3 +58,7 @@
       Storage: SQLiteConnection
       Storage On/Off: ON
 
+# check_organizations checks correctly if orgs are missing
+
+    Please specify first organizations for [https://api.github.com, https://gitlab.com/api/v4] with `set_organizations()`.
+

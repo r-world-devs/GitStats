@@ -44,14 +44,3 @@ test_githost <- GitLab$new(rest_api_url = "https://gitlab.com/api",
                            gql_api_url = "https://gitlab.com/api/graphql",
                            token = Sys.getenv("GITLAB_PAT"))
 test_githost_priv <- environment(test_githost$initialize)$private
-
-test_that("`gql_response()` returns list", {
-  gql_query <- GraphQLQueryGitLab$new()
-  query <- gql_query$groups_by_user("maciekbanas")
-
-  expect_type(
-    test_githost_priv$gql_response(
-      gql_query = query),
-    "list"
-  )
-})
