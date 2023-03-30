@@ -36,8 +36,8 @@
       A <GitStats> object for 2 clients:
       Clients: https://api.github.com, https://gitlab.com/api/v4
       Organisations: r-world-devs, openpharma, mbtests
-      Search preference: org
-      Team: RWD-IE
+      Search preference: team
+      Team: RWD-IE (0 members)
       Phrase: <not defined>
       Language: <not defined>
       Storage: <not defined>
@@ -51,8 +51,8 @@
       A <GitStats> object for 2 clients:
       Clients: https://api.github.com, https://gitlab.com/api/v4
       Organisations: r-world-devs, openpharma, mbtests
-      Search preference: org
-      Team: RWD-IE
+      Search preference: team
+      Team: RWD-IE (0 members)
       Phrase: <not defined>
       Language: <not defined>
       Storage: SQLiteConnection

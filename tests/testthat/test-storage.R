@@ -17,11 +17,12 @@ test_that("`Set_storage()` passes information to `storage` field", {
 test_gitstats_priv <- environment(test_gitstats$initialize)$private
 
 test_commits <- data.frame(id = c("1", "2", "3"),
-                           organisation = rep("r-world-devs", 3),
-                           repository = rep("Test", 3),
                            committed_date = as.POSIXct(c("2022-03-01", "2022-10-05", "2022-12-31")),
+                           author = rep("author", 3),
                            additions = rep(as.integer(12), 3),
                            deletions = rep(as.integer(20), 3),
+                           repository = rep("Test", 3),
+                           organization = rep("r-world-devs", 3),
                            api_url = rep("https://api.github.com", 3))
 
 commits_before <- readRDS("test_files/commits_before.rds")
@@ -38,12 +39,14 @@ test_that("`GitStats$save_storage()` saves table to db", {
 })
 
 test_commits_new <- data.frame(id = c("4", "5"),
-                           organisation = rep("r-world-devs", 2),
-                           repository = rep("Test", 2),
-                           committed_date = as.POSIXct(c("2023-01-01", "2023-02-03")),
-                           additions = rep(as.integer(15), 2),
-                           deletions = rep(as.integer(8), 2),
-                           api_url = rep("https://api.github.com", 2))
+                               committed_date = as.POSIXct(c("2023-01-01", "2023-02-03")),
+                               author = rep("author", 2),
+                               additions = rep(as.integer(15), 2),
+                               deletions = rep(as.integer(8), 2),
+                               repository = rep("Test", 2),
+                               organization = rep("r-world-devs", 2),
+                               api_url = rep("https://api.github.com", 2)
+                              )
 
 test_that("`GitStats$save_storage()` appends table to db", {
   expect_snapshot(

@@ -26,13 +26,13 @@ plot_commits <- function(gitstats_obj,
     commits_dt[, statsDate := as.Date(paste0(substring(committed_date, 1, 7), "-01"))]
   }
 
-  commits_n <- commits_dt[, .(commits_n = .N), by = .(statsDate, organisation)]
+  commits_n <- commits_dt[, .(commits_n = .N), by = .(statsDate, organization)]
   commits_n <- commits_n[order(statsDate)]
 
   plotly::plot_ly(commits_n,
     x = ~statsDate,
     y = ~commits_n,
-    color = ~organisation,
+    color = ~organization,
     type = "scatter",
     mode = "lines+markers"
   )
@@ -56,13 +56,13 @@ plot_commit_lines <- function(gitstats_obj) {
     plotly::add_trace(
       y = ~additions,
       x = ~committed_date,
-      color = ~organisation,
+      color = ~organization,
       type = "bar"
     ) %>%
     plotly::add_trace(
       y = ~ (-deletions),
       x = ~committed_date,
-      color = ~organisation,
+      color = ~organization,
       type = "bar"
     ) %>%
     plotly::layout(

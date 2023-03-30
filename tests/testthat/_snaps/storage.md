@@ -46,10 +46,10 @@
     Message <cliMessage>
       v Clients already in database table.
     Output
-        id organisation repository committed_date additions deletions
-      1  1 r-world-devs       Test     2022-03-01        12        20
-      2  2 r-world-devs       Test     2022-10-05        12        20
-      3  3 r-world-devs       Test     2022-12-31        12        20
+        id committed_date author additions deletions repository organization
+      1  1     2022-03-01 author        12        20       Test r-world-devs
+      2  2     2022-10-05 author        12        20       Test r-world-devs
+      3  3     2022-12-31 author        12        20       Test r-world-devs
                        api_url
       1 https://api.github.com
       2 https://api.github.com
@@ -91,10 +91,10 @@
     Message <cliMessage>
       v Organizations already in database table.
     Output
-        id organisation repository committed_date additions deletions
-      1  1 r-world-devs       Test     2022-03-01        12        20
-      2  2 r-world-devs       Test     2022-10-05        12        20
-      3  3 r-world-devs       Test     2022-12-31        12        20
+        id committed_date author additions deletions repository organization
+      1  1     2022-03-01 author        12        20       Test r-world-devs
+      2  2     2022-10-05 author        12        20       Test r-world-devs
+      3  3     2022-12-31 author        12        20       Test r-world-devs
                        api_url
       1 https://api.github.com
       2 https://api.github.com
@@ -135,7 +135,8 @@
     Code
       test_gitstats %>% get_repos(print_out = FALSE)
     Message <cliMessage>
-      > [GitHub] Pulling repositories by org...
+      i [GitHub Public][r-world-devs] Pulling repositories...
+      i Number of repositories: 7
       v `repos_by_org` saved to local database.
 
 # Switching storage on and off works

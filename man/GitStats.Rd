@@ -11,9 +11,11 @@ An R6 class object with methods to derive information from multiple Git platform
 \describe{
 \item{\code{clients}}{A list of API connections information.}
 
-\item{\code{search_param}}{A team, org or keyword.}
+\item{\code{team_name}}{Name of a team.}
 
-\item{\code{team}}{A character vector containing team members.}
+\item{\code{team}}{A list containing team members.}
+
+\item{\code{search_param}}{A team, org or keyword.}
 
 \item{\code{phrase}}{A phrase to search.}
 
@@ -38,7 +40,7 @@ An R6 class object with methods to derive information from multiple Git platform
 \item \href{#method-setup_preferences}{\code{GitStats$setup_preferences()}}
 \item \href{#method-set_connection}{\code{GitStats$set_connection()}}
 \item \href{#method-set_organizations}{\code{GitStats$set_organizations()}}
-\item \href{#method-set_team}{\code{GitStats$set_team()}}
+\item \href{#method-add_team_member}{\code{GitStats$add_team_member()}}
 \item \href{#method-set_storage}{\code{GitStats$set_storage()}}
 \item \href{#method-show_storage}{\code{GitStats$show_storage()}}
 \item \href{#method-storage_off}{\code{GitStats$storage_off()}}
@@ -68,7 +70,7 @@ A new \code{GitStats} object
 \subsection{Method \code{setup_preferences()}}{
 Set up your search parameters.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$setup_preferences(search_param, team, phrase, language)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$setup_preferences(search_param, team_name, phrase, language)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -76,7 +78,7 @@ Set up your search parameters.
 \describe{
 \item{\code{search_param}}{One of three: \code{team}, \code{org} or \code{phrase}.}
 
-\item{\code{team}}{A named character vector of team members.}
+\item{\code{team_name}}{A name of a team.}
 
 \item{\code{phrase}}{A phrase to look for.}
 
@@ -140,25 +142,25 @@ Nothing pass information on organizations into \verb{$orgs} field of
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-set_team"></a>}}
-\if{latex}{\out{\hypertarget{method-set_team}{}}}
-\subsection{Method \code{set_team()}}{
-A method to set your team.
+\if{html}{\out{<a id="method-add_team_member"></a>}}
+\if{latex}{\out{\hypertarget{method-add_team_member}{}}}
+\subsection{Method \code{add_team_member()}}{
+A method to add a team member.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$set_team(team_name, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$add_team_member(member_name, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{team_name}}{A name of a team.}
+\item{\code{member_name}}{Name of a member.}
 
-\item{\code{...}}{A character vector of team members (names and logins).}
+\item{\code{...}}{User names on Git platforms.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-Nothing, pass team information into \verb{$team} field.
+Nothing, pass information on team member to \code{GitStats}.
 }
 }
 \if{html}{\out{<hr>}}

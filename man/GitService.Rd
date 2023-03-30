@@ -13,21 +13,16 @@ A superclass for GitHub and GitLab classes
 
 \item{\code{gql_api_url}}{A character, url of GraphQL API.}
 
-\item{\code{gql_query}}{An environment for GraphQLQuery class object.}
+\item{\code{gql_query}}{An environment for GraphQL queries.}
 
 \item{\code{orgs}}{A character vector of organizations.}
 
 \item{\code{git_service}}{A character specifying whether GitHub or GitLab.}
 
-\item{\code{enterprise}}{A boolean defining whether Git Service is public or
+\item{\code{enterprise}}{A character defining whether Git Service is public or
 enterprise version.}
 
 \item{\code{org_limit}}{An integer defining how many org may API pull.}
-
-\item{\code{repos_endpoint}}{An expression for repositories endpoint.}
-
-\item{\code{repo_contributors_endpoint}}{An expression for repositories'
-contributors endpoint.}
 
 \item{\code{token}}{A token authorizing access to API.}
 }
@@ -45,7 +40,6 @@ contributors endpoint.}
 \itemize{
 \item \href{#method-new}{\code{GitService$new()}}
 \item \href{#method-get_repos}{\code{GitService$get_repos()}}
-\item \href{#method-get_commits}{\code{GitService$get_commits()}}
 \item \href{#method-clone}{\code{GitService$clone()}}
 }
 }
@@ -60,9 +54,7 @@ Create a new \code{GitService} object
   gql_api_url = NA,
   token = NA,
   orgs = NA,
-  org_limit = NA,
-  repos_endpoint = self$repos_endpoint,
-  repo_contributors_endpoint = self$repo_contributors_endpoint
+  org_limit = NA
 )}\if{html}{\out{</div>}}
 }
 
@@ -80,11 +72,6 @@ in case of GitHub and groups of projects in case of GitLab).}
 
 \item{\code{org_limit}}{An integer to set maximum number of organizations to be
 pulled from Git Service.}
-
-\item{\code{repos_endpoint}}{An expression for repositories endpoint.}
-
-\item{\code{repo_contributors_endpoint}}{An expression for repositories'
-contributors endpoint.}
 }
 \if{html}{\out{</div>}}
 }
@@ -99,20 +86,17 @@ A new \code{GitService} object
 A method to list all repositories for an organization, a
 team or by a keyword.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitService$get_repos(orgs = self$orgs, by, team, phrase, language = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitService$get_repos(by, team, phrase, language = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{orgs}}{A character vector of organizations (owners of repositories).}
-
 \item{\code{by}}{A character, to choose between: \itemize{\item{org -
-organizations (owners of repositories or project groups)} \item{team -
+organizations (project groups)} \item{team -
 A team} \item{phrase - A keyword in code blobs.}}}
 
-\item{\code{team}}{A list of team members. Specified by \code{set_team()} method
-of GitStats class object.}
+\item{\code{team}}{A list of team members.}
 
 \item{\code{phrase}}{A character to look for in code blobs. Obligatory if
 \code{by} parameter set to \code{"phrase"}.}
@@ -123,43 +107,6 @@ of GitStats class object.}
 }
 \subsection{Returns}{
 A data.frame of repositories.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_commits"></a>}}
-\if{latex}{\out{\hypertarget{method-get_commits}{}}}
-\subsection{Method \code{get_commits()}}{
-A method to get information on commits.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitService$get_commits(
-  orgs = self$orgs,
-  date_from,
-  date_until = Sys.time(),
-  by,
-  team
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{orgs}}{A character vector of organisations.}
-
-\item{\code{date_from}}{A starting date to look commits for}
-
-\item{\code{date_until}}{An end date to look commits for}
-
-\item{\code{by}}{A character, to choose between: \itemize{\item{org -
-organizations (owners of repositories or project groups)} \item{team -
-A team} \item{phrase - A keyword in code blobs.}}}
-
-\item{\code{team}}{A list of team members. Specified by \code{set_team()} method
-of GitStats class object.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A data.frame of commits
 }
 }
 \if{html}{\out{<hr>}}
