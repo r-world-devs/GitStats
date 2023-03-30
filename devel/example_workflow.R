@@ -7,12 +7,12 @@ git_stats <- create_gitstats() %>%
   set_connection(
     api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
-    orgs = c("openpharma", "r-world-devs")
+    orgs = c("r-world-devs", "openpharma", "pharmaverse")
   ) %>%
   set_connection(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT"),
-    orgs = c("mbtests")
+    orgs = c("mbtests", "erasmusmc-public-health")
   )
 
 # examples for getting repos (default argument for parameter 'by' is 'org')
@@ -44,8 +44,7 @@ get_repos(git_stats)
 # Change your settings to searches by phrase:
 setup_preferences(git_stats,
                   search_param = "phrase",
-                  phrase = "covid",
-                  language = "R")
+                  phrase = "covid")
 
 # Search by phrase
 get_repos(git_stats)

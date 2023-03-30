@@ -39,14 +39,27 @@
     Code
       repos <- test_gitlab$get_repos(by = "org")
     Message <cliMessage>
+      i [GitLab][erasmusmc-public-health] Pulling repositories...
+      i Number of repositories: 21
       i [GitLab][mbtests] Pulling repositories...
       i Number of repositories: 6
+
+---
+
+    Code
+      repos <- test_gitlab$get_repos(by = "phrase", phrase = "covid")
+    Message <cliMessage>
+      v On GitLab [erasmusmc-public-health] found 1 repositories.
+      v On GitLab [mbtests] found 0 repositories.
 
 # `get_repos()` throws empty tables for GitLab
 
     Code
-      repos_Python <- test_gitlab$get_repos(by = "org", language = "Python")
+      repos_R <- test_gitlab$get_repos(by = "org", language = "Ruby")
     Message <cliMessage>
+      i [GitLab][erasmusmc-public-health] Pulling repositories...
+      i Number of repositories: 21
+      i Filtering by language.
       i [GitLab][mbtests] Pulling repositories...
       i Number of repositories: 6
       i Filtering by language.

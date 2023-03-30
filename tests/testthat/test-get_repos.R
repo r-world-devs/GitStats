@@ -100,7 +100,7 @@ test_that("Getting repositories by teams works", {
 test_gitlab <- GitLab$new(
   rest_api_url = "https://gitlab.com/api/v4",
   token = Sys.getenv("GITLAB_PAT"),
-  orgs = c("mbtests")
+  orgs = c("erasmusmc-public-health", "mbtests")
 )
 
 test_that("`get_repos()` methods pulls repositories from GitLab and translates output into `data.frame`", {
@@ -109,17 +109,24 @@ test_that("`get_repos()` methods pulls repositories from GitLab and translates o
       test_gitlab$get_repos(by = "org")
   )
   expect_repos_table(repos)
+
+  expect_snapshot(
+    repos <-
+      test_gitlab$get_repos(by = "phrase",
+                            phrase = "covid")
+  )
+  expect_repos_table(repos)
 })
 
 test_that("`get_repos()` throws empty tables for GitLab", {
   expect_snapshot(
-    repos_Python <-
+    repos_R <-
       test_gitlab$get_repos(
         by = "org",
-        language = "Python"
+        language = "Ruby"
       )
   )
-  expect_empty_table(repos_Python)
+  expect_empty_table(repos_R)
 })
 
 test_github <- GitHub$new(

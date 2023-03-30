@@ -132,9 +132,12 @@ GitLab <- R6::R6Class("GitLab",
           "stars" = x$star_count,
           "forks" = x$fork_count,
           "created_at" = x$created_at,
+          "last_push" = NA,
           "last_activity_at" = x$last_activity_at,
+          "languages" = NA,
           "issues_open" = x$issues_open,
           "issues_closed" = x$issues_closed,
+          "contributors" = NA,
           "organization" = x$namespace$path
         )
       })
