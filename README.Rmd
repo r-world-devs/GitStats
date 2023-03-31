@@ -31,3 +31,68 @@ Development version:
 ```r
 devtools::install_github("r-world-devs/GitStats@devel")
 ```
+
+## Getting started
+
+You can start by creating your `GitStats` object, where you will hold information on your multiple connections.
+
+```{r}
+library(GitStats)
+library(magrittr)
+
+git_stats <- create_gitstats() %>%
+  set_connection(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("r-world-devs", "openpharma", "pharmaverse")
+  ) %>%
+  set_connection(
+    api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT"),
+    orgs = c("mbtests")
+  ) 
+```
+
+## Setup preferences
+
+You can setup your search preferences, either to organizations, team or phrase. 
+
+### Team
+
+If you setup your preferences to team, name it and add your team members:
+
+```{r}
+git_stats %>%
+  add_team_member("Adam Foryś", "galachad") %>%
+  add_team_member("Kamil Wais", "kalimu") %>%
+  add_team_member("Krystian Igras", "krystian8207") %>%
+  add_team_member("Karolina Marcinkowska", "marcinkowskak") %>%
+  add_team_member("Kamil Koziej", "Cotau") %>%
+  add_team_member("Maciej Banaś", "maciekbanas")
+
+setup_preferences(git_stats,
+                  search_param = "team",
+                  team_name = "RWD")
+
+# now pull repos and commits by default by team
+get_repos(git_stats)
+
+get_commits(git_stats, 
+            date_from = "2020-01-01",
+            date_until = "2023-03-31")
+
+```
+
+### Keyword
+
+With `GitStats` you can look for the activity connected to a certain phrase.
+
+```{r}
+setup_preferences(git_stats,
+                  search_param = "phrase",
+                  phrase = "covid")
+
+# now pull repos by default by phrase
+get_repos(git_stats)
+
+```

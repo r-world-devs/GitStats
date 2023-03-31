@@ -88,7 +88,9 @@ git_stats %>%
 set_storage(gitstats_obj = git_stats,
             type = "SQLite",
             dbname = 'devel/storage/my_sqlite'
-) %>%
+)
+
+git_stats %>%
   get_repos() %>%
   get_commits(by = "team",
               date_from = "2020-01-01",
