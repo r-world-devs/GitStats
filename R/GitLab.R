@@ -41,7 +41,7 @@ GitLab <- R6::R6Class("GitLab",
               .
             }
           } %>%
-          private$tailor_commits_info(org = x)  %>%
+          private$tailor_commits_info(org = org)  %>%
           private$prepare_commits_table()
       }) %>% rbindlist()
 
