@@ -292,6 +292,7 @@ GitHub <- R6::R6Class("GitHub",
           "issues_open" = x$issues_open,
           "issues_closed" = x$issues_closed,
           "contributors" = paste0(x$contributors, collapse = ","),
+          "repo_url" = x$url,
           "organization" = x$owner$login
         )
       })
@@ -450,7 +451,11 @@ GitHub <- R6::R6Class("GitHub",
           repo_table,
           organization = org,
           api_url = self$rest_api_url
+        ) %>%
+        dplyr::relocate(
+          repo_url, .after = last_col()
         )
+
     },
 
     #' @description Parses repositories' list with commits into table of commits.

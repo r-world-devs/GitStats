@@ -35,7 +35,7 @@
 
     Code
       result <- test_github$get_repos(by = "team", team = list(Member1 = list(logins = "kalimu"),
-      Member2 = list(logins = "epijim")))
+      Member2 = list(logins = "maciekbanas")))
     Message <cliMessage>
       i Filtering by team members.
 

@@ -95,7 +95,7 @@ test_that("Getting repositories by teams works", {
             logins = "kalimu"
           ),
           "Member2" = list(
-            logins = "epijim"
+            logins = "maciekbanas"
           )
         )
       )
@@ -103,7 +103,7 @@ test_that("Getting repositories by teams works", {
   expect_repos_table(result)
 
   expect_true(
-    all(grepl("kalimu|epijim", result$contributors))
+    all(grepl("kalimu|maciekbanas", result$contributors))
   )
 })
 

@@ -63,6 +63,7 @@ GraphQLQueryGitHub <- R6::R6Class("GraphQLQueryGitHub",
                     }
                   }
                 }
+                repo_url: url
               }
             }
             }
