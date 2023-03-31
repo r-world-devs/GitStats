@@ -341,7 +341,9 @@ GitLab <- R6::R6Class("GitLab",
           },
           "contributors" = NA,
           "organization" = org,
-          "api_url" = self$rest_api_url
+          "api_url" = self$rest_api_url,
+          "repo_url" = paste0(self$rest_api_url, "/projects/",
+                              gsub("gid://gitlab/Project/", "", repo$node$id))
         )
         repo_row
       })

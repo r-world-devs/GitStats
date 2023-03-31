@@ -25,6 +25,12 @@ test_that("`get_repos()` returns repos table", {
     orgs = "r-world-devs"
   )
 
+  test_gitstats$clients[[2]] <- GitLab$new(
+    rest_api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT"),
+    orgs = "mbtests"
+  )
+
   expect_snapshot(
     get_repos(
       gitstats_obj = test_gitstats,
@@ -66,12 +72,16 @@ test_that("Proper information pops out when one wants to get stats by phrase wit
   )
 })
 
+########## GitHub tests
+
+test_github <- GitHub$new(
+  rest_api_url = "https://api.github.com",
+  token = Sys.getenv("GITHUB_PAT"),
+  orgs = "r-world-devs"
+)
+
 test_that("Getting repositories by teams works", {
-  test_github <- GitHub$new(
-    rest_api_url = "https://api.github.com",
-    token = Sys.getenv("GITHUB_PAT"),
-    orgs = "r-world-devs"
-  )
+
   mockery::stub(
     test_github$get_repos,
     'private$pull_repos_from_org',
@@ -85,7 +95,7 @@ test_that("Getting repositories by teams works", {
             logins = "kalimu"
           ),
           "Member2" = list(
-            logins = "epijim"
+            logins = "maciekbanas"
           )
         )
       )
@@ -93,9 +103,37 @@ test_that("Getting repositories by teams works", {
   expect_repos_table(result)
 
   expect_true(
-    all(grepl("kalimu|epijim", result$contributors))
+    all(grepl("kalimu|maciekbanas", result$contributors))
   )
 })
+
+test_that("`get_repos()` methods pulls repositories from GitHub and translates output into `data.frame`", {
+  mockery::stub(
+    test_github$get_repos,
+    'private$pull_repos_from_org',
+    readRDS("test_files/github_repos_table.rds")
+  )
+
+  expect_snapshot(
+    repos <-
+      test_github$get_repos(by = "org")
+  )
+  expect_repos_table(repos)
+})
+
+test_that("`get_repos()` throws empty tables for GitHub", {
+
+  expect_snapshot(
+    repos_JS <-
+      test_github$get_repos(
+        by = "org",
+        language = "Javascript"
+      )
+  )
+  expect_empty_table(repos_JS)
+})
+
+########## GitLab tests
 
 test_gitlab <- GitLab$new(
   rest_api_url = "https://gitlab.com/api/v4",
@@ -127,36 +165,4 @@ test_that("`get_repos()` throws empty tables for GitLab", {
       )
   )
   expect_empty_table(repos_R)
-})
-
-test_github <- GitHub$new(
-  rest_api_url = "https://api.github.com",
-  token = Sys.getenv("GITHUB_PAT"),
-  orgs = "r-world-devs"
-)
-
-test_that("`get_repos()` methods pulls repositories from GitHub and translates output into `data.frame`", {
-  mockery::stub(
-    test_github$get_repos,
-    'private$pull_repos_from_org',
-    readRDS("test_files/github_repos_table.rds")
-  )
-
-  expect_snapshot(
-    repos <-
-      test_github$get_repos(by = "org")
-  )
-  expect_repos_table(repos)
- })
-
-test_that("`get_repos()` throws empty tables for GitHub", {
-
-  expect_snapshot(
-    repos_JS <-
-      test_github$get_repos(
-        by = "org",
-        language = "Javascript"
-      )
-  )
-  expect_empty_table(repos_JS)
 })

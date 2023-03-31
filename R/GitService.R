@@ -263,6 +263,7 @@ GitService <- R6::R6Class("GitService",
       if (length(repos_dt) > 0) {
         repos_dt <- dplyr::mutate(repos_dt,
           api_url = self$rest_api_url,
+          repo_url = paste0(self$rest_api_url, "/projects/", gsub("gid://gitlab/Project/", "", id)),
           created_at = as.POSIXct(created_at),
           last_activity_at = difftime(Sys.time(), as.POSIXct(last_activity_at),
             units = "days"

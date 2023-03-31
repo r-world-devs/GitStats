@@ -9,6 +9,8 @@
     Message <cliMessage>
       i [GitHub Public][r-world-devs] Pulling repositories...
       i Number of repositories: 7
+      i [GitLab][mbtests] Pulling repositories...
+      i Number of repositories: 6
 
 # Getting repos by language works correctly
 
@@ -17,6 +19,9 @@
     Message <cliMessage>
       i [GitHub Public][r-world-devs] Pulling repositories...
       i Number of repositories: 7
+      i Filtering by language.
+      i [GitLab][mbtests] Pulling repositories...
+      i Number of repositories: 6
       i Filtering by language.
 
 # Proper information pops out when one wants to get stats by phrase without specifying phrase
@@ -30,9 +35,23 @@
 
     Code
       result <- test_github$get_repos(by = "team", team = list(Member1 = list(logins = "kalimu"),
-      Member2 = list(logins = "epijim")))
+      Member2 = list(logins = "maciekbanas")))
     Message <cliMessage>
       i Filtering by team members.
+
+# `get_repos()` methods pulls repositories from GitHub and translates output into `data.frame`
+
+    Code
+      repos <- test_github$get_repos(by = "org")
+
+# `get_repos()` throws empty tables for GitHub
+
+    Code
+      repos_JS <- test_github$get_repos(by = "org", language = "Javascript")
+    Message <cliMessage>
+      i [GitHub Public][r-world-devs] Pulling repositories...
+      i Number of repositories: 7
+      i Filtering by language.
 
 # `get_repos()` methods pulls repositories from GitLab and translates output into `data.frame`
 
@@ -62,19 +81,5 @@
       i Filtering by language.
       i [GitLab][mbtests] Pulling repositories...
       i Number of repositories: 6
-      i Filtering by language.
-
-# `get_repos()` methods pulls repositories from GitHub and translates output into `data.frame`
-
-    Code
-      repos <- test_github$get_repos(by = "org")
-
-# `get_repos()` throws empty tables for GitHub
-
-    Code
-      repos_JS <- test_github$get_repos(by = "org", language = "Javascript")
-    Message <cliMessage>
-      i [GitHub Public][r-world-devs] Pulling repositories...
-      i Number of repositories: 7
       i Filtering by language.
 
