@@ -74,8 +74,12 @@ setup_preferences(git_stats,
                   search_param = "team",
                   team_name = "RWD")
 
-# now pull repos by default by team
+# now pull repos and commits by default by team
 get_repos(git_stats)
+
+get_commits(git_stats, 
+            date_from = "2020-01-01",
+            date_until = "2023-03-31")
 
 ```
 
