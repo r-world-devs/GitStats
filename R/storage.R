@@ -16,6 +16,7 @@
 #' @param port An integer, port address.
 #' @param user Username.
 #' @param password A password.
+#' @export
 set_storage <- function(gitstats_obj,
                         type,
                         dbname,
