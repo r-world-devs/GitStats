@@ -13,7 +13,6 @@ test_that("`pull_repos_from_org()` pulls correctly repositories for GitHub
     result <-
       test_github_priv$pull_repos_from_org(org = "r-world-devs")
   )
-  saveRDS(result, "test_files/github_repos_table.rds")
   expect_repos_table(result)
 })
 
