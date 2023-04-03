@@ -21,7 +21,6 @@ Imports:
     progress,
     rlang,
     R6,
-    RMySQL,
     RPostgres,
     RSQLite,
     purrr,

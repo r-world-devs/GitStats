@@ -51,16 +51,6 @@
       "Hash": "45f0398006e83a5b10b72a90663d8d8c",
       "Requirements": []
     },
-    "RMySQL": {
-      "Package": "RMySQL",
-      "Version": "0.10.24",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "c93263945d2ae96aaee33dd0e16bfe99",
-      "Requirements": [
-        "DBI"
-      ]
-    },
     "RPostgres": {
       "Package": "RPostgres",
       "Version": "1.4.5",

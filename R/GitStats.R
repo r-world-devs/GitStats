@@ -7,7 +7,6 @@
 #' @importFrom DBI dbConnect dbWriteTable dbAppendTable dbReadTable dbListTables Id
 #' @importFrom RPostgres Postgres
 #' @importFrom RSQLite SQLite
-#' @importFrom RMySQL MySQL
 #'
 #' @title A statistics platform for Git clients
 #' @description An R6 class object with methods to derive information from multiple Git platforms.
@@ -231,8 +230,6 @@ GitStats <- R6::R6Class("GitStats",
           RPostgres::Postgres()
           } else if (type == "SQLite") {
             RSQLite::SQLite()
-          } else if (type == "MySQL") {
-            RMySQL::MySQL()
           },
         dbname = dbname,
         host = host,
