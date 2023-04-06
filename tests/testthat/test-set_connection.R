@@ -10,7 +10,7 @@ test_that("Set connection returns appropriate messages", {
     ) %>%
     set_connection(
       api_url = "https://gitlab.com/api/v4",
-      token = Sys.getenv("GITLAB_PAT"),
+      token = Sys.getenv("GITLAB_PAT_PUBLIC"),
       orgs = c("mbtests")
     )
   )
@@ -30,7 +30,7 @@ test_that("Adequate condition shows if organizations are not specified", {
     test_gitstats %>%
       set_connection(
         api_url = "https://gitlab.com/api/v4",
-        token = Sys.getenv("GITLAB_PAT")
+        token = Sys.getenv("GITLAB_PAT_PUBLIC")
       )
   )
 })
@@ -43,7 +43,7 @@ test_that("Errors pop out, when wrong input is passed when setting connection", 
     set_connection(
       gitstats_obj = test_gitstats,
       api_url = "https://avengers.com",
-      token = Sys.getenv("GITLAB_PAT")
+      token = Sys.getenv("GITLAB_PAT_PUBLIC")
     )
   )
 })
@@ -125,7 +125,7 @@ test_that("`Org` name is not passed to the object if it does not exist", {
     test_gitstats <- create_gitstats() %>%
       set_connection(
         api_url = "https://gitlab.com/api/v4",
-        token = Sys.getenv("GITLAB_PAT"),
+        token = Sys.getenv("GITLAB_PAT_PUBLIC"),
         orgs = c("openparma", "mbtests")
       )
   )
@@ -145,7 +145,7 @@ test_that("Error with message pops out, when you pass to your `GitLab` connectio
     test_gitstats <- create_gitstats() %>%
       set_connection(
         api_url = "https://gitlab.com/api/v4",
-        token = Sys.getenv("GITLAB_PAT"),
+        token = Sys.getenv("GITLAB_PAT_PUBLIC"),
         orgs = "MB Tests"
       )
   )
@@ -158,7 +158,7 @@ test_that("Error with message pops out, when you pass to your `GitLab` connectio
     test_gitstats <- create_gitstats() %>%
       set_connection(
         api_url = "https://gitlab.com/api/v4",
-        token = Sys.getenv("GITLAB_PAT"),
+        token = Sys.getenv("GITLAB_PAT_PUBLIC"),
         orgs = c("mbtests", "MB Tests")
       )
   )

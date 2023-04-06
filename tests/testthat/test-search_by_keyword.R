@@ -28,7 +28,7 @@ test_that("`search_by_keyword()` for GitHub prepares a list of repositories", {
 
 test_gitlab <- GitLab$new(
   rest_api_url = "https://gitlab.com/api/v4",
-  token = Sys.getenv("GITLAB_PAT"),
+  token = Sys.getenv("GITLAB_PAT_PUBLIC"),
   orgs = c("erasmusmc-public-health")
 )
 

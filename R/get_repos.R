@@ -20,7 +20,7 @@
 #'   ) %>%
 #'   set_connection(
 #'     api_url = "https://gitlab.com/api/v4",
-#'     token = Sys.getenv("GITLAB_PAT"),
+#'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "erasmusmc-public-health"
 #'   ) %>%
 #'   get_repos(language = "R")

@@ -1,6 +1,6 @@
 git_lab <- GitLab$new(
   rest_api_url = "https://gitlab.com/api/v4",
-  token = Sys.getenv("GITLAB_PAT"),
+  token = Sys.getenv("GITLAB_PAT_PUBLIC"),
   orgs = c("mbtests")
 )
 

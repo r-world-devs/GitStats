@@ -27,7 +27,7 @@ test_that("`get_repos()` returns repos table", {
 
   test_gitstats$clients[[2]] <- GitLab$new(
     rest_api_url = "https://gitlab.com/api/v4",
-    token = Sys.getenv("GITLAB_PAT"),
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "mbtests"
   )
 
@@ -137,7 +137,7 @@ test_that("`get_repos()` throws empty tables for GitHub", {
 
 test_gitlab <- GitLab$new(
   rest_api_url = "https://gitlab.com/api/v4",
-  token = Sys.getenv("GITLAB_PAT"),
+  token = Sys.getenv("GITLAB_PAT_PUBLIC"),
   orgs = c("erasmusmc-public-health", "mbtests")
 )
 

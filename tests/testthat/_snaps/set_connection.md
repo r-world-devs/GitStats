@@ -4,7 +4,7 @@
       set_connection(gitstats_obj = test_gitstats, api_url = "https://api.github.com",
         token = Sys.getenv("GITHUB_PAT"), orgs = c("openpharma", "r-world-devs")) %>%
         set_connection(api_url = "https://gitlab.com/api/v4", token = Sys.getenv(
-          "GITLAB_PAT"), orgs = c("mbtests"))
+          "GITLAB_PAT_PUBLIC"), orgs = c("mbtests"))
     Message <cliMessage>
       v Set connection to GitHub.
       v Set connection to GitLab.
@@ -22,7 +22,7 @@
 
     Code
       test_gitstats %>% set_connection(api_url = "https://gitlab.com/api/v4", token = Sys.getenv(
-        "GITLAB_PAT"))
+        "GITLAB_PAT_PUBLIC"))
     Message <cliMessage>
       ! No organizations specified.
       v Set connection to GitLab.
@@ -31,7 +31,7 @@
 
     Code
       set_connection(gitstats_obj = test_gitstats, api_url = "https://avengers.com",
-        token = Sys.getenv("GITLAB_PAT"))
+        token = Sys.getenv("GITLAB_PAT_PUBLIC"))
     Error <simpleError>
       This connection is not supported by GitStats class object.
 
@@ -90,7 +90,7 @@
 
     Code
       test_gitstats <- create_gitstats() %>% set_connection(api_url = "https://gitlab.com/api/v4",
-        token = Sys.getenv("GITLAB_PAT"), orgs = c("openparma", "mbtests"))
+        token = Sys.getenv("GITLAB_PAT_PUBLIC"), orgs = c("openparma", "mbtests"))
     Message <cliMessage>
       x Organization you provided does not exist. Check spelling in: openparma
     Message <simpleMessage>
@@ -102,7 +102,7 @@
 
     Code
       test_gitstats <- create_gitstats() %>% set_connection(api_url = "https://gitlab.com/api/v4",
-        token = Sys.getenv("GITLAB_PAT"), orgs = "MB Tests")
+        token = Sys.getenv("GITLAB_PAT_PUBLIC"), orgs = "MB Tests")
     Message <cliMessage>
       x Group name passed in a wrong way: MB Tests
       ! If you are using `GitLab`, please type your group name as you see it in `url`.
@@ -116,7 +116,7 @@
 
     Code
       test_gitstats <- create_gitstats() %>% set_connection(api_url = "https://gitlab.com/api/v4",
-        token = Sys.getenv("GITLAB_PAT"), orgs = c("mbtests", "MB Tests"))
+        token = Sys.getenv("GITLAB_PAT_PUBLIC"), orgs = c("mbtests", "MB Tests"))
     Message <cliMessage>
       x Group name passed in a wrong way: MB Tests
       ! If you are using `GitLab`, please type your group name as you see it in `url`.

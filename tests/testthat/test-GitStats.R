@@ -20,7 +20,7 @@ test_gitstats$clients[[1]] <- GitHub$new(
 
 test_gitstats$clients[[2]] <- GitLab$new(
   rest_api_url = "https://gitlab.com/api/v4",
-  token = Sys.getenv("GITLAB_PAT"),
+  token = Sys.getenv("GITLAB_PAT_PUBLIC"),
   orgs = "mbtests"
 )
 
@@ -64,7 +64,7 @@ test_that("check_organizations checks correctly if orgs are missing", {
     )
     test_gitstats$clients[[2]] <- GitLab$new(
       rest_api_url = "https://gitlab.com/api/v4",
-      token = Sys.getenv("GITLAB_PAT")
+      token = Sys.getenv("GITLAB_PAT_PUBLIC")
     )
   })
 
@@ -82,7 +82,7 @@ test_that("check_organizations checks correctly if orgs are missing", {
     )
     test_gitstats$clients[[2]] <- GitLab$new(
       rest_api_url = "https://gitlab.com/api/v4",
-      token = Sys.getenv("GITLAB_PAT"),
+      token = Sys.getenv("GITLAB_PAT_PUBLIC"),
       orgs = "mbtests"
     )
   })
