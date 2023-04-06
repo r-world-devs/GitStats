@@ -53,10 +53,10 @@ GitService <- R6::R6Class("GitService",
       private$token <- token
       self$git_service <- private$check_git_service(self$rest_api_url)
       if (self$git_service == "GitHub") {
-        self$gql_query <- GraphQLQueryGitHub$new()
+        self$gql_query <- GQLQueryGitHub$new()
       }
       if (self$git_service == "GitLab") {
-        self$gql_query <- GraphQLQueryGitLab$new()
+        self$gql_query <- GQLQueryGitLab$new()
       }
       self$enterprise <- private$check_enterprise(self$rest_api_url)
       self$org_limit <- org_limit

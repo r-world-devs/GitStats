@@ -1,7 +1,7 @@
-#' @title A GraphQLQuery class
+#' @title A GQLQuery class
 #' @description A superclass for GraphQL Queries.
 
-GraphQLQuery <- R6::R6Class("GraphQLQuery",
+GQLQuery <- R6::R6Class("GQLQuery",
 
    private = list(
 

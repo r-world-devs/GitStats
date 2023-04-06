@@ -1,9 +1,9 @@
-#' @title A GraphQLQueryGitLab class
+#' @title A GQLQueryGitLab class
 #' @description A class with methods to build GraphQL Queries for GitLab.
 
-GraphQLQueryGitLab <- R6::R6Class("GraphQLQueryGitLab",
+GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
 
-  inherit = GraphQLQuery,
+  inherit = GQLQuery,
 
   public = list(
 

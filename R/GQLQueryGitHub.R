@@ -1,9 +1,9 @@
-#' @title A GraphQLQueryGitHub class
+#' @title A GQLQueryGitHub class
 #' @description A class with methods to build GraphQL Queries for GitHub.
 
-GraphQLQueryGitHub <- R6::R6Class("GraphQLQueryGitHub",
+GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
 
-  inherit = GraphQLQuery,
+  inherit = GQLQuery,
 
   public = list(
 

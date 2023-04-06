@@ -54,7 +54,7 @@ test_that("Organizations are correctly checked if they exist", {
 
 test_that("GraphQL API is set correctly", {
 
-  expect_s3_class(git_hub$gql_query, "GraphQLQuery")
+  expect_s3_class(git_hub$gql_query, "GQLQuery")
   expect_s3_class(git_hub$gql_query, "R6")
 
 })
