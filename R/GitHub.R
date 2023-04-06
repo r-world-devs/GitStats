@@ -346,13 +346,8 @@ GitHub <- R6::R6Class("GitHub",
     search_response = function(search_endpoint,
                                total_n,
                                byte_max) {
-      if (total_n > 0 & total_n < 100) {
-        resp_list <- private$rest_response(
-          paste0(search_endpoint, "+size:0..", byte_max, "&page=1&per_page=100")
-        )[["items"]]
 
-        resp_list
-      } else if (total_n >= 100 & total_n < 1e3) {
+      if (total_n >= 0 & total_n < 1e3) {
         resp_list <- list()
 
         for (page in 1:(total_n %/% 100)) {
