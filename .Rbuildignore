@@ -8,3 +8,6 @@
 ^codecov\.yml$
 ^\.covrignore$
 ^devel$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

@@ -8,7 +8,7 @@ github_env <- environment(git_hub$initialize)$private
 
 git_lab <- GitService$new(
   rest_api_url = "https://gitlab.com/api/v4",
-  token = Sys.getenv("GITLAB_PAT"),
+  token = Sys.getenv("GITLAB_PAT_PUBLIC"),
   orgs = c("mbtests")
 )
 
@@ -42,14 +42,12 @@ test_that("Private `find_by_ids()` returns proper repo list", {
 
 test_that("Organizations are correctly checked if they exist", {
 
-  expect_message(
-    github_env$check_orgs(c("openparma", "r-world-devs")),
-    "Organization you provided does not exist. Check spelling in: openparma"
+  expect_snapshot(
+    github_env$check_orgs(c("openparma", "r-world-devs"))
   )
 
-  expect_message(
-    gitlab_env$check_orgs("openparma"),
-    "Organization you provided does not exist. Check spelling in: openparma"
+  expect_snapshot(
+    gitlab_env$check_orgs("openparma")
   )
 
 })

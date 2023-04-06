@@ -1,13 +1,37 @@
-test_gitstats <- create_gitstats() %>%
-  set_connection(
-    api_url = "https://api.github.com",
+test_gitstats <- create_gitstats()
+
+test_that("Error appears when no orgs are specified when pulling repos", {
+
+  suppressMessages(
+    test_gitstats$clients[[1]] <- GitHub$new(
+      rest_api_url = "https://api.github.com",
+      token = Sys.getenv("GITHUB_PAT")
+    )
+  )
+
+  expect_snapshot_error(
+    get_repos(
+      gitstats_obj = test_gitstats,
+      by = "org"
+    )
+  )
+})
+
+test_that("`get_repos()` returns repos table", {
+
+  test_gitstats$clients[[1]] <- GitHub$new(
+    rest_api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
     orgs = "r-world-devs"
   )
 
-test_that("Get_repos returns repos table", {
-  test_gitstats <- gs_mock(
-    "get_repos_by_org",
+  test_gitstats$clients[[2]] <- GitLab$new(
+    rest_api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    orgs = "mbtests"
+  )
+
+  expect_snapshot(
     get_repos(
       gitstats_obj = test_gitstats,
       print_out = FALSE
@@ -17,26 +41,14 @@ test_that("Get_repos returns repos table", {
   expect_repos_table(test_gitstats$repos_dt)
 })
 
+test_that("Getting repos by language works correctly", {
 
-test_that("Setting language works correctly", {
-  test_gitstats <- gs_mock(
-    "get_repos_by_R",
-    get_repos(
-      gitstats_obj = test_gitstats,
-      language = "R",
-      print_out = FALSE
-    )
-  )
-
-  expect_repos_table(test_gitstats$repos_dt)
-
-  expect_message(
+  expect_snapshot(
     get_repos(
       gitstats_obj = test_gitstats,
       language = "Python",
       print_out = FALSE
-    ),
-    "Empty object"
+    )
   )
 })
 
@@ -51,87 +63,106 @@ test_that("Proper information pops out when one wants to get team stats without 
 })
 
 test_that("Proper information pops out when one wants to get stats by phrase without specifying phrase", {
-  expect_error(
+  expect_snapshot(
+    error = TRUE,
     get_repos(
       gitstats_obj = test_gitstats,
       by = "phrase"
-    ),
-    "You have to provide a phrase to look for"
+    )
   )
 })
 
-test_that("Get repos by phrase works correctly", {
-  test_gitstats <- create_gitstats() %>%
-    set_connection(
-      api_url = "https://api.github.com",
-      token = Sys.getenv("GITHUB_PAT"),
-      orgs = "pharmaverse"
-    )
+########## GitHub tests
 
-  test_gitstats <- gs_mock(
-    "get_repos_by_phrase",
-    get_repos(
-      gitstats_obj = test_gitstats,
-      by = "phrase",
-      phrase = "covid",
-      language = "R",
-      print_out = FALSE
-    )
+test_github <- GitHub$new(
+  rest_api_url = "https://api.github.com",
+  token = Sys.getenv("GITHUB_PAT"),
+  orgs = "r-world-devs"
+)
+
+test_that("Getting repositories by teams works", {
+
+  mockery::stub(
+    test_github$get_repos,
+    'private$pull_repos_from_org',
+    readRDS("test_files/github_repos_table.rds")
   )
-
-  expect_message(
-    get_repos(
-      gitstats_obj = test_gitstats,
-      by = "phrase",
-      phrase = "pokemon",
-      print_out = FALSE
-    ),
-    "Empty object"
-  )
-})
-
-test_that("`get_repos()` by team in case when no `orgs` are specified", {
-
-  suppressWarnings(
-    test_gitstats <- create_gitstats() %>%
-    set_connection(
-      api_url = "https://api.github.com",
-      token = Sys.getenv("GITHUB_PAT")
-    )
-  )
-
-  get_repos_no_org <- expr(
-    test_gitstats %>%
-      set_team(
-        team_name = "RWD-IE",
-        "galachad",
-        "kalimu",
-        "maciekbanas",
-        "Cotau",
-        "krystian8207",
-        "marcinkowskak"
-      ) %>%
-      get_repos(
+  expect_snapshot(
+    result <- test_github$get_repos(
         by = "team",
-        print_out = FALSE
+        team = list(
+          "Member1" = list(
+            logins = "kalimu"
+          ),
+          "Member2" = list(
+            logins = "maciekbanas"
+          )
+        )
       )
   )
+  expect_repos_table(result)
 
-  wgs_no_orgs <- capture_warnings(
-    suppressMessages(test_gitstats <- eval(get_repos_no_org))
+  expect_true(
+    all(grepl("kalimu|maciekbanas", result$contributors))
+  )
+})
+
+test_that("`get_repos()` methods pulls repositories from GitHub and translates output into `data.frame`", {
+  mockery::stub(
+    test_github$get_repos,
+    'private$pull_repos_from_org',
+    readRDS("test_files/github_repos_table.rds")
   )
 
-  msg_no_orgs <- capture_messages(
-    suppressWarnings(eval(get_repos_no_org))
+  expect_snapshot(
+    repos <-
+      test_github$get_repos(by = "org")
   )
+  expect_repos_table(repos)
+})
 
-  expect_match(wgs_no_orgs, "No organizations specified for GitHub.")
+test_that("`get_repos()` throws empty tables for GitHub", {
 
-  expected_messages <- c("Pulling organizations by team.",
-                         "Pulled 1 organizations.",
-                         "Pulling repositories...")
+  expect_snapshot(
+    repos_JS <-
+      test_github$get_repos(
+        by = "org",
+        language = "Javascript"
+      )
+  )
+  expect_empty_table(repos_JS)
+})
 
-  purrr::walk(expected_messages, ~expect_match(msg_no_orgs, ., all = FALSE))
+########## GitLab tests
 
-  expect_repos_table(test_gitstats$repos_dt)
+test_gitlab <- GitLab$new(
+  rest_api_url = "https://gitlab.com/api/v4",
+  token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+  orgs = c("erasmusmc-public-health", "mbtests")
+)
+
+test_that("`get_repos()` methods pulls repositories from GitLab and translates output into `data.frame`", {
+  expect_snapshot(
+    repos <-
+      test_gitlab$get_repos(by = "org")
+  )
+  expect_repos_table(repos)
+
+  expect_snapshot(
+    repos <-
+      test_gitlab$get_repos(by = "phrase",
+                            phrase = "covid")
+  )
+  expect_repos_table(repos)
+})
+
+test_that("`get_repos()` throws empty tables for GitLab", {
+  expect_snapshot(
+    repos_R <-
+      test_gitlab$get_repos(
+        by = "org",
+        language = "Ruby"
+      )
+  )
+  expect_empty_table(repos_R)
 })

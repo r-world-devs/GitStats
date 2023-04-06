@@ -1,4 +1,5 @@
 #' @importFrom plotly plot_ly
+#' @importFrom utils head
 #'
 #' @title Plot repository data.
 #' @name plot_repos
@@ -9,6 +10,7 @@
 #' @export
 plot_repos <- function(gitstats_obj,
                        repos_n = 10) {
+  fullname <- organization <- name <- last_activity_at <- NULL
   if (is.null(gitstats_obj$repos_dt)) {
     stop("You have to first construct your repos data.frame with 'get_repos' function.",
       call. = FALSE
@@ -19,12 +21,12 @@ plot_repos <- function(gitstats_obj,
 
   repos_to_plot <- head(repos_dt, repos_n)
 
-  repos_to_plot[, fullname := paste0(organisation, "/", name)][, fullname := factor(fullname, levels = unique(fullname)[order(last_activity_at, decreasing = TRUE)])]
+  repos_to_plot[, fullname := paste0(organization, "/", name)][, fullname := factor(fullname, levels = unique(fullname)[order(last_activity_at, decreasing = TRUE)])]
 
   plotly::plot_ly(repos_to_plot,
     y = ~fullname,
     x = ~last_activity_at,
-    color = ~organisation,
+    color = ~organization,
     type = "bar",
     orientation = "h"
   ) %>%

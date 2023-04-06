@@ -1,41 +1,53 @@
 #file with example workflow for basic package functionality - will be helpful later tu build vignettes
+pkgload::load_all()
 
 # Start by creating your GitStats object and setting connections.
 
 git_stats <- create_gitstats() %>%
   set_connection(
     api_url = "https://api.github.com",
-    token = Sys.getenv("GITHUB_PAT"), # You can set up your own token as an environment variable in .Renviron file (based in home directory)
-    orgs = c("openpharma", "r-world-devs")
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("r-world-devs", "openpharma", "pharmaverse")
   ) %>%
   set_connection(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT"),
-    orgs = c("erasmusmc-public-health")
+    orgs = c("mbtests", "erasmusmc-public-health")
   )
 
 # examples for getting repos (default argument for parameter 'by' is 'org')
+get_repos(git_stats)
 
+# You can set your search preferences
+setup_preferences(git_stats,
+                  search_param = "team",
+                  team_name = "RWD")
+
+# now getting repos will throw error as you did not define your team
 get_repos(git_stats)
 
 # set your team members
-
 git_stats %>%
-  set_team(team_name = "RWD-IE",
-           "galachad",
-           "krystian8207",
-           "kalimu",
-           "marcinkowskak",
-           "Cotau",
-           "maciekbanas") %>%
-  get_repos(by = "team")
+  add_team_member("Adam Foryś", "galachad") %>%
+  add_team_member("Kamil Wais", "kalimu") %>%
+  add_team_member("Krystian Igras", "krystian8207") %>%
+  add_team_member("Karolina Marcinkowska", "marcinkowskak") %>%
+  add_team_member("Kamil Koziej", "Cotau") %>%
+  add_team_member("Maciej Banaś", "maciekbanas")
+
+# check your settings
+git_stats
+
+# now pull repos by default by team
+get_repos(git_stats)
+
+# Change your settings to searches by phrase:
+setup_preferences(git_stats,
+                  search_param = "phrase",
+                  phrase = "covid")
 
 # Search by phrase
-
-get_repos(git_stats,
-          by = "phrase",
-          phrase = "covid",
-          language = "R")
+get_repos(git_stats)
 
 # you can plot repos sorted by last activity
 
@@ -69,44 +81,6 @@ git_stats %>%
   set_organizations(api_url = "https://api.github.com",
                     orgs = c("pharmaverse", "openpharma"))
 
-########## HANDLING ORGANIZATIONS ##########
-
-# You do not need to enter `orgs` when setting connection for the Git Hosting
-# Service.
-
-git_stats <- create_gitstats() %>%
-  set_connection(
-    api_url = "https://api.github.com",
-    token = Sys.getenv("GITHUB_PAT")
-  )
-
-# Still, you will have to decide on orgs when you choose to explore your
-# repositories. This may make sense and be useful in case when you specify team.
-# `GitStats` will automatically pull oganizations that are linkeds to your team
-# members.
-
-git_stats %>%
-  set_team(team_name = "RWD-IE",
-           "galachad",
-           "krystian8207",
-           "kalimu",
-           "marcinkowskak",
-           "Cotau",
-           "maciekbanas") %>%
-  get_repos(by = "team")
-
-# There is also possibility to pull automatically organizations when not
-# specifying team, but due to possible large number of repositories this may be
-# rather tricky. Therefore if there are more than specified in your
-# `set_org_limit` (default to 1000) it will pull only up to that limit.
-
-git_stats <- create_gitstats() %>%
-  set_connection(
-    api_url = "https://api.github.com",
-    token = Sys.getenv("GITHUB_PAT")
-  ) %>%
-  get_repos()
-
 ########## SETTING STORAGE ##########
 
 # You can set your storage to capture API results and automate your workflow.
@@ -114,7 +88,9 @@ git_stats <- create_gitstats() %>%
 set_storage(gitstats_obj = git_stats,
             type = "SQLite",
             dbname = 'devel/storage/my_sqlite'
-) %>%
+)
+
+git_stats %>%
   get_repos() %>%
   get_commits(by = "team",
               date_from = "2020-01-01",

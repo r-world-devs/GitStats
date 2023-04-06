@@ -8,20 +8,17 @@ output: github_document
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
+  fig.path = "man/figures/README-"
 )
 ```
 
-# GitStats <img src="man/figures/GitStats_logo.png" align="right" height="138" />
+# GitStats <img src="man/figures/GitStats_logo.png" align="right" height="138" style="float:right; height:138px;"/>
 
 <!-- badges: start -->
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![R-CMD-check](https://github.com/r-world-devs/GitStats/workflows/R-CMD-check/badge.svg)](https://github.com/r-world-devs/GitStats/actions)
 [![Codecov test coverage](https://codecov.io/gh/r-world-devs/GitStats/branch/devel/graph/badge.svg)](https://app.codecov.io/gh/r-world-devs/GitStats?branch=devel)
 <!-- badges: end -->
-
-***WORK IN PROGRESS***
 
 The goal of GitStats is to search through multiple GitHub and GitLab platforms for different statistics either by owners/groups of repositories, team members or searched code phrases.
 
@@ -35,14 +32,11 @@ Development version:
 devtools::install_github("r-world-devs/GitStats@devel")
 ```
 
-## Start - set connections
+## Getting started
 
-Start with setting your git connections.
+You can start by creating your `GitStats` object, where you will hold information on your multiple connections.
 
-As GitStats provides possibility of showing stats through multiple platforms, you can pass more than one connection from other Git hosting service.
-
-```{r setup}  
-
+```{r}
 library(GitStats)
 library(magrittr)
 
@@ -50,32 +44,55 @@ git_stats <- create_gitstats() %>%
   set_connection(
     api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
-    orgs = c("openpharma", "r-world-devs")
+    orgs = c("r-world-devs", "openpharma", "pharmaverse")
   ) %>%
   set_connection(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT"),
-    orgs = c("erasmusmc-public-health")
-  )
-
-git_stats
+    orgs = c("mbtests")
+  ) 
 ```
 
-## Explore
+## Setup preferences
 
-You can look for the repositories and other information, where engaged is your team.
-First you need to specify your team members (by git-platform logins), then do the search.
+You can setup your search preferences, either to organizations, team or phrase. 
 
-```{r explore}
-git_stats <- git_stats %>%
-  set_team(team_name = "RWD-IE",
-           "galachad",
-           "krystian8207",
-           "kalimu",
-           "marcinkowskak",
-           "Cotau",
-           "maciekbanas") %>%
-  get_repos(by = "team")
+### Team
+
+If you setup your preferences to team, name it and add your team members:
+
+```{r}
+git_stats %>%
+  add_team_member("Adam Foryś", "galachad") %>%
+  add_team_member("Kamil Wais", "kalimu") %>%
+  add_team_member("Krystian Igras", "krystian8207") %>%
+  add_team_member("Karolina Marcinkowska", "marcinkowskak") %>%
+  add_team_member("Kamil Koziej", "Cotau") %>%
+  add_team_member("Maciej Banaś", "maciekbanas")
+
+setup_preferences(git_stats,
+                  search_param = "team",
+                  team_name = "RWD")
+
+# now pull repos and commits by default by team
+get_repos(git_stats)
+
+get_commits(git_stats, 
+            date_from = "2020-01-01",
+            date_until = "2023-03-31")
 
 ```
 
+### Keyword
+
+With `GitStats` you can look for the activity connected to a certain phrase.
+
+```{r}
+setup_preferences(git_stats,
+                  search_param = "phrase",
+                  phrase = "covid")
+
+# now pull repos by default by phrase
+get_repos(git_stats)
+
+```
