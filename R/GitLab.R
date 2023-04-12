@@ -23,9 +23,6 @@ GitLab <- R6::R6Class("GitLab",
                           gql_api_url = NA,
                           token = NA,
                           orgs = NA) {
-      super$initialize(rest_api_url = rest_api_url,
-                       gql_api_url = gql_api_url,
-                       orgs = orgs)
       if (is.na(gql_api_url)) {
         cli::cli_alert_info("Checking for GrahpQL API url.")
         gql_api_url <- private$set_gql_url(rest_api_url)
@@ -39,6 +36,7 @@ GitLab <- R6::R6Class("GitLab",
         rest_api_url = rest_api_url
       )
       self$git_service <- "GitLab"
+      super$initialize(orgs = orgs)
     },
 
     #' @description  A method to list all repositories for an organization, a
@@ -108,6 +106,34 @@ GitLab <- R6::R6Class("GitLab",
     }
   ),
   private = list(
+
+    #' @description Check if an organization exists
+    #' @param orgs A character vector of organizations
+    #' @return orgs or NULL.
+    check_orgs = function(orgs) {
+      orgs <- purrr::map(orgs, function(org) {
+        org_endpoint <- "/groups/"
+        withCallingHandlers({
+          self$rest_engine$response(endpoint = paste0(self$rest_engine$rest_api_url, org_endpoint, org))
+        },
+        message = function(m) {
+          if (grepl("404", m)) {
+            cli::cli_alert_danger("Group name passed in a wrong way: {org}")
+            cli::cli_alert_warning("If you are using `GitLab`, please type your group name as you see it in `url`.")
+            cli::cli_alert_info("E.g. do not use spaces. Group names as you see on the page may differ from their 'address' name.")
+            org <<- NULL
+          }
+        })
+        return(org)
+      }) %>%
+        purrr::keep(~length(.) > 0) %>%
+        unlist()
+
+      if (length(orgs) == 0) {
+        return(NULL)
+      }
+      orgs
+    },
 
     #' @description Switcher to manage language names
     #' @details E.g. GitLab API will not filter

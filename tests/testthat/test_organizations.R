@@ -79,3 +79,33 @@ test_that("`Set_organizations()` sets properly organizations to client", {
     "erasmusmc-public-health"
   )
 })
+
+suppressMessages({
+  git_hub <- GitHub$new(
+    rest_api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("openpharma", "pharmaverse", "insightsengineering")
+  )
+
+  github_env <- environment(git_hub$initialize)$private
+
+  git_lab <- GitLab$new(
+    rest_api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    orgs = c("mbtests")
+  )
+
+  gitlab_env <- environment(git_lab$initialize)$private
+})
+
+test_that("Organizations are correctly checked if they do not exist", {
+
+  expect_snapshot(
+    github_env$check_orgs(c("openparma", "r-world-devs"))
+  )
+
+  expect_snapshot(
+    gitlab_env$check_orgs("openparma")
+  )
+
+})
