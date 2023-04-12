@@ -115,27 +115,23 @@ GitStats <- R6::R6Class("GitStats",
     #' @param token A token.
     #' @param orgs A character vector of organisations (owners of repositories
     #'   in case of GitHub and groups of projects in case of GitLab).
-    #' @param set_org_limit An integer defining how many orgs API may pull.
     #' @return Nothing, puts connection information into `$clients` slot
     set_connection = function(api_url,
                               token,
-                              orgs,
-                              set_org_limit) {
+                              orgs) {
 
       if (grepl("https://", api_url) && grepl("github", api_url)) {
         new_client <- GitHub$new(
           rest_api_url = api_url,
           token = token,
-          orgs = orgs,
-          org_limit = set_org_limit
+          orgs = orgs
         )
         cli::cli_alert_success("Set connection to GitHub.")
       } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
         new_client <- GitLab$new(
           rest_api_url = api_url,
           token = token,
-          orgs = orgs,
-          org_limit = set_org_limit
+          orgs = orgs
         )
         cli::cli_alert_success("Set connection to GitLab.")
       } else {
@@ -144,7 +140,6 @@ GitStats <- R6::R6Class("GitStats",
 
       self$clients <- new_client %>%
         private$check_client() %>%
-        private$check_token() %>%
         append(self$clients, .)
     },
 
@@ -374,7 +369,7 @@ GitStats <- R6::R6Class("GitStats",
           team = team
         )
 
-        if (!is.null(self$team)) {
+        if (by == "team" && !is.null(self$team)) {
           cli::cli_alert_success(
             paste0(x$git_service, " for '", self$team_name, "' team: pulled ",
                    nrow(commits), " commits from ",
@@ -402,8 +397,8 @@ GitStats <- R6::R6Class("GitStats",
     #' @description A print method for a GitStats object
     print = function() {
       cat(paste0("A <GitStats> object for ", length(self$clients), " clients:"), sep = "\n")
-      clients <- purrr::map_chr(self$clients, ~ .$rest_api_url)
-      private$print_item("Clients", clients, paste0(clients, collapse = ", "))
+      clients <- purrr::map_chr(self$clients, ~ .$rest_engine$rest_api_url)
+      private$print_item("Hosts", clients, paste0(clients, collapse = ", "))
       orgs <- purrr::map(self$clients, ~ paste0(.$orgs, collapse = ", ")) %>% paste0(collapse = ", ")
       private$print_item("Organisations", orgs)
       private$print_item("Search preference", self$search_param)
@@ -578,53 +573,19 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     #' @description Check whether the urls do not repeat in input.
-    #' @param client An object of GitService class
-    #' @return A GitService object
+    #' @param client An object of GitPlatform class
+    #' @return A GitPlatform object
     check_client = function(client) {
       if (length(self$clients) > 0) {
         clients_to_check <- append(client, self$clients)
 
-        urls <- purrr::map_chr(clients_to_check, ~ .$rest_api_url)
+        urls <- purrr::map_chr(clients_to_check, ~ .$rest_engine$rest_api_url)
 
         if (length(urls) != length(unique(urls))) {
           stop("You can not provide two clients of the same API urls.
                If you wish to change/add more organizations you can do it with `set_organizations()` function.",
                call. = FALSE)
         }
-      }
-
-      client
-    },
-
-    #' @description Check whether the token exists.
-    #' @param client An object of GitService class
-    #' @return A GitService object
-    check_token = function(client) {
-      priv <- environment(client$initialize)$private
-
-      if (nchar(priv$token) == 0) {
-        cli::cli_abort(c(
-          "i" = "No token provided for `{client$rest_api_url}`.",
-          "x" = "Host will not be passed to `GitStats` object."
-        ))
-      } else if (nchar(priv$token) > 0) {
-        withCallingHandlers({
-          check_endpoint <- if (client$git_service == "GitLab") {
-            paste0(client$rest_api_url, "/projects")
-          } else if (client$git_service == "GitHub") {
-            client$rest_api_url
-          }
-          client_env <- environment(client$initialize)$private
-          client_env$rest_response(endpoint = check_endpoint)
-        },
-        message = function(m) {
-          if (grepl("401", m)) {
-            cli::cli_abort(c(
-              "i" = "Token provided for `{client$rest_api_url}` is invalid.",
-              "x" = "Host will not be passed to `GitStats` object."
-            ))
-          }
-        })
       }
 
       client
