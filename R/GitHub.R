@@ -53,6 +53,8 @@ GitHub <- R6::R6Class("GitHub",
                            by,
                            team) {
 
+      private$check_for_organizations()
+
       commits_dt <- purrr::map(self$orgs, function(org) {
         repos_table <- self$graphql_engine$pull_repos_from_org(
           org = org
@@ -84,7 +86,7 @@ GitHub <- R6::R6Class("GitHub",
     #' @description Check if an organization exists
     #' @param orgs A character vector of organizations
     #' @return orgs or NULL.
-    check_orgs = function(orgs) {
+    check_organizations = function(orgs) {
       orgs <- purrr::map(orgs, function(org) {
         org_endpoint <- "/orgs/"
         withCallingHandlers({

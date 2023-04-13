@@ -30,7 +30,7 @@ GitPlatform <- R6::R6Class("GitPlatform",
       if (is.null(orgs)) {
         cli::cli_alert_warning("No organizations specified.")
       } else {
-        orgs <- private$check_orgs(orgs)
+        orgs <- private$check_organizations(orgs)
       }
       self$orgs <- orgs
     },
@@ -49,6 +49,8 @@ GitPlatform <- R6::R6Class("GitPlatform",
                          team,
                          phrase,
                          language) {
+
+      private$check_for_organizations()
 
       repos_dt <- purrr::map(self$orgs, function(org) {
         if (by %in% c("org", "team")) {
@@ -110,6 +112,15 @@ GitPlatform <- R6::R6Class("GitPlatform",
         })
       }
       return(invisible(token))
+    },
+
+    #' @description Check if organizations are defined.
+    check_for_organizations = function() {
+      if (is.null(self$orgs)) {
+        cli::cli_abort(c(
+          "Please specify first organizations for [{self$rest_engine$rest_api_url}] with `set_organizations()`."
+        ))
+      }
     },
 
     #' @description GraphQL url handler (if not provided).

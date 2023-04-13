@@ -160,24 +160,19 @@ GitStats <- R6::R6Class("GitStats",
 
       if (is.null(api_url)) {
         if (length(self$clients) == 1) {
-          api_url <- self$clients[[1]]$rest_api_url
           self$clients[[1]]$orgs <- unlist(list(...))
         } else if (length(self$clients) > 1) {
-          stop("You need to specify `api_url` of your Git Service.",
+          stop("You need to specify `api_url` of your Git Host.",
                call. = FALSE)
         }
       } else {
-
         purrr::iwalk(self$clients, function(client, index) {
-          if (grepl(api_url, client$rest_api_url)) {
+          if (grepl(api_url, client$rest_engine$rest_api_url)) {
             self$clients[[index]]$orgs <- unlist(list(...))
           }
         })
-
       }
-
       message("New organizations set for [", api_url, "]: ", paste(unlist(list(...)), collapse = ", "))
-
     },
 
     #' @description A method to add a team member.
@@ -280,9 +275,7 @@ GitStats <- R6::R6Class("GitStats",
       )
 
       team <- NULL
-      if (by == "org") {
-        private$check_organizations()
-      } else if (by == "team") {
+      if (by == "team") {
         if (length(self$team) == 0) {
           cli::cli_abort("You have to specify a team first with 'add_team_member()'.")
         }
@@ -352,9 +345,7 @@ GitStats <- R6::R6Class("GitStats",
       }
 
       team <- NULL
-      if (by == "org") {
-        private$check_organizations()
-      } else if (by == "team") {
+      if (by == "team") {
         if (length(self$team) == 0) {
           cli::cli_abort("You have to specify a team first with 'add_team_member()'.")
         }
@@ -589,22 +580,6 @@ GitStats <- R6::R6Class("GitStats",
       }
 
       client
-    },
-
-    #' @description Check if organizations are defined.
-    check_organizations = function() {
-      clients <- purrr::map(self$clients, function(client) {
-        if (is.null(client$orgs)) {
-          client$rest_api_url
-        }
-      }) %>% purrr::discard(~is.null(.))
-
-      if (length(clients) > 0) {
-        print_clients <- clients %>% unlist() %>% paste0(collapse = ", ")
-        cli::cli_abort(c(
-          "Please specify first organizations for [{print_clients}] with `set_organizations()`."
-        ))
-      }
     },
 
     #' @description A helper to manage printing `GitStats` object.
