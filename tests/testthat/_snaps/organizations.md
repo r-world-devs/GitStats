@@ -1,7 +1,14 @@
-# Organizations are correctly checked if they do not exist
+# Organizations are correctly checked if they are not present
 
     Code
-      github_env$check_orgs(c("openparma", "r-world-devs"))
+      test_host$check_for_organizations()
+    Error <rlang_error>
+      Please specify first organizations for [https://api.github.com] with `set_organizations()`.
+
+# Organizations are correctly checked if their names are invalid
+
+    Code
+      test_github$check_organizations(c("openparma", "r-world-devs"))
     Message <cliMessage>
       x Organization you provided does not exist. Check spelling in: openparma
     Message <simpleMessage>
@@ -12,7 +19,7 @@
 ---
 
     Code
-      gitlab_env$check_orgs("openparma")
+      test_gitlab$check_organizations("openparma")
     Message <cliMessage>
       x Group name passed in a wrong way: openparma
       ! If you are using `GitLab`, please type your group name as you see it in `url`.

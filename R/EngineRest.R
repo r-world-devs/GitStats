@@ -51,10 +51,10 @@ EngineRest <- R6::R6Class("EngineRest",
         language = language
       )
       repos_table <- repos_list %>%
-        self$tailor_repos_info() %>%
-        self$prepare_repos_table() %>%
-        self$get_repos_contributors() %>%
-        self$get_repos_issues()
+        private$tailor_repos_info() %>%
+        private$prepare_repos_table() %>%
+        private$get_repos_contributors() %>%
+        private$get_repos_issues()
 
     },
 
@@ -99,25 +99,8 @@ EngineRest <- R6::R6Class("EngineRest",
       }
 
       return(repos_dt)
-    },
-
-    #' @description A helper to turn list of data.frames into one data.frame
-    #' @param commits_list A list
-    #' @return A data.frame
-    prepare_commits_table = function(commits_list) {
-      commits_dt <- purrr::map(commits_list, function(x) {
-        purrr::map(x, ~ data.frame(.)) %>%
-          rbindlist()
-      }) %>% rbindlist()
-
-      if (length(commits_dt) > 0) {
-        commits_dt <- dplyr::mutate(
-          commits_dt,
-          api_url = self$rest_api_url
-        )
-      }
-      return(commits_dt)
     }
+
   ),
   private = list(
 

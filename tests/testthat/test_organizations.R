@@ -9,14 +9,14 @@ test_that("Can not set organizations if no connection is set", {
 })
 
 test_that("Needs to specify `api_url` when multiple connections", {
-  test_gitstats$clients[[1]] <- TestClient$new(
+  test_gitstats$clients[[1]] <- TestHost$new(
       rest_api_url = "https://api.github.com",
       token = Sys.getenv("GITHUB_PAT"),
       orgs = c("pharmaverse")
     )
-  test_gitstats$clients[[2]] <- TestClient$new(
+  test_gitstats$clients[[2]] <- TestHost$new(
       rest_api_url = "https://gitlab.com/api/v4",
-      token = Sys.getenv("GITLAB_PAT"),
+      token = Sys.getenv("GITLAB_PAT_PUBLIC"),
       orgs = "mbtests"
     )
 
@@ -29,7 +29,7 @@ test_that("Needs to specify `api_url` when multiple connections", {
 
 test_that("`Set_organizations()` sets properly organizations to client", {
   test_gitstats$clients <- list()
-  test_gitstats$clients[[1]] <- TestClient$new(
+  test_gitstats$clients[[1]] <- TestHost$new(
       rest_api_url = "https://api.github.com",
       token = Sys.getenv("GITHUB_PAT"),
       orgs = c("pharmaverse", "insightsengineering")
@@ -48,14 +48,14 @@ test_that("`Set_organizations()` sets properly organizations to client", {
 
   test_gitstats$clients <- list()
 
-  test_gitstats$clients[[1]] <- TestClient$new(
+  test_gitstats$clients[[1]] <- TestHost$new(
       rest_api_url = "https://api.github.com",
       token = Sys.getenv("GITHUB_PAT"),
       orgs = c("r-world-devs", "insightsengineering")
     )
-  test_gitstats$clients[[2]] <- TestClient$new(
+  test_gitstats$clients[[2]] <- TestHost$new(
       rest_api_url = "https://gitlab.com/api/v4",
-      token = Sys.getenv("GITLAB_PAT"),
+      token = Sys.getenv("GITLAB_PAT_PUBLIC"),
       orgs = "erasmusmc-public-health"
     )
 
@@ -80,32 +80,41 @@ test_that("`Set_organizations()` sets properly organizations to client", {
   )
 })
 
-suppressMessages({
-  git_hub <- GitHub$new(
-    rest_api_url = "https://api.github.com",
-    token = Sys.getenv("GITHUB_PAT"),
-    orgs = c("openpharma", "pharmaverse", "insightsengineering")
+test_host <- create_testhost(
+  rest_api_url = "https://api.github.com",
+  token = Sys.getenv("GITHUB_PAT"),
+  mode = "private"
+)
+
+test_that("Organizations are correctly checked if they are not present", {
+
+  expect_snapshot(
+    error = TRUE,
+    test_host$check_for_organizations()
   )
 
-  github_env <- environment(git_hub$initialize)$private
-
-  git_lab <- GitLab$new(
-    rest_api_url = "https://gitlab.com/api/v4",
-    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-    orgs = c("mbtests")
-  )
-
-  gitlab_env <- environment(git_lab$initialize)$private
 })
 
-test_that("Organizations are correctly checked if they do not exist", {
+test_github <- create_testgh(
+  rest_api_url = "https://api.github.com",
+  token = Sys.getenv("GITHUB_PAT"),
+  mode = "private"
+)
+
+test_gitlab <- create_testgl(
+  rest_api_url = "https://gitlab.com/api/v4",
+  token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+  mode = "private"
+)
+
+test_that("Organizations are correctly checked if their names are invalid", {
 
   expect_snapshot(
-    github_env$check_orgs(c("openparma", "r-world-devs"))
+    test_github$check_organizations(c("openparma", "r-world-devs"))
   )
 
   expect_snapshot(
-    gitlab_env$check_orgs("openparma")
+    test_gitlab$check_organizations("openparma")
   )
 
 })

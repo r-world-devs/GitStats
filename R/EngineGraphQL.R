@@ -28,7 +28,7 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
     #' @param gql_query A string with GraphQL query.
     #' @return A list.
     gql_response = function(gql_query) {
-      request(paste0(self$gql_api_url, "?")) %>%
+      httr2::request(paste0(self$gql_api_url, "?")) %>%
         httr2::req_headers("Authorization" = paste0("Bearer ", private$token)) %>%
         httr2::req_body_json(list(query=gql_query, variables="null")) %>%
         httr2::req_perform() %>%

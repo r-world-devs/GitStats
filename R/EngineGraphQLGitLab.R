@@ -3,7 +3,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
   inherit = EngineGraphQL,
 
   public = list(
-    #' @description
+    #' @description Create `EngineGraphQLGitLab` object.
     initialize = function(gql_api_url,
                           token) {
       super$initialize(gql_api_url = gql_api_url,
@@ -16,10 +16,9 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
     #'   repositories} \item{GitLab - group of projects.}}
     #' @return A list.
     pull_repos_from_org = function(org) {
-
       cli::cli_alert_info("[GitLab][{org}][Engine:{cli::col_yellow('GraphQL')}] Pulling repositories...")
-      next_page <- TRUE
       full_repos_list <- list()
+      next_page <- TRUE
       repo_cursor <- ''
       while (next_page) {
         repos_response <- private$pull_repos_page_from_org(

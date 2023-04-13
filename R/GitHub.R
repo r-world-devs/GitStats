@@ -60,10 +60,11 @@ GitHub <- R6::R6Class("GitHub",
           org = org
         )
         commits <- self$graphql_engine$pull_commits_from_org(
-          org,
-          repos_table,
+          org = org,
+          repos_table = repos_table,
           date_from = date_from,
           date_until = date_until,
+          by = by,
           team = team
         )
         commits

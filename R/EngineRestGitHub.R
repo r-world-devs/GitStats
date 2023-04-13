@@ -40,84 +40,6 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       }
 
       return(repos_list)
-    },
-
-    #' @description A helper to retrieve only important info on repos
-    #' @param repos_list A list, a formatted content of response returned by GET API request
-    #' @return A list of repos with selected information
-    tailor_repos_info = function(repos_list) {
-      repos_list <- purrr::map(repos_list, function(x) {
-        list(
-          "id" = x$id,
-          "name" = x$name,
-          "stars" = x$stargazers_count,
-          "forks" = x$forks_count,
-          "created_at" = x$created_at,
-          "last_push" = x$pushed_at,
-          "last_activity_at" = x$updated_at,
-          "languages" = x$language,
-          "issues_open" = x$issues_open,
-          "issues_closed" = x$issues_closed,
-          "contributors" = paste0(x$contributors, collapse = ","),
-          "repo_url" = x$url,
-          "organization" = x$owner$login
-        )
-      })
-
-      repos_list
-    },
-
-    #' @description A method to add information on repository contributors.
-    #' @param repos_table A table of repositories.
-    #' @return A table of repositories with added information on contributors.
-    get_repos_contributors = function(repos_table) {
-      if (nrow(repos_table) > 0) {
-          repo_iterator <- paste0(repos_table$organization, "/", repos_table$name)
-          user_name <- rlang::expr(.$login)
-
-        repos_table$contributors <- purrr::map(repo_iterator, function(repos_id) {
-          contributors_endpoint <- paste0(self$rest_api_url, "/repos/", repos_id, "/contributors")
-          tryCatch(
-            {
-              self$response(
-                endpoint = contributors_endpoint
-              ) %>%
-                purrr::map_chr(~ eval(user_name)) %>%
-                paste0(collapse = ", ")
-            },
-            error = function(e) {
-              NA
-            }
-          )
-        })
-      }
-      return(repos_table)
-    },
-
-    #' @description A method to add information on repository contributors.
-    #' @param repos_table A table of repositories.
-    #' @return A table of repositories with added information on contributors.
-    get_repos_issues = function(repos_table) {
-      if (nrow(repos_table) > 0) {
-        repos_iterator <- paste0(repos_table$organization, "/", repos_table$name)
-        issues <- purrr::map_dfr(repos_iterator, function(repo_path) {
-
-          issues_endpoint <- paste0(self$rest_api_url, "/repos/", repo_path, "/issues")
-
-          issues <- self$response(
-            endpoint = issues_endpoint
-          )
-
-          data.frame(
-            "open" = length(purrr::keep(issues, ~ .$state == "open")),
-            "closed" = length(purrr::keep(issues, ~ .$state == "closed"))
-          )
-
-        })
-        repos_table$issues_open <- issues$open
-        repos_table$issues_closed <- issues$closed
-      }
-      return(repos_table)
     }
   ),
 
@@ -197,6 +119,84 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
 
         resp_list
       }
+    },
+
+    #' @description A helper to retrieve only important info on repos
+    #' @param repos_list A list, a formatted content of response returned by GET API request
+    #' @return A list of repos with selected information
+    tailor_repos_info = function(repos_list) {
+      repos_list <- purrr::map(repos_list, function(x) {
+        list(
+          "id" = x$id,
+          "name" = x$name,
+          "stars" = x$stargazers_count,
+          "forks" = x$forks_count,
+          "created_at" = x$created_at,
+          "last_push" = x$pushed_at,
+          "last_activity_at" = x$updated_at,
+          "languages" = x$language,
+          "issues_open" = x$issues_open,
+          "issues_closed" = x$issues_closed,
+          "contributors" = paste0(x$contributors, collapse = ","),
+          "repo_url" = x$url,
+          "organization" = x$owner$login
+        )
+      })
+
+      repos_list
+    },
+
+    #' @description A method to add information on repository contributors.
+    #' @param repos_table A table of repositories.
+    #' @return A table of repositories with added information on contributors.
+    get_repos_contributors = function(repos_table) {
+      if (nrow(repos_table) > 0) {
+        repo_iterator <- paste0(repos_table$organization, "/", repos_table$name)
+        user_name <- rlang::expr(.$login)
+
+        repos_table$contributors <- purrr::map(repo_iterator, function(repos_id) {
+          contributors_endpoint <- paste0(self$rest_api_url, "/repos/", repos_id, "/contributors")
+          tryCatch(
+            {
+              self$response(
+                endpoint = contributors_endpoint
+              ) %>%
+                purrr::map_chr(~ eval(user_name)) %>%
+                paste0(collapse = ", ")
+            },
+            error = function(e) {
+              NA
+            }
+          )
+        })
+      }
+      return(repos_table)
+    },
+
+    #' @description A method to add information on repository contributors.
+    #' @param repos_table A table of repositories.
+    #' @return A table of repositories with added information on contributors.
+    get_repos_issues = function(repos_table) {
+      if (nrow(repos_table) > 0) {
+        repos_iterator <- paste0(repos_table$organization, "/", repos_table$name)
+        issues <- purrr::map_dfr(repos_iterator, function(repo_path) {
+
+          issues_endpoint <- paste0(self$rest_api_url, "/repos/", repo_path, "/issues")
+
+          issues <- self$response(
+            endpoint = issues_endpoint
+          )
+
+          data.frame(
+            "open" = length(purrr::keep(issues, ~ .$state == "open")),
+            "closed" = length(purrr::keep(issues, ~ .$state == "closed"))
+          )
+
+        })
+        repos_table$issues_open <- issues$open
+        repos_table$issues_closed <- issues$closed
+      }
+      return(repos_table)
     }
   )
 )

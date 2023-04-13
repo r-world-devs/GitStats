@@ -76,7 +76,7 @@ GitLab <- R6::R6Class("GitLab",
     #' @param team A list of team members.
     #' @return A data.frame of commits
     get_commits = function(date_from,
-                           date_until = Sys.time(),
+                           date_until = Sys.Date(),
                            by,
                            team) {
 
@@ -86,17 +86,18 @@ GitLab <- R6::R6Class("GitLab",
         repos_table <- self$graphql_engine$pull_repos_from_org(
           org = org
         )
-        self$rest_engine$get_commits_from_org(
-          repos_table,
-          org,
-          date_from,
-          date_until,
-          by,
-          team
+        commits <- self$rest_engine$pull_commits_from_org(
+          org = org,
+          repos_table = repos_table,
+          date_from = date_from,
+          date_until = date_until,
+          by = by,
+          team = team
         )
+        commits
       }) %>% rbindlist()
 
-      commits_dt
+      return(commits_dt)
     },
 
     #' @description A print method for a GitLab object

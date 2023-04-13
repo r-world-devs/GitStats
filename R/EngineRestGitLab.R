@@ -41,6 +41,72 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(repos_list)
     },
 
+    #' @description GitLab private method to derive
+    #'   commits from repo with REST API.
+    #' @param org A character, a group of projects.
+    #' @param repos_table A table of repositories.
+    #' @param date_from A starting date to look commits for.
+    #' @param date_until An end date to look commits for.
+    #' @param by A search parameter - `team` or `orgs`.
+    #' @param team A list of team members.
+    #' @return A table of commits.
+    pull_commits_from_org = function(org,
+                                     repos_table,
+                                     date_from,
+                                     date_until = Sys.date(),
+                                     by,
+                                     team) {
+
+      repos_names <- repos_table$name
+      projects_ids <- gsub("gid://gitlab/Project/", "", repos_table$id)
+
+      cli::cli_alert_info("[GitLab][{org}][Engine:{cli::col_green('REST')}] Pulling commits...")
+
+      pb <- progress::progress_bar$new(
+        format = paste0("Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
+        total = length(repos_names)
+      )
+
+      commits_list <- purrr::map(projects_ids, function(project_id) {
+        pb$tick()
+        all_commits_in_repo <- list()
+        page <- 1
+        repeat {
+          commits_page <- private$pull_commits_page_from_repo(project_id = project_id,
+                                                              date_from = date_from,
+                                                              date_until = date_until,
+                                                              page = page)
+          if (length(commits_page) > 0) {
+            all_commits_in_repo <- append(all_commits_in_repo, commits_page)
+            page <- page + 1
+          } else {
+            break
+          }
+        }
+        return(all_commits_in_repo)
+      })
+
+      names(commits_list) <- repos_names
+
+      commits_list <- commits_list %>%
+        purrr::discard(~ length(.) == 0)
+
+      if (by == "team") {
+        private$filter_commits_by_team(
+          commits_list = commits_list,
+          team = team
+        )
+      }
+      commits_table <- commits_list %>%
+      private$tailor_commits_info(org = org)  %>%
+      private$prepare_commits_table()
+
+      return(commits_table)
+    }
+  ),
+
+  private = list(
+
     #' @description A helper to retrieve only important info on repos
     #' @param projects_list A list, a formatted content of response returned by GET API request
     #' @return A list of repos with selected information
@@ -111,99 +177,29 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(repos_table)
     },
 
-    get_commits_from_org = function(repos_table,
-                                    org,
-                                    date_from,
-                                    date_until,
-                                    by,
-                                    team) {
-      self$pull_commits_from_org(
-        repos_table,
-        org,
-        date_from,
-        date_until
-      ) %>%
-        {
-          if (by == "team") {
-            self$filter_commits_by_team(
-              commits_list = .,
-              team = team
-            )
-          } else {
-            .
-          }
-        } %>%
-        self$tailor_commits_info(org = org)  %>%
-        self$prepare_commits_table()
-    },
-
-    #' @description GitLab private method to derive
-    #'   commits from repo with REST API.
-    #' @param repos
-    #' @param org A character, a group of projects.
+    #' @description Handler for pagination of commits response.
+    #' @param project_id Id of a project.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
+    #' @param page Page of a response.
     #' @return A list of commits.
-    pull_commits_from_org = function(repos_table,
-                                     org,
-                                     date_from,
-                                     date_until = Sys.date()) {
-
-      repos_names <- repos_table$name
-      projects_ids <- gsub("gid://gitlab/Project/", "", repos_table$id)
-
-      cli::cli_alert_info("[GitLab][{org}][Engine:{cli::col_green('REST')}] Pulling commits...")
-
-      pb <- progress::progress_bar$new(
-        format = paste0("Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
-        total = length(repos_names)
+    pull_commits_page_from_repo = function(project_id,
+                                           date_from,
+                                           date_until,
+                                           page) {
+      self$response(
+        endpoint = paste0(
+          self$rest_api_url,
+          "/projects/",
+          project_id,
+          "/repository/commits?since='",
+          date_to_gts(date_from),
+          "'&until='",
+          date_to_gts(date_until),
+          "'&with_stats=true",
+          "&page=", page
+        )
       )
-
-      commits_list <- purrr::map(projects_ids, function(project_id) {
-        pb$tick()
-        all_commits_in_repo <- list()
-        page <- 1
-        repeat {
-          commits_page <- private$pull_commits_page_from_repo(project_id = project_id,
-                                                              date_from = date_from,
-                                                              date_until = date_until,
-                                                              page = page)
-          if (length(commits_page) > 0) {
-            all_commits_in_repo <- append(all_commits_in_repo, commits_page)
-            page <- page + 1
-          } else {
-            break
-          }
-        }
-        return(all_commits_in_repo)
-      })
-
-      names(commits_list) <- repos_names
-
-      commits_list <- commits_list %>%
-        purrr::discard(~ length(.) == 0)
-
-      return(commits_list)
-    },
-
-    #' @description Filter by contributors.
-    #' @param commits_list A commits list to be filtered.
-    #' @param team A character vector with team member names.
-    #' @return A list.
-    filter_commits_by_team = function(commits_list,
-                                      team) {
-      team_names <- purrr::map_chr(team, ~.$name)
-      commits_list <- purrr::map(commits_list, function(repo) {
-        purrr::keep(repo, function(commit) {
-          if (length(commit$author_name > 0)) {
-            commit$author_name %in% team_names
-          } else {
-            FALSE
-          }
-        })
-      }) %>% purrr::discard(~ length(.) == 0)
-
-      commits_list
     },
 
     #' @description A helper to retrieve only important info on commits
@@ -232,34 +228,44 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       })
 
       commits_list
-    }
-  ),
+    },
 
-  private = list(
+    #' @description Filter by contributors.
+    #' @param commits_list A commits list to be filtered.
+    #' @param team A character vector with team member names.
+    #' @return A list.
+    filter_commits_by_team = function(commits_list,
+                                      team) {
+      team_names <- purrr::map_chr(team, ~.$name)
+      commits_list <- purrr::map(commits_list, function(repo) {
+        purrr::keep(repo, function(commit) {
+          if (length(commit$author_name > 0)) {
+            commit$author_name %in% team_names
+          } else {
+            FALSE
+          }
+        })
+      }) %>% purrr::discard(~ length(.) == 0)
 
-    #' @description Handler for pagination of commits response.
-    #' @param project_id Id of a project.
-    #' @param date_from A starting date to look commits for.
-    #' @param date_until An end date to look commits for.
-    #' @param page Page of a response.
-    #' @return A list of commits.
-    pull_commits_page_from_repo = function(project_id,
-                                           date_from,
-                                           date_until,
-                                           page) {
-      self$response(
-        endpoint = paste0(
-          self$rest_api_url,
-          "/projects/",
-          project_id,
-          "/repository/commits?since='",
-          date_to_gts(date_from),
-          "'&until='",
-          date_to_gts(date_until),
-          "'&with_stats=true",
-          "&page=", page
+      commits_list
+    },
+
+    #' @description A helper to turn list of data.frames into one data.frame
+    #' @param commits_list A list
+    #' @return A data.frame
+    prepare_commits_table = function(commits_list) {
+      commits_dt <- purrr::map(commits_list, function(x) {
+        purrr::map(x, ~ data.frame(.)) %>%
+          rbindlist()
+      }) %>% rbindlist()
+
+      if (length(commits_dt) > 0) {
+        commits_dt <- dplyr::mutate(
+          commits_dt,
+          api_url = self$rest_api_url
         )
-      )
+      }
+      return(commits_dt)
     },
 
     #' @description A helper to get group's id

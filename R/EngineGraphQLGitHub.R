@@ -3,7 +3,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
   inherit = EngineGraphQL,
 
   public = list(
-    #' @description
+    #' @description Create `EngineGraphQLGitHub` object.
     initialize = function(gql_api_url,
                           token) {
       super$initialize(gql_api_url = gql_api_url,
@@ -11,9 +11,10 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       self$gql_query <- GQLQueryGitHub$new()
     },
 
-    #' @description
-    #' @param
-    #' @return
+    #' @description A method to pull all repositories for an organization.
+    #' @param org A character, an organization:\itemize{\item{GitHub - owners o
+    #'   repositories} \item{GitLab - group of projects.}}
+    #' @return A list.
     pull_repos_from_org = function(org) {
       cli::cli_alert_info("[GitHub][{org}][Engine:{cli::col_yellow('GraphQL')}] Pulling repositories...")
       full_repos_list <- list()
@@ -24,11 +25,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           org = org,
           repo_cursor = repo_cursor
         )
-
         repositories <- repos_response$data$repositoryOwner$repositories
-        if (length(full_repos_list) == 0) {
-          repos_count <- repositories$totalCount
-        }
         repos_list <- repositories$nodes
         next_page <- repositories$pageInfo$hasNextPage
         if (is.null(next_page)) next_page <- FALSE
@@ -50,55 +47,40 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @description Method to pull all commits from organization, optionally
     #'   filtered by team members.
     #' @param org An organization.
-    #' @param repos_table
+    #' @param repos_table A table of repositories.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
+    #' @param by
     #' @param team A character vector of team members.
     #' @return A table of commits.
     pull_commits_from_org = function(org,
                                      repos_table,
                                      date_from,
                                      date_until,
+                                     by,
                                      team) {
 
       repos_names <- repos_table$name
 
       cli::cli_alert_info("[GitHub][{org}][Engine:{cli::col_yellow('GraphQL')}] Pulling commits...")
 
-      pb <- progress::progress_bar$new(
-        format = paste0("Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
-        total = length(repos_names)
-      )
-
-      if (is.null(team)) {
-        repos_list_with_commits <- purrr::map(repos_names, function(repo) {
-          pb$tick()
-          private$pull_commits_from_repo(
-            org,
-            repo,
-            date_from,
-            date_until
-          )
-        })
+      if (by == "orgs") {
+        repos_list_with_commits <- private$pull_commits_from_repos(
+          org = org,
+          repos = repos_names,
+          date_from = date_from,
+          date_until = date_until
+        )
       }
-      if (!is.null(team)) {
-        authors_ids <- private$get_authors_ids(team) %>%
-          purrr::discard(~.=="")
-        repos_list_with_commits <- purrr::map(repos_names, function(repo) {
-          pb$tick()
-          full_commits_list <- list()
-          for (author_id in authors_ids) {
-            commits_by_author <-
-              private$pull_commits_from_repo(org,
-                                             repo,
-                                             date_from,
-                                             date_until,
-                                             author_id)
-            full_commits_list <-
-              append(full_commits_list, commits_by_author)
-          }
-          return(full_commits_list)
-        })
+      if (by == "team") {
+        repos_list_with_commits <- private$pull_commits_from_repos(
+          org = org,
+          repos = repos_names,
+          date_from = date_from,
+          date_until = date_until,
+          team_filter = TRUE,
+          team = team
+        )
       }
       names(repos_list_with_commits) <- repos_names
 
@@ -169,15 +151,66 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
 
     #' @description A paginating wrapper over GraphQL commit query.
     #' @param org An organization.
+    #' @param repos A character vector of repository names.
+    #' @param date_from A starting date to look commits for.
+    #' @param date_until An end date to look commits for.
+    #' @param team_filter A boolean.
+    #' @param team
+    #' @return A list of commits.
+    pull_commits_from_repos = function(org,
+                                       repos,
+                                       date_from,
+                                       date_until,
+                                       team_filter = FALSE,
+                                       team = NULL) {
+      pb <- progress::progress_bar$new(
+        format = paste0("Checking for commits since ", date_from, " in ", length(repos), " repos. [:bar] repo: :current/:total"),
+        total = length(repos)
+      )
+      if (team_filter) {
+        authors_ids <- private$get_authors_ids(team) %>%
+          purrr::discard(~.=="")
+      }
+      repos_list_with_commits <- purrr::map(repos, function(repo) {
+        if (interactive()) pb$tick()
+        if (!team_filter) {
+          private$pull_commits_from_one_repo(
+            org,
+            repo,
+            date_from,
+            date_until
+          )
+        } else {
+          full_commits_list <- list()
+          for (author_id in authors_ids) {
+            commits_by_author <-
+              private$pull_commits_from_one_repo(
+                org,
+                repo,
+                date_from,
+                date_until,
+                author_id)
+            full_commits_list <-
+              append(full_commits_list, commits_by_author)
+          }
+          return(full_commits_list)
+        }
+      })
+      return(repos_list_with_commits)
+    },
+
+    #' @description A paginating wrapper over GraphQL commit query.
+    #' @param org An organization.
+    #' @param repo A repository name.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
     #' @param author_id Id of an author.
     #' @return A list of commits.
-    pull_commits_from_repo = function(org,
-                                      repo,
-                                      date_from,
-                                      date_until,
-                                      author_id = '') {
+    pull_commits_from_one_repo = function(org,
+                                          repo,
+                                          date_from,
+                                          date_until,
+                                          author_id = '') {
       next_page <- TRUE
       full_commits_list <- list()
       commits_cursor <- ''
@@ -237,7 +270,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param org An organization of repositories.
     #' @return Table of commits.
     prepare_commits_table = function(repos_list_with_commits,
-                                         org) {
+                                     org) {
       commits_table <- purrr::imap(repos_list_with_commits, function(repo, repo_name) {
         commits_row <- purrr::map_dfr(repo, function(commit) {
           commit$node$author <- commit$node$author$name
