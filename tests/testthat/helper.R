@@ -46,20 +46,3 @@ expect_empty_table <- function(object) {
   expect_s3_class(object, "data.frame")
   expect_equal(nrow(object), 0)
 }
-
-TestClient <- R6::R6Class("TestClient",
-                          inherit = GitService,
-                          public = list(
-                            rest_api_url = NULL,
-                            orgs = NULL,
-                            initialize  = function(rest_api_url = NA,
-                                                   token = NA,
-                                                   orgs = NA){
-                              self$rest_api_url <- rest_api_url
-                              private$token <- token
-                              self$orgs <- orgs
-                            }
-                          ),
-                          private = list(
-                            token = NULL
-                          ))

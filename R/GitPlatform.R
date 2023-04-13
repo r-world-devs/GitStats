@@ -25,6 +25,8 @@ GitPlatform <- R6::R6Class("GitPlatform",
     #'   in case of GitHub and groups of projects in case of GitLab).
     #' @return A new `GitPlatform` object
     initialize = function(orgs = NA) {
+      priv <- environment(self$rest_engine$initialize)$private
+      private$check_token(priv$token)
       if (is.null(orgs)) {
         cli::cli_alert_warning("No organizations specified.")
       } else {
@@ -78,6 +80,37 @@ GitPlatform <- R6::R6Class("GitPlatform",
 
   ),
   private = list(
+
+    #' @description Check whether the token exists.
+    #' @param token A token.
+    #' @return A token.
+    check_token = function(token) {
+      if (nchar(token) == 0) {
+        cli::cli_abort(c(
+          "i" = "No token provided.",
+          "x" = "Host will not be passed to `GitStats` object."
+        ))
+      } else if (nchar(token) > 0) {
+        check_endpoint <- if ("GitLab" %in% class(self)) {
+          paste0(self$rest_engine$rest_api_url, "/projects")
+        } else if ("GitHub" %in% class(self)) {
+          self$rest_engine$rest_api_url
+        }
+        withCallingHandlers({
+          self$rest_engine$response(endpoint = check_endpoint,
+                                    token = token)
+          },
+          message = function(m) {
+            if (grepl("401", m)) {
+              cli::cli_abort(c(
+                "i" = "Token provided for ... is invalid.",
+                "x" = "Host will not be passed to `GitStats` object."
+              ))
+            }
+        })
+      }
+      return(invisible(token))
+    },
 
     #' @description GraphQL url handler (if not provided).
     #' @param rest_api_url

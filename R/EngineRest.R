@@ -22,9 +22,11 @@ EngineRest <- R6::R6Class("EngineRest",
 
     #' @description A wrapper for httr2 functions to perform get request to REST API endpoints.
     #' @param endpoint An API endpoint.
+    #' @param token A token.
     #' @return A content of response formatted to list.
-    response = function(endpoint) {
-      resp <- private$perform_request(endpoint, private$token)
+    response = function(endpoint,
+                        token = private$token) {
+      resp <- private$perform_request(endpoint, token)
       if (!is.null(resp)) {
         result <- resp %>% httr2::resp_body_json(check_type = FALSE)
       } else {
@@ -120,7 +122,6 @@ EngineRest <- R6::R6Class("EngineRest",
   private = list(
 
     perform_request = function(endpoint, token) {
-
       tryCatch({
         resp <- private$build_request(endpoint, token) %>%
           httr2::req_perform()
