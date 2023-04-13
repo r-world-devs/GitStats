@@ -47,7 +47,7 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
                                 team,
                                 language) {
 
-      repos_table <- self$pull_repos_from_org(
+      repos_table <- self$get_repos_from_org(
         org = org
       )
       if (by == "team") {

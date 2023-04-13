@@ -50,7 +50,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @param by A search parameter - `team` or `orgs`.
     #' @param team A list of team members.
     #' @return A table of commits.
-    pull_commits_from_org = function(org,
+    get_commits_from_org = function(org,
                                      repos_table,
                                      date_from,
                                      date_until = Sys.date(),

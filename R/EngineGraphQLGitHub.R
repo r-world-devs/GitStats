@@ -15,7 +15,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param org A character, an organization:\itemize{\item{GitHub - owners o
     #'   repositories} \item{GitLab - group of projects.}}
     #' @return A list.
-    pull_repos_from_org = function(org) {
+    get_repos_from_org = function(org) {
       cli::cli_alert_info("[GitHub][{org}][Engine:{cli::col_yellow('GraphQL')}] Pulling repositories...")
       full_repos_list <- list()
       next_page <- TRUE
@@ -53,7 +53,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param by
     #' @param team A character vector of team members.
     #' @return A table of commits.
-    pull_commits_from_org = function(org,
+    get_commits_from_org = function(org,
                                      repos_table,
                                      date_from,
                                      date_until,

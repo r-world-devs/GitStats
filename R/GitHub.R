@@ -56,10 +56,10 @@ GitHub <- R6::R6Class("GitHub",
       private$check_for_organizations()
 
       commits_dt <- purrr::map(self$orgs, function(org) {
-        repos_table <- self$graphql_engine$pull_repos_from_org(
+        repos_table <- self$graphql_engine$get_repos_from_org(
           org = org
         )
-        commits <- self$graphql_engine$pull_commits_from_org(
+        commits <- self$graphql_engine$get_commits_from_org(
           org = org,
           repos_table = repos_table,
           date_from = date_from,
