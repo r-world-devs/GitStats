@@ -35,23 +35,24 @@ my_gitstats \%>\%
   set_organizations("openpharma", "pharmaverse")
 
 ### with multiple connections - remember to specify
-`api_url`, when setting organizations:
+### `api_url` when setting organizations:
 
 my_gitstats <- create_gitstats() \%>\%
- set_connection(
+  set_connection(
     api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs")
- ) \%>\%
- set_connection(
+  ) \%>\%
+  set_connection(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "erasmusmc-public-health"
- )
+  )
 
- my_gitstats \%>\%
-  set_organizations(api_url = "https://api.github.com",
-                    "openpharma", "pharmaverse")
-
+my_gitstats \%>\%
+  set_organizations(
+    api_url = "https://api.github.com",
+    "openpharma", "pharmaverse"
+  )
 }
 }
