@@ -1,3 +1,12 @@
+expect_tailored_repos_list <- function(object) {
+  expect_list_contains(
+    object,
+    c("id", "name", "stars", "forks", "created_at", "last_push",
+      "last_activity_at", "languages", "issues_open", "issues_closed",
+      "contributors", "repo_url")
+  )
+}
+
 expect_gh_repos_list <- function(object) {
   expect_list_contains(object,
   c("name", "path", "sha", "url", "git_url", "html_url", "repository", "score"))

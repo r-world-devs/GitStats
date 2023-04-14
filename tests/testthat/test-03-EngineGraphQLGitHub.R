@@ -34,8 +34,16 @@ test_that("`pull_repos_page_from_org()` pulls repos page from organization", {
   repos_page <- test_gql_gh$pull_repos_page_from_org(
     org = "r-world-devs"
   )
-  expect_snapshot(
-    repos_page
+  expect_type(
+    repos_page,
+    "list"
+  )
+  expect_list_contains(
+    repos_page,
+    "data"
+  )
+  expect_tailored_repos_list(
+    repos_page$data$repositoryOwner$repositories$nodes[[1]]
   )
   test_mock$mock(repos_page)
 })
@@ -70,11 +78,8 @@ test_that("`pull_repos_from_org()` prepares formatted list", {
   repos_from_org <- test_gql_gh$pull_repos_from_org(
     org = "r-world-devs"
   )
-  expect_list_contains(
-    repos_from_org[[1]],
-    c("id", "name", "stars", "forks", "created_at", "last_push",
-      "last_activity_at", "languages", "issues_open", "issues_closed",
-      "contributors", "repo_url")
+  expect_tailored_repos_list(
+    repos_from_org[[1]]
   )
   test_mock$mock(repos_from_org)
 })

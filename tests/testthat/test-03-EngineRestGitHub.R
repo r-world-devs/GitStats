@@ -43,4 +43,24 @@ test_that("`search_repos_by_phrase()` for GitHub prepares a list of repositories
   expect_gh_repos_list(
     repos_by_phrase[[1]]
   )
+  test_mock$mock(repos_by_phrase)
+})
+
+test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
+
+  repos_before <- test_mock$mocker$repos_by_phrase
+
+  tailored_repos <-
+    test_rest_priv$tailor_repos_info(repos_before)
+
+  tailored_repos %>%
+    expect_type("list") %>%
+    expect_length(length(repos_before)) %>%
+    expect_list_contains_only(c(
+      "id", "name", "created_at", "last_activity_at", "last_push",
+      "forks", "stars", "contributors", "issues_open", "issues_closed",
+      "organization"
+    ))
+
+  expect_lt(length(tailored_repos[[1]]), length(repos_before[[1]]))
 })
