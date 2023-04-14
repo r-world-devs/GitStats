@@ -90,6 +90,14 @@ Method to pull all repositories from organization.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{org}}{An organization.}
+
+\item{\code{by}}{A character, to choose between: \itemize{\item{org -
+organizations (project groups)} \item{team -
+A team}}}
+
+\item{\code{team}}{A list of team members.}
+
+\item{\code{language}}{A character specifying language used in repositories.}
 }
 \if{html}{\out{</div>}}
 }

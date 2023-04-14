@@ -32,8 +32,6 @@ A superclass for methods wraping Rest API responses.
 \item \href{#method-new}{\code{EngineRest$new()}}
 \item \href{#method-response}{\code{EngineRest$response()}}
 \item \href{#method-get_repos_by_phrase}{\code{EngineRest$get_repos_by_phrase()}}
-\item \href{#method-find_by_id}{\code{EngineRest$find_by_id()}}
-\item \href{#method-prepare_repos_table}{\code{EngineRest$prepare_repos_table()}}
 \item \href{#method-clone}{\code{EngineRest$clone()}}
 }
 }
@@ -55,7 +53,9 @@ Create a new \code{Rest} object
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{gql_api_url}}{A character, url of Rest API.}
+\item{\code{rest_api_url}}{A character, url of Rest API.}
+
+\item{\code{token}}{A token.}
 }
 \if{html}{\out{</div>}}
 }
@@ -94,51 +94,20 @@ Method to get repositories with phrase in code blobs.
 \if{html}{\out{<div class="r">}}\preformatted{EngineRest$get_repos_by_phrase(phrase, org, language)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{phrase}}{A phrase to look for in
+codelines.}
+
+\item{\code{org}}{A character, an organization of repositories.}
+
+\item{\code{language}}{A character specifying language used in repositories.}
+}
+\if{html}{\out{</div>}}
+}
 \subsection{Returns}{
 Table of repositories.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-find_by_id"></a>}}
-\if{latex}{\out{\hypertarget{method-find_by_id}{}}}
-\subsection{Method \code{find_by_id()}}{
-Perform get request to find projects by ids.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRest$find_by_id(ids, objects = c("repositories", "projects"))}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{ids}}{A character vector of repositories or projects' ids.}
-
-\item{\code{objects}}{A character to choose between 'repositories' (GitHub) and
-'projects' (GitLab).}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A list of repositories.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-prepare_repos_table"></a>}}
-\if{latex}{\out{\hypertarget{method-prepare_repos_table}{}}}
-\subsection{Method \code{prepare_repos_table()}}{
-A helper to prepare table for repositories content
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRest$prepare_repos_table(repos_list)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{repos_list}}{A repository list.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A data.frame.
 }
 }
 \if{html}{\out{<hr>}}

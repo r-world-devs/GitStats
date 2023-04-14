@@ -1,3 +1,6 @@
+#' @noRd
+#' @description A helper class for use in tests - it does not throw superfluous
+#'   messages and does exactly what is needed for in tests.
 TestHost <- R6::R6Class("TestHost",
   inherit = GitPlatform,
   public = list(
@@ -14,9 +17,8 @@ TestHost <- R6::R6Class("TestHost",
     }
 ))
 
-#' @description
-#' @param
-#' @return
+#' @noRd
+#' @description A wrapper over creating `TestHost`.
 create_testhost <- function(rest_api_url = NULL,
                             token = NULL,
                             orgs = NULL,
@@ -36,6 +38,9 @@ create_testhost <- function(rest_api_url = NULL,
   return(test_host)
 }
 
+#' @noRd
+#' @description A helper class for use in tests - it does not throw superfluous
+#'   messages and does exactly what is needed for in tests.
 TestGitHub <- R6::R6Class("TestGitHub",
   inherit = GitHub,
   public = list(
@@ -57,9 +62,8 @@ TestGitHub <- R6::R6Class("TestGitHub",
     }
 ))
 
-#' @description
-#' @param
-#' @return
+#' @noRd
+#' @description A wrapper over creating `TestGitHub`.
 create_testgh <- function(rest_api_url = NULL,
                           gql_api_url = NULL,
                           token = NULL,
@@ -76,6 +80,9 @@ create_testgh <- function(rest_api_url = NULL,
   return(test_gh)
 }
 
+#' @noRd
+#' @description A helper class for use in tests - it does not throw superfluous
+#'   messages and does exactly what is needed for in tests.
 TestGitLab <- R6::R6Class("TestGitLab",
   inherit = GitLab,
   public = list(
@@ -97,9 +104,8 @@ TestGitLab <- R6::R6Class("TestGitLab",
     }
 ))
 
-#' @description
-#' @param
-#' @return
+#' @noRd
+#' @description A wrapper over creating `TestGitLab`.
 create_testgl <- function(rest_api_url = NULL,
                           gql_api_url = NULL,
                           token = NULL,

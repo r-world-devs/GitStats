@@ -1,9 +1,13 @@
+#' @title A EngineGraphQLGitHub class
+#' @description A class for methods wraping GitHub's GraphQL API responses.
 EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
 
   inherit = EngineGraphQL,
 
   public = list(
     #' @description Create `EngineGraphQLGitHub` object.
+    #' @param gql_api_url GraphQL API url.
+    #' @param token A token.
     initialize = function(gql_api_url,
                           token) {
       super$initialize(gql_api_url = gql_api_url,
@@ -29,8 +33,8 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param repos_table A table of repositories.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
-    #' @param by
-    #' @param team A character vector of team members.
+    #' @param by A character, 'org' or 'team'.
+    #' @param team A list of team members.
     #' @return A table of commits.
     get_commits_from_org = function(org,
                                     repos_table,

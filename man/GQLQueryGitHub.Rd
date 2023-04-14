@@ -30,7 +30,7 @@ A class with methods to build GraphQL Queries for GitHub.
 \subsection{Method \code{repos_by_org()}}{
 Prepare query to get repositories from GitHub.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GQLQueryGitHub$repos_by_org(org, cursor)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GQLQueryGitHub$repos_by_org(org, repo_cursor = "")}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -38,7 +38,7 @@ Prepare query to get repositories from GitHub.
 \describe{
 \item{\code{org}}{An organization of repositories.}
 
-\item{\code{cursor}}{An end cursor for repositories page.}
+\item{\code{repo_cursor}}{An end cursor for repositories page.}
 }
 \if{html}{\out{</div>}}
 }

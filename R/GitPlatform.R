@@ -124,7 +124,7 @@ GitPlatform <- R6::R6Class("GitPlatform",
     },
 
     #' @description GraphQL url handler (if not provided).
-    #' @param rest_api_url
+    #' @param rest_api_url REST API url.
     #' @return GraphQL API url.
     set_gql_url = function(rest_api_url) {
       paste0(gsub("/v+.*", "", rest_api_url), "/graphql")

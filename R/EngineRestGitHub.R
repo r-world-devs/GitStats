@@ -1,3 +1,5 @@
+#' @title A EngineRestGitHub class
+#' @description A class for methods wraping GitHub's REST API responses.
 EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
 
   inherit = EngineRest,

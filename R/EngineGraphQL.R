@@ -1,3 +1,6 @@
+#' @importFrom httr2 request req_headers req_perform resp_body_json
+#' @importFrom purrr keep
+#'
 #' @title A EngineGraphQL class
 #' @description A superclass for methods wraping GraphQL API responses.
 

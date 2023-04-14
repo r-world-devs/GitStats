@@ -12,7 +12,8 @@ EngineRest <- R6::R6Class("EngineRest",
     rest_api_url = NULL,
 
     #' @description Create a new `Rest` object
-    #' @param gql_api_url A character, url of Rest API.
+    #' @param rest_api_url A character, url of Rest API.
+    #' @param token A token.
     #' @return A `Rest` object.
     initialize = function(rest_api_url = NA,
                           token = NA) {

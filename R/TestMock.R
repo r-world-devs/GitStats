@@ -1,3 +1,5 @@
+#' @noRd
+#' @description A helper class to cache and mock results.
 TestMock <- R6::R6Class("TestMock",
    public = list(
 

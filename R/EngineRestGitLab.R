@@ -1,3 +1,5 @@
+#' @title A EngineRestGitLab class
+#' @description A class for methods wraping GitLab's REST API responses.
 EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
 
   inherit = EngineRest,
