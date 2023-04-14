@@ -6,9 +6,7 @@
         set_connection(api_url = "https://gitlab.com/api/v4", token = Sys.getenv(
           "GITLAB_PAT_PUBLIC"), orgs = c("mbtests"))
     Message <cliMessage>
-      i Checking for GrahpQL API url.
       v Set connection to GitHub.
-      i Checking for GrahpQL API url.
       v Set connection to GitLab.
 
 # Adequate condition shows if organizations are not specified
@@ -17,7 +15,6 @@
       test_gitstats %>% set_connection(api_url = "https://api.github.com", token = Sys.getenv(
         "GITHUB_PAT"))
     Message <cliMessage>
-      i Checking for GrahpQL API url.
       ! No organizations specified.
       v Set connection to GitHub.
 
@@ -27,7 +24,6 @@
       test_gitstats %>% set_connection(api_url = "https://gitlab.com/api/v4", token = Sys.getenv(
         "GITLAB_PAT_PUBLIC"))
     Message <cliMessage>
-      i Checking for GrahpQL API url.
       ! No organizations specified.
       v Set connection to GitLab.
 
@@ -46,9 +42,7 @@
         "GITHUB_PAT"), orgs = "pharmaverse") %>% set_connection(api_url = "https://api.github.com",
         token = Sys.getenv("GITHUB_PAT"), orgs = "openpharma")
     Message <cliMessage>
-      i Checking for GrahpQL API url.
       v Set connection to GitHub.
-      i Checking for GrahpQL API url.
       v Set connection to GitHub.
     Error <simpleError>
       You can not provide two clients of the same API urls.
@@ -60,7 +54,6 @@
       test_gitstats <- create_gitstats() %>% set_connection(api_url = "https://api.github.com",
         token = Sys.getenv("GITHUB_PAT"), orgs = c("openparma"))
     Message <cliMessage>
-      i Checking for GrahpQL API url.
       x Organization you provided does not exist. Check spelling in: openparma
     Message <simpleMessage>
       HTTP 404 No such address
@@ -73,7 +66,6 @@
       test_gitstats <- create_gitstats() %>% set_connection(api_url = "https://gitlab.com/api/v4",
         token = Sys.getenv("GITLAB_PAT_PUBLIC"), orgs = c("openparma", "mbtests"))
     Message <cliMessage>
-      i Checking for GrahpQL API url.
       x Group name passed in a wrong way: openparma
       ! If you are using `GitLab`, please type your group name as you see it in `url`.
       i E.g. do not use spaces. Group names as you see on the page may differ from their 'address' name.
@@ -88,7 +80,6 @@
       test_gitstats <- create_gitstats() %>% set_connection(api_url = "https://gitlab.com/api/v4",
         token = Sys.getenv("GITLAB_PAT_PUBLIC"), orgs = "MB Tests")
     Message <cliMessage>
-      i Checking for GrahpQL API url.
       x Group name passed in a wrong way: MB Tests
       ! If you are using `GitLab`, please type your group name as you see it in `url`.
       i E.g. do not use spaces. Group names as you see on the page may differ from their 'address' name.
@@ -103,7 +94,6 @@
       test_gitstats <- create_gitstats() %>% set_connection(api_url = "https://gitlab.com/api/v4",
         token = Sys.getenv("GITLAB_PAT_PUBLIC"), orgs = c("mbtests", "MB Tests"))
     Message <cliMessage>
-      i Checking for GrahpQL API url.
       x Group name passed in a wrong way: MB Tests
       ! If you are using `GitLab`, please type your group name as you see it in `url`.
       i E.g. do not use spaces. Group names as you see on the page may differ from their 'address' name.

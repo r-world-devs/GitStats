@@ -35,7 +35,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         )
         repos_list <- purrr::map_chr(repos_list, ~ as.character(.$repository$id)) %>%
           unique() %>%
-          self$find_by_id(objects = "repositories")
+          private$find_by_id(objects = "repositories")
       } else {
         repos_list <- list()
       }

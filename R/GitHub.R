@@ -25,7 +25,6 @@ GitHub <- R6::R6Class("GitHub",
                           token = NA,
                           orgs = NA) {
       if (is.na(gql_api_url)) {
-        cli::cli_alert_info("Checking for GrahpQL API url.")
         gql_api_url <- private$set_gql_url(rest_api_url)
       }
       self$rest_engine <- EngineRestGitHub$new(

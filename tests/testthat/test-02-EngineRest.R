@@ -44,6 +44,20 @@ test_that("`perform_request()` returns proper status", {
   )
 })
 
+test_that("Private `find_by_id()` returns proper repo list", {
+  ids <- c("208896481", "402384343", "483601371")
+  names <- c("visR", "DataFakeR", "shinyGizmo")
+
+  result <- test_rest_priv$find_by_id(
+    ids = ids,
+    objects = "repositories"
+  )
+
+  expect_type(result, "list")
+
+  expect_equal(purrr::map_chr(result, ~ .$name), names)
+})
+
 # public methods
 
 test_that("`response()` returns response from REST API", {

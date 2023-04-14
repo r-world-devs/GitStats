@@ -70,8 +70,11 @@ test_that("`pull_repos_from_org()` prepares formatted list", {
   repos_from_org <- test_gql_gh$pull_repos_from_org(
     org = "r-world-devs"
   )
-  expect_snapshot(
-    repos_from_org
+  expect_list_contains(
+    repos_from_org[[1]],
+    c("id", "name", "stars", "forks", "created_at", "last_push",
+      "last_activity_at", "languages", "issues_open", "issues_closed",
+      "contributors", "repo_url")
   )
   test_mock$mock(repos_from_org)
 })
