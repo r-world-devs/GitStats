@@ -9,14 +9,14 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
 
     #' @description Prepare query to get repositories from GitHub.
     #' @param org An organization of repositories.
-    #' @param cursor An end cursor for repositories page.
+    #' @param repo_cursor An end cursor for repositories page.
     #' @return A query.
-    repos_by_org = function(org, cursor) {
+    repos_by_org = function(org, repo_cursor = '') {
 
-      if (nchar(cursor) == 0) {
-        after_cursor <- cursor
+      if (nchar(repo_cursor) == 0) {
+        after_cursor <- repo_cursor
       } else {
-        after_cursor <- paste0('after: "', cursor, '" ')
+        after_cursor <- paste0('after: "', repo_cursor, '" ')
       }
 
       paste0('

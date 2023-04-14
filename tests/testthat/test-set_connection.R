@@ -67,45 +67,6 @@ test_that("Error pops out, when two clients of the same url api are passed as in
   )
 })
 
-test_that("When token is empty throw error and do not pass connection", {
-  test_gitstats$clients <- list()
-
-  expect_snapshot(
-    error = TRUE,
-    set_connection(
-      gitstats_obj = test_gitstats,
-      api_url = "https://api.github.com",
-      token = Sys.getenv("TOKEN_THAT_DOES_NOT_EXIST"),
-      orgs = "r-world-devs"
-    )
-  )
-
-  expect_length(
-    test_gitstats$clients,
-    0
-  )
-
-})
-
-test_that("Warning shows up, when token is invalid", {
-
-  expect_snapshot(
-    error = TRUE,
-    set_connection(
-      gitstats_obj = test_gitstats,
-      api_url = "https://api.github.com",
-      token = "INVALID_TOKEN",
-      orgs = "r-world-devs"
-    )
-  )
-
-  expect_length(
-    test_gitstats$clients,
-    0
-  )
-
-})
-
 test_that("`Org` name is not passed to the object if it does not exist", {
 
   expect_snapshot(

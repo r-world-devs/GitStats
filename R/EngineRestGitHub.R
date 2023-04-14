@@ -2,7 +2,8 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
 
   inherit = EngineRest,
 
-  public = list(
+  private = list(
+
     #' @description Search code by phrase
     #' @param phrase A phrase to look for in
     #'   codelines.
@@ -13,10 +14,10 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     #'   \link{https://docs.github.com/en/rest/search?apiVersion=2022-11-28#search-code}
     #'
     #' @return A list of repositories.
-    search_repos_by_keyword = function(phrase,
-                                 org,
-                                 language,
-                                 byte_max = "384000") {
+    search_repos_by_phrase = function(phrase,
+                                      org,
+                                      language,
+                                      byte_max = "384000") {
       cli::cli_alert_info("[GitHub][{org}][Engine:{cli::col_green('REST')}] Searching repos...")
       search_endpoint <- if (!is.null(language)) {
         paste0(self$rest_api_url, "/search/code?q='", phrase, "'+user:", org, "+language:", language)
@@ -40,10 +41,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       }
 
       return(repos_list)
-    }
-  ),
-
-  private = list(
+    },
 
     #' @description A wrapper for proper pagination of GitHub search REST API
     #' @param search_endpoint A character, a search endpoint

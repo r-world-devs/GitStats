@@ -11,8 +11,16 @@ test_that("commits_by_repo query is built properly", {
   expect_snapshot(
     commits_by_repo_query
   )
-  test_mock$mock(
-    commits_by_repo_query = commits_by_repo_query
-  )
+  test_mock$mock(commits_by_repo_query)
 })
 
+test_that("repos_by_org query is built properly", {
+  repos_by_org_query <-
+    test_gqlquery_gh$repos_by_org(
+      org = "r-world-devs"
+    )
+  expect_snapshot(
+    repos_by_org_query
+  )
+  test_mock$mock(repos_by_org_query)
+})

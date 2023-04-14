@@ -11,36 +11,15 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       self$gql_query <- GQLQueryGitHub$new()
     },
 
-    #' @description A method to pull all repositories for an organization.
+    #' @description A method to retrieve all repositories for an organization in
+    #'   a table format.
     #' @param org A character, an organization:\itemize{\item{GitHub - owners o
     #'   repositories} \item{GitLab - group of projects.}}
-    #' @return A list.
+    #' @return A table.
     get_repos_from_org = function(org) {
       cli::cli_alert_info("[GitHub][{org}][Engine:{cli::col_yellow('GraphQL')}] Pulling repositories...")
-      full_repos_list <- list()
-      next_page <- TRUE
-      repo_cursor <- ''
-      while (next_page) {
-        repos_response <- private$pull_repos_page_from_org(
-          org = org,
-          repo_cursor = repo_cursor
-        )
-        repositories <- repos_response$data$repositoryOwner$repositories
-        repos_list <- repositories$nodes
-        next_page <- repositories$pageInfo$hasNextPage
-        if (is.null(next_page)) next_page <- FALSE
-        if (is.null(repos_list)) repos_list <- list()
-        if (next_page) {
-          repo_cursor <- repositories$pageInfo$endCursor
-        } else {
-          repo_cursor <- ''
-        }
-        full_repos_list <- append(full_repos_list, repos_list)
-      }
-      repos_table <- private$prepare_repos_table(
-        full_repos_list,
-        org = org
-      )
+      repos_table <- private$pull_repos_from_org(org = org) %>%
+        private$prepare_repos_table(org = org)
       return(repos_table)
     },
 
@@ -54,11 +33,11 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param team A character vector of team members.
     #' @return A table of commits.
     get_commits_from_org = function(org,
-                                     repos_table,
-                                     date_from,
-                                     date_until,
-                                     by,
-                                     team) {
+                                    repos_table,
+                                    date_from,
+                                    date_until,
+                                    by,
+                                    team) {
 
       repos_names <- repos_table$name
 
@@ -94,20 +73,47 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
 
   private = list(
 
+    #' @description Iterator over pulling pages of repositories.
+    #' @param org An organization.
+    #' @return A list of repositories from organization.
+    pull_repos_from_org = function(org) {
+      full_repos_list <- list()
+      next_page <- TRUE
+      repo_cursor <- ''
+      while (next_page) {
+        repos_response <- private$pull_repos_page_from_org(
+          org = org,
+          repo_cursor = repo_cursor
+        )
+        repositories <- repos_response$data$repositoryOwner$repositories
+        repos_list <- repositories$nodes
+        next_page <- repositories$pageInfo$hasNextPage
+        if (is.null(next_page)) next_page <- FALSE
+        if (is.null(repos_list)) repos_list <- list()
+        if (next_page) {
+          repo_cursor <- repositories$pageInfo$endCursor
+        } else {
+          repo_cursor <- ''
+        }
+        full_repos_list <- append(full_repos_list, repos_list)
+      }
+      return(full_repos_list)
+    },
+
     #' @description Wrapper over building GraphQL query and response.
-    #' @param org An organization
+    #' @param org An organization.
     #' @param repo_cursor An end cursor for repos page.
-    #' @return A list.
+    #' @return A list of repositories.
     pull_repos_page_from_org = function(org,
                                         repo_cursor = '') {
       repos_by_org_query <- self$gql_query$repos_by_org(
         org,
-        cursor = repo_cursor
+        repo_cursor = repo_cursor
       )
       response <- self$gql_response(
         gql_query = repos_by_org_query
       )
-      response
+      return(response)
     },
 
     #' @description Parses repositories list into table.
@@ -149,14 +155,14 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       return(repos_table)
     },
 
-    #' @description A paginating wrapper over GraphQL commit query.
+    #' @description Iterator over pulling commits from all repositories.
     #' @param org An organization.
     #' @param repos A character vector of repository names.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
     #' @param team_filter A boolean.
-    #' @param team
-    #' @return A list of commits.
+    #' @param team A list of team members.
+    #' @return A list of repositories with commits.
     pull_commits_from_repos = function(org,
                                        repos,
                                        date_from,
@@ -199,7 +205,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       return(repos_list_with_commits)
     },
 
-    #' @description A paginating wrapper over GraphQL commit query.
+    #' @description An iterator over pulling commit pages from one repository.
     #' @param org An organization.
     #' @param repo A repository name.
     #' @param date_from A starting date to look commits for.
@@ -262,7 +268,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       response <- self$gql_response(
         gql_query = commits_by_org_query
       )
-      response
+      return(response)
     },
 
     #' @description Parses repositories' list with commits into table of commits.

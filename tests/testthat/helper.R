@@ -1,7 +1,16 @@
-expect_list_contains <- function(object, elements) {
-  act <- quasi_label(rlang::enquo(object), arg = "object")
+expect_gh_repos_list <- function(object) {
+  expect_list_contains(object,
+  c("name", "path", "sha", "url", "git_url", "html_url", "repository", "score"))
+}
 
-  act$check <- all(purrr::map_lgl(act$val, ~ any(elements %in% names(.))))
+expect_list_contains <- function(object, elements, level = 1) {
+  act <- quasi_label(rlang::enquo(object), arg = "object")
+  if (level == 1) {
+    act$check <- any(elements %in% names(act$val))
+  }
+  if (level == 2) {
+    act$check <- all(purrr::map_lgl(act$val, ~ any(elements %in% names(.))))
+  }
   expect(
     act$check == TRUE,
     sprintf("%s does not contain specified elements", act$lab)

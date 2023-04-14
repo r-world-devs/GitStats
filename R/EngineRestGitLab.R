@@ -3,43 +3,6 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
   inherit = EngineRest,
 
   public = list(
-    #' @description Perform get request to search API.
-    #' @param phrase A phrase to look for in codelines.
-    #' @param org A character, a group of projects.
-    #' @param language A character specifying language used in repositories.
-    #' @param page_max An integer, maximum number of pages.
-    #' @return A list of repositories.
-    search_repos_by_keyword = function(phrase,
-                                       org,
-                                       language,
-                                       page_max = 1e6) {
-      cli::cli_alert_info("[GitLab][{org}][Engine:{cli::col_green('REST')}] Searching repos...")
-      page <- 1
-      still_more_hits <- TRUE
-      resp_list <- list()
-      groups_id <- private$get_group_id(org)
-
-      while (still_more_hits | page < page_max) {
-        resp <- self$response(
-          paste0(self$rest_api_url, "/groups/", groups_id,
-                 "/search?scope=blobs&search=", phrase, "&per_page=100&page=", page)
-        )
-
-        if (length(resp) == 0) {
-          still_more_hits <- FALSE
-          break()
-        } else {
-          resp_list <- append(resp_list, resp)
-          page <- page + 1
-        }
-      }
-
-      repos_list <- purrr::map_chr(resp_list, ~ as.character(.$project_id)) %>%
-        unique() %>%
-        self$find_by_id(objects = "projects")
-
-      return(repos_list)
-    },
 
     #' @description GitLab private method to derive
     #'   commits from repo with REST API.
@@ -106,6 +69,44 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
   ),
 
   private = list(
+
+    #' @description Perform get request to search API.
+    #' @param phrase A phrase to look for in codelines.
+    #' @param org A character, a group of projects.
+    #' @param language A character specifying language used in repositories.
+    #' @param page_max An integer, maximum number of pages.
+    #' @return A list of repositories.
+    search_repos_by_phrase = function(phrase,
+                                      org,
+                                      language,
+                                      page_max = 1e6) {
+      cli::cli_alert_info("[GitLab][{org}][Engine:{cli::col_green('REST')}] Searching repos...")
+      page <- 1
+      still_more_hits <- TRUE
+      resp_list <- list()
+      groups_id <- private$get_group_id(org)
+
+      while (still_more_hits | page < page_max) {
+        resp <- self$response(
+          paste0(self$rest_api_url, "/groups/", groups_id,
+                 "/search?scope=blobs&search=", phrase, "&per_page=100&page=", page)
+        )
+
+        if (length(resp) == 0) {
+          still_more_hits <- FALSE
+          break()
+        } else {
+          resp_list <- append(resp_list, resp)
+          page <- page + 1
+        }
+      }
+
+      repos_list <- purrr::map_chr(resp_list, ~ as.character(.$project_id)) %>%
+        unique() %>%
+        self$find_by_id(objects = "projects")
+
+      return(repos_list)
+    },
 
     #' @description A helper to retrieve only important info on repos
     #' @param projects_list A list, a formatted content of response returned by GET API request
