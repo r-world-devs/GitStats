@@ -176,7 +176,7 @@ test_that("`get_commits_from_org()` gets commits in the table format", {
       repos_table = repos_table,
       date_from = "2023-01-01",
       date_until = "2023-02-28",
-      by = "orgs"
+      by = "org"
     )
   )
 

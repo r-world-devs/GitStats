@@ -6350,7 +6350,7 @@
     Code
       commits_table <- test_gql_gh$get_commits_from_org(org = "r-world-devs",
         repos_table = repos_table, date_from = "2023-01-01", date_until = "2023-02-28",
-        by = "orgs")
+        by = "org")
     Message <cliMessage>
       i [GitHub][r-world-devs][Engine:GraphQL] Pulling commits...
 

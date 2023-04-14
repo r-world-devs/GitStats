@@ -43,7 +43,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
 
       cli::cli_alert_info("[GitHub][{org}][Engine:{cli::col_yellow('GraphQL')}] Pulling commits...")
 
-      if (by == "orgs") {
+      if (by == "org") {
         repos_list_with_commits <- private$pull_commits_from_repos(
           org = org,
           repos = repos_names,

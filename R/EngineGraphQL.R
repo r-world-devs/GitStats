@@ -38,9 +38,11 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
 
     #' @description Method to pull all repositories from organization.
     #' @param org An organization.
-    #' @param by
-    #' @param team
-    #' @param language
+    #' @param by A character, to choose between: \itemize{\item{org -
+    #'   organizations (project groups)} \item{team -
+    #'   A team}}
+    #' @param team A list of team members.
+    #' @param language A character specifying language used in repositories.
     #' @return A table of repositories
     get_repos_by_org = function(org,
                                 by,
@@ -96,8 +98,11 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
     filter_repos_by_language = function(repos_table,
                                         language) {
       cli::cli_alert_info("Filtering by language.")
+      filtered_langs <- purrr::keep(repos_table$languages, function(row) {
+        grepl(language, row)
+      })
       repos_table <- repos_table %>%
-        dplyr::filter(languages %in% language)
+        dplyr::filter(languages %in% filtered_langs)
       return(repos_table)
     }
   )

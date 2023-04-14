@@ -1,18 +1,18 @@
 TestHost <- R6::R6Class("TestHost",
-                        inherit = GitPlatform,
-                        public = list(
-                          rest_engine = NULL,
-                          orgs = NULL,
-                          initialize  = function(rest_api_url = NA,
-                                                 token = NA,
-                                                 orgs = NA){
-                            self$rest_engine <- EngineRest$new(
-                              rest_api_url = rest_api_url,
-                              token = token
-                            )
-                            self$orgs <- orgs
-                          }
-                        ))
+  inherit = GitPlatform,
+  public = list(
+    rest_engine = NULL,
+    orgs = NULL,
+    initialize  = function(rest_api_url = NA,
+                           token = NA,
+                           orgs = NA){
+      self$rest_engine <- EngineRest$new(
+        rest_api_url = rest_api_url,
+        token = token
+      )
+      self$orgs <- orgs
+    }
+))
 
 #' @description
 #' @param
@@ -37,30 +37,37 @@ create_testhost <- function(rest_api_url = NULL,
 }
 
 TestGitHub <- R6::R6Class("TestGitHub",
-                          inherit = GitHub,
-                          public = list(
-                            rest_engine = NULL,
-                            orgs = NULL,
-                            initialize  = function(rest_api_url = NA,
-                                                   token = NA,
-                                                   orgs = NA){
-                              self$rest_engine <- EngineRestGitHub$new(
-                                rest_api_url = rest_api_url,
-                                token = token
-                              )
-                              self$orgs <- orgs
-                            }
-                          ))
+  inherit = GitHub,
+  public = list(
+    rest_engine = NULL,
+    orgs = NULL,
+    initialize  = function(rest_api_url = NA,
+                           gql_api_url = NA,
+                           token = NA,
+                           orgs = NA){
+      self$rest_engine <- EngineRestGitHub$new(
+        rest_api_url = rest_api_url,
+        token = token
+      )
+      self$graphql_engine <- EngineGraphQLGitHub$new(
+        gql_api_url = gql_api_url,
+        token = token
+      )
+      self$orgs <- orgs
+    }
+))
 
 #' @description
 #' @param
 #' @return
 create_testgh <- function(rest_api_url = NULL,
-                            token = NULL,
-                            orgs = NULL,
-                            mode = '') {
+                          gql_api_url = NULL,
+                          token = NULL,
+                          orgs = NULL,
+                          mode = '') {
 
   test_gh <- TestGitHub$new(rest_api_url = rest_api_url,
+                            gql_api_url = gql_api_url,
                             token = token,
                             orgs = orgs)
   if (mode == "private") {
@@ -70,30 +77,37 @@ create_testgh <- function(rest_api_url = NULL,
 }
 
 TestGitLab <- R6::R6Class("TestGitLab",
-                          inherit = GitLab,
-                          public = list(
-                            rest_engine = NULL,
-                            orgs = NULL,
-                            initialize  = function(rest_api_url = NA,
-                                                   token = NA,
-                                                   orgs = NA){
-                              self$rest_engine <- EngineRestGitLab$new(
-                                rest_api_url = rest_api_url,
-                                token = token
-                              )
-                              self$orgs <- orgs
-                            }
-                          ))
+  inherit = GitLab,
+  public = list(
+    rest_engine = NULL,
+    orgs = NULL,
+    initialize  = function(rest_api_url = NA,
+                           gql_api_url = NA,
+                           token = NA,
+                           orgs = NA){
+      self$rest_engine <- EngineRestGitLab$new(
+        rest_api_url = rest_api_url,
+        token = token
+      )
+      self$graphql_engine <- EngineGraphQLGitLab$new(
+        gql_api_url = gql_api_url,
+        token = token
+      )
+      self$orgs <- orgs
+    }
+))
 
 #' @description
 #' @param
 #' @return
 create_testgl <- function(rest_api_url = NULL,
+                          gql_api_url = NULL,
                           token = NULL,
                           orgs = NULL,
                           mode = '') {
 
   test_gl <- TestGitLab$new(rest_api_url = rest_api_url,
+                            gql_api_url = gql_api_url,
                             token = token,
                             orgs = orgs)
   if (mode == "private") {

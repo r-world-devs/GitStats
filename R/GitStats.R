@@ -519,7 +519,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @param db_table Table to check.
     #' @return A data.frame.
     check_storage_clients = function(db_table) {
-      check_urls <- purrr::map_chr(self$clients, ~.$rest_api_url) %in% unique(db_table$api_url)
+      check_urls <- purrr::map_chr(self$clients, ~.$rest_engine$rest_api_url) %in% unique(db_table$api_url)
       if (length(check_urls) > 0 & all(check_urls)) {
         cli::cli_alert_success("Clients already in database table.")
         return(db_table)

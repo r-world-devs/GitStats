@@ -54,8 +54,8 @@ EngineRest <- R6::R6Class("EngineRest",
       repos_table <- repos_list %>%
         private$tailor_repos_info() %>%
         private$prepare_repos_table() %>%
-        private$get_repos_contributors() %>%
-        private$get_repos_issues()
+        self$get_repos_contributors() %>%
+        self$get_repos_issues()
 
     }
 

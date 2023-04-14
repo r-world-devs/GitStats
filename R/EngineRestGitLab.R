@@ -4,6 +4,52 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
 
   public = list(
 
+    #' @description A method to add information on repository contributors.
+    #' @param repos_table A table of repositories.
+    #' @return A table of repositories with added information on contributors.
+    get_repos_contributors = function(repos_table) {
+      if (nrow(repos_table) > 0) {
+        repo_iterator <- repos_table$id
+        user_name <- rlang::expr(.$name)
+        repos_table$contributors <- purrr::map(repo_iterator, function(repos_id) {
+          id <- gsub("gid://gitlab/Project/", "", repos_id)
+          contributors_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/repository/contributors")
+          tryCatch(
+            {
+              self$response(
+                endpoint = contributors_endpoint
+              ) %>%
+                purrr::map_chr(~ eval(user_name)) %>%
+                paste0(collapse = ", ")
+            },
+            error = function(e) {
+              NA
+            }
+          )
+        })
+      }
+      return(repos_table)
+    },
+
+    #' @description A method to add information on repository contributors.
+    #' @param repos_table A table of repositories.
+    #' @return A table of repositories with added information on contributors.
+    get_repos_issues = function(repos_table) {
+      if (nrow(repos_table) > 0) {
+        issues <- purrr::map(repos_table$id, function(repos_id) {
+          id <- gsub("gid://gitlab/Project/", "", repos_id)
+          issues_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/issues_statistics")
+
+          self$response(
+            endpoint = issues_endpoint
+          )[["statistics"]][["counts"]]
+        })
+        repos_table$issues_open <- purrr::map_dbl(issues, ~.$opened)
+        repos_table$issues_closed <- purrr::map_dbl(issues, ~.$closed)
+      }
+      return(repos_table)
+    },
+
     #' @description GitLab private method to derive
     #'   commits from repo with REST API.
     #' @param org A character, a group of projects.
@@ -130,52 +176,6 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       })
 
       projects_list
-    },
-
-    #' @description A method to add information on repository contributors.
-    #' @param repos_table A table of repositories.
-    #' @return A table of repositories with added information on contributors.
-    get_repos_contributors = function(repos_table) {
-      if (nrow(repos_table) > 0) {
-        repo_iterator <- repos_table$id
-        user_name <- rlang::expr(.$name)
-        repos_table$contributors <- purrr::map(repo_iterator, function(repos_id) {
-          id <- gsub("gid://gitlab/Project/", "", repos_id)
-          contributors_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/repository/contributors")
-          tryCatch(
-            {
-              self$response(
-                endpoint = contributors_endpoint
-              ) %>%
-                purrr::map_chr(~ eval(user_name)) %>%
-                paste0(collapse = ", ")
-            },
-            error = function(e) {
-              NA
-            }
-          )
-        })
-      }
-      return(repos_table)
-    },
-
-    #' @description A method to add information on repository contributors.
-    #' @param repos_table A table of repositories.
-    #' @return A table of repositories with added information on contributors.
-    get_repos_issues = function(repos_table) {
-      if (nrow(repos_table) > 0) {
-        issues <- purrr::map(repos_table$id, function(repos_id) {
-          id <- gsub("gid://gitlab/Project/", "", repos_id)
-          issues_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/issues_statistics")
-
-          self$response(
-            endpoint = issues_endpoint
-          )[["statistics"]][["counts"]]
-        })
-        repos_table$issues_open <- purrr::map_dbl(issues, ~.$opened)
-        repos_table$issues_closed <- purrr::map_dbl(issues, ~.$closed)
-      }
-      return(repos_table)
     },
 
     #' @description Handler for pagination of commits response.

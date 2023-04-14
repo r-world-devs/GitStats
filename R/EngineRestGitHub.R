@@ -2,6 +2,61 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
 
   inherit = EngineRest,
 
+  public = list(
+    #' @description A method to add information on repository contributors.
+    #' @param repos_table A table of repositories.
+    #' @return A table of repositories with added information on contributors.
+    get_repos_contributors = function(repos_table) {
+      if (nrow(repos_table) > 0) {
+        repo_iterator <- paste0(repos_table$organization, "/", repos_table$name)
+        user_name <- rlang::expr(.$login)
+
+        repos_table$contributors <- purrr::map(repo_iterator, function(repos_id) {
+          contributors_endpoint <- paste0(self$rest_api_url, "/repos/", repos_id, "/contributors")
+          tryCatch(
+            {
+              self$response(
+                endpoint = contributors_endpoint
+              ) %>%
+                purrr::map_chr(~ eval(user_name)) %>%
+                paste0(collapse = ", ")
+            },
+            error = function(e) {
+              NA
+            }
+          )
+        })
+      }
+      return(repos_table)
+    },
+
+    #' @description A method to add information on repository contributors.
+    #' @param repos_table A table of repositories.
+    #' @return A table of repositories with added information on contributors.
+    get_repos_issues = function(repos_table) {
+      if (nrow(repos_table) > 0) {
+        repos_iterator <- paste0(repos_table$organization, "/", repos_table$name)
+        issues <- purrr::map_dfr(repos_iterator, function(repo_path) {
+
+          issues_endpoint <- paste0(self$rest_api_url, "/repos/", repo_path, "/issues")
+
+          issues <- self$response(
+            endpoint = issues_endpoint
+          )
+
+          data.frame(
+            "open" = length(purrr::keep(issues, ~ .$state == "open")),
+            "closed" = length(purrr::keep(issues, ~ .$state == "closed"))
+          )
+
+        })
+        repos_table$issues_open <- issues$open
+        repos_table$issues_closed <- issues$closed
+      }
+      return(repos_table)
+    }
+  ),
+
   private = list(
 
     #' @description Search code by phrase
@@ -142,59 +197,6 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       })
 
       repos_list
-    },
-
-    #' @description A method to add information on repository contributors.
-    #' @param repos_table A table of repositories.
-    #' @return A table of repositories with added information on contributors.
-    get_repos_contributors = function(repos_table) {
-      if (nrow(repos_table) > 0) {
-        repo_iterator <- paste0(repos_table$organization, "/", repos_table$name)
-        user_name <- rlang::expr(.$login)
-
-        repos_table$contributors <- purrr::map(repo_iterator, function(repos_id) {
-          contributors_endpoint <- paste0(self$rest_api_url, "/repos/", repos_id, "/contributors")
-          tryCatch(
-            {
-              self$response(
-                endpoint = contributors_endpoint
-              ) %>%
-                purrr::map_chr(~ eval(user_name)) %>%
-                paste0(collapse = ", ")
-            },
-            error = function(e) {
-              NA
-            }
-          )
-        })
-      }
-      return(repos_table)
-    },
-
-    #' @description A method to add information on repository contributors.
-    #' @param repos_table A table of repositories.
-    #' @return A table of repositories with added information on contributors.
-    get_repos_issues = function(repos_table) {
-      if (nrow(repos_table) > 0) {
-        repos_iterator <- paste0(repos_table$organization, "/", repos_table$name)
-        issues <- purrr::map_dfr(repos_iterator, function(repo_path) {
-
-          issues_endpoint <- paste0(self$rest_api_url, "/repos/", repo_path, "/issues")
-
-          issues <- self$response(
-            endpoint = issues_endpoint
-          )
-
-          data.frame(
-            "open" = length(purrr::keep(issues, ~ .$state == "open")),
-            "closed" = length(purrr::keep(issues, ~ .$state == "closed"))
-          )
-
-        })
-        repos_table$issues_open <- issues$open
-        repos_table$issues_closed <- issues$closed
-      }
-      return(repos_table)
     }
   )
 )

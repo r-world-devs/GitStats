@@ -6,7 +6,7 @@ test_that("`Set_storage()` passes information to `storage` field", {
   set_storage(
     gitstats_obj = test_gitstats,
     type = "SQLite",
-    dbname = "test_files/test_db"
+    dbname = "test_db"
   )
 
   expect_length(test_gitstats$storage, 1)
@@ -25,7 +25,7 @@ test_commits <- data.frame(id = c("1", "2", "3"),
                            organization = rep("r-world-devs", 3),
                            api_url = rep("https://api.github.com", 3))
 
-commits_before <- readRDS("test_files/commits_before.rds")
+commits_before <- test_mock$mocker$commits_table
 
 test_that("`GitStats$save_storage()` saves table to db", {
   expect_snapshot(
@@ -91,7 +91,7 @@ test_that("`GitStats$check_storage()` does not find table in db", {
 })
 
 test_that("`GitStats$check_storage_clients()` finds clients (api urls) in db and returns output (table)", {
-  test_gitstats$clients[[1]] <- TestClient$new(
+  test_gitstats$clients[[1]] <- TestHost$new(
     rest_api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
     orgs = "r-world-devs"
@@ -102,7 +102,7 @@ test_that("`GitStats$check_storage_clients()` finds clients (api urls) in db and
 })
 
 test_that("`GitStats$check_storage_clients()` does not find all clients (api urls) in db", {
-  test_gitstats$clients[[2]] <- TestClient$new(
+  test_gitstats$clients[[2]] <- TestHost$new(
     rest_api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT"),
     orgs = "mbtests"
@@ -114,7 +114,7 @@ test_that("`GitStats$check_storage_clients()` does not find all clients (api url
 
 test_that("`GitStats$check_storage_clients()` finds none of clients (api urls) in db", {
   test_gitstats$clients <- list()
-  test_gitstats$clients[[1]] <- TestClient$new(
+  test_gitstats$clients[[1]] <- TestHost$new(
     rest_api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT"),
     orgs = "mbtests"
@@ -131,7 +131,7 @@ test_that("`GitStats$check_storage()` finds table, but does not find clients", {
 })
 
 test_that("`GitStats$check_storage_orgs()` finds organizations in db and returns output (table)", {
-  test_gitstats$clients[[1]] <- TestClient$new(
+  test_gitstats$clients[[1]] <- TestHost$new(
     rest_api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
     orgs = "r-world-devs"
@@ -142,7 +142,7 @@ test_that("`GitStats$check_storage_orgs()` finds organizations in db and returns
 })
 
 test_that("`GitStats$check_storage_orgs()` does not find all organizations in db", {
-  test_gitstats$clients[[1]] <- TestClient$new(
+  test_gitstats$clients[[1]] <- TestHost$new(
     rest_api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma")
@@ -154,7 +154,7 @@ test_that("`GitStats$check_storage_orgs()` does not find all organizations in db
 })
 
 test_that("`GitStats$check_storage_orgs()` finds none of organizations in db", {
-  test_gitstats$clients[[1]] <- TestClient$new(
+  test_gitstats$clients[[1]] <- TestHost$new(
     rest_api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
     orgs = "openpharma"
@@ -172,8 +172,9 @@ test_that("`GitStats$check_storage()` finds table, but does not find orgs", {
 })
 
 test_gitstats$clients <- list()
-test_gitstats$clients[[1]] <- GitHub$new(
+test_gitstats$clients[[1]] <- TestGitHub$new(
   rest_api_url = "https://api.github.com",
+  gql_api_url = "https://api.github.com/graphql",
   token = Sys.getenv("GITHUB_PAT"),
   orgs = c("r-world-devs")
 )
@@ -223,8 +224,8 @@ test_that("When storage is set and table stores commits, it pulls from API only
 
   act_msgs <- testthat::capture_messages({
     test_gitstats$get_commits(
-      date_from = "2022-11-01",
-      date_until = "2023-02-01",
+      date_from = "2023-01-01",
+      date_until = "2023-03-31",
       by = "org",
       print_out = FALSE
     )
@@ -234,7 +235,7 @@ test_that("When storage is set and table stores commits, it pulls from API only
     "`commits_by_org` is stored in your local database",
     "Clients already in database table",
     "Organizations already in database table",
-    "Only commits created since 2022-12-20 16:09:26 will be pulled from API."
+    "Only commits created since 2023-02-27 10:46:57 will be pulled from API."
   )
 
   purrr::walk(exp_msgs, ~expect_match(act_msgs, ., all = FALSE))
@@ -251,3 +252,5 @@ test_that("When storage is set and table stores commits, it pulls from API only
     conn = test_gitstats$storage
   )
 })
+
+unlink("test_db")
