@@ -25,10 +25,9 @@ test_that("`get_authors_ids()` works as expected", {
 })
 
 test_that("`pull_repos_page_from_org()` pulls repos page from organization", {
-
   mockery::stub(
     test_gql_gh$pull_repos_page_from_org,
-    'self$gql_response',
+    "self$gql_response",
     test_mock$mocker$repos_by_org_gql_response
   )
   repos_page <- test_gql_gh$pull_repos_page_from_org(
@@ -50,10 +49,9 @@ test_that("`pull_repos_page_from_org()` pulls repos page from organization", {
 
 
 test_that("`pull_commits_page_from_repo()` pulls commits page from repository", {
-
   mockery::stub(
     test_gql_gh$pull_commits_page_from_repo,
-    'self$gql_response',
+    "self$gql_response",
     test_mock$mocker$commits_by_repo_gql_response
   )
   commits_page <- test_gql_gh$pull_commits_page_from_repo(
@@ -69,10 +67,9 @@ test_that("`pull_commits_page_from_repo()` pulls commits page from repository", 
 })
 
 test_that("`pull_repos_from_org()` prepares formatted list", {
-
   mockery::stub(
     test_gql_gh$pull_repos_from_org,
-    'private$pull_repos_page_from_org',
+    "private$pull_repos_page_from_org",
     test_mock$mocker$repos_page
   )
   repos_from_org <- test_gql_gh$pull_repos_from_org(
@@ -85,13 +82,12 @@ test_that("`pull_repos_from_org()` prepares formatted list", {
 })
 
 test_that("`pull_commits_from_one_repo()` prepares formatted list", {
-
   # overcome of infinite loop in pull_commits_from_repo
   test_mock$mocker$commits_page$data$repository$defaultBranchRef$target$history$pageInfo$hasNextPage <- FALSE
 
   mockery::stub(
     test_gql_gh$pull_commits_from_one_repo,
-    'private$pull_commits_page_from_repo',
+    "private$pull_commits_page_from_repo",
     test_mock$mocker$commits_page
   )
   commits_from_repo <- test_gql_gh$pull_commits_from_one_repo(
@@ -109,7 +105,7 @@ test_that("`pull_commits_from_one_repo()` prepares formatted list", {
 test_that("`pull_commits_from_repos()` pulls commits from repos", {
   mockery::stub(
     test_gql_gh$pull_commits_from_repos,
-    'private$pull_commits_from_one_repo',
+    "private$pull_commits_from_one_repo",
     test_mock$mocker$commits_from_repo
   )
   commits_from_repos <- test_gql_gh$pull_commits_from_repos(
@@ -154,16 +150,15 @@ test_gql_gh <- EngineGraphQLGitHub$new(
 )
 
 test_that("`get_commits_from_org()` gets commits in the table format", {
-
   mockery::stub(
     test_gql_gh$get_commits_from_org,
-    'private$pull_commits_from_repos',
+    "private$pull_commits_from_repos",
     test_mock$mocker$commits_from_repos
   )
 
   mockery::stub(
     test_gql_gh$get_commits_from_org,
-    'private$prepare_commits_table',
+    "private$prepare_commits_table",
     test_mock$mocker$commits_table
   )
 

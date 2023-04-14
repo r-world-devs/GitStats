@@ -33,10 +33,9 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
     gql_response = function(gql_query) {
       httr2::request(paste0(self$gql_api_url, "?")) %>%
         httr2::req_headers("Authorization" = paste0("Bearer ", private$token)) %>%
-        httr2::req_body_json(list(query=gql_query, variables="null")) %>%
+        httr2::req_body_json(list(query = gql_query, variables = "null")) %>%
         httr2::req_perform() %>%
         httr2::resp_body_json()
-
     },
 
     #' @description Method to pull all repositories from organization.
@@ -51,7 +50,6 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
                                 by,
                                 team,
                                 language) {
-
       repos_table <- self$get_repos_from_org(
         org = org
       )
@@ -70,7 +68,6 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
       return(repos_table)
     }
   ),
-
   private = list(
     #' @description Filter repositories by contributors.
     #' @details If at least one member of a team is a contributor than a project
@@ -81,7 +78,7 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
     filter_repos_by_team = function(repos_table,
                                     team) {
       cli::cli_alert_info("Filtering by team members.")
-      team_logins <- purrr::map(team, ~.$logins) %>%
+      team_logins <- purrr::map(team, ~ .$logins) %>%
         unlist()
       if (nrow(repos_table) > 0) {
         repos_table <- repos_table %>%

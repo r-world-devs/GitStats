@@ -1,5 +1,7 @@
-test_gql <- EngineGraphQL$new(gql_api_url = "https://api.github.com/graphql",
-                              token = Sys.getenv("GITHUB_PAT"))
+test_gql <- EngineGraphQL$new(
+  gql_api_url = "https://api.github.com/graphql",
+  token = Sys.getenv("GITHUB_PAT")
+)
 
 # private methods
 

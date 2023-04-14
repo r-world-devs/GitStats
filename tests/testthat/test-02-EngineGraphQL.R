@@ -1,5 +1,7 @@
-test_gql <- EngineGraphQL$new(gql_api_url = "https://api.github.com/graphql",
-                              token = Sys.getenv("GITHUB_PAT"))
+test_gql <- EngineGraphQL$new(
+  gql_api_url = "https://api.github.com/graphql",
+  token = Sys.getenv("GITHUB_PAT")
+)
 
 # public methods
 
@@ -26,4 +28,3 @@ test_that("`gql_response()` work as expected", {
   )
   test_mock$mock(repos_by_org_gql_response)
 })
-

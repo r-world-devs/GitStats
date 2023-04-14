@@ -1,15 +1,19 @@
 expect_tailored_repos_list <- function(object) {
   expect_list_contains(
     object,
-    c("id", "name", "stars", "forks", "created_at", "last_push",
+    c(
+      "id", "name", "stars", "forks", "created_at", "last_push",
       "last_activity_at", "languages", "issues_open", "issues_closed",
-      "contributors", "repo_url")
+      "contributors", "repo_url"
+    )
   )
 }
 
 expect_gh_repos_list <- function(object) {
-  expect_list_contains(object,
-  c("name", "path", "sha", "url", "git_url", "html_url", "repository", "score"))
+  expect_list_contains(
+    object,
+    c("name", "path", "sha", "url", "git_url", "html_url", "repository", "score")
+  )
 }
 
 expect_list_contains <- function(object, elements, level = 1) {
@@ -41,17 +45,21 @@ expect_list_contains_only <- function(object, elements) {
 }
 
 expect_repos_table <- function(get_repos_object) {
-  repo_cols <- c('id', 'name', 'stars', 'forks', 'created_at', 'last_push',
-                 'last_activity_at', 'languages', 'issues_open', 'issues_closed',
-                 'contributors', 'organization', 'api_url', 'repo_url')
+  repo_cols <- c(
+    "id", "name", "stars", "forks", "created_at", "last_push",
+    "last_activity_at", "languages", "issues_open", "issues_closed",
+    "contributors", "organization", "api_url", "repo_url"
+  )
   expect_s3_class(get_repos_object, "data.frame")
   expect_named(get_repos_object, repo_cols)
   expect_gt(nrow(get_repos_object), 0)
 }
 
 expect_commits_table <- function(get_commits_object) {
-  commit_cols <- c('id', 'committed_date', 'author', 'additions', 'deletions',
-                   'repository', 'organization', 'api_url')
+  commit_cols <- c(
+    "id", "committed_date", "author", "additions", "deletions",
+    "repository", "organization", "api_url"
+  )
   expect_s3_class(get_commits_object, "data.frame")
   expect_named(get_commits_object, commit_cols)
   expect_gt(nrow(get_commits_object), 0)

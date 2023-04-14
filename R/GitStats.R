@@ -63,7 +63,6 @@ GitStats <- R6::R6Class("GitStats",
                                  team_name,
                                  phrase,
                                  language) {
-
       search_param <- match.arg(
         search_param,
         c("org", "team", "phrase")
@@ -90,16 +89,16 @@ GitStats <- R6::R6Class("GitStats",
       }
 
       if (search_param == "phrase") {
-       if (is.null(phrase)) {
-        cli::cli_abort(
-          "You need to define your phrase."
-        )
-       } else {
-         self$phrase <- phrase
-         cli::cli_alert_success(
-           paste0("Your search preferences set to {cli::col_green('phrase: ", phrase, "')}.")
-         )
-       }
+        if (is.null(phrase)) {
+          cli::cli_abort(
+            "You need to define your phrase."
+          )
+        } else {
+          self$phrase <- phrase
+          cli::cli_alert_success(
+            paste0("Your search preferences set to {cli::col_green('phrase: ", phrase, "')}.")
+          )
+        }
       }
       self$search_param <- search_param
       if (!is.null(language)) {
@@ -119,7 +118,6 @@ GitStats <- R6::R6Class("GitStats",
     set_connection = function(api_url,
                               token,
                               orgs) {
-
       if (grepl("https://", api_url) && grepl("github", api_url)) {
         new_client <- GitHub$new(
           rest_api_url = api_url,
@@ -150,12 +148,11 @@ GitStats <- R6::R6Class("GitStats",
     #' @return Nothing pass information on organizations into `$orgs` field of
     #'   `$clients`.
     set_organizations = function(...,
-                                 api_url = NULL
-                                 ) {
-
+                                 api_url = NULL) {
       if (length(self$clients) == 0) {
         stop("Set your connections first with `set_connection()`.",
-             call. = FALSE)
+          call. = FALSE
+        )
       }
 
       if (is.null(api_url)) {
@@ -163,7 +160,8 @@ GitStats <- R6::R6Class("GitStats",
           self$clients[[1]]$orgs <- unlist(list(...))
         } else if (length(self$clients) > 1) {
           stop("You need to specify `api_url` of your Git Host.",
-               call. = FALSE)
+            call. = FALSE
+          )
         }
       } else {
         purrr::iwalk(self$clients, function(client, index) {
@@ -214,13 +212,12 @@ GitStats <- R6::R6Class("GitStats",
                            port,
                            user,
                            password) {
-
       self$storage <- DBI::dbConnect(
         drv = if (type == "Postgres") {
           RPostgres::Postgres()
-          } else if (type == "SQLite") {
-            RSQLite::SQLite()
-          },
+        } else if (type == "SQLite") {
+          RSQLite::SQLite()
+        },
         dbname = dbname,
         host = host,
         port = port,
@@ -231,16 +228,15 @@ GitStats <- R6::R6Class("GitStats",
       self$storage_schema <- schema
 
       self$use_storage <- TRUE
-
     },
 
     #' @description Print content of database.
     #' @return A data.frame of table names.
     show_storage = function() {
-
-      as.data.frame(DBI::dbListObjects(conn = self$storage,
-                                       prefix = DBI::Id(schema = self$storage_schema)))
-
+      as.data.frame(DBI::dbListObjects(
+        conn = self$storage,
+        prefix = DBI::Id(schema = self$storage_schema)
+      ))
     },
 
     #' @description Switch off storage of data.
@@ -302,9 +298,9 @@ GitStats <- R6::R6Class("GitStats",
 
         if (self$use_storage) {
           private$save_storage(self$repos_dt,
-                               name = paste0("repos_by_", by))
+            name = paste0("repos_by_", by)
+          )
         }
-
       } else {
         message("Empty object - will not be saved.")
       }
@@ -336,11 +332,11 @@ GitStats <- R6::R6Class("GitStats",
       commits_storage <- if (self$use_storage) {
         private$check_storage(
           table_name = paste0("commits_by_", by)
-          )
+        )
       }
 
       if (!is.null(commits_storage)) {
-        #need to move date to get only new commits
+        # need to move date to get only new commits
         date_from <- commits_storage[["last_date"]] + lubridate::seconds(1)
       }
 
@@ -362,9 +358,12 @@ GitStats <- R6::R6Class("GitStats",
 
         if (by == "team" && !is.null(self$team)) {
           cli::cli_alert_success(
-            paste0(x$git_service, " for '", self$team_name, "' team: pulled ",
-                   nrow(commits), " commits from ",
-                   length(unique(commits$repository)), " repositories."))
+            paste0(
+              x$git_service, " for '", self$team_name, "' team: pulled ",
+              nrow(commits), " commits from ",
+              length(unique(commits$repository)), " repositories."
+            )
+          )
         }
 
         commits
@@ -378,8 +377,9 @@ GitStats <- R6::R6Class("GitStats",
 
       if (self$use_storage) {
         private$save_storage(self$commits_dt,
-                             name = paste0("commits_by_", by),
-                             append = !is.null(commits_storage))
+          name = paste0("commits_by_", by),
+          append = !is.null(commits_storage)
+        )
       }
 
       invisible(self)
@@ -397,8 +397,10 @@ GitStats <- R6::R6Class("GitStats",
       private$print_item("Phrase", self$phrase)
       private$print_item("Language", self$language)
       private$print_item("Storage", self$storage, class(self$storage)[1])
-      cat(paste0(cli::col_blue("Storage On/Off: "),
-                 ifelse(self$use_storage, "ON", cli::col_grey("OFF"))))
+      cat(paste0(
+        cli::col_blue("Storage On/Off: "),
+        ifelse(self$use_storage, "ON", cli::col_grey("OFF"))
+      ))
     }
   ),
   private = list(
@@ -411,7 +413,6 @@ GitStats <- R6::R6Class("GitStats",
     save_storage = function(object,
                             name,
                             append = FALSE) {
-
       if (!is.null(self$storage_schema)) {
         dbname <- DBI::Id(
           schema = self$storage_schema,
@@ -426,15 +427,19 @@ GitStats <- R6::R6Class("GitStats",
       }
 
       if (!append) {
-        DBI::dbWriteTable(conn = self$storage,
-                          name = dbname,
-                          value = object,
-                          overwrite = TRUE)
+        DBI::dbWriteTable(
+          conn = self$storage,
+          name = dbname,
+          value = object,
+          overwrite = TRUE
+        )
         cli::cli_alert_success(paste0("`", name, "` saved to local database."))
       } else {
-        DBI::dbAppendTable(conn = self$storage,
-                           name = dbname,
-                           value = object)
+        DBI::dbAppendTable(
+          conn = self$storage,
+          name = dbname,
+          value = object
+        )
         cli::cli_alert_success(paste0("`", name, "` appended to local database."))
       }
     },
@@ -443,36 +448,39 @@ GitStats <- R6::R6Class("GitStats",
     #' @param name Name of table to retrieve.
     #' @return A data.table.
     pull_storage = function(name) {
-
       if (!is.null(self$storage_schema)) {
         name <- DBI::Id(
           schema = self$storage_schema,
           table = name
         )
       }
-      gs_table <- DBI::dbReadTable(conn = self$storage,
-                                   name = name) %>%
+      gs_table <- DBI::dbReadTable(
+        conn = self$storage,
+        name = name
+      ) %>%
         data.table::data.table()
 
       if (grepl("repos", name)) {
-        gs_table[, created_at := as.POSIXct(x = created_at,
-                                            origin = "1970-01-01")
-        ][, last_activity_at := as.difftime(tim = last_activity_at,
-                                            units = "days")]
+        gs_table[, created_at := as.POSIXct(
+          x = created_at,
+          origin = "1970-01-01"
+        )][, last_activity_at := as.difftime(
+          tim = last_activity_at,
+          units = "days"
+        )]
       } else if (grepl("commits", name)) {
         gs_table[, committed_date := as.POSIXct(committed_date,
-                                                origin = "1970-01-01")]
+          origin = "1970-01-01"
+        )]
       }
 
       gs_table
-
     },
 
     #' @description Check if `GitStats` requests for something that is already in database.
     #' @param table_name Name of table to retrieve.
     #' @return A list.
     check_storage = function(table_name) {
-
       storage_list <- list()
 
       if (private$check_storage_table(table_name)) {
@@ -481,8 +489,10 @@ GitStats <- R6::R6Class("GitStats",
           schema = self$storage_schema,
           table = table_name
         )
-        db_table <- DBI::dbReadTable(conn = self$storage,
-                                     name = table_id) %>%
+        db_table <- DBI::dbReadTable(
+          conn = self$storage,
+          name = table_id
+        ) %>%
           private$check_storage_clients() %>%
           private$check_storage_orgs()
 
@@ -502,7 +512,6 @@ GitStats <- R6::R6Class("GitStats",
         cli::cli_alert_info(paste0("`", table_name, "` not found in local database. All commits will be pulled from API."))
         return(NULL)
       }
-
     },
 
     #' @description Check if table name matches one in database.
@@ -510,7 +519,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @return A boolean.
     check_storage_table = function(table_name) {
       any(
-        purrr::map(self$show_storage()["table"], ~grepl(table_name, .)) %>%
+        purrr::map(self$show_storage()["table"], ~ grepl(table_name, .)) %>%
           unlist()
       )
     },
@@ -519,7 +528,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @param db_table Table to check.
     #' @return A data.frame.
     check_storage_clients = function(db_table) {
-      check_urls <- purrr::map_chr(self$clients, ~.$rest_engine$rest_api_url) %in% unique(db_table$api_url)
+      check_urls <- purrr::map_chr(self$clients, ~ .$rest_engine$rest_api_url) %in% unique(db_table$api_url)
       if (length(check_urls) > 0 & all(check_urls)) {
         cli::cli_alert_success("Clients already in database table.")
         return(db_table)
@@ -537,13 +546,13 @@ GitStats <- R6::R6Class("GitStats",
     #' @return A data.frame.
     check_storage_orgs = function(db_table) {
       if (!is.null(db_table)) {
-        orgs_set <- purrr::map(self$clients, ~.$orgs) %>%
+        orgs_set <- purrr::map(self$clients, ~ .$orgs) %>%
           unlist()
         check_orgs <- orgs_set %in% unique(db_table$organization)
         if (length(check_orgs) > 0 & all(check_orgs)) {
           cli::cli_alert_success("Organizations already in database table.")
           return(db_table)
-        } else if (any(check_orgs)){
+        } else if (any(check_orgs)) {
           cli::cli_alert_warning("Not all organizations found in database table.")
           return(NULL)
         } else {
@@ -553,7 +562,6 @@ GitStats <- R6::R6Class("GitStats",
       } else {
         return(NULL)
       }
-
     },
 
     #' @description Check last date of creation.
@@ -575,7 +583,8 @@ GitStats <- R6::R6Class("GitStats",
         if (length(urls) != length(unique(urls))) {
           stop("You can not provide two clients of the same API urls.
                If you wish to change/add more organizations you can do it with `set_organizations()` function.",
-               call. = FALSE)
+            call. = FALSE
+          )
         }
       }
 
@@ -590,10 +599,13 @@ GitStats <- R6::R6Class("GitStats",
     print_item = function(item_name,
                           item_to_check,
                           item_to_print = item_to_check) {
-      cat(paste0(cli::col_blue(paste0(item_name, ": ")),
-                 ifelse(is.null(item_to_check),
-                        cli::col_grey("<not defined>"),
-                        item_to_print), "\n"))
+      cat(paste0(
+        cli::col_blue(paste0(item_name, ": ")),
+        ifelse(is.null(item_to_check),
+          cli::col_grey("<not defined>"),
+          item_to_print
+        ), "\n"
+      ))
     }
   )
 )

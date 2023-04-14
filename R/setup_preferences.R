@@ -12,11 +12,12 @@ setup_preferences <- function(gitstats_obj,
                               team_name = NULL,
                               phrase = NULL,
                               language = NULL) {
-
-  gitstats_obj$setup_preferences(search_param = search_param,
-                                 team_name = team_name,
-                                 phrase = phrase,
-                                 language = language)
+  gitstats_obj$setup_preferences(
+    search_param = search_param,
+    team_name = team_name,
+    phrase = phrase,
+    language = language
+  )
 
   return(gitstats_obj)
 }

@@ -2,9 +2,7 @@
 #' @description A class with methods to build GraphQL Queries for GitLab.
 
 GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
-
   inherit = GQLQuery,
-
   public = list(
 
     #' @description Method to build query to pull projects by group.
@@ -12,12 +10,12 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
     #' @param projects_cursor A cursor.
     #' @return A query.
     projects_by_group = function(group,
-                                 projects_cursor){
-
-      paste0('{
+                                 projects_cursor) {
+      paste0(
+        '{
         group(fullPath: "', group, '") {
           projects(first: 100',
-                   private$add_cursor(projects_cursor),') {
+        private$add_cursor(projects_cursor), ") {
             count
             pageInfo {
               hasNextPage
@@ -43,8 +41,8 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
             }
           }
         }
-      }')
-
+      }"
+      )
     }
   )
 )

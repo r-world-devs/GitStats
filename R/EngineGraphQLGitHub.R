@@ -1,17 +1,17 @@
 #' @title A EngineGraphQLGitHub class
 #' @description A class for methods wraping GitHub's GraphQL API responses.
 EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
-
   inherit = EngineGraphQL,
-
   public = list(
     #' @description Create `EngineGraphQLGitHub` object.
     #' @param gql_api_url GraphQL API url.
     #' @param token A token.
     initialize = function(gql_api_url,
                           token) {
-      super$initialize(gql_api_url = gql_api_url,
-                       token = token)
+      super$initialize(
+        gql_api_url = gql_api_url,
+        token = token
+      )
       self$gql_query <- GQLQueryGitHub$new()
     },
 
@@ -42,7 +42,6 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
                                     date_until,
                                     by,
                                     team) {
-
       repos_names <- repos_table$name
 
       cli::cli_alert_info("[GitHub][{org}][Engine:{cli::col_yellow('GraphQL')}] Pulling commits...")
@@ -74,7 +73,6 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       return(commits_table)
     }
   ),
-
   private = list(
 
     #' @description Iterator over pulling pages of repositories.
@@ -83,7 +81,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     pull_repos_from_org = function(org) {
       full_repos_list <- list()
       next_page <- TRUE
-      repo_cursor <- ''
+      repo_cursor <- ""
       while (next_page) {
         repos_response <- private$pull_repos_page_from_org(
           org = org,
@@ -97,7 +95,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         if (next_page) {
           repo_cursor <- repositories$pageInfo$endCursor
         } else {
-          repo_cursor <- ''
+          repo_cursor <- ""
         }
         full_repos_list <- append(full_repos_list, repos_list)
       }
@@ -109,7 +107,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param repo_cursor An end cursor for repos page.
     #' @return A list of repositories.
     pull_repos_page_from_org = function(org,
-                                        repo_cursor = '') {
+                                        repo_cursor = "") {
       repos_by_org_query <- self$gql_query$repos_by_org(
         org,
         repo_cursor = repo_cursor
@@ -126,25 +124,27 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @return Table of repositories.
     prepare_repos_table = function(repos_list,
                                    org) {
-
       repos_table <- purrr::map_dfr(repos_list, function(repo) {
-        repo$languages <- purrr::map_chr(repo$languages$nodes, ~.$name) %>%
+        repo$languages <- purrr::map_chr(repo$languages$nodes, ~ .$name) %>%
           paste0(collapse = ", ")
-        repo$contributors <- purrr::map_chr(repo$contributors$target$history$edges,
-                                            ~{if (!is.null(.$node$committer$user)){
-                                              .$node$committer$user$login
-                                            } else {
-                                              ""
-                                            }
-                                            }) %>%
-          purrr::discard(~. == "") %>%
+        repo$contributors <- purrr::map_chr(
+          repo$contributors$target$history$edges,
+          ~ {
+            if (!is.null(.$node$committer$user)) {
+              .$node$committer$user$login
+            } else {
+              ""
+            }
+          }
+        ) %>%
+          purrr::discard(~ . == "") %>%
           unique() %>%
           paste0(collapse = ", ")
         repo$created_at <- gts_to_posixt(repo$created_at)
         repo$issues_open <- repo$issues_open$totalCount
         repo$issues_closed <- repo$issues_closed$totalCount
         repo$last_activity_at <- difftime(Sys.time(), as.POSIXct(repo$last_activity_at),
-                                          units = "days"
+          units = "days"
         ) %>% round(2)
         data.frame(repo)
       })
@@ -154,7 +154,8 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         api_url = gsub("/graphql", "", self$gql_api_url)
       ) %>%
         dplyr::relocate(
-          repo_url, .after = last_col()
+          repo_url,
+          .after = last_col()
         )
       return(repos_table)
     },
@@ -179,7 +180,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       )
       if (team_filter) {
         authors_ids <- private$get_authors_ids(team) %>%
-          purrr::discard(~.=="")
+          purrr::discard(~ . == "")
       }
       repos_list_with_commits <- purrr::map(repos, function(repo) {
         if (interactive()) pb$tick()
@@ -199,7 +200,8 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
                 repo,
                 date_from,
                 date_until,
-                author_id)
+                author_id
+              )
             full_commits_list <-
               append(full_commits_list, commits_by_author)
           }
@@ -220,10 +222,10 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
                                           repo,
                                           date_from,
                                           date_until,
-                                          author_id = '') {
+                                          author_id = "") {
       next_page <- TRUE
       full_commits_list <- list()
-      commits_cursor <- ''
+      commits_cursor <- ""
       while (next_page) {
         commits_response <- private$pull_commits_page_from_repo(
           org = org,
@@ -240,7 +242,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         if (next_page) {
           commits_cursor <- commits_response$data$repository$defaultBranchRef$target$history$pageInfo$endCursor
         } else {
-          commits_cursor <- ''
+          commits_cursor <- ""
         }
         full_commits_list <- append(full_commits_list, commits_list)
       }
@@ -259,8 +261,8 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
                                            repo,
                                            date_from,
                                            date_until,
-                                           commits_cursor = '',
-                                           author_id = '') {
+                                           commits_cursor = "",
+                                           author_id = "") {
       commits_by_org_query <- self$gql_query$commits_by_repo(
         org = org,
         repo = repo,
@@ -290,13 +292,15 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         commits_row$repository <- repo_name
         commits_row
       }) %>%
-        purrr::discard(~length(.) == 1) %>%
+        purrr::discard(~ length(.) == 1) %>%
         rbindlist()
 
       if (nrow(commits_table) > 0) {
         commits_table <- commits_table %>%
-          dplyr::mutate(organization = org,
-                        api_url = gsub("/graphql", "", self$gql_api_url))
+          dplyr::mutate(
+            organization = org,
+            api_url = gsub("/graphql", "", self$gql_api_url)
+          )
       }
       return(commits_table)
     },
@@ -305,16 +309,16 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param team A character vector of team members.
     #' @return A character vector of GitHub's author's IDs.
     get_authors_ids = function(team) {
-      logins <- purrr::map(team, ~.$logins) %>%
+      logins <- purrr::map(team, ~ .$logins) %>%
         unlist()
-      ids <- purrr::map_chr(logins, ~{
+      ids <- purrr::map_chr(logins, ~ {
         authors_id_query <- self$gql_query$users_id(.)
         authors_id_response <- self$gql_response(
           gql_query = authors_id_query
         )
         result <- authors_id_response$data$user$id
-        if (is.null(result)){
-          result <- ''
+        if (is.null(result)) {
+          result <- ""
         }
         return(result)
       })

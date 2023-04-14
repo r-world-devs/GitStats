@@ -1,9 +1,7 @@
 #' @title A EngineRestGitHub class
 #' @description A class for methods wraping GitHub's REST API responses.
 EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
-
   inherit = EngineRest,
-
   public = list(
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
@@ -39,7 +37,6 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       if (nrow(repos_table) > 0) {
         repos_iterator <- paste0(repos_table$organization, "/", repos_table$name)
         issues <- purrr::map_dfr(repos_iterator, function(repo_path) {
-
           issues_endpoint <- paste0(self$rest_api_url, "/repos/", repo_path, "/issues")
 
           issues <- self$response(
@@ -50,7 +47,6 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
             "open" = length(purrr::keep(issues, ~ .$state == "open")),
             "closed" = length(purrr::keep(issues, ~ .$state == "closed"))
           )
-
         })
         repos_table$issues_open <- issues$open
         repos_table$issues_closed <- issues$closed
@@ -58,7 +54,6 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       return(repos_table)
     }
   ),
-
   private = list(
 
     #' @description Search code by phrase
@@ -108,7 +103,6 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     search_response = function(search_endpoint,
                                total_n,
                                byte_max) {
-
       if (total_n >= 0 & total_n < 1e3) {
         resp_list <- list()
 
@@ -135,8 +129,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
 
           n_count <- tryCatch(
             {
-              self$response(paste0(search_endpoint, size_formula)
-              )[["total_count"]]
+              self$response(paste0(search_endpoint, size_formula))[["total_count"]]
             },
             error = function(e) {
               NULL
@@ -147,12 +140,10 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
             NULL
           } else if ((n_count - 1) %/% 100 > 0) {
             for (page in (1:(n_count %/% 100) + 1)) {
-              resp_list <- self$response(paste0(search_endpoint, size_formula, "&page=", page, "&per_page=100")
-              )[["items"]] %>% append(resp_list, .)
+              resp_list <- self$response(paste0(search_endpoint, size_formula, "&page=", page, "&per_page=100"))[["items"]] %>% append(resp_list, .)
             }
           } else if ((n_count - 1) %/% 100 == 0) {
-            resp_list <- self$response(paste0(search_endpoint, size_formula, "&page=1&per_page=100")
-            )[["items"]] %>%
+            resp_list <- self$response(paste0(search_endpoint, size_formula, "&page=1&per_page=100"))[["items"]] %>%
               append(resp_list, .)
           }
 

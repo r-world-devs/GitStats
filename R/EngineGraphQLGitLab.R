@@ -1,17 +1,17 @@
 #' @title A EngineGraphQLGitLab class
 #' @description A class for methods wraping GitLab's GraphQL API responses.
 EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
-
   inherit = EngineGraphQL,
-
   public = list(
     #' @description Create `EngineGraphQLGitLab` object.
     #' @param gql_api_url A GraphQL API url
     #' @param token A token.
     initialize = function(gql_api_url,
                           token) {
-      super$initialize(gql_api_url = gql_api_url,
-                       token = token)
+      super$initialize(
+        gql_api_url = gql_api_url,
+        token = token
+      )
       self$gql_query <- GQLQueryGitLab$new()
     },
 
@@ -23,7 +23,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
       cli::cli_alert_info("[GitLab][{org}][Engine:{cli::col_yellow('GraphQL')}] Pulling repositories...")
       full_repos_list <- list()
       next_page <- TRUE
-      repo_cursor <- ''
+      repo_cursor <- ""
       while (next_page) {
         repos_response <- private$pull_repos_page_from_org(
           org = org,
@@ -43,7 +43,6 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
       return(repos_table)
     }
   ),
-
   private = list(
 
     #' @description Wrapper over building GraphQL query and response.
@@ -77,13 +76,14 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
           "created_at" = gts_to_posixt(repo$node$createdAt),
           "last_push" = NA,
           "last_activity_at" = difftime(Sys.time(),
-                                        as.POSIXct(repo$node$last_activity_at),
-                                        units = "days") %>% round(2),
+            as.POSIXct(repo$node$last_activity_at),
+            units = "days"
+          ) %>% round(2),
           "languages" = if (length(repo$node$languages) > 0) {
-            purrr::map_chr(repo$node$languages, ~.$name) %>%
+            purrr::map_chr(repo$node$languages, ~ .$name) %>%
               paste0(collapse = ", ")
           } else {
-            ''
+            ""
           },
           "issues_open" = if (!is.null(issues_counts)) {
             issues_counts$opened
@@ -98,9 +98,11 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
           "contributors" = NA,
           "organization" = org,
           "api_url" = gsub("/graphql", "", self$gql_api_url),
-          "repo_url" = paste0(gsub("/graphql", "", self$gql_api_url),
-                              "/projects/",
-                              gsub("gid://gitlab/Project/", "", repo$node$id))
+          "repo_url" = paste0(
+            gsub("/graphql", "", self$gql_api_url),
+            "/projects/",
+            gsub("gid://gitlab/Project/", "", repo$node$id)
+          )
         )
         repo_row
       })

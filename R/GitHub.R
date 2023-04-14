@@ -51,7 +51,6 @@ GitHub <- R6::R6Class("GitHub",
                            date_until = Sys.Date(),
                            by,
                            team) {
-
       private$check_for_organizations()
 
       commits_dt <- purrr::map(self$orgs, function(org) {
@@ -81,7 +80,6 @@ GitHub <- R6::R6Class("GitHub",
       cat(paste0(" orgs: ", orgs), sep = "\n")
     }
   ),
-
   private = list(
     #' @description Check if an organization exists
     #' @param orgs A character vector of organizations
@@ -89,18 +87,20 @@ GitHub <- R6::R6Class("GitHub",
     check_organizations = function(orgs) {
       orgs <- purrr::map(orgs, function(org) {
         org_endpoint <- "/orgs/"
-        withCallingHandlers({
-          self$rest_engine$response(endpoint = paste0(self$rest_engine$rest_api_url, org_endpoint, org))
-        },
-        message = function(m) {
-          if (grepl("404", m)) {
-            cli::cli_alert_danger("Organization you provided does not exist. Check spelling in: {org}")
-            org <<- NULL
+        withCallingHandlers(
+          {
+            self$rest_engine$response(endpoint = paste0(self$rest_engine$rest_api_url, org_endpoint, org))
+          },
+          message = function(m) {
+            if (grepl("404", m)) {
+              cli::cli_alert_danger("Organization you provided does not exist. Check spelling in: {org}")
+              org <<- NULL
+            }
           }
-        })
+        )
         return(org)
       }) %>%
-        purrr::keep(~length(.) > 0) %>%
+        purrr::keep(~ length(.) > 0) %>%
         unlist()
 
       if (length(orgs) == 0) {

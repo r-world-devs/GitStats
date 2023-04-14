@@ -52,7 +52,6 @@ GitLab <- R6::R6Class("GitLab",
                          team,
                          phrase,
                          language) {
-
       language <- private$language_handler(language)
 
       repos_dt <- super$get_repos(
@@ -78,7 +77,6 @@ GitLab <- R6::R6Class("GitLab",
                            date_until = Sys.Date(),
                            by,
                            team) {
-
       private$check_for_organizations()
 
       commits_dt <- purrr::map(self$orgs, function(org) {
@@ -115,20 +113,22 @@ GitLab <- R6::R6Class("GitLab",
     check_organizations = function(orgs) {
       orgs <- purrr::map(orgs, function(org) {
         org_endpoint <- "/groups/"
-        withCallingHandlers({
-          self$rest_engine$response(endpoint = paste0(self$rest_engine$rest_api_url, org_endpoint, org))
-        },
-        message = function(m) {
-          if (grepl("404", m)) {
-            cli::cli_alert_danger("Group name passed in a wrong way: {org}")
-            cli::cli_alert_warning("If you are using `GitLab`, please type your group name as you see it in `url`.")
-            cli::cli_alert_info("E.g. do not use spaces. Group names as you see on the page may differ from their 'address' name.")
-            org <<- NULL
+        withCallingHandlers(
+          {
+            self$rest_engine$response(endpoint = paste0(self$rest_engine$rest_api_url, org_endpoint, org))
+          },
+          message = function(m) {
+            if (grepl("404", m)) {
+              cli::cli_alert_danger("Group name passed in a wrong way: {org}")
+              cli::cli_alert_warning("If you are using `GitLab`, please type your group name as you see it in `url`.")
+              cli::cli_alert_info("E.g. do not use spaces. Group names as you see on the page may differ from their 'address' name.")
+              org <<- NULL
+            }
           }
-        })
+        )
         return(org)
       }) %>%
-        purrr::keep(~length(.) > 0) %>%
+        purrr::keep(~ length(.) > 0) %>%
         unlist()
 
       if (length(orgs) == 0) {

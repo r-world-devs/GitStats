@@ -1,21 +1,23 @@
-test_rest <- EngineRest$new(rest_api_url = "https://api.github.com",
-                            token = Sys.getenv("GITHUB_PAT"))
+test_rest <- EngineRest$new(
+  rest_api_url = "https://api.github.com",
+  token = Sys.getenv("GITHUB_PAT")
+)
 
 # private methods
 
 test_rest_priv <- environment(test_rest$initialize)$private
 
 test_that("`perform_request()` returns proper status when token is empty or invalid", {
-  wrong_tokens <- c("","bad_token")
+  wrong_tokens <- c("", "bad_token")
 
   purrr::walk(
     wrong_tokens,
-    ~expect_message(
-       test_rest_priv$perform_request(
-         endpoint = "https://api.github.com/org/openpharma",
-         token = .
-       ),
-       "HTTP 401 Unauthorized."
+    ~ expect_message(
+      test_rest_priv$perform_request(
+        endpoint = "https://api.github.com/org/openpharma",
+        token = .
+      ),
+      "HTTP 401 Unauthorized."
     )
   )
 })
@@ -70,5 +72,4 @@ test_that("`response()` returns response from REST API", {
   )
 
   test_mock$mock(search_repos_rest_response)
-
 })

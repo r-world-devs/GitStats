@@ -25,13 +25,15 @@ set_storage <- function(gitstats_obj,
                         port = NULL,
                         user = NULL,
                         password = NULL) {
-  gitstats_obj$set_storage(type = type,
-                           dbname = dbname,
-                           schema = schema,
-                           host = host,
-                           port = port,
-                           user = user,
-                           password = password)
+  gitstats_obj$set_storage(
+    type = type,
+    dbname = dbname,
+    schema = schema,
+    host = host,
+    port = port,
+    user = user,
+    password = password
+  )
 
   return(invisible(gitstats_obj))
 }
@@ -43,9 +45,7 @@ set_storage <- function(gitstats_obj,
 #' @return A data.frame of table names.
 #' @export
 show_storage <- function(gitstats_obj) {
-
   gitstats_obj$show_storage()
-
 }
 
 #' @title Switch off storage of data.

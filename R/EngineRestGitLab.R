@@ -1,9 +1,7 @@
 #' @title A EngineRestGitLab class
 #' @description A class for methods wraping GitLab's REST API responses.
 EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
-
   inherit = EngineRest,
-
   public = list(
 
     #' @description A method to add information on repository contributors.
@@ -46,8 +44,8 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
             endpoint = issues_endpoint
           )[["statistics"]][["counts"]]
         })
-        repos_table$issues_open <- purrr::map_dbl(issues, ~.$opened)
-        repos_table$issues_closed <- purrr::map_dbl(issues, ~.$closed)
+        repos_table$issues_open <- purrr::map_dbl(issues, ~ .$opened)
+        repos_table$issues_closed <- purrr::map_dbl(issues, ~ .$closed)
       }
       return(repos_table)
     },
@@ -62,12 +60,11 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @param team A list of team members.
     #' @return A table of commits.
     get_commits_from_org = function(org,
-                                     repos_table,
-                                     date_from,
-                                     date_until = Sys.date(),
-                                     by,
-                                     team) {
-
+                                    repos_table,
+                                    date_from,
+                                    date_until = Sys.date(),
+                                    by,
+                                    team) {
       repos_names <- repos_table$name
       projects_ids <- gsub("gid://gitlab/Project/", "", repos_table$id)
 
@@ -83,10 +80,12 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         all_commits_in_repo <- list()
         page <- 1
         repeat {
-          commits_page <- private$pull_commits_page_from_repo(project_id = project_id,
-                                                              date_from = date_from,
-                                                              date_until = date_until,
-                                                              page = page)
+          commits_page <- private$pull_commits_page_from_repo(
+            project_id = project_id,
+            date_from = date_from,
+            date_until = date_until,
+            page = page
+          )
           if (length(commits_page) > 0) {
             all_commits_in_repo <- append(all_commits_in_repo, commits_page)
             page <- page + 1
@@ -109,13 +108,12 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         )
       }
       commits_table <- commits_list %>%
-      private$tailor_commits_info(org = org)  %>%
-      private$prepare_commits_table()
+        private$tailor_commits_info(org = org) %>%
+        private$prepare_commits_table()
 
       return(commits_table)
     }
   ),
-
   private = list(
 
     #' @description Perform get request to search API.
@@ -136,8 +134,10 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
 
       while (still_more_hits | page < page_max) {
         resp <- self$response(
-          paste0(self$rest_api_url, "/groups/", groups_id,
-                 "/search?scope=blobs&search=", phrase, "&per_page=100&page=", page)
+          paste0(
+            self$rest_api_url, "/groups/", groups_id,
+            "/search?scope=blobs&search=", phrase, "&per_page=100&page=", page
+          )
         )
 
         if (length(resp) == 0) {
@@ -239,7 +239,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @return A list.
     filter_commits_by_team = function(commits_list,
                                       team) {
-      team_names <- purrr::map_chr(team, ~.$name)
+      team_names <- purrr::map_chr(team, ~ .$name)
       commits_list <- purrr::map(commits_list, function(repo) {
         purrr::keep(repo, function(commit) {
           if (length(commit$author_name > 0)) {
@@ -275,8 +275,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @param project_group A character, a group of projects.
     #' @return An integer, id of group.
     get_group_id = function(project_group) {
-      self$response(paste0(self$rest_api_url, "/groups/", project_group)
-      )[["id"]]
+      self$response(paste0(self$rest_api_url, "/groups/", project_group))[["id"]]
     }
   )
 )

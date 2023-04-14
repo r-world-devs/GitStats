@@ -45,8 +45,7 @@ EngineRest <- R6::R6Class("EngineRest",
     #' @return Table of repositories.
     get_repos_by_phrase = function(phrase,
                                    org,
-                                   language){
-
+                                   language) {
       repos_list <- private$search_repos_by_phrase(
         phrase,
         org = org,
@@ -57,9 +56,7 @@ EngineRest <- R6::R6Class("EngineRest",
         private$prepare_repos_table() %>%
         self$get_repos_contributors() %>%
         self$get_repos_issues()
-
     }
-
   ),
   private = list(
 
@@ -94,40 +91,40 @@ EngineRest <- R6::R6Class("EngineRest",
 
       if (length(repos_dt) > 0) {
         repos_dt <- dplyr::mutate(repos_dt,
-                                  api_url = self$rest_api_url,
-                                  repo_url = paste0(self$rest_api_url, "/projects/", gsub("gid://gitlab/Project/", "", id)),
-                                  created_at = as.POSIXct(created_at),
-                                  last_activity_at = difftime(Sys.time(), as.POSIXct(last_activity_at),
-                                                              units = "days"
-                                  ) %>% round(2)
+          api_url = self$rest_api_url,
+          repo_url = paste0(self$rest_api_url, "/projects/", gsub("gid://gitlab/Project/", "", id)),
+          created_at = as.POSIXct(created_at),
+          last_activity_at = difftime(Sys.time(), as.POSIXct(last_activity_at),
+            units = "days"
+          ) %>% round(2)
         )
       }
 
       return(repos_dt)
     },
-
     perform_request = function(endpoint, token) {
-      tryCatch({
-        resp <- private$build_request(endpoint, token) %>%
-          httr2::req_perform()
-      },
-      error = function(e) {
-        if (!is.null(e$status)) {
-          if (e$status == 401) {
-            message("HTTP 401 Unauthorized.")
-          } else if (e$status == 403) {
-            message("HTTP 403 API limit reached.")
-          } else if (e$status == 404) {
-            message("HTTP 404 No such address")
+      tryCatch(
+        {
+          resp <- private$build_request(endpoint, token) %>%
+            httr2::req_perform()
+        },
+        error = function(e) {
+          if (!is.null(e$status)) {
+            if (e$status == 401) {
+              message("HTTP 401 Unauthorized.")
+            } else if (e$status == 403) {
+              message("HTTP 403 API limit reached.")
+            } else if (e$status == 404) {
+              message("HTTP 404 No such address")
+            }
+          } else if (grepl("Could not resolve host", e)) {
+            cli::cli_abort(c(
+              "Could not resolve host {endpoint}",
+              "x" = "'GitStats' object will not be created."
+            ))
           }
-        } else if (grepl("Could not resolve host", e)) {
-          cli::cli_abort(c(
-            "Could not resolve host {endpoint}",
-            "x" = "'GitStats' object will not be created."
-          ))
+          resp <<- NULL
         }
-        resp <<- NULL
-      }
       )
       return(resp)
     },

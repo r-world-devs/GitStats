@@ -49,7 +49,6 @@ GitPlatform <- R6::R6Class("GitPlatform",
                          team,
                          phrase,
                          language) {
-
       private$check_for_organizations()
 
       repos_dt <- purrr::map(self$orgs, function(org) {
@@ -69,9 +68,11 @@ GitPlatform <- R6::R6Class("GitPlatform",
             org = org,
             language = language
           )
-          cli::cli_alert_info(paste0("\n On ", self$git_service,
-                              " [", org, "] found ",
-                              nrow(repos_table), " repositories."))
+          cli::cli_alert_info(paste0(
+            "\n On ", self$git_service,
+            " [", org, "] found ",
+            nrow(repos_table), " repositories."
+          ))
         }
         return(repos_table)
       }) %>%
@@ -79,7 +80,6 @@ GitPlatform <- R6::R6Class("GitPlatform",
 
       return(repos_dt)
     }
-
   ),
   private = list(
 
@@ -98,9 +98,12 @@ GitPlatform <- R6::R6Class("GitPlatform",
         } else if ("GitHub" %in% class(self)) {
           self$rest_engine$rest_api_url
         }
-        withCallingHandlers({
-          self$rest_engine$response(endpoint = check_endpoint,
-                                    token = token)
+        withCallingHandlers(
+          {
+            self$rest_engine$response(
+              endpoint = check_endpoint,
+              token = token
+            )
           },
           message = function(m) {
             if (grepl("401", m)) {
@@ -109,7 +112,8 @@ GitPlatform <- R6::R6Class("GitPlatform",
                 "x" = "Host will not be passed to `GitStats` object."
               ))
             }
-        })
+          }
+        )
       }
       return(invisible(token))
     },

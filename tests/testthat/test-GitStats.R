@@ -7,9 +7,7 @@ test_that("GitStats object is created", {
 ######### PRINTING
 
 test_that("GitStats prints empty fields.", {
-
   expect_snapshot(test_gitstats)
-
 })
 
 test_gitstats$clients[[1]] <- GitHub$new(
@@ -25,9 +23,7 @@ test_gitstats$clients[[2]] <- GitLab$new(
 )
 
 test_that("GitStats prints the proper info when connections are added.", {
-
   expect_snapshot(test_gitstats)
-
 })
 
 suppressMessages({
@@ -39,7 +35,5 @@ suppressMessages({
 })
 
 test_that("GitStats prints team name when team is added.", {
-
   expect_snapshot(test_gitstats)
-
 })

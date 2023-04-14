@@ -2,17 +2,14 @@
 #' @description A class with methods to build GraphQL Queries for GitHub.
 
 GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
-
   inherit = GQLQuery,
-
   public = list(
 
     #' @description Prepare query to get repositories from GitHub.
     #' @param org An organization of repositories.
     #' @param repo_cursor An end cursor for repositories page.
     #' @return A query.
-    repos_by_org = function(org, repo_cursor = '') {
-
+    repos_by_org = function(org, repo_cursor = "") {
       if (nchar(repo_cursor) == 0) {
         after_cursor <- repo_cursor
       } else {
@@ -94,9 +91,8 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
                                repo,
                                since,
                                until,
-                               commits_cursor = '',
-                               author_id = '') {
-
+                               commits_cursor = "",
+                               author_id = "") {
       if (nchar(author_id) == 0) {
         author_filter <- author_id
       } else {
@@ -110,8 +106,8 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
                 ... on Commit {
                   history(since: "', since, '"
                           until: "', until, '"
-                          ', private$add_cursor(commits_cursor), '
-                          ', author_filter, ') {
+                          ', private$add_cursor(commits_cursor), "
+                          ", author_filter, ") {
                     pageInfo {
                       hasNextPage
                       endCursor
@@ -134,7 +130,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
               }
             }
           }
-        }')
+        }")
     }
   )
 )

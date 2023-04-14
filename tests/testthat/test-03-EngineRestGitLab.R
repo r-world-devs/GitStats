@@ -1,5 +1,7 @@
-test_rest <- EngineRestGitLab$new(rest_api_url = "https://gitlab.com/api/v4",
-                                  token = Sys.getenv("GITLAB_PAT_PUBLIC"))
+test_rest <- EngineRestGitLab$new(
+  rest_api_url = "https://gitlab.com/api/v4",
+  token = Sys.getenv("GITLAB_PAT_PUBLIC")
+)
 
 # private methods
 
