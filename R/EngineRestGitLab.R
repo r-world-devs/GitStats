@@ -68,7 +68,11 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       repos_names <- repos_table$name
       projects_ids <- gsub("gid://gitlab/Project/", "", repos_table$id)
 
-      cli::cli_alert_info("[GitLab][{org}][Engine:{cli::col_green('REST')}] Pulling commits...")
+      if (by == "org") {
+        cli::cli_alert_info("[GitLab][{org}][Engine:{cli::col_green('REST')}] Pulling commits...")
+      } else if (by == "team") {
+        cli::cli_alert_info("[GitLab][{org}][Engine:{cli::col_green('REST')}] Pulling commits by team...")
+      }
 
       pb <- progress::progress_bar$new(
         format = paste0("Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
@@ -151,7 +155,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
 
       repos_list <- purrr::map_chr(resp_list, ~ as.character(.$project_id)) %>%
         unique() %>%
-        self$find_by_id(objects = "projects")
+        private$find_by_id(objects = "projects")
 
       return(repos_list)
     },

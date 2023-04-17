@@ -110,7 +110,9 @@ EngineRest <- R6::R6Class("EngineRest",
         },
         error = function(e) {
           if (!is.null(e$status)) {
-            if (e$status == 401) {
+            if (e$status == 400) {
+              message("HTTP 400 Bad Request.")
+            } else if (e$status == 401) {
               message("HTTP 401 Unauthorized.")
             } else if (e$status == 403) {
               message("HTTP 403 API limit reached.")

@@ -21,6 +21,17 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
     #' @return A list.
     get_repos_from_org = function(org) {
       cli::cli_alert_info("[GitLab][{org}][Engine:{cli::col_yellow('GraphQL')}] Pulling repositories...")
+      repos_table <- private$pull_repos_from_org(org = org) %>%
+        private$prepare_repos_table(org = org)
+      return(repos_table)
+    }
+  ),
+  private = list(
+
+    #' @description Iterator over pulling pages of repositories.
+    #' @param org An organization.
+    #' @return A list of repositories from organization.
+    pull_repos_from_org = function(org) {
       full_repos_list <- list()
       next_page <- TRUE
       repo_cursor <- ""
@@ -36,14 +47,8 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
 
         full_repos_list <- append(full_repos_list, repos_list)
       }
-
-      repos_table <- repos_list %>%
-        private$prepare_repos_table(org = org)
-
-      return(repos_table)
-    }
-  ),
-  private = list(
+      return(full_repos_list)
+    },
 
     #' @description Wrapper over building GraphQL query and response.
     #' @param org An organization

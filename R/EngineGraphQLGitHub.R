@@ -44,9 +44,8 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
                                     team) {
       repos_names <- repos_table$name
 
-      cli::cli_alert_info("[GitHub][{org}][Engine:{cli::col_yellow('GraphQL')}] Pulling commits...")
-
       if (by == "org") {
+        cli::cli_alert_info("[GitHub][{org}][Engine:{cli::col_yellow('GraphQL')}] Pulling commits...")
         repos_list_with_commits <- private$pull_commits_from_repos(
           org = org,
           repos = repos_names,
@@ -55,6 +54,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         )
       }
       if (by == "team") {
+        cli::cli_alert_info("[GitHub][{org}][Engine:{cli::col_yellow('GraphQL')}] Pulling commits by team...")
         repos_list_with_commits <- private$pull_commits_from_repos(
           org = org,
           repos = repos_names,
