@@ -9,6 +9,13 @@ expect_tailored_repos_list <- function(object) {
   )
 }
 
+expect_gh_commit <- function(object) {
+  expect_list_contains(
+    object,
+    c("id", "committed_date", "author", "additions", "deletions")
+  )
+}
+
 expect_gh_repos_list <- function(object) {
   expect_list_contains(
     object,

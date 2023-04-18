@@ -60,8 +60,16 @@ test_that("`pull_commits_page_from_repo()` pulls commits page from repository", 
     date_from = "2023-01-01",
     date_until = "2023-02-28"
   )
-  expect_snapshot(
-    commits_page
+  expect_type(
+    commits_page,
+    "list"
+  )
+  expect_list_contains(
+    commits_page,
+    "data"
+  )
+  expect_gh_commit(
+    commits_page$data$repository$defaultBranchRef$target$history$edges[[1]]$node
   )
   test_mock$mock(commits_page)
 })
