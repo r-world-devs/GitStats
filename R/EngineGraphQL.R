@@ -104,6 +104,22 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
       repos_table <- repos_table %>%
         dplyr::filter(languages %in% filtered_langs)
       return(repos_table)
+    },
+
+    #' @description Wrapper over building GraphQL query and response.
+    #' @param org An organization.
+    #' @param repo_cursor An end cursor for repos page.
+    #' @return A list of repositories.
+    pull_repos_page_from_org = function(org,
+                                        repo_cursor = "") {
+      repos_by_org_query <- self$gql_query$repos_by_org(
+        org,
+        repo_cursor = repo_cursor
+      )
+      response <- self$gql_response(
+        gql_query = repos_by_org_query
+      )
+      return(response)
     }
   )
 )

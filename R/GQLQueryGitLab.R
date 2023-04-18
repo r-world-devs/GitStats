@@ -6,16 +6,16 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
   public = list(
 
     #' @description Method to build query to pull projects by group.
-    #' @param group A group of projects.
-    #' @param projects_cursor A cursor.
+    #' @param org A group of projects.
+    #' @param repo_cursor A cursor.
     #' @return A query.
-    projects_by_group = function(group,
-                                 projects_cursor) {
+    repos_by_org = function(org,
+                            repo_cursor = "") {
       paste0(
         '{
-        group(fullPath: "', group, '") {
+        group(fullPath: "', org, '") {
           projects(first: 100',
-        private$add_cursor(projects_cursor), ") {
+        private$add_cursor(repo_cursor), ") {
             count
             pageInfo {
               hasNextPage

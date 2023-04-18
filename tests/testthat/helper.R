@@ -1,6 +1,32 @@
-expect_tailored_repos_list <- function(object) {
+expect_gl_repos <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
   expect_list_contains(
     object,
+    "data"
+  )
+  expect_list_contains(
+    object$data$group$projects$edges[[1]]$node,
+    c(
+      "id", "name", "stars", "forks", "created_at", "last_push",
+      "last_activity_at", "languages", "issueStatusCounts"
+    )
+  )
+}
+
+expect_gh_repos <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  expect_list_contains(
+    object,
+    "data"
+  )
+  expect_list_contains(
+    object$data$repositoryOwner$repositories$nodes[[1]],
     c(
       "id", "name", "stars", "forks", "created_at", "last_push",
       "last_activity_at", "languages", "issues_open", "issues_closed",
@@ -10,8 +36,16 @@ expect_tailored_repos_list <- function(object) {
 }
 
 expect_gh_commit <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
   expect_list_contains(
     object,
+    "data"
+  )
+  expect_list_contains(
+    object$data$repository$defaultBranchRef$target$history$edges[[1]]$node,
     c("id", "committed_date", "author", "additions", "deletions")
   )
 }
