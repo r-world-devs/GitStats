@@ -1,3 +1,11 @@
+expect_tailored_commits_list <- function(object) {
+  expect_list_contains_only(
+    object,
+    c("id", "organization", "repository", "additions", "deletions",
+      "committed_date", "author")
+  )
+}
+
 expect_gl_repos <- function(object) {
   expect_type(
     object,
@@ -35,6 +43,19 @@ expect_gh_repos <- function(object) {
   )
 }
 
+expect_gl_commit <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  expect_list_contains(
+    object[[1]],
+    c("id", "short_id", "created_at", "parent_ids", "title", "message",
+      "author_name", "author_email", "authored_date", "committer_name",
+      "committer_email")
+  )
+}
+
 expect_gh_commit <- function(object) {
   expect_type(
     object,
@@ -57,14 +78,9 @@ expect_gh_repos_list <- function(object) {
   )
 }
 
-expect_list_contains <- function(object, elements, level = 1) {
+expect_list_contains <- function(object, elements) {
   act <- quasi_label(rlang::enquo(object), arg = "object")
-  if (level == 1) {
-    act$check <- any(elements %in% names(act$val))
-  }
-  if (level == 2) {
-    act$check <- all(purrr::map_lgl(act$val, ~ any(elements %in% names(.))))
-  }
+  act$check <- any(elements %in% names(act$val))
   expect(
     act$check == TRUE,
     sprintf("%s does not contain specified elements", act$lab)
@@ -75,8 +91,7 @@ expect_list_contains <- function(object, elements, level = 1) {
 
 expect_list_contains_only <- function(object, elements) {
   act <- quasi_label(rlang::enquo(object), arg = "object")
-
-  act$check <- all(purrr::map_lgl(act$val, ~ all(elements %in% names(.))))
+  act$check <- all(elements %in% names(act$val))
   expect(
     act$check == TRUE,
     sprintf("%s does not contain specified elements", act$lab)

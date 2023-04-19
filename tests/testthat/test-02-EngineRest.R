@@ -62,7 +62,7 @@ test_that("Private `find_by_id()` returns proper repo list", {
 
 # public methods
 
-test_that("`response()` returns response from REST API", {
+test_that("`response()` returns search response from GitHub's REST API", {
   search_endpoint <- "https://api.github.com/search/code?q='shiny'+user:r-world-devs"
   test_mock$mock(search_endpoint)
   gh_search_repos_rest_response <- test_rest$response(search_endpoint)
@@ -72,4 +72,29 @@ test_that("`response()` returns response from REST API", {
   )
 
   test_mock$mock(gh_search_repos_rest_response)
+})
+
+test_rest <- EngineRest$new(
+  rest_api_url = "https://gitlab.com/api/v4",
+  token = Sys.getenv("GITLAB_PAT_PUBLIC")
+)
+
+test_that("`response()` returns commits response from GitLab's REST API", {
+
+  gl_commits_rest_response_repo_1 <- test_rest$response(
+    "https://gitlab.com/api/v4/projects/44293594/repository/commits?since='2023-01-01T00:00:00'&until='2023-04-20T00:00:00'&with_stats=true"
+  )
+  expect_gl_commit(
+    gl_commits_rest_response_repo_1
+  )
+  test_mock$mock(gl_commits_rest_response_repo_1)
+
+  gl_commits_rest_response_repo_2 <- test_rest$response(
+    "https://gitlab.com/api/v4/projects/44346961/repository/commits?since='2023-01-01T00:00:00'&until='2023-04-20T00:00:00'&with_stats=true"
+  )
+  expect_gl_commit(
+    gl_commits_rest_response_repo_2
+  )
+  test_mock$mock(gl_commits_rest_response_repo_2)
+
 })

@@ -54,9 +54,11 @@ test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
 
   tailored_repos %>%
     expect_type("list") %>%
-    expect_length(length(repos_before)) %>%
-    expect_list_contains_only(c(
-      "id", "name", "created_at", "last_activity_at", "last_push",
+    expect_length(length(repos_before))
+
+  expect_list_contains_only(
+    tailored_repos[[1]],
+    c("id", "name", "created_at", "last_activity_at", "last_push",
       "forks", "stars", "contributors", "issues_open", "issues_closed",
       "organization"
     ))

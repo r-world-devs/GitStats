@@ -34,12 +34,13 @@ test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
 
   gl_repos_by_phrase_tailored %>%
     expect_type("list") %>%
-    expect_length(length(gl_repos_by_phrase)) %>%
-    expect_list_contains_only(c(
-      "id", "name", "created_at", "last_activity_at", "last_push",
+    expect_length(length(gl_repos_by_phrase))
+
+  expect_list_contains_only(
+    gl_repos_by_phrase_tailored[[1]],
+    c("id", "name", "created_at", "last_activity_at", "last_push",
       "forks", "stars", "contributors", "issues_open", "issues_closed",
-      "organization"
-    ))
+      "organization"))
 
   expect_lt(length(gl_repos_by_phrase_tailored[[1]]),
             length(gl_repos_by_phrase[[1]]))
@@ -56,6 +57,43 @@ test_that("`prepare_repos_table()` prepares repos table", {
     gl_repos_by_phrase_table
   )
   test_mock$mock(gl_repos_by_phrase_table)
+})
+
+test_that("`pull_commits_from_org()` pulls commits from repo", {
+
+  gl_commits_repo_1 <- test_mock$mocker$gl_commits_rest_response_repo_1
+
+  mockery::stub(
+    test_rest_priv$pull_commits_from_org,
+    'private$pull_commits_from_repo',
+    gl_commits_repo_1
+  )
+
+  gl_commits_org <- test_rest_priv$pull_commits_from_org(
+    repos_table = test_mock$mocker$gl_repos_table,
+    date_from = "2023-01-01",
+    date_until = "2023-04-20"
+  )
+
+  expect_gl_commit(
+    gl_commits_org[[1]]
+  )
+
+  test_mock$mock(gl_commits_org)
+
+})
+
+test_that("`tailor_commits_info()` retrieves only necessary info", {
+
+  gl_commits_list <- test_mock$mocker$gl_commits_org
+
+  gl_commits_list_cut <- test_rest_priv$tailor_commits_info(
+    gl_commits_list,
+    org = "mbtests"
+  )
+  expect_tailored_commits_list(
+    gl_commits_list_cut[[1]][[1]]
+  )
 })
 
 # public methods
