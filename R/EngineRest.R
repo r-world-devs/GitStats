@@ -35,28 +35,8 @@ EngineRest <- R6::R6Class("EngineRest",
       }
 
       return(result)
-    },
-
-    #' @description Method to get repositories with phrase in code blobs.
-    #' @param phrase A phrase to look for in
-    #'   codelines.
-    #' @param org A character, an organization of repositories.
-    #' @param language A character specifying language used in repositories.
-    #' @return Table of repositories.
-    get_repos_by_phrase = function(phrase,
-                                   org,
-                                   language) {
-      repos_list <- private$search_repos_by_phrase(
-        phrase,
-        org = org,
-        language = language
-      )
-      repos_table <- repos_list %>%
-        private$tailor_repos_info() %>%
-        private$prepare_repos_table() %>%
-        self$get_repos_contributors() %>%
-        self$get_repos_issues()
     }
+
   ),
   private = list(
 

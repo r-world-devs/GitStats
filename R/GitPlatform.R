@@ -33,68 +33,8 @@ GitPlatform <- R6::R6Class("GitPlatform",
         orgs <- private$check_organizations(orgs)
       }
       self$orgs <- orgs
-    },
-
-    #' @description  A method to list all repositories for an organization, a
-    #'   team or by a keyword.
-    #' @param by A character, to choose between: \itemize{\item{org -
-    #'   organizations (project groups)} \item{team -
-    #'   A team} \item{phrase - A keyword in code blobs.}}
-    #' @param team A list of team members.
-    #' @param phrase A character to look for in code blobs. Obligatory if
-    #'   \code{by} parameter set to \code{"phrase"}.
-    #' @param language A character specifying language used in repositories.
-    #' @return A data.frame of repositories.
-    get_repos = function(by,
-                         team,
-                         phrase,
-                         language) {
-      private$check_for_organizations()
-
-      repos_dt <- purrr::map(self$orgs, function(org) {
-        if (by %in% c("org", "team")) {
-          repos_table <- self$graphql_engine$get_repos_from_org(
-            org = org
-          )
-          if (self$git_service == "GitLab") {
-            repos_table <- self$rest_engine$get_repos_contributors(
-              repos_table = repos_table
-            )
-          }
-          if (by == "team") {
-            repos_table <- private$filter_repos_by_team(
-              repos_table = repos_table,
-              team = team
-            )
-          }
-          if (!is.null(language)) {
-            repos_table <- private$filter_repos_by_language(
-              repos_table = repos_table,
-              language = language
-            )
-          }
-          return(repos_table)
-          cli::cli_alert_info("Number of repositories: {nrow(repos_table)}")
-        }
-
-        if (by == "phrase") {
-          repos_table <- self$rest_engine$get_repos_by_phrase(
-            phrase = phrase,
-            org = org,
-            language = language
-          )
-          cli::cli_alert_info(paste0(
-            "\n On ", self$git_service,
-            " [", org, "] found ",
-            nrow(repos_table), " repositories."
-          ))
-        }
-        return(repos_table)
-      }) %>%
-        rbindlist(use.names = TRUE)
-
-      return(repos_dt)
     }
+
   ),
   private = list(
 

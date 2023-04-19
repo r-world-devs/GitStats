@@ -65,8 +65,8 @@ team or by a keyword.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{by}}{A character, to choose between: \itemize{\item{org -
-organizations (project groups)} \item{team -
-A team} \item{phrase - A keyword in code blobs.}}}
+organizations (project groups)} \item{team - A team} \item{phrase - A
+keyword in code blobs.}}}
 
 \item{\code{team}}{A list of team members.}
 
@@ -77,6 +77,14 @@ A team} \item{phrase - A keyword in code blobs.}}}
 }
 \if{html}{\out{</div>}}
 }
+\subsection{Details}{
+Separate method for \code{GitLab} than \code{GitHub} is because of
+basically poorer GitHub's GraphQL API features. For the time-being
+contributors need to be added through REST and the search functionality
+does not support filtering by language
+(\link{https://gitlab.com/gitlab-org/gitlab/-/issues/340333}).
+}
+
 \subsection{Returns}{
 A data.frame of repositories.
 }

@@ -4,6 +4,26 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
   inherit = EngineRest,
   public = list(
 
+    #' @description Method to get repositories with phrase in code blobs.
+    #' @details For the time being there is no possibility to search GitLab with
+    #'   filtering by language. For more information look here:
+    #'   \link{https://gitlab.com/gitlab-org/gitlab/-/issues/340333}
+    #' @param phrase A phrase to look for in codelines.
+    #' @param org A character, an organization of repositories.
+    #' @return Table of repositories.
+    get_repos_by_phrase = function(phrase,
+                                   org) {
+      repos_list <- private$search_repos_by_phrase(
+        phrase,
+        org = org
+      )
+      repos_table <- repos_list %>%
+        private$tailor_repos_info() %>%
+        private$prepare_repos_table() %>%
+        self$get_repos_contributors() %>%
+        self$get_repos_issues()
+    },
+
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
@@ -121,14 +141,15 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
   private = list(
 
     #' @description Perform get request to search API.
+    #' @details For the time being there is no possibility to search GitLab with
+    #'   filtering by language. For more information look here:
+    #'   \link{https://gitlab.com/gitlab-org/gitlab/-/issues/340333}
     #' @param phrase A phrase to look for in codelines.
     #' @param org A character, a group of projects.
-    #' @param language A character specifying language used in repositories.
     #' @param page_max An integer, maximum number of pages.
     #' @return A list of repositories.
     search_repos_by_phrase = function(phrase,
                                       org,
-                                      language,
                                       page_max = 1e6) {
       cli::cli_alert_info("[GitLab][{org}][Engine:{cli::col_green('REST')}] Searching repos...")
       page <- 1

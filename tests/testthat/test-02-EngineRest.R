@@ -65,11 +65,11 @@ test_that("Private `find_by_id()` returns proper repo list", {
 test_that("`response()` returns response from REST API", {
   search_endpoint <- "https://api.github.com/search/code?q='shiny'+user:r-world-devs"
   test_mock$mock(search_endpoint)
-  search_repos_rest_response <- test_rest$response(search_endpoint)
+  gh_search_repos_rest_response <- test_rest$response(search_endpoint)
 
   expect_gh_repos_list(
-    search_repos_rest_response$items[[1]]
+    gh_search_repos_rest_response$items[[1]]
   )
 
-  test_mock$mock(search_repos_rest_response)
+  test_mock$mock(gh_search_repos_rest_response)
 })

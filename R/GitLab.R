@@ -40,9 +40,14 @@ GitLab <- R6::R6Class("GitLab",
 
     #' @description  A method to list all repositories for an organization, a
     #'   team or by a keyword.
+    #' @details Separate method for `GitLab` than `GitHub` is because of
+    #'   basically poorer GitHub's GraphQL API features. For the time-being
+    #'   contributors need to be added through REST and the search functionality
+    #'   does not support filtering by language
+    #'   (\link{https://gitlab.com/gitlab-org/gitlab/-/issues/340333}).
     #' @param by A character, to choose between: \itemize{\item{org -
-    #'   organizations (project groups)} \item{team -
-    #'   A team} \item{phrase - A keyword in code blobs.}}
+    #'   organizations (project groups)} \item{team - A team} \item{phrase - A
+    #'   keyword in code blobs.}}
     #' @param team A list of team members.
     #' @param phrase A character to look for in code blobs. Obligatory if
     #'   \code{by} parameter set to \code{"phrase"}.
@@ -52,14 +57,52 @@ GitLab <- R6::R6Class("GitLab",
                          team,
                          phrase,
                          language) {
-      language <- private$language_handler(language)
 
-      repos_dt <- super$get_repos(
-        by = by,
-        team = team,
-        phrase = phrase,
-        language = language
-      )
+      language <- private$language_handler(language)
+      private$check_for_organizations()
+
+      repos_dt <- purrr::map(self$orgs, function(org) {
+        if (by %in% c("org", "team")) {
+          repos_table <- self$graphql_engine$get_repos_from_org(
+            org = org
+          ) %>%  self$rest_engine$get_repos_contributors()
+
+          if (by == "team") {
+            repos_table <- private$filter_repos_by_team(
+              repos_table = repos_table,
+              team = team
+            )
+          }
+          if (!is.null(language)) {
+            repos_table <- private$filter_repos_by_language(
+              repos_table = repos_table,
+              language = language
+            )
+          }
+          return(repos_table)
+          cli::cli_alert_info("Number of repositories: {nrow(repos_table)}")
+        }
+
+        if (by == "phrase") {
+          repos_table <- self$rest_engine$get_repos_by_phrase(
+            phrase = phrase,
+            org = org
+          )
+          if (!is.null(language)) {
+            repos_table <- private$filter_repos_by_language(
+              repos_table = repos_table,
+              language = language
+            )
+          }
+          cli::cli_alert_info(paste0(
+            "\n On ", self$git_service,
+            " [", org, "] found ",
+            nrow(repos_table), " repositories."
+          ))
+        }
+        return(repos_table)
+      }) %>%
+        rbindlist(use.names = TRUE)
 
       return(repos_dt)
     },
