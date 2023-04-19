@@ -59,8 +59,7 @@ GitLab <- R6::R6Class("GitLab",
         team = team,
         phrase = phrase,
         language = language
-      ) %>%
-        self$rest_engine$get_repos_contributors()
+      )
 
       return(repos_dt)
     },

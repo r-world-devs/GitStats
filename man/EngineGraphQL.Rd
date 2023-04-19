@@ -25,7 +25,6 @@ A superclass for methods wraping GraphQL API responses.
 \itemize{
 \item \href{#method-new}{\code{EngineGraphQL$new()}}
 \item \href{#method-gql_response}{\code{EngineGraphQL$gql_response()}}
-\item \href{#method-get_repos_by_org}{\code{EngineGraphQL$get_repos_by_org()}}
 \item \href{#method-clone}{\code{EngineGraphQL$clone()}}
 }
 }
@@ -75,34 +74,6 @@ Wrapper of GraphQL API request and response.
 }
 \subsection{Returns}{
 A list.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos_by_org"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos_by_org}{}}}
-\subsection{Method \code{get_repos_by_org()}}{
-Method to pull all repositories from organization.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQL$get_repos_by_org(org, by, team, language)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{org}}{An organization.}
-
-\item{\code{by}}{A character, to choose between: \itemize{\item{org -
-organizations (project groups)} \item{team -
-A team}}}
-
-\item{\code{team}}{A list of team members.}
-
-\item{\code{language}}{A character specifying language used in repositories.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A table of repositories
 }
 }
 \if{html}{\out{<hr>}}
