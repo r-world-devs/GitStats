@@ -1,6 +1,40 @@
-expect_tailored_repos_list <- function(object) {
+expect_tailored_commits_list <- function(object) {
+  expect_list_contains_only(
+    object,
+    c("id", "organization", "repository", "additions", "deletions",
+      "committed_date", "author")
+  )
+}
+
+expect_gl_repos <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
   expect_list_contains(
     object,
+    "data"
+  )
+  expect_list_contains(
+    object$data$group$projects$edges[[1]]$node,
+    c(
+      "id", "name", "stars", "forks", "created_at", "last_push",
+      "last_activity_at", "languages", "issueStatusCounts"
+    )
+  )
+}
+
+expect_gh_repos <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  expect_list_contains(
+    object,
+    "data"
+  )
+  expect_list_contains(
+    object$data$repositoryOwner$repositories$nodes[[1]],
     c(
       "id", "name", "stars", "forks", "created_at", "last_push",
       "last_activity_at", "languages", "issues_open", "issues_closed",
@@ -9,9 +43,30 @@ expect_tailored_repos_list <- function(object) {
   )
 }
 
+expect_gl_commit <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  expect_list_contains(
+    object[[1]],
+    c("id", "short_id", "created_at", "parent_ids", "title", "message",
+      "author_name", "author_email", "authored_date", "committer_name",
+      "committer_email")
+  )
+}
+
 expect_gh_commit <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
   expect_list_contains(
     object,
+    "data"
+  )
+  expect_list_contains(
+    object$data$repository$defaultBranchRef$target$history$edges[[1]]$node,
     c("id", "committed_date", "author", "additions", "deletions")
   )
 }
@@ -23,14 +78,9 @@ expect_gh_repos_list <- function(object) {
   )
 }
 
-expect_list_contains <- function(object, elements, level = 1) {
+expect_list_contains <- function(object, elements) {
   act <- quasi_label(rlang::enquo(object), arg = "object")
-  if (level == 1) {
-    act$check <- any(elements %in% names(act$val))
-  }
-  if (level == 2) {
-    act$check <- all(purrr::map_lgl(act$val, ~ any(elements %in% names(.))))
-  }
+  act$check <- any(elements %in% names(act$val))
   expect(
     act$check == TRUE,
     sprintf("%s does not contain specified elements", act$lab)
@@ -41,8 +91,7 @@ expect_list_contains <- function(object, elements, level = 1) {
 
 expect_list_contains_only <- function(object, elements) {
   act <- quasi_label(rlang::enquo(object), arg = "object")
-
-  act$check <- all(purrr::map_lgl(act$val, ~ all(elements %in% names(.))))
+  act$check <- all(elements %in% names(act$val))
   expect(
     act$check == TRUE,
     sprintf("%s does not contain specified elements", act$lab)
@@ -55,7 +104,7 @@ expect_repos_table <- function(get_repos_object) {
   repo_cols <- c(
     "id", "name", "stars", "forks", "created_at", "last_push",
     "last_activity_at", "languages", "issues_open", "issues_closed",
-    "contributors", "organization", "api_url", "repo_url"
+    "contributors", "organization", "repo_url", "api_url"
   )
   expect_s3_class(get_repos_object, "data.frame")
   expect_named(get_repos_object, repo_cols)

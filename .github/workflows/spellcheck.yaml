@@ -12,12 +12,12 @@ on:
   push:
     branches:
       - main
-      - devel
+      - test
       - pre-release
   pull_request:
     branches:
       - main
-      - devel
+      - test
       - pre-release
 
 concurrency:

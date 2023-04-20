@@ -3,6 +3,28 @@
 EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
   inherit = EngineRest,
   public = list(
+
+    #' @description Method to get repositories with phrase in code blobs.
+    #' @param phrase A phrase to look for in
+    #'   codelines.
+    #' @param org A character, an organization of repositories.
+    #' @param language A character specifying language used in repositories.
+    #' @return Table of repositories.
+    get_repos_by_phrase = function(phrase,
+                                   org,
+                                   language) {
+      repos_list <- private$search_repos_by_phrase(
+        phrase,
+        org = org,
+        language = language
+      )
+      repos_table <- repos_list %>%
+        private$tailor_repos_info() %>%
+        private$prepare_repos_table() %>%
+        self$get_repos_contributors() %>%
+        self$get_repos_issues()
+    },
+
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
@@ -184,8 +206,8 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
           "issues_open" = x$issues_open,
           "issues_closed" = x$issues_closed,
           "contributors" = paste0(x$contributors, collapse = ","),
-          "repo_url" = x$url,
-          "organization" = x$owner$login
+          "organization" = x$owner$login,
+          "repo_url" = x$url
         )
       })
 

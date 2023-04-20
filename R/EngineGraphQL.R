@@ -36,74 +36,25 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
         httr2::req_body_json(list(query = gql_query, variables = "null")) %>%
         httr2::req_perform() %>%
         httr2::resp_body_json()
-    },
-
-    #' @description Method to pull all repositories from organization.
-    #' @param org An organization.
-    #' @param by A character, to choose between: \itemize{\item{org -
-    #'   organizations (project groups)} \item{team -
-    #'   A team}}
-    #' @param team A list of team members.
-    #' @param language A character specifying language used in repositories.
-    #' @return A table of repositories
-    get_repos_by_org = function(org,
-                                by,
-                                team,
-                                language) {
-      repos_table <- self$get_repos_from_org(
-        org = org
-      )
-      if (by == "team") {
-        repos_table <- private$filter_repos_by_team(
-          repos_table = repos_table,
-          team = team
-        )
-      }
-      if (!is.null(language)) {
-        repos_table <- private$filter_repos_by_language(
-          repos_table = repos_table,
-          language = language
-        )
-      }
-      return(repos_table)
     }
+
   ),
   private = list(
-    #' @description Filter repositories by contributors.
-    #' @details If at least one member of a team is a contributor than a project
-    #'   passes through the filter.
-    #' @param repos_table A repository table to be filtered.
-    #' @param team A list with team members.
-    #' @return A repos table.
-    filter_repos_by_team = function(repos_table,
-                                    team) {
-      cli::cli_alert_info("Filtering by team members.")
-      team_logins <- purrr::map(team, ~ .$logins) %>%
-        unlist()
-      if (nrow(repos_table) > 0) {
-        repos_table <- repos_table %>%
-          dplyr::filter(contributors %in% team_logins)
-      } else {
-        repos_table
-      }
-      return(repos_table)
-    },
 
-    #' @description Filter repositories by contributors.
-    #' @details If at least one member of a team is a contributor than a project
-    #'   passes through the filter.
-    #' @param repos_table A repository table to be filtered.
-    #' @param language A language used in repository.
-    #' @return A repos table.
-    filter_repos_by_language = function(repos_table,
-                                        language) {
-      cli::cli_alert_info("Filtering by language.")
-      filtered_langs <- purrr::keep(repos_table$languages, function(row) {
-        grepl(language, row)
-      })
-      repos_table <- repos_table %>%
-        dplyr::filter(languages %in% filtered_langs)
-      return(repos_table)
+    #' @description Wrapper over building GraphQL query and response.
+    #' @param org An organization.
+    #' @param repo_cursor An end cursor for repos page.
+    #' @return A list of repositories.
+    pull_repos_page_from_org = function(org,
+                                        repo_cursor = "") {
+      repos_by_org_query <- self$gql_query$repos_by_org(
+        org,
+        repo_cursor = repo_cursor
+      )
+      response <- self$gql_response(
+        gql_query = repos_by_org_query
+      )
+      return(response)
     }
   )
 )

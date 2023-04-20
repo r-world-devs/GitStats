@@ -29,10 +29,12 @@ create_testhost <- function(rest_api_url = NULL,
     token = token,
     orgs = orgs
   )
-  if (grepl("github", rest_api_url)) {
-    class(test_host) <- "GitHub"
-  } else if (grepl("gitlab", rest_api_url)) {
-    class(test_host) <- "GitLab"
+  if (!is.null(rest_api_url)) {
+    if (grepl("github", rest_api_url)) {
+      class(test_host) <- "GitHub"
+    } else if (grepl("gitlab", rest_api_url)) {
+      class(test_host) <- "GitLab"
+    }
   }
   if (mode == "private") {
     test_host <- environment(test_host$initialize)$private
@@ -60,6 +62,7 @@ TestGitHub <- R6::R6Class("TestGitHub",
         gql_api_url = gql_api_url,
         token = token
       )
+      self$git_service <- "GitHub"
       self$orgs <- orgs
     }
   )
@@ -104,6 +107,7 @@ TestGitLab <- R6::R6Class("TestGitLab",
         gql_api_url = gql_api_url,
         token = token
       )
+      self$git_service <- "GitLab"
       self$orgs <- orgs
     }
   )

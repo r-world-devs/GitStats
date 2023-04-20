@@ -20,7 +20,6 @@ A class for methods wraping GitLab's GraphQL API responses.
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
-\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="EngineGraphQL" data-id="get_repos_by_org">}\href{../../GitStats/html/EngineGraphQL.html#method-get_repos_by_org}{\code{GitStats::EngineGraphQL$get_repos_by_org()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="EngineGraphQL" data-id="gql_response">}\href{../../GitStats/html/EngineGraphQL.html#method-gql_response}{\code{GitStats::EngineGraphQL$gql_response()}}\out{</span>}
 }
 \out{</details>}

@@ -50,21 +50,6 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
       return(full_repos_list)
     },
 
-    #' @description Wrapper over building GraphQL query and response.
-    #' @param org An organization
-    #' @param repo_cursor An end cursor for repos page.
-    #' @return A list.
-    pull_repos_page_from_org = function(org, repo_cursor) {
-      repos_by_org_query <- self$gql_query$projects_by_group(
-        group = org,
-        projects_cursor = repo_cursor
-      )
-      response <- self$gql_response(
-        gql_query = repos_by_org_query
-      )
-      response
-    },
-
     #' @description Parses repositories list into table.
     #' @param repos_list A list of repositories.
     #' @param org An organization of repositories.
@@ -102,13 +87,13 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
           },
           "contributors" = NA,
           "organization" = org,
-          "api_url" = gsub("/graphql", "", self$gql_api_url),
           "repo_url" = paste0(
             gsub("/graphql", "", self$gql_api_url),
             "/projects/",
             gsub("gid://gitlab/Project/", "", repo$node$id),
             "/v4"
-          )
+          ),
+          "api_url" = gsub("/graphql", "", self$gql_api_url)
         )
         repo_row
       })

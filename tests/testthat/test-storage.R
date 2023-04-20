@@ -27,7 +27,7 @@ test_commits <- data.frame(
   api_url = rep("https://api.github.com", 3)
 )
 
-commits_before <- test_mock$mocker$commits_table
+commits_before <- test_mocker$use("commits_table")
 
 test_that("`GitStats$save_storage()` saves table to db", {
   expect_snapshot(

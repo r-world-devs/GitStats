@@ -13,6 +13,7 @@ An object with methods to obtain information form GitHub API.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{GitHub$new()}}
+\item \href{#method-get_repos}{\code{GitHub$get_repos()}}
 \item \href{#method-get_commits}{\code{GitHub$get_commits()}}
 \item \href{#method-print}{\code{GitHub$print()}}
 }
@@ -20,7 +21,6 @@ An object with methods to obtain information form GitHub API.
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
-\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="GitPlatform" data-id="get_repos">}\href{../../GitStats/html/GitPlatform.html#method-get_repos}{\code{GitStats::GitPlatform$get_repos()}}\out{</span>}
 }
 \out{</details>}
 }
@@ -49,6 +49,36 @@ in case of GitHub).}
 }
 \subsection{Returns}{
 A new \code{GitHub} object
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_repos"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos}{}}}
+\subsection{Method \code{get_repos()}}{
+A method to list all repositories for an organization, a
+team or by a keyword.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitHub$get_repos(by, team, phrase, language)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{by}}{A character, to choose between: \itemize{\item{org -
+organizations (project groups)} \item{team -
+A team} \item{phrase - A keyword in code blobs.}}}
+
+\item{\code{team}}{A list of team members.}
+
+\item{\code{phrase}}{A character to look for in code blobs. Obligatory if
+\code{by} parameter set to \code{"phrase"}.}
+
+\item{\code{language}}{A character specifying language used in repositories.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A data.frame of repositories.
 }
 }
 \if{html}{\out{<hr>}}

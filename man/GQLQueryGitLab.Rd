@@ -12,7 +12,7 @@ A class with methods to build GraphQL Queries for GitLab.
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-projects_by_group}{\code{GQLQueryGitLab$projects_by_group()}}
+\item \href{#method-repos_by_org}{\code{GQLQueryGitLab$repos_by_org()}}
 \item \href{#method-clone}{\code{GQLQueryGitLab$clone()}}
 }
 }
@@ -23,20 +23,20 @@ A class with methods to build GraphQL Queries for GitLab.
 \out{</details>}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-projects_by_group"></a>}}
-\if{latex}{\out{\hypertarget{method-projects_by_group}{}}}
-\subsection{Method \code{projects_by_group()}}{
+\if{html}{\out{<a id="method-repos_by_org"></a>}}
+\if{latex}{\out{\hypertarget{method-repos_by_org}{}}}
+\subsection{Method \code{repos_by_org()}}{
 Method to build query to pull projects by group.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GQLQueryGitLab$projects_by_group(group, projects_cursor)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GQLQueryGitLab$repos_by_org(org, repo_cursor = "")}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{group}}{A group of projects.}
+\item{\code{org}}{A group of projects.}
 
-\item{\code{projects_cursor}}{A cursor.}
+\item{\code{repo_cursor}}{A cursor.}
 }
 \if{html}{\out{</div>}}
 }

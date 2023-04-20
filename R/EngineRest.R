@@ -35,28 +35,8 @@ EngineRest <- R6::R6Class("EngineRest",
       }
 
       return(result)
-    },
-
-    #' @description Method to get repositories with phrase in code blobs.
-    #' @param phrase A phrase to look for in
-    #'   codelines.
-    #' @param org A character, an organization of repositories.
-    #' @param language A character specifying language used in repositories.
-    #' @return Table of repositories.
-    get_repos_by_phrase = function(phrase,
-                                   org,
-                                   language) {
-      repos_list <- private$search_repos_by_phrase(
-        phrase,
-        org = org,
-        language = language
-      )
-      repos_table <- repos_list %>%
-        private$tailor_repos_info() %>%
-        private$prepare_repos_table() %>%
-        self$get_repos_contributors() %>%
-        self$get_repos_issues()
     }
+
   ),
   private = list(
 
@@ -91,17 +71,23 @@ EngineRest <- R6::R6Class("EngineRest",
 
       if (length(repos_dt) > 0) {
         repos_dt <- dplyr::mutate(repos_dt,
-          api_url = self$rest_api_url,
-          repo_url = paste0(self$rest_api_url, "/projects/", gsub("gid://gitlab/Project/", "", id)),
           created_at = as.POSIXct(created_at),
           last_activity_at = difftime(Sys.time(), as.POSIXct(last_activity_at),
             units = "days"
-          ) %>% round(2)
+          ) %>% round(2),
+          repo_url = ifelse(inherits(self, "EngineRestGitLab"),
+                            paste0(self$rest_api_url, "/projects/", gsub("gid://gitlab/Project/", "", id)),
+                            repo_url),
+          api_url = self$rest_api_url
         )
       }
-
       return(repos_dt)
     },
+
+    #' @description A wrapper for httr2 functions to prepare get request to REST API endpoint.
+    #' @param endpoint An API endpoint.
+    #' @param token An API token.
+    #' @returns A request.
     perform_request = function(endpoint, token) {
       tryCatch(
         {

@@ -4,6 +4,26 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
   inherit = EngineRest,
   public = list(
 
+    #' @description Method to get repositories with phrase in code blobs.
+    #' @details For the time being there is no possibility to search GitLab with
+    #'   filtering by language. For more information look here:
+    #'   https://gitlab.com/gitlab-org/gitlab/-/issues/340333
+    #' @param phrase A phrase to look for in codelines.
+    #' @param org A character, an organization of repositories.
+    #' @return Table of repositories.
+    get_repos_by_phrase = function(phrase,
+                                   org) {
+      repos_list <- private$search_repos_by_phrase(
+        phrase,
+        org = org
+      )
+      repos_table <- repos_list %>%
+        private$tailor_repos_info() %>%
+        private$prepare_repos_table() %>%
+        self$get_repos_contributors() %>%
+        self$get_repos_issues()
+    },
+
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
@@ -65,8 +85,6 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
                                     date_until = Sys.date(),
                                     by,
                                     team) {
-      repos_names <- repos_table$name
-      projects_ids <- gsub("gid://gitlab/Project/", "", repos_table$id)
 
       if (by == "org") {
         cli::cli_alert_info("[GitLab][{org}][Engine:{cli::col_green('REST')}] Pulling commits...")
@@ -74,44 +92,20 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         cli::cli_alert_info("[GitLab][{org}][Engine:{cli::col_green('REST')}] Pulling commits by team...")
       }
 
-      pb <- progress::progress_bar$new(
-        format = paste0("Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
-        total = length(repos_names)
-      )
-
-      commits_list <- purrr::map(projects_ids, function(project_id) {
-        pb$tick()
-        all_commits_in_repo <- list()
-        page <- 1
-        repeat {
-          commits_page <- private$pull_commits_page_from_repo(
-            project_id = project_id,
-            date_from = date_from,
-            date_until = date_until,
-            page = page
-          )
-          if (length(commits_page) > 0) {
-            all_commits_in_repo <- append(all_commits_in_repo, commits_page)
-            page <- page + 1
-          } else {
-            break
-          }
-        }
-        return(all_commits_in_repo)
-      })
-
-      names(commits_list) <- repos_names
-
-      commits_list <- commits_list %>%
+      repos_list_with_commits <- private$pull_commits_from_org(
+        repos_table = repos_table,
+        date_from = date_from,
+        date_until = date_until
+      ) %>%
         purrr::discard(~ length(.) == 0)
 
       if (by == "team") {
-        private$filter_commits_by_team(
-          commits_list = commits_list,
+        repos_list_with_commits <- private$filter_commits_by_team(
+          repos_list_with_commits = repos_list_with_commits,
           team = team
         )
       }
-      commits_table <- commits_list %>%
+      commits_table <- repos_list_with_commits %>%
         private$tailor_commits_info(org = org) %>%
         private$prepare_commits_table()
 
@@ -121,14 +115,15 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
   private = list(
 
     #' @description Perform get request to search API.
+    #' @details For the time being there is no possibility to search GitLab with
+    #'   filtering by language. For more information look here:
+    #'   https://gitlab.com/gitlab-org/gitlab/-/issues/340333
     #' @param phrase A phrase to look for in codelines.
     #' @param org A character, a group of projects.
-    #' @param language A character specifying language used in repositories.
     #' @param page_max An integer, maximum number of pages.
     #' @return A list of repositories.
     search_repos_by_phrase = function(phrase,
                                       org,
-                                      language,
                                       page_max = 1e6) {
       cli::cli_alert_info("[GitLab][{org}][Engine:{cli::col_green('REST')}] Searching repos...")
       page <- 1
@@ -184,67 +179,105 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       projects_list
     },
 
-    #' @description Handler for pagination of commits response.
+    #' @description Method to pull all commits from organization.
+    #' @param repos_table A table of repositories.
+    #' @param date_from A starting date to look commits for.
+    #' @param date_until An end date to look commits for.
+    #' @return A list of repositories with commits.
+    pull_commits_from_org = function(repos_table,
+                                     date_from,
+                                     date_until
+                                     ) {
+
+      repos_names <- repos_table$name
+      projects_ids <- gsub("gid://gitlab/Project/", "", repos_table$id)
+
+      pb <- progress::progress_bar$new(
+        format = paste0("Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
+        total = length(repos_names)
+      )
+
+      repos_list_with_commits <- purrr::map(projects_ids, function(project_id) {
+        pb$tick()
+        commits_from_repo <- private$pull_commits_from_repo(
+          project_id = project_id,
+          date_from = date_from,
+          date_until = date_until
+        )
+        return(commits_from_repo)
+      })
+      names(repos_list_with_commits) <- repos_names
+      return(repos_list_with_commits)
+    },
+
+    #' @description Iterator over pages of commits response.
     #' @param project_id Id of a project.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
-    #' @param page Page of a response.
     #' @return A list of commits.
-    pull_commits_page_from_repo = function(project_id,
-                                           date_from,
-                                           date_until,
-                                           page) {
-      self$response(
-        endpoint = paste0(
-          self$rest_api_url,
-          "/projects/",
-          project_id,
-          "/repository/commits?since='",
-          date_to_gts(date_from),
-          "'&until='",
-          date_to_gts(date_until),
-          "'&with_stats=true",
-          "&page=", page
+    pull_commits_from_repo = function(project_id,
+                                      date_from,
+                                      date_until) {
+      all_commits_in_repo <- list()
+      page <- 1
+      repeat {
+        commits_page <- self$response(
+          endpoint = paste0(
+            self$rest_api_url,
+            "/projects/",
+            project_id,
+            "/repository/commits?since='",
+            date_to_gts(date_from),
+            "'&until='",
+            date_to_gts(date_until),
+            "'&with_stats=true",
+            "&page=", page
+          )
         )
-      )
+        if (length(commits_page) > 0) {
+          all_commits_in_repo <- append(all_commits_in_repo, commits_page)
+          page <- page + 1
+        } else {
+          break
+        }
+      }
+      return(all_commits_in_repo)
     },
 
-    #' @description A helper to retrieve only important info on commits
-    #' @param commits_list A list, a formatted content of response returned by
-    #'   GET API request
-    #' @param org A character, name of a group
-    #' @return A list of commits with selected information
-    tailor_commits_info = function(commits_list,
+    #' @description A helper to retrieve only important info on commits.
+    #' @param repos_list_with_commits A list of repositories with commits.
+    #' @param org A character, name of a group.
+    #' @return A list of commits with selected information.
+    tailor_commits_info = function(repos_list_with_commits,
                                    org) {
-      commits_list <- purrr::map(commits_list, function(x) {
-        purrr::map(x, function(y) {
+      repos_list_with_commits_cut <- purrr::map(repos_list_with_commits, function(repo) {
+        purrr::map(repo, function(commit) {
           list(
-            "id" = y$id,
-            "organization" = org,
+            "id" = commit$id,
+            "committed_date" = gts_to_posixt(commit$committed_date),
+            "author" = commit$author_name,
+            "additions" = commit$stats$additions,
+            "deletions" = commit$stats$deletions,
             "repository" = gsub(
-              pattern = paste0("/-/commit/", y$id),
+              pattern = paste0("/-/commit/", commit$id),
               replacement = "",
-              x = gsub(paste0("(.*)", org, "/"), "", y$web_url)
+              x = gsub(paste0("(.*)", org, "/"), "", commit$web_url)
             ),
-            "additions" = y$stats$additions,
-            "deletions" = y$stats$deletions,
-            "committed_date" = gts_to_posixt(y$committed_date),
-            "author" = y$author_name
+            "organization" = org
           )
         })
       })
-
-      commits_list
+      return(repos_list_with_commits_cut)
     },
 
     #' @description Filter by contributors.
-    #' @param commits_list A commits list to be filtered.
-    #' @param team A character vector with team member names.
+    #' @param repos_list_with_commits A list of repositories with commits.
+    #' @param team A list of team members.
     #' @return A list.
-    filter_commits_by_team = function(commits_list,
+    filter_commits_by_team = function(repos_list_with_commits,
                                       team) {
       team_names <- purrr::map_chr(team, ~ .$name)
-      commits_list <- purrr::map(commits_list, function(repo) {
+      filtered_repos_list_with_commits <- purrr::map(repos_list_with_commits, function(repo) {
         purrr::keep(repo, function(commit) {
           if (length(commit$author_name > 0)) {
             commit$author_name %in% team_names
@@ -254,7 +287,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         })
       }) %>% purrr::discard(~ length(.) == 0)
 
-      commits_list
+      return(filtered_repos_list_with_commits)
     },
 
     #' @description A helper to turn list of data.frames into one data.frame

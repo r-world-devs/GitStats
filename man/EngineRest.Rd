@@ -5,6 +5,8 @@
 \title{A EngineRest class}
 \value{
 A request.
+
+A request.
 }
 \description{
 A superclass for methods wraping Rest API responses.
@@ -31,7 +33,6 @@ A superclass for methods wraping Rest API responses.
 \itemize{
 \item \href{#method-new}{\code{EngineRest$new()}}
 \item \href{#method-response}{\code{EngineRest$response()}}
-\item \href{#method-get_repos_by_phrase}{\code{EngineRest$get_repos_by_phrase()}}
 \item \href{#method-clone}{\code{EngineRest$clone()}}
 }
 }
@@ -83,31 +84,6 @@ A wrapper for httr2 functions to perform get request to REST API endpoints.
 }
 \subsection{Returns}{
 A content of response formatted to list.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos_by_phrase"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos_by_phrase}{}}}
-\subsection{Method \code{get_repos_by_phrase()}}{
-Method to get repositories with phrase in code blobs.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRest$get_repos_by_phrase(phrase, org, language)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{phrase}}{A phrase to look for in
-codelines.}
-
-\item{\code{org}}{A character, an organization of repositories.}
-
-\item{\code{language}}{A character specifying language used in repositories.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Table of repositories.
 }
 }
 \if{html}{\out{<hr>}}
