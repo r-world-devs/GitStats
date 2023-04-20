@@ -48,7 +48,7 @@ Method to get repositories with phrase in code blobs.
 \subsection{Details}{
 For the time being there is no possibility to search GitLab with
 filtering by language. For more information look here:
-\link{https://gitlab.com/gitlab-org/gitlab/-/issues/340333}
+https://gitlab.com/gitlab-org/gitlab/-/issues/340333
 }
 
 \subsection{Returns}{

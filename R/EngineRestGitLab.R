@@ -7,7 +7,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @description Method to get repositories with phrase in code blobs.
     #' @details For the time being there is no possibility to search GitLab with
     #'   filtering by language. For more information look here:
-    #'   \link{https://gitlab.com/gitlab-org/gitlab/-/issues/340333}
+    #'   https://gitlab.com/gitlab-org/gitlab/-/issues/340333
     #' @param phrase A phrase to look for in codelines.
     #' @param org A character, an organization of repositories.
     #' @return Table of repositories.
@@ -121,7 +121,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @description Perform get request to search API.
     #' @details For the time being there is no possibility to search GitLab with
     #'   filtering by language. For more information look here:
-    #'   \link{https://gitlab.com/gitlab-org/gitlab/-/issues/340333}
+    #'   https://gitlab.com/gitlab-org/gitlab/-/issues/340333
     #' @param phrase A phrase to look for in codelines.
     #' @param org A character, a group of projects.
     #' @param page_max An integer, maximum number of pages.
