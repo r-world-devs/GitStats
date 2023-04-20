@@ -128,3 +128,20 @@ test_that("`get_repos_issues()` adds issues to repos table", {
   )
   test_mocker$cache(gl_repos_by_phrase_table)
 })
+
+test_that("`get_repos_by_phrase()` works", {
+
+  mockery::stub(
+    test_rest$get_repos_by_phrase,
+    "private$search_repos_by_phrase",
+    test_mocker$use("gl_repos_by_phrase")
+  )
+
+  result <- test_rest$get_repos_by_phrase(
+    phrase = "covid",
+    org = "erasmusmc-public-health"
+  )
+
+  expect_repos_table(result)
+
+})
