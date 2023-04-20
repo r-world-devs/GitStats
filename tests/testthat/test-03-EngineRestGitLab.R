@@ -83,6 +83,30 @@ test_that("`pull_commits_from_org()` pulls commits from repo", {
 
 })
 
+test_that("`filter_commits_by_team()` filters commits by team", {
+
+  gl_commits_org <- test_mocker$use("gl_commits_org")
+
+  team = list(
+    "Member1" = list(
+      name = "Maciej Banaś",
+      logins = "maciekbanas"
+    )
+  )
+
+  gl_commits_team <- test_rest_priv$filter_commits_by_team(
+    repos_list_with_commits = gl_commits_org,
+    team = team
+  )
+
+  expect_gl_commit(
+    gl_commits_team[[1]]
+  )
+
+  test_mocker$cache(gl_commits_team)
+
+})
+
 test_that("`tailor_commits_info()` retrieves only necessary info", {
 
   gl_commits_list <- test_mocker$use("gl_commits_org")
@@ -93,6 +117,17 @@ test_that("`tailor_commits_info()` retrieves only necessary info", {
   )
   expect_tailored_commits_list(
     gl_commits_list_cut[[1]][[1]]
+  )
+  test_mocker$cache(gl_commits_list_cut)
+})
+
+test_that("`prepare_commits_table()` prepares table of commits properly", {
+
+  gl_commits_table <- test_rest_priv$prepare_commits_table(
+    commits_list = test_mocker$use("gl_commits_list_cut")
+  )
+  expect_commits_table(
+    gl_commits_table
   )
 })
 
@@ -144,4 +179,24 @@ test_that("`get_repos_by_phrase()` works", {
 
   expect_repos_table(result)
 
+})
+
+test_that("`get_commits_from_org()` works as expected", {
+
+  mockery::stub(
+    test_rest$get_commits_from_org,
+    "private$pull_commits_from_org",
+    test_mocker$use("gl_commits_org")
+  )
+  expect_snapshot(
+    result <- test_rest$get_commits_from_org(
+      org = "mbtests",
+      repos_table = NULL,
+      date_from = "2023-01-01",
+      date_until = "2023-04-20",
+      by = "org",
+      team = NULL
+    )
+  )
+  expect_commits_table(result)
 })

@@ -92,7 +92,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         cli::cli_alert_info("[GitLab][{org}][Engine:{cli::col_green('REST')}] Pulling commits by team...")
       }
 
-      commits_list <- private$pull_commits_from_org(
+      repos_list_with_commits <- private$pull_commits_from_org(
         repos_table = repos_table,
         date_from = date_from,
         date_until = date_until
@@ -100,12 +100,12 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         purrr::discard(~ length(.) == 0)
 
       if (by == "team") {
-        private$filter_commits_by_team(
-          commits_list = commits_list,
+        repos_list_with_commits <- private$filter_commits_by_team(
+          repos_list_with_commits = repos_list_with_commits,
           team = team
         )
       }
-      commits_table <- commits_list %>%
+      commits_table <- repos_list_with_commits %>%
         private$tailor_commits_info(org = org) %>%
         private$prepare_commits_table()
 
@@ -183,7 +183,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @param repos_table A table of repositories.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
-    #' @return A list of commits.
+    #' @return A list of repositories with commits.
     pull_commits_from_org = function(repos_table,
                                      date_from,
                                      date_until
@@ -197,7 +197,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         total = length(repos_names)
       )
 
-      commits_list <- purrr::map(projects_ids, function(project_id) {
+      repos_list_with_commits <- purrr::map(projects_ids, function(project_id) {
         pb$tick()
         commits_from_repo <- private$pull_commits_from_repo(
           project_id = project_id,
@@ -206,8 +206,8 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         )
         return(commits_from_repo)
       })
-      names(commits_list) <- repos_names
-      return(commits_list)
+      names(repos_list_with_commits) <- repos_names
+      return(repos_list_with_commits)
     },
 
     #' @description Iterator over pages of commits response.
@@ -245,40 +245,39 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     },
 
     #' @description A helper to retrieve only important info on commits.
-    #' @param commits_list A list, a formatted content of response returned by
-    #'   GET API request.
+    #' @param repos_list_with_commits A list of repositories with commits.
     #' @param org A character, name of a group.
     #' @return A list of commits with selected information.
-    tailor_commits_info = function(commits_list,
+    tailor_commits_info = function(repos_list_with_commits,
                                    org) {
-      commits_list <- purrr::map(commits_list, function(x) {
-        purrr::map(x, function(y) {
+      repos_list_with_commits_cut <- purrr::map(repos_list_with_commits, function(repo) {
+        purrr::map(repo, function(commit) {
           list(
-            "id" = y$id,
-            "organization" = org,
+            "id" = commit$id,
+            "committed_date" = gts_to_posixt(commit$committed_date),
+            "author" = commit$author_name,
+            "additions" = commit$stats$additions,
+            "deletions" = commit$stats$deletions,
             "repository" = gsub(
-              pattern = paste0("/-/commit/", y$id),
+              pattern = paste0("/-/commit/", commit$id),
               replacement = "",
-              x = gsub(paste0("(.*)", org, "/"), "", y$web_url)
+              x = gsub(paste0("(.*)", org, "/"), "", commit$web_url)
             ),
-            "additions" = y$stats$additions,
-            "deletions" = y$stats$deletions,
-            "committed_date" = gts_to_posixt(y$committed_date),
-            "author" = y$author_name
+            "organization" = org
           )
         })
       })
-      return(commits_list)
+      return(repos_list_with_commits_cut)
     },
 
     #' @description Filter by contributors.
-    #' @param commits_list A commits list to be filtered.
-    #' @param team A character vector with team member names.
+    #' @param repos_list_with_commits A list of repositories with commits.
+    #' @param team A list of team members.
     #' @return A list.
-    filter_commits_by_team = function(commits_list,
+    filter_commits_by_team = function(repos_list_with_commits,
                                       team) {
       team_names <- purrr::map_chr(team, ~ .$name)
-      commits_list <- purrr::map(commits_list, function(repo) {
+      filtered_repos_list_with_commits <- purrr::map(repos_list_with_commits, function(repo) {
         purrr::keep(repo, function(commit) {
           if (length(commit$author_name > 0)) {
             commit$author_name %in% team_names
@@ -288,7 +287,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         })
       }) %>% purrr::discard(~ length(.) == 0)
 
-      commits_list
+      return(filtered_repos_list_with_commits)
     },
 
     #' @description A helper to turn list of data.frames into one data.frame
