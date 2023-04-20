@@ -96,11 +96,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         repos_table = repos_table,
         date_from = date_from,
         date_until = date_until
-      )
-
-      names(commits_list) <- repos_names
-
-      commits_list <- commits_list %>%
+      ) %>%
         purrr::discard(~ length(.) == 0)
 
       if (by == "team") {
@@ -210,7 +206,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         )
         return(commits_from_repo)
       })
-
+      names(commits_list) <- repos_names
       return(commits_list)
     },
 
