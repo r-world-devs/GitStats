@@ -1,5 +1,6 @@
 #' @importFrom stringr str_length str_replace
 
+#' @noRd
 #' @description Transform R date object into git time stamp
 #' @param date A date.
 #' @return A character (git time stamp format).
@@ -23,6 +24,7 @@ date_to_gts <- function(date) {
   }
 }
 
+#' @noRd
 #' @description Transform git time stamp format into Posixt
 #' @param date_vector A character vector of dates obtained from Git API.
 #' @return A vector of dates in Posixt format.

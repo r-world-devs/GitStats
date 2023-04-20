@@ -7,11 +7,12 @@
 An object with methods to obtain information form GitHub API.
 }
 \section{Super class}{
-\code{\link[GitStats:GitService]{GitStats::GitService}} -> \code{GitHub}
+\code{\link[GitStats:GitPlatform]{GitStats::GitPlatform}} -> \code{GitHub}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
+\item \href{#method-new}{\code{GitHub$new()}}
 \item \href{#method-get_commits}{\code{GitHub$get_commits()}}
 \item \href{#method-print}{\code{GitHub$print()}}
 }
@@ -19,10 +20,36 @@ An object with methods to obtain information form GitHub API.
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
-\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="GitService" data-id="get_repos">}\href{../../GitStats/html/GitService.html#method-get_repos}{\code{GitStats::GitService$get_repos()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="GitService" data-id="initialize">}\href{../../GitStats/html/GitService.html#method-initialize}{\code{GitStats::GitService$initialize()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="GitPlatform" data-id="get_repos">}\href{../../GitStats/html/GitPlatform.html#method-get_repos}{\code{GitStats::GitPlatform$get_repos()}}\out{</span>}
 }
 \out{</details>}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
+\subsection{Method \code{new()}}{
+Create a new \code{GitHub} object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitHub$new(rest_api_url = NA, gql_api_url = NA, token = NA, orgs = NA)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{rest_api_url}}{A url of rest API.}
+
+\item{\code{gql_api_url}}{A url of GraphQL API.}
+
+\item{\code{token}}{A token.}
+
+\item{\code{orgs}}{A character vector of organisations (owners of repositories
+in case of GitHub).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new \code{GitHub} object
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-get_commits"></a>}}
@@ -30,20 +57,12 @@ An object with methods to obtain information form GitHub API.
 \subsection{Method \code{get_commits()}}{
 A method to get information on commits.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitHub$get_commits(
-  orgs = self$orgs,
-  date_from,
-  date_until = Sys.Date(),
-  by,
-  team
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitHub$get_commits(date_from, date_until = Sys.Date(), by, team)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{orgs}}{A character vector of organisations.}
-
 \item{\code{date_from}}{A starting date to look commits for.}
 
 \item{\code{date_until}}{An end date to look commits for.}

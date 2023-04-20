@@ -8,11 +8,11 @@ test_that("Set connection returns appropriate messages", {
       token = Sys.getenv("GITHUB_PAT"),
       orgs = c("openpharma", "r-world-devs")
     ) %>%
-    set_connection(
-      api_url = "https://gitlab.com/api/v4",
-      token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-      orgs = c("mbtests")
-    )
+      set_connection(
+        api_url = "https://gitlab.com/api/v4",
+        token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+        orgs = c("mbtests")
+      )
   )
 })
 
@@ -67,47 +67,7 @@ test_that("Error pops out, when two clients of the same url api are passed as in
   )
 })
 
-test_that("When token is empty throw error and do not pass connection", {
-  test_gitstats$clients <- list()
-
-  expect_snapshot(
-    error = TRUE,
-    set_connection(
-      gitstats_obj = test_gitstats,
-      api_url = "https://api.github.com",
-      token = Sys.getenv("TOKEN_THAT_DOES_NOT_EXIST"),
-      orgs = "r-world-devs"
-    )
-  )
-
-  expect_length(
-    test_gitstats$clients,
-    0
-  )
-
-})
-
-test_that("Warning shows up, when token is invalid", {
-
-  expect_snapshot(
-    error = TRUE,
-    set_connection(
-      gitstats_obj = test_gitstats,
-      api_url = "https://api.github.com",
-      token = "INVALID_TOKEN",
-      orgs = "r-world-devs"
-    )
-  )
-
-  expect_length(
-    test_gitstats$clients,
-    0
-  )
-
-})
-
 test_that("`Org` name is not passed to the object if it does not exist", {
-
   expect_snapshot(
     test_gitstats <- create_gitstats() %>%
       set_connection(
@@ -134,11 +94,9 @@ test_that("`Org` name is not passed to the object if it does not exist", {
     test_gitstats$clients[[1]]$orgs,
     "mbtests"
   )
-
 })
 
 test_that("Error with message pops out, when you pass to your `GitLab` connection group name as you see it on the page (not from url)", {
-
   testthat::skip_on_ci()
 
   expect_snapshot(

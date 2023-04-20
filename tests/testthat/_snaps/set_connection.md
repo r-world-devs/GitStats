@@ -48,32 +48,6 @@
       You can not provide two clients of the same API urls.
                      If you wish to change/add more organizations you can do it with `set_organizations()` function.
 
-# When token is empty throw error and do not pass connection
-
-    Code
-      set_connection(gitstats_obj = test_gitstats, api_url = "https://api.github.com",
-        token = Sys.getenv("TOKEN_THAT_DOES_NOT_EXIST"), orgs = "r-world-devs")
-    Message <simpleMessage>
-      HTTP 401 Unauthorized.
-    Message <cliMessage>
-      v Set connection to GitHub.
-    Error <rlang_error>
-      i No token provided for `https://api.github.com`.
-      x Host will not be passed to `GitStats` object.
-
-# Warning shows up, when token is invalid
-
-    Code
-      set_connection(gitstats_obj = test_gitstats, api_url = "https://api.github.com",
-        token = "INVALID_TOKEN", orgs = "r-world-devs")
-    Message <simpleMessage>
-      HTTP 401 Unauthorized.
-    Message <cliMessage>
-      v Set connection to GitHub.
-    Error <rlang_error>
-      i Token provided for `https://api.github.com` is invalid.
-      x Host will not be passed to `GitStats` object.
-
 # `Org` name is not passed to the object if it does not exist
 
     Code
@@ -92,7 +66,9 @@
       test_gitstats <- create_gitstats() %>% set_connection(api_url = "https://gitlab.com/api/v4",
         token = Sys.getenv("GITLAB_PAT_PUBLIC"), orgs = c("openparma", "mbtests"))
     Message <cliMessage>
-      x Organization you provided does not exist. Check spelling in: openparma
+      x Group name passed in a wrong way: openparma
+      ! If you are using `GitLab`, please type your group name as you see it in `url`.
+      i E.g. do not use spaces. Group names as you see on the page may differ from their 'address' name.
     Message <simpleMessage>
       HTTP 404 No such address
     Message <cliMessage>

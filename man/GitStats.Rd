@@ -96,7 +96,7 @@ Nothing.
 \subsection{Method \code{set_connection()}}{
 Method to set connections to Git platforms
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$set_connection(api_url, token, orgs, set_org_limit)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$set_connection(api_url, token, orgs)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -108,8 +108,6 @@ Method to set connections to Git platforms
 
 \item{\code{orgs}}{A character vector of organisations (owners of repositories
 in case of GitHub and groups of projects in case of GitLab).}
-
-\item{\code{set_org_limit}}{An integer defining how many orgs API may pull.}
 }
 \if{html}{\out{</div>}}
 }

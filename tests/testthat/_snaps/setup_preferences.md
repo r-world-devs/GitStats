@@ -10,7 +10,7 @@
       v Your search preferences set to phrase: covid.
     Output
       A <GitStats> object for 0 clients:
-      Clients: 
+      Hosts: 
       Organisations: 
       Search preference: phrase
       Team: RWD-IE (0 members)
@@ -27,7 +27,7 @@
       v Your language is set to <Python>.
     Output
       A <GitStats> object for 0 clients:
-      Clients: 
+      Hosts: 
       Organisations: 
       Search preference: org
       Team: RWD-IE (0 members)

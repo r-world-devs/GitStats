@@ -2,29 +2,28 @@
 pkgload::load_all()
 
 # Start by creating your GitStats object and setting connections.
-
 git_stats <- create_gitstats() %>%
   set_connection(
     api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
-    orgs = c("r-world-devs", "openpharma", "pharmaverse")
+    orgs = c("r-world-devs", "openpharma")
   ) %>%
   set_connection(
     api_url = "https://gitlab.com/api/v4",
-    token = Sys.getenv("GITLAB_PAT"),
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = c("mbtests", "erasmusmc-public-health")
   )
 
+git_stats
+
 # examples for getting repos (default argument for parameter 'by' is 'org')
 get_repos(git_stats)
+get_commits(git_stats, date_from = "2022-01-01")
 
 # You can set your search preferences
 setup_preferences(git_stats,
                   search_param = "team",
                   team_name = "RWD")
-
-# now getting repos will throw error as you did not define your team
-get_repos(git_stats)
 
 # set your team members
 git_stats %>%
@@ -35,11 +34,9 @@ git_stats %>%
   add_team_member("Kamil Koziej", "Cotau") %>%
   add_team_member("Maciej Banaś", "maciekbanas")
 
-# check your settings
-git_stats
-
 # now pull repos by default by team
 get_repos(git_stats)
+get_commits(git_stats, date_from = "2020-01-01")
 
 # Change your settings to searches by phrase:
 setup_preferences(git_stats,
