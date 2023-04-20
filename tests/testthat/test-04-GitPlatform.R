@@ -5,7 +5,7 @@ test_host <- create_testhost(
 # private methods
 
 test_that("GitPlatform filters GitHub repositories' table by team members", {
-  gh_repos_table <- test_mock$mocker$gh_repos_table
+  gh_repos_table <- test_mocker$use("gh_repos_table")
   expect_snapshot(
     result <- test_host$filter_repos_by_team(
       gh_repos_table,
@@ -37,7 +37,7 @@ test_that("GitPlatform filters GitHub repositories' table by team members", {
 })
 
 test_that("GitPlatform filters GitLab repositories' table by team members", {
-  gl_repos_table <- test_mock$mocker$gl_repos_table
+  gl_repos_table <- test_mocker$use("gl_repos_table")
   expect_snapshot(
     result <- test_host$filter_repos_by_team(
       gl_repos_table,
@@ -66,7 +66,7 @@ test_that("GitPlatform filters GitLab repositories' table by team members", {
 })
 
 test_that("GitPlatform filters repositories' table by languages", {
-  repos_table <- test_mock$mocker$gh_repos_table
+  repos_table <- test_mocker$use("gh_repos_table")
   expect_snapshot(
     result <- test_host$filter_repos_by_language(
       repos_table,

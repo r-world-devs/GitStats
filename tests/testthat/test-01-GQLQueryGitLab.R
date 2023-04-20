@@ -8,5 +8,5 @@ test_that("repos_by_org query is built properly", {
   expect_snapshot(
     gl_repos_by_org_query
   )
-  test_mock$mock(gl_repos_by_org_query)
+  test_mocker$cache(gl_repos_by_org_query)
 })

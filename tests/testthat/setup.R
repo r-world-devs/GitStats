@@ -1,1 +1,1 @@
-test_mock <- TestMock$new()
+test_mocker <- Mocker$new()

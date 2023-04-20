@@ -8,15 +8,15 @@ test_rest <- EngineRestGitHub$new(
 test_rest_priv <- environment(test_rest$initialize)$private
 
 test_that("`search_response()` performs search with limit under 100", {
-  total_n <- test_mock$mocker$gh_search_repos_rest_response[["total_count"]]
+  total_n <- test_mocker$use("gh_search_repos_rest_response")[["total_count"]]
 
   mockery::stub(
     test_rest_priv$search_response,
     "private$rest_response",
-    test_mock$mocker$gh_search_repos_rest_response
+    test_mocker$use("gh_search_repos_rest_response")
   )
   gh_search_repos_response <- test_rest_priv$search_response(
-    search_endpoint = test_mock$mocker$search_endpoint,
+    search_endpoint = test_mocker$use("search_endpoint"),
     total_n = total_n,
     byte_max = 384000
   )
@@ -24,14 +24,14 @@ test_that("`search_response()` performs search with limit under 100", {
   expect_gh_repos_list(
     gh_search_repos_response[[1]]
   )
-  test_mock$mock(gh_search_repos_response)
+  test_mocker$cache(gh_search_repos_response)
 })
 
 test_that("`search_repos_by_phrase()` for GitHub prepares a list of repositories", {
   mockery::stub(
     test_rest_priv$search_repos_by_phrase,
     "private$search_response",
-    test_mock$mocker$gh_search_repos_response
+    test_mocker$use("gh_search_repos_response")
   )
   expect_snapshot(
     gh_repos_by_phrase <- test_rest_priv$search_repos_by_phrase(
@@ -43,11 +43,11 @@ test_that("`search_repos_by_phrase()` for GitHub prepares a list of repositories
   expect_gh_repos_list(
     gh_repos_by_phrase[[1]]
   )
-  test_mock$mock(gh_repos_by_phrase)
+  test_mocker$cache(gh_repos_by_phrase)
 })
 
 test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
-  gh_repos_by_phrase <- test_mock$mocker$gh_repos_by_phrase
+  gh_repos_by_phrase <- test_mocker$use("gh_repos_by_phrase")
 
   gh_repos_by_phrase_tailored <-
     test_rest_priv$tailor_repos_info(gh_repos_by_phrase)
@@ -66,18 +66,18 @@ test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
   expect_lt(length(gh_repos_by_phrase_tailored[[1]]),
             length(gh_repos_by_phrase[[1]]))
 
-  test_mock$mock(gh_repos_by_phrase_tailored)
+  test_mocker$cache(gh_repos_by_phrase_tailored)
 })
 
 test_that("`prepare_repos_table()` prepares repos table", {
   gh_repos_by_phrase_table <- test_rest_priv$prepare_repos_table(
-    repos_list = test_mock$mocker$gh_repos_by_phrase_tailored
+    repos_list = test_mocker$use("gh_repos_by_phrase_tailored")
   )
 
   expect_repos_table(
     gh_repos_by_phrase_table
   )
-  test_mock$mock(gh_repos_by_phrase_table)
+  test_mocker$cache(gh_repos_by_phrase_table)
 })
 
 # public methods
@@ -85,19 +85,19 @@ test_that("`prepare_repos_table()` prepares repos table", {
 test_that("`get_repos_contributors()` adds contributors to repos table", {
 
   gh_repos_by_phrase_table <- test_rest$get_repos_contributors(
-    test_mock$mocker$gh_repos_by_phrase_table
+    test_mocker$use("gh_repos_by_phrase_table")
   )
   expect_gt(
     length(gh_repos_by_phrase_table$contributors),
     0
   )
-  test_mock$mock(gh_repos_by_phrase_table)
+  test_mocker$cache(gh_repos_by_phrase_table)
 })
 
 
 test_that("`get_repos_issues()` adds issues to repos table", {
 
-  gh_repos_by_phrase_table <- test_mock$mocker$gh_repos_by_phrase_table
+  gh_repos_by_phrase_table <- test_mocker$use("gh_repos_by_phrase_table")
 
   gh_repos_by_phrase_table <- test_rest$get_repos_issues(
     gh_repos_by_phrase_table
@@ -110,7 +110,7 @@ test_that("`get_repos_issues()` adds issues to repos table", {
     length(gh_repos_by_phrase_table$issues_closed),
     0
   )
-  test_mock$mock(gh_repos_by_phrase_table)
+  test_mocker$cache(gh_repos_by_phrase_table)
 })
 
 test_that("`get_repos_by_phrase()` works", {
@@ -118,7 +118,7 @@ test_that("`get_repos_by_phrase()` works", {
   mockery::stub(
     test_rest$get_repos_by_phrase,
     "private$search_repos_by_phrase",
-    test_mock$mocker$gh_repos_by_phrase
+    test_mocker$use("gh_repos_by_phrase")
   )
 
   result <- test_rest$get_repos_by_phrase(

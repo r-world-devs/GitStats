@@ -23,11 +23,11 @@ test_that("`search_repos_by_phrase()` works", {
     gl_repos_by_phrase[[1]],
     c("id", "description", "name", "created_at")
   )
-  test_mock$mock(gl_repos_by_phrase)
+  test_mocker$cache(gl_repos_by_phrase)
 })
 
 test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
-  gl_repos_by_phrase <- test_mock$mocker$gl_repos_by_phrase
+  gl_repos_by_phrase <- test_mocker$use("gl_repos_by_phrase")
 
   gl_repos_by_phrase_tailored <-
     test_rest_priv$tailor_repos_info(gl_repos_by_phrase)
@@ -45,23 +45,23 @@ test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
   expect_lt(length(gl_repos_by_phrase_tailored[[1]]),
             length(gl_repos_by_phrase[[1]]))
 
-  test_mock$mock(gl_repos_by_phrase_tailored)
+  test_mocker$cache(gl_repos_by_phrase_tailored)
 })
 
 test_that("`prepare_repos_table()` prepares repos table", {
   gl_repos_by_phrase_table <- test_rest_priv$prepare_repos_table(
-    repos_list = test_mock$mocker$gl_repos_by_phrase_tailored
+    repos_list = test_mocker$use("gl_repos_by_phrase_tailored")
   )
 
   expect_repos_table(
     gl_repos_by_phrase_table
   )
-  test_mock$mock(gl_repos_by_phrase_table)
+  test_mocker$cache(gl_repos_by_phrase_table)
 })
 
 test_that("`pull_commits_from_org()` pulls commits from repo", {
 
-  gl_commits_repo_1 <- test_mock$mocker$gl_commits_rest_response_repo_1
+  gl_commits_repo_1 <- test_mocker$use("gl_commits_rest_response_repo_1")
 
   mockery::stub(
     test_rest_priv$pull_commits_from_org,
@@ -70,7 +70,7 @@ test_that("`pull_commits_from_org()` pulls commits from repo", {
   )
 
   gl_commits_org <- test_rest_priv$pull_commits_from_org(
-    repos_table = test_mock$mocker$gl_repos_table,
+    repos_table = test_mocker$use("gl_repos_table"),
     date_from = "2023-01-01",
     date_until = "2023-04-20"
   )
@@ -79,13 +79,13 @@ test_that("`pull_commits_from_org()` pulls commits from repo", {
     gl_commits_org[[1]]
   )
 
-  test_mock$mock(gl_commits_org)
+  test_mocker$cache(gl_commits_org)
 
 })
 
 test_that("`tailor_commits_info()` retrieves only necessary info", {
 
-  gl_commits_list <- test_mock$mocker$gl_commits_org
+  gl_commits_list <- test_mocker$use("gl_commits_org")
 
   gl_commits_list_cut <- test_rest_priv$tailor_commits_info(
     gl_commits_list,
@@ -101,19 +101,19 @@ test_that("`tailor_commits_info()` retrieves only necessary info", {
 test_that("`get_repos_contributors()` adds contributors to repos table", {
 
   gl_repos_table <- test_rest$get_repos_contributors(
-    test_mock$mocker$gl_repos_table
+    test_mocker$use("gl_repos_table")
   )
   expect_gt(
     length(gl_repos_table$contributors),
     0
   )
-  test_mock$mock(gl_repos_table)
+  test_mocker$cache(gl_repos_table)
 })
 
 
 test_that("`get_repos_issues()` adds issues to repos table", {
 
-  gl_repos_by_phrase_table <- test_mock$mocker$gl_repos_by_phrase_table
+  gl_repos_by_phrase_table <- test_mocker$use("gl_repos_by_phrase_table")
 
   gl_repos_by_phrase_table <- test_rest$get_repos_issues(
     gl_repos_by_phrase_table
@@ -126,5 +126,5 @@ test_that("`get_repos_issues()` adds issues to repos table", {
     length(gl_repos_by_phrase_table$issues_closed),
     0
   )
-  test_mock$mock(gl_repos_by_phrase_table)
+  test_mocker$cache(gl_repos_by_phrase_table)
 })

@@ -11,7 +11,7 @@ test_that("commits_by_repo query is built properly", {
   expect_snapshot(
     gh_commits_by_repo_query
   )
-  test_mock$mock(gh_commits_by_repo_query)
+  test_mocker$cache(gh_commits_by_repo_query)
 })
 
 test_that("repos_by_org query is built properly", {
@@ -22,5 +22,5 @@ test_that("repos_by_org query is built properly", {
   expect_snapshot(
     gh_repos_by_org_query
   )
-  test_mock$mock(gh_repos_by_org_query)
+  test_mocker$cache(gh_repos_by_org_query)
 })
