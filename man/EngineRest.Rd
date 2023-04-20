@@ -5,6 +5,8 @@
 \title{A EngineRest class}
 \value{
 A request.
+
+A request.
 }
 \description{
 A superclass for methods wraping Rest API responses.

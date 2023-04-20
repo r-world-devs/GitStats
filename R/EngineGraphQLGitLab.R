@@ -87,13 +87,13 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
           },
           "contributors" = NA,
           "organization" = org,
-          "api_url" = gsub("/graphql", "", self$gql_api_url),
           "repo_url" = paste0(
             gsub("/graphql", "", self$gql_api_url),
             "/projects/",
             gsub("gid://gitlab/Project/", "", repo$node$id),
             "/v4"
-          )
+          ),
+          "api_url" = gsub("/graphql", "", self$gql_api_url)
         )
         repo_row
       })

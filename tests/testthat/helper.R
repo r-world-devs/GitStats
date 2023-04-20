@@ -104,7 +104,7 @@ expect_repos_table <- function(get_repos_object) {
   repo_cols <- c(
     "id", "name", "stars", "forks", "created_at", "last_push",
     "last_activity_at", "languages", "issues_open", "issues_closed",
-    "contributors", "organization", "api_url", "repo_url"
+    "contributors", "organization", "repo_url", "api_url"
   )
   expect_s3_class(get_repos_object, "data.frame")
   expect_named(get_repos_object, repo_cols)

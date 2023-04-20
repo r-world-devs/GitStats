@@ -139,7 +139,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       ) %>%
         dplyr::relocate(
           repo_url,
-          .after = last_col()
+          .after = organization
         )
       return(repos_table)
     },

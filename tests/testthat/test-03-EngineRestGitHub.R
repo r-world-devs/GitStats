@@ -47,21 +47,35 @@ test_that("`search_repos_by_phrase()` for GitHub prepares a list of repositories
 })
 
 test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
-  repos_before <- test_mock$mocker$gh_repos_by_phrase
+  gh_repos_by_phrase <- test_mock$mocker$gh_repos_by_phrase
 
-  tailored_repos <-
-    test_rest_priv$tailor_repos_info(repos_before)
+  gh_repos_by_phrase_tailored <-
+    test_rest_priv$tailor_repos_info(gh_repos_by_phrase)
 
-  tailored_repos %>%
+  gh_repos_by_phrase_tailored %>%
     expect_type("list") %>%
-    expect_length(length(repos_before))
+    expect_length(length(gh_repos_by_phrase))
 
   expect_list_contains_only(
-    tailored_repos[[1]],
+    gh_repos_by_phrase_tailored[[1]],
     c("id", "name", "created_at", "last_activity_at", "last_push",
       "forks", "stars", "contributors", "issues_open", "issues_closed",
       "organization"
     ))
 
-  expect_lt(length(tailored_repos[[1]]), length(repos_before[[1]]))
+  expect_lt(length(gh_repos_by_phrase_tailored[[1]]),
+            length(gh_repos_by_phrase[[1]]))
+
+  test_mock$mock(gh_repos_by_phrase_tailored)
+})
+
+test_that("`prepare_repos_table()` prepares repos table", {
+  gh_repos_by_phrase_table <- test_rest_priv$prepare_repos_table(
+    repos_list = test_mock$mocker$gh_repos_by_phrase_tailored
+  )
+
+  expect_repos_table(
+    gh_repos_by_phrase_table
+  )
+  test_mock$mock(gh_repos_by_phrase_table)
 })
