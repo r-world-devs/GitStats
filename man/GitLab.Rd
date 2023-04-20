@@ -82,7 +82,7 @@ Separate method for \code{GitLab} than \code{GitHub} is because of
 basically poorer GitHub's GraphQL API features. For the time-being
 contributors need to be added through REST and the search functionality
 does not support filtering by language
-(\link{https://gitlab.com/gitlab-org/gitlab/-/issues/340333}).
+(https://gitlab.com/gitlab-org/gitlab/-/issues/340333).
 }
 
 \subsection{Returns}{
