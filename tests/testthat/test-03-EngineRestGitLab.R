@@ -98,7 +98,7 @@ test_that("`tailor_commits_info()` retrieves only necessary info", {
 
 # public methods
 
-test_that("'get_repos_contributors' adds contributors to repos table", {
+test_that("`get_repos_contributors()` adds contributors to repos table", {
 
   gl_repos_table <- test_rest$get_repos_contributors(
     test_mock$mocker$gl_repos_table
@@ -111,7 +111,7 @@ test_that("'get_repos_contributors' adds contributors to repos table", {
 })
 
 
-test_that("'get_repos_issues' adds issues to repos table", {
+test_that("`get_repos_issues()` adds issues to repos table", {
 
   gl_repos_by_phrase_table <- test_mock$mocker$gl_repos_by_phrase_table
 

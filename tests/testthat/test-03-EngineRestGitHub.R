@@ -79,3 +79,54 @@ test_that("`prepare_repos_table()` prepares repos table", {
   )
   test_mock$mock(gh_repos_by_phrase_table)
 })
+
+# public methods
+
+test_that("`get_repos_contributors()` adds contributors to repos table", {
+
+  gh_repos_by_phrase_table <- test_rest$get_repos_contributors(
+    test_mock$mocker$gh_repos_by_phrase_table
+  )
+  expect_gt(
+    length(gh_repos_by_phrase_table$contributors),
+    0
+  )
+  test_mock$mock(gh_repos_by_phrase_table)
+})
+
+
+test_that("`get_repos_issues()` adds issues to repos table", {
+
+  gh_repos_by_phrase_table <- test_mock$mocker$gh_repos_by_phrase_table
+
+  gh_repos_by_phrase_table <- test_rest$get_repos_issues(
+    gh_repos_by_phrase_table
+  )
+  expect_gt(
+    length(gh_repos_by_phrase_table$issues_open),
+    0
+  )
+  expect_gt(
+    length(gh_repos_by_phrase_table$issues_closed),
+    0
+  )
+  test_mock$mock(gh_repos_by_phrase_table)
+})
+
+test_that("`get_repos_by_phrase()` works", {
+
+  mockery::stub(
+    test_rest$get_repos_by_phrase,
+    "private$search_repos_by_phrase",
+    test_mock$mocker$gh_repos_by_phrase
+  )
+
+  result <- test_rest$get_repos_by_phrase(
+    phrase = "shiny",
+    org = "r-world-devs",
+    language = "R"
+  )
+
+  expect_repos_table(result)
+
+})
