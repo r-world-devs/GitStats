@@ -12,18 +12,8 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
         gql_api_url = gql_api_url,
         token = token
       )
+      self$git_platform <- "GitLab"
       self$gql_query <- GQLQueryGitLab$new()
-    },
-
-    #' @description A method to pull all repositories for an organization.
-    #' @param org A character, an organization:\itemize{\item{GitHub - owners o
-    #'   repositories} \item{GitLab - group of projects.}}
-    #' @return A list.
-    get_repos_from_org = function(org) {
-      cli::cli_alert_info("[GitLab][{org}][Engine:{cli::col_yellow('GraphQL')}] Pulling repositories...")
-      repos_table <- private$pull_repos_from_org(org = org) %>%
-        private$prepare_repos_table(org = org)
-      return(repos_table)
     }
   ),
   private = list(

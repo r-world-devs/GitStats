@@ -4,25 +4,41 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
   inherit = EngineRest,
   public = list(
 
-    #' @description Method to get repositories with phrase in code blobs.
-    #' @param phrase A phrase to look for in
-    #'   codelines.
-    #' @param org A character, an organization of repositories.
-    #' @param language A character specifying language used in repositories.
-    #' @return Table of repositories.
-    get_repos_by_phrase = function(phrase,
-                                   org,
-                                   language) {
-      repos_list <- private$search_repos_by_phrase(
-        phrase,
-        org = org,
-        language = language
+    initialize = function(rest_api_url,
+                          token) {
+      super$initialize(
+        rest_api_url = rest_api_url,
+        token = token
       )
-      repos_table <- repos_list %>%
-        private$tailor_repos_info() %>%
-        private$prepare_repos_table() %>%
-        self$get_repos_contributors() %>%
-        self$get_repos_issues()
+      self$git_platform <- "GitHub"
+    },
+
+    #' @description Check if an organization exists
+    #' @param orgs A character vector of organizations
+    #' @return orgs or NULL.
+    check_organizations = function(orgs) {
+      orgs <- purrr::map(orgs, function(org) {
+        org_endpoint <- "/orgs/"
+        withCallingHandlers(
+          {
+            self$response(endpoint = paste0(self$rest_api_url, org_endpoint, org))
+          },
+          message = function(m) {
+            if (grepl("404", m)) {
+              cli::cli_alert_danger("Organization you provided does not exist. Check spelling in: {org}")
+              org <<- NULL
+            }
+          }
+        )
+        return(org)
+      }) %>%
+        purrr::keep(~ length(.) > 0) %>%
+        unlist()
+
+      if (length(orgs) == 0) {
+        return(NULL)
+      }
+      orgs
     },
 
     #' @description A method to add information on repository contributors.
@@ -32,7 +48,6 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       if (nrow(repos_table) > 0) {
         repo_iterator <- paste0(repos_table$organization, "/", repos_table$name)
         user_name <- rlang::expr(.$login)
-
         repos_table$contributors <- purrr::map(repo_iterator, function(repos_id) {
           contributors_endpoint <- paste0(self$rest_api_url, "/repos/", repos_id, "/contributors")
           tryCatch(
@@ -92,7 +107,6 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
                                       org,
                                       language,
                                       byte_max = "384000") {
-      cli::cli_alert_info("[GitHub][{org}][Engine:{cli::col_green('REST')}] Searching repos...")
       search_endpoint <- if (!is.null(language)) {
         paste0(self$rest_api_url, "/search/code?q='", phrase, "'+user:", org, "+language:", language)
       } else {

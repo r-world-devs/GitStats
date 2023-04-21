@@ -2,7 +2,7 @@
 #' @description A helper class for use in tests - it does not throw superfluous
 #'   messages and does exactly what is needed for in tests.
 TestHost <- R6::R6Class("TestHost",
-  inherit = GitPlatform,
+  inherit = GitHost,
   public = list(
     rest_engine = NULL,
     orgs = NULL,

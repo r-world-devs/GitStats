@@ -20,23 +20,17 @@ GitStats <- R6::R6Class("GitStats",
     #' @description Create a new `GitStats` object
     #' @return A new `GitStats` object
     initialize = function() {
-      self$search_param <- "org"
+      self$parameters$search_param <- "org"
     },
 
-    #' @field team_name Name of a team.
-    team_name = NULL,
-
-    #' @field team A list containing team members.
-    team = list(),
-
-    #' @field search_param A team, org or keyword.
-    search_param = NULL,
-
-    #' @field phrase A phrase to search.
-    phrase = NULL,
-
-    #' @field language A programming language of repositories to look for.
-    language = NULL,
+    #' @field parameters
+    parameters = list(
+      search_param = NULL,
+      phrase = NULL,
+      team_name = NULL,
+      team = list(),
+      language = NULL
+    ),
 
     #' @field storage A local database credentials to store output.
     storage = NULL,
@@ -59,10 +53,10 @@ GitStats <- R6::R6Class("GitStats",
     #' @param phrase A phrase to look for.
     #' @param language A language of programming code.
     #' @return Nothing.
-    setup_preferences = function(search_param,
-                                 team_name,
-                                 phrase,
-                                 language) {
+    setup = function(search_param,
+                     team_name,
+                     phrase,
+                     language) {
       search_param <- match.arg(
         search_param,
         c("org", "team", "phrase")
@@ -74,7 +68,7 @@ GitStats <- R6::R6Class("GitStats",
             "You need to define your `team_name`."
           )
         } else {
-          self$team_name <- team_name
+          self$parameters$team_name <- team_name
           cli::cli_alert_success(
             paste0("Your search preferences set to {cli::col_green('team: ", team_name, "')}.")
           )
@@ -94,18 +88,23 @@ GitStats <- R6::R6Class("GitStats",
             "You need to define your phrase."
           )
         } else {
-          self$phrase <- phrase
+          self$parameters$phrase <- phrase
           cli::cli_alert_success(
             paste0("Your search preferences set to {cli::col_green('phrase: ", phrase, "')}.")
           )
         }
       }
-      self$search_param <- search_param
+      self$parameters$search_param <- search_param
       if (!is.null(language)) {
-        self$language <- language
+        self$parameters$language <- private$language_handler(language)
         cli::cli_alert_success(
-          paste0("Your language is set to <", language, ">.")
+          paste0("Your programming language is set to <", language, ">.")
         )
+      }
+      if (!is.null(self$clients)) {
+        purrr::walk(self$clients, function(client) {
+          client$parameters <- self$parameters
+        })
       }
     },
 
@@ -118,23 +117,37 @@ GitStats <- R6::R6Class("GitStats",
     set_connection = function(api_url,
                               token,
                               orgs) {
+
       if (grepl("https://", api_url) && grepl("github", api_url)) {
-        new_client <- GitHub$new(
-          rest_api_url = api_url,
+        rest_engine = EngineRestGitHub$new(
           token = token,
-          orgs = orgs
+          rest_api_url = api_url
+        )
+        graphql_engine = EngineGraphQLGitHub$new(
+          token = token,
+          gql_api_url = api_url
         )
         cli::cli_alert_success("Set connection to GitHub.")
       } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
-        new_client <- GitLab$new(
-          rest_api_url = api_url,
+        rest_engine = EngineRestGitLab$new(
           token = token,
-          orgs = orgs
+          rest_api_url = api_url
+        )
+        graphql_engine = EngineGraphQLGitLab$new(
+          token = token,
+          gql_api_url = api_url
         )
         cli::cli_alert_success("Set connection to GitLab.")
       } else {
         stop("This connection is not supported by GitStats class object.")
       }
+
+      new_client <- GitHost$new(
+        orgs = orgs,
+        graphql_engine = graphql_engine,
+        rest_engine = rest_engine,
+        parameters = self$parameters
+      )
 
       self$clients <- new_client %>%
         private$check_client() %>%
@@ -184,7 +197,7 @@ GitStats <- R6::R6Class("GitStats",
         "logins" = unlist(list(...))
       )
 
-      self$team[[paste0(member_name)]] <- team_member
+      self$parameters$team[[paste0(member_name)]] <- team_member
 
       cli::cli_alert_success("{member_name} successfully added to team.")
     },
@@ -282,12 +295,7 @@ GitStats <- R6::R6Class("GitStats",
         }
       }
 
-      repos_dt_list <- purrr::map(self$clients, ~ .$get_repos(
-        by = by,
-        phrase = phrase,
-        language = language,
-        team = team
-      ))
+      repos_dt_list <- purrr::map(self$clients, ~ .$get_repos())
 
       if (any(purrr::map_lgl(repos_dt_list, ~ length(.) != 0))) {
         self$repos_dt <- repos_dt_list %>%
@@ -351,9 +359,7 @@ GitStats <- R6::R6Class("GitStats",
       commits_dt <- purrr::map(self$clients, function(x) {
         commits <- x$get_commits(
           date_from = date_from,
-          date_until = date_until,
-          by = by,
-          team = team
+          date_until = date_until
         )
 
         if (by == "team" && !is.null(self$team)) {
@@ -388,14 +394,14 @@ GitStats <- R6::R6Class("GitStats",
     #' @description A print method for a GitStats object
     print = function() {
       cat(paste0("A <GitStats> object for ", length(self$clients), " clients:"), sep = "\n")
-      clients <- purrr::map_chr(self$clients, ~ .$rest_engine$rest_api_url)
+      clients <- purrr::map_chr(self$clients, ~ .$engines$rest$rest_api_url)
       private$print_item("Hosts", clients, paste0(clients, collapse = ", "))
       orgs <- purrr::map(self$clients, ~ paste0(.$orgs, collapse = ", ")) %>% paste0(collapse = ", ")
       private$print_item("Organisations", orgs)
-      private$print_item("Search preference", self$search_param)
-      private$print_item("Team", self$team_name, paste0(self$team_name, " (", length(self$team), " members)"))
-      private$print_item("Phrase", self$phrase)
-      private$print_item("Language", self$language)
+      private$print_item("Search preference", self$parameters$search_param)
+      private$print_item("Team", self$parameters$team_name, paste0(self$parameters$team_name, " (", length(self$parameters$team), " members)"))
+      private$print_item("Phrase", self$parameters$phrase)
+      private$print_item("Language", self$parameters$language)
       private$print_item("Storage", self$storage, class(self$storage)[1])
       cat(paste0(
         cli::col_blue("Storage On/Off: "),
@@ -578,7 +584,7 @@ GitStats <- R6::R6Class("GitStats",
       if (length(self$clients) > 0) {
         clients_to_check <- append(client, self$clients)
 
-        urls <- purrr::map_chr(clients_to_check, ~ .$rest_engine$rest_api_url)
+        urls <- purrr::map_chr(clients_to_check, ~ .$engines$rest$rest_api_url)
 
         if (length(urls) != length(unique(urls))) {
           stop("You can not provide two clients of the same API urls.
@@ -589,6 +595,21 @@ GitStats <- R6::R6Class("GitStats",
       }
 
       client
+    },
+
+    #' @description Switcher to manage language names
+    #' @details E.g. GitLab API will not filter
+    #'   properly if you provide 'python' language
+    #'   with small letter.
+    #' @param language A character, language name
+    #' @return A character
+    language_handler = function(language) {
+      if (!is.null(language)) {
+        substr(language, 1, 1) <- toupper(substr(language, 1, 1))
+      } else if (language %in% c("javascript", "Javascript", "js", "JS", "Js")) {
+        language <- "JavaScript"
+      }
+      language
     },
 
     #' @description A helper to manage printing `GitStats` object.

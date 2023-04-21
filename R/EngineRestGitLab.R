@@ -4,24 +4,43 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
   inherit = EngineRest,
   public = list(
 
-    #' @description Method to get repositories with phrase in code blobs.
-    #' @details For the time being there is no possibility to search GitLab with
-    #'   filtering by language. For more information look here:
-    #'   https://gitlab.com/gitlab-org/gitlab/-/issues/340333
-    #' @param phrase A phrase to look for in codelines.
-    #' @param org A character, an organization of repositories.
-    #' @return Table of repositories.
-    get_repos_by_phrase = function(phrase,
-                                   org) {
-      repos_list <- private$search_repos_by_phrase(
-        phrase,
-        org = org
+    initialize = function(rest_api_url,
+                          token) {
+      super$initialize(
+        rest_api_url = rest_api_url,
+        token = token
       )
-      repos_table <- repos_list %>%
-        private$tailor_repos_info() %>%
-        private$prepare_repos_table() %>%
-        self$get_repos_contributors() %>%
-        self$get_repos_issues()
+      self$git_platform <- "GitLab"
+    },
+
+    #' @description Check if an organization exists
+    #' @param orgs A character vector of organizations
+    #' @return orgs or NULL.
+    check_organizations = function(orgs) {
+      orgs <- purrr::map(orgs, function(org) {
+        org_endpoint <- "/groups/"
+        withCallingHandlers(
+          {
+            self$response(endpoint = paste0(self$rest_api_url, org_endpoint, org))
+          },
+          message = function(m) {
+            if (grepl("404", m)) {
+              cli::cli_alert_danger("Group name passed in a wrong way: {org}")
+              cli::cli_alert_warning("If you are using `GitLab`, please type your group name as you see it in `url`.")
+              cli::cli_alert_info("E.g. do not use spaces. Group names as you see on the page may differ from their 'address' name.")
+              org <<- NULL
+            }
+          }
+        )
+        return(org)
+      }) %>%
+        purrr::keep(~ length(.) > 0) %>%
+        unlist()
+
+      if (length(orgs) == 0) {
+        return(NULL)
+      }
+      orgs
     },
 
     #' @description A method to add information on repository contributors.
@@ -76,19 +95,17 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @param repos_table A table of repositories.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
-    #' @param by A search parameter - `team` or `orgs`.
-    #' @param team A list of team members.
+    #' @param parameters
     #' @return A table of commits.
-    get_commits_from_org = function(org,
-                                    repos_table,
-                                    date_from,
-                                    date_until = Sys.date(),
-                                    by,
-                                    team) {
+    get_commits = function(org,
+                           repos_table,
+                           date_from,
+                           date_until = Sys.date(),
+                           parameters) {
 
-      if (by == "org") {
+      if (parameters$search_param == "org") {
         cli::cli_alert_info("[GitLab][{org}][Engine:{cli::col_green('REST')}] Pulling commits...")
-      } else if (by == "team") {
+      } else if (parameters$search_param == "team") {
         cli::cli_alert_info("[GitLab][{org}][Engine:{cli::col_green('REST')}] Pulling commits by team...")
       }
 
@@ -99,10 +116,10 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       ) %>%
         purrr::discard(~ length(.) == 0)
 
-      if (by == "team") {
+      if (parameters$search_param == "team") {
         repos_list_with_commits <- private$filter_commits_by_team(
           repos_list_with_commits = repos_list_with_commits,
-          team = team
+          team = parameters$team
         )
       }
       commits_table <- repos_list_with_commits %>%
@@ -120,12 +137,13 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #'   https://gitlab.com/gitlab-org/gitlab/-/issues/340333
     #' @param phrase A phrase to look for in codelines.
     #' @param org A character, a group of projects.
+    #' @param language
     #' @param page_max An integer, maximum number of pages.
     #' @return A list of repositories.
     search_repos_by_phrase = function(phrase,
                                       org,
+                                      language,
                                       page_max = 1e6) {
-      cli::cli_alert_info("[GitLab][{org}][Engine:{cli::col_green('REST')}] Searching repos...")
       page <- 1
       still_more_hits <- TRUE
       resp_list <- list()
@@ -150,8 +168,18 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
 
       repos_list <- purrr::map_chr(resp_list, ~ as.character(.$project_id)) %>%
         unique() %>%
-        private$find_by_id(objects = "projects")
+        private$find_by_id(objects = "projects") #%>%
+        # private$filter_repos_by_language(language = language)
 
+      return(repos_list)
+    },
+
+    filter_repos_by_language = function(repos_list,
+                                        language) {
+
+      repos_list <- purrr::map(repos_list, function(x) {
+
+      })
       return(repos_list)
     },
 
@@ -166,16 +194,15 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           "stars" = x$star_count,
           "forks" = x$fork_count,
           "created_at" = x$created_at,
-          "last_push" = NA,
+          "last_push" = NULL,
           "last_activity_at" = x$last_activity_at,
-          "languages" = NA,
+          "languages" = NULL,
           "issues_open" = x$issues_open,
           "issues_closed" = x$issues_closed,
-          "contributors" = NA,
+          "contributors" = NULL,
           "organization" = x$namespace$path
         )
       })
-
       projects_list
     },
 
