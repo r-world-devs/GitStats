@@ -77,13 +77,8 @@ GitHost <- R6::R6Class("GitHost",
       private$check_for_organizations()
 
       commits_dt <- purrr::map(self$orgs, function(org) {
-        repos_table <- self$engines$graphql$get_repos(
-          org = org,
-          parameters = self$parameters
-        )
         commits_table <- purrr::map(self$engines, ~ .$get_commits(
           org = org,
-          repos_table = repos_table,
           date_from = date_from,
           date_until = date_until,
           parameters = self$parameters

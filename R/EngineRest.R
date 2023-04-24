@@ -39,11 +39,13 @@ EngineRest <- R6::R6Class("EngineRest",
     },
 
     #' @description Method to get repositories with phrase in code blobs.
+    #' @param org
+    #' @param parameters
     #' @return Table of repositories.
     get_repos = function(org,
                          parameters) {
       if (parameters$search_param == "phrase") {
-        cli::cli_alert_info("[{self$git_platform}][{org}][Engine:{cli::col_green('REST')}] Searching repositories...")
+        cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_green('REST')}][phrase:{parameters$phrase}][org:{org}] Searching repositories...")
         repos_table <- private$search_repos_by_phrase(
           org = org,
           phrase = parameters$phrase,

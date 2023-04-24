@@ -43,6 +43,40 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       orgs
     },
 
+    #' @description A method to retrieve all repositories for an organization in
+    #'   a table format.
+    #' @param org
+    #' @param parameters
+    #' @return A table.
+    get_repos = function(org,
+                         parameters) {
+
+      repos_table <- super$get_repos(
+        org = org,
+        parameters = parameters
+      )
+      if (parameters$search_param %in% c("org", "team")) {
+        cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
+        org <- private$get_group_id(org)
+        repos_table <- private$pull_repos_from_org(org) %>%
+          private$tailor_repos_info() %>%
+          private$prepare_repos_table() %>%
+          self$get_repos_contributors()
+        if (parameters$search_param == "team") {
+          repos_table <- private$filter_repos_by_team(
+            repos_table = repos_table,
+            team = parameters$team
+          )
+        }
+        if (!is.null(parameters$language)) {
+          repos_table <- private$filter_repos_by_language(
+            repos_table = repos_table
+          )
+        }
+      }
+      return(repos_table)
+    },
+
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
@@ -92,21 +126,24 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @description GitLab private method to derive
     #'   commits from repo with REST API.
     #' @param org A character, a group of projects.
-    #' @param repos_table A table of repositories.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
     #' @param parameters
     #' @return A table of commits.
     get_commits = function(org,
-                           repos_table,
                            date_from,
                            date_until = Sys.date(),
                            parameters) {
 
+      repos_table <- self$get_repos(
+        org = org,
+        parameters = parameters
+      )
+
       if (parameters$search_param == "org") {
-        cli::cli_alert_info("[GitLab][{org}][Engine:{cli::col_green('REST')}] Pulling commits...")
+        cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}] Pulling commits...")
       } else if (parameters$search_param == "team") {
-        cli::cli_alert_info("[GitLab][{org}][Engine:{cli::col_green('REST')}] Pulling commits by team...")
+        cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}] Pulling commits by team...")
       }
 
       repos_list_with_commits <- private$pull_commits_from_org(
@@ -130,6 +167,27 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     }
   ),
   private = list(
+
+    #' @description Iterator over pulling pages of repositories.
+    #' @param org An organization.
+    #' @return A list of repositories from organization.
+    pull_repos_from_org = function(org) {
+      full_repos_list <- list()
+      page <- 1
+      repeat {
+        repo_endpoint <- paste0(self$rest_api_url, "/groups/", org, "/projects?per_page=100&page=", page)
+        repos_page <- self$response(
+          endpoint = repo_endpoint
+        )
+        if (length(repos_page) > 0) {
+          full_repos_list <- append(full_repos_list, repos_page)
+          page <- page + 1
+        } else {
+          break
+        }
+      }
+      return(full_repos_list)
+    },
 
     #' @description Perform get request to search API.
     #' @details For the time being there is no possibility to search GitLab with
@@ -178,7 +236,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
                                         language) {
 
       repos_list <- purrr::map(repos_list, function(x) {
-
+        x
       })
       return(repos_list)
     },

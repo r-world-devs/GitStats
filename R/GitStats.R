@@ -119,24 +119,21 @@ GitStats <- R6::R6Class("GitStats",
                               orgs) {
 
       if (grepl("https://", api_url) && grepl("github", api_url)) {
-        rest_engine = EngineRestGitHub$new(
+        rest_engine <- EngineRestGitHub$new(
           token = token,
           rest_api_url = api_url
         )
-        graphql_engine = EngineGraphQLGitHub$new(
+        graphql_engine <- EngineGraphQLGitHub$new(
           token = token,
           gql_api_url = api_url
         )
         cli::cli_alert_success("Set connection to GitHub.")
       } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
-        rest_engine = EngineRestGitLab$new(
+        rest_engine <- EngineRestGitLab$new(
           token = token,
           rest_api_url = api_url
         )
-        graphql_engine = EngineGraphQLGitLab$new(
-          token = token,
-          gql_api_url = api_url
-        )
+        graphql_engine <- NULL
         cli::cli_alert_success("Set connection to GitLab.")
       } else {
         stop("This connection is not supported by GitStats class object.")
