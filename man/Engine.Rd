@@ -9,6 +9,8 @@ A super class for methods wrapping API responses.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
+\item{\code{git_platform}}{A character specifying what Git Platform (GitHub or GitLab).}
+
 \item{\code{token}}{A token authorizing access to API.}
 }
 \if{html}{\out{</div>}}
@@ -23,19 +25,8 @@ A super class for methods wrapping API responses.
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{Engine$new()}}
 \item \href{#method-clone}{\code{Engine$clone()}}
 }
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
-\subsection{Method \code{new()}}{
-Create \code{Engine} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Engine$new(token)}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

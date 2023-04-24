@@ -1,10 +1,13 @@
+#' @importFrom dplyr filter
+#' @importFrom purrr keep
+#'
 #' @title An Engine class
 #' @description A super class for methods wrapping API responses.
 #'
 Engine <- R6::R6Class("Engine",
 
   public = list(
-    #' @field git_platform
+    #' @field git_platform A character specifying what Git Platform (GitHub or GitLab).
     git_platform = NULL
   ),
 

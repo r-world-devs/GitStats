@@ -11,16 +11,6 @@ An R6 class object with methods to derive information from multiple Git platform
 \describe{
 \item{\code{clients}}{A list of API connections information.}
 
-\item{\code{team_name}}{Name of a team.}
-
-\item{\code{team}}{A list containing team members.}
-
-\item{\code{search_param}}{A team, org or keyword.}
-
-\item{\code{phrase}}{A phrase to search.}
-
-\item{\code{language}}{A programming language of repositories to look for.}
-
 \item{\code{storage}}{A local database credentials to store output.}
 
 \item{\code{storage_schema}}{A schema of database.}
@@ -37,7 +27,7 @@ An R6 class object with methods to derive information from multiple Git platform
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{GitStats$new()}}
-\item \href{#method-setup_preferences}{\code{GitStats$setup_preferences()}}
+\item \href{#method-setup}{\code{GitStats$setup()}}
 \item \href{#method-set_connection}{\code{GitStats$set_connection()}}
 \item \href{#method-set_organizations}{\code{GitStats$set_organizations()}}
 \item \href{#method-add_team_member}{\code{GitStats$add_team_member()}}
@@ -65,12 +55,12 @@ A new \code{GitStats} object
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-setup_preferences"></a>}}
-\if{latex}{\out{\hypertarget{method-setup_preferences}{}}}
-\subsection{Method \code{setup_preferences()}}{
+\if{html}{\out{<a id="method-setup"></a>}}
+\if{latex}{\out{\hypertarget{method-setup}{}}}
+\subsection{Method \code{setup()}}{
 Set up your search parameters.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$setup_preferences(search_param, team_name, phrase, language)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$setup(search_param, team_name, phrase, language)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

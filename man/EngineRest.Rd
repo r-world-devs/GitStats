@@ -17,14 +17,7 @@ A superclass for methods wraping Rest API responses.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{gql_api_url}}{A character, url of Rest API.}
-}
-\if{html}{\out{</div>}}
-}
-\section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{gql_api_url}}{A character, url of Rest API.}
+\item{\code{rest_api_url}}{A character, url of Rest API.}
 }
 \if{html}{\out{</div>}}
 }
@@ -33,6 +26,8 @@ A superclass for methods wraping Rest API responses.
 \itemize{
 \item \href{#method-new}{\code{EngineRest$new()}}
 \item \href{#method-response}{\code{EngineRest$response()}}
+\item \href{#method-get_repos}{\code{EngineRest$get_repos()}}
+\item \href{#method-get_commits}{\code{EngineRest$get_commits()}}
 \item \href{#method-clone}{\code{EngineRest$clone()}}
 }
 }
@@ -85,6 +80,34 @@ A wrapper for httr2 functions to perform get request to REST API endpoints.
 \subsection{Returns}{
 A content of response formatted to list.
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_repos"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos}{}}}
+\subsection{Method \code{get_repos()}}{
+Method to get repositories with phrase in code blobs.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{EngineRest$get_repos(org, parameters)}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Table of repositories.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_commits"></a>}}
+\if{latex}{\out{\hypertarget{method-get_commits}{}}}
+\subsection{Method \code{get_commits()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{EngineRest$get_commits(
+  org,
+  repos_table,
+  date_from,
+  date_until = Sys.date(),
+  parameters
+)}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

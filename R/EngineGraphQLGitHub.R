@@ -1,3 +1,6 @@
+#' @importFrom dplyr mutate relocate
+#' @importFrom progress progress_bar
+#'
 #' @title A EngineGraphQLGitHub class
 #' @description A class for methods wraping GitHub's GraphQL API responses.
 EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
@@ -37,7 +40,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
 
     #' @description A method to retrieve all repositories for an organization in
     #'   a table format.
-    #' @param org
+    #' @param org An organization.
     #' @param parameters
     #' @return A table.
     get_repos = function(org,

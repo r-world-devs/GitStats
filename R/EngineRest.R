@@ -1,5 +1,5 @@
 #' @importFrom httr2 request req_headers req_perform resp_body_json
-#' @importFrom cli cli_abort
+#' @importFrom cli cli_abort col_green
 #' @importFrom rlang %||%
 #'
 #' @title A EngineRest class

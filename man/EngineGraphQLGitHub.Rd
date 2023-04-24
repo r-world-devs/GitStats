@@ -6,22 +6,33 @@
 \description{
 A class for methods wraping GitHub's GraphQL API responses.
 }
-\section{Super classes}{
-\code{\link[GitStats:Engine]{GitStats::Engine}} -> \code{\link[GitStats:EngineGraphQL]{GitStats::EngineGraphQL}} -> \code{EngineGraphQLGitHub}
+\section{Super class}{
+\code{\link[GitStats:Engine]{GitStats::Engine}} -> \code{EngineGraphQLGitHub}
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{git_service}}{A character specifying whether GitHub or GitLab.}
+
+\item{\code{gql_api_url}}{A character, url of GraphQL API.}
+
+\item{\code{gql_query}}{An environment for GraphQL queries.}
+}
+\if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{EngineGraphQLGitHub$new()}}
-\item \href{#method-get_repos_from_org}{\code{EngineGraphQLGitHub$get_repos_from_org()}}
-\item \href{#method-get_commits_from_org}{\code{EngineGraphQLGitHub$get_commits_from_org()}}
+\item \href{#method-gql_response}{\code{EngineGraphQLGitHub$gql_response()}}
+\item \href{#method-get_repos}{\code{EngineGraphQLGitHub$get_repos()}}
+\item \href{#method-get_commits}{\code{EngineGraphQLGitHub$get_commits()}}
 \item \href{#method-clone}{\code{EngineGraphQLGitHub$clone()}}
 }
 }
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
-\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="EngineGraphQL" data-id="gql_response">}\href{../../GitStats/html/EngineGraphQL.html#method-gql_response}{\code{GitStats::EngineGraphQL$gql_response()}}\out{</span>}
 }
 \out{</details>}
 }
@@ -45,41 +56,52 @@ Create \code{EngineGraphQLGitHub} object.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos_from_org"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos_from_org}{}}}
-\subsection{Method \code{get_repos_from_org()}}{
-A method to retrieve all repositories for an organization in
-a table format.
+\if{html}{\out{<a id="method-gql_response"></a>}}
+\if{latex}{\out{\hypertarget{method-gql_response}{}}}
+\subsection{Method \code{gql_response()}}{
+Wrapper of GraphQL API request and response.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$get_repos_from_org(org)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$gql_response(gql_query)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{org}}{A character, an organization:\itemize{\item{GitHub - owners o
-repositories} \item{GitLab - group of projects.}}}
+\item{\code{gql_query}}{A string with GraphQL query.}
 }
 \if{html}{\out{</div>}}
 }
+\subsection{Returns}{
+A list.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_repos"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos}{}}}
+\subsection{Method \code{get_repos()}}{
+A method to retrieve all repositories for an organization in
+a table format.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$get_repos(org, parameters)}\if{html}{\out{</div>}}
+}
+
 \subsection{Returns}{
 A table.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_commits_from_org"></a>}}
-\if{latex}{\out{\hypertarget{method-get_commits_from_org}{}}}
-\subsection{Method \code{get_commits_from_org()}}{
+\if{html}{\out{<a id="method-get_commits"></a>}}
+\if{latex}{\out{\hypertarget{method-get_commits}{}}}
+\subsection{Method \code{get_commits()}}{
 Method to pull all commits from organization, optionally
 filtered by team members.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$get_commits_from_org(
+\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$get_commits(
   org,
   repos_table,
   date_from,
   date_until,
-  by,
-  team
+  parameters
 )}\if{html}{\out{</div>}}
 }
 
@@ -93,10 +115,6 @@ filtered by team members.
 \item{\code{date_from}}{A starting date to look commits for.}
 
 \item{\code{date_until}}{An end date to look commits for.}
-
-\item{\code{by}}{A character, 'org' or 'team'.}
-
-\item{\code{team}}{A list of team members.}
 }
 \if{html}{\out{</div>}}
 }

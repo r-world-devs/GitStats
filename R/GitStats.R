@@ -2,6 +2,7 @@
 #' @importFrom cli cli_alert_info cli_alert_success cli_alert_warning col_yellow
 #' @importFrom data.table rbindlist :=
 #' @importFrom dplyr glimpse
+#' @importFrom magrittr %>%
 #' @importFrom purrr map
 #' @importFrom tibble tibble
 #' @importFrom DBI dbConnect dbWriteTable dbAppendTable dbReadTable dbListTables Id

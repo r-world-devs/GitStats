@@ -12,47 +12,63 @@ A class for methods wraping GitLab's REST API responses.
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-get_repos_by_phrase}{\code{EngineRestGitLab$get_repos_by_phrase()}}
+\item \href{#method-new}{\code{EngineRestGitLab$new()}}
+\item \href{#method-check_organizations}{\code{EngineRestGitLab$check_organizations()}}
+\item \href{#method-get_repos}{\code{EngineRestGitLab$get_repos()}}
 \item \href{#method-get_repos_contributors}{\code{EngineRestGitLab$get_repos_contributors()}}
 \item \href{#method-get_repos_issues}{\code{EngineRestGitLab$get_repos_issues()}}
-\item \href{#method-get_commits_from_org}{\code{EngineRestGitLab$get_commits_from_org()}}
+\item \href{#method-get_commits}{\code{EngineRestGitLab$get_commits()}}
 \item \href{#method-clone}{\code{EngineRestGitLab$clone()}}
 }
 }
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
-\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="EngineRest" data-id="initialize">}\href{../../GitStats/html/EngineRest.html#method-initialize}{\code{GitStats::EngineRest$initialize()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="EngineRest" data-id="response">}\href{../../GitStats/html/EngineRest.html#method-response}{\code{GitStats::EngineRest$response()}}\out{</span>}
 }
 \out{</details>}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos_by_phrase"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos_by_phrase}{}}}
-\subsection{Method \code{get_repos_by_phrase()}}{
-Method to get repositories with phrase in code blobs.
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
+\subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitLab$get_repos_by_phrase(phrase, org)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitLab$new(rest_api_url, token)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-check_organizations"></a>}}
+\if{latex}{\out{\hypertarget{method-check_organizations}{}}}
+\subsection{Method \code{check_organizations()}}{
+Check if an organization exists
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitLab$check_organizations(orgs)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{phrase}}{A phrase to look for in codelines.}
-
-\item{\code{org}}{A character, an organization of repositories.}
+\item{\code{orgs}}{A character vector of organizations}
 }
 \if{html}{\out{</div>}}
 }
-\subsection{Details}{
-For the time being there is no possibility to search GitLab with
-filtering by language. For more information look here:
-https://gitlab.com/gitlab-org/gitlab/-/issues/340333
+\subsection{Returns}{
+orgs or NULL.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_repos"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos}{}}}
+\subsection{Method \code{get_repos()}}{
+A method to retrieve all repositories for an organization in
+a table format.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitLab$get_repos(org, parameters)}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
-Table of repositories.
+A table.
 }
 }
 \if{html}{\out{<hr>}}
@@ -96,19 +112,17 @@ A table of repositories with added information on contributors.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_commits_from_org"></a>}}
-\if{latex}{\out{\hypertarget{method-get_commits_from_org}{}}}
-\subsection{Method \code{get_commits_from_org()}}{
+\if{html}{\out{<a id="method-get_commits"></a>}}
+\if{latex}{\out{\hypertarget{method-get_commits}{}}}
+\subsection{Method \code{get_commits()}}{
 GitLab private method to derive
 commits from repo with REST API.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitLab$get_commits_from_org(
+\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitLab$get_commits(
   org,
-  repos_table,
   date_from,
   date_until = Sys.date(),
-  by,
-  team
+  parameters
 )}\if{html}{\out{</div>}}
 }
 
@@ -117,15 +131,9 @@ commits from repo with REST API.
 \describe{
 \item{\code{org}}{A character, a group of projects.}
 
-\item{\code{repos_table}}{A table of repositories.}
-
 \item{\code{date_from}}{A starting date to look commits for.}
 
 \item{\code{date_until}}{An end date to look commits for.}
-
-\item{\code{by}}{A search parameter - \code{team} or \code{orgs}.}
-
-\item{\code{team}}{A list of team members.}
 }
 \if{html}{\out{</div>}}
 }
