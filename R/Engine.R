@@ -20,7 +20,6 @@ Engine <- R6::R6Class("Engine",
     #' @return A repos table.
     filter_repos_by_team = function(repos_table,
                                     team) {
-      cli::cli_alert_info("Filtering by team members.")
       team_logins <- unlist(team)
       if (nrow(repos_table) > 0) {
         filtered_contributors <- purrr::keep(repos_table$contributors, function(row) {

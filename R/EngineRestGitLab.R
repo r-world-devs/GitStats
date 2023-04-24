@@ -56,7 +56,11 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         parameters = parameters
       )
       if (parameters$search_param %in% c("org", "team")) {
-        cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
+        if (parameters$search_param == "org") {
+          cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
+        } else {
+          cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_green('REST')}][org:{org}][team:{parameters$team_name}] Pulling repositories...")
+        }
         org <- private$get_group_id(org)
         repos_table <- private$pull_repos_from_org(org) %>%
           private$tailor_repos_info() %>%
@@ -143,7 +147,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       if (parameters$search_param == "org") {
         cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}] Pulling commits...")
       } else if (parameters$search_param == "team") {
-        cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}] Pulling commits by team...")
+        cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}][team:{parameters$team_name}] Pulling commits...")
       }
 
       repos_list_with_commits <- private$pull_commits_from_org(

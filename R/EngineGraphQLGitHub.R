@@ -44,7 +44,11 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
                          parameters) {
 
       if (parameters$search_param %in% c("org", "team")) {
-        cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
+        if (parameters$search_param == "org") {
+          cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
+        } else {
+          cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_yellow('GraphQL')}][org:{org}][team:{parameters$team_name}] Pulling repositories...")
+        }
         repos_table <- private$pull_repos_from_org(org) %>%
           private$prepare_repos_table(org)
         if (parameters$search_param == "team") {
