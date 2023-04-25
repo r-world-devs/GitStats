@@ -18,15 +18,9 @@ GitStats <- R6::R6Class("GitStats",
     #' @field clients A list of API connections information.
     clients = list(),
 
-    #' @description Create a new `GitStats` object
-    #' @return A new `GitStats` object
-    initialize = function() {
-      self$parameters$search_param <- "org"
-    },
-
     #' @field parameters
     parameters = list(
-      search_param = NULL,
+      search_param = "org",
       phrase = NULL,
       team_name = NULL,
       team = list(),
@@ -53,11 +47,13 @@ GitStats <- R6::R6Class("GitStats",
     #' @param team_name A name of a team.
     #' @param phrase A phrase to look for.
     #' @param language A language of programming code.
+    #' @param storage
     #' @return Nothing.
     setup = function(search_param,
                      team_name,
                      phrase,
-                     language) {
+                     language,
+                     storage = FALSE) {
       search_param <- match.arg(
         search_param,
         c("org", "team", "phrase")
@@ -265,30 +261,16 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description  A method to list all repositories for an organization,
     #'   a team or by a keyword.
-    #' @param by A character, to choose between: \itemize{\item{org - organizations
-    #'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in
-    #'   code blobs.}}
-    #' @param phrase A character, phrase to look for in codelines.
-    #' @param language A character specifying language used in repositories.
     #' @param print_out A boolean stating whether to print an output.
     #' @return A data.frame of repositories
-    get_repos = function(by,
-                         phrase,
-                         language,
-                         print_out) {
-      by <- match.arg(
-        by,
-        c("org", "team", "phrase")
-      )
+    get_repos = function(print_out) {
 
-      team <- NULL
-      if (by == "team") {
-        if (length(self$team) == 0) {
+      if (self$parameters$search_param == "team") {
+        if (length(self$parameters$team) == 0) {
           cli::cli_abort("You have to specify a team first with 'add_team_member()'.")
         }
-        team <- self$team
-      } else if (by == "phrase") {
-        if (is.null(phrase)) {
+      } else if (self$parameters$search_param == "phrase") {
+        if (is.null(self$parameters$phrase)) {
           cli::cli_abort("You have to provide a phrase to look for.")
         }
       }
@@ -304,40 +286,30 @@ GitStats <- R6::R6Class("GitStats",
 
         if (self$use_storage) {
           private$save_storage(self$repos_dt,
-            name = paste0("repos_by_", by)
+            name = paste0("repos_by_", self$parameters$search_param)
           )
         }
       } else {
         message("Empty object - will not be saved.")
       }
-
       invisible(self)
     },
 
     #' @description A method to get information on commits.
     #' @param date_from A starting date to look commits for
     #' @param date_until An end date to look commits for
-    #' @param by A character, to choose between: \itemize{\item{org - organizations
-    #'   (owners of repositories)} \item{team - A team} \item{phrase - A keyword in
-    #'   code blobs.}}
     #' @param print_out A boolean stating whether to print an output.
     #' @return A data.frame of commits
     get_commits = function(date_from,
                            date_until,
-                           by,
                            print_out) {
       if (is.null(date_from)) {
         stop("You need to define `date_from`.", call. = FALSE)
       }
 
-      by <- match.arg(
-        by,
-        c("org", "team")
-      )
-
       commits_storage <- if (self$use_storage) {
         private$check_storage(
-          table_name = paste0("commits_by_", by)
+          table_name = paste0("commits_by_", self$parameters$search_param)
         )
       }
 
@@ -346,12 +318,10 @@ GitStats <- R6::R6Class("GitStats",
         date_from <- commits_storage[["last_date"]] + lubridate::seconds(1)
       }
 
-      team <- NULL
-      if (by == "team") {
-        if (length(self$team) == 0) {
+      if (self$parameters$search_param == "team") {
+        if (length(self$parameters$team) == 0) {
           cli::cli_abort("You have to specify a team first with 'add_team_member()'.")
         }
-        team <- self$team
       }
 
       commits_dt <- purrr::map(self$clients, function(x) {
@@ -360,10 +330,10 @@ GitStats <- R6::R6Class("GitStats",
           date_until = date_until
         )
 
-        if (by == "team" && !is.null(self$team)) {
+        if (self$parameters$search_param == "team" && !is.null(self$parameters$team)) {
           cli::cli_alert_success(
             paste0(
-              x$git_service, " for '", self$team_name, "' team: pulled ",
+              x$git_service, " for '", self$parameters$team_name, "' team: pulled ",
               nrow(commits), " commits from ",
               length(unique(commits$repository)), " repositories."
             )
@@ -381,11 +351,10 @@ GitStats <- R6::R6Class("GitStats",
 
       if (self$use_storage) {
         private$save_storage(self$commits_dt,
-          name = paste0("commits_by_", by),
+          name = paste0("commits_by_", self$parameters$search_param),
           append = !is.null(commits_storage)
         )
       }
-
       invisible(self)
     },
 
