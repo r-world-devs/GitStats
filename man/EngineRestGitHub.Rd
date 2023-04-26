@@ -12,7 +12,8 @@ A class for methods wraping GitHub's REST API responses.
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-get_repos_by_phrase}{\code{EngineRestGitHub$get_repos_by_phrase()}}
+\item \href{#method-new}{\code{EngineRestGitHub$new()}}
+\item \href{#method-check_organizations}{\code{EngineRestGitHub$check_organizations()}}
 \item \href{#method-get_repos_contributors}{\code{EngineRestGitHub$get_repos_contributors()}}
 \item \href{#method-get_repos_issues}{\code{EngineRestGitHub$get_repos_issues()}}
 \item \href{#method-clone}{\code{EngineRestGitHub$clone()}}
@@ -21,34 +22,39 @@ A class for methods wraping GitHub's REST API responses.
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
-\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="EngineRest" data-id="initialize">}\href{../../GitStats/html/EngineRest.html#method-initialize}{\code{GitStats::EngineRest$initialize()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="EngineRest" data-id="get_commits">}\href{../../GitStats/html/EngineRest.html#method-get_commits}{\code{GitStats::EngineRest$get_commits()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="EngineRest" data-id="get_repos">}\href{../../GitStats/html/EngineRest.html#method-get_repos}{\code{GitStats::EngineRest$get_repos()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="EngineRest" data-id="response">}\href{../../GitStats/html/EngineRest.html#method-response}{\code{GitStats::EngineRest$response()}}\out{</span>}
 }
 \out{</details>}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos_by_phrase"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos_by_phrase}{}}}
-\subsection{Method \code{get_repos_by_phrase()}}{
-Method to get repositories with phrase in code blobs.
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
+\subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$get_repos_by_phrase(phrase, org, language)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$new(rest_api_url, token)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-check_organizations"></a>}}
+\if{latex}{\out{\hypertarget{method-check_organizations}{}}}
+\subsection{Method \code{check_organizations()}}{
+Check if an organization exists
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$check_organizations(orgs)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{phrase}}{A phrase to look for in
-codelines.}
-
-\item{\code{org}}{A character, an organization of repositories.}
-
-\item{\code{language}}{A character specifying language used in repositories.}
+\item{\code{orgs}}{A character vector of organizations}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-Table of repositories.
+orgs or NULL.
 }
 }
 \if{html}{\out{<hr>}}

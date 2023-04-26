@@ -1,5 +1,6 @@
 #' @importFrom httr2 request req_headers req_perform resp_body_json
-#' @importFrom cli cli_abort
+#' @importFrom cli cli_abort col_green
+#' @importFrom rlang %||%
 #'
 #' @title A EngineRest class
 #' @description A superclass for methods wraping Rest API responses.
@@ -8,7 +9,7 @@ EngineRest <- R6::R6Class("EngineRest",
   inherit = Engine,
   public = list(
 
-    #' @field gql_api_url A character, url of Rest API.
+    #' @field rest_api_url A character, url of Rest API.
     rest_api_url = NULL,
 
     #' @description Create a new `Rest` object
@@ -17,7 +18,7 @@ EngineRest <- R6::R6Class("EngineRest",
     #' @return A `Rest` object.
     initialize = function(rest_api_url = NA,
                           token = NA) {
-      super$initialize(token = token)
+      private$token <- private$check_token(token)
       self$rest_api_url <- rest_api_url
     },
 
@@ -35,10 +36,76 @@ EngineRest <- R6::R6Class("EngineRest",
       }
 
       return(result)
+    },
+
+    #' @description Method to get repositories with phrase in code blobs.
+    #' @param org
+    #' @param settings
+    #' @return Table of repositories.
+    get_repos = function(org,
+                         settings) {
+      if (settings$search_param == "phrase") {
+        cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{org}] Searching repositories...")
+        repos_table <- private$search_repos_by_phrase(
+          org = org,
+          phrase = settings$phrase,
+          language = settings$language
+        ) %>%
+          private$tailor_repos_info() %>%
+          private$prepare_repos_table() %>%
+          self$get_repos_contributors() %>%
+          self$get_repos_issues()
+      } else {
+        repos_table <- NULL
+      }
+      return(repos_table)
+    },
+
+    get_commits = function(org,
+                           repos_table,
+                           date_from,
+                           date_until = Sys.date(),
+                           settings) {
+      NULL
     }
 
   ),
   private = list(
+
+    #' @description Check whether the token exists.
+    #' @param token A token.
+    #' @return A token.
+    check_token = function(token) {
+      if (nchar(token) == 0) {
+        cli::cli_abort(c(
+          "i" = "No token provided.",
+          "x" = "Host will not be passed to `GitStats` object."
+        ))
+      } else if (nchar(token) > 0) {
+        check_endpoint <- if ("GitLab" %in% class(self)) {
+          paste0(self$rest_api_url, "/projects")
+        } else if ("GitHub" %in% class(self)) {
+          self$rest_api_url
+        }
+        withCallingHandlers(
+          {
+            self$response(
+              endpoint = check_endpoint,
+              token = token
+            )
+          },
+          message = function(m) {
+            if (grepl("401", m)) {
+              cli::cli_abort(c(
+                "i" = "Token provided for ... is invalid.",
+                "x" = "Host will not be passed to `GitStats` object."
+              ))
+            }
+          }
+        )
+      }
+      return(invisible(token))
+    },
 
     #' @description Perform get request to find projects by ids.
     #' @param ids A character vector of repositories or projects' ids.
@@ -71,10 +138,14 @@ EngineRest <- R6::R6Class("EngineRest",
 
       if (length(repos_dt) > 0) {
         repos_dt <- dplyr::mutate(repos_dt,
+          id = as.character(id),
           created_at = as.POSIXct(created_at),
           last_activity_at = difftime(Sys.time(), as.POSIXct(last_activity_at),
             units = "days"
           ) %>% round(2),
+          forks = as.integer(forks),
+          issues_open = as.integer(issues_open),
+          issues_closed = as.integer(issues_closed),
           repo_url = ifelse(inherits(self, "EngineRestGitLab"),
                             paste0(self$rest_api_url, "/projects/", gsub("gid://gitlab/Project/", "", id)),
                             repo_url),
@@ -132,21 +203,18 @@ EngineRest <- R6::R6Class("EngineRest",
     },
 
     #' @description Handler for rate-limit error (403 on GitHub).
-    #' \link{}
     resp_is_transient = function(resp) {
       httr2::resp_status(resp) == 403 &&
         httr2::resp_header(resp, "X-RateLimit-Remaining") == "0"
     },
 
     #' @description Handler for rate-limit error (403 on GitHub).
-    #' \link{}
     req_after = function(resp) {
       time <- as.numeric(httr2::resp_header(resp, "X-RateLimit-Reset"))
       time - unclass(Sys.time())
     },
 
     #' @description Handler for rate-limit error (403 on GitHub).
-    #' \link{}
     resp_error_body = function(resp) {
       body <- httr2::resp_body_json(resp)
 

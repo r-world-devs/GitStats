@@ -2,49 +2,38 @@
 % Please edit documentation in R/GitStats.R
 \name{GitStats}
 \alias{GitStats}
-\title{A statistics platform for Git clients}
+\title{A statistics platform for Git hosts}
 \description{
 An R6 class object with methods to derive information from multiple Git platforms.
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{clients}}{A list of API connections information.}
+\item{\code{hosts}}{A list of API connections information.}
 
-\item{\code{team_name}}{Name of a team.}
+\item{\code{repos}}{An output table of repositories.}
 
-\item{\code{team}}{A list containing team members.}
+\item{\code{commits}}{An output table of commits.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{hosts}}{A list of API connections information.}
 
-\item{\code{search_param}}{A team, org or keyword.}
+\item{\code{repos}}{An output table of repositories.}
 
-\item{\code{phrase}}{A phrase to search.}
-
-\item{\code{language}}{A programming language of repositories to look for.}
-
-\item{\code{storage}}{A local database credentials to store output.}
-
-\item{\code{storage_schema}}{A schema of database.}
-
-\item{\code{use_storage}}{A boolean to check if storage is set.}
-
-\item{\code{repos_dt}}{An output table of repositories.}
-
-\item{\code{commits_dt}}{An output table of commits.}
+\item{\code{commits}}{An output table of commits.}
 }
 \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{GitStats$new()}}
-\item \href{#method-setup_preferences}{\code{GitStats$setup_preferences()}}
-\item \href{#method-set_connection}{\code{GitStats$set_connection()}}
-\item \href{#method-set_organizations}{\code{GitStats$set_organizations()}}
+\item \href{#method-setup}{\code{GitStats$setup()}}
+\item \href{#method-add_host}{\code{GitStats$add_host()}}
 \item \href{#method-add_team_member}{\code{GitStats$add_team_member()}}
-\item \href{#method-set_storage}{\code{GitStats$set_storage()}}
-\item \href{#method-show_storage}{\code{GitStats$show_storage()}}
-\item \href{#method-storage_off}{\code{GitStats$storage_off()}}
-\item \href{#method-storage_on}{\code{GitStats$storage_on()}}
 \item \href{#method-get_repos}{\code{GitStats$get_repos()}}
 \item \href{#method-get_commits}{\code{GitStats$get_commits()}}
 \item \href{#method-print}{\code{GitStats$print()}}
@@ -52,25 +41,12 @@ An R6 class object with methods to derive information from multiple Git platform
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new \code{GitStats} object
+\if{html}{\out{<a id="method-setup"></a>}}
+\if{latex}{\out{\hypertarget{method-setup}{}}}
+\subsection{Method \code{setup()}}{
+Set up your search settings.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$new()}\if{html}{\out{</div>}}
-}
-
-\subsection{Returns}{
-A new \code{GitStats} object
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-setup_preferences"></a>}}
-\if{latex}{\out{\hypertarget{method-setup_preferences}{}}}
-\subsection{Method \code{setup_preferences()}}{
-Set up your search parameters.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$setup_preferences(search_param, team_name, phrase, language)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$setup(search_param, team_name, phrase, language, print_out)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -83,6 +59,9 @@ Set up your search parameters.
 \item{\code{phrase}}{A phrase to look for.}
 
 \item{\code{language}}{A language of programming code.}
+
+\item{\code{print_out}}{A boolean stating if you want to print output after
+pulling.}
 }
 \if{html}{\out{</div>}}
 }
@@ -91,12 +70,12 @@ Nothing.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-set_connection"></a>}}
-\if{latex}{\out{\hypertarget{method-set_connection}{}}}
-\subsection{Method \code{set_connection()}}{
+\if{html}{\out{<a id="method-add_host"></a>}}
+\if{latex}{\out{\hypertarget{method-add_host}{}}}
+\subsection{Method \code{add_host()}}{
 Method to set connections to Git platforms
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$set_connection(api_url, token, orgs)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$add_host(api_url, token, orgs)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -112,31 +91,7 @@ in case of GitHub and groups of projects in case of GitLab).}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-Nothing, puts connection information into \verb{$clients} slot
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-set_organizations"></a>}}
-\if{latex}{\out{\hypertarget{method-set_organizations}{}}}
-\subsection{Method \code{set_organizations()}}{
-A method to set you organizations.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$set_organizations(..., api_url = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{A character vector of oganizations (repo owners or project
-groups).}
-
-\item{\code{api_url}}{A url for connection.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Nothing pass information on organizations into \verb{$orgs} field of
-\verb{$clients}.
+Nothing, puts connection information into \verb{$hosts} slot
 }
 }
 \if{html}{\out{<hr>}}
@@ -162,110 +117,15 @@ Nothing, pass information on team member to \code{GitStats}.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-set_storage"></a>}}
-\if{latex}{\out{\hypertarget{method-set_storage}{}}}
-\subsection{Method \code{set_storage()}}{
-A method to set local storage for the output.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$set_storage(type, dbname, schema, host, port, user, password)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{type}}{A character, type of storage.}
-
-\item{\code{dbname}}{Name of database.}
-
-\item{\code{schema}}{A db schema.}
-
-\item{\code{host}}{A host.}
-
-\item{\code{port}}{An integer, port address.}
-
-\item{\code{user}}{Username.}
-
-\item{\code{password}}{A password.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Details}{
-This is a wrapper over \code{DBI::dbConnect()} function. This functionality
-is meant among other to improve \code{GitStats} performance. Basically the
-idea is to cache your API responses in a database and retrieve them
-when necessary. E.g. when you call \code{get_commits(date_from = '2020-01-01')} it will save the results to your database and when you
-call it next time, \code{get_commits()} will retrieve from API only these
-results that do not exist in the databse (the new ones).
-}
-
-\subsection{Returns}{
-A \code{GitStats} object with information on local database.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-show_storage"></a>}}
-\if{latex}{\out{\hypertarget{method-show_storage}{}}}
-\subsection{Method \code{show_storage()}}{
-Print content of database.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$show_storage()}\if{html}{\out{</div>}}
-}
-
-\subsection{Returns}{
-A data.frame of table names.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-storage_off"></a>}}
-\if{latex}{\out{\hypertarget{method-storage_off}{}}}
-\subsection{Method \code{storage_off()}}{
-Switch off storage of data.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$storage_off()}\if{html}{\out{</div>}}
-}
-
-\subsection{Returns}{
-Nothing, turns field \verb{$use_storage} to FALSE
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-storage_on"></a>}}
-\if{latex}{\out{\hypertarget{method-storage_on}{}}}
-\subsection{Method \code{storage_on()}}{
-Switch on storage of data.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$storage_on()}\if{html}{\out{</div>}}
-}
-
-\subsection{Returns}{
-Nothing, turns field \verb{$use_storage} to TRUE
-}
-}
-\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-get_repos"></a>}}
 \if{latex}{\out{\hypertarget{method-get_repos}{}}}
 \subsection{Method \code{get_repos()}}{
 A method to list all repositories for an organization,
 a team or by a keyword.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos(by, phrase, language, print_out)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos()}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{by}}{A character, to choose between: \itemize{\item{org - organizations
-(owners of repositories)} \item{team - A team} \item{phrase - A keyword in
-code blobs.}}}
-
-\item{\code{phrase}}{A character, phrase to look for in codelines.}
-
-\item{\code{language}}{A character specifying language used in repositories.}
-
-\item{\code{print_out}}{A boolean stating whether to print an output.}
-}
-\if{html}{\out{</div>}}
-}
 \subsection{Returns}{
 A data.frame of repositories
 }
@@ -276,7 +136,7 @@ A data.frame of repositories
 \subsection{Method \code{get_commits()}}{
 A method to get information on commits.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits(date_from, date_until, by, print_out)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits(date_from, date_until)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -285,12 +145,6 @@ A method to get information on commits.
 \item{\code{date_from}}{A starting date to look commits for}
 
 \item{\code{date_until}}{An end date to look commits for}
-
-\item{\code{by}}{A character, to choose between: \itemize{\item{org - organizations
-(owners of repositories)} \item{team - A team} \item{phrase - A keyword in
-code blobs.}}}
-
-\item{\code{print_out}}{A boolean stating whether to print an output.}
 }
 \if{html}{\out{</div>}}
 }
