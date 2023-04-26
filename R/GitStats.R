@@ -72,11 +72,6 @@ GitStats <- R6::R6Class("GitStats",
         )
       }
       private$settings$print_out <- print_out
-      if (!is.null(private$hosts)) {
-        purrr::walk(private$hosts, function(host) {
-          host$update_settings(private$settings)
-        })
-      }
     },
 
     #' @description Method to set connections to Git platforms
@@ -92,8 +87,7 @@ GitStats <- R6::R6Class("GitStats",
       new_host <- GitHost$new(
         orgs = orgs,
         token = token,
-        api_url = api_url,
-        settings = private$settings
+        api_url = api_url
       )
 
       private$hosts <- new_host %>%
@@ -130,7 +124,9 @@ GitStats <- R6::R6Class("GitStats",
         }
       }
 
-      repos_table <- purrr::map(private$hosts, ~ .$get_repos()) %>%
+      repos_table <- purrr::map(private$hosts, ~ .$get_repos(
+        settings = private$settings
+      )) %>%
         purrr::list_rbind()
 
       if (nrow(repos_table) == 0) {
@@ -139,7 +135,7 @@ GitStats <- R6::R6Class("GitStats",
         if (private$settings$print_out) dplyr::glimpse(repos_table)
         private$repos <- repos_table
       }
-      invisible(self)
+      return(invisible(self))
     },
 
     #' @description A method to get information on commits.
@@ -161,22 +157,47 @@ GitStats <- R6::R6Class("GitStats",
       commits_table <- purrr::map(private$hosts, function(host) {
         commits_table_host <- host$get_commits(
           date_from = date_from,
-          date_until = date_until
+          date_until = date_until,
+          settings = private$settings
         )
         return(commits_table_host)
       }) %>% purrr::list_rbind()
 
       private$commits <- commits_table
 
+      if (private$settings$search_param == "team" && !is.null(private$settings$team)) {
+        cli::cli_alert_success(
+          paste0(
+            "For '", private$settings$team_name, "' team: pulled ",
+            nrow(commits_table), " commits from ",
+            length(unique(commits_table$repository)), " repositories."
+          )
+        )
+      }
       if (private$settings$print_out) dplyr::glimpse(commits_table)
-
-      invisible(self)
+      return(invisible(self))
     },
 
     #' @description A print method for a GitStats object
     print = function() {
-      private$print_settings()
-      private$print_tables()
+      cat(paste0("A <GitStats> object for ", length(private$hosts), " hosts:"), sep = "\n")
+      hosts <- purrr::map_chr(private$hosts, function(host) {
+        host_priv <- environment(host$initialize)$private
+        host_priv$engines$rest$rest_api_url
+      })
+      private$print_item("Hosts", hosts, paste0(hosts, collapse = ", "))
+      orgs <- purrr::map(private$hosts, function(host) {
+        host_priv <- environment(host$initialize)$private
+        orgs <- host_priv$orgs
+        paste0(orgs, collapse = ", ")
+      }) %>% paste0(collapse = ", ")
+      private$print_item("Organisations", orgs)
+      private$print_item("Search preference", private$settings$search_param)
+      private$print_item("Team", private$settings$team_name, paste0(private$settings$team_name, " (", length(private$settings$team), " members)"))
+      private$print_item("Phrase", private$settings$phrase)
+      private$print_item("Language", private$settings$language)
+      private$print_item("Repositories output", private$repos, paste0("Rows number: ", nrow(private$repos)))
+      private$print_item("Commits output", private$commits, paste0("Since: ", min(private$commits$committed_date), "; Rows number: ", nrow(private$repos)))
     }
   ),
   private = list(
@@ -236,32 +257,6 @@ GitStats <- R6::R6Class("GitStats",
         language <- "JavaScript"
       }
       language
-    },
-
-    #' @description Helper to print settings.
-    print_settings = function() {
-      cat(paste0("A <GitStats> object for ", length(private$hosts), " hosts:"), sep = "\n")
-      hosts <- purrr::map_chr(private$hosts, function(host) {
-        host_priv <- environment(host$initialize)$private
-        host_priv$engines$rest$rest_api_url
-      })
-      private$print_item("Hosts", hosts, paste0(hosts, collapse = ", "))
-      orgs <- purrr::map(private$hosts, function(host) {
-        host_priv <- environment(host$initialize)$private
-        orgs <- host_priv$orgs
-        paste0(orgs, collapse = ", ")
-      }) %>% paste0(collapse = ", ")
-      private$print_item("Organisations", orgs)
-      private$print_item("Search preference", private$settings$search_param)
-      private$print_item("Team", private$settings$team_name, paste0(private$settings$team_name, " (", length(private$settings$team), " members)"))
-      private$print_item("Phrase", private$settings$phrase)
-      private$print_item("Language", private$settings$language)
-    },
-
-    #' @description Wrapper to print info on pulled tables.
-    print_tables = function() {
-      private$print_item("Repositories output", private$repos, paste0("Rows number: ", nrow(private$repos)))
-      private$print_item("Commits output", private$commits, paste0("Since: ", min(private$commits$committed_date), "; Rows number: ", nrow(private$repos)))
     },
 
     #' @description A helper to manage printing `GitStats` object.

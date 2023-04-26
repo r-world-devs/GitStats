@@ -14,7 +14,6 @@ A GitHost superclass
 \item \href{#method-new}{\code{GitHost$new()}}
 \item \href{#method-get_repos}{\code{GitHost$get_repos()}}
 \item \href{#method-get_commits}{\code{GitHost$get_commits()}}
-\item \href{#method-update_settings}{\code{GitHost$update_settings()}}
 \item \href{#method-clone}{\code{GitHost$clone()}}
 }
 }
@@ -24,7 +23,7 @@ A GitHost superclass
 \subsection{Method \code{new()}}{
 Create a new \code{GitPlatform} object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitHost$new(orgs = NA, token = NA, api_url = NA, settings = NA)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitHost$new(orgs = NA, token = NA, api_url = NA)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -46,9 +45,16 @@ A new \code{GitPlatform} object
 A method to list all repositories for an organization, a
 team or by a keyword.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitHost$get_repos()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitHost$get_repos(settings)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{settings}}{A list of \code{GitStats} settings.}
+}
+\if{html}{\out{</div>}}
+}
 \subsection{Returns}{
 A data.frame of repositories.
 }
@@ -59,7 +65,7 @@ A data.frame of repositories.
 \subsection{Method \code{get_commits()}}{
 A method to get information on commits.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitHost$get_commits(date_from, date_until = Sys.Date())}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitHost$get_commits(date_from, date_until = Sys.Date(), settings)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -74,16 +80,6 @@ A method to get information on commits.
 \subsection{Returns}{
 A data.frame of commits
 }
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-update_settings"></a>}}
-\if{latex}{\out{\hypertarget{method-update_settings}{}}}
-\subsection{Method \code{update_settings()}}{
-Method to update settings
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitHost$update_settings(settings)}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

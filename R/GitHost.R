@@ -16,8 +16,7 @@ GitHost <- R6::R6Class("GitHost",
     #' @return A new `GitPlatform` object
     initialize = function(orgs = NA,
                           token = NA,
-                          api_url = NA,
-                          settings = NA) {
+                          api_url = NA) {
       if (grepl("https://", api_url) && grepl("github", api_url)) {
         private$engines$rest <- EngineRestGitHub$new(
           token = token,
@@ -43,20 +42,20 @@ GitHost <- R6::R6Class("GitHost",
         orgs <- private$engines$rest$check_organizations(orgs)
       }
       private$orgs <- orgs
-      private$settings <- settings
     },
 
     #' @description  A method to list all repositories for an organization, a
     #'   team or by a keyword.
+    #' @param settings A list of `GitStats` settings.
     #' @return A data.frame of repositories.
-    get_repos = function() {
+    get_repos = function(settings) {
 
       private$check_for_organizations()
 
       repos_table <- purrr::map(private$orgs, function(org) {
         repos_table_org <- purrr::map(private$engines, ~ .$get_repos(
           org = org,
-          settings = private$settings
+          settings = settings
         )) %>%
           purrr::list_rbind()
         return(repos_table_org)
@@ -71,9 +70,11 @@ GitHost <- R6::R6Class("GitHost",
     #' @description A method to get information on commits.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
+    #' @param settings
     #' @return A data.frame of commits
     get_commits = function(date_from,
-                           date_until = Sys.Date()
+                           date_until = Sys.Date(),
+                           settings
                            ) {
       private$check_for_organizations()
 
@@ -82,7 +83,7 @@ GitHost <- R6::R6Class("GitHost",
           org = org,
           date_from = date_from,
           date_until = date_until,
-          settings = private$settings
+          settings = settings
         )) %>%
           purrr::list_rbind()
 
@@ -90,23 +91,8 @@ GitHost <- R6::R6Class("GitHost",
       }) %>%
         purrr::list_rbind()
 
-      if (private$settings$search_param == "team" && !is.null(private$settings$team)) {
-        cli::cli_alert_success(
-          paste0(
-            "For '", private$settings$team_name, "' team: pulled ",
-            nrow(commits_table), " commits from ",
-            length(unique(commits_table$repository)), " repositories."
-          )
-        )
-      }
       return(commits_table)
-    },
-
-    #' @description Method to update settings
-    update_settings = function(settings) {
-      private$settings <- settings
     }
-
   ),
   private = list(
 
@@ -116,10 +102,7 @@ GitHost <- R6::R6Class("GitHost",
     #' @field engines
     engines = list(),
 
-    #' @field settings
-    settings = NULL,
-
-    #' @description Check if organizations are defined.
+        #' @description Check if organizations are defined.
     check_for_organizations = function() {
       if (is.null(private$orgs)) {
         cli::cli_abort(c(
