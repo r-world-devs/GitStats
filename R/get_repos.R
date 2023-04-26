@@ -3,8 +3,7 @@
 #' @description  List all repositories for an organization, a team or by a
 #'   keyword.
 #' @param gitstats_obj A GitStats object.
-#' @param print_out A boolean stating whether to print an output.
-#' @return A `GitStats` class object with updated `$repos_dt` field.
+#' @return A `GitStats` class object with updated `$repos` field.
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
@@ -22,11 +21,7 @@
 #'
 #' }
 #' @export
-get_repos <- function(gitstats_obj,
-                      print_out = TRUE) {
-  gitstats_obj$get_repos(
-    print_out = print_out
-  )
-
+get_repos <- function(gitstats_obj) {
+  gitstats_obj$get_repos()
   return(invisible(gitstats_obj))
 }

@@ -4,15 +4,13 @@
 \alias{get_repos}
 \title{Get information on repositories}
 \usage{
-get_repos(gitstats_obj, print_out = TRUE)
+get_repos(gitstats_obj)
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
-
-\item{print_out}{A boolean stating whether to print an output.}
 }
 \value{
-A \code{GitStats} class object with updated \verb{$repos_dt} field.
+A \code{GitStats} class object with updated \verb{$repos} field.
 }
 \description{
 List all repositories for an organization, a team or by a
