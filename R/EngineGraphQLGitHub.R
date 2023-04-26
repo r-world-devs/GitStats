@@ -41,26 +41,26 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @description A method to retrieve all repositories for an organization in
     #'   a table format.
     #' @param org An organization.
-    #' @param parameters
+    #' @param settings
     #' @return A table.
     get_repos = function(org,
-                         parameters) {
+                         settings) {
 
-      if (parameters$search_param %in% c("org", "team")) {
-        if (parameters$search_param == "org") {
+      if (settings$search_param %in% c("org", "team")) {
+        if (settings$search_param == "org") {
           cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
         } else {
-          cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_yellow('GraphQL')}][org:{org}][team:{parameters$team_name}] Pulling repositories...")
+          cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_yellow('GraphQL')}][org:{org}][team:{settings$team_name}] Pulling repositories...")
         }
         repos_table <- private$pull_repos_from_org(org) %>%
           private$prepare_repos_table(org)
-        if (parameters$search_param == "team") {
+        if (settings$search_param == "team") {
           repos_table <- private$filter_repos_by_team(
             repos_table = repos_table,
-            team = parameters$team
+            team = settings$team
           )
         }
-        if (!is.null(parameters$language)) {
+        if (!is.null(settings$language)) {
           repos_table <- private$filter_repos_by_language(
             repos_table = repos_table
           )
@@ -77,22 +77,22 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param repos_table A table of repositories.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
-    #' @param parameters
+    #' @param settings
     #' @return A table of commits.
     get_commits = function(org,
                            repos_table,
                            date_from,
                            date_until,
-                           parameters) {
+                           settings) {
 
       repos_table <- self$get_repos(
         org = org,
-        parameters = parameters
+        settings = settings
       )
 
       repos_names <- repos_table$name
 
-      if (parameters$search_param == "org") {
+      if (settings$search_param == "org") {
         cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling commits...")
         repos_list_with_commits <- private$pull_commits_from_repos(
           org = org,
@@ -101,7 +101,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           date_until = date_until
         )
       }
-      if (parameters$search_param == "team") {
+      if (settings$search_param == "team") {
         cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling commits by team...")
         repos_list_with_commits <- private$pull_commits_from_repos(
           org = org,
@@ -109,7 +109,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           date_from = date_from,
           date_until = date_until,
           team_filter = TRUE,
-          team = parameters$team
+          team = settings$team
         )
       }
       names(repos_list_with_commits) <- repos_names

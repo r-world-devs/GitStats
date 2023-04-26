@@ -40,16 +40,16 @@ EngineRest <- R6::R6Class("EngineRest",
 
     #' @description Method to get repositories with phrase in code blobs.
     #' @param org
-    #' @param parameters
+    #' @param settings
     #' @return Table of repositories.
     get_repos = function(org,
-                         parameters) {
-      if (parameters$search_param == "phrase") {
-        cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_green('REST')}][phrase:{parameters$phrase}][org:{org}] Searching repositories...")
+                         settings) {
+      if (settings$search_param == "phrase") {
+        cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{org}] Searching repositories...")
         repos_table <- private$search_repos_by_phrase(
           org = org,
-          phrase = parameters$phrase,
-          language = parameters$language
+          phrase = settings$phrase,
+          language = settings$language
         ) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
@@ -65,7 +65,7 @@ EngineRest <- R6::R6Class("EngineRest",
                            repos_table,
                            date_from,
                            date_until = Sys.date(),
-                           parameters) {
+                           settings) {
       NULL
     }
 
@@ -138,10 +138,14 @@ EngineRest <- R6::R6Class("EngineRest",
 
       if (length(repos_dt) > 0) {
         repos_dt <- dplyr::mutate(repos_dt,
+          id = as.character(id),
           created_at = as.POSIXct(created_at),
           last_activity_at = difftime(Sys.time(), as.POSIXct(last_activity_at),
             units = "days"
           ) %>% round(2),
+          forks = as.integer(forks),
+          issues_open = as.integer(issues_open),
+          issues_closed = as.integer(issues_closed),
           repo_url = ifelse(inherits(self, "EngineRestGitLab"),
                             paste0(self$rest_api_url, "/projects/", gsub("gid://gitlab/Project/", "", id)),
                             repo_url),

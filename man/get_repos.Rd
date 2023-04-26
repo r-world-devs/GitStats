@@ -4,24 +4,10 @@
 \alias{get_repos}
 \title{Get information on repositories}
 \usage{
-get_repos(
-  gitstats_obj,
-  by = gitstats_obj$search_param,
-  phrase = gitstats_obj$phrase,
-  language = gitstats_obj$language,
-  print_out = TRUE
-)
+get_repos(gitstats_obj, print_out = TRUE)
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
-
-\item{by}{A character, to choose between: \itemize{\item{org - organizations
-(owners of repositories)} \item{team - A team} \item{phrase - A keyword in
-code blobs.}}}
-
-\item{phrase}{A character, phrase to look for in codelines.}
-
-\item{language}{A character specifying language used in repositories.}
 
 \item{print_out}{A boolean stating whether to print an output.}
 }
@@ -45,12 +31,7 @@ my_gitstats <- create_gitstats() \%>\%
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "erasmusmc-public-health"
   ) \%>\%
-  get_repos(language = "R")
+  get_repos()
 
-my_gitstats$get_repos(
-  by = "phrase",
-  phrase = "diabetes",
-  language = "R"
-)
 }
 }

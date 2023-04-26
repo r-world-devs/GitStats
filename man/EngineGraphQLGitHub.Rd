@@ -82,9 +82,16 @@ A list.
 A method to retrieve all repositories for an organization in
 a table format.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$get_repos(org, parameters)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$get_repos(org, settings)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{org}}{An organization.}
+}
+\if{html}{\out{</div>}}
+}
 \subsection{Returns}{
 A table.
 }
@@ -101,7 +108,7 @@ filtered by team members.
   repos_table,
   date_from,
   date_until,
-  parameters
+  settings
 )}\if{html}{\out{</div>}}
 }
 

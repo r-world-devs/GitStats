@@ -46,33 +46,32 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @description A method to retrieve all repositories for an organization in
     #'   a table format.
     #' @param org
-    #' @param parameters
+    #' @param settings
     #' @return A table.
     get_repos = function(org,
-                         parameters) {
-
+                         settings) {
       repos_table <- super$get_repos(
         org = org,
-        parameters = parameters
+        settings = settings
       )
-      if (parameters$search_param %in% c("org", "team")) {
-        if (parameters$search_param == "org") {
+      if (settings$search_param %in% c("org", "team")) {
+        if (settings$search_param == "org") {
           cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
         } else {
-          cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_green('REST')}][org:{org}][team:{parameters$team_name}] Pulling repositories...")
+          cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_green('REST')}][org:{org}][team:{settings$team_name}] Pulling repositories...")
         }
         org <- private$get_group_id(org)
         repos_table <- private$pull_repos_from_org(org) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
           self$get_repos_contributors()
-        if (parameters$search_param == "team") {
+        if (settings$search_param == "team") {
           repos_table <- private$filter_repos_by_team(
             repos_table = repos_table,
-            team = parameters$team
+            team = settings$team
           )
         }
-        if (!is.null(parameters$language)) {
+        if (!is.null(settings$language)) {
           repos_table <- private$filter_repos_by_language(
             repos_table = repos_table
           )
@@ -88,7 +87,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       if (nrow(repos_table) > 0) {
         repo_iterator <- repos_table$id
         user_name <- rlang::expr(.$name)
-        repos_table$contributors <- purrr::map(repo_iterator, function(repos_id) {
+        repos_table$contributors <- purrr::map_chr(repo_iterator, function(repos_id) {
           id <- gsub("gid://gitlab/Project/", "", repos_id)
           contributors_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/repository/contributors")
           tryCatch(
@@ -132,22 +131,22 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @param org A character, a group of projects.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
-    #' @param parameters
+    #' @param settings
     #' @return A table of commits.
     get_commits = function(org,
                            date_from,
                            date_until = Sys.date(),
-                           parameters) {
+                           settings) {
 
       repos_table <- self$get_repos(
         org = org,
-        parameters = parameters
+        settings = settings
       )
 
-      if (parameters$search_param == "org") {
+      if (settings$search_param == "org") {
         cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}] Pulling commits...")
-      } else if (parameters$search_param == "team") {
-        cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}][team:{parameters$team_name}] Pulling commits...")
+      } else if (settings$search_param == "team") {
+        cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}][team:{settings$team_name}] Pulling commits...")
       }
 
       repos_list_with_commits <- private$pull_commits_from_org(
@@ -157,10 +156,10 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       ) %>%
         purrr::discard(~ length(.) == 0)
 
-      if (parameters$search_param == "team") {
+      if (settings$search_param == "team") {
         repos_list_with_commits <- private$filter_commits_by_team(
           repos_list_with_commits = repos_list_with_commits,
-          team = parameters$team
+          team = settings$team
         )
       }
       commits_table <- repos_list_with_commits %>%

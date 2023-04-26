@@ -87,7 +87,7 @@ A content of response formatted to list.
 \subsection{Method \code{get_repos()}}{
 Method to get repositories with phrase in code blobs.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRest$get_repos(org, parameters)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineRest$get_repos(org, settings)}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
@@ -104,7 +104,7 @@ Table of repositories.
   repos_table,
   date_from,
   date_until = Sys.date(),
-  parameters
+  settings
 )}\if{html}{\out{</div>}}
 }
 

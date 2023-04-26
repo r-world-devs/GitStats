@@ -64,7 +64,7 @@ orgs or NULL.
 A method to retrieve all repositories for an organization in
 a table format.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitLab$get_repos(org, parameters)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitLab$get_repos(org, settings)}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
@@ -118,12 +118,7 @@ A table of repositories with added information on contributors.
 GitLab private method to derive
 commits from repo with REST API.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitLab$get_commits(
-  org,
-  date_from,
-  date_until = Sys.date(),
-  parameters
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitLab$get_commits(org, date_from, date_until = Sys.date(), settings)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

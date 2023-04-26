@@ -2,14 +2,15 @@
 % Please edit documentation in R/setup_preferences.R
 \name{setup}
 \alias{setup}
-\title{Set up your search parameters.}
+\title{Set up your search settings.}
 \usage{
 setup(
   gitstats_obj,
   search_param = NULL,
   team_name = NULL,
   phrase = NULL,
-  language = NULL
+  language = NULL,
+  print_out = TRUE
 )
 }
 \arguments{
@@ -27,5 +28,5 @@ setup(
 A \code{GitStats} object.
 }
 \description{
-Set up your search parameters.
+Set up your search settings.
 }

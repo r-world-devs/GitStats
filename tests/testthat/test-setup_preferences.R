@@ -7,7 +7,7 @@ test_that("By default search param is set to 'orgs'", {
   )
 })
 
-test_that("Setting up parameters to `team` throws error when team_name is not defined", {
+test_that("Setting up settings to `team` throws error when team_name is not defined", {
   expect_snapshot_error(
     setup_preferences(test_gitstats,
       search_param = "team"
@@ -15,7 +15,7 @@ test_that("Setting up parameters to `team` throws error when team_name is not de
   )
 })
 
-test_that("Setting up parameters to `team` passes information to 'team' field", {
+test_that("Setting up settings to `team` passes information to 'team' field", {
   suppressMessages(
     setup_preferences(test_gitstats,
       search_param = "team",
@@ -28,7 +28,7 @@ test_that("Setting up parameters to `team` passes information to 'team' field", 
   )
 })
 
-test_that("Setting up parameters to `orgs` works correctly", {
+test_that("Setting up settings to `orgs` works correctly", {
   setup_preferences(test_gitstats,
     search_param = "org"
   )
@@ -38,7 +38,7 @@ test_that("Setting up parameters to `orgs` works correctly", {
   )
 })
 
-test_that("Setting up parameters to `phrase` throws error when phrase is not defined", {
+test_that("Setting up settings to `phrase` throws error when phrase is not defined", {
   expect_error(
     setup_preferences(test_gitstats,
       search_param = "phrase"
@@ -46,7 +46,7 @@ test_that("Setting up parameters to `phrase` throws error when phrase is not def
   )
 })
 
-test_that("Setting up parameters to `phrase` works correctly", {
+test_that("Setting up settings to `phrase` works correctly", {
   expect_snapshot(
     setup_preferences(test_gitstats,
       search_param = "phrase",

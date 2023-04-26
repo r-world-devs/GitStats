@@ -48,7 +48,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       if (nrow(repos_table) > 0) {
         repo_iterator <- paste0(repos_table$organization, "/", repos_table$name)
         user_name <- rlang::expr(.$login)
-        repos_table$contributors <- purrr::map(repo_iterator, function(repos_id) {
+        repos_table$contributors <- purrr::map_chr(repo_iterator, function(repos_id) {
           contributors_endpoint <- paste0(self$rest_api_url, "/repos/", repos_id, "/contributors")
           tryCatch(
             {
