@@ -176,6 +176,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @description A print method for a GitStats object
     print = function() {
       private$print_settings()
+      private$print_tables()
     }
   ),
   private = list(
@@ -255,6 +256,12 @@ GitStats <- R6::R6Class("GitStats",
       private$print_item("Team", private$settings$team_name, paste0(private$settings$team_name, " (", length(private$settings$team), " members)"))
       private$print_item("Phrase", private$settings$phrase)
       private$print_item("Language", private$settings$language)
+    },
+
+    #' @description Wrapper to print info on pulled tables.
+    print_tables = function() {
+      private$print_item("Repositories output", private$repos, paste0("Rows number: ", nrow(private$repos)))
+      private$print_item("Commits output", private$commits, paste0("Since: ", min(private$commits$committed_date), "; Rows number: ", nrow(private$repos)))
     },
 
     #' @description A helper to manage printing `GitStats` object.
