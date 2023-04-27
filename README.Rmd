@@ -71,7 +71,7 @@ git_stats %>%
   add_team_member("Kamil Koziej", "Cotau") %>%
   add_team_member("Maciej Banaś", "maciekbanas")
 
-setup_preferences(git_stats,
+setup(git_stats,
   search_param = "team",
   team_name = "RWD"
 )
@@ -90,9 +90,9 @@ get_commits(git_stats,
 With `GitStats` you can look for the activity connected to a certain phrase.
 
 ```{r}
-setup_preferences(git_stats,
+setup(git_stats,
   search_param = "phrase",
-  phrase = "covid"
+  phrase = "shiny"
 )
 
 # now pull repos by default by phrase
