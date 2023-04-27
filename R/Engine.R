@@ -8,7 +8,12 @@ Engine <- R6::R6Class("Engine",
 
   public = list(
     #' @field git_platform A character specifying what Git Platform (GitHub or GitLab).
-    git_platform = NULL
+    git_platform = NULL,
+
+    #' @description Create new `Engine` object.
+    initialize = function(){
+
+    }
   ),
 
   private = list(

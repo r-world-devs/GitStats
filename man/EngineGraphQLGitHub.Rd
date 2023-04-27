@@ -89,6 +89,8 @@ a table format.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{org}}{An organization.}
+
+\item{\code{settings}}{A list of  \code{GitStats} settings.}
 }
 \if{html}{\out{</div>}}
 }
@@ -103,13 +105,7 @@ A table.
 Method to pull all commits from organization, optionally
 filtered by team members.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$get_commits(
-  org,
-  repos_table,
-  date_from,
-  date_until,
-  settings
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$get_commits(org, date_from, date_until, settings)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -117,11 +113,11 @@ filtered by team members.
 \describe{
 \item{\code{org}}{An organization.}
 
-\item{\code{repos_table}}{A table of repositories.}
-
 \item{\code{date_from}}{A starting date to look commits for.}
 
 \item{\code{date_until}}{An end date to look commits for.}
+
+\item{\code{settings}}{A list of  \code{GitStats} settings.}
 }
 \if{html}{\out{</div>}}
 }

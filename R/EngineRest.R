@@ -39,8 +39,8 @@ EngineRest <- R6::R6Class("EngineRest",
     },
 
     #' @description Method to get repositories with phrase in code blobs.
-    #' @param org
-    #' @param settings
+    #' @param org An organization
+    #' @param settings A list of  `GitStats` settings.
     #' @return Table of repositories.
     get_repos = function(org,
                          settings) {
@@ -61,6 +61,7 @@ EngineRest <- R6::R6Class("EngineRest",
       return(repos_table)
     },
 
+    #' @noRd
     get_commits = function(org,
                            repos_table,
                            date_from,
@@ -81,47 +82,8 @@ EngineRest <- R6::R6Class("EngineRest",
           "i" = "No token provided.",
           "x" = "Host will not be passed to `GitStats` object."
         ))
-      } else if (nchar(token) > 0) {
-        check_endpoint <- if ("GitLab" %in% class(self)) {
-          paste0(self$rest_api_url, "/projects")
-        } else if ("GitHub" %in% class(self)) {
-          self$rest_api_url
-        }
-        withCallingHandlers(
-          {
-            self$response(
-              endpoint = check_endpoint,
-              token = token
-            )
-          },
-          message = function(m) {
-            if (grepl("401", m)) {
-              cli::cli_abort(c(
-                "i" = "Token provided for ... is invalid.",
-                "x" = "Host will not be passed to `GitStats` object."
-              ))
-            }
-          }
-        )
       }
       return(invisible(token))
-    },
-
-    #' @description Perform get request to find projects by ids.
-    #' @param ids A character vector of repositories or projects' ids.
-    #' @param objects A character to choose between 'repositories' (GitHub) and
-    #'   'projects' (GitLab).
-    #' @return A list of repositories.
-    find_by_id = function(ids,
-                          objects = c("repositories", "projects")) {
-      objects <- match.arg(objects)
-      projects_list <- purrr::map(ids, function(x) {
-        content <- self$response(
-          endpoint = paste0(self$rest_api_url, "/", objects, "/", x)
-        )
-      })
-
-      projects_list
     },
 
     #' @description A helper to prepare table for repositories content

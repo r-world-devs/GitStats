@@ -10,9 +10,8 @@ GitHost <- R6::R6Class("GitHost",
     #' @description Create a new `GitPlatform` object
     #' @param orgs A character vector of organisations (owners of repositories
     #'   in case of GitHub and groups of projects in case of GitLab).
-    #' @param token
-    #' @param api_url
-    #' @param settings
+    #' @param token A token.
+    #' @param api_url An API url.
     #' @return A new `GitPlatform` object
     initialize = function(orgs = NA,
                           token = NA,
@@ -24,7 +23,7 @@ GitHost <- R6::R6Class("GitHost",
         )
         private$engines$graphql <- EngineGraphQLGitHub$new(
           token = token,
-          gql_api_url = api_url
+          gql_api_url = private$set_gql_url(api_url)
         )
         cli::cli_alert_success("Set connection to GitHub.")
       } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
@@ -36,12 +35,7 @@ GitHost <- R6::R6Class("GitHost",
       } else {
         stop("This connection is not supported by GitStats class object.")
       }
-      if (is.null(orgs)) {
-        cli::cli_alert_warning("No organizations specified.")
-      } else {
-        orgs <- private$engines$rest$check_organizations(orgs)
-      }
-      private$orgs <- orgs
+      private$orgs <- private$engines$rest$check_organizations(orgs)
     },
 
     #' @description  A method to list all repositories for an organization, a
@@ -49,8 +43,6 @@ GitHost <- R6::R6Class("GitHost",
     #' @param settings A list of `GitStats` settings.
     #' @return A data.frame of repositories.
     get_repos = function(settings) {
-
-      private$check_for_organizations()
 
       repos_table <- purrr::map(private$orgs, function(org) {
         repos_table_org <- purrr::map(private$engines, ~ .$get_repos(
@@ -70,13 +62,12 @@ GitHost <- R6::R6Class("GitHost",
     #' @description A method to get information on commits.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
-    #' @param settings
+    #' @param settings A list of `GitStats` settings.
     #' @return A data.frame of commits
     get_commits = function(date_from,
                            date_until = Sys.Date(),
                            settings
                            ) {
-      private$check_for_organizations()
 
       commits_table <- purrr::map(private$orgs, function(org) {
         commits_table_org <- purrr::map(private$engines, ~ .$get_commits(
@@ -96,19 +87,17 @@ GitHost <- R6::R6Class("GitHost",
   ),
   private = list(
 
-    #' @field orgs
+    #' @field orgs A character vector of repo organizations.
     orgs = NULL,
 
-    #' @field engines
+    #' @field engines A placeholder for REST and GraphQL Engine classes.
     engines = list(),
 
-        #' @description Check if organizations are defined.
-    check_for_organizations = function() {
-      if (is.null(private$orgs)) {
-        cli::cli_abort(c(
-          "Please specify first organizations for [{private$engine$rest$api_url}] with `set_organizations()`."
-        ))
-      }
+    #' @description GraphQL url handler (if not provided).
+    #' @param rest_api_url REST API url.
+    #' @return GraphQL API url.
+    set_gql_url = function(rest_api_url) {
+      paste0(gsub("/v+.*", "", rest_api_url), "/graphql")
     }
   )
 )

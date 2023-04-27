@@ -11,6 +11,8 @@ An R6 class object with methods to derive information from multiple Git platform
 \describe{
 \item{\code{hosts}}{A list of API connections information.}
 
+\item{\code{settings}}{List of search preferences.}
+
 \item{\code{repos}}{An output table of repositories.}
 
 \item{\code{commits}}{An output table of commits.}
@@ -21,6 +23,8 @@ An R6 class object with methods to derive information from multiple Git platform
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
 \item{\code{hosts}}{A list of API connections information.}
+
+\item{\code{settings}}{List of search preferences.}
 
 \item{\code{repos}}{An output table of repositories.}
 
@@ -36,6 +40,8 @@ An R6 class object with methods to derive information from multiple Git platform
 \item \href{#method-add_team_member}{\code{GitStats$add_team_member()}}
 \item \href{#method-get_repos}{\code{GitStats$get_repos()}}
 \item \href{#method-get_commits}{\code{GitStats$get_commits()}}
+\item \href{#method-show_repos}{\code{GitStats$show_repos()}}
+\item \href{#method-show_commits}{\code{GitStats$show_commits()}}
 \item \href{#method-print}{\code{GitStats$print()}}
 \item \href{#method-clone}{\code{GitStats$clone()}}
 }
@@ -151,6 +157,26 @@ A method to get information on commits.
 \subsection{Returns}{
 A data.frame of commits
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-show_repos"></a>}}
+\if{latex}{\out{\hypertarget{method-show_repos}{}}}
+\subsection{Method \code{show_repos()}}{
+Print repositories output.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$show_repos()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-show_commits"></a>}}
+\if{latex}{\out{\hypertarget{method-show_commits}{}}}
+\subsection{Method \code{show_commits()}}{
+Print commits output.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$show_commits()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-print"></a>}}

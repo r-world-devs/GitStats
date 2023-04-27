@@ -4,6 +4,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
   inherit = EngineRest,
   public = list(
 
+    #' @description Create new `EngineRestGitLab` object.
+    #' @param rest_api_url A REST API url.
+    #' @param token A token.
     initialize = function(rest_api_url,
                           token) {
       super$initialize(
@@ -45,8 +48,8 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
 
     #' @description A method to retrieve all repositories for an organization in
     #'   a table format.
-    #' @param org
-    #' @param settings
+    #' @param org A character, a group of projects.
+    #' @param settings A list of  `GitStats` settings.
     #' @return A table.
     get_repos = function(org,
                          settings) {
@@ -56,9 +59,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       )
       if (settings$search_param %in% c("org", "team")) {
         if (settings$search_param == "org") {
-          cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
+          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
         } else {
-          cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_green('REST')}][org:{org}][team:{settings$team_name}] Pulling repositories...")
+          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}][team:{settings$team_name}] Pulling repositories...")
         }
         org <- private$get_group_id(org)
         repos_table <- private$pull_repos_from_org(org) %>%
@@ -131,7 +134,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @param org A character, a group of projects.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
-    #' @param settings
+    #' @param settings A list of  `GitStats` settings.
     #' @return A table of commits.
     get_commits = function(org,
                            date_from,
@@ -172,7 +175,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
   private = list(
 
     #' @description Iterator over pulling pages of repositories.
-    #' @param org An organization.
+    #' @param org A character, a group of projects.
     #' @return A list of repositories from organization.
     pull_repos_from_org = function(org) {
       full_repos_list <- list()
@@ -198,7 +201,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #'   https://gitlab.com/gitlab-org/gitlab/-/issues/340333
     #' @param phrase A phrase to look for in codelines.
     #' @param org A character, a group of projects.
-    #' @param language
+    #' @param language A character, programming language.
     #' @param page_max An integer, maximum number of pages.
     #' @return A list of repositories.
     search_repos_by_phrase = function(phrase,
@@ -227,21 +230,38 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         }
       }
 
-      repos_list <- purrr::map_chr(resp_list, ~ as.character(.$project_id)) %>%
-        unique() %>%
-        private$find_by_id(objects = "projects") #%>%
-        # private$filter_repos_by_language(language = language)
+      repos_list <- resp_list %>%
+        private$find_repos_by_id() %>%
+        private$pull_repos_languages()
 
       return(repos_list)
     },
 
-    filter_repos_by_language = function(repos_list,
-                                        language) {
+    #' @description Perform get request to find projects by ids.
+    #' @param repos_list A list of repositories - search response.
+    #' @return A list of repositories.
+    find_repos_by_id = function(repos_list) {
+      ids <- purrr::map_chr(repos_list, ~ as.character(.$project_id)) %>%
+        unique()
 
-      repos_list <- purrr::map(repos_list, function(x) {
-        x
+      repos_list <- purrr::map(ids, function(x) {
+        content <- self$response(
+          endpoint = paste0(self$rest_api_url, "/projects/", x)
+        )
       })
-      return(repos_list)
+      repos_list
+    },
+
+    #' @description Pull languages of repositories.
+    #' @param repos_list A list of repositories.
+    #' @return A list of repositories with 'languages' slot.
+    pull_repos_languages = function(repos_list) {
+      repos_list_with_languages <- purrr::map(repos_list, function(repo) {
+        id <- repo$id
+        repo$languages <- names(self$response(paste0(self$rest_api_url, "/projects/", id, "/languages")))
+        repo
+      })
+      return(repos_list_with_languages)
     },
 
     #' @description A helper to retrieve only important info on repos
@@ -257,7 +277,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           "created_at" = x$created_at,
           "last_push" = NULL,
           "last_activity_at" = x$last_activity_at,
-          "languages" = NULL,
+          "languages" = ifelse(length(x$languages) == 0, "", x$languages),
           "issues_open" = x$issues_open,
           "issues_closed" = x$issues_closed,
           "contributors" = NULL,

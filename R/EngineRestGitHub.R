@@ -4,6 +4,9 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
   inherit = EngineRest,
   public = list(
 
+    #' @description Create new `EngineRestGitHub` object.
+    #' @param rest_api_url A REST API url.
+    #' @param token A token.
     initialize = function(rest_api_url,
                           token) {
       super$initialize(
@@ -121,9 +124,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
           total_n = total_n,
           byte_max = byte_max
         )
-        repos_list <- purrr::map_chr(repos_list, ~ as.character(.$repository$id)) %>%
-          unique() %>%
-          private$find_by_id(objects = "repositories")
+        repos_list <- private$find_repos_by_id(repos_list)
       } else {
         repos_list <- list()
       }
@@ -226,6 +227,21 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       })
 
       repos_list
+    },
+
+    #' @description Perform get request to find projects by ids.
+    #' @param repos_list A list of repositories - search response.
+    #' @return A list of repositories.
+    find_repos_by_id = function(repos_list) {
+      ids <- purrr::map_chr(repos_list, ~ as.character(.$repository$id)) %>%
+        unique()
+      repos_list <- purrr::map(ids, function(x) {
+        content <- self$response(
+          endpoint = paste0(self$rest_api_url, "/repositories/", x)
+        )
+      })
+      repos_list
     }
+
   )
 )

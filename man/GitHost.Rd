@@ -8,6 +8,24 @@ A GitHost superclass
 
 A GitHost superclass
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{orgs}}{A character vector of repo organizations.}
+
+\item{\code{engines}}{A placeholder for REST and GraphQL Engine classes.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{orgs}}{A character vector of repo organizations.}
+
+\item{\code{engines}}{A placeholder for REST and GraphQL Engine classes.}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -31,6 +49,10 @@ Create a new \code{GitPlatform} object
 \describe{
 \item{\code{orgs}}{A character vector of organisations (owners of repositories
 in case of GitHub and groups of projects in case of GitLab).}
+
+\item{\code{token}}{A token.}
+
+\item{\code{api_url}}{An API url.}
 }
 \if{html}{\out{</div>}}
 }
@@ -74,6 +96,8 @@ A method to get information on commits.
 \item{\code{date_from}}{A starting date to look commits for.}
 
 \item{\code{date_until}}{An end date to look commits for.}
+
+\item{\code{settings}}{A list of \code{GitStats} settings.}
 }
 \if{html}{\out{</div>}}
 }

@@ -178,6 +178,16 @@ GitStats <- R6::R6Class("GitStats",
       return(invisible(self))
     },
 
+    #' @description Print repositories output.
+    show_repos = function() {
+      private$repos
+    },
+
+    #' @description Print commits output.
+    show_commits = function() {
+      private$commits
+    },
+
     #' @description A print method for a GitStats object
     print = function() {
       cat(paste0("A <GitStats> object for ", length(private$hosts), " hosts:"), sep = "\n")
@@ -205,7 +215,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @field hosts A list of API connections information.
     hosts = list(),
 
-    #' @field settings
+    #' @field settings List of search preferences.
     settings = list(
       search_param = "org",
       phrase = NULL,

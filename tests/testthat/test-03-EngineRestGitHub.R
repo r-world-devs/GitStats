@@ -8,12 +8,12 @@ test_rest <- EngineRestGitHub$new(
 test_rest_priv <- environment(test_rest$initialize)$private
 
 test_that("`search_response()` performs search with limit under 100", {
-  total_n <- test_mocker$use("gh_search_repos_rest_response")[["total_count"]]
+  total_n <- test_mocker$use("gh_search_response")[["total_count"]]
 
   mockery::stub(
     test_rest_priv$search_response,
     "private$rest_response",
-    test_mocker$use("gh_search_repos_rest_response")
+    test_mocker$use("gh_search_response")
   )
   gh_search_repos_response <- test_rest_priv$search_response(
     search_endpoint = test_mocker$use("search_endpoint"),
@@ -21,10 +21,20 @@ test_that("`search_response()` performs search with limit under 100", {
     byte_max = 384000
   )
 
-  expect_gh_repos_list(
+  expect_gh_search_response(
     gh_search_repos_response[[1]]
   )
   test_mocker$cache(gh_search_repos_response)
+})
+
+test_that("Private `find_by_id()` works", {
+
+  result <- test_rest_priv$find_repos_by_id(
+    repos_list = test_mocker$use("gh_search_repos_response")
+  )
+  expect_list_contains(result[[1]],
+                       c("id", "node_id", "name", "full_name"))
+
 })
 
 test_that("`search_repos_by_phrase()` for GitHub prepares a list of repositories", {
@@ -33,14 +43,12 @@ test_that("`search_repos_by_phrase()` for GitHub prepares a list of repositories
     "private$search_response",
     test_mocker$use("gh_search_repos_response")
   )
-  expect_snapshot(
-    gh_repos_by_phrase <- test_rest_priv$search_repos_by_phrase(
-      phrase = "shiny",
-      org = "r-world-devs",
-      language = "R"
-    )
+  gh_repos_by_phrase <- test_rest_priv$search_repos_by_phrase(
+    phrase = "shiny",
+    org = "r-world-devs",
+    language = "R"
   )
-  expect_gh_repos_list(
+  expect_gh_search_response(
     gh_repos_by_phrase[[1]]
   )
   test_mocker$cache(gh_repos_by_phrase)
@@ -113,18 +121,22 @@ test_that("`get_repos_issues()` adds issues to repos table", {
   test_mocker$cache(gh_repos_by_phrase_table)
 })
 
-test_that("`get_repos_by_phrase()` works", {
+test_that("`get_repos()` works", {
 
   mockery::stub(
-    test_rest$get_repos_by_phrase,
+    test_rest$get_repos,
     "private$search_repos_by_phrase",
     test_mocker$use("gh_repos_by_phrase")
   )
 
-  result <- test_rest$get_repos_by_phrase(
-    phrase = "shiny",
-    org = "r-world-devs",
-    language = "R"
+  settings <- list(search_param = "phrase",
+                   phrase = "shiny")
+
+  expect_snapshot(
+    result <- test_rest$get_repos(
+      org = "r-world-devs",
+      settings = settings
+    )
   )
 
   expect_repos_table(result)
