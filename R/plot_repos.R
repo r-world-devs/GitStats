@@ -14,7 +14,8 @@ plot_repos <- function(gitstats_obj,
 
   repos_dt <- gitstats_obj$show_repos()
 
-  repos_to_plot <- head(repos_dt, repos_n)
+  repos_to_plot <- repos_dt[order(last_activity_at)]
+  repos_to_plot <- head(repos_to_plot, repos_n)
 
   repos_to_plot[, fullname := paste0(organization, "/", name)][, fullname := factor(fullname, levels = unique(fullname)[order(last_activity_at, decreasing = TRUE)])]
 
