@@ -22,8 +22,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     initialize = function(gql_api_url,
                           token) {
       private$token <- token
-      self$gql_api_url <- private$set_gql_url(gql_api_url)
-      self$git_platform <- "GitHub"
+      self$gql_api_url <- gql_api_url
       self$gql_query <- GQLQueryGitHub$new()
     },
 
@@ -41,16 +40,16 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @description A method to retrieve all repositories for an organization in
     #'   a table format.
     #' @param org An organization.
-    #' @param settings
+    #' @param settings A list of  `GitStats` settings.
     #' @return A table.
     get_repos = function(org,
                          settings) {
 
       if (settings$search_param %in% c("org", "team")) {
         if (settings$search_param == "org") {
-          cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
+          cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
         } else {
-          cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_yellow('GraphQL')}][org:{org}][team:{settings$team_name}] Pulling repositories...")
+          cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][team:{settings$team_name}] Pulling repositories...")
         }
         repos_table <- private$pull_repos_from_org(org) %>%
           private$prepare_repos_table(org)
@@ -74,13 +73,11 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @description Method to pull all commits from organization, optionally
     #'   filtered by team members.
     #' @param org An organization.
-    #' @param repos_table A table of repositories.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
-    #' @param settings
+    #' @param settings A list of  `GitStats` settings.
     #' @return A table of commits.
     get_commits = function(org,
-                           repos_table,
                            date_from,
                            date_until,
                            settings) {
@@ -164,13 +161,6 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         gql_query = repos_by_org_query
       )
       return(response)
-    },
-
-    #' @description GraphQL url handler (if not provided).
-    #' @param rest_api_url REST API url.
-    #' @return GraphQL API url.
-    set_gql_url = function(rest_api_url) {
-      paste0(gsub("/v+.*", "", rest_api_url), "/graphql")
     },
 
     #' @description Parses repositories list into table.

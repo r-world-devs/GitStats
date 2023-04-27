@@ -3,6 +3,26 @@ test_gql_gh <- EngineGraphQLGitHub$new(
   token = Sys.getenv("GITHUB_PAT")
 )
 
+# public methods
+
+test_that("`gql_response()` work as expected for GitHub", {
+  gh_commits_by_repo_gql_response <- test_gql_gh$gql_response(
+    test_mocker$use("gh_commits_by_repo_query")
+  )
+  expect_gh_commit(
+    gh_commits_by_repo_gql_response
+  )
+  test_mocker$cache(gh_commits_by_repo_gql_response)
+
+  gh_repos_by_org_gql_response <- test_gql_gh$gql_response(
+    test_mocker$use("gh_repos_by_org_query")
+  )
+  expect_gh_repos(
+    gh_repos_by_org_gql_response
+  )
+  test_mocker$cache(gh_repos_by_org_gql_response)
+})
+
 # private methods
 
 test_gql_gh <- environment(test_gql_gh$initialize)$private
@@ -40,6 +60,21 @@ test_that("`pull_commits_page_from_repo()` pulls commits page from repository", 
     commits_page
   )
   test_mocker$cache(commits_page)
+})
+
+test_that("`pull_repos_page_from_org()` pulls repos page from GitHub organization", {
+  mockery::stub(
+    test_gql_gh$pull_repos_page_from_org,
+    "self$gql_response",
+    test_mocker$use("gh_repos_by_org_gql_response")
+  )
+  gh_repos_page <- test_gql_gh$pull_repos_page_from_org(
+    org = "r-world-devs"
+  )
+  expect_gh_repos(
+    gh_repos_page
+  )
+  test_mocker$cache(gh_repos_page)
 })
 
 test_that("`pull_repos_from_org()` prepares formatted list", {
@@ -131,15 +166,15 @@ test_gql_gh <- EngineGraphQLGitHub$new(
   token = Sys.getenv("GITHUB_PAT")
 )
 
-test_that("`get_commits_from_org()` gets commits in the table format", {
+test_that("`get_commits()` retrieves commits in the table format", {
   mockery::stub(
-    test_gql_gh$get_commits_from_org,
+    test_gql_gh$get_commits,
     "private$pull_commits_from_repos",
     test_mocker$use("commits_from_repos")
   )
 
   mockery::stub(
-    test_gql_gh$get_commits_from_org,
+    test_gql_gh$get_commits,
     "private$prepare_commits_table",
     test_mocker$use("commits_table")
   )
@@ -147,13 +182,20 @@ test_that("`get_commits_from_org()` gets commits in the table format", {
   repos_table <- test_mocker$use("gh_repos_table") %>%
     dplyr::filter(name == "GitStats")
 
+  mockery::stub(
+    test_gql_gh$get_commits,
+    "self$get_repos",
+    repos_table
+  )
+
+  settings <- list(search_param = "org")
+
   expect_snapshot(
-    commits_table <- test_gql_gh$get_commits_from_org(
+    commits_table <- test_gql_gh$get_commits(
       org = "r-world-devs",
-      repos_table = repos_table,
       date_from = "2023-01-01",
       date_until = "2023-02-28",
-      by = "org"
+      settings = settings
     )
   )
 

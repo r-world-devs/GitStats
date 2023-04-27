@@ -32,10 +32,20 @@ A class for methods wraping GitLab's REST API responses.
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
+Create new \code{EngineRestGitLab} object.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{EngineRestGitLab$new(rest_api_url, token)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{rest_api_url}}{A REST API url.}
+
+\item{\code{token}}{A token.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-check_organizations"></a>}}
@@ -67,6 +77,15 @@ a table format.
 \if{html}{\out{<div class="r">}}\preformatted{EngineRestGitLab$get_repos(org, settings)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{org}}{A character, a group of projects.}
+
+\item{\code{settings}}{A list of  \code{GitStats} settings.}
+}
+\if{html}{\out{</div>}}
+}
 \subsection{Returns}{
 A table.
 }
@@ -129,6 +148,8 @@ commits from repo with REST API.
 \item{\code{date_from}}{A starting date to look commits for.}
 
 \item{\code{date_until}}{An end date to look commits for.}
+
+\item{\code{settings}}{A list of  \code{GitStats} settings.}
 }
 \if{html}{\out{</div>}}
 }

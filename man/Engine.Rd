@@ -25,8 +25,19 @@ A super class for methods wrapping API responses.
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
+\item \href{#method-new}{\code{Engine$new()}}
 \item \href{#method-clone}{\code{Engine$clone()}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
+\subsection{Method \code{new()}}{
+Create new \code{Engine} object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Engine$new()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

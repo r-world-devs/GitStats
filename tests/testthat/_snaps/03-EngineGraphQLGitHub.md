@@ -4219,12 +4219,11 @@
       
       
 
-# `get_commits_from_org()` gets commits in the table format
+# `get_commits()` retrieves commits in the table format
 
     Code
-      commits_table <- test_gql_gh$get_commits_from_org(org = "r-world-devs",
-        repos_table = repos_table, date_from = "2023-01-01", date_until = "2023-02-28",
-        by = "org")
+      commits_table <- test_gql_gh$get_commits(org = "r-world-devs", date_from = "2023-01-01",
+        date_until = "2023-02-28", settings = settings)
     Message <cliMessage>
-      i [GitHub][r-world-devs][Engine:GraphQL] Pulling commits...
+      i [GitHub][Engine:GraphQL][org:r-world-devs] Pulling commits...
 

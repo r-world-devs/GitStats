@@ -6,9 +6,6 @@
 \description{
 A class with methods to build GraphQL Queries for GitHub.
 }
-\section{Super class}{
-\code{\link[GitStats:GQLQuery]{GitStats::GQLQuery}} -> \code{GQLQueryGitHub}
-}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -17,12 +14,6 @@ A class with methods to build GraphQL Queries for GitHub.
 \item \href{#method-commits_by_repo}{\code{GQLQueryGitHub$commits_by_repo()}}
 \item \href{#method-clone}{\code{GQLQueryGitHub$clone()}}
 }
-}
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-}
-\out{</details>}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-repos_by_org"></a>}}

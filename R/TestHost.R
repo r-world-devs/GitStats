@@ -4,40 +4,53 @@
 TestHost <- R6::R6Class("TestHost",
   inherit = GitHost,
   public = list(
-    rest_engine = NULL,
-    orgs = NULL,
-    initialize = function(rest_api_url = NA,
+    initialize = function(orgs = NA,
                           token = NA,
-                          orgs = NA) {
-      self$rest_engine <- EngineRest$new(
-        rest_api_url = rest_api_url,
-        token = token
-      )
-      self$orgs <- orgs
+                          api_url = NA) {
+      if (grepl("https://", api_url) && grepl("github", api_url)) {
+        private$engines$rest <- EngineRestGitHub$new(
+          token = token,
+          rest_api_url = api_url
+        )
+        private$engines$graphql <- EngineGraphQLGitHub$new(
+          token = token,
+          gql_api_url = api_url
+        )
+      } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
+        private$engines$rest <- EngineRestGitLab$new(
+          token = token,
+          rest_api_url = api_url
+        )
+      }
+      private$orgs <- orgs
     }
   )
 )
 
 #' @noRd
 #' @description A wrapper over creating `TestHost`.
-create_testhost <- function(rest_api_url = NULL,
+create_testhost <- function(api_url = NULL,
                             token = NULL,
                             orgs = NULL,
                             mode = "") {
   test_host <- TestHost$new(
-    rest_api_url = rest_api_url,
+    api_url = api_url,
     token = token,
     orgs = orgs
   )
-  if (!is.null(rest_api_url)) {
-    if (grepl("github", rest_api_url)) {
-      class(test_host) <- "GitHub"
-    } else if (grepl("gitlab", rest_api_url)) {
-      class(test_host) <- "GitLab"
-    }
-  }
   if (mode == "private") {
     test_host <- environment(test_host$initialize)$private
   }
   return(test_host)
 }
+
+TestEngineRest <- R6::R6Class("TestEngineRest",
+  inherit = EngineRest,
+  public = list(
+    initialize = function(token,
+                          rest_api_url) {
+      private$token <- token
+      self$rest_api_url <- rest_api_url
+    }
+  )
+)

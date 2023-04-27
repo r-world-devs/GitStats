@@ -1,16 +1,16 @@
-# `search_repos_by_phrase()` works
+# `get_repos_by_phrase()` works
 
     Code
-      gl_repos_by_phrase <- test_rest_priv$search_repos_by_phrase(phrase = "covid",
-        org = "erasmusmc-public-health")
+      result <- test_rest$get_repos(org = "erasmusmc-public-health", settings = settings)
     Message <cliMessage>
-      i [GitLab][erasmusmc-public-health][Engine:REST] Searching repos...
+      i [GitLab][Engine:REST][phrase:covid][org:erasmusmc-public-health] Searching repositories...
 
-# `get_commits_from_org()` works as expected
+# `get_commits()` works as expected
 
     Code
-      result <- test_rest$get_commits_from_org(org = "mbtests", repos_table = NULL,
-        date_from = "2023-01-01", date_until = "2023-04-20", by = "org", team = NULL)
+      result <- test_rest$get_commits(org = "mbtests", date_from = "2023-01-01",
+        date_until = "2023-04-20", settings = settings)
     Message <cliMessage>
-      i [GitLab][mbtests][Engine:REST] Pulling commits...
+      i [GitLab][Engine:REST][org:mbtests] Pulling repositories...
+      i [GitLab][Engine:REST][org:mbtests] Pulling commits...
 

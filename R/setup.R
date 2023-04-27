@@ -5,6 +5,7 @@
 #' @param team_name Name of a team.
 #' @param phrase A phrase to look for.
 #' @param language A language of programming code.
+#' @param print_out A boolean to decide whether to print output
 #' @return A `GitStats` object.
 #' @export
 setup<- function(gitstats_obj,

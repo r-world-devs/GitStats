@@ -12,14 +12,9 @@ expect_gl_repos <- function(object) {
     "list"
   )
   expect_list_contains(
-    object,
-    "data"
-  )
-  expect_list_contains(
-    object$data$group$projects$edges[[1]]$node,
+    object[[1]],
     c(
-      "id", "name", "stars", "forks", "created_at", "last_push",
-      "last_activity_at", "languages", "issueStatusCounts"
+      "id", "description", "name", "name_with_namespace", "path"
     )
   )
 }
@@ -71,7 +66,14 @@ expect_gh_commit <- function(object) {
   )
 }
 
-expect_gh_repos_list <- function(object) {
+expect_gl_search_response <- function(object) {
+  expect_list_contains(
+    object,
+    c("basename", "data", "path", "filename", "id", "ref", "startline", "project_id")
+  )
+}
+
+expect_gh_search_response <- function(object) {
   expect_list_contains(
     object,
     c("name", "path", "sha", "url", "git_url", "html_url", "repository", "score")

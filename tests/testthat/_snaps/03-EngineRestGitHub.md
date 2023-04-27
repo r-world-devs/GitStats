@@ -1,8 +1,7 @@
-# `search_repos_by_phrase()` for GitHub prepares a list of repositories
+# `get_repos()` works
 
     Code
-      gh_repos_by_phrase <- test_rest_priv$search_repos_by_phrase(phrase = "shiny",
-        org = "r-world-devs", language = "R")
+      result <- test_rest$get_repos(org = "r-world-devs", settings = settings)
     Message <cliMessage>
-      i [GitHub][r-world-devs][Engine:REST] Searching repos...
+      i [GitHub][Engine:REST][phrase:shiny][org:r-world-devs] Searching repositories...
 

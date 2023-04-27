@@ -12,16 +12,39 @@ test_that("`get_group_id()` gets group's id", {
   expect_equal(gl_group_id, 63684059)
 })
 
+test_that("`find_repos_by_id()` works", {
+
+  gl_search_response <- test_mocker$use("gl_search_response")
+  gl_search_repos_by_phrase <- test_rest_priv$find_repos_by_id(
+    gl_search_response
+  )
+  expect_gl_repos(
+    gl_search_repos_by_phrase
+  )
+  test_mocker$cache(gl_search_repos_by_phrase)
+})
+
+test_that("`pull_repos_languages` works", {
+
+  repos_list <- test_mocker$use("gl_search_repos_by_phrase")
+  repos_list[[1]]$id <- "45300912"
+  repos_list_with_languages <- test_rest_priv$pull_repos_languages(
+    repos_list = repos_list
+  )
+  expect_list_contains(
+    repos_list_with_languages[[1]],
+    "languages"
+  )
+})
+
 test_that("`search_repos_by_phrase()` works", {
-  expect_snapshot(
-    gl_repos_by_phrase <- test_rest_priv$search_repos_by_phrase(
-      phrase = "covid",
-      org = "erasmusmc-public-health"
-    )
+  gl_repos_by_phrase <- test_rest_priv$search_repos_by_phrase(
+    phrase = "covid",
+    org = "erasmusmc-public-health"
   )
   expect_list_contains(
     gl_repos_by_phrase[[1]],
-    c("id", "description", "name", "created_at")
+    c("id", "description", "name", "created_at", "languages")
   )
   test_mocker$cache(gl_repos_by_phrase)
 })
@@ -39,8 +62,8 @@ test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
   expect_list_contains_only(
     gl_repos_by_phrase_tailored[[1]],
     c("id", "name", "created_at", "last_activity_at", "last_push",
-      "forks", "stars", "contributors", "issues_open", "issues_closed",
-      "organization"))
+      "forks", "stars", "contributors", "languages", "issues_open",
+      "issues_closed", "organization"))
 
   expect_lt(length(gl_repos_by_phrase_tailored[[1]]),
             length(gl_repos_by_phrase[[1]]))
@@ -70,17 +93,14 @@ test_that("`pull_commits_from_org()` pulls commits from repo", {
   )
 
   gl_commits_org <- test_rest_priv$pull_commits_from_org(
-    repos_table = test_mocker$use("gl_repos_table"),
+    repos_table = test_mocker$use("gl_repos_by_phrase_table"),
     date_from = "2023-01-01",
     date_until = "2023-04-20"
   )
-
   expect_gl_commit(
     gl_commits_org[[1]]
   )
-
   test_mocker$cache(gl_commits_org)
-
 })
 
 test_that("`filter_commits_by_team()` filters commits by team", {
@@ -136,7 +156,7 @@ test_that("`prepare_commits_table()` prepares table of commits properly", {
 test_that("`get_repos_contributors()` adds contributors to repos table", {
 
   gl_repos_table <- test_rest$get_repos_contributors(
-    test_mocker$use("gl_repos_table")
+    test_mocker$use("gl_repos_by_phrase_table")
   )
   expect_gt(
     length(gl_repos_table$contributors),
@@ -148,7 +168,7 @@ test_that("`get_repos_contributors()` adds contributors to repos table", {
 
 test_that("`get_repos_issues()` adds issues to repos table", {
 
-  gl_repos_by_phrase_table <- test_mocker$use("gl_repos_by_phrase_table")
+  gl_repos_by_phrase_table <- test_mocker$use("gl_repos_table")
 
   gl_repos_by_phrase_table <- test_rest$get_repos_issues(
     gl_repos_by_phrase_table
@@ -167,35 +187,41 @@ test_that("`get_repos_issues()` adds issues to repos table", {
 test_that("`get_repos_by_phrase()` works", {
 
   mockery::stub(
-    test_rest$get_repos_by_phrase,
+    test_rest$get_repos,
     "private$search_repos_by_phrase",
     test_mocker$use("gl_repos_by_phrase")
   )
 
-  result <- test_rest$get_repos_by_phrase(
-    phrase = "covid",
-    org = "erasmusmc-public-health"
+  settings <- list(
+    search_param = "phrase",
+    phrase = "covid"
   )
-
+  expect_snapshot(
+    result <- test_rest$get_repos(
+      org = "erasmusmc-public-health",
+      settings = settings
+    )
+  )
   expect_repos_table(result)
 
 })
 
-test_that("`get_commits_from_org()` works as expected", {
+test_that("`get_commits()` works as expected", {
 
   mockery::stub(
-    test_rest$get_commits_from_org,
+    test_rest$get_commits,
     "private$pull_commits_from_org",
     test_mocker$use("gl_commits_org")
   )
+  settings <- list(
+    search_param = "org"
+  )
   expect_snapshot(
-    result <- test_rest$get_commits_from_org(
+    result <- test_rest$get_commits(
       org = "mbtests",
-      repos_table = NULL,
       date_from = "2023-01-01",
       date_until = "2023-04-20",
-      by = "org",
-      team = NULL
+      settings = settings
     )
   )
   expect_commits_table(result)

@@ -25,7 +25,7 @@
 set_connection <- function(gitstats_obj,
                            api_url,
                            token,
-                           orgs = NULL) {
+                           orgs) {
   gitstats_obj$add_host(
     api_url = api_url,
     token = token,
