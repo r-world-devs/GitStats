@@ -11,13 +11,8 @@
 plot_repos <- function(gitstats_obj,
                        repos_n = 10) {
   fullname <- organization <- name <- last_activity_at <- NULL
-  if (is.null(gitstats_obj$repos_dt)) {
-    stop("You have to first construct your repos data.frame with 'get_repos' function.",
-      call. = FALSE
-    )
-  }
 
-  repos_dt <- gitstats_obj$repos_dt
+  repos_dt <- gitstats_obj$show_repos()
 
   repos_to_plot <- head(repos_dt, repos_n)
 

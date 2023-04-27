@@ -207,7 +207,7 @@ GitStats <- R6::R6Class("GitStats",
       private$print_item("Phrase", private$settings$phrase)
       private$print_item("Language", private$settings$language)
       private$print_item("Repositories output", private$repos, paste0("Rows number: ", nrow(private$repos)))
-      private$print_item("Commits output", private$commits, paste0("Since: ", min(private$commits$committed_date), "; Rows number: ", nrow(private$repos)))
+      private$print_item("Commits output", private$commits, paste0("Since: ", min(private$commits$committed_date), "; Rows number: ", nrow(private$commits)))
     }
   ),
   private = list(
