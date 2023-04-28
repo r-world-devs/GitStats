@@ -27,7 +27,7 @@ For the time being GitStats supports connections to public GitHub, enterprise Gi
 
 ## Installation
 
-Development version:
+Test version:
 
 ```r
 devtools::install_github("r-world-devs/GitStats@test")
@@ -54,13 +54,13 @@ git_stats <- create_gitstats() %>%
   )
 ```
 
-## Setup preferences
+## Setup
 
-You can setup your search preferences, either to organizations, team or phrase. 
+You can setup your search preferences, either to `organizations`, `team` or `phrase`. 
 
 ### Team
 
-If you setup your preferences to team, name it and add your team members:
+If you with to setup your search parameter to team, add your team members first:
 
 ```{r}
 git_stats %>%
@@ -87,7 +87,7 @@ get_commits(git_stats,
 
 ### Keyword
 
-With `GitStats` you can look for the activity connected to a certain phrase.
+With `GitStats` you can look for the repos with a certain phrase in code blobs.
 
 ```{r}
 setup(git_stats,

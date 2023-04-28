@@ -20,7 +20,7 @@ enterprise GitHub and GitLab.
 
 ## Installation
 
-Development version:
+Test version:
 
 ``` r
 devtools::install_github("r-world-devs/GitStats@test")
@@ -48,15 +48,15 @@ git_stats <- create_gitstats() %>%
   )
 ```
 
-## Setup preferences
+## Setup
 
-You can setup your search preferences, either to organizations, team or
-phrase.
+You can setup your search preferences, either to `organizations`, `team`
+or `phrase`.
 
 ### Team
 
-If you setup your preferences to team, name it and add your team
-members:
+If you with to setup your search parameter to team, add your team
+members first:
 
 ``` r
 git_stats %>%
@@ -88,13 +88,13 @@ get_repos(git_stats)
 #> $ id               <chr> "R_kgDOHNMr2w", "R_kgDOHYNOFQ", "R_kgDOHYNrJw", "R_kg…
 #> $ name             <chr> "shinyGizmo", "cohortBuilder", "shinyCohortBuilder", …
 #> $ stars            <int> 16, 2, 4, 0, 1, 2, 2, 10, 4, 22, 1, 4, 7, 0, 0, 0, 0,…
-#> $ forks            <int> 0, 1, 0, 0, 0, 0, 0, 1, 0, 5, 0, 3, 5, NA, NA, NA, NA…
+#> $ forks            <int> 0, 2, 0, 0, 0, 0, 0, 1, 0, 5, 0, 3, 5, NA, NA, NA, NA…
 #> $ created_at       <dttm> 2022-04-20 10:04:32, 2022-05-22 18:31:55, 2022-05-22…
-#> $ last_push        <chr> "2023-03-15T20:06:31Z", "2023-03-15T20:24:15Z", "2023…
-#> $ last_activity_at <drtn> 27.39 days, 42.39 days, 42.39 days, 341.39 days, 10.…
+#> $ last_push        <chr> "2023-03-15T20:06:31Z", "2023-04-28T10:56:46Z", "2023…
+#> $ last_activity_at <drtn> 27.5 days, 42.5 days, 42.5 days, 341.5 days, 10.5 da…
 #> $ languages        <chr> "R, CSS, JavaScript", "R", "R, CSS, JavaScript, SCSS"…
-#> $ issues_open      <int> 5, 22, 27, 3, 66, 0, 0, 0, 1, 0, 6, 3, 38, NA, NA, NA…
-#> $ issues_closed    <int> 12, 1, 4, 0, 71, 0, 0, 0, 0, 1, 55, 23, 118, NA, NA, …
+#> $ issues_open      <dbl> 5, 22, 27, 3, 66, 0, 0, 0, 1, 0, 6, 3, 38, 0, 0, 0, 0…
+#> $ issues_closed    <dbl> 12, 1, 4, 0, 71, 0, 0, 0, 0, 1, 55, 23, 118, 0, 0, 0,…
 #> $ contributors     <chr> "krystian8207, stla, stlagsk, galachad", "krystian820…
 #> $ organization     <chr> "r-world-devs", "r-world-devs", "r-world-devs", "r-wo…
 #> $ repo_url         <chr> "https://github.com/r-world-devs/shinyGizmo", "https:…
@@ -118,8 +118,8 @@ get_commits(git_stats,
 
 ### Keyword
 
-With `GitStats` you can look for the activity connected to a certain
-phrase.
+With `GitStats` you can look for the repos with a certain phrase in code
+blobs.
 
 ``` r
 setup(git_stats,
@@ -134,7 +134,7 @@ setup(git_stats,
 #> Phrase: shiny
 #> Language: <not defined>
 #> Repositories output: Rows number: 21
-#> Commits output: Since: 2022-01-20 14:57:56; Rows number: 577
+#> Commits output: Since: 2022-01-20 14:57:56Until: 2023-03-30 14:35:34; Rows number: 577
 
 # now pull repos by default by phrase
 get_repos(git_stats)
@@ -146,7 +146,7 @@ get_repos(git_stats)
 #> $ forks            <int> 0, 0, 0
 #> $ created_at       <dttm> 2022-05-22, 2022-07-11, 2021-11-24
 #> $ last_push        <chr> "2023-03-15T20:54:41Z", "2023-01-16T10:26:05Z", "2022…
-#> $ last_activity_at <drtn> 42.39 days, 291.39 days, 225.39 days
+#> $ last_activity_at <drtn> 42.5 days, 291.5 days, 225.5 days
 #> $ languages        <chr> "R", "Python", "R"
 #> $ issues_open      <int> 27, 0, 0
 #> $ issues_closed    <int> 0, 0, 0
