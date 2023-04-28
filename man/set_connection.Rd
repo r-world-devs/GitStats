@@ -18,7 +18,7 @@ in case of GitHub and groups of projects in case of GitLab).}
 }
 \value{
 A \code{GitStats} class object with added information on connection
-(\verb{$clients} field).
+(\verb{$hosts} field).
 }
 \description{
 Setting connections

@@ -9,11 +9,11 @@
 #' @return A `GitStats` object.
 #' @export
 setup <- function(gitstats_obj,
-                 search_param = NULL,
-                 team_name = NULL,
-                 phrase = NULL,
-                 language = NULL,
-                 print_out = TRUE) {
+                  search_param = NULL,
+                  team_name = NULL,
+                  phrase = NULL,
+                  language = NULL,
+                  print_out = TRUE) {
   gitstats_obj$setup(
     search_param = search_param,
     team_name = team_name,
