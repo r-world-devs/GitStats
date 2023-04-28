@@ -41,7 +41,7 @@ get_commits(git_stats, date_from = "2020-01-01")
 # Change your settings to searches by phrase:
 setup(git_stats,
       search_param = "phrase",
-      phrase = "covid")
+      phrase = "shiny")
 
 # Search by phrase
 get_repos(git_stats)
