@@ -4,7 +4,6 @@
 #'
 #' @title A EngineRest class
 #' @description A superclass for methods wraping Rest API responses.
-
 EngineRest <- R6::R6Class("EngineRest",
   inherit = Engine,
   public = list(
@@ -61,7 +60,7 @@ EngineRest <- R6::R6Class("EngineRest",
       return(repos_table)
     },
 
-    #' @noRd
+    #' @description Method to get commits.
     get_commits = function(org,
                            repos_table,
                            date_from,

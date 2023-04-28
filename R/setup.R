@@ -8,7 +8,7 @@
 #' @param print_out A boolean to decide whether to print output
 #' @return A `GitStats` object.
 #' @export
-setup<- function(gitstats_obj,
+setup <- function(gitstats_obj,
                  search_param = NULL,
                  team_name = NULL,
                  phrase = NULL,
