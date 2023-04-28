@@ -44,6 +44,45 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       orgs
     },
 
+    #' @description Method to get repositories with phrase in code blobs.
+    #' @param org An organization
+    #' @param settings A list of  `GitStats` settings.
+    #' @return Table of repositories.
+    get_repos = function(org,
+                         settings) {
+      if (settings$search_param == "phrase") {
+        cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{org}] Searching repositories...")
+        repos_table <- private$search_repos_by_phrase(
+          org = org,
+          phrase = settings$phrase,
+          language = settings$language
+        ) %>%
+          private$tailor_repos_info() %>%
+          private$prepare_repos_table() %>%
+          self$get_repos_contributors() %>%
+          self$get_repos_issues()
+      } else {
+        repos_table <- NULL
+      }
+      return(repos_table)
+    },
+
+    #' @description Method to get commits.
+    #' @details This method is empty as this class does not support pulling
+    #'   commits - it is done for GitHub via GraphQL. Still the method must
+    #'   exist as it is called from the GitHost wrapper above.
+    #' @param org An organization.
+    #' @param date_from A starting date to look commits for.
+    #' @param date_until An end date to look commits for.
+    #' @param settings A list of  `GitStats` settings.
+    #' @return A table of commits.
+    get_commits = function(org,
+                           date_from,
+                           date_until = Sys.date(),
+                           settings) {
+      NULL
+    },
+
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
@@ -96,16 +135,16 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
   ),
   private = list(
 
-    #' @description Search code by phrase
-    #' @param phrase A phrase to look for in
-    #'   codelines.
-    #' @param org A character, an organization of repositories.
-    #' @param language A character specifying language used in repositories.
-    #' @param byte_max According to GitHub
-    #'   documentation only files smaller than 384 KB are searchable. See
-    #'   \link{https://docs.github.com/en/rest/search?apiVersion=2022-11-28#search-code}
-    #'
-    #' @return A list of repositories.
+    # @description Search code by phrase
+    # @param phrase A phrase to look for in
+    #   codelines.
+    # @param org A character, an organization of repositories.
+    # @param language A character specifying language used in repositories.
+    # @param byte_max According to GitHub
+    #   documentation only files smaller than 384 KB are searchable. See
+    #   \link{https://docs.github.com/en/rest/search?apiVersion=2022-11-28#search-code}
+    #
+    # @return A list of repositories.
     search_repos_by_phrase = function(phrase,
                                       org,
                                       language,
@@ -132,11 +171,11 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       return(repos_list)
     },
 
-    #' @description A wrapper for proper pagination of GitHub search REST API
-    #' @param search_endpoint A character, a search endpoint
-    #' @param total_n Number of results
-    #' @param byte_max Max byte size
-    #' @return A list
+    # @description A wrapper for proper pagination of GitHub search REST API
+    # @param search_endpoint A character, a search endpoint
+    # @param total_n Number of results
+    # @param byte_max Max byte size
+    # @return A list
     search_response = function(search_endpoint,
                                total_n,
                                byte_max) {
@@ -204,9 +243,9 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       }
     },
 
-    #' @description A helper to retrieve only important info on repos
-    #' @param repos_list A list, a formatted content of response returned by GET API request
-    #' @return A list of repos with selected information
+    # @description A helper to retrieve only important info on repos
+    # @param repos_list A list, a formatted content of response returned by GET API request
+    # @return A list of repos with selected information
     tailor_repos_info = function(repos_list) {
       repos_list <- purrr::map(repos_list, function(x) {
         list(
@@ -229,9 +268,9 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       repos_list
     },
 
-    #' @description Perform get request to find projects by ids.
-    #' @param repos_list A list of repositories - search response.
-    #' @return A list of repositories.
+    # @description Perform get request to find projects by ids.
+    # @param repos_list A list of repositories - search response.
+    # @return A list of repositories.
     find_repos_by_id = function(repos_list) {
       ids <- purrr::map_chr(repos_list, ~ as.character(.$repository$id)) %>%
         unique()

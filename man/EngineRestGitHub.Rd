@@ -14,6 +14,8 @@ A class for methods wraping GitHub's REST API responses.
 \itemize{
 \item \href{#method-new}{\code{EngineRestGitHub$new()}}
 \item \href{#method-check_organizations}{\code{EngineRestGitHub$check_organizations()}}
+\item \href{#method-get_repos}{\code{EngineRestGitHub$get_repos()}}
+\item \href{#method-get_commits}{\code{EngineRestGitHub$get_commits()}}
 \item \href{#method-get_repos_contributors}{\code{EngineRestGitHub$get_repos_contributors()}}
 \item \href{#method-get_repos_issues}{\code{EngineRestGitHub$get_repos_issues()}}
 \item \href{#method-clone}{\code{EngineRestGitHub$clone()}}
@@ -22,8 +24,6 @@ A class for methods wraping GitHub's REST API responses.
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
-\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="EngineRest" data-id="get_commits">}\href{../../GitStats/html/EngineRest.html#method-get_commits}{\code{GitStats::EngineRest$get_commits()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="EngineRest" data-id="get_repos">}\href{../../GitStats/html/EngineRest.html#method-get_repos}{\code{GitStats::EngineRest$get_repos()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="EngineRest" data-id="response">}\href{../../GitStats/html/EngineRest.html#method-response}{\code{GitStats::EngineRest$response()}}\out{</span>}
 }
 \out{</details>}
@@ -65,6 +65,60 @@ Check if an organization exists
 }
 \subsection{Returns}{
 orgs or NULL.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_repos"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos}{}}}
+\subsection{Method \code{get_repos()}}{
+Method to get repositories with phrase in code blobs.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$get_repos(org, settings)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{org}}{An organization}
+
+\item{\code{settings}}{A list of  \code{GitStats} settings.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Table of repositories.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_commits"></a>}}
+\if{latex}{\out{\hypertarget{method-get_commits}{}}}
+\subsection{Method \code{get_commits()}}{
+Method to get commits.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$get_commits(org, date_from, date_until = Sys.date(), settings)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{org}}{An organization.}
+
+\item{\code{date_from}}{A starting date to look commits for.}
+
+\item{\code{date_until}}{An end date to look commits for.}
+
+\item{\code{settings}}{A list of  \code{GitStats} settings.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+This method is empty as this class does not support pulling
+commits - it is done for GitHub via GraphQL. Still the method must
+exist as it is called from the GitHost wrapper above.
+}
+
+\subsection{Returns}{
+A table of commits.
 }
 }
 \if{html}{\out{<hr>}}

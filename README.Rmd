@@ -30,7 +30,7 @@ For the time being GitStats supports connections to public GitHub, enterprise Gi
 Development version:
 
 ```r
-devtools::install_github("r-world-devs/GitStats@devel")
+devtools::install_github("r-world-devs/GitStats@test")
 ```
 
 ## Getting started

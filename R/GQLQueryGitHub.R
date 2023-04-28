@@ -134,9 +134,9 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
   ),
 
   private = list(
-    #' @description Helper over defining cursor agument for the query.
-    #' @param cursor A cursor.
-    #' @return A string of cursor argument.
+    # @description Helper over defining cursor agument for the query.
+    # @param cursor A cursor.
+    # @return A string of cursor argument.
     add_cursor = function(cursor) {
       if (nchar(cursor) == 0) {
         cursor_argument <- cursor

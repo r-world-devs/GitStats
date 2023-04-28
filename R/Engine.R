@@ -17,15 +17,15 @@ Engine <- R6::R6Class("Engine",
   ),
 
   private = list(
-    #' @field token A token authorizing access to API.
+    # @field token A token authorizing access to API.
     token = NULL,
 
-    #' @description Filter repositories by contributors.
-    #' @details If at least one member of a team is a contributor than a project
-    #'   passes through the filter.
-    #' @param repos_table A repository table to be filtered.
-    #' @param team A list with team members.
-    #' @return A repos table.
+    # @description Filter repositories by contributors.
+    # @details If at least one member of a team is a contributor than a project
+    #   passes through the filter.
+    # @param repos_table A repository table to be filtered.
+    # @param team A list with team members.
+    # @return A repos table.
     filter_repos_by_team = function(repos_table,
                                     team) {
       team_logins <- unlist(team)
@@ -41,12 +41,12 @@ Engine <- R6::R6Class("Engine",
       return(repos_table)
     },
 
-    #' @description Filter repositories by contributors.
-    #' @details If at least one member of a team is a contributor than a project
-    #'   passes through the filter.
-    #' @param repos_table A repository table to be filtered.
-    #' @param language A language used in repository.
-    #' @return A repos table.
+    # @description Filter repositories by contributors.
+    # @details If at least one member of a team is a contributor than a project
+    #   passes through the filter.
+    # @param repos_table A repository table to be filtered.
+    # @param language A language used in repository.
+    # @return A repos table.
     filter_repos_by_language = function(repos_table,
                                         language) {
       cli::cli_alert_info("Filtering by language.")

@@ -6,32 +6,6 @@
 \description{
 An R6 class object with methods to derive information from multiple Git platforms.
 }
-\section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{hosts}}{A list of API connections information.}
-
-\item{\code{settings}}{List of search preferences.}
-
-\item{\code{repos}}{An output table of repositories.}
-
-\item{\code{commits}}{An output table of commits.}
-}
-\if{html}{\out{</div>}}
-}
-\section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{hosts}}{A list of API connections information.}
-
-\item{\code{settings}}{List of search preferences.}
-
-\item{\code{repos}}{An output table of repositories.}
-
-\item{\code{commits}}{An output table of commits.}
-}
-\if{html}{\out{</div>}}
-}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{

@@ -35,46 +35,14 @@ EngineRest <- R6::R6Class("EngineRest",
       }
 
       return(result)
-    },
-
-    #' @description Method to get repositories with phrase in code blobs.
-    #' @param org An organization
-    #' @param settings A list of  `GitStats` settings.
-    #' @return Table of repositories.
-    get_repos = function(org,
-                         settings) {
-      if (settings$search_param == "phrase") {
-        cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{org}] Searching repositories...")
-        repos_table <- private$search_repos_by_phrase(
-          org = org,
-          phrase = settings$phrase,
-          language = settings$language
-        ) %>%
-          private$tailor_repos_info() %>%
-          private$prepare_repos_table() %>%
-          self$get_repos_contributors() %>%
-          self$get_repos_issues()
-      } else {
-        repos_table <- NULL
-      }
-      return(repos_table)
-    },
-
-    #' @description Method to get commits.
-    get_commits = function(org,
-                           repos_table,
-                           date_from,
-                           date_until = Sys.date(),
-                           settings) {
-      NULL
     }
 
   ),
   private = list(
 
-    #' @description Check whether the token exists.
-    #' @param token A token.
-    #' @return A token.
+    # @description Check whether the token exists.
+    # @param token A token.
+    # @return A token.
     check_token = function(token) {
       if (nchar(token) == 0) {
         cli::cli_abort(c(
@@ -85,9 +53,9 @@ EngineRest <- R6::R6Class("EngineRest",
       return(invisible(token))
     },
 
-    #' @description A helper to prepare table for repositories content
-    #' @param repos_list A repository list.
-    #' @return A data.frame.
+    # @description A helper to prepare table for repositories content
+    # @param repos_list A repository list.
+    # @return A data.frame.
     prepare_repos_table = function(repos_list) {
       repos_dt <- purrr::map(repos_list, function(repo) {
         repo <- purrr::map(repo, function(attr) {
@@ -116,10 +84,10 @@ EngineRest <- R6::R6Class("EngineRest",
       return(repos_dt)
     },
 
-    #' @description A wrapper for httr2 functions to prepare get request to REST API endpoint.
-    #' @param endpoint An API endpoint.
-    #' @param token An API token.
-    #' @returns A request.
+    # @description A wrapper for httr2 functions to prepare get request to REST API endpoint.
+    # @param endpoint An API endpoint.
+    # @param token An API token.
+    # @returns A request.
     perform_request = function(endpoint, token) {
       tryCatch(
         {
@@ -149,10 +117,10 @@ EngineRest <- R6::R6Class("EngineRest",
       return(resp)
     },
 
-    #' @description A wrapper for httr2 functions to prepare get request to REST API endpoint.
-    #' @param endpoint An API endpoint.
-    #' @param token An API token.
-    #' @returns A request.
+    # @description A wrapper for httr2 functions to prepare get request to REST API endpoint.
+    # @param endpoint An API endpoint.
+    # @param token An API token.
+    # @returns A request.
     build_request = function(endpoint, token) {
       httr2::request(endpoint) %>%
         httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
@@ -163,19 +131,19 @@ EngineRest <- R6::R6Class("EngineRest",
         )
     },
 
-    #' @description Handler for rate-limit error (403 on GitHub).
+    # @description Handler for rate-limit error (403 on GitHub).
     resp_is_transient = function(resp) {
       httr2::resp_status(resp) == 403 &&
         httr2::resp_header(resp, "X-RateLimit-Remaining") == "0"
     },
 
-    #' @description Handler for rate-limit error (403 on GitHub).
+    # @description Handler for rate-limit error (403 on GitHub).
     req_after = function(resp) {
       time <- as.numeric(httr2::resp_header(resp, "X-RateLimit-Reset"))
       time - unclass(Sys.time())
     },
 
-    #' @description Handler for rate-limit error (403 on GitHub).
+    # @description Handler for rate-limit error (403 on GitHub).
     resp_error_body = function(resp) {
       body <- httr2::resp_body_json(resp)
 

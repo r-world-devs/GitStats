@@ -10,15 +10,6 @@ A super class for methods wrapping API responses.
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{git_platform}}{A character specifying what Git Platform (GitHub or GitLab).}
-
-\item{\code{token}}{A token authorizing access to API.}
-}
-\if{html}{\out{</div>}}
-}
-\section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{token}}{A token authorizing access to API.}
 }
 \if{html}{\out{</div>}}
 }

@@ -8,24 +8,6 @@ A GitHost superclass
 
 A GitHost superclass
 }
-\section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{orgs}}{A character vector of repo organizations.}
-
-\item{\code{engines}}{A placeholder for REST and GraphQL Engine classes.}
-}
-\if{html}{\out{</div>}}
-}
-\section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{orgs}}{A character vector of repo organizations.}
-
-\item{\code{engines}}{A placeholder for REST and GraphQL Engine classes.}
-}
-\if{html}{\out{</div>}}
-}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{

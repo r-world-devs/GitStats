@@ -212,10 +212,10 @@ GitStats <- R6::R6Class("GitStats",
   ),
   private = list(
 
-    #' @field hosts A list of API connections information.
+    # @field hosts A list of API connections information.
     hosts = list(),
 
-    #' @field settings List of search preferences.
+    # @field settings List of search preferences.
     settings = list(
       search_param = "org",
       phrase = NULL,
@@ -225,15 +225,15 @@ GitStats <- R6::R6Class("GitStats",
       print_out = TRUE
     ),
 
-    #' @field repos An output table of repositories.
+    # @field repos An output table of repositories.
     repos = NULL,
 
-    #' @field commits An output table of commits.
+    # @field commits An output table of commits.
     commits = NULL,
 
-    #' @description Check whether the urls do not repeat in input.
-    #' @param host An object of GitPlatform class
-    #' @return A GitPlatform object
+    # @description Check whether the urls do not repeat in input.
+    # @param host An object of GitPlatform class
+    # @return A GitPlatform object
     check_host = function(host) {
       if (length(private$hosts) > 0) {
         hosts_to_check <- append(host, private$hosts)
@@ -254,12 +254,12 @@ GitStats <- R6::R6Class("GitStats",
       host
     },
 
-    #' @description Switcher to manage language names
-    #' @details E.g. GitLab API will not filter
-    #'   properly if you provide 'python' language
-    #'   with small letter.
-    #' @param language A character, language name
-    #' @return A character
+    # @description Switcher to manage language names
+    # @details E.g. GitLab API will not filter
+    #   properly if you provide 'python' language
+    #   with small letter.
+    # @param language A character, language name
+    # @return A character
     language_handler = function(language) {
       if (!is.null(language)) {
         substr(language, 1, 1) <- toupper(substr(language, 1, 1))
@@ -269,11 +269,11 @@ GitStats <- R6::R6Class("GitStats",
       language
     },
 
-    #' @description A helper to manage printing `GitStats` object.
-    #' @param name Name of item to print.
-    #' @param item_to_check Item to check for emptiness.
-    #' @param item_to_print Item to print, if not defined it is item that is checked.
-    #' @return Nothing, prints object.
+    # @description A helper to manage printing `GitStats` object.
+    # @param name Name of item to print.
+    # @param item_to_check Item to check for emptiness.
+    # @param item_to_print Item to print, if not defined it is item that is checked.
+    # @return Nothing, prints object.
     print_item = function(item_name,
                           item_to_check,
                           item_to_print = item_to_check) {

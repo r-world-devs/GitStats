@@ -120,9 +120,9 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
   ),
   private = list(
 
-    #' @description Iterator over pulling pages of repositories.
-    #' @param org An organization.
-    #' @return A list of repositories from organization.
+    # @description Iterator over pulling pages of repositories.
+    # @param org An organization.
+    # @return A list of repositories from organization.
     pull_repos_from_org = function(org) {
       full_repos_list <- list()
       next_page <- TRUE
@@ -147,10 +147,10 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       return(full_repos_list)
     },
 
-    #' @description Wrapper over building GraphQL query and response.
-    #' @param org An organization.
-    #' @param repo_cursor An end cursor for repos page.
-    #' @return A list of repositories.
+    # @description Wrapper over building GraphQL query and response.
+    # @param org An organization.
+    # @param repo_cursor An end cursor for repos page.
+    # @return A list of repositories.
     pull_repos_page_from_org = function(org,
                                         repo_cursor = "") {
       repos_by_org_query <- self$gql_query$repos_by_org(
@@ -163,10 +163,10 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       return(response)
     },
 
-    #' @description Parses repositories list into table.
-    #' @param repos_list A list of repositories.
-    #' @param org An organization of repositories.
-    #' @return Table of repositories.
+    # @description Parses repositories list into table.
+    # @param repos_list A list of repositories.
+    # @param org An organization of repositories.
+    # @return Table of repositories.
     prepare_repos_table = function(repos_list,
                                    org) {
       repos_table <- purrr::map_dfr(repos_list, function(repo) {
@@ -205,14 +205,14 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       return(repos_table)
     },
 
-    #' @description Iterator over pulling commits from all repositories.
-    #' @param org An organization.
-    #' @param repos A character vector of repository names.
-    #' @param date_from A starting date to look commits for.
-    #' @param date_until An end date to look commits for.
-    #' @param team_filter A boolean.
-    #' @param team A list of team members.
-    #' @return A list of repositories with commits.
+    # @description Iterator over pulling commits from all repositories.
+    # @param org An organization.
+    # @param repos A character vector of repository names.
+    # @param date_from A starting date to look commits for.
+    # @param date_until An end date to look commits for.
+    # @param team_filter A boolean.
+    # @param team A list of team members.
+    # @return A list of repositories with commits.
     pull_commits_from_repos = function(org,
                                        repos,
                                        date_from,
@@ -256,13 +256,13 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       return(repos_list_with_commits)
     },
 
-    #' @description An iterator over pulling commit pages from one repository.
-    #' @param org An organization.
-    #' @param repo A repository name.
-    #' @param date_from A starting date to look commits for.
-    #' @param date_until An end date to look commits for.
-    #' @param author_id Id of an author.
-    #' @return A list of commits.
+    # @description An iterator over pulling commit pages from one repository.
+    # @param org An organization.
+    # @param repo A repository name.
+    # @param date_from A starting date to look commits for.
+    # @param date_until An end date to look commits for.
+    # @param author_id Id of an author.
+    # @return A list of commits.
     pull_commits_from_one_repo = function(org,
                                           repo,
                                           date_from,
@@ -294,14 +294,14 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       return(full_commits_list)
     },
 
-    #' @description Wrapper over building GraphQL query and response.
-    #' @param org An organization
-    #' @param repo A repository.
-    #' @param date_from A starting date to look commits for.
-    #' @param date_until An end date to look commits for.
-    #' @param commits_cursor An end cursor for commits page.
-    #' @param author_id Id of an author.
-    #' @return A list.
+    # @description Wrapper over building GraphQL query and response.
+    # @param org An organization
+    # @param repo A repository.
+    # @param date_from A starting date to look commits for.
+    # @param date_until An end date to look commits for.
+    # @param commits_cursor An end cursor for commits page.
+    # @param author_id Id of an author.
+    # @return A list.
     pull_commits_page_from_repo = function(org,
                                            repo,
                                            date_from,
@@ -322,10 +322,10 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       return(response)
     },
 
-    #' @description Parses repositories' list with commits into table of commits.
-    #' @param repos_list_with_commits A list of repositories with commits.
-    #' @param org An organization of repositories.
-    #' @return Table of commits.
+    # @description Parses repositories' list with commits into table of commits.
+    # @param repos_list_with_commits A list of repositories with commits.
+    # @param org An organization of repositories.
+    # @return Table of commits.
     prepare_commits_table = function(repos_list_with_commits,
                                      org) {
       commits_table <- purrr::imap(repos_list_with_commits, function(repo, repo_name) {
@@ -350,9 +350,9 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       return(commits_table)
     },
 
-    #' @description Wrapper over GraphQL response.
-    #' @param team A character vector of team members.
-    #' @return A character vector of GitHub's author's IDs.
+    # @description Wrapper over GraphQL response.
+    # @param team A character vector of team members.
+    # @return A character vector of GitHub's author's IDs.
     get_authors_ids = function(team) {
       logins <- purrr::map(team, ~ .$logins) %>%
         unlist()

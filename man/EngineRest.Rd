@@ -3,11 +3,6 @@
 \name{EngineRest}
 \alias{EngineRest}
 \title{A EngineRest class}
-\value{
-A request.
-
-A request.
-}
 \description{
 A superclass for methods wraping Rest API responses.
 }
@@ -26,8 +21,6 @@ A superclass for methods wraping Rest API responses.
 \itemize{
 \item \href{#method-new}{\code{EngineRest$new()}}
 \item \href{#method-response}{\code{EngineRest$response()}}
-\item \href{#method-get_repos}{\code{EngineRest$get_repos()}}
-\item \href{#method-get_commits}{\code{EngineRest$get_commits()}}
 \item \href{#method-clone}{\code{EngineRest$clone()}}
 }
 }
@@ -80,44 +73,6 @@ A wrapper for httr2 functions to perform get request to REST API endpoints.
 \subsection{Returns}{
 A content of response formatted to list.
 }
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos}{}}}
-\subsection{Method \code{get_repos()}}{
-Method to get repositories with phrase in code blobs.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRest$get_repos(org, settings)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{org}}{An organization}
-
-\item{\code{settings}}{A list of  \code{GitStats} settings.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Table of repositories.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_commits"></a>}}
-\if{latex}{\out{\hypertarget{method-get_commits}{}}}
-\subsection{Method \code{get_commits()}}{
-Method to get commits.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRest$get_commits(
-  org,
-  repos_table,
-  date_from,
-  date_until = Sys.date(),
-  settings
-)}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

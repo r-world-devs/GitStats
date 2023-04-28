@@ -53,10 +53,18 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @return A table.
     get_repos = function(org,
                          settings) {
-      repos_table <- super$get_repos(
-        org = org,
-        settings = settings
-      )
+      if (settings$search_param == "phrase") {
+        cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{org}] Searching repositories...")
+        repos_table <- private$search_repos_by_phrase(
+          org = org,
+          phrase = settings$phrase,
+          language = settings$language
+        ) %>%
+          private$tailor_repos_info() %>%
+          private$prepare_repos_table() %>%
+          self$get_repos_contributors() %>%
+          self$get_repos_issues()
+      }
       if (settings$search_param %in% c("org", "team")) {
         if (settings$search_param == "org") {
           cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
@@ -67,7 +75,8 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         repos_table <- private$pull_repos_from_org(org) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
-          self$get_repos_contributors()
+          self$get_repos_contributors() %>%
+          self$get_repos_issues()
         if (settings$search_param == "team") {
           repos_table <- private$filter_repos_by_team(
             repos_table = repos_table,
@@ -174,9 +183,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
   ),
   private = list(
 
-    #' @description Iterator over pulling pages of repositories.
-    #' @param org A character, a group of projects.
-    #' @return A list of repositories from organization.
+    # @description Iterator over pulling pages of repositories.
+    # @param org A character, a group of projects.
+    # @return A list of repositories from organization.
     pull_repos_from_org = function(org) {
       full_repos_list <- list()
       page <- 1
@@ -195,15 +204,15 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(full_repos_list)
     },
 
-    #' @description Perform get request to search API.
-    #' @details For the time being there is no possibility to search GitLab with
-    #'   filtering by language. For more information look here:
-    #'   https://gitlab.com/gitlab-org/gitlab/-/issues/340333
-    #' @param phrase A phrase to look for in codelines.
-    #' @param org A character, a group of projects.
-    #' @param language A character, programming language.
-    #' @param page_max An integer, maximum number of pages.
-    #' @return A list of repositories.
+    # @description Perform get request to search API.
+    # @details For the time being there is no possibility to search GitLab with
+    #   filtering by language. For more information look here:
+    #   https://gitlab.com/gitlab-org/gitlab/-/issues/340333
+    # @param phrase A phrase to look for in codelines.
+    # @param org A character, a group of projects.
+    # @param language A character, programming language.
+    # @param page_max An integer, maximum number of pages.
+    # @return A list of repositories.
     search_repos_by_phrase = function(phrase,
                                       org,
                                       language,
@@ -237,9 +246,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(repos_list)
     },
 
-    #' @description Perform get request to find projects by ids.
-    #' @param repos_list A list of repositories - search response.
-    #' @return A list of repositories.
+    # @description Perform get request to find projects by ids.
+    # @param repos_list A list of repositories - search response.
+    # @return A list of repositories.
     find_repos_by_id = function(repos_list) {
       ids <- purrr::map_chr(repos_list, ~ as.character(.$project_id)) %>%
         unique()
@@ -252,9 +261,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       repos_list
     },
 
-    #' @description Pull languages of repositories.
-    #' @param repos_list A list of repositories.
-    #' @return A list of repositories with 'languages' slot.
+    # @description Pull languages of repositories.
+    # @param repos_list A list of repositories.
+    # @return A list of repositories with 'languages' slot.
     pull_repos_languages = function(repos_list) {
       repos_list_with_languages <- purrr::map(repos_list, function(repo) {
         id <- repo$id
@@ -264,9 +273,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(repos_list_with_languages)
     },
 
-    #' @description A helper to retrieve only important info on repos
-    #' @param projects_list A list, a formatted content of response returned by GET API request
-    #' @return A list of repos with selected information
+    # @description A helper to retrieve only important info on repos
+    # @param projects_list A list, a formatted content of response returned by GET API request
+    # @return A list of repos with selected information
     tailor_repos_info = function(projects_list) {
       projects_list <- purrr::map(projects_list, function(x) {
         list(
@@ -287,11 +296,11 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       projects_list
     },
 
-    #' @description Method to pull all commits from organization.
-    #' @param repos_table A table of repositories.
-    #' @param date_from A starting date to look commits for.
-    #' @param date_until An end date to look commits for.
-    #' @return A list of repositories with commits.
+    # @description Method to pull all commits from organization.
+    # @param repos_table A table of repositories.
+    # @param date_from A starting date to look commits for.
+    # @param date_until An end date to look commits for.
+    # @return A list of repositories with commits.
     pull_commits_from_org = function(repos_table,
                                      date_from,
                                      date_until
@@ -318,11 +327,11 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(repos_list_with_commits)
     },
 
-    #' @description Iterator over pages of commits response.
-    #' @param project_id Id of a project.
-    #' @param date_from A starting date to look commits for.
-    #' @param date_until An end date to look commits for.
-    #' @return A list of commits.
+    # @description Iterator over pages of commits response.
+    # @param project_id Id of a project.
+    # @param date_from A starting date to look commits for.
+    # @param date_until An end date to look commits for.
+    # @return A list of commits.
     pull_commits_from_repo = function(project_id,
                                       date_from,
                                       date_until) {
@@ -352,10 +361,10 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(all_commits_in_repo)
     },
 
-    #' @description A helper to retrieve only important info on commits.
-    #' @param repos_list_with_commits A list of repositories with commits.
-    #' @param org A character, name of a group.
-    #' @return A list of commits with selected information.
+    # @description A helper to retrieve only important info on commits.
+    # @param repos_list_with_commits A list of repositories with commits.
+    # @param org A character, name of a group.
+    # @return A list of commits with selected information.
     tailor_commits_info = function(repos_list_with_commits,
                                    org) {
       repos_list_with_commits_cut <- purrr::map(repos_list_with_commits, function(repo) {
@@ -378,10 +387,10 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(repos_list_with_commits_cut)
     },
 
-    #' @description Filter by contributors.
-    #' @param repos_list_with_commits A list of repositories with commits.
-    #' @param team A list of team members.
-    #' @return A list.
+    # @description Filter by contributors.
+    # @param repos_list_with_commits A list of repositories with commits.
+    # @param team A list of team members.
+    # @return A list.
     filter_commits_by_team = function(repos_list_with_commits,
                                       team) {
       team_names <- purrr::map_chr(team, ~ .$name)
@@ -398,9 +407,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(filtered_repos_list_with_commits)
     },
 
-    #' @description A helper to turn list of data.frames into one data.frame
-    #' @param commits_list A list
-    #' @return A data.frame
+    # @description A helper to turn list of data.frames into one data.frame
+    # @param commits_list A list
+    # @return A data.frame
     prepare_commits_table = function(commits_list) {
       commits_dt <- purrr::map(commits_list, function(x) {
         purrr::map(x, ~ data.frame(.)) %>%
@@ -416,9 +425,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(commits_dt)
     },
 
-    #' @description A helper to get group's id
-    #' @param project_group A character, a group of projects.
-    #' @return An integer, id of group.
+    # @description A helper to get group's id
+    # @param project_group A character, a group of projects.
+    # @return An integer, id of group.
     get_group_id = function(project_group) {
       self$response(paste0(self$rest_api_url, "/groups/", project_group))[["id"]]
     }

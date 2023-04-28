@@ -87,15 +87,15 @@ GitHost <- R6::R6Class("GitHost",
   ),
   private = list(
 
-    #' @field orgs A character vector of repo organizations.
+    # @field orgs A character vector of repo organizations.
     orgs = NULL,
 
-    #' @field engines A placeholder for REST and GraphQL Engine classes.
+    # @field engines A placeholder for REST and GraphQL Engine classes.
     engines = list(),
 
-    #' @description GraphQL url handler (if not provided).
-    #' @param rest_api_url REST API url.
-    #' @return GraphQL API url.
+    # @description GraphQL url handler (if not provided).
+    # @param rest_api_url REST API url.
+    # @return GraphQL API url.
     set_gql_url = function(rest_api_url) {
       paste0(gsub("/v+.*", "", rest_api_url), "/graphql")
     }
