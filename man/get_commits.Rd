@@ -4,13 +4,7 @@
 \alias{get_commits}
 \title{Get information on commits.}
 \usage{
-get_commits(
-  gitstats_obj,
-  date_from = NULL,
-  date_until = Sys.time(),
-  by = gitstats_obj$search_param,
-  print_out = TRUE
-)
+get_commits(gitstats_obj, date_from = NULL, date_until = Sys.time())
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
@@ -18,15 +12,9 @@ get_commits(
 \item{date_from}{A starting date to look commits for}
 
 \item{date_until}{An end date to look commits for}
-
-\item{by}{A character, to choose between: \itemize{\item{org - organizations
-(owners of repositories)} \item{team - A team} \item{phrase - A keyword in
-code blobs.}}}
-
-\item{print_out}{A boolean stating whether to print an output.}
 }
 \value{
-A \code{GitStats} class object with updated \verb{$commits_dt} field.
+A \code{GitStats} class object with updated \verb{$commits} field.
 }
 \description{
 List all repositories for an organization, a team.

@@ -6,17 +6,19 @@
 #' @param ... All user logins.
 #' @return `GitStats` object with new information on team member.
 #' @examples
-#' \dontrun{ my_gitstats <- create_gitstats() %>%
+#' \dontrun{
+#' my_gitstats <- create_gitstats() %>%
 #'   add_team_member("Peter Parker", "spider_man", "spidey") %>%
 #'   add_team_member("Tony Stark", "ironMan", "tony_s")
-#'   }
+#' }
 #' @export
 add_team_member <- function(gitstats_obj,
                             member_name,
                             ...) {
-
-  gitstats_obj$add_team_member(member_name = member_name,
-                               ... = ...)
+  gitstats_obj$add_team_member(
+    member_name = member_name,
+    ... = ...
+  )
 
   return(invisible(gitstats_obj))
 }

@@ -1,8 +1,8 @@
 on:
   push:
-    branches: [devel, test, master]
+    branches: [test, main]
   pull_request:
-    branches: [devel, test, master]
+    branches: [test, main]
 
 name: Style
 

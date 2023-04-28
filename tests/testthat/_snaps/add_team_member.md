@@ -8,7 +8,7 @@
 ---
 
     Code
-      test_gitstats$team
+      test_gitstats_priv$settings$team
     Output
       $`John Test`
       $`John Test`$name
@@ -29,7 +29,7 @@
 ---
 
     Code
-      test_gitstats$team
+      test_gitstats_priv$settings$team
     Output
       $`John Test`
       $`John Test`$name

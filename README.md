@@ -20,10 +20,10 @@ enterprise GitHub and GitLab.
 
 ## Installation
 
-Development version:
+Test version:
 
 ``` r
-devtools::install_github("r-world-devs/GitStats@devel")
+devtools::install_github("r-world-devs/GitStats@test")
 ```
 
 ## Getting started
@@ -43,22 +43,20 @@ git_stats <- create_gitstats() %>%
   ) %>%
   set_connection(
     api_url = "https://gitlab.com/api/v4",
-    token = Sys.getenv("GITLAB_PAT"),
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = c("mbtests")
-  ) 
-#> ✔ Set connection to GitHub.
-#> ✔ Set connection to GitLab.
+  )
 ```
 
-## Setup preferences
+## Setup
 
-You can setup your search preferences, either to organizations, team or
-phrase.
+You can setup your search preferences, either to `organizations`, `team`
+or `phrase`.
 
 ### Team
 
-If you setup your preferences to team, name it and add your team
-members:
+If you with to setup your search parameter to team, add your team
+members first:
 
 ``` r
 git_stats %>%
@@ -68,75 +66,45 @@ git_stats %>%
   add_team_member("Karolina Marcinkowska", "marcinkowskak") %>%
   add_team_member("Kamil Koziej", "Cotau") %>%
   add_team_member("Maciej Banaś", "maciekbanas")
-#> ✔ Adam Foryś successfully added to team.
-#> ✔ Kamil Wais successfully added to team.
-#> ✔ Krystian Igras successfully added to team.
-#> ✔ Karolina Marcinkowska successfully added to team.
-#> ✔ Kamil Koziej successfully added to team.
-#> ✔ Maciej Banaś successfully added to team.
 
-setup_preferences(git_stats,
-                  search_param = "team",
-                  team_name = "RWD")
-#> ✔ Your search preferences set to team: RWD.
-#> A <GitStats> object for 2 clients:
-#> Clients: https://api.github.com, https://gitlab.com/api/v4
+setup(git_stats,
+  search_param = "team",
+  team_name = "RWD"
+)
+#> A <GitStats> object for 2 hosts:
+#> Hosts: https://api.github.com, https://gitlab.com/api/v4
 #> Organisations: r-world-devs, openpharma, pharmaverse, mbtests
 #> Search preference: team
 #> Team: RWD (6 members)
 #> Phrase: <not defined>
 #> Language: <not defined>
-#> Storage: <not defined>
-#> Storage On/Off: OFF
+#> Repositories output: <not defined>
+#> Commits output: <not defined>
 
 # now pull repos and commits by default by team
 get_repos(git_stats)
-#> ℹ [GitHub Public][r-world-devs] Pulling repositories...
-#> ℹ Number of repositories: 7
-#> ℹ Filtering by team members.
-#> ℹ [GitHub Public][openpharma] Pulling repositories...
-#> ℹ Number of repositories: 42
-#> ℹ Filtering by team members.
-#> ℹ [GitHub Public][pharmaverse] Pulling repositories...
-#> ℹ Number of repositories: 30
-#> ℹ Filtering by team members.
-#> ℹ [GitLab][mbtests] Pulling repositories...
-#> ℹ Number of repositories: 6
-#> ℹ Filtering by team members.
-#> Rows: 6
-#> Columns: 13
-#> $ id               <chr> "gid://gitlab/Project/44565479", "R_kgDOIvtxsg", "R_k…
-#> $ name             <chr> "TestRPackage", "GitStats", "shinyTimelines", "facets…
-#> $ stars            <int> 0, 1, 2, 4, 9, 0
-#> $ forks            <int> 0, 0, 0, 0, 1, 0
-#> $ created_at       <dttm> 2023-03-23 08:43:03, 2023-01-09 14:02:20, 2023-02-21 …
-#> $ last_push        <chr> NA, "2023-03-31T07:23:04Z", "2023-03-22T14:12:29Z", "…
-#> $ last_activity_at <drtn> 8.32 days, 9.32 days, 14.32 days, 214.32 days, 235.3…
-#> $ languages        <chr> "", "R", "R, CSS", "R, JavaScript, CSS", "R", "R"
-#> $ issues_open      <int> 0, 56, 0, 1, 0, 3
-#> $ issues_closed    <int> 0, 67, 0, 0, 0, 0
-#> $ contributors     <list> "maciekbanas", "maciekbanas", "krystian8207", "galach…
-#> $ organization     <chr> "mbtests", "r-world-devs", "r-world-devs", "openphar…
-#> $ api_url          <chr> "https://gitlab.com/api/v4", "https://api.github.com"…
+#> Rows: 21
+#> Columns: 14
+#> $ id               <chr> "R_kgDOHNMr2w", "R_kgDOHYNOFQ", "R_kgDOHYNrJw", "R_kg…
+#> $ name             <chr> "shinyGizmo", "cohortBuilder", "shinyCohortBuilder", …
+#> $ stars            <int> 16, 2, 4, 0, 1, 2, 2, 10, 4, 22, 1, 4, 7, 0, 0, 0, 0,…
+#> $ forks            <int> 0, 2, 0, 0, 0, 0, 0, 1, 0, 5, 0, 3, 5, NA, NA, NA, NA…
+#> $ created_at       <dttm> 2022-04-20 10:04:32, 2022-05-22 18:31:55, 2022-05-22…
+#> $ last_push        <chr> "2023-03-15T20:06:31Z", "2023-04-28T10:56:46Z", "2023…
+#> $ last_activity_at <drtn> 27.5 days, 42.5 days, 42.5 days, 341.5 days, 10.5 da…
+#> $ languages        <chr> "R, CSS, JavaScript", "R", "R, CSS, JavaScript, SCSS"…
+#> $ issues_open      <dbl> 5, 22, 27, 3, 66, 0, 0, 0, 1, 0, 6, 3, 38, 0, 0, 0, 0…
+#> $ issues_closed    <dbl> 12, 1, 4, 0, 71, 0, 0, 0, 0, 1, 55, 23, 118, 0, 0, 0,…
+#> $ contributors     <chr> "krystian8207, stla, stlagsk, galachad", "krystian820…
+#> $ organization     <chr> "r-world-devs", "r-world-devs", "r-world-devs", "r-wo…
+#> $ repo_url         <chr> "https://github.com/r-world-devs/shinyGizmo", "https:…
+#> $ api_url          <chr> "https://api.github.com", "https://api.github.com", "…
 
-get_commits(git_stats, 
-            date_from = "2020-01-01",
-            date_until = "2023-03-31")
-#> ℹ [GitHub Public][r-world-devs] Pulling repositories...
-#> ℹ Number of repositories: 7
-#> ℹ [GitHub Public][r-world-devs] Pulling commits...
-#> ℹ [GitHub Public][openpharma] Pulling repositories...
-#> ℹ Number of repositories: 42
-#> ℹ [GitHub Public][openpharma] Pulling commits...
-#> ℹ [GitHub Public][pharmaverse] Pulling repositories...
-#> ℹ Number of repositories: 30
-#> ℹ [GitHub Public][pharmaverse] Pulling commits...
-#> ✔ GitHub for 'RWD' team: pulled 632 commits from 16 repositories.
-#> ℹ [GitLab][mbtests] Pulling repositories...
-#> ℹ Number of repositories: 6
-#> ℹ [GitLab][mbtests] Pulling commits...
-#> ✔ GitLab for 'RWD' team: pulled 23 commits from 6 repositories.
-#> Rows: 655
+get_commits(git_stats,
+  date_from = "2022-01-01",
+  date_until = "2023-03-31"
+)
+#> Rows: 577
 #> Columns: 8
 #> $ id             <chr> "C_kwDOHNMr29oAKGFjZWNlMDA5ZDNiMWQ2MWY1OWJhZGVlNmNmMzg2…
 #> $ committed_date <dttm> 2022-05-23 15:00:08, 2022-05-18 07:32:23, 2023-03-01 1…
@@ -150,43 +118,40 @@ get_commits(git_stats,
 
 ### Keyword
 
-With `GitStats` you can look for the activity connected to a certain
-phrase.
+With `GitStats` you can look for the repos with a certain phrase in code
+blobs.
 
 ``` r
-setup_preferences(git_stats,
-                  search_param = "phrase",
-                  phrase = "covid")
-#> ✔ Your search preferences set to phrase: covid.
-#> A <GitStats> object for 2 clients:
-#> Clients: https://api.github.com, https://gitlab.com/api/v4
+setup(git_stats,
+  search_param = "phrase",
+  phrase = "shiny"
+)
+#> A <GitStats> object for 2 hosts:
+#> Hosts: https://api.github.com, https://gitlab.com/api/v4
 #> Organisations: r-world-devs, openpharma, pharmaverse, mbtests
 #> Search preference: phrase
 #> Team: RWD (6 members)
-#> Phrase: covid
+#> Phrase: shiny
 #> Language: <not defined>
-#> Storage: <not defined>
-#> Storage On/Off: OFF
+#> Repositories output: Rows number: 21
+#> Commits output: Since: 2022-01-20 14:57:56Until: 2023-03-30 14:35:34; Rows number: 577
 
 # now pull repos by default by phrase
 get_repos(git_stats)
-#> ✔ On GitHub [r-world-devs] found 1 repositories.
-#> ✔ On GitHub [openpharma] found 3 repositories.
-#> ✔ On GitHub [pharmaverse] found 3 repositories.
-#> ✔ On GitLab [mbtests] found 0 repositories.
-#> Rows: 7
-#> Columns: 13
-#> $ id               <int> 349132982, 601307131, 208896481, 586903986, 396118006…
-#> $ name             <chr> "admiral", "workshop-r-swe", "visR", "GitStats", "pha…
-#> $ stars            <int> 136, 8, 174, 1, 13, 13, 3
-#> $ forks            <int> 35, 2, 31, 0, 3, 1, 1
-#> $ created_at       <dttm> 2021-03-18, 2023-02-13, 2019-09-16, 2023-01-09, 2021-…
-#> $ last_push        <chr> "2023-03-30T17:00:37Z", "2023-03-28T07:10:44Z", "2022…
-#> $ last_activity_at <drtn> 0.33 days, 2.33 days, 7.33 days, 9.33 days, 14.33 da…
-#> $ languages        <chr> "R", "Lua", "R", "R", "HTML", "R", "R"
-#> $ issues_open      <int> 30, 3, 30, 30, 22, 18, 0
-#> $ issues_closed    <int> 0, 0, 0, 0, 0, 0, 0
-#> $ contributors     <list> "bundfussr, thomas-neitmann, bms63, rossfarrugia, mil…
-#> $ organization     <chr> "pharmaverse", "openpharma", "openpharma", "r-world-…
+#> Rows: 3
+#> Columns: 14
+#> $ id               <chr> "495151911", "512764983", "431378047"
+#> $ name             <chr> "shinyCohortBuilder", "openpharma_ml", "elaborator"
+#> $ stars            <int> 4, 0, 2
+#> $ forks            <int> 0, 0, 0
+#> $ created_at       <dttm> 2022-05-22, 2022-07-11, 2021-11-24
+#> $ last_push        <chr> "2023-03-15T20:54:41Z", "2023-01-16T10:26:05Z", "2022…
+#> $ last_activity_at <drtn> 42.5 days, 291.5 days, 225.5 days
+#> $ languages        <chr> "R", "Python", "R"
+#> $ issues_open      <int> 27, 0, 0
+#> $ issues_closed    <int> 0, 0, 0
+#> $ contributors     <chr> "krystian8207, galachad", "MathieuCayssol, epijim", "…
+#> $ organization     <chr> "r-world-devs", "openpharma", "openpharma"
+#> $ repo_url         <chr> "https://api.github.com/repos/r-world-devs/shinyCohor…
 #> $ api_url          <chr> "https://api.github.com", "https://api.github.com", "…
 ```

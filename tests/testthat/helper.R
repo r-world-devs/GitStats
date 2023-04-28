@@ -1,7 +1,88 @@
+expect_tailored_commits_list <- function(object) {
+  expect_list_contains_only(
+    object,
+    c("id", "organization", "repository", "additions", "deletions",
+      "committed_date", "author")
+  )
+}
+
+expect_gl_repos <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  expect_list_contains(
+    object[[1]],
+    c(
+      "id", "description", "name", "name_with_namespace", "path"
+    )
+  )
+}
+
+expect_gh_repos <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  expect_list_contains(
+    object,
+    "data"
+  )
+  expect_list_contains(
+    object$data$repositoryOwner$repositories$nodes[[1]],
+    c(
+      "id", "name", "stars", "forks", "created_at", "last_push",
+      "last_activity_at", "languages", "issues_open", "issues_closed",
+      "contributors", "repo_url"
+    )
+  )
+}
+
+expect_gl_commit <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  expect_list_contains(
+    object[[1]],
+    c("id", "short_id", "created_at", "parent_ids", "title", "message",
+      "author_name", "author_email", "authored_date", "committer_name",
+      "committer_email")
+  )
+}
+
+expect_gh_commit <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  expect_list_contains(
+    object,
+    "data"
+  )
+  expect_list_contains(
+    object$data$repository$defaultBranchRef$target$history$edges[[1]]$node,
+    c("id", "committed_date", "author", "additions", "deletions")
+  )
+}
+
+expect_gl_search_response <- function(object) {
+  expect_list_contains(
+    object,
+    c("basename", "data", "path", "filename", "id", "ref", "startline", "project_id")
+  )
+}
+
+expect_gh_search_response <- function(object) {
+  expect_list_contains(
+    object,
+    c("name", "path", "sha", "url", "git_url", "html_url", "repository", "score")
+  )
+}
+
 expect_list_contains <- function(object, elements) {
   act <- quasi_label(rlang::enquo(object), arg = "object")
-
-  act$check <- all(purrr::map_lgl(act$val, ~ any(elements %in% names(.))))
+  act$check <- any(elements %in% names(act$val))
   expect(
     act$check == TRUE,
     sprintf("%s does not contain specified elements", act$lab)
@@ -12,8 +93,7 @@ expect_list_contains <- function(object, elements) {
 
 expect_list_contains_only <- function(object, elements) {
   act <- quasi_label(rlang::enquo(object), arg = "object")
-
-  act$check <- all(purrr::map_lgl(act$val, ~ all(elements %in% names(.))))
+  act$check <- all(elements %in% names(act$val))
   expect(
     act$check == TRUE,
     sprintf("%s does not contain specified elements", act$lab)
@@ -23,17 +103,21 @@ expect_list_contains_only <- function(object, elements) {
 }
 
 expect_repos_table <- function(get_repos_object) {
-  repo_cols <- c('id', 'name', 'stars', 'forks', 'created_at', 'last_push',
-                 'last_activity_at', 'languages', 'issues_open', 'issues_closed',
-                 'contributors', 'organization', 'api_url', 'repo_url')
+  repo_cols <- c(
+    "id", "name", "stars", "forks", "created_at", "last_push",
+    "last_activity_at", "languages", "issues_open", "issues_closed",
+    "contributors", "organization", "repo_url", "api_url"
+  )
   expect_s3_class(get_repos_object, "data.frame")
   expect_named(get_repos_object, repo_cols)
   expect_gt(nrow(get_repos_object), 0)
 }
 
 expect_commits_table <- function(get_commits_object) {
-  commit_cols <- c('id', 'committed_date', 'author', 'additions', 'deletions',
-                   'repository', 'organization', 'api_url')
+  commit_cols <- c(
+    "id", "committed_date", "author", "additions", "deletions",
+    "repository", "organization", "api_url"
+  )
   expect_s3_class(get_commits_object, "data.frame")
   expect_named(get_commits_object, commit_cols)
   expect_gt(nrow(get_commits_object), 0)
@@ -46,20 +130,3 @@ expect_empty_table <- function(object) {
   expect_s3_class(object, "data.frame")
   expect_equal(nrow(object), 0)
 }
-
-TestClient <- R6::R6Class("TestClient",
-                          inherit = GitService,
-                          public = list(
-                            rest_api_url = NULL,
-                            orgs = NULL,
-                            initialize  = function(rest_api_url = NA,
-                                                   token = NA,
-                                                   orgs = NA){
-                              self$rest_api_url <- rest_api_url
-                              private$token <- token
-                              self$orgs <- orgs
-                            }
-                          ),
-                          private = list(
-                            token = NULL
-                          ))

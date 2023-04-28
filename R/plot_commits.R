@@ -9,14 +9,11 @@
 plot_commits <- function(gitstats_obj,
                          stats_by = c("day", "week", "month")) {
   stats_date <- committed_date <- .N <- organization <- NULL
-  if (is.null(gitstats_obj$commits_dt)) {
-    stop("You have to first construct your commits data.frame with 'get_commits' function.",
-      call. = FALSE
-    )
+
+  commits_dt <- gitstats_obj$show_commits()
+  if (is.null(commits_dt)) {
+    cli::cli_abort("No commits in `GitStats` object to plot.")
   }
-
-  commits_dt <- gitstats_obj$commits_dt
-
   stats_by <- match.arg(stats_by)
 
   if (stats_by == "day") {
@@ -36,38 +33,9 @@ plot_commits <- function(gitstats_obj,
     color = ~organization,
     type = "scatter",
     mode = "lines+markers"
-  )
-}
-
-#' @title Plot commits additions and deletions.
-#' @name plot_commits_stats
-#' @param gitstats_obj  A GitStats object.
-#' @return A plot.
-#' @export
-plot_commit_lines <- function(gitstats_obj) {
-  if (is.null(gitstats_obj$commits_dt)) {
-    stop("You have to first construct your commits data.frame with 'get_commits' function.",
-      call. = FALSE
-    )
-  }
-
-  commits_dt <- gitstats_obj$commits_dt
-
-  plotly::plot_ly(commits_dt) %>%
-    plotly::add_trace(
-      y = ~additions,
-      x = ~committed_date,
-      color = ~organization,
-      type = "bar"
-    ) %>%
-    plotly::add_trace(
-      y = ~ (-deletions),
-      x = ~committed_date,
-      color = ~organization,
-      type = "bar"
-    ) %>%
-    plotly::layout(
-      yaxis = list(title = ""),
-      xaxis = list(title = "")
-    )
+  ) %>%
+    plotly::layout(title = 'Number of commits by organization',
+                   legend = list(orientation = 'h'),
+                   xaxis = list(title = ''),
+                   yaxis = list(title = ''))
 }

@@ -6,6 +6,7 @@ output: github_document
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
+  message = FALSE,
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-"
@@ -26,10 +27,10 @@ For the time being GitStats supports connections to public GitHub, enterprise Gi
 
 ## Installation
 
-Development version:
+Test version:
 
 ```r
-devtools::install_github("r-world-devs/GitStats@devel")
+devtools::install_github("r-world-devs/GitStats@test")
 ```
 
 ## Getting started
@@ -48,18 +49,18 @@ git_stats <- create_gitstats() %>%
   ) %>%
   set_connection(
     api_url = "https://gitlab.com/api/v4",
-    token = Sys.getenv("GITLAB_PAT"),
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = c("mbtests")
-  ) 
+  )
 ```
 
-## Setup preferences
+## Setup
 
-You can setup your search preferences, either to organizations, team or phrase. 
+You can setup your search preferences, either to `organizations`, `team` or `phrase`. 
 
 ### Team
 
-If you setup your preferences to team, name it and add your team members:
+If you with to setup your search parameter to team, add your team members first:
 
 ```{r}
 git_stats %>%
@@ -70,29 +71,30 @@ git_stats %>%
   add_team_member("Kamil Koziej", "Cotau") %>%
   add_team_member("Maciej Banaś", "maciekbanas")
 
-setup_preferences(git_stats,
-                  search_param = "team",
-                  team_name = "RWD")
+setup(git_stats,
+  search_param = "team",
+  team_name = "RWD"
+)
 
 # now pull repos and commits by default by team
 get_repos(git_stats)
 
-get_commits(git_stats, 
-            date_from = "2020-01-01",
-            date_until = "2023-03-31")
-
+get_commits(git_stats,
+  date_from = "2022-01-01",
+  date_until = "2023-03-31"
+)
 ```
 
 ### Keyword
 
-With `GitStats` you can look for the activity connected to a certain phrase.
+With `GitStats` you can look for the repos with a certain phrase in code blobs.
 
 ```{r}
-setup_preferences(git_stats,
-                  search_param = "phrase",
-                  phrase = "covid")
+setup(git_stats,
+  search_param = "phrase",
+  phrase = "shiny"
+)
 
 # now pull repos by default by phrase
 get_repos(git_stats)
-
 ```
