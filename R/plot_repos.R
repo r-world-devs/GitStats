@@ -13,7 +13,9 @@ plot_repos <- function(gitstats_obj,
   fullname <- organization <- name <- last_activity_at <- NULL
 
   repos_dt <- gitstats_obj$show_repos()
-
+  if (is.null(repos_dt)) {
+    cli::cli_abort("No repositories in `GitStats` object to plot.")
+  }
   repos_to_plot <- repos_dt[order(last_activity_at)]
   repos_to_plot <- head(repos_to_plot, repos_n)
 
