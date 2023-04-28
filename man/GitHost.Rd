@@ -21,7 +21,7 @@ A GitHost superclass
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
-Create a new \code{GitPlatform} object
+Create a new \code{GitHost} object
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GitHost$new(orgs = NA, token = NA, api_url = NA)}\if{html}{\out{</div>}}
 }
@@ -39,7 +39,7 @@ in case of GitHub and groups of projects in case of GitLab).}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A new \code{GitPlatform} object
+A new \code{GitHost} object
 }
 }
 \if{html}{\out{<hr>}}

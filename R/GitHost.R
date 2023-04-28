@@ -7,12 +7,12 @@
 GitHost <- R6::R6Class("GitHost",
   public = list(
 
-    #' @description Create a new `GitPlatform` object
+    #' @description Create a new `GitHost` object
     #' @param orgs A character vector of organisations (owners of repositories
     #'   in case of GitHub and groups of projects in case of GitLab).
     #' @param token A token.
     #' @param api_url An API url.
-    #' @return A new `GitPlatform` object
+    #' @return A new `GitHost` object
     initialize = function(orgs = NA,
                           token = NA,
                           api_url = NA) {
