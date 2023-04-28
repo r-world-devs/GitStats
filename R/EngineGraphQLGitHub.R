@@ -7,9 +7,6 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
   inherit = Engine,
   public = list(
 
-    #' @field git_service A character specifying whether GitHub or GitLab.
-    git_service = NULL,
-
     #' @field gql_api_url A character, url of GraphQL API.
     gql_api_url = NULL,
 

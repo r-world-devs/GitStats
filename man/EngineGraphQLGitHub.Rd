@@ -12,8 +12,6 @@ A class for methods wraping GitHub's GraphQL API responses.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{git_service}}{A character specifying whether GitHub or GitLab.}
-
 \item{\code{gql_api_url}}{A character, url of GraphQL API.}
 
 \item{\code{gql_query}}{An environment for GraphQL queries.}
