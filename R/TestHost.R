@@ -44,6 +44,8 @@ create_testhost <- function(api_url = NULL,
   return(test_host)
 }
 
+#' @noRd
+#' @description A helper class to use in tests.
 TestEngineRest <- R6::R6Class("TestEngineRest",
   inherit = EngineRest,
   public = list(
