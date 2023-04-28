@@ -53,6 +53,5 @@ plot_repos(git_stats)
 # examples for getting and plotting commits
 
 git_stats %>%
-  get_commits(date_from = "2020-01-01") %>%
   plot_commits(stats_by = "month")
 

@@ -6,13 +6,6 @@
 \description{
 A super class for methods wrapping API responses.
 }
-\section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{git_platform}}{A character specifying what Git Platform (GitHub or GitLab).}
-}
-\if{html}{\out{</div>}}
-}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{

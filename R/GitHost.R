@@ -69,6 +69,14 @@ GitHost <- R6::R6Class("GitHost",
                            settings
                            ) {
 
+      if (settings$search_param == "phrase") {
+        cli::cli_abort(c(
+          "x" = "Pulling commits by phrase in code blobs is not supported.",
+          "i" = "Please change your `search_param` either to 'org' or 'team' with `setup()`."
+          )
+        )
+      }
+
       commits_table <- purrr::map(private$orgs, function(org) {
         commits_table_org <- purrr::map(private$engines, ~ .$get_commits(
           org = org,

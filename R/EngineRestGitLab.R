@@ -13,7 +13,6 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         rest_api_url = rest_api_url,
         token = token
       )
-      self$git_platform <- "GitLab"
     },
 
     #' @description Check if an organization exists
@@ -54,7 +53,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     get_repos = function(org,
                          settings) {
       if (settings$search_param == "phrase") {
-        cli::cli_alert_info("[{self$git_platform}][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{org}] Searching repositories...")
+        cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{org}] Searching repositories...")
         repos_table <- private$search_repos_by_phrase(
           org = org,
           phrase = settings$phrase,
