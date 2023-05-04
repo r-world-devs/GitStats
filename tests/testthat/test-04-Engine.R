@@ -3,66 +3,6 @@ test_engine_priv <- environment(test_engine$initialize)$private
 
 # private methods
 
-test_that("Engine filters GitHub repositories' table by team members", {
-  gh_repos_table <- test_mocker$use("gh_repos_table")
-  result <- test_engine_priv$filter_repos_by_team(
-    gh_repos_table,
-    team = list(
-      "Member1" = list(
-        logins = "krystian8207"
-      ),
-      "Member2" = list(
-        logins = "maciekbanas"
-      )
-    )
-  )
-
-  expect_type(
-    result,
-    "list"
-  )
-  expect_length(
-    result,
-    length(gh_repos_table)
-  )
-  expect_gt(
-    length(result$contributors),
-    0
-  )
-  expect_true(
-    all(grepl("krystian8207|maciekbanas", result$contributors))
-  )
-})
-
-test_that("Engine filters GitLab repositories' table by team members", {
-  gl_repos_table <- test_mocker$use("gl_repos_table")
-
-  result <- test_engine_priv$filter_repos_by_team(
-    gl_repos_table,
-    team = list(
-      "Member1" = list(
-        logins = "Rinke Hoekstra"
-      )
-    )
-  )
-
-  expect_type(
-    result,
-    "list"
-  )
-  expect_length(
-    result,
-    length(gl_repos_table)
-  )
-  expect_gt(
-    length(result$contributors),
-    0
-  )
-  expect_true(
-    all(grepl("Rinke Hoekstra", result$contributors))
-  )
-})
-
 test_that("Engine filters repositories' table by languages", {
   repos_table <- test_mocker$use("gh_repos_table")
   expect_snapshot(

@@ -226,3 +226,33 @@ test_that("`get_commits()` works as expected", {
   )
   expect_commits_table(result)
 })
+
+# private methods
+
+test_that("Engine filters GitLab repositories' table by team members", {
+  gl_repos_table <- test_mocker$use("gl_repos_table")
+
+  result <- test_rest_priv$filter_repos_by_team(
+    gl_repos_table,
+    team = list(
+      "Member1" = list(
+        logins = "Rinke Hoekstra"
+      )
+    )
+  )
+  expect_type(
+    result,
+    "list"
+  )
+  expect_length(
+    result,
+    length(gl_repos_table)
+  )
+  expect_gt(
+    length(result$contributors),
+    0
+  )
+  expect_true(
+    all(grepl("Rinke Hoekstra", result$contributors))
+  )
+})
