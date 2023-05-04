@@ -82,12 +82,6 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
             team = settings$team
           )
         }
-        if (!is.null(settings$language)) {
-          repos_table <- private$filter_repos_by_language(
-            repos_table = repos_table,
-            language = settings$language
-          )
-        }
       }
       return(repos_table)
     },

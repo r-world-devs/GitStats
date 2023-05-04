@@ -1,10 +1,9 @@
-#' @importFrom dplyr mutate relocate
+#' @importFrom dplyr mutate relocate filter
 #' @importFrom progress progress_bar
 #'
 #' @title A EngineGraphQLGitHub class
 #' @description A class for methods wraping GitHub's GraphQL API responses.
 EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
-  inherit = Engine,
   public = list(
 
     #' @field gql_api_url A character, url of GraphQL API.
@@ -57,12 +56,6 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           ) %>%
             private$prepare_repos_table() %>%
             dplyr::filter(organization == org)
-        }
-        if (!is.null(settings$language)) {
-          repos_table <- private$filter_repos_by_language(
-            repos_table = repos_table,
-            language = settings$language
-          )
         }
       } else {
         repos_table <- NULL
@@ -119,6 +112,8 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     }
   ),
   private = list(
+    # @field token A token authorizing access to API.
+    token = NULL,
 
     # @description Iterator over pulling pages of repositories.
     # @param from A character specifying if organization or user.
