@@ -47,11 +47,8 @@ setup(git_stats,
 get_repos(git_stats)
 
 # you can plot repos sorted by last activity
-
 plot_repos(git_stats)
 
 # examples for getting and plotting commits
-
-git_stats %>%
-  plot_commits(stats_by = "month")
+plot_commits(git_stats, stats_by = "month")
 
