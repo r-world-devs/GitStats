@@ -46,21 +46,22 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         if (settings$search_param == "org") {
           cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
           repos_table <- private$pull_repos(
-            from == "org",
-            org == org
+            from = "org",
+            org = org
           ) %>%
             private$prepare_repos_table()
         } else {
           cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][team:{settings$team_name}] Pulling repositories...")
           repos_table <- private$pull_repos_from_team(
-            team == settings$team
+            team = settings$team
           ) %>%
             private$prepare_repos_table() %>%
             dplyr::filter(organization == org)
         }
         if (!is.null(settings$language)) {
           repos_table <- private$filter_repos_by_language(
-            repos_table = repos_table
+            repos_table = repos_table,
+            language = settings$language
           )
         }
       } else {
