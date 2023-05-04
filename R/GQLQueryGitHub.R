@@ -193,6 +193,9 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
               }
             }
           }
+          organization: owner {
+            login
+          }
           repo_url: url
         }'
       )

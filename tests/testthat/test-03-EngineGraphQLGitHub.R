@@ -36,19 +36,8 @@ test_that("`gql_response()` work as expected for GitHub", {
 test_gql_gh <- environment(test_gql_gh$initialize)$private
 
 test_that("`get_authors_ids()` works as expected", {
-  team <- list(
-    "Member1" = list(
-      logins = "galachad"
-    ),
-    "Member2" = list(
-      logins = "Cotau"
-    ),
-    "Member3" = list(
-      logins = "maciekbanas"
-    )
-  )
   expect_snapshot(
-    test_gql_gh$get_authors_ids(team)
+    test_gql_gh$get_authors_ids(test_team)
   )
 })
 
@@ -145,19 +134,8 @@ test_that("`pull_repos()` from user prepares formatted list", {
 })
 
 test_that("`pull_repos_from_team()` works smoothly", {
-  team <- list(
-    "Member1" = list(
-      logins = "galachad"
-    ),
-    "Member2" = list(
-      logins = "Cotau"
-    ),
-    "Member3" = list(
-      logins = c("maciekbanas", "banasm")
-    )
-  )
   gh_repos_from_team <- test_gql_gh$pull_repos_from_team(
-    team = team
+    team = test_team
   )
   expect_list_contains(
     gh_repos_from_team[[1]],
@@ -212,8 +190,7 @@ test_that("`pull_commits_from_repos()` pulls commits from repos", {
 
 test_that("`prepare_repos_table()` prepares repos table", {
   gh_repos_table <- test_gql_gh$prepare_repos_table(
-    repos_list = test_mocker$use("gh_repos_from_org"),
-    org = "r-world-devs"
+    repos_list = test_mocker$use("gh_repos_from_org")
   )
   expect_repos_table(
     gh_repos_table
@@ -238,6 +215,43 @@ test_gql_gh <- EngineGraphQLGitHub$new(
   gql_api_url = "https://api.github.com/graphql",
   token = Sys.getenv("GITHUB_PAT")
 )
+
+test_that("`get_repos()` works as expected", {
+
+  mockery::stub(
+    test_gql_gh$get_repos,
+    "private$pull_repos",
+    test_mocker$use("gh_repos_from_org")
+  )
+  settings <- list(search_param = "org")
+  expect_snapshot(
+    gh_repos_org <- test_gql_gh$get_repos(
+      org = "r-world-devs",
+      settings = settings
+    )
+  )
+  expect_repos_table(
+    gh_repos_org
+  )
+
+  mockery::stub(
+    test_gql_gh$get_repos,
+    "private$pull_repos_from_team",
+    test_mocker$use("gh_repos_from_team")
+  )
+  settings <- list(search_param = "team",
+                   team = test_team)
+  expect_snapshot(
+    gh_repos_team <- test_gql_gh$get_repos(
+      org = "r-world-devs",
+      settings = settings
+    )
+  )
+  expect_repos_table(
+    gh_repos_team
+  )
+
+})
 
 test_that("`get_commits()` retrieves commits in the table format", {
   mockery::stub(
