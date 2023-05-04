@@ -45,17 +45,18 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       if (settings$search_param %in% c("org", "team")) {
         if (settings$search_param == "org") {
           cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
+          repos_list <- private$pull_repos(
+            from == "org",
+            org == org
+          )
         } else {
           cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][team:{settings$team_name}] Pulling repositories...")
-        }
-        repos_table <- private$pull_repos_from_org(org) %>%
-          private$prepare_repos_table(org)
-        if (settings$search_param == "team") {
-          repos_table <- private$filter_repos_by_team(
-            repos_table = repos_table,
-            team = settings$team
+          repos_list <- private$pull_repos_from_team(
+            team == settings$team
           )
         }
+        repos_table <- repos_list %>%
+          private$prepare_repos_table(org)
         if (!is.null(settings$language)) {
           repos_table <- private$filter_repos_by_language(
             repos_table = repos_table
@@ -118,18 +119,28 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
   private = list(
 
     # @description Iterator over pulling pages of repositories.
+    # @param from A character specifying if organization or user.
     # @param org An organization.
+    # @param user A user.
     # @return A list of repositories from organization.
-    pull_repos_from_org = function(org) {
+    pull_repos = function(from,
+                          org = NULL,
+                          user = NULL) {
       full_repos_list <- list()
       next_page <- TRUE
       repo_cursor <- ""
       while (next_page) {
-        repos_response <- private$pull_repos_page_from_org(
+        repos_response <- private$pull_repos_page(
+          from = from,
           org = org,
+          user = user,
           repo_cursor = repo_cursor
         )
-        repositories <- repos_response$data$repositoryOwner$repositories
+        repositories <- if (from == "org") {
+          repos_response$data$repositoryOwner$repositories
+        } else if (from == "user") {
+          repos_response$data$user$repositories
+        }
         repos_list <- repositories$nodes
         next_page <- repositories$pageInfo$hasNextPage
         if (is.null(next_page)) next_page <- FALSE
@@ -144,18 +155,45 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       return(full_repos_list)
     },
 
+    # @description Iterator over pulling pages of repositories.
+    # @param team A list of team members.
+    # @return A list of repositories from organization.
+    pull_repos_from_team = function(team) {
+
+      repos_from_team <- list()
+      for (login in team) {
+        user_repos <-
+          private$pull_repos(from = "user",
+                             user = login)
+        repos_from_team <-
+          append(repos_from_team, user_repos)
+      }
+      return(repos_from_team)
+    },
+
     # @description Wrapper over building GraphQL query and response.
+    # @param from A character specifying if organization or user
     # @param org An organization.
+    # @param user A user.
     # @param repo_cursor An end cursor for repos page.
     # @return A list of repositories.
-    pull_repos_page_from_org = function(org,
-                                        repo_cursor = "") {
-      repos_by_org_query <- self$gql_query$repos_by_org(
-        org,
-        repo_cursor = repo_cursor
-      )
+    pull_repos_page = function(from,
+                               org = NULL,
+                               user = NULL,
+                               repo_cursor = "") {
+      repos_query <- if (from == "org") {
+        self$gql_query$repos_by_org(
+          org = org,
+          repo_cursor = repo_cursor
+        )
+      } else if (from == "user") {
+        self$gql_query$repos_by_user(
+          user = user,
+          repo_cursor = repo_cursor
+        )
+      }
       response <- self$gql_response(
-        gql_query = repos_by_org_query
+        gql_query = repos_query
       )
       return(response)
     },
@@ -354,7 +392,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       logins <- purrr::map(team, ~ .$logins) %>%
         unlist()
       ids <- purrr::map_chr(logins, ~ {
-        authors_id_query <- self$gql_query$user(.)$id
+        authors_id_query <- self$gql_query$user(.)
         authors_id_response <- self$gql_response(
           gql_query = authors_id_query
         )

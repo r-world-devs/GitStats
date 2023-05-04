@@ -21,6 +21,14 @@ test_that("`gql_response()` work as expected for GitHub", {
     gh_repos_by_org_gql_response
   )
   test_mocker$cache(gh_repos_by_org_gql_response)
+
+  gh_repos_by_user_gql_response <- test_gql_gh$gql_response(
+    test_mocker$use("gh_repos_by_user_query")
+  )
+  expect_gh_user_repos(
+    gh_repos_by_user_gql_response
+  )
+  test_mocker$cache(gh_repos_by_user_gql_response)
 })
 
 # private methods
@@ -64,11 +72,12 @@ test_that("`pull_commits_page_from_repo()` pulls commits page from repository", 
 
 test_that("`pull_repos_page_from_org()` pulls repos page from GitHub organization", {
   mockery::stub(
-    test_gql_gh$pull_repos_page_from_org,
+    test_gql_gh$pull_repos_page,
     "self$gql_response",
     test_mocker$use("gh_repos_by_org_gql_response")
   )
-  gh_repos_page <- test_gql_gh$pull_repos_page_from_org(
+  gh_repos_page <- test_gql_gh$pull_repos_page(
+    from = "org",
     org = "r-world-devs"
   )
   expect_gh_repos(
@@ -79,11 +88,12 @@ test_that("`pull_repos_page_from_org()` pulls repos page from GitHub organizatio
 
 test_that("`pull_repos_from_org()` prepares formatted list", {
   mockery::stub(
-    test_gql_gh$pull_repos_from_org,
-    "private$pull_repos_page_from_org",
+    test_gql_gh$pull_repos,
+    "private$pull_repos_page",
     test_mocker$use("gh_repos_page")
   )
-  gh_repos_from_org <- test_gql_gh$pull_repos_from_org(
+  gh_repos_from_org <- test_gql_gh$pull_repos(
+    from = "org",
     org = "r-world-devs"
   )
   expect_list_contains(
@@ -95,6 +105,69 @@ test_that("`pull_repos_from_org()` prepares formatted list", {
     )
   )
   test_mocker$cache(gh_repos_from_org)
+})
+
+test_that("`pull_repos_page_from_user()` pulls repos page from GitHub organization", {
+  mockery::stub(
+    test_gql_gh$pull_repos_page,
+    "self$gql_response",
+    test_mocker$use("gh_repos_by_user_gql_response")
+  )
+  gh_repos_user_page <- test_gql_gh$pull_repos_page(
+    from = "user",
+    user = "maciekbanas"
+  )
+  expect_gh_user_repos(
+    gh_repos_user_page
+  )
+  test_mocker$cache(gh_repos_user_page)
+})
+
+test_that("`pull_repos()` from user prepares formatted list", {
+  mockery::stub(
+    test_gql_gh$pull_repos,
+    "private$pull_repos_page",
+    test_mocker$use("gh_repos_user_page")
+  )
+  gh_repos_from_user <- test_gql_gh$pull_repos(
+    from = "user",
+    user = "maciekbanas"
+  )
+  expect_list_contains(
+    gh_repos_from_user[[1]],
+    c(
+      "id", "name", "stars", "forks", "created_at", "last_push",
+      "last_activity_at", "languages", "issues_open", "issues_closed",
+      "contributors", "repo_url"
+    )
+  )
+  test_mocker$cache(gh_repos_from_user)
+})
+
+test_that("`pull_repos_from_team()` works smoothly", {
+  team <- list(
+    "Member1" = list(
+      logins = "galachad"
+    ),
+    "Member2" = list(
+      logins = "Cotau"
+    ),
+    "Member3" = list(
+      logins = c("maciekbanas", "banasm")
+    )
+  )
+  gh_repos_from_team <- test_gql_gh$pull_repos_from_team(
+    team = team
+  )
+  expect_list_contains(
+    gh_repos_from_team[[1]],
+    c(
+      "id", "name", "stars", "forks", "created_at", "last_push",
+      "last_activity_at", "languages", "issues_open", "issues_closed",
+      "contributors", "repo_url"
+    )
+  )
+  test_mocker$cache(gh_repos_from_team)
 })
 
 test_that("`pull_commits_from_one_repo()` prepares formatted list", {

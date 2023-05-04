@@ -10,7 +10,8 @@ A class with methods to build GraphQL Queries for GitHub.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-repos_by_org}{\code{GQLQueryGitHub$repos_by_org()}}
-\item \href{#method-users_id}{\code{GQLQueryGitHub$users_id()}}
+\item \href{#method-repos_by_user}{\code{GQLQueryGitHub$repos_by_user()}}
+\item \href{#method-user}{\code{GQLQueryGitHub$user()}}
 \item \href{#method-commits_by_repo}{\code{GQLQueryGitHub$commits_by_repo()}}
 \item \href{#method-clone}{\code{GQLQueryGitHub$clone()}}
 }
@@ -38,12 +39,34 @@ A query.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-users_id"></a>}}
-\if{latex}{\out{\hypertarget{method-users_id}{}}}
-\subsection{Method \code{users_id()}}{
-Prepare query to get ID of a GitHub user.
+\if{html}{\out{<a id="method-repos_by_user"></a>}}
+\if{latex}{\out{\hypertarget{method-repos_by_user}{}}}
+\subsection{Method \code{repos_by_user()}}{
+Prepare query to get repositories from GitHub.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GQLQueryGitHub$users_id(login)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GQLQueryGitHub$repos_by_user(user, repo_cursor = "")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{user}}{A GitHub user.}
+
+\item{\code{repo_cursor}}{An end cursor for repositories page.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A query.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-user"></a>}}
+\if{latex}{\out{\hypertarget{method-user}{}}}
+\subsection{Method \code{user()}}{
+Prepare query to get info on a GitHub user.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GQLQueryGitHub$user(login)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
