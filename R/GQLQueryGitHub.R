@@ -44,7 +44,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
                   target {
                     ... on Commit {
                       id
-                      history(since: "2020-01-01T00:00:00Z") {
+                      history(since: "2000-01-01T00:00:00Z") {
                         edges {
                           node {
                             committer {
@@ -67,13 +67,34 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
         }')
     },
 
-    #' @description Prepare query to get ID of a GitHub user.
+    #' @description Prepare query to get info on a GitHub user.
     #' @param login A login of a user.
     #' @return A query.
-    users_id = function(login) {
+    user = function(login) {
       paste0('{
         user(login: "', login, '") {
           id
+          name
+          email
+          bio
+          location
+          updatedAt
+          repositories(first: 100) {
+            edges {
+              node {
+                name
+              }
+            }
+          }
+          followers(first: 100) {
+            totalCount
+          }
+          following(first: 100) {
+            totalCount
+          }
+          status {
+            id
+          }
         }
       }')
     },

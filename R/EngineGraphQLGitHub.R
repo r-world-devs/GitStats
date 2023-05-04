@@ -354,7 +354,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       logins <- purrr::map(team, ~ .$logins) %>%
         unlist()
       ids <- purrr::map_chr(logins, ~ {
-        authors_id_query <- self$gql_query$users_id(.)
+        authors_id_query <- self$gql_query$user(.)$id
         authors_id_response <- self$gql_response(
           gql_query = authors_id_query
         )
