@@ -24,6 +24,7 @@ Imports:
     RPostgres,
     RSQLite,
     purrr,
+    stringi,
     stringr,
     tibble
 Suggests: 
