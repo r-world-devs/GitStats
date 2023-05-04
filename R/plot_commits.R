@@ -32,7 +32,11 @@ plot_commits <- function(gitstats_obj,
     y = ~commits_n,
     color = ~organization,
     type = "scatter",
-    mode = "lines+markers"
+    mode = "lines+markers",
+    hoverinfo = "text",
+    hovertext = ~paste("Organization: ", organization, "\n",
+                       "Date: ", stats_date, "\n",
+                       "Number of commits: ", commits_n)
   ) %>%
     plotly::layout(title = 'Number of commits by organization',
                    legend = list(orientation = 'h'),
