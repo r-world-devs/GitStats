@@ -1,6 +1,7 @@
 #' @importFrom R6 R6Class
 #' @importFrom rlang expr
 #' @importFrom cli cli_alert_danger cli_alert_success
+#' @importFrom purrr keep
 
 #' @title A GitHost superclass
 
@@ -56,6 +57,13 @@ GitHost <- R6::R6Class("GitHost",
       }) %>%
         purrr::list_rbind()
 
+      if (!is.null(settings$language)) {
+        repos_table <- private$filter_repos_by_language(
+          repos_table = repos_table,
+          language = settings$language
+        )
+      }
+
       return(repos_table)
     },
 
@@ -106,6 +114,23 @@ GitHost <- R6::R6Class("GitHost",
     # @return GraphQL API url.
     set_gql_url = function(rest_api_url) {
       paste0(gsub("/v+.*", "", rest_api_url), "/graphql")
+    },
+
+    # @description Filter repositories by contributors.
+    # @details If at least one member of a team is a contributor than a project
+    #   passes through the filter.
+    # @param repos_table A repository table to be filtered.
+    # @param language A language used in repository.
+    # @return A repos table.
+    filter_repos_by_language = function(repos_table,
+                                        language) {
+      cli::cli_alert_info("Filtering by language.")
+      filtered_langs <- purrr::keep(repos_table$languages, function(row) {
+        grepl(language, row)
+      })
+      repos_table <- repos_table %>%
+        dplyr::filter(languages %in% filtered_langs)
+      return(repos_table)
     }
   )
 )

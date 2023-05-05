@@ -20,6 +20,11 @@ git_stats
 get_repos(git_stats)
 get_commits(git_stats, date_from = "2022-01-01")
 
+# setup your language you are interested in
+setup(git_stats,
+      language = "Python")
+get_repos(git_stats)
+
 # set your team members
 git_stats %>%
   add_team_member("Adam Foryś", "galachad") %>%

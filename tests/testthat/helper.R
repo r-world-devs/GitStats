@@ -38,6 +38,25 @@ expect_gh_repos <- function(object) {
   )
 }
 
+expect_gh_user_repos <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  expect_list_contains(
+    object,
+    "data"
+  )
+  expect_list_contains(
+    object$data$user$repositories$nodes[[1]],
+    c(
+      "id", "name", "stars", "forks", "created_at", "last_push",
+      "last_activity_at", "languages", "issues_open", "issues_closed",
+      "contributors", "repo_url"
+    )
+  )
+}
+
 expect_gl_commit <- function(object) {
   expect_type(
     object,

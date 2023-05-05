@@ -1,9 +1,10 @@
 # `get_authors_ids()` works as expected
 
     Code
-      test_gql_gh$get_authors_ids(team)
+      test_gql_gh$get_authors_ids(test_team)
     Output
       [1] "MDQ6VXNlcjQyOTYzOTA=" "MDQ6VXNlcjE5NzI5ODQ0" "MDQ6VXNlcjc0MjEyOTMz"
+      [4] "MDQ6VXNlcjMwOTMxODE5"
 
 # `pull_commits_from_one_repo()` prepares formatted list
 
@@ -4218,6 +4219,20 @@
       
       
       
+
+# `get_repos()` works as expected
+
+    Code
+      gh_repos_org <- test_gql_gh$get_repos(org = "r-world-devs", settings = settings)
+    Message <cliMessage>
+      i [GitHub][Engine:GraphQL][org:r-world-devs] Pulling repositories...
+
+---
+
+    Code
+      gh_repos_team <- test_gql_gh$get_repos(org = "r-world-devs", settings = settings)
+    Message <cliMessage>
+      i [GitHub][Engine:GraphQL][org:r-world-devs][team:] Pulling repositories...
 
 # `get_commits()` retrieves commits in the table format
 

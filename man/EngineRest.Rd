@@ -6,9 +6,6 @@
 \description{
 A superclass for methods wraping Rest API responses.
 }
-\section{Super class}{
-\code{\link[GitStats:Engine]{GitStats::Engine}} -> \code{EngineRest}
-}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -23,12 +20,6 @@ A superclass for methods wraping Rest API responses.
 \item \href{#method-response}{\code{EngineRest$response()}}
 \item \href{#method-clone}{\code{EngineRest$clone()}}
 }
-}
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-}
-\out{</details>}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}

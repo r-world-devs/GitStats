@@ -12,4 +12,19 @@ test_that("`set_gql_url()` correctly sets gql api url - for public and private g
   )
 })
 
-
+test_that("GitHost filters repositories' table by languages", {
+  repos_table <- test_mocker$use("gh_repos_table")
+  expect_snapshot(
+    result <- test_host$filter_repos_by_language(
+      repos_table,
+      language = "JavaScript"
+    )
+  )
+  expect_length(
+    result,
+    length(repos_table)
+  )
+  expect_true(
+    all(grepl("JavaScript", result$languages))
+  )
+})
