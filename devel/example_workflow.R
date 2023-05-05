@@ -50,5 +50,5 @@ get_repos(git_stats)
 plot_repos(git_stats)
 
 # examples for getting and plotting commits
-plot_commits(git_stats, stats_by = "month")
+plot_commits(git_stats)
 
