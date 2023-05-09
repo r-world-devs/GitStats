@@ -96,7 +96,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         )
       }
       if (settings$search_param == "team") {
-        cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling commits by team...")
+        cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][team:{settings$team_name}] Pulling commits...")
         repos_list_with_commits <- private$pull_commits_from_repos(
           org = org,
           repos = repos_names,
