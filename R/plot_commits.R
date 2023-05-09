@@ -1,4 +1,4 @@
-#' @importFrom ggplot2 ggplot geom_point geom_line
+#' @importFrom ggplot2 ggplot geom_point geom_line aes
 #' @importFrom plotly ggplotly layout
 #' @importFrom stringr str_remove_all
 #' @importFrom lubridate floor_date
