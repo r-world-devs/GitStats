@@ -162,12 +162,14 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     pull_repos_from_team = function(team) {
 
       repos_from_team <- list()
-      for (login in team) {
-        user_repos <-
-          private$pull_repos(from = "user",
-                             user = login)
-        repos_from_team <-
-          append(repos_from_team, user_repos)
+      for (member in team) {
+        for (login in member$logins) {
+          user_repos <-
+            private$pull_repos(from = "user",
+                               user = login)
+          repos_from_team <-
+            append(repos_from_team, user_repos)
+        }
       }
       return(repos_from_team)
     },

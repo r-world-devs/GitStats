@@ -37,7 +37,8 @@ git_stats %>%
 # You can set your search preferences
 setup(git_stats,
       search_param = "team",
-      team_name = "RWD")
+      team_name = "RWD",
+      language = "R")
 
 # now pull repos by default by team
 get_repos(git_stats)

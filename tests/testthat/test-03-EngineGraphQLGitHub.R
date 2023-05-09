@@ -130,6 +130,10 @@ test_that("`pull_repos()` from user prepares formatted list", {
       "contributors", "repo_url"
     )
   )
+  expect_gt(
+    length(gh_repos_from_user[[1]][["languages"]]$nodes),
+    0
+  )
   test_mocker$cache(gh_repos_from_user)
 })
 
@@ -144,6 +148,10 @@ test_that("`pull_repos_from_team()` works smoothly", {
       "last_activity_at", "languages", "issues_open", "issues_closed",
       "contributors", "repo_url"
     )
+  )
+  expect_gt(
+    length(gh_repos_from_team[[1]][["languages"]]$nodes),
+    0
   )
   test_mocker$cache(gh_repos_from_team)
 })
@@ -196,6 +204,12 @@ test_that("`prepare_repos_table()` prepares repos table", {
     gh_repos_table
   )
   test_mocker$cache(gh_repos_table)
+  gh_repos_table_team <- test_gql_gh$prepare_repos_table(
+    repos_list = test_mocker$use("gh_repos_from_team")
+  )
+  expect_repos_table(
+    gh_repos_table_team
+  )
 })
 
 test_that("`prepare_commits_table()` prepares commits table", {
