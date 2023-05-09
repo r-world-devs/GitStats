@@ -1,3 +1,4 @@
+#' @importFrom ggplot2 ggplot geom_point geom_line
 #' @importFrom plotly ggplotly layout
 #' @importFrom stringr str_remove_all
 #' @importFrom lubridate floor_date
@@ -13,7 +14,7 @@ plot_commits <- function(gitstats_obj,
 
   time_interval <- match.arg(time_interval)
 
-  commits_dt <- copy(gitstats_obj$show_commits())
+  commits_dt <- gitstats_obj$show_commits()
   if (is.null(commits_dt)) {
     cli::cli_abort("No commits in `GitStats` object to plot.")
   }
@@ -29,7 +30,7 @@ plot_commits <- function(gitstats_obj,
   commits_n <- commits_dt[, .(commits_n = .N),
                           by = .(stats_date = stats_date, platform, organization)]
 
-  setorder(commits_n, stats_date)
+  data.table::setorder(commits_n, stats_date)
 
   date_breaks_value <- switch(time_interval,
                               "day" = "1 week",

@@ -1,6 +1,7 @@
 #' @importFrom plotly plot_ly
 #' @importFrom utils head
 #' @importFrom stringi stri_split_fixed
+#' @importFrom data.table setorder as.data.table
 #'
 #' @title Plot repository data.
 #' @name plot_repos
@@ -12,13 +13,13 @@
 plot_repos <- function(gitstats_obj,
                        repos_n = 10) {
 
-  repos_to_plot <- copy(gitstats_obj$show_repos())
+  repos_to_plot <- gitstats_obj$show_repos()
   if (is.null(repos_to_plot)) {
     cli::cli_abort("No repositories in `GitStats` object to plot.")
   }
 
-  setorder(repos_to_plot, last_activity_at)
-  repos_to_plot <- as.data.table(head(repos_to_plot, repos_n))
+  data.table::setorder(repos_to_plot, last_activity_at)
+  repos_to_plot <- data.table::as.data.table(head(repos_to_plot, repos_n))
 
   repos_to_plot[, fullname := paste0(organization, "/", name)
                 ][, fullname := factor(fullname, levels = unique(fullname)[order(last_activity_at, decreasing = TRUE)])]
