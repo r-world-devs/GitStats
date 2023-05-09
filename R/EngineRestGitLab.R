@@ -195,6 +195,8 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           break
         }
       }
+      full_repos_list <- full_repos_list %>%
+        private$pull_repos_languages()
       return(full_repos_list)
     },
 
@@ -280,7 +282,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           "created_at" = project$created_at,
           "last_push" = NULL,
           "last_activity_at" = project$last_activity_at,
-          "languages" = ifelse(length(project$languages) == 0, "", project$languages),
+          "languages" = paste0(project$languages, collapse = ", "),
           "issues_open" = project$issues_open,
           "issues_closed" = project$issues_closed,
           "contributors" = NULL,
