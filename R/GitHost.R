@@ -57,7 +57,7 @@ GitHost <- R6::R6Class("GitHost",
       }) %>%
         purrr::list_rbind()
 
-      if (!is.null(settings$language)) {
+      if (nrow(repos_table) > 0 && !is.null(settings$language)) {
         repos_table <- private$filter_repos_by_language(
           repos_table = repos_table,
           language = settings$language
