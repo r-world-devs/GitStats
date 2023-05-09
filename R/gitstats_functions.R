@@ -97,6 +97,8 @@ add_team_member <- function(gitstats_obj,
   return(invisible(gitstats_obj))
 }
 
+#' @title Get information on repositories.
+#' @name get_repos
 #' @description  List all repositories for an organization, a team or by a
 #'   keyword.
 #' @param gitstats_obj A GitStats object.

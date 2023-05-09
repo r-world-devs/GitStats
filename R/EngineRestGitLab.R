@@ -271,20 +271,21 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     # @param projects_list A list, a formatted content of response returned by GET API request
     # @return A list of repos with selected information
     tailor_repos_info = function(projects_list) {
-      projects_list <- purrr::map(projects_list, function(x) {
+      projects_list <- purrr::map(projects_list, function(project) {
         list(
-          "id" = x$id,
-          "name" = x$name,
-          "stars" = x$star_count,
-          "forks" = x$fork_count,
-          "created_at" = x$created_at,
+          "id" = project$id,
+          "name" = project$name,
+          "stars" = project$star_count,
+          "forks" = project$fork_count,
+          "created_at" = project$created_at,
           "last_push" = NULL,
-          "last_activity_at" = x$last_activity_at,
-          "languages" = ifelse(length(x$languages) == 0, "", x$languages),
-          "issues_open" = x$issues_open,
-          "issues_closed" = x$issues_closed,
+          "last_activity_at" = project$last_activity_at,
+          "languages" = ifelse(length(project$languages) == 0, "", project$languages),
+          "issues_open" = project$issues_open,
+          "issues_closed" = project$issues_closed,
           "contributors" = NULL,
-          "organization" = x$namespace$path
+          "organization" = project$namespace$path,
+          "repo_url" = project$http_url_to_repo
         )
       })
       projects_list

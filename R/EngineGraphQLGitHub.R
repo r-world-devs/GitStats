@@ -54,8 +54,12 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           repos_table <- private$pull_repos_from_team(
             team = settings$team
           ) %>%
-            private$prepare_repos_table() %>%
-            dplyr::filter(organization == org)
+            private$prepare_repos_table()
+          if (nrow(repos_table) > 0) {
+            repos_table <- dplyr::filter(
+              repos_table,
+              organization == org)
+          }
         }
       } else {
         repos_table <- NULL

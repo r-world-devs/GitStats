@@ -77,9 +77,6 @@ EngineRest <- R6::R6Class("EngineRest",
           forks = as.integer(forks),
           issues_open = as.integer(issues_open),
           issues_closed = as.integer(issues_closed),
-          repo_url = ifelse(inherits(self, "EngineRestGitLab"),
-                            paste0(self$rest_api_url, "/projects/", gsub("gid://gitlab/Project/", "", id)),
-                            repo_url),
           api_url = self$rest_api_url
         )
       }
