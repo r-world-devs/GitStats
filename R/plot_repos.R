@@ -13,7 +13,7 @@
 plot_repos <- function(gitstats_obj,
                        repos_n = 10) {
 
-  repos_to_plot <- gitstats_obj$show_repos()
+  repos_to_plot <- data.table::copy(gitstats_obj$show_repos())
   if (is.null(repos_to_plot)) {
     cli::cli_abort("No repositories in `GitStats` object to plot.")
   }
@@ -21,9 +21,12 @@ plot_repos <- function(gitstats_obj,
   data.table::setorder(repos_to_plot, last_activity_at)
   repos_to_plot <- data.table::as.data.table(head(repos_to_plot, repos_n))
 
+  repos_to_plot[, row_no := 1:nrow(repos_to_plot)]
   repos_to_plot[, fullname := paste0(organization, "/", name)
                 ][, fullname := factor(fullname, levels = unique(fullname)[order(last_activity_at, decreasing = TRUE)])]
-  repos_to_plot[, platform := stringi::stri_split_fixed(repo_url, "/", omit_empty = T, simplify = T)[2], .(fullname)]
+  repos_to_plot[, platform := stringr::str_remove_all(api_url,
+                                                   pattern = "(?<=com).*|(https://)"),
+             .(row_no)][, row_no := NULL]
 
   plotly::plot_ly(repos_to_plot,
     y = ~fullname,

@@ -14,7 +14,7 @@ plot_commits <- function(gitstats_obj,
 
   time_interval <- match.arg(time_interval)
 
-  commits_dt <- gitstats_obj$show_commits()
+  commits_dt <- data.table::copy(gitstats_obj$show_commits())
   if (is.null(commits_dt)) {
     cli::cli_abort("No commits in `GitStats` object to plot.")
   }

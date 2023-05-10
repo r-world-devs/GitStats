@@ -1,4 +1,4 @@
-#' @importFrom dplyr mutate relocate filter
+#' @importFrom dplyr distinct mutate relocate filter
 #' @importFrom progress progress_bar
 #'
 #' @title A EngineGraphQLGitHub class
@@ -58,7 +58,8 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           if (nrow(repos_table) > 0) {
             repos_table <- dplyr::filter(
               repos_table,
-              organization == org)
+              organization == org) %>%
+              dplyr::distinct()
           }
         }
       } else {
@@ -81,9 +82,8 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
 
       repos_table <- self$get_repos(
         org = org,
-        settings = settings
+        settings = list(search_param = "org")
       )
-
       repos_names <- repos_table$name
 
       if (settings$search_param == "org") {
@@ -251,16 +251,11 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
                                        date_until,
                                        team_filter = FALSE,
                                        team = NULL) {
-      pb <- progress::progress_bar$new(
-        format = paste0("Checking for commits since ", date_from, " in ", length(repos), " repos. [:bar] repo: :current/:total"),
-        total = length(repos)
-      )
       if (team_filter) {
         authors_ids <- private$get_authors_ids(team) %>%
           purrr::discard(~ . == "")
       }
       repos_list_with_commits <- purrr::map(repos, function(repo) {
-        if (interactive()) pb$tick()
         if (!team_filter) {
           private$pull_commits_from_one_repo(
             org,
@@ -284,7 +279,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           }
           return(full_commits_list)
         }
-      })
+      }, .progress = TRUE)
       return(repos_list_with_commits)
     },
 

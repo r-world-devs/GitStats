@@ -146,7 +146,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
 
       repos_table <- self$get_repos(
         org = org,
-        settings = settings
+        settings = list(search_param = "org")
       )
 
       if (settings$search_param == "org") {
@@ -327,20 +327,14 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       repos_names <- repos_table$name
       projects_ids <- gsub("gid://gitlab/Project/", "", repos_table$id)
 
-      pb <- progress::progress_bar$new(
-        format = paste0("Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
-        total = length(repos_names)
-      )
-
       repos_list_with_commits <- purrr::map(projects_ids, function(project_id) {
-        pb$tick()
         commits_from_repo <- private$pull_commits_from_repo(
           project_id = project_id,
           date_from = date_from,
           date_until = date_until
         )
         return(commits_from_repo)
-      })
+      }, .progress = TRUE)
       names(repos_list_with_commits) <- repos_names
       return(repos_list_with_commits)
     },
