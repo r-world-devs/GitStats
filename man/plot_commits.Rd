@@ -4,12 +4,12 @@
 \alias{plot_commits}
 \title{Plot commits data.}
 \usage{
-plot_commits(gitstats_obj, stats_by = c("day", "week", "month"))
+plot_commits(gitstats_obj, time_interval = c("month", "day", "week"))
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
 
-\item{stats_by}{A character, specifying time interval to show statistics.}
+\item{time_interval}{A character, specifying time interval to show statistics.}
 }
 \value{
 A plot.

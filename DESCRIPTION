@@ -15,8 +15,10 @@ Imports:
     data.table,
     DBI,
     dplyr,
-    magrittr,
+    ggplot2,
     httr2,
+    lubridate,
+    magrittr,
     plotly,
     progress,
     rlang,
@@ -24,6 +26,7 @@ Imports:
     RPostgres,
     RSQLite,
     purrr,
+    stringi,
     stringr,
     tibble
 Suggests: 

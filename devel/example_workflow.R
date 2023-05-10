@@ -20,6 +20,11 @@ git_stats
 get_repos(git_stats)
 get_commits(git_stats, date_from = "2022-01-01")
 
+# setup your language you are interested in
+setup(git_stats,
+      language = "Python")
+get_repos(git_stats)
+
 # set your team members
 git_stats %>%
   add_team_member("Adam Foryś", "galachad") %>%
@@ -32,7 +37,8 @@ git_stats %>%
 # You can set your search preferences
 setup(git_stats,
       search_param = "team",
-      team_name = "RWD")
+      team_name = "RWD",
+      language = "R")
 
 # now pull repos by default by team
 get_repos(git_stats)
@@ -47,11 +53,8 @@ setup(git_stats,
 get_repos(git_stats)
 
 # you can plot repos sorted by last activity
-
 plot_repos(git_stats)
 
 # examples for getting and plotting commits
-
-git_stats %>%
-  plot_commits(stats_by = "month")
+plot_commits(git_stats)
 

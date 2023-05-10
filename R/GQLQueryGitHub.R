@@ -20,60 +20,65 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
           repositoryOwner(login: "', org, '") {
             ... on Organization {
               repositories(first: 100 ', after_cursor, ') {
-              totalCount
-              pageInfo {
-                endCursor
-                hasNextPage
+              ', private$repository_field(),'
               }
-              nodes {
-                id
-                name
-                stars: stargazerCount
-                forks: forkCount
-                created_at: createdAt
-                last_push: pushedAt
-                last_activity_at: updatedAt
-                languages (first: 5) { nodes {name} }
-                issues_open: issues (first: 100 states: [OPEN]) {
-                  totalCount
-                }
-                issues_closed: issues (first: 100 states: [CLOSED]) {
-                  totalCount
-                }
-                contributors: defaultBranchRef {
-                  target {
-                    ... on Commit {
-                      id
-                      history(since: "2020-01-01T00:00:00Z") {
-                        edges {
-                          node {
-                            committer {
-                              user {
-                                login
-                                id
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-                repo_url: url
-              }
-            }
             }
           }
         }')
     },
 
-    #' @description Prepare query to get ID of a GitHub user.
+    #' @description Prepare query to get repositories from GitHub.
+    #' @param user A GitHub user.
+    #' @param repo_cursor An end cursor for repositories page.
+    #' @return A query.
+    repos_by_user = function(user, repo_cursor = "") {
+      if (nchar(repo_cursor) == 0) {
+        after_cursor <- repo_cursor
+      } else {
+        after_cursor <- paste0('after: "', repo_cursor, '" ')
+      }
+
+      paste0('
+        query {
+          user(login: "', user, '") {
+            repositories(
+              first: 100
+              ownerAffiliations: COLLABORATOR
+              ', after_cursor, ') {
+              ', private$repository_field(),'
+            }
+          }
+        }')
+    },
+
+    #' @description Prepare query to get info on a GitHub user.
     #' @param login A login of a user.
     #' @return A query.
-    users_id = function(login) {
+    user = function(login) {
       paste0('{
         user(login: "', login, '") {
           id
+          name
+          email
+          bio
+          location
+          updatedAt
+          repositories(first: 100) {
+            edges {
+              node {
+                name
+              }
+            }
+          }
+          followers(first: 100) {
+            totalCount
+          }
+          following(first: 100) {
+            totalCount
+          }
+          status {
+            id
+          }
         }
       }')
     },
@@ -144,6 +149,56 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
         cursor_argument <- paste0('after: "', cursor, '"')
       }
       return(cursor_argument)
+    },
+
+    # @description Helper to prepare repository query.
+    repository_field = function() {
+      paste0(
+       'totalCount
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
+        nodes {
+          id
+          name
+          stars: stargazerCount
+          forks: forkCount
+          created_at: createdAt
+          last_push: pushedAt
+          last_activity_at: updatedAt
+          languages (first: 5) { nodes {name} }
+          issues_open: issues (first: 100 states: [OPEN]) {
+            totalCount
+          }
+          issues_closed: issues (first: 100 states: [CLOSED]) {
+            totalCount
+          }
+          contributors: defaultBranchRef {
+            target {
+              ... on Commit {
+                id
+                history(since: "2000-01-01T00:00:00Z") {
+                  edges {
+                    node {
+                      committer {
+                        user {
+                          login
+                          id
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          organization: owner {
+            login
+          }
+          repo_url: url
+        }'
+      )
     }
   )
 )

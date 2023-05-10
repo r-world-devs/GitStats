@@ -6,9 +6,6 @@
 \description{
 A class for methods wraping GitHub's GraphQL API responses.
 }
-\section{Super class}{
-\code{\link[GitStats:Engine]{GitStats::Engine}} -> \code{EngineGraphQLGitHub}
-}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -27,12 +24,6 @@ A class for methods wraping GitHub's GraphQL API responses.
 \item \href{#method-get_commits}{\code{EngineGraphQLGitHub$get_commits()}}
 \item \href{#method-clone}{\code{EngineGraphQLGitHub$clone()}}
 }
-}
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-}
-\out{</details>}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}

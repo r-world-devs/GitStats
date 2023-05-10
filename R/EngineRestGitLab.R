@@ -82,11 +82,6 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
             team = settings$team
           )
         }
-        if (!is.null(settings$language)) {
-          repos_table <- private$filter_repos_by_language(
-            repos_table = repos_table
-          )
-        }
       }
       return(repos_table)
     },
@@ -151,7 +146,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
 
       repos_table <- self$get_repos(
         org = org,
-        settings = settings
+        settings = list(search_param = "org")
       )
 
       if (settings$search_param == "org") {
@@ -200,6 +195,8 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           break
         }
       }
+      full_repos_list <- full_repos_list %>%
+        private$pull_repos_languages()
       return(full_repos_list)
     },
 
@@ -276,23 +273,45 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     # @param projects_list A list, a formatted content of response returned by GET API request
     # @return A list of repos with selected information
     tailor_repos_info = function(projects_list) {
-      projects_list <- purrr::map(projects_list, function(x) {
+      projects_list <- purrr::map(projects_list, function(project) {
         list(
-          "id" = x$id,
-          "name" = x$name,
-          "stars" = x$star_count,
-          "forks" = x$fork_count,
-          "created_at" = x$created_at,
+          "id" = project$id,
+          "name" = project$name,
+          "stars" = project$star_count,
+          "forks" = project$fork_count,
+          "created_at" = project$created_at,
           "last_push" = NULL,
-          "last_activity_at" = x$last_activity_at,
-          "languages" = ifelse(length(x$languages) == 0, "", x$languages),
-          "issues_open" = x$issues_open,
-          "issues_closed" = x$issues_closed,
+          "last_activity_at" = project$last_activity_at,
+          "languages" = paste0(project$languages, collapse = ", "),
+          "issues_open" = project$issues_open,
+          "issues_closed" = project$issues_closed,
           "contributors" = NULL,
-          "organization" = x$namespace$path
+          "organization" = project$namespace$path,
+          "repo_url" = paste0(self$rest_api_url, "/projects/", project$id)
         )
       })
       projects_list
+    },
+
+    # @description Filter repositories by contributors.
+    # @details If at least one member of a team is a contributor than a project
+    #   passes through the filter.
+    # @param repos_table A repository table to be filtered.
+    # @param team A list with team members.
+    # @return A repos table.
+    filter_repos_by_team = function(repos_table,
+                                    team) {
+      team_logins <- unlist(team)
+      if (nrow(repos_table) > 0) {
+        filtered_contributors <- purrr::keep(repos_table$contributors, function(row) {
+          any(purrr::map_lgl(team_logins, ~ grepl(., row)))
+        })
+        repos_table <- repos_table %>%
+          dplyr::filter(contributors %in% filtered_contributors)
+      } else {
+        repos_table
+      }
+      return(repos_table)
     },
 
     # @description Method to pull all commits from organization.
@@ -308,20 +327,14 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       repos_names <- repos_table$name
       projects_ids <- gsub("gid://gitlab/Project/", "", repos_table$id)
 
-      pb <- progress::progress_bar$new(
-        format = paste0("Checking for commits since ", date_from, " in ", length(repos_names), " repos. [:bar] repo: :current/:total"),
-        total = length(repos_names)
-      )
-
       repos_list_with_commits <- purrr::map(projects_ids, function(project_id) {
-        pb$tick()
         commits_from_repo <- private$pull_commits_from_repo(
           project_id = project_id,
           date_from = date_from,
           date_until = date_until
         )
         return(commits_from_repo)
-      })
+      }, .progress = TRUE)
       names(repos_list_with_commits) <- repos_names
       return(repos_list_with_commits)
     },

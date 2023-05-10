@@ -6,8 +6,8 @@
 \description{
 A class for methods wraping GitHub's REST API responses.
 }
-\section{Super classes}{
-\code{\link[GitStats:Engine]{GitStats::Engine}} -> \code{\link[GitStats:EngineRest]{GitStats::EngineRest}} -> \code{EngineRestGitHub}
+\section{Super class}{
+\code{\link[GitStats:EngineRest]{GitStats::EngineRest}} -> \code{EngineRestGitHub}
 }
 \section{Methods}{
 \subsection{Public methods}{

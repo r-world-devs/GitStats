@@ -5,7 +5,6 @@
 #' @title A EngineRest class
 #' @description A superclass for methods wraping Rest API responses.
 EngineRest <- R6::R6Class("EngineRest",
-  inherit = Engine,
   public = list(
 
     #' @field rest_api_url A character, url of Rest API.
@@ -39,6 +38,9 @@ EngineRest <- R6::R6Class("EngineRest",
 
   ),
   private = list(
+
+    # @field token A token authorizing access to API.
+    token = NULL,
 
     # @description Check whether the token exists.
     # @param token A token.
@@ -75,9 +77,6 @@ EngineRest <- R6::R6Class("EngineRest",
           forks = as.integer(forks),
           issues_open = as.integer(issues_open),
           issues_closed = as.integer(issues_closed),
-          repo_url = ifelse(inherits(self, "EngineRestGitLab"),
-                            paste0(self$rest_api_url, "/projects/", gsub("gid://gitlab/Project/", "", id)),
-                            repo_url),
           api_url = self$rest_api_url
         )
       }
