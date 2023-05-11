@@ -88,7 +88,7 @@ test_that("`pull_repos_from_org()` prepares formatted list", {
   expect_list_contains(
     gh_repos_from_org[[1]],
     c(
-      "id", "name", "stars", "forks", "created_at", "last_push",
+      "id", "name", "stars", "forks", "created_at",
       "last_activity_at", "languages", "issues_open", "issues_closed",
       "contributors", "repo_url"
     )
@@ -125,7 +125,7 @@ test_that("`pull_repos()` from user prepares formatted list", {
   expect_list_contains(
     gh_repos_from_user[[1]],
     c(
-      "id", "name", "stars", "forks", "created_at", "last_push",
+      "id", "name", "stars", "forks", "created_at",
       "last_activity_at", "languages", "issues_open", "issues_closed",
       "contributors", "repo_url"
     )
@@ -144,7 +144,7 @@ test_that("`pull_repos_from_team()` works smoothly", {
   expect_list_contains(
     gh_repos_from_team[[1]],
     c(
-      "id", "name", "stars", "forks", "created_at", "last_push",
+      "id", "name", "stars", "forks", "created_at",
       "last_activity_at", "languages", "issues_open", "issues_closed",
       "contributors", "repo_url"
     )

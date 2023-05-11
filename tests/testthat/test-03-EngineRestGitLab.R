@@ -61,7 +61,7 @@ test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
 
   expect_list_contains_only(
     gl_repos_by_phrase_tailored[[1]],
-    c("id", "name", "created_at", "last_activity_at", "last_push",
+    c("id", "name", "created_at", "last_activity_at",
       "forks", "stars", "contributors", "languages", "issues_open",
       "issues_closed", "organization"))
 

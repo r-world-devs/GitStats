@@ -165,8 +165,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
           stars: stargazerCount
           forks: forkCount
           created_at: createdAt
-          last_push: pushedAt
-          last_activity_at: updatedAt
+          last_activity_at: pushedAt
           languages (first: 5) { nodes {name} }
           issues_open: issues (first: 100 states: [OPEN]) {
             totalCount
