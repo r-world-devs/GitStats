@@ -31,7 +31,7 @@ expect_gh_repos <- function(object) {
   expect_list_contains(
     object$data$repositoryOwner$repositories$nodes[[1]],
     c(
-      "id", "name", "stars", "forks", "created_at", "last_push",
+      "id", "name", "stars", "forks", "created_at",
       "last_activity_at", "languages", "issues_open", "issues_closed",
       "contributors", "repo_url"
     )
@@ -50,7 +50,7 @@ expect_gh_user_repos <- function(object) {
   expect_list_contains(
     object$data$user$repositories$nodes[[1]],
     c(
-      "id", "name", "stars", "forks", "created_at", "last_push",
+      "id", "name", "stars", "forks", "created_at",
       "last_activity_at", "languages", "issues_open", "issues_closed",
       "contributors", "repo_url"
     )
@@ -123,7 +123,7 @@ expect_list_contains_only <- function(object, elements) {
 
 expect_repos_table <- function(get_repos_object) {
   repo_cols <- c(
-    "id", "name", "stars", "forks", "created_at", "last_push",
+    "id", "name", "stars", "forks", "created_at",
     "last_activity_at", "languages", "issues_open", "issues_closed",
     "contributors", "organization", "repo_url", "api_url"
   )
