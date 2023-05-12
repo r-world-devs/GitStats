@@ -10,13 +10,12 @@ on:
       - master
 
 jobs:
+  coverage:
+    name: Coverage 📔
+    uses: insightsengineering/r.pkg.template/.github/workflows/test-coverage.yaml@main
+    secrets:
+      REPO_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   spelling:
     if: github.event_name == 'pull_request'
     name: Spell Check 🆎
     uses: insightsengineering/r.pkg.template/.github/workflows/spelling.yaml@main
-  style:
-    if: github.event_name == 'pull_request'
-    name: Style Check 👗
-    uses: insightsengineering/r.pkg.template/.github/workflows/style.yaml@main
-    with:
-      auto-update: true
