@@ -27,10 +27,8 @@ For the time being GitStats supports connections to public GitHub, enterprise Gi
 
 ## Installation
 
-Test version:
-
 ```r
-devtools::install_github("r-world-devs/GitStats@test")
+devtools::install_github("r-world-devs/GitStats")
 ```
 
 ## Getting started
@@ -56,7 +54,7 @@ git_stats <- create_gitstats() %>%
 
 ## Setup
 
-You can setup your search preferences, either to `organizations`, `team` or `phrase`. 
+You can setup your search preferences, either to `org`, `team` or `phrase`. 
 
 ### Team
 
@@ -98,3 +96,12 @@ setup(git_stats,
 # now pull repos by default by phrase
 get_repos(git_stats)
 ```
+
+### Acknowledgement
+
+Special thanks to:
+
+- @Cotau - for reviewing permanently my pull requests and suggesting more efficient solutions,
+- @marcinkowskak - for substantial improvements on plots,
+- @kalimu, @galachad, @krystian8207 - for your guidelines at the very beginning of the project.
+
