@@ -137,7 +137,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
         }")
     }
   ),
-
   private = list(
     # @description Helper over defining cursor agument for the query.
     # @param cursor A cursor.
@@ -154,7 +153,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     # @description Helper to prepare repository query.
     repository_field = function() {
       paste0(
-       'totalCount
+        'totalCount
         pageInfo {
           endCursor
           hasNextPage

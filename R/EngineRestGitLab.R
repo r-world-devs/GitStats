@@ -143,7 +143,6 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
                            date_from,
                            date_until = Sys.date(),
                            settings) {
-
       repos_table <- self$get_repos(
         org = org,
         settings = list(search_param = "org")
@@ -320,9 +319,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     # @return A list of repositories with commits.
     pull_commits_from_org = function(repos_table,
                                      date_from,
-                                     date_until
-                                     ) {
-
+                                     date_until) {
       repos_names <- repos_table$name
       projects_ids <- gsub("gid://gitlab/Project/", "", repos_table$id)
 

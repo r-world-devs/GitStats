@@ -155,7 +155,8 @@ get_repos <- function(gitstats_obj) {
 #'   ) %>%
 #'   setup(
 #'     search_param = "team",
-#'     team_name = "rwdevs") %>%
+#'     team_name = "rwdevs"
+#'   ) %>%
 #'   add_team_member("Maciej Banaś", "maciekbanas") %>%
 #'   get_commits(date_from = "2018-01-01")
 #' }

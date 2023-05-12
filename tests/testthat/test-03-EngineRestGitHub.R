@@ -28,13 +28,13 @@ test_that("`search_response()` performs search with limit under 100", {
 })
 
 test_that("Private `find_by_id()` works", {
-
   result <- test_rest_priv$find_repos_by_id(
     repos_list = test_mocker$use("gh_search_repos_response")
   )
-  expect_list_contains(result[[1]],
-                       c("id", "node_id", "name", "full_name"))
-
+  expect_list_contains(
+    result[[1]],
+    c("id", "node_id", "name", "full_name")
+  )
 })
 
 test_that("`search_repos_by_phrase()` for GitHub prepares a list of repositories", {
@@ -66,13 +66,17 @@ test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
 
   expect_list_contains_only(
     gh_repos_by_phrase_tailored[[1]],
-    c("id", "name", "created_at", "last_activity_at",
+    c(
+      "id", "name", "created_at", "last_activity_at",
       "forks", "stars", "contributors", "issues_open", "issues_closed",
       "organization"
-    ))
+    )
+  )
 
-  expect_lt(length(gh_repos_by_phrase_tailored[[1]]),
-            length(gh_repos_by_phrase[[1]]))
+  expect_lt(
+    length(gh_repos_by_phrase_tailored[[1]]),
+    length(gh_repos_by_phrase[[1]])
+  )
 
   test_mocker$cache(gh_repos_by_phrase_tailored)
 })
@@ -91,7 +95,6 @@ test_that("`prepare_repos_table()` prepares repos table", {
 # public methods
 
 test_that("`get_repos_contributors()` adds contributors to repos table", {
-
   gh_repos_by_phrase_table <- test_rest$get_repos_contributors(
     test_mocker$use("gh_repos_by_phrase_table")
   )
@@ -104,7 +107,6 @@ test_that("`get_repos_contributors()` adds contributors to repos table", {
 
 
 test_that("`get_repos_issues()` adds issues to repos table", {
-
   gh_repos_by_phrase_table <- test_mocker$use("gh_repos_by_phrase_table")
 
   gh_repos_by_phrase_table <- test_rest$get_repos_issues(
@@ -122,15 +124,16 @@ test_that("`get_repos_issues()` adds issues to repos table", {
 })
 
 test_that("`get_repos()` works", {
-
   mockery::stub(
     test_rest$get_repos,
     "private$search_repos_by_phrase",
     test_mocker$use("gh_repos_by_phrase")
   )
 
-  settings <- list(search_param = "phrase",
-                   phrase = "shiny")
+  settings <- list(
+    search_param = "phrase",
+    phrase = "shiny"
+  )
 
   expect_snapshot(
     result <- test_rest$get_repos(
@@ -140,5 +143,4 @@ test_that("`get_repos()` works", {
   )
 
   expect_repos_table(result)
-
 })

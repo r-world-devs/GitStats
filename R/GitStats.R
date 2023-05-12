@@ -79,7 +79,6 @@ GitStats <- R6::R6Class("GitStats",
     add_host = function(api_url,
                         token,
                         orgs) {
-
       new_host <- GitHost$new(
         orgs = orgs,
         token = token,
@@ -109,7 +108,6 @@ GitStats <- R6::R6Class("GitStats",
     #'   a team or by a keyword.
     #' @return A data.frame of repositories
     get_repos = function() {
-
       if (private$settings$search_param == "team") {
         if (length(private$settings$team) == 0) {
           cli::cli_abort("You have to specify a team first with 'add_team_member()'.")

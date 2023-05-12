@@ -44,7 +44,6 @@ GitHost <- R6::R6Class("GitHost",
     #' @param settings A list of `GitStats` settings.
     #' @return A data.frame of repositories.
     get_repos = function(settings) {
-
       repos_table <- purrr::map(private$orgs, function(org) {
         repos_table_org <- purrr::map(private$engines, ~ .$get_repos(
           org = org,
@@ -53,7 +52,6 @@ GitHost <- R6::R6Class("GitHost",
           purrr::list_rbind()
         return(repos_table_org)
         cli::cli_alert_info("Number of repositories: {nrow(repos_table_org)}")
-
       }) %>%
         purrr::list_rbind()
 
@@ -74,15 +72,12 @@ GitHost <- R6::R6Class("GitHost",
     #' @return A data.frame of commits
     get_commits = function(date_from,
                            date_until = Sys.Date(),
-                           settings
-                           ) {
-
+                           settings) {
       if (settings$search_param == "phrase") {
         cli::cli_abort(c(
           "x" = "Pulling commits by phrase in code blobs is not supported.",
           "i" = "Please change your `search_param` either to 'org' or 'team' with `setup()`."
-          )
-        )
+        ))
       }
 
       commits_table <- purrr::map(private$orgs, function(org) {

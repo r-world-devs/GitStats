@@ -35,7 +35,6 @@ EngineRest <- R6::R6Class("EngineRest",
 
       return(result)
     }
-
   ),
   private = list(
 

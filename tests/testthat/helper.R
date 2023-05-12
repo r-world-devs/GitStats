@@ -1,8 +1,10 @@
 expect_tailored_commits_list <- function(object) {
   expect_list_contains_only(
     object,
-    c("id", "organization", "repository", "additions", "deletions",
-      "committed_date", "author")
+    c(
+      "id", "organization", "repository", "additions", "deletions",
+      "committed_date", "author"
+    )
   )
 }
 
@@ -64,9 +66,11 @@ expect_gl_commit <- function(object) {
   )
   expect_list_contains(
     object[[1]],
-    c("id", "short_id", "created_at", "parent_ids", "title", "message",
+    c(
+      "id", "short_id", "created_at", "parent_ids", "title", "message",
       "author_name", "author_email", "authored_date", "committer_name",
-      "committer_email")
+      "committer_email"
+    )
   )
 }
 

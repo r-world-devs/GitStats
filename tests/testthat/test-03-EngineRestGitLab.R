@@ -13,7 +13,6 @@ test_that("`get_group_id()` gets group's id", {
 })
 
 test_that("`find_repos_by_id()` works", {
-
   gl_search_response <- test_mocker$use("gl_search_response")
   gl_search_repos_by_phrase <- test_rest_priv$find_repos_by_id(
     gl_search_response
@@ -25,7 +24,6 @@ test_that("`find_repos_by_id()` works", {
 })
 
 test_that("`pull_repos_languages` works", {
-
   repos_list <- test_mocker$use("gl_search_repos_by_phrase")
   repos_list[[1]]$id <- "45300912"
   repos_list_with_languages <- test_rest_priv$pull_repos_languages(
@@ -61,12 +59,17 @@ test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
 
   expect_list_contains_only(
     gl_repos_by_phrase_tailored[[1]],
-    c("id", "name", "created_at", "last_activity_at",
+    c(
+      "id", "name", "created_at", "last_activity_at",
       "forks", "stars", "contributors", "languages", "issues_open",
-      "issues_closed", "organization"))
+      "issues_closed", "organization"
+    )
+  )
 
-  expect_lt(length(gl_repos_by_phrase_tailored[[1]]),
-            length(gl_repos_by_phrase[[1]]))
+  expect_lt(
+    length(gl_repos_by_phrase_tailored[[1]]),
+    length(gl_repos_by_phrase[[1]])
+  )
 
   test_mocker$cache(gl_repos_by_phrase_tailored)
 })
@@ -83,12 +86,11 @@ test_that("`prepare_repos_table()` prepares repos table", {
 })
 
 test_that("`pull_commits_from_org()` pulls commits from repo", {
-
   gl_commits_repo_1 <- test_mocker$use("gl_commits_rest_response_repo_1")
 
   mockery::stub(
     test_rest_priv$pull_commits_from_org,
-    'private$pull_commits_from_repo',
+    "private$pull_commits_from_repo",
     gl_commits_repo_1
   )
 
@@ -104,10 +106,9 @@ test_that("`pull_commits_from_org()` pulls commits from repo", {
 })
 
 test_that("`filter_commits_by_team()` filters commits by team", {
-
   gl_commits_org <- test_mocker$use("gl_commits_org")
 
-  team = list(
+  team <- list(
     "Member1" = list(
       name = "Maciej Banaś",
       logins = "maciekbanas"
@@ -124,11 +125,9 @@ test_that("`filter_commits_by_team()` filters commits by team", {
   )
 
   test_mocker$cache(gl_commits_team)
-
 })
 
 test_that("`tailor_commits_info()` retrieves only necessary info", {
-
   gl_commits_list <- test_mocker$use("gl_commits_org")
 
   gl_commits_list_cut <- test_rest_priv$tailor_commits_info(
@@ -142,7 +141,6 @@ test_that("`tailor_commits_info()` retrieves only necessary info", {
 })
 
 test_that("`prepare_commits_table()` prepares table of commits properly", {
-
   gl_commits_table <- test_rest_priv$prepare_commits_table(
     commits_list = test_mocker$use("gl_commits_list_cut")
   )
@@ -154,7 +152,6 @@ test_that("`prepare_commits_table()` prepares table of commits properly", {
 # public methods
 
 test_that("`get_repos_contributors()` adds contributors to repos table", {
-
   gl_repos_table <- test_rest$get_repos_contributors(
     test_mocker$use("gl_repos_by_phrase_table")
   )
@@ -167,7 +164,6 @@ test_that("`get_repos_contributors()` adds contributors to repos table", {
 
 
 test_that("`get_repos_issues()` adds issues to repos table", {
-
   gl_repos_by_phrase_table <- test_mocker$use("gl_repos_table")
 
   gl_repos_by_phrase_table <- test_rest$get_repos_issues(
@@ -185,7 +181,6 @@ test_that("`get_repos_issues()` adds issues to repos table", {
 })
 
 test_that("`get_repos_by_phrase()` works", {
-
   mockery::stub(
     test_rest$get_repos,
     "private$search_repos_by_phrase",
@@ -203,11 +198,9 @@ test_that("`get_repos_by_phrase()` works", {
     )
   )
   expect_repos_table(result)
-
 })
 
 test_that("`get_commits()` works as expected", {
-
   mockery::stub(
     test_rest$get_commits,
     "private$pull_commits_from_org",

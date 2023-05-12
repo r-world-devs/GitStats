@@ -40,7 +40,6 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @return A table.
     get_repos = function(org,
                          settings) {
-
       if (settings$search_param %in% c("org", "team")) {
         if (settings$search_param == "org") {
           cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
@@ -58,7 +57,8 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           if (nrow(repos_table) > 0) {
             repos_table <- dplyr::filter(
               repos_table,
-              organization == org) %>%
+              organization == org
+            ) %>%
               dplyr::distinct()
           }
         }
@@ -79,7 +79,6 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
                            date_from,
                            date_until,
                            settings) {
-
       repos_table <- self$get_repos(
         org = org,
         settings = list(search_param = "org")
@@ -160,13 +159,14 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     # @param team A list of team members.
     # @return A list of repositories from organization.
     pull_repos_from_team = function(team) {
-
       repos_from_team <- list()
       for (member in team) {
         for (login in member$logins) {
           user_repos <-
-            private$pull_repos(from = "user",
-                               user = login)
+            private$pull_repos(
+              from = "user",
+              user = login
+            )
           repos_from_team <-
             append(repos_from_team, user_repos)
         }

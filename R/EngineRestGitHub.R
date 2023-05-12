@@ -279,6 +279,5 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       })
       repos_list
     }
-
   )
 )
