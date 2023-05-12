@@ -54,6 +54,15 @@ set_connection <- function(gitstats_obj,
 #' @param language A language of programming code.
 #' @param print_out A boolean to decide whether to print output
 #' @return A `GitStats` object.
+#' @examples
+#' \dontrun{
+#' my_gitstats <- create_gitstats() %>%
+#'   setup(
+#'     search_param = "team",
+#'     team_name = "Avengers",
+#'     language = "R"
+#'   )
+#' }
 #' @export
 setup <- function(gitstats_obj,
                   search_param = NULL,
@@ -109,15 +118,14 @@ add_team_member <- function(gitstats_obj,
 #'   set_connection(
 #'     api_url = "https://api.github.com",
 #'     token = Sys.getenv("GITHUB_PAT"),
-#'     orgs = c("r-world-devs", "openpharma", "pharmaverse")
+#'     orgs = c("r-world-devs", "openpharma")
 #'   ) %>%
 #'   set_connection(
 #'     api_url = "https://gitlab.com/api/v4",
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-#'     orgs = "erasmusmc-public-health"
+#'     orgs = "mbtests"
 #'   ) %>%
 #'   get_repos()
-#'
 #' }
 #' @export
 get_repos <- function(gitstats_obj) {
@@ -138,14 +146,18 @@ get_repos <- function(gitstats_obj) {
 #'   set_connection(
 #'     api_url = "https://api.github.com",
 #'     token = Sys.getenv("GITHUB_PAT"),
-#'     orgs = c("r-world-devs", "openpharma", "pharmaverse")
+#'     orgs = c("r-world-devs")
 #'   ) %>%
 #'   set_connection(
 #'     api_url = "https://gitlab.com/api/v4",
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-#'     orgs = "erasmusmc-public-health"
+#'     orgs = "mbtests"
 #'   ) %>%
-#'   get_commits(date_from = "2020-01-01")
+#'   setup(
+#'     search_param = "team",
+#'     team_name = "rwdevs") %>%
+#'   add_team_member("Maciej Banaś", "maciekbanas") %>%
+#'   get_commits(date_from = "2018-01-01")
 #' }
 #' @export
 get_commits <- function(gitstats_obj,

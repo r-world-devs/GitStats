@@ -32,3 +32,13 @@ A \code{GitStats} object.
 \description{
 Set up your search settings.
 }
+\examples{
+\dontrun{
+my_gitstats <- create_gitstats() \%>\%
+  setup(
+    search_param = "team",
+    team_name = "Avengers",
+    language = "R"
+  )
+}
+}

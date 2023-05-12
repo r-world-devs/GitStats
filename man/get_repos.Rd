@@ -22,14 +22,13 @@ my_gitstats <- create_gitstats() \%>\%
   set_connection(
     api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
-    orgs = c("r-world-devs", "openpharma", "pharmaverse")
+    orgs = c("r-world-devs", "openpharma")
   ) \%>\%
   set_connection(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-    orgs = "erasmusmc-public-health"
+    orgs = "mbtests"
   ) \%>\%
   get_repos()
-
 }
 }

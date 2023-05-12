@@ -3,11 +3,7 @@
 #' @importFrom data.table rbindlist :=
 #' @importFrom dplyr glimpse
 #' @importFrom magrittr %>%
-#' @importFrom purrr map
-#' @importFrom tibble tibble
-#' @importFrom DBI dbConnect dbWriteTable dbAppendTable dbReadTable dbListTables Id
-#' @importFrom RPostgres Postgres
-#' @importFrom RSQLite SQLite
+#' @importFrom purrr map map_chr
 #'
 #' @title A statistics platform for Git hosts
 #' @description An R6 class object with methods to derive information from multiple Git platforms.

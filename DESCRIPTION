@@ -13,7 +13,6 @@ RoxygenNote: 7.1.2
 Imports:
     cli,
     data.table,
-    DBI,
     dplyr,
     ggplot2,
     httr2,
@@ -23,12 +22,8 @@ Imports:
     progress,
     rlang,
     R6,
-    RPostgres,
-    RSQLite,
     purrr,
-    stringi,
-    stringr,
-    tibble
+    stringr
 Suggests: 
     covr,
     knitr,
