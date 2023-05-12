@@ -87,7 +87,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     #' @param org A GitHub organization.
     #' @param repo Name of a repository.
     #' @param since Git Time Stamp of starting date of commits.
-    #' @param until Git Time STamp of end date of commits.
+    #' @param until Git Time Stamp of end date of commits.
     #' @param commits_cursor An endCursor.
     #' @param author_id An Id of an author.
     #' @return A query.

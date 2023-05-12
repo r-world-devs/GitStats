@@ -4,7 +4,7 @@
 \alias{EngineRestGitLab}
 \title{A EngineRestGitLab class}
 \description{
-A class for methods wraping GitLab's REST API responses.
+A class for methods wrapping GitLab's REST API responses.
 }
 \section{Super class}{
 \code{\link[GitStats:EngineRest]{GitStats::EngineRest}} -> \code{EngineRestGitLab}

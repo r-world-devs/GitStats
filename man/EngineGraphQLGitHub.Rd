@@ -4,7 +4,7 @@
 \alias{EngineGraphQLGitHub}
 \title{A EngineGraphQLGitHub class}
 \description{
-A class for methods wraping GitHub's GraphQL API responses.
+A class for methods wrapping GitHub's GraphQL API responses.
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

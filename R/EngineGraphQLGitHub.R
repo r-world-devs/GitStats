@@ -2,7 +2,7 @@
 #' @importFrom progress progress_bar
 #'
 #' @title A EngineGraphQLGitHub class
-#' @description A class for methods wraping GitHub's GraphQL API responses.
+#' @description A class for methods wrapping GitHub's GraphQL API responses.
 EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
   public = list(
 

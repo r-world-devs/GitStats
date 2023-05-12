@@ -4,7 +4,7 @@
 \alias{EngineRest}
 \title{A EngineRest class}
 \description{
-A superclass for methods wraping Rest API responses.
+A superclass for methods wrapping Rest API responses.
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
