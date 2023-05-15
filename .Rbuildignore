@@ -1,2 +1,14 @@
+^renv$
+^renv\.lock$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.github$
+^LICENSE\.md$
+^README.Rmd
+^codecov\.yml$
+^\.covrignore$
+^devel$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^meta_data.yaml

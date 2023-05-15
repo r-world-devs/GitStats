@@ -1,17 +1,34 @@
 Package: GitStats
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Get Statistics from Git Hosting Services
+Version: 0.1.0
 Authors@R: 
-    person("Maciej", "Banas", , "banasmaciek@gmail.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    person("Maciej", "Banaś", , "banasmaciek@gmail.com", role = c("aut", "cre"))
+Description: Obtain statistics in a standardized way from multiple Git services: GitHub and GitLab for the time-being. 
+    Its main purpose is to help teams, whose activities are spread across multiple git platforms, get their repository 
+    metadata in a standardized way from all these platforms.
+License: MIT + file LICENSE
 Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+Roxygen: list(markdown = TRUE, r6 = TRUE)
+RoxygenNote: 7.1.2
 Imports:
-  data.table,
-  ghql
+    cli,
+    data.table,
+    dplyr,
+    ggplot2,
+    httr2,
+    lubridate,
+    magrittr,
+    plotly,
+    progress,
+    rlang,
+    R6,
+    purrr,
+    stringr
 Suggests: 
+    covr,
+    knitr,
+    mockery,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+VignetteBuilder: knitr

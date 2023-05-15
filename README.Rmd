@@ -6,78 +6,102 @@ output: github_document
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
+  message = FALSE,
   collapse = TRUE,
   comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
+  fig.path = "man/figures/README-"
 )
 ```
 
-# GitStats
-
-Please be reminded, that this work is still IN PROGRESS!
+# GitStats <img src="man/figures/GitStats_logo.png" align="right" height="138" style="float:right; height:138px;"/>
 
 <!-- badges: start -->
+[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![R-CMD-check](https://github.com/r-world-devs/GitStats/workflows/R-CMD-check/badge.svg)](https://github.com/r-world-devs/GitStats/actions)
+[![Codecov test coverage](https://codecov.io/gh/r-world-devs/GitStats/branch/devel/graph/badge.svg)](https://app.codecov.io/gh/r-world-devs/GitStats?branch=devel)
 <!-- badges: end -->
 
-The goal of GitStats is to search through multiple GitHub and GitLab platforms for statistics.
+The goal of GitStats is to search through multiple GitHub and GitLab platforms for different statistics either by owners/groups of repositories, team members or searched code phrases.
 
 For the time being GitStats supports connections to public GitHub, enterprise GitHub and GitLab.
 
 ## Installation
 
-You can install the development version of GitStats like so:
-
-``` r
+```r
 devtools::install_github("r-world-devs/GitStats")
 ```
 
-## How to start
+## Getting started
 
-Start with setting your git connections: choose GitHub Client or GitLab Client class.
-Choose your owners (GitHub) or group/groups (GitLab). 
-Provide API url and a token.
+You can start by creating your `GitStats` object, where you will hold information on your multiple connections.
 
+```{r}
+library(GitStats)
+library(magrittr)
 
-```r
-my_github <- GitHubClient$new(
-  owners = "r-world-devs",
-  rest_api_url = "api.github.com",
-  token = Sys.getenv("GITHUB_PAT")
-)
-
-my_gitlab <- GitLabClient$new(
-  groups = c("my_group", "my_second_group"),
-  rest_api_url = "your_api_url.com",
-  token = Sys.getenv("GITLAB_PAT)
-)
-
-```
-
-Wrap all your Clients into new GitStats object (you can have them more than two):
-
-```r
-MyGitStats <- GitStats$new(
-    my_github, my_gitlab
+git_stats <- create_gitstats() %>%
+  set_connection(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("r-world-devs", "openpharma", "pharmaverse")
+  ) %>%
+  set_connection(
+    api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    orgs = c("mbtests")
   )
-
 ```
 
-And start your exploration:
+## Setup
 
-```r
-MyGitStats$get_repos_by_owner()
+You can setup your search preferences, either to `org`, `team` or `phrase`. 
 
+### Team
+
+If you with to setup your search parameter to team, add your team members first:
+
+```{r}
+git_stats %>%
+  add_team_member("Adam Foryś", "galachad") %>%
+  add_team_member("Kamil Wais", "kalimu") %>%
+  add_team_member("Krystian Igras", "krystian8207") %>%
+  add_team_member("Karolina Marcinkowska", "marcinkowskak") %>%
+  add_team_member("Kamil Koziej", "Cotau") %>%
+  add_team_member("Maciej Banaś", "maciekbanas")
+
+setup(git_stats,
+  search_param = "team",
+  team_name = "RWD"
+)
+
+# now pull repos and commits by default by team
+get_repos(git_stats)
+
+get_commits(git_stats,
+  date_from = "2022-01-01",
+  date_until = "2023-03-31"
+)
 ```
 
-## Team
+### Keyword
 
-You can look for the repositories and other information, where engaged is your team.
-First you need to specify your team members (by git-platform logins), then do the search.
+With `GitStats` you can look for the repos with a certain phrase in code blobs.
 
-```r
-MyGitStats$set_team(team_name = "Avengers", "thor", "black_widow", "hulk", "spider-man", "iron-man")
+```{r}
+setup(git_stats,
+  search_param = "phrase",
+  phrase = "shiny"
+)
 
-MyGitStats$get_repos_by_team("Avengers")
-
+# now pull repos by default by phrase
+get_repos(git_stats)
 ```
+
+### Acknowledgement
+
+Special thanks to:
+
+- @Cotau - for reviewing permanently my pull requests and suggesting more efficient solutions,
+- @marcinkowskak - for substantial improvements on plots,
+- @kalimu, @galachad, @krystian8207 - for your guidelines at the very beginning of the project.
+
