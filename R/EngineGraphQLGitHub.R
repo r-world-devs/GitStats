@@ -68,6 +68,15 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       return(repos_table)
     },
 
+    #' @description An empty method to satisfy engine iterator.
+    #' @param org An organization.
+    #' @param settings A list of  `GitStats` settings.
+    #' @return Nothing.
+    get_repos_supportive = function(org,
+                                    settings) {
+      NULL
+    },
+
     #' @description Method to pull all commits from organization, optionally
     #'   filtered by team members.
     #' @param org An organization.

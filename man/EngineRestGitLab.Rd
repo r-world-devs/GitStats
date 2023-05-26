@@ -15,6 +15,7 @@ A class for methods wrapping GitLab's REST API responses.
 \item \href{#method-new}{\code{EngineRestGitLab$new()}}
 \item \href{#method-check_organizations}{\code{EngineRestGitLab$check_organizations()}}
 \item \href{#method-get_repos}{\code{EngineRestGitLab$get_repos()}}
+\item \href{#method-get_repos_supportive}{\code{EngineRestGitLab$get_repos_supportive()}}
 \item \href{#method-get_repos_contributors}{\code{EngineRestGitLab$get_repos_contributors()}}
 \item \href{#method-get_repos_issues}{\code{EngineRestGitLab$get_repos_issues()}}
 \item \href{#method-get_commits}{\code{EngineRestGitLab$get_commits()}}
@@ -88,6 +89,28 @@ a table format.
 }
 \subsection{Returns}{
 A table.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_repos_supportive"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos_supportive}{}}}
+\subsection{Method \code{get_repos_supportive()}}{
+An empty method to satisfy engine iterator.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitLab$get_repos_supportive(org, settings)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{org}}{An organization.}
+
+\item{\code{settings}}{A list of  \code{GitStats} settings.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Nothing.
 }
 }
 \if{html}{\out{<hr>}}

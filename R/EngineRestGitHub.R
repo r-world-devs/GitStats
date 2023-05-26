@@ -66,6 +66,26 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       return(repos_table)
     },
 
+    #' @description An supportive method to pull repos by org in case GraphQL
+    #'   Engine breaks.
+    #' @param org An organization.
+    #' @param settings A list of  `GitStats` settings.
+    #' @return A table of repositories.
+    get_repos_supportive = function(org,
+                                    settings) {
+      if (settings$search_param %in% c("org")) {
+        cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{org}] Pulling repositories...")
+        repos_table <- private$pull_repos_from_org(
+          org = org
+        ) %>%
+          private$tailor_repos_info() %>%
+          private$prepare_repos_table() %>%
+          self$get_repos_contributors() %>%
+          self$get_repos_issues()
+      }
+      return(repos_table)
+    },
+
     #' @description Method to get commits.
     #' @details This method is empty as this class does not support pulling
     #'   commits - it is done for GitHub via GraphQL. Still the method must
@@ -133,6 +153,29 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     }
   ),
   private = list(
+
+    # @description Iterator over pulling pages of repositories.
+    # @param org A character, an owner of repositories.
+    # @return A list of repositories from organization.
+    pull_repos_from_org = function(org) {
+      full_repos_list <- list()
+      page <- 1
+      repeat {
+        repo_endpoint <- paste0(self$rest_api_url, "/orgs/", org, "/repos?per_page=100&page=", page)
+        repos_page <- self$response(
+          endpoint = repo_endpoint
+        )
+        if (length(repos_page) > 0) {
+          full_repos_list <- append(full_repos_list, repos_page)
+          page <- page + 1
+        } else {
+          break
+        }
+      }
+      full_repos_list <- full_repos_list #%>%
+        #private$pull_repos_languages()
+      return(full_repos_list)
+    },
 
     # @description Search code by phrase
     # @param phrase A phrase to look for in

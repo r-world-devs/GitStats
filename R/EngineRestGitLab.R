@@ -86,6 +86,15 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(repos_table)
     },
 
+    #' @description An empty method to satisfy engine iterator.
+    #' @param org An organization.
+    #' @param settings A list of  `GitStats` settings.
+    #' @return Nothing.
+    get_repos_supportive = function(org,
+                                    settings) {
+      NULL
+    },
+
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
