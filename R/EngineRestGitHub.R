@@ -74,7 +74,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     get_repos_supportive = function(org,
                                     settings) {
       if (settings$search_param %in% c("org")) {
-        cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{org}] Pulling repositories...")
+        cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
         repos_table <- private$pull_repos_from_org(
           org = org
         ) %>%

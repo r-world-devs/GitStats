@@ -55,7 +55,7 @@ GitHost <- R6::R6Class("GitHost",
         },
         error = function(e) {
           if (grepl("502", e)) {
-            cli::cli_alert_info("HTTP 502 Bad Gateway Error. Switch to another Engine.")
+            cli::cli_alert_warning(cli::col_yellow("HTTP 502 Bad Gateway Error. Switch to another Engine."))
             repos_list <<- purrr::map(private$engines, function (engine) {
               engine$get_repos_supportive(
                 org = org,
