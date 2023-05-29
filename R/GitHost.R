@@ -62,6 +62,8 @@ GitHost <- R6::R6Class("GitHost",
                 settings = settings
               )
             })
+          } else {
+            e
           }
         })
         repos_table_org <- purrr::list_rbind(repos_list)
