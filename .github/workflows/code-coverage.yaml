@@ -14,14 +14,12 @@ on:
         type: boolean
   push:
     branches:
-      - main
-      - devel
-      - pre-release
+      - master
   pull_request:
     branches:
-      - main
+      - master
       - devel
-      - pre-release
+      - test
 
 name: Code Coverage
 

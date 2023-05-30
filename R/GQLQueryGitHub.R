@@ -87,7 +87,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     #' @param org A GitHub organization.
     #' @param repo Name of a repository.
     #' @param since Git Time Stamp of starting date of commits.
-    #' @param until Git Time STamp of end date of commits.
+    #' @param until Git Time Stamp of end date of commits.
     #' @param commits_cursor An endCursor.
     #' @param author_id An Id of an author.
     #' @return A query.
@@ -137,7 +137,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
         }")
     }
   ),
-
   private = list(
     # @description Helper over defining cursor agument for the query.
     # @param cursor A cursor.
@@ -154,7 +153,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     # @description Helper to prepare repository query.
     repository_field = function() {
       paste0(
-       'totalCount
+        'totalCount
         pageInfo {
           endCursor
           hasNextPage
@@ -165,8 +164,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
           stars: stargazerCount
           forks: forkCount
           created_at: createdAt
-          last_push: pushedAt
-          last_activity_at: updatedAt
+          last_activity_at: pushedAt
           languages (first: 5) { nodes {name} }
           issues_open: issues (first: 100 states: [OPEN]) {
             totalCount

@@ -58,3 +58,15 @@ plot_repos(git_stats)
 # examples for getting and plotting commits
 plot_commits(git_stats)
 
+
+# SHOWCASES
+
+# throws sometimes 502 Bad Gateway error (GraphQL one)
+# should switch to REST if that is the case
+
+create_gitstats() %>%
+  set_connection(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("insightsengineering")
+  ) %>% get_repos()

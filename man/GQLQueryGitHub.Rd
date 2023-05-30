@@ -105,7 +105,7 @@ Prepare query to get commits on GitHub.
 
 \item{\code{since}}{Git Time Stamp of starting date of commits.}
 
-\item{\code{until}}{Git Time STamp of end date of commits.}
+\item{\code{until}}{Git Time Stamp of end date of commits.}
 
 \item{\code{commits_cursor}}{An endCursor.}
 

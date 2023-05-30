@@ -79,7 +79,6 @@ test_rest <- EngineRest$new(
 )
 
 test_that("`response()` returns commits response from GitLab's REST API", {
-
   gl_search_response <- test_rest$response(
     "https://gitlab.com/api/v4/groups/2853599/search?scope=blobs&search=covid"
   )
@@ -101,5 +100,4 @@ test_that("`response()` returns commits response from GitLab's REST API", {
     gl_commits_rest_response_repo_2
   )
   test_mocker$cache(gl_commits_rest_response_repo_2)
-
 })

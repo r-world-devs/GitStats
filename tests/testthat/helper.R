@@ -1,8 +1,10 @@
 expect_tailored_commits_list <- function(object) {
   expect_list_contains_only(
     object,
-    c("id", "organization", "repository", "additions", "deletions",
-      "committed_date", "author")
+    c(
+      "id", "organization", "repository", "additions", "deletions",
+      "committed_date", "author"
+    )
   )
 }
 
@@ -31,7 +33,7 @@ expect_gh_repos <- function(object) {
   expect_list_contains(
     object$data$repositoryOwner$repositories$nodes[[1]],
     c(
-      "id", "name", "stars", "forks", "created_at", "last_push",
+      "id", "name", "stars", "forks", "created_at",
       "last_activity_at", "languages", "issues_open", "issues_closed",
       "contributors", "repo_url"
     )
@@ -50,7 +52,7 @@ expect_gh_user_repos <- function(object) {
   expect_list_contains(
     object$data$user$repositories$nodes[[1]],
     c(
-      "id", "name", "stars", "forks", "created_at", "last_push",
+      "id", "name", "stars", "forks", "created_at",
       "last_activity_at", "languages", "issues_open", "issues_closed",
       "contributors", "repo_url"
     )
@@ -64,9 +66,11 @@ expect_gl_commit <- function(object) {
   )
   expect_list_contains(
     object[[1]],
-    c("id", "short_id", "created_at", "parent_ids", "title", "message",
+    c(
+      "id", "short_id", "created_at", "parent_ids", "title", "message",
       "author_name", "author_email", "authored_date", "committer_name",
-      "committer_email")
+      "committer_email"
+    )
   )
 }
 
@@ -123,7 +127,7 @@ expect_list_contains_only <- function(object, elements) {
 
 expect_repos_table <- function(get_repos_object) {
   repo_cols <- c(
-    "id", "name", "stars", "forks", "created_at", "last_push",
+    "id", "name", "stars", "forks", "created_at",
     "last_activity_at", "languages", "issues_open", "issues_closed",
     "contributors", "organization", "repo_url", "api_url"
   )

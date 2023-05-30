@@ -1,5 +1,5 @@
 #' @title A EngineRestGitLab class
-#' @description A class for methods wraping GitLab's REST API responses.
+#' @description A class for methods wrapping GitLab's REST API responses.
 EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
   inherit = EngineRest,
   public = list(
@@ -86,6 +86,15 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(repos_table)
     },
 
+    #' @description An empty method to satisfy engine iterator.
+    #' @param org An organization.
+    #' @param settings A list of  `GitStats` settings.
+    #' @return Nothing.
+    get_repos_supportive = function(org,
+                                    settings) {
+      NULL
+    },
+
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
@@ -143,7 +152,6 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
                            date_from,
                            date_until = Sys.date(),
                            settings) {
-
       repos_table <- self$get_repos(
         org = org,
         settings = list(search_param = "org")
@@ -280,7 +288,6 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           "stars" = project$star_count,
           "forks" = project$fork_count,
           "created_at" = project$created_at,
-          "last_push" = NULL,
           "last_activity_at" = project$last_activity_at,
           "languages" = paste0(project$languages, collapse = ", "),
           "issues_open" = project$issues_open,
@@ -321,9 +328,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     # @return A list of repositories with commits.
     pull_commits_from_org = function(repos_table,
                                      date_from,
-                                     date_until
-                                     ) {
-
+                                     date_until) {
       repos_names <- repos_table$name
       projects_ids <- gsub("gid://gitlab/Project/", "", repos_table$id)
 

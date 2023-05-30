@@ -1,6 +1,6 @@
 Package: GitStats
 Title: Get Statistics from Git Hosting Services
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: 
     person("Maciej", "Banaś", , "banasmaciek@gmail.com", role = c("aut", "cre"))
 Description: Obtain statistics in a standardized way from multiple Git services: GitHub and GitLab for the time-being. 
@@ -13,7 +13,6 @@ RoxygenNote: 7.1.2
 Imports:
     cli,
     data.table,
-    DBI,
     dplyr,
     ggplot2,
     httr2,
@@ -23,12 +22,8 @@ Imports:
     progress,
     rlang,
     R6,
-    RPostgres,
-    RSQLite,
     purrr,
-    stringi,
-    stringr,
-    tibble
+    stringr
 Suggests: 
     covr,
     knitr,

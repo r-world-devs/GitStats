@@ -10,11 +10,11 @@ test_that("Set connection returns appropriate messages", {
     )
   )
   expect_snapshot(
-      test_gitstats %>% set_connection(
-        api_url = "https://gitlab.com/api/v4",
-        token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-        orgs = c("mbtests")
-      )
+    test_gitstats %>% set_connection(
+      api_url = "https://gitlab.com/api/v4",
+      token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+      orgs = c("mbtests")
+    )
   )
 })
 
@@ -80,7 +80,6 @@ test_that("`Org` name is not passed to the object if it does not exist", {
         orgs = c("openparma", "mbtests")
       )
   )
-
 })
 
 test_that("Error with message pops out, when you pass to your `GitLab` connection group name as you see it on the page (not from url)", {
@@ -95,7 +94,7 @@ test_that("Error with message pops out, when you pass to your `GitLab` connectio
       )
   )
 
-    expect_snapshot(
+  expect_snapshot(
     test_gitstats <- create_gitstats() %>%
       set_connection(
         api_url = "https://gitlab.com/api/v4",
@@ -103,5 +102,4 @@ test_that("Error with message pops out, when you pass to your `GitLab` connectio
         orgs = c("mbtests", "MB Tests")
       )
   )
-
 })

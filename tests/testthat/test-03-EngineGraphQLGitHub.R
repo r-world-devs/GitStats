@@ -88,7 +88,7 @@ test_that("`pull_repos_from_org()` prepares formatted list", {
   expect_list_contains(
     gh_repos_from_org[[1]],
     c(
-      "id", "name", "stars", "forks", "created_at", "last_push",
+      "id", "name", "stars", "forks", "created_at",
       "last_activity_at", "languages", "issues_open", "issues_closed",
       "contributors", "repo_url"
     )
@@ -125,7 +125,7 @@ test_that("`pull_repos()` from user prepares formatted list", {
   expect_list_contains(
     gh_repos_from_user[[1]],
     c(
-      "id", "name", "stars", "forks", "created_at", "last_push",
+      "id", "name", "stars", "forks", "created_at",
       "last_activity_at", "languages", "issues_open", "issues_closed",
       "contributors", "repo_url"
     )
@@ -144,7 +144,7 @@ test_that("`pull_repos_from_team()` works smoothly", {
   expect_list_contains(
     gh_repos_from_team[[1]],
     c(
-      "id", "name", "stars", "forks", "created_at", "last_push",
+      "id", "name", "stars", "forks", "created_at",
       "last_activity_at", "languages", "issues_open", "issues_closed",
       "contributors", "repo_url"
     )
@@ -231,7 +231,6 @@ test_gql_gh <- EngineGraphQLGitHub$new(
 )
 
 test_that("`get_repos()` works as expected", {
-
   mockery::stub(
     test_gql_gh$get_repos,
     "private$pull_repos",
@@ -253,8 +252,10 @@ test_that("`get_repos()` works as expected", {
     "private$pull_repos_from_team",
     test_mocker$use("gh_repos_from_team")
   )
-  settings <- list(search_param = "team",
-                   team = test_team)
+  settings <- list(
+    search_param = "team",
+    team = test_team
+  )
   expect_snapshot(
     gh_repos_team <- test_gql_gh$get_repos(
       org = "r-world-devs",
@@ -264,7 +265,6 @@ test_that("`get_repos()` works as expected", {
   expect_repos_table(
     gh_repos_team
   )
-
 })
 
 test_that("`get_commits()` retrieves commits in the table format", {

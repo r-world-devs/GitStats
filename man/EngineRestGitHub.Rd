@@ -4,7 +4,7 @@
 \alias{EngineRestGitHub}
 \title{A EngineRestGitHub class}
 \description{
-A class for methods wraping GitHub's REST API responses.
+A class for methods wrapping GitHub's REST API responses.
 }
 \section{Super class}{
 \code{\link[GitStats:EngineRest]{GitStats::EngineRest}} -> \code{EngineRestGitHub}
@@ -15,6 +15,7 @@ A class for methods wraping GitHub's REST API responses.
 \item \href{#method-new}{\code{EngineRestGitHub$new()}}
 \item \href{#method-check_organizations}{\code{EngineRestGitHub$check_organizations()}}
 \item \href{#method-get_repos}{\code{EngineRestGitHub$get_repos()}}
+\item \href{#method-get_repos_supportive}{\code{EngineRestGitHub$get_repos_supportive()}}
 \item \href{#method-get_commits}{\code{EngineRestGitHub$get_commits()}}
 \item \href{#method-get_repos_contributors}{\code{EngineRestGitHub$get_repos_contributors()}}
 \item \href{#method-get_repos_issues}{\code{EngineRestGitHub$get_repos_issues()}}
@@ -87,6 +88,29 @@ Method to get repositories with phrase in code blobs.
 }
 \subsection{Returns}{
 Table of repositories.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_repos_supportive"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos_supportive}{}}}
+\subsection{Method \code{get_repos_supportive()}}{
+An supportive method to pull repos by org in case GraphQL
+Engine breaks.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$get_repos_supportive(org, settings)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{org}}{An organization.}
+
+\item{\code{settings}}{A list of  \code{GitStats} settings.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A table of repositories.
 }
 }
 \if{html}{\out{<hr>}}

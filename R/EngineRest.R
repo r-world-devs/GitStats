@@ -3,7 +3,7 @@
 #' @importFrom rlang %||%
 #'
 #' @title A EngineRest class
-#' @description A superclass for methods wraping Rest API responses.
+#' @description A superclass for methods wrapping Rest API responses.
 EngineRest <- R6::R6Class("EngineRest",
   public = list(
 
@@ -35,7 +35,6 @@ EngineRest <- R6::R6Class("EngineRest",
 
       return(result)
     }
-
   ),
   private = list(
 
