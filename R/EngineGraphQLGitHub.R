@@ -4,33 +4,17 @@
 #' @title A EngineGraphQLGitHub class
 #' @description A class for methods wrapping GitHub's GraphQL API responses.
 EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
-  public = list(
-
-    #' @field gql_api_url A character, url of GraphQL API.
-    gql_api_url = NULL,
-
-    #' @field gql_query An environment for GraphQL queries.
-    gql_query = NULL,
+    inherit = EngineGraphQL,
+    public = list(
 
     #' @description Create `EngineGraphQLGitHub` object.
     #' @param gql_api_url GraphQL API url.
     #' @param token A token.
     initialize = function(gql_api_url,
                           token) {
-      private$token <- token
-      self$gql_api_url <- gql_api_url
+      super$initialize(gql_api_url = gql_api_url,
+                       token = token)
       self$gql_query <- GQLQueryGitHub$new()
-    },
-
-    #' @description Wrapper of GraphQL API request and response.
-    #' @param gql_query A string with GraphQL query.
-    #' @return A list.
-    gql_response = function(gql_query) {
-      httr2::request(paste0(self$gql_api_url, "?")) %>%
-        httr2::req_headers("Authorization" = paste0("Bearer ", private$token)) %>%
-        httr2::req_body_json(list(query = gql_query, variables = "null")) %>%
-        httr2::req_perform() %>%
-        httr2::resp_body_json()
     },
 
     #' @description A method to retrieve all repositories for an organization in
@@ -124,8 +108,6 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     }
   ),
   private = list(
-    # @field token A token authorizing access to API.
-    token = NULL,
 
     # @description Iterator over pulling pages of repositories.
     # @param from A character specifying if organization or user.
