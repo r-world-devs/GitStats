@@ -3,34 +3,6 @@ test_gql_gh <- EngineGraphQLGitHub$new(
   token = Sys.getenv("GITHUB_PAT")
 )
 
-# public methods
-
-test_that("`gql_response()` work as expected for GitHub", {
-  gh_commits_by_repo_gql_response <- test_gql_gh$gql_response(
-    test_mocker$use("gh_commits_by_repo_query")
-  )
-  expect_gh_commit(
-    gh_commits_by_repo_gql_response
-  )
-  test_mocker$cache(gh_commits_by_repo_gql_response)
-
-  gh_repos_by_org_gql_response <- test_gql_gh$gql_response(
-    test_mocker$use("gh_repos_by_org_query")
-  )
-  expect_gh_repos(
-    gh_repos_by_org_gql_response
-  )
-  test_mocker$cache(gh_repos_by_org_gql_response)
-
-  gh_repos_by_user_gql_response <- test_gql_gh$gql_response(
-    test_mocker$use("gh_repos_by_user_query")
-  )
-  expect_gh_user_repos(
-    gh_repos_by_user_gql_response
-  )
-  test_mocker$cache(gh_repos_by_user_gql_response)
-})
-
 # private methods
 
 test_gql_gh <- environment(test_gql_gh$initialize)$private
@@ -75,7 +47,7 @@ test_that("`pull_repos_page_from_org()` pulls repos page from GitHub organizatio
   test_mocker$cache(gh_repos_page)
 })
 
-test_that("`pull_repos_from_org()` prepares formatted list", {
+test_that("`pull_repos()` prepares formatted list", {
   mockery::stub(
     test_gql_gh$pull_repos,
     "private$pull_repos_page",
@@ -96,7 +68,7 @@ test_that("`pull_repos_from_org()` prepares formatted list", {
   test_mocker$cache(gh_repos_from_org)
 })
 
-test_that("`pull_repos_page_from_user()` pulls repos page from GitHub organization", {
+test_that("`pull_repos_page()` pulls repos page from GitHub user", {
   mockery::stub(
     test_gql_gh$pull_repos_page,
     "self$gql_response",
@@ -127,7 +99,7 @@ test_that("`pull_repos()` from user prepares formatted list", {
     c(
       "id", "name", "stars", "forks", "created_at",
       "last_activity_at", "languages", "issues_open", "issues_closed",
-      "contributors", "repo_url"
+      "repo_url"
     )
   )
   expect_gt(

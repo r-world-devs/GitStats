@@ -8,7 +8,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     #' @param org An organization of repositories.
     #' @param repo_cursor An end cursor for repositories page.
     #' @return A query.
-    repos_by_org = function(org, repo_cursor = "") {
+    repos_by_org = function(repo_cursor = "") {
       if (nchar(repo_cursor) == 0) {
         after_cursor <- repo_cursor
       } else {
@@ -16,8 +16,8 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       }
 
       paste0('
-        query {
-          repositoryOwner(login: "', org, '") {
+        query GetReposByOrg($org: String!) {
+          repositoryOwner(login: $org) {
             ... on Organization {
               repositories(first: 100 ', after_cursor, ') {
               ', private$repository_field(),'
@@ -39,8 +39,8 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       }
 
       paste0('
-        query {
-          user(login: "', user, '") {
+        query GetReposByUser($user: String!) {
+          user(login: $user) {
             repositories(
               first: 100
               ownerAffiliations: COLLABORATOR
@@ -171,25 +171,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
           }
           issues_closed: issues (first: 100 states: [CLOSED]) {
             totalCount
-          }
-          contributors: defaultBranchRef {
-            target {
-              ... on Commit {
-                id
-                history(since: "2000-01-01T00:00:00Z") {
-                  edges {
-                    node {
-                      committer {
-                        user {
-                          login
-                          id
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
           }
           organization: owner {
             login

@@ -5,17 +5,16 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
   public = list(
 
     #' @description Prepare query to get repositories from GitLab.
-    #' @param org An group of projects.
     #' @param repo_cursor An end cursor for repositories page.
     #' @return A query.
-    repos_by_org = function(org, repo_cursor = "") {
+    repos_by_org = function(repo_cursor = "") {
       if (nchar(repo_cursor) == 0) {
         after_cursor <- repo_cursor
       } else {
         after_cursor <- paste0('after: "', repo_cursor, '" ')
       }
-      paste0('{
-        group(fullPath: "', org, '") {
+      paste0('query GetReposByOrg($org: ID!) {
+        group(fullPath: $org) {
           projects(first: 100 ', after_cursor, ') {
             count
             pageInfo {
@@ -26,18 +25,22 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
               node {
                 id
                 name
-                createdAt
-                starCount
-                forksCount
-                lastActivityAt
+                stars: starCount
+                forks: forksCount
+                created_at: createdAt
+                last_activity_at: lastActivityAt
                 languages {
                   name
                 }
-                issueStatusCounts {
+                issues: issueStatusCounts {
                   all
                   closed
                   opened
                 }
+                group {
+                  name
+                }
+                repo_url: webUrl
               }
             }
           }

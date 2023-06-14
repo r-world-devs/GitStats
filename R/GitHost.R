@@ -32,6 +32,10 @@ GitHost <- R6::R6Class("GitHost",
           token = token,
           rest_api_url = api_url
         )
+        private$engines$graphql <- EngineGraphQLGitLab$new(
+          token = token,
+          gql_api_url = private$set_gql_url(api_url)
+        )
         cli::cli_alert_success("Set connection to GitLab.")
       } else {
         stop("This connection is not supported by GitStats class object.")

@@ -61,27 +61,19 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         ) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
-          self$get_repos_contributors() %>%
           self$get_repos_issues()
-      }
-      if (settings$search_param %in% c("org", "team")) {
-        if (settings$search_param == "org") {
-          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
-        } else {
-          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}][team:{settings$team_name}] Pulling repositories...")
-        }
+      } else if (settings$search_param == "team") {
+        cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}][team:{settings$team_name}] Pulling repositories...")
         org <- private$get_group_id(org)
         repos_table <- private$pull_repos_from_org(org) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
+          self$get_repos_issues() %>%
           self$get_repos_contributors() %>%
-          self$get_repos_issues()
-        if (settings$search_param == "team") {
-          repos_table <- private$filter_repos_by_team(
-            repos_table = repos_table,
-            team = settings$team
-          )
-        }
+          private$filter_repos_by_team(team = settings$team)
+        repos_table$contributors <- NULL
+      } else {
+        repos_table <- NULL
       }
       return(repos_table)
     },
@@ -92,7 +84,15 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @return Nothing.
     get_repos_supportive = function(org,
                                     settings) {
-      NULL
+      if (settings$search_param == "org") {
+        cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
+        org <- private$get_group_id(org)
+        repos_table <- private$pull_repos_from_org(org) %>%
+          private$tailor_repos_info() %>%
+          private$prepare_repos_table() %>%
+          self$get_repos_issues()
+      }
+      return(repos_table)
     },
 
     #' @description A method to add information on repository contributors.
@@ -152,7 +152,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
                            date_from,
                            date_until = Sys.date(),
                            settings) {
-      repos_table <- self$get_repos(
+      repos_table <- self$get_repos_supportive(
         org = org,
         settings = list(search_param = "org")
       )
@@ -292,7 +292,6 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           "languages" = paste0(project$languages, collapse = ", "),
           "issues_open" = project$issues_open,
           "issues_closed" = project$issues_closed,
-          "contributors" = NULL,
           "organization" = project$namespace$path,
           "repo_url" = paste0(self$rest_api_url, "/projects/", project$id)
         )

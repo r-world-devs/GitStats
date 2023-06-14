@@ -58,7 +58,6 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         ) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
-          self$get_repos_contributors() %>%
           self$get_repos_issues()
       } else {
         repos_table <- NULL
@@ -80,7 +79,6 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         ) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
-          self$get_repos_contributors() %>%
           self$get_repos_issues()
       }
       return(repos_table)
@@ -289,20 +287,19 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     # @param repos_list A list, a formatted content of response returned by GET API request
     # @return A list of repos with selected information
     tailor_repos_info = function(repos_list) {
-      repos_list <- purrr::map(repos_list, function(x) {
+      repos_list <- purrr::map(repos_list, function(repo) {
         list(
-          "id" = x$id,
-          "name" = x$name,
-          "stars" = x$stargazers_count,
-          "forks" = x$forks_count,
-          "created_at" = x$created_at,
-          "last_activity_at" = x$pushed_at,
-          "languages" = x$language,
-          "issues_open" = x$issues_open,
-          "issues_closed" = x$issues_closed,
-          "contributors" = paste0(x$contributors, collapse = ","),
-          "organization" = x$owner$login,
-          "repo_url" = x$url
+          "id" = repo$id,
+          "name" = repo$name,
+          "stars" = repo$stargazers_count,
+          "forks" = repo$forks_count,
+          "created_at" = repo$created_at,
+          "last_activity_at" = repo$pushed_at,
+          "languages" = repo$language,
+          "issues_open" = repo$issues_open,
+          "issues_closed" = repo$issues_closed,
+          "organization" = repo$owner$login,
+          "repo_url" = repo$url
         )
       })
 

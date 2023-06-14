@@ -1,4 +1,4 @@
-#' @importFrom dplyr distinct mutate relocate filter
+#' @importFrom dplyr distinct mutate filter
 #' @importFrom progress progress_bar
 #'
 #' @title A EngineGraphQLGitHub class
@@ -175,20 +175,23 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
                                org = NULL,
                                user = NULL,
                                repo_cursor = "") {
-      repos_query <- if (from == "org") {
-        self$gql_query$repos_by_org(
-          org = org,
+      if (from == "org") {
+        repos_query <- self$gql_query$repos_by_org(
           repo_cursor = repo_cursor
+        )
+        response <- self$gql_response(
+          gql_query = repos_query,
+          vars = list("org" = org)
         )
       } else if (from == "user") {
-        self$gql_query$repos_by_user(
-          user = user,
+        repos_query <- self$gql_query$repos_by_user(
           repo_cursor = repo_cursor
         )
+        response <- self$gql_response(
+          gql_query = repos_query,
+          vars = list("user" = user)
+        )
       }
-      response <- self$gql_response(
-        gql_query = repos_query
-      )
       return(response)
     },
 
@@ -198,19 +201,6 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     prepare_repos_table = function(repos_list) {
       repos_table <- purrr::map_dfr(repos_list, function(repo) {
         repo$languages <- purrr::map_chr(repo$languages$nodes, ~ .$name) %>%
-          paste0(collapse = ", ")
-        repo$contributors <- purrr::map_chr(
-          repo$contributors$target$history$edges,
-          ~ {
-            if (!is.null(.$node$committer$user)) {
-              .$node$committer$user$login
-            } else {
-              ""
-            }
-          }
-        ) %>%
-          purrr::discard(~ . == "") %>%
-          unique() %>%
           paste0(collapse = ", ")
         repo$created_at <- gts_to_posixt(repo$created_at)
         repo$issues_open <- repo$issues_open$totalCount

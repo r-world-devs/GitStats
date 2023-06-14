@@ -23,11 +23,12 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
 
      #' @description Wrapper of GraphQL API request and response.
      #' @param gql_query A string with GraphQL query.
+     #' @param vars A list of named variables.
      #' @return A list.
-     gql_response = function(gql_query) {
+     gql_response = function(gql_query, vars = "null") {
        httr2::request(paste0(self$gql_api_url, "?")) %>%
          httr2::req_headers("Authorization" = paste0("Bearer ", private$token)) %>%
-         httr2::req_body_json(list(query = gql_query, variables = "null")) %>%
+         httr2::req_body_json(list(query = gql_query, variables = vars)) %>%
          httr2::req_perform() %>%
          httr2::resp_body_json()
      }
