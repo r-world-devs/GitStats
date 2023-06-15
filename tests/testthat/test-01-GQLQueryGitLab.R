@@ -8,3 +8,12 @@ test_that("repos queries are built properly", {
   )
   test_mocker$cache(gl_repos_by_org_query)
 })
+
+test_that("user query is built properly", {
+  gl_user_query <-
+    test_gqlquery_gl$user()
+  expect_snapshot(
+    gl_user_query
+  )
+  test_mocker$cache(gl_user_query)
+})

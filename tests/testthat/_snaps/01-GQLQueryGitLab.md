@@ -5,3 +5,10 @@
     Output
       [1] "query GetReposByOrg($org: ID!) {\n        group(fullPath: $org) {\n          projects(first: 100 ) {\n            count\n            pageInfo {\n              hasNextPage\n              endCursor\n            }\n            edges {\n              node {\n                id\n                name\n                stars: starCount\n                forks: forksCount\n                created_at: createdAt\n                last_activity_at: lastActivityAt\n                languages {\n                  name\n                }\n                issues: issueStatusCounts {\n                  all\n                  closed\n                  opened\n                }\n                group {\n                  name\n                }\n                repo_url: webUrl\n              }\n            }\n          }\n        }\n      }"
 
+# user query is built properly
+
+    Code
+      gl_user_query
+    Output
+      [1] "\n        query GetUser($user: String!) {\n          user(username: $user) {\n            id\n            name\n            email: publicEmail\n            location\n            pull_requests: authoredMergeRequests {\n              count\n            }\n            reviews: reviewRequestedMergeRequests {\n              count\n            }\n            avatar_url: avatarUrl\n            web_url: webUrl\n          }\n        }\n      "
+

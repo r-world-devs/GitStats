@@ -31,3 +31,12 @@ test_that("repos_by_user query is built properly", {
   )
   test_mocker$cache(gh_repos_by_user_query)
 })
+
+test_that("user query is built properly", {
+  gh_user_query <-
+    test_gqlquery_gh$user()
+  expect_snapshot(
+    gh_user_query
+  )
+  test_mocker$cache(gh_user_query)
+})
