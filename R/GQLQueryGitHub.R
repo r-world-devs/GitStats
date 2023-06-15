@@ -62,6 +62,9 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
             name
             email
             location
+            starred_repos: starredRepositories {
+              totalCount
+            }
             contributions: contributionsCollection {
               totalIssueContributions
               totalCommitContributions

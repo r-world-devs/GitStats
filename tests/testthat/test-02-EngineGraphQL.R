@@ -31,6 +31,29 @@ test_that("`gql_response()` work as expected for GitHub", {
     gh_repos_by_user_gql_response
   )
   test_mocker$cache(gh_repos_by_user_gql_response)
+
+  gh_user_gql_response <- test_gql$gql_response(
+    test_mocker$use("gh_user_query"),
+    vars = list(user = "maciekbanas")
+  )
+  expect_user_gql_response(
+    gh_user_gql_response
+  )
+  test_mocker$cache(gh_user_gql_response)
+})
+
+# private methods
+test_gql_priv <- environment(test_gql$initialize)$private
+
+test_that("pull_user pulls GitHub user response", {
+  mockery::stub(
+    test_gql_priv$pull_user,
+    "self$gql_response",
+    test_mocker$use("gh_user_gql_response")
+  )
+  expect_user_gql_response(
+    test_gql_priv$pull_user(username = "maciekbanas")
+  )
 })
 
 test_gql <- EngineGraphQL$new(
@@ -49,4 +72,27 @@ test_that("`gql_response()` work as expected for GitLab", {
     gl_repos_by_org_gql_response
   )
   test_mocker$cache(gl_repos_by_org_gql_response)
+
+  gl_user_gql_response <- test_gql$gql_response(
+    test_mocker$use("gl_user_query"),
+    vars = list(user = "maciekbanas")
+  )
+  expect_user_gql_response(
+    gl_user_gql_response
+  )
+  test_mocker$cache(gl_user_gql_response)
+})
+
+# private methods
+test_gql_priv <- environment(test_gql$initialize)$private
+
+test_that("pull_user pulls GitHub user response", {
+  mockery::stub(
+    test_gql_priv$pull_user,
+    "self$gql_response",
+    test_mocker$use("gl_user_gql_response")
+  )
+  expect_user_gql_response(
+    test_gql_priv$pull_user(username = "maciekbanas")
+  )
 })

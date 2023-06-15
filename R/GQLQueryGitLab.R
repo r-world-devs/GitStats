@@ -58,6 +58,9 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
             name
             email: publicEmail
             location
+            starred_repos: starredProjects {
+              count
+            }
             pull_requests: authoredMergeRequests {
               count
             }

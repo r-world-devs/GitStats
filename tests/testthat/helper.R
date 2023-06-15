@@ -102,6 +102,21 @@ expect_gh_commit <- function(object) {
   )
 }
 
+expect_user_gql_response <- function(object) {
+  expect_list_contains(
+    object,
+    "data"
+  )
+  expect_list_contains(
+    object$data,
+    "user"
+  )
+  expect_list_contains(
+    object$data$user,
+    c("id", "name", "email", "location", "starred_repos", "avatar_url", "web_url")
+  )
+}
+
 expect_gl_search_response <- function(object) {
   expect_list_contains(
     object,
