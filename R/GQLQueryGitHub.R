@@ -28,10 +28,9 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     },
 
     #' @description Prepare query to get repositories from GitHub.
-    #' @param user A GitHub user.
     #' @param repo_cursor An end cursor for repositories page.
     #' @return A query.
-    repos_by_user = function(user, repo_cursor = "") {
+    repos_by_user = function(repo_cursor = "") {
       if (nchar(repo_cursor) == 0) {
         after_cursor <- repo_cursor
       } else {
