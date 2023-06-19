@@ -195,6 +195,16 @@ test_that("`prepare_commits_table()` prepares commits table", {
   test_mocker$cache(commits_table)
 })
 
+test_that("GitHub prepares user table", {
+  gh_user_table <- test_gql_gh$prepare_user_table(
+    user_response = test_mocker$use("gh_user_response")
+  )
+  expect_user_table(
+    gh_user_table
+  )
+  test_mocker$cache(gh_user_table)
+})
+
 # public methods
 
 test_gql_gh <- EngineGraphQLGitHub$new(

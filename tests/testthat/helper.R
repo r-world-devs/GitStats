@@ -153,6 +153,16 @@ expect_list_contains_only <- function(object, elements) {
   invisible(act$val)
 }
 
+expect_user_table <- function(get_user_object) {
+  user_cols <- c(
+    "id", "name", "email", "location", "starred_repos",
+    "commits", "issues", "pull_requests", "reviews",
+    "avatar_url", "web_url"
+  )
+  expect_named(get_user_object, user_cols)
+  expect_equal(nrow(get_user_object), 1)
+}
+
 expect_repos_table <- function(get_repos_object) {
   repo_cols <- c(
     "id", "name", "stars", "forks", "created_at",

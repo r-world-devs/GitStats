@@ -38,9 +38,9 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
      # @field token A token authorizing access to API.
      token = NULL,
 
-     #' @description A method to pull information on user.
-     #' @param username A login.
-     #' @return A user response.
+     # @description A method to pull information on user.
+     # @param username A login.
+     # @return A user response.
      pull_user = function(username) {
        response <- self$gql_response(
          gql_query = self$gql_query$user(),

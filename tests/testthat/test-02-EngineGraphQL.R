@@ -1,3 +1,5 @@
+### GitHub
+
 test_gql <- EngineGraphQL$new(
   gql_api_url = "https://api.github.com/graphql",
   token = Sys.getenv("GITHUB_PAT")
@@ -51,10 +53,14 @@ test_that("pull_user pulls GitHub user response", {
     "self$gql_response",
     test_mocker$use("gh_user_gql_response")
   )
+  gh_user_response <- test_gql_priv$pull_user(username = "maciekbanas")
   expect_user_gql_response(
-    test_gql_priv$pull_user(username = "maciekbanas")
+    gh_user_response
   )
+  test_mocker$cache(gh_user_response)
 })
+
+### GitLab
 
 test_gql <- EngineGraphQL$new(
   gql_api_url = "https://gitlab.com/api/graphql",
@@ -86,13 +92,15 @@ test_that("`gql_response()` work as expected for GitLab", {
 # private methods
 test_gql_priv <- environment(test_gql$initialize)$private
 
-test_that("pull_user pulls GitHub user response", {
+test_that("pull_user pulls GitLab user response", {
   mockery::stub(
     test_gql_priv$pull_user,
     "self$gql_response",
     test_mocker$use("gl_user_gql_response")
   )
+  gl_user_response <- test_gql_priv$pull_user(username = "maciekbanas")
   expect_user_gql_response(
-    test_gql_priv$pull_user(username = "maciekbanas")
+    gl_user_response
   )
+  test_mocker$cache(gl_user_response)
 })
