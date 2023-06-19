@@ -160,6 +160,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      # @return A table with information on user.
      prepare_user_table = function(user_response) {
        user_data <- user_response$data$user
+       user_data$name <- user_data$name %||% ""
        user_data$starred_repos <- user_data$starred_repos$count
        user_data$pull_requests <- user_data$pull_requests$count
        user_data$reviews <- user_data$reviews$count

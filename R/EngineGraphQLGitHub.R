@@ -384,6 +384,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     # @return A table with information on user.
     prepare_user_table = function(user_response) {
       user_data <- user_response$data$user
+      user_data$name <- user_data$name %||% ""
       user_data$starred_repos <- user_data$starred_repos$totalCount
       user_data$commits <- user_data$contributions$totalCommitContributions
       user_data$issues <- user_data$contributions$totalIssueContributions

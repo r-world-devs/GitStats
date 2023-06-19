@@ -31,6 +31,17 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
          httr2::req_body_json(list(query = gql_query, variables = vars)) %>%
          httr2::req_perform() %>%
          httr2::resp_body_json()
+     },
+
+     #' @description Get information on users in the form of table
+     #' @param users A character vector of users
+     #' @return A table
+     get_users = function(users) {
+       purrr::map(users, function(user) {
+         private$pull_user(username = user) %>%
+           private$prepare_user_table()
+       }) %>%
+         purrr::list_rbind()
      }
 
    ),
