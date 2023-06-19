@@ -10,6 +10,7 @@ A class with methods to build GraphQL Queries for GitLab.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-repos_by_org}{\code{GQLQueryGitLab$repos_by_org()}}
+\item \href{#method-user}{\code{GQLQueryGitLab$user()}}
 \item \href{#method-clone}{\code{GQLQueryGitLab$clone()}}
 }
 }
@@ -29,6 +30,19 @@ Prepare query to get repositories from GitLab.
 }
 \if{html}{\out{</div>}}
 }
+\subsection{Returns}{
+A query.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-user"></a>}}
+\if{latex}{\out{\hypertarget{method-user}{}}}
+\subsection{Method \code{user()}}{
+Prepare query to get info on a GitLab user.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GQLQueryGitLab$user()}\if{html}{\out{</div>}}
+}
+
 \subsection{Returns}{
 A query.
 }
