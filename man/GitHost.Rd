@@ -14,6 +14,7 @@ A GitHost superclass
 \item \href{#method-new}{\code{GitHost$new()}}
 \item \href{#method-get_repos}{\code{GitHost$get_repos()}}
 \item \href{#method-get_commits}{\code{GitHost$get_commits()}}
+\item \href{#method-get_users}{\code{GitHost$get_users()}}
 \item \href{#method-clone}{\code{GitHost$clone()}}
 }
 }
@@ -85,6 +86,26 @@ A method to get information on commits.
 }
 \subsection{Returns}{
 A data.frame of commits
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_users"></a>}}
+\if{latex}{\out{\hypertarget{method-get_users}{}}}
+\subsection{Method \code{get_users()}}{
+Get information about users
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitHost$get_users(users)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{users}}{A character vector of users}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Table of users
 }
 }
 \if{html}{\out{<hr>}}

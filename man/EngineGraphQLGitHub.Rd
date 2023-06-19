@@ -22,6 +22,7 @@ A class for methods wrapping GitHub's GraphQL API responses.
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
+\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="EngineGraphQL" data-id="get_users">}\href{../../GitStats/html/EngineGraphQL.html#method-get_users}{\code{GitStats::EngineGraphQL$get_users()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="EngineGraphQL" data-id="gql_response">}\href{../../GitStats/html/EngineGraphQL.html#method-gql_response}{\code{GitStats::EngineGraphQL$gql_response()}}\out{</span>}
 }
 \out{</details>}

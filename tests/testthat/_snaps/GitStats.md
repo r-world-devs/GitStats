@@ -43,3 +43,7 @@
       Repositories output: <not defined>
       Commits output: <not defined>
 
+# check_for_host works
+
+    Add first your hosts with `set_connection()`.
+

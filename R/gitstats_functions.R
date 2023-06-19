@@ -171,3 +171,32 @@ get_commits <- function(gitstats_obj,
 
   return(invisible(gitstats_obj))
 }
+
+#' @title Get users statistics.
+#' @name get_users
+#' @description Get information on users.
+#' @param users A character vector of users.
+#' @examples
+#' \dontrun{
+#'  my_gitstats <- create_gitstats() %>%
+#'   set_connection(
+#'     api_url = "https://api.github.com",
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs")
+#'   ) %>%
+#'   set_connection(
+#'     api_url = "https://gitlab.com/api/v4",
+#'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+#'     orgs = "mbtests"
+#'   ) %>%
+#'   get_users(c("maciekabanas", "marcinkowskak"))
+#' }
+#' @return A table of users.
+#' @export
+get_users <- function(gitstats_obj,
+                      users){
+  gitstats_obj$get_users(
+    users = users
+  )
+  return(invisible(gitstats_obj))
+}

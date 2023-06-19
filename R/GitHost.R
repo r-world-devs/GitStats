@@ -114,6 +114,21 @@ GitHost <- R6::R6Class("GitHost",
         purrr::list_rbind()
 
       return(commits_table)
+    },
+
+    #' @description Get information about users
+    #' @param users A character vector of users
+    #' @return Table of users
+    get_users = function(users) {
+      users_table <- purrr::map(private$engines, function(engine) {
+        if (inherits(engine, "EngineGraphQL")) {
+          engine$get_users(users)
+        } else {
+          NULL
+        }
+      }) %>%
+        purrr::list_rbind()
+      return(users_table)
     }
   ),
   private = list(

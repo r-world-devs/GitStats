@@ -1,3 +1,20 @@
+# public methods
+
+test_host <- create_testhost(
+  api_url = "https://api.github.com",
+  token = Sys.getenv("GITHUB_PAT"),
+  orgs = c("openpharma", "r-world-devs")
+)
+
+test_that("GitHost gets users tables", {
+  users_table <- test_host$get_users(
+    users = c("maciekbanas", "kalimu", "galachad")
+  )
+  expect_users_table(users_table)
+})
+
+# private methods
+
 test_host <- create_testhost(
   api_url = "https://api.github.com",
   token = Sys.getenv("GITHUB_PAT"),

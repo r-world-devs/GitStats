@@ -383,20 +383,24 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     # @param user_response A list.
     # @return A table with information on user.
     prepare_user_table = function(user_response) {
-      user_data <- user_response$data$user
-      user_data$name <- user_data$name %||% ""
-      user_data$starred_repos <- user_data$starred_repos$totalCount
-      user_data$commits <- user_data$contributions$totalCommitContributions
-      user_data$issues <- user_data$contributions$totalIssueContributions
-      user_data$pull_requests <- user_data$contributions$totalPullRequestContributions
-      user_data$reviews <- user_data$contributions$totalPullRequestReviewContributions
-      user_data$contributions <- NULL
-      user_data$email <- user_data$email %||% ""
-      user_data$location <- user_data$location %||% ""
-      user_data$web_url <- user_data$web_url %||% ""
-      user_table <- tibble::as_tibble(user_data) %>%
-        dplyr::relocate(c(commits, issues, pull_requests, reviews),
-                        .after = starred_repos)
+      if (!is.null(user_response$data$user)) {
+        user_data <- user_response$data$user
+        user_data$name <- user_data$name %||% ""
+        user_data$starred_repos <- user_data$starred_repos$totalCount
+        user_data$commits <- user_data$contributions$totalCommitContributions
+        user_data$issues <- user_data$contributions$totalIssueContributions
+        user_data$pull_requests <- user_data$contributions$totalPullRequestContributions
+        user_data$reviews <- user_data$contributions$totalPullRequestReviewContributions
+        user_data$contributions <- NULL
+        user_data$email <- user_data$email %||% ""
+        user_data$location <- user_data$location %||% ""
+        user_data$web_url <- user_data$web_url %||% ""
+        user_table <- tibble::as_tibble(user_data) %>%
+          dplyr::relocate(c(commits, issues, pull_requests, reviews),
+                          .after = starred_repos)
+      } else {
+        user_table <- NULL
+      }
       return(user_table)
     }
   )
