@@ -149,24 +149,10 @@ test_that("`prepare_commits_table()` prepares table of commits properly", {
   )
 })
 
-# public methods
-
-test_that("`get_repos_contributors()` adds contributors to repos table", {
-  gl_repos_table <- test_rest$get_repos_contributors(
-    test_mocker$use("gl_repos_by_phrase_table")
-  )
-  expect_gt(
-    length(gl_repos_table$contributors),
-    0
-  )
-  test_mocker$cache(gl_repos_table)
-})
-
-
-test_that("`get_repos_issues()` adds issues to repos table", {
+test_that("`add_repos_issues()` adds issues to repos table", {
   gl_repos_by_phrase_table <- test_mocker$use("gl_repos_table")
 
-  gl_repos_by_phrase_table <- test_rest$get_repos_issues(
+  gl_repos_by_phrase_table <- test_rest_priv$add_repos_issues(
     gl_repos_by_phrase_table
   )
   expect_gt(
@@ -178,6 +164,19 @@ test_that("`get_repos_issues()` adds issues to repos table", {
     0
   )
   test_mocker$cache(gl_repos_by_phrase_table)
+})
+
+# public methods
+
+test_that("`get_repos_contributors()` adds contributors to repos table", {
+  gl_repos_table <- test_rest$get_repos_contributors(
+    test_mocker$use("gl_repos_by_phrase_table")
+  )
+  expect_gt(
+    length(gl_repos_table$contributors),
+    0
+  )
+  test_mocker$cache(gl_repos_table)
 })
 
 test_that("`get_repos_by_phrase()` works", {

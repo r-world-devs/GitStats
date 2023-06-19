@@ -58,7 +58,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         ) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
-          self$get_repos_issues()
+          private$add_repos_issues()
       } else {
         repos_table <- NULL
       }
@@ -79,7 +79,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         ) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
-          self$get_repos_issues()
+          private$add_repos_issues()
       }
       return(repos_table)
     },
@@ -122,30 +122,6 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
             }
           )
         })
-      }
-      return(repos_table)
-    },
-
-    #' @description A method to add information on repository contributors.
-    #' @param repos_table A table of repositories.
-    #' @return A table of repositories with added information on contributors.
-    get_repos_issues = function(repos_table) {
-      if (nrow(repos_table) > 0) {
-        repos_iterator <- paste0(repos_table$organization, "/", repos_table$name)
-        issues <- purrr::map_dfr(repos_iterator, function(repo_path) {
-          issues_endpoint <- paste0(self$rest_api_url, "/repos/", repo_path, "/issues")
-
-          issues <- self$response(
-            endpoint = issues_endpoint
-          )
-
-          data.frame(
-            "open" = length(purrr::keep(issues, ~ .$state == "open")),
-            "closed" = length(purrr::keep(issues, ~ .$state == "closed"))
-          )
-        })
-        repos_table$issues_open <- issues$open
-        repos_table$issues_closed <- issues$closed
       }
       return(repos_table)
     }
@@ -304,6 +280,30 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       })
 
       repos_list
+    },
+
+    # @description A method to add information on repository contributors.
+    # @param repos_table A table of repositories.
+    # @return A table of repositories with added information on contributors.
+    add_repos_issues = function(repos_table) {
+      if (nrow(repos_table) > 0) {
+        repos_iterator <- paste0(repos_table$organization, "/", repos_table$name)
+        issues <- purrr::map_dfr(repos_iterator, function(repo_path) {
+          issues_endpoint <- paste0(self$rest_api_url, "/repos/", repo_path, "/issues")
+
+          issues <- self$response(
+            endpoint = issues_endpoint
+          )
+
+          data.frame(
+            "open" = length(purrr::keep(issues, ~ .$state == "open")),
+            "closed" = length(purrr::keep(issues, ~ .$state == "closed"))
+          )
+        })
+        repos_table$issues_open <- issues$open
+        repos_table$issues_closed <- issues$closed
+      }
+      return(repos_table)
     },
 
     # @description Perform get request to find projects by ids.
