@@ -1,8 +1,8 @@
 GitStats 0.2.0
 
-- added switching to REST engine in case GraphQL fails with 502 error (for repos #227)
-- added GraphQL engine for getting GitLab repos by organization (#233)
-- add getting user feature via GraphQL engine for GitHub and GitLab
+- added switching to REST engine in case GraphQL fails with 502 error (#225 PR for repos #227)
+- added GraphQL engine for getting GitLab repos by organization (#218 PR: #233)
+- add `get_users()` function to pull information on users (#199)
 
 GitStats 0.1.0
 
