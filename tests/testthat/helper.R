@@ -155,7 +155,7 @@ expect_list_contains_only <- function(object, elements) {
 
 expect_user_table <- function(get_user_object) {
   user_cols <- c(
-    "id", "name", "email", "location", "starred_repos",
+    "id", "name", "login", "email", "location", "starred_repos",
     "commits", "issues", "pull_requests", "reviews",
     "avatar_url", "web_url"
   )
@@ -165,7 +165,7 @@ expect_user_table <- function(get_user_object) {
 
 expect_users_table <- function(get_user_object) {
   user_cols <- c(
-    "id", "name", "email", "location", "starred_repos",
+    "id", "name", "login", "email", "location", "starred_repos",
     "commits", "issues", "pull_requests", "reviews",
     "avatar_url", "web_url"
   )

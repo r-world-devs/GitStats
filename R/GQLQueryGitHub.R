@@ -59,6 +59,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
           user(login: $user) {
             id
             name
+            login
             email
             location
             starred_repos: starredRepositories {

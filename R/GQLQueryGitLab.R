@@ -56,6 +56,7 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
           user(username: $user) {
             id
             name
+            login: username
             email: publicEmail
             location
             starred_repos: starredProjects {
