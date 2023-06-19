@@ -228,7 +228,7 @@ test_that("Engine filters GitLab repositories' table by team members", {
     gl_repos_table,
     team = list(
       "Member1" = list(
-        logins = "Rinke Hoekstra"
+        logins = "Maciej Banaś"
       )
     )
   )
@@ -245,6 +245,6 @@ test_that("Engine filters GitLab repositories' table by team members", {
     0
   )
   expect_true(
-    all(grepl("Rinke Hoekstra", result$contributors))
+    all(grepl("Maciej Banaś", result$contributors))
   )
 })
