@@ -68,7 +68,7 @@ test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
     gh_repos_by_phrase_tailored[[1]],
     c(
       "id", "name", "created_at", "last_activity_at",
-      "forks", "stars", "contributors", "issues_open", "issues_closed",
+      "forks", "stars", "issues_open", "issues_closed",
       "organization"
     )
   )

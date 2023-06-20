@@ -21,6 +21,19 @@ expect_gl_repos <- function(object) {
   )
 }
 
+expect_gl_repos_gql_response <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  expect_list_contains(
+    object$data$group$projects$edges[[1]]$node,
+    c(
+      "id", "name", "createdAt", "starCount", "forksCount"
+    )
+  )
+}
+
 expect_gh_repos <- function(object) {
   expect_type(
     object,
@@ -35,7 +48,7 @@ expect_gh_repos <- function(object) {
     c(
       "id", "name", "stars", "forks", "created_at",
       "last_activity_at", "languages", "issues_open", "issues_closed",
-      "contributors", "repo_url"
+      "repo_url"
     )
   )
 }
@@ -54,7 +67,7 @@ expect_gh_user_repos <- function(object) {
     c(
       "id", "name", "stars", "forks", "created_at",
       "last_activity_at", "languages", "issues_open", "issues_closed",
-      "contributors", "repo_url"
+      "repo_url"
     )
   )
 }
@@ -129,7 +142,7 @@ expect_repos_table <- function(get_repos_object) {
   repo_cols <- c(
     "id", "name", "stars", "forks", "created_at",
     "last_activity_at", "languages", "issues_open", "issues_closed",
-    "contributors", "organization", "repo_url", "api_url"
+    "organization", "repo_url", "api_url"
   )
   expect_s3_class(get_repos_object, "data.frame")
   expect_named(get_repos_object, repo_cols)
