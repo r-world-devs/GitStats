@@ -20,6 +20,7 @@ A class for methods wrapping GitHub's GraphQL API responses.
 \itemize{
 \item \href{#method-new}{\code{EngineGraphQL$new()}}
 \item \href{#method-gql_response}{\code{EngineGraphQL$gql_response()}}
+\item \href{#method-get_users}{\code{EngineGraphQL$get_users()}}
 \item \href{#method-clone}{\code{EngineGraphQL$clone()}}
 }
 }
@@ -62,6 +63,26 @@ Wrapper of GraphQL API request and response.
 }
 \subsection{Returns}{
 A list.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_users"></a>}}
+\if{latex}{\out{\hypertarget{method-get_users}{}}}
+\subsection{Method \code{get_users()}}{
+Get information on users in the form of table
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQL$get_users(users)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{users}}{A character vector of users}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A table
 }
 }
 \if{html}{\out{<hr>}}

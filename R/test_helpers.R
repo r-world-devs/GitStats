@@ -35,12 +35,16 @@ TestHost <- R6::R6Class("TestHost",
         )
         private$engines$graphql <- EngineGraphQLGitHub$new(
           token = token,
-          gql_api_url = api_url
+          gql_api_url = private$set_gql_url(api_url)
         )
       } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
         private$engines$rest <- EngineRestGitLab$new(
           token = token,
           rest_api_url = api_url
+        )
+        private$engines$graphql <- EngineGraphQLGitLab$new(
+          token = token,
+          gql_api_url = private$set_gql_url(api_url)
         )
       }
       private$orgs <- orgs

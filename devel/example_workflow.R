@@ -58,6 +58,10 @@ plot_repos(git_stats)
 # examples for getting and plotting commits
 plot_commits(git_stats)
 
+# get information on users
+git_stats %>%
+  get_users(c("maciekbanas", "kalimu", "marcinkowskak", "Cotau", "krystian8207"))
+git_stats$show_users()
 
 # SHOWCASES
 

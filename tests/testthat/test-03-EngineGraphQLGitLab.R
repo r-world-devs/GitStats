@@ -54,6 +54,16 @@ test_that("`prepare_repos_table()` prepares repos table", {
   test_mocker$cache(gl_repos_table)
 })
 
+test_that("GitLab prepares user table", {
+  gl_user_table <- test_gql_gl$prepare_user_table(
+    user_response = test_mocker$use("gl_user_response")
+  )
+  expect_user_table(
+    gl_user_table
+  )
+  test_mocker$cache(gl_user_table)
+})
+
 # public methods
 
 test_gql_gl <- EngineGraphQLGitLab$new(

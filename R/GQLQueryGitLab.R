@@ -46,6 +46,33 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
           }
         }
       }')
-      }
-    )
+    },
+
+    #' @description Prepare query to get info on a GitLab user.
+    #' @return A query.
+    user = function() {
+      paste0('
+        query GetUser($user: String!) {
+          user(username: $user) {
+            id
+            name
+            login: username
+            email: publicEmail
+            location
+            starred_repos: starredProjects {
+              count
+            }
+            pull_requests: authoredMergeRequests {
+              count
+            }
+            reviews: reviewRequestedMergeRequests {
+              count
+            }
+            avatar_url: avatarUrl
+            web_url: webUrl
+          }
+        }
+      ')
+    }
+  )
 )

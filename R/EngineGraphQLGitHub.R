@@ -365,9 +365,10 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       logins <- purrr::map(team, ~ .$logins) %>%
         unlist()
       ids <- purrr::map_chr(logins, ~ {
-        authors_id_query <- self$gql_query$user(.)
+        authors_id_query <- self$gql_query$user()
         authors_id_response <- self$gql_response(
-          gql_query = authors_id_query
+          gql_query = authors_id_query,
+          vars = list("user" = .)
         )
         result <- authors_id_response$data$user$id
         if (is.null(result)) {
@@ -376,6 +377,31 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         return(result)
       })
       return(unname(ids))
+    },
+
+    # @description Prepare user table.
+    # @param user_response A list.
+    # @return A table with information on user.
+    prepare_user_table = function(user_response) {
+      if (!is.null(user_response$data$user)) {
+        user_data <- user_response$data$user
+        user_data$name <- user_data$name %||% ""
+        user_data$starred_repos <- user_data$starred_repos$totalCount
+        user_data$commits <- user_data$contributions$totalCommitContributions
+        user_data$issues <- user_data$contributions$totalIssueContributions
+        user_data$pull_requests <- user_data$contributions$totalPullRequestContributions
+        user_data$reviews <- user_data$contributions$totalPullRequestReviewContributions
+        user_data$contributions <- NULL
+        user_data$email <- user_data$email %||% ""
+        user_data$location <- user_data$location %||% ""
+        user_data$web_url <- user_data$web_url %||% ""
+        user_table <- tibble::as_tibble(user_data) %>%
+          dplyr::relocate(c(commits, issues, pull_requests, reviews),
+                          .after = starred_repos)
+      } else {
+        user_table <- NULL
+      }
+      return(user_table)
     }
   )
 )

@@ -172,6 +172,20 @@ GitStats <- R6::R6Class("GitStats",
       return(invisible(self))
     },
 
+    #' @description Get information on users.
+    #' @param users Character vector of users.
+    #' @return A data.frame of users.
+    get_users = function(users) {
+      private$check_for_host()
+      users_table <- purrr::map(private$hosts, function(host) {
+        host$get_users(users)
+      }) %>%
+        unique() %>%
+        purrr::list_rbind()
+      private$users <- users_table
+      return(users_table)
+    },
+
     #' @description Print repositories output.
     show_repos = function() {
       private$repos
@@ -180,6 +194,11 @@ GitStats <- R6::R6Class("GitStats",
     #' @description Print commits output.
     show_commits = function() {
       private$commits
+    },
+
+    #' @description Print users output.
+    show_users = function() {
+      private$users
     },
 
     #' @description A print method for a GitStats object
@@ -225,6 +244,9 @@ GitStats <- R6::R6Class("GitStats",
     # @field commits An output table of commits.
     commits = NULL,
 
+    # @field users An output table of users.
+    users = NULL,
+
     # @description Check whether the urls do not repeat in input.
     # @param host An object of GitPlatform class
     # @return A GitPlatform object
@@ -246,6 +268,13 @@ GitStats <- R6::R6Class("GitStats",
       }
 
       host
+    },
+
+    # @description Helper to check if there are any hosts
+    check_for_host = function() {
+      if (length(private$hosts) == 0) {
+        cli::cli_abort("Add first your hosts with `set_connection()`.")
+      }
     },
 
     # @description Switcher to manage language names

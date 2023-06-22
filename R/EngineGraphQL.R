@@ -31,11 +31,33 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
          httr2::req_body_json(list(query = gql_query, variables = vars)) %>%
          httr2::req_perform() %>%
          httr2::resp_body_json()
+     },
+
+     #' @description Get information on users in the form of table
+     #' @param users A character vector of users
+     #' @return A table
+     get_users = function(users) {
+       purrr::map(users, function(user) {
+         private$pull_user(username = user) %>%
+           private$prepare_user_table()
+       }) %>%
+         purrr::list_rbind()
      }
 
    ),
    private = list(
      # @field token A token authorizing access to API.
-     token = NULL
+     token = NULL,
+
+     # @description A method to pull information on user.
+     # @param username A login.
+     # @return A user response.
+     pull_user = function(username) {
+       response <- self$gql_response(
+         gql_query = self$gql_query$user(),
+         vars = list("user" = username)
+       )
+       return(response)
+     }
    )
 )

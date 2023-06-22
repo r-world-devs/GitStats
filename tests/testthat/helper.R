@@ -102,6 +102,21 @@ expect_gh_commit <- function(object) {
   )
 }
 
+expect_user_gql_response <- function(object) {
+  expect_list_contains(
+    object,
+    "data"
+  )
+  expect_list_contains(
+    object$data,
+    "user"
+  )
+  expect_list_contains(
+    object$data$user,
+    c("id", "name", "email", "location", "starred_repos", "avatar_url", "web_url")
+  )
+}
+
 expect_gl_search_response <- function(object) {
   expect_list_contains(
     object,
@@ -136,6 +151,26 @@ expect_list_contains_only <- function(object, elements) {
   )
 
   invisible(act$val)
+}
+
+expect_user_table <- function(get_user_object) {
+  user_cols <- c(
+    "id", "name", "login", "email", "location", "starred_repos",
+    "commits", "issues", "pull_requests", "reviews",
+    "avatar_url", "web_url"
+  )
+  expect_named(get_user_object, user_cols)
+  expect_equal(nrow(get_user_object), 1)
+}
+
+expect_users_table <- function(get_user_object) {
+  user_cols <- c(
+    "id", "name", "login", "email", "location", "starred_repos",
+    "commits", "issues", "pull_requests", "reviews",
+    "avatar_url", "web_url"
+  )
+  expect_named(get_user_object, user_cols)
+  expect_gt(nrow(get_user_object), 1)
 }
 
 expect_repos_table <- function(get_repos_object) {

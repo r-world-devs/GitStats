@@ -28,10 +28,9 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     },
 
     #' @description Prepare query to get repositories from GitHub.
-    #' @param user A GitHub user.
     #' @param repo_cursor An end cursor for repositories page.
     #' @return A query.
-    repos_by_user = function(user, repo_cursor = "") {
+    repos_by_user = function(repo_cursor = "") {
       if (nchar(repo_cursor) == 0) {
         after_cursor <- repo_cursor
       } else {
@@ -55,32 +54,27 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     #' @param login A login of a user.
     #' @return A query.
     user = function(login) {
-      paste0('{
-        user(login: "', login, '") {
-          id
-          name
-          email
-          bio
-          location
-          updatedAt
-          repositories(first: 100) {
-            edges {
-              node {
-                name
-              }
-            }
-          }
-          followers(first: 100) {
-            totalCount
-          }
-          following(first: 100) {
-            totalCount
-          }
-          status {
+      paste0('
+        query GetUser($user: String!) {
+          user(login: $user) {
             id
+            name
+            login
+            email
+            location
+            starred_repos: starredRepositories {
+              totalCount
+            }
+            contributions: contributionsCollection {
+              totalIssueContributions
+              totalCommitContributions
+              totalPullRequestContributions
+              totalPullRequestReviewContributions
+            }
+            avatar_url: avatarUrl
+            web_url: websiteUrl
           }
-        }
-      }')
+        }')
     },
 
     #' @description Prepare query to get commits on GitHub.
