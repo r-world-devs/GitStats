@@ -106,8 +106,10 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description  A method to list all repositories for an organization,
     #'   a team or by a keyword.
+    #' @param add_contributors A boolean to decide whether to add contributors
+    #'   information to repositories.
     #' @return A data.frame of repositories
-    get_repos = function() {
+    get_repos = function(add_contributors = FALSE) {
       if (private$settings$search_param == "team") {
         if (length(private$settings$team) == 0) {
           cli::cli_abort("You have to specify a team first with 'add_team_member()'.")
@@ -119,7 +121,8 @@ GitStats <- R6::R6Class("GitStats",
       }
 
       repos_table <- purrr::map(private$hosts, ~ .$get_repos(
-        settings = private$settings
+        settings = private$settings,
+        add_contributors = add_contributors
       )) %>%
         purrr::list_rbind()
 
@@ -130,6 +133,18 @@ GitStats <- R6::R6Class("GitStats",
         private$repos <- repos_table
       }
       return(invisible(self))
+    },
+
+    #' @description A method to add information on repository contributors.
+    #' @return A table of repositories with added information on contributors.
+    add_repos_contributors = function() {
+      if (length(private$repos) == 0) {
+        cli::cli_abort("You need to pull repos first with `get_repos()`.")
+      } else {
+        private$repos <- purrr::map_dfr(private$hosts, ~ .$add_repos_contributors(
+          repos_table = private$repos
+        ))
+      }
     },
 
     #' @description A method to get information on commits.

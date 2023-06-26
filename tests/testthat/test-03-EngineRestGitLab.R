@@ -168,9 +168,14 @@ test_that("`add_repos_issues()` adds issues to repos table", {
 
 # public methods
 
-test_that("`get_repos_contributors()` adds contributors to repos table", {
-  gl_repos_table <- test_rest$get_repos_contributors(
-    test_mocker$use("gl_repos_by_phrase_table")
+test_that("`add_repos_contributors()` adds contributors to repos table", {
+  expect_snapshot(
+    gl_repos_table <- test_rest$add_repos_contributors(
+      test_mocker$use("gl_repos_by_phrase_table")
+    )
+  )
+  expect_repos_table_with_contributors(
+    gl_repos_table
   )
   expect_gt(
     length(gl_repos_table$contributors),

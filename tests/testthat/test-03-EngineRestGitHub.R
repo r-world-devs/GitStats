@@ -111,9 +111,14 @@ test_that("`add_repos_issues()` adds issues to repos table", {
 
 # public methods
 
-test_that("`get_repos_contributors()` adds contributors to repos table", {
-  gh_repos_by_phrase_table <- test_rest$get_repos_contributors(
-    test_mocker$use("gh_repos_by_phrase_table")
+test_that("`add_repos_contributors()` adds contributors to repos table", {
+  expect_snapshot(
+    gh_repos_by_phrase_table <- test_rest$add_repos_contributors(
+      test_mocker$use("gh_repos_by_phrase_table")
+    )
+  )
+  expect_repos_table_with_contributors(
+    gh_repos_by_phrase_table
   )
   expect_gt(
     length(gh_repos_by_phrase_table$contributors),

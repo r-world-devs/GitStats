@@ -16,7 +16,7 @@ A class for methods wrapping GitLab's REST API responses.
 \item \href{#method-check_organizations}{\code{EngineRestGitLab$check_organizations()}}
 \item \href{#method-get_repos}{\code{EngineRestGitLab$get_repos()}}
 \item \href{#method-get_repos_supportive}{\code{EngineRestGitLab$get_repos_supportive()}}
-\item \href{#method-get_repos_contributors}{\code{EngineRestGitLab$get_repos_contributors()}}
+\item \href{#method-add_repos_contributors}{\code{EngineRestGitLab$add_repos_contributors()}}
 \item \href{#method-get_commits}{\code{EngineRestGitLab$get_commits()}}
 \item \href{#method-clone}{\code{EngineRestGitLab$clone()}}
 }
@@ -113,12 +113,12 @@ Nothing.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos_contributors"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos_contributors}{}}}
-\subsection{Method \code{get_repos_contributors()}}{
+\if{html}{\out{<a id="method-add_repos_contributors"></a>}}
+\if{latex}{\out{\hypertarget{method-add_repos_contributors}{}}}
+\subsection{Method \code{add_repos_contributors()}}{
 A method to add information on repository contributors.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitLab$get_repos_contributors(repos_table)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitLab$add_repos_contributors(repos_table)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

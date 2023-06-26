@@ -13,6 +13,7 @@ An R6 class object with methods to derive information from multiple Git platform
 \item \href{#method-add_host}{\code{GitStats$add_host()}}
 \item \href{#method-add_team_member}{\code{GitStats$add_team_member()}}
 \item \href{#method-get_repos}{\code{GitStats$get_repos()}}
+\item \href{#method-add_repos_contributors}{\code{GitStats$add_repos_contributors()}}
 \item \href{#method-get_commits}{\code{GitStats$get_commits()}}
 \item \href{#method-get_users}{\code{GitStats$get_users()}}
 \item \href{#method-show_repos}{\code{GitStats$show_repos()}}
@@ -105,11 +106,32 @@ Nothing, pass information on team member to \code{GitStats}.
 A method to list all repositories for an organization,
 a team or by a keyword.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos(add_contributors = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{add_contributors}}{A boolean to decide whether to add contributors
+information to repositories.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A data.frame of repositories
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-add_repos_contributors"></a>}}
+\if{latex}{\out{\hypertarget{method-add_repos_contributors}{}}}
+\subsection{Method \code{add_repos_contributors()}}{
+A method to add information on repository contributors.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$add_repos_contributors()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
-A data.frame of repositories
+A table of repositories with added information on contributors.
 }
 }
 \if{html}{\out{<hr>}}

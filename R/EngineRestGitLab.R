@@ -69,7 +69,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
           private$add_repos_issues() %>%
-          self$get_repos_contributors() %>%
+          self$add_repos_contributors() %>%
           private$filter_repos_by_team(team = settings$team)
         repos_table$contributors <- NULL
       } else {
@@ -98,8 +98,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
-    get_repos_contributors = function(repos_table) {
+    add_repos_contributors = function(repos_table) {
       if (nrow(repos_table) > 0) {
+        cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}] Pulling contributors...")
         repo_iterator <- repos_table$id
         user_name <- rlang::expr(.$name)
         repos_table$contributors <- purrr::map_chr(repo_iterator, function(repos_id) {

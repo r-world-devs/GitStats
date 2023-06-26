@@ -17,6 +17,7 @@ GitHost <- R6::R6Class("GitHost",
     initialize = function(orgs = NA,
                           token = NA,
                           api_url = NA) {
+      private$api_url <- api_url
       if (grepl("https://", api_url) && grepl("github", api_url)) {
         private$engines$rest <- EngineRestGitHub$new(
           token = token,
@@ -46,8 +47,10 @@ GitHost <- R6::R6Class("GitHost",
     #' @description  A method to list all repositories for an organization, a
     #'   team or by a keyword.
     #' @param settings A list of `GitStats` settings.
+    #' @param add_contributors A boolean to decide wether to add contributors
+    #'   column to repositories table.
     #' @return A data.frame of repositories.
-    get_repos = function(settings) {
+    get_repos = function(settings, add_contributors = FALSE) {
       repos_table <- purrr::map(private$orgs, function(org) {
         tryCatch({
           repos_list <- purrr::map(private$engines, function (engine) {
@@ -75,6 +78,10 @@ GitHost <- R6::R6Class("GitHost",
       }) %>%
         purrr::list_rbind()
 
+      if (add_contributors) {
+        repos_table <- self$add_repos_contributors(repos_table)
+      }
+
       if (nrow(repos_table) > 0 && !is.null(settings$language)) {
         repos_table <- private$filter_repos_by_language(
           repos_table = repos_table,
@@ -83,6 +90,23 @@ GitHost <- R6::R6Class("GitHost",
       }
 
       return(repos_table)
+    },
+
+    #' @description A method to add information on repository contributors.
+    #' @param repos_table A table of repositories.
+    #' @return A table of repositories with added information on contributors.
+    add_repos_contributors = function(repos_table) {
+      repos_table <- repos_table %>%
+        dplyr::filter(api_url == gsub("/v+.*", "", private$api_url))
+      repos_table <- purrr::map_dfr(private$engines, function (engine) {
+        if (inherits(engine, "EngineRest")) {
+          engine$add_repos_contributors(
+            repos_table
+          )
+        } else {
+          NULL
+        }
+      })
     },
 
     #' @description A method to get information on commits.
@@ -132,6 +156,9 @@ GitHost <- R6::R6Class("GitHost",
     }
   ),
   private = list(
+
+    # @field A REST API url.
+    api_url = NULL,
 
     # @field orgs A character vector of repo organizations.
     orgs = NULL,

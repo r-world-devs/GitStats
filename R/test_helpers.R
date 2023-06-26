@@ -28,6 +28,7 @@ TestHost <- R6::R6Class("TestHost",
     initialize = function(orgs = NA,
                           token = NA,
                           api_url = NA) {
+      private$api_url <- api_url
       if (grepl("https://", api_url) && grepl("github", api_url)) {
         private$engines$rest <- EngineRestGitHub$new(
           token = token,

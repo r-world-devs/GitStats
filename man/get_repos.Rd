@@ -4,10 +4,12 @@
 \alias{get_repos}
 \title{Get information on repositories.}
 \usage{
-get_repos(gitstats_obj)
+get_repos(gitstats_obj, add_contributors = FALSE)
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
+
+\item{add_contributors}{A boolean to decide whether to add contributors information to repositories.}
 }
 \value{
 A \code{GitStats} class object with updated \verb{$repos} field.

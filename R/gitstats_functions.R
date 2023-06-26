@@ -111,6 +111,7 @@ add_team_member <- function(gitstats_obj,
 #' @description  List all repositories for an organization, a team or by a
 #'   keyword.
 #' @param gitstats_obj A GitStats object.
+#' @param add_contributors A boolean to decide whether to add contributors information to repositories.
 #' @return A `GitStats` class object with updated `$repos` field.
 #' @examples
 #' \dontrun{
@@ -128,8 +129,19 @@ add_team_member <- function(gitstats_obj,
 #'   get_repos()
 #' }
 #' @export
-get_repos <- function(gitstats_obj) {
-  gitstats_obj$get_repos()
+get_repos <- function(gitstats_obj, add_contributors = FALSE) {
+  gitstats_obj$get_repos(add_contributors = add_contributors)
+  return(invisible(gitstats_obj))
+}
+
+#' @title Add information on contributors to your repositories.
+#' @name add_repos_contributors
+#' @param gitstats_obj A GitStats object.
+#' @description A method to add information on repository contributors.
+#' @return A table of repositories with added information on contributors.
+#' @export
+add_repos_contributors <- function(gitstats_obj) {
+  gitstats_obj$add_repos_contributors()
   return(invisible(gitstats_obj))
 }
 

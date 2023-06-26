@@ -10,19 +10,7 @@ test_that("GitStats prints empty fields.", {
   expect_snapshot(test_gitstats)
 })
 
-suppressMessages({
-  test_gitstats$add_host(
-    api_url = "https://api.github.com",
-    token = Sys.getenv("GITHUB_PAT"),
-    orgs = c("r-world-devs", "openpharma")
-  )
-
-  test_gitstats$add_host(
-    api_url = "https://gitlab.com/api/v4",
-    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-    orgs = "mbtests"
-  )
-})
+test_gitstats <- create_test_gitstats(hosts = 2)
 
 test_that("GitStats prints the proper info when connections are added.", {
   expect_snapshot(test_gitstats)
@@ -41,8 +29,7 @@ test_that("GitStats prints team name when team is added.", {
 })
 
 # private methods
-test_gitstats <- create_gitstats()
-test_gitstats_priv <- environment(test_gitstats$setup)$private
+test_gitstats_priv <- create_test_gitstats(priv_mode = TRUE)
 
 test_that("Language handler works properly", {
   expect_equal(test_gitstats_priv$language_handler("r"), "R")
@@ -59,23 +46,31 @@ test_that("check_for_host works", {
 # public methods
 
 test_that("GitStats get users info", {
-  suppressMessages({
-    test_gitstats$add_host(
-      api_url = "https://api.github.com",
-      token = Sys.getenv("GITHUB_PAT"),
-      orgs = c("r-world-devs", "openpharma")
-    )
-
-    test_gitstats$add_host(
-      api_url = "https://gitlab.com/api/v4",
-      token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-      orgs = "mbtests"
-    )
-  })
+  test_gitstats <- create_test_gitstats(hosts = 2)
   users_result <- test_gitstats$get_users(
     c("maciekbanas", "kalimu", "marcinkowskak")
   )
   expect_users_table(
     users_result
   )
+})
+
+test_that("GitStats throws error when add_contributors is run with empty repos field", {
+
+  test_gitstats <- create_test_gitstats(hosts = 2)
+
+  expect_snapshot_error(
+    test_gitstats$add_repos_contributors()
+  )
+
+  suppressMessages({
+    test_gitstats$get_repos()
+  })
+  repos_without_contributors <- test_gitstats$show_repos()
+  expect_snapshot(
+    test_gitstats$add_repos_contributors()
+  )
+  repos_with_contributors <- test_gitstats$show_repos()
+  expect_repos_table_with_contributors(repos_with_contributors)
+  expect_equal(nrow(repos_without_contributors), nrow(repos_with_contributors))
 })

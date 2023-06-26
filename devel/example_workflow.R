@@ -18,6 +18,9 @@ git_stats
 
 # examples for getting repos (default search parameter is 'org')
 get_repos(git_stats)
+add_repos_contributors(git_stats)
+get_repos(git_stats, add_contributors = TRUE)
+
 get_commits(git_stats, date_from = "2022-01-01")
 
 # setup your language you are interested in
