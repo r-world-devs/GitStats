@@ -51,7 +51,7 @@
 
     You need to pull repos first with `get_repos()`.
 
----
+# Add_repos_contributors adds repos contributors to repos table
 
     Code
       test_gitstats$add_repos_contributors()

@@ -77,3 +77,49 @@ create_gitstats() %>%
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("insightsengineering")
   ) %>% get_repos()
+
+# one token does not exist
+
+git_stats <- create_gitstats() %>%
+  set_connection(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("DOES_NOT_EXIST"),
+    orgs = c("r-world-devs", "openpharma")
+  ) %>%
+  set_connection(
+    api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    orgs = c("mbtests", "erasmusmc-public-health")
+  )
+git_stats
+
+# a token exists but does not grant access
+
+git_stats <- create_gitstats() %>%
+  set_connection(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("r-world-devs", "openpharma")
+  ) %>%
+  set_connection(
+    api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT"),
+    orgs = c("mbtests", "erasmusmc-public-health")
+  )
+git_stats
+
+# wrong orgs
+
+
+git_stats <- create_gitstats() %>%
+  set_connection(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("rworlddevs", "openpharma")
+  ) %>%
+  set_connection(
+    api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    orgs = c("mbtests", "public health")
+  )
+git_stats

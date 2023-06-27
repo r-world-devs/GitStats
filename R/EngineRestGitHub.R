@@ -11,7 +11,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
                           token) {
       super$initialize(
         rest_api_url = rest_api_url,
-        token = token
+        token = private$check_token(token)
       )
     },
 
@@ -128,6 +128,27 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     }
   ),
   private = list(
+
+    # @description Check if the token gives access to API.
+    # @param token A token.
+    # @return A token.
+    check_token = function(token) {
+      super$check_token(token)
+      if (nchar(token) > 0) {
+        withCallingHandlers({
+          self$response(endpoint = self$rest_api_url,
+                        token = token)
+        },
+        message = function(m) {
+          if (grepl("401", m$message)) {
+            cli::cli_abort(c(
+              "x" = m$message
+            ))
+          }
+        })
+      }
+      return(invisible(token))
+    },
 
     # @description Iterator over pulling pages of repositories.
     # @param org A character, an owner of repositories.

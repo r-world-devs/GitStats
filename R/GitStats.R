@@ -79,15 +79,28 @@ GitStats <- R6::R6Class("GitStats",
     add_host = function(api_url,
                         token,
                         orgs) {
-      new_host <- GitHost$new(
-        orgs = orgs,
-        token = token,
-        api_url = api_url
-      )
-
-      private$hosts <- new_host %>%
-        private$check_host() %>%
-        append(private$hosts, .)
+      new_host <- NULL
+      tryCatch({
+        new_host <- GitHost$new(
+          orgs = orgs,
+          token = token,
+          api_url = api_url
+        )
+        if  (grepl("https://", api_url) && grepl("github", api_url)) {
+          cli::cli_alert_success("Set connection to GitHub.")
+        } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
+          cli::cli_alert_success("Set connection to GitLab.")
+        }
+      },
+      error = function(e){
+        cli::cli_alert_warning(e$message)
+        cli::cli_alert_danger("Host will not be passed.")
+      })
+      if (!is.null(new_host)) {
+        private$hosts <- new_host %>%
+          private$check_for_duplicate_hosts() %>%
+          append(private$hosts, .)
+      }
     },
 
     #' @description A method to add a team member.
@@ -265,10 +278,9 @@ GitStats <- R6::R6Class("GitStats",
     # @description Check whether the urls do not repeat in input.
     # @param host An object of GitPlatform class
     # @return A GitPlatform object
-    check_host = function(host) {
+    check_for_duplicate_hosts = function(host) {
       if (length(private$hosts) > 0) {
         hosts_to_check <- append(host, private$hosts)
-
         urls <- purrr::map_chr(hosts_to_check, function(host) {
           host_priv <- environment(host$initialize)$private
           host_priv$engines$rest$rest_api_url

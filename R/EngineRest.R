@@ -16,8 +16,8 @@ EngineRest <- R6::R6Class("EngineRest",
     #' @return A `Rest` object.
     initialize = function(rest_api_url = NA,
                           token = NA) {
-      private$token <- private$check_token(token)
       self$rest_api_url <- rest_api_url
+      private$token <- token
     },
 
     #' @description A wrapper for httr2 functions to perform get request to REST API endpoints.
@@ -47,11 +47,9 @@ EngineRest <- R6::R6Class("EngineRest",
     check_token = function(token) {
       if (nchar(token) == 0) {
         cli::cli_abort(c(
-          "i" = "No token provided.",
-          "x" = "Host will not be passed to `GitStats` object."
+          "i" = "No token provided."
         ))
       }
-      return(invisible(token))
     },
 
     # @description A helper to prepare table for repositories content
