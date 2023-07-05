@@ -45,3 +45,26 @@ test_that("GitHost filters repositories' table by languages", {
     all(grepl("JavaScript", result$languages))
   )
 })
+
+# public methods
+
+test_host <- create_testhost(
+  api_url = "https://api.github.com",
+  token = Sys.getenv("GITHUB_PAT"),
+  orgs = c("openpharma", "r-world-devs")
+)
+
+test_that("add_repos_contributors returns table with contributors", {
+
+  repos_table_1 <- test_mocker$use("gh_repos_table")
+  expect_snapshot(
+    repos_table_2 <- test_host$add_repos_contributors(repos_table_1)
+  )
+  expect_repos_table_with_contributors(repos_table_2)
+  expect_gt(
+    length(repos_table_2$contributors),
+    0
+  )
+  expect_equal(nrow(repos_table_1), nrow(repos_table_2))
+
+})

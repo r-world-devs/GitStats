@@ -1,3 +1,35 @@
+create_test_gitstats <- function(hosts = 0, priv_mode = FALSE) {
+  test_gitstats <- create_gitstats() %>%
+    setup(print_out = FALSE)
+
+  if (hosts == 1) {
+    suppressMessages({
+      test_gitstats$add_host(
+        api_url = "https://api.github.com",
+        token = Sys.getenv("GITHUB_PAT"),
+        orgs = c("r-world-devs", "openpharma")
+      )
+    })
+  } else if (hosts == 2) {
+    suppressMessages({
+      test_gitstats$add_host(
+        api_url = "https://api.github.com",
+        token = Sys.getenv("GITHUB_PAT"),
+        orgs = c("r-world-devs", "openpharma")
+      )
+      test_gitstats$add_host(
+        api_url = "https://gitlab.com/api/v4",
+        token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+        orgs = "mbtests"
+      )
+    })
+  }
+  if (priv_mode) {
+    test_gitstats <- environment(test_gitstats$setup)$private
+  }
+  return(test_gitstats)
+}
+
 expect_tailored_commits_list <- function(object) {
   expect_list_contains_only(
     object,
@@ -171,6 +203,17 @@ expect_users_table <- function(get_user_object) {
   )
   expect_named(get_user_object, user_cols)
   expect_gt(nrow(get_user_object), 1)
+}
+
+expect_repos_table_with_contributors <- function(get_repos_object) {
+  repo_cols <- c(
+    "id", "name", "stars", "forks", "created_at",
+    "last_activity_at", "languages", "issues_open", "issues_closed",
+    "organization", "repo_url", "api_url", "contributors"
+  )
+  expect_s3_class(get_repos_object, "data.frame")
+  expect_named(get_repos_object, repo_cols)
+  expect_gt(nrow(get_repos_object), 0)
 }
 
 expect_repos_table <- function(get_repos_object) {

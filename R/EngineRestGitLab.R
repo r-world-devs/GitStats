@@ -61,15 +61,15 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         ) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
-          self$get_repos_issues()
+          private$add_repos_issues()
       } else if (settings$search_param == "team") {
         cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}][team:{settings$team_name}] Pulling repositories...")
         org <- private$get_group_id(org)
         repos_table <- private$pull_repos_from_org(org) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
-          self$get_repos_issues() %>%
-          self$get_repos_contributors() %>%
+          private$add_repos_issues() %>%
+          self$add_repos_contributors() %>%
           private$filter_repos_by_team(team = settings$team)
         repos_table$contributors <- NULL
       } else {
@@ -90,7 +90,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         repos_table <- private$pull_repos_from_org(org) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
-          self$get_repos_issues()
+          private$add_repos_issues()
       }
       return(repos_table)
     },
@@ -98,8 +98,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
-    get_repos_contributors = function(repos_table) {
+    add_repos_contributors = function(repos_table) {
       if (nrow(repos_table) > 0) {
+        cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}] Pulling contributors...")
         repo_iterator <- repos_table$id
         user_name <- rlang::expr(.$name)
         repos_table$contributors <- purrr::map_chr(repo_iterator, function(repos_id) {
@@ -118,25 +119,6 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
             }
           )
         })
-      }
-      return(repos_table)
-    },
-
-    #' @description A method to add information on repository contributors.
-    #' @param repos_table A table of repositories.
-    #' @return A table of repositories with added information on contributors.
-    get_repos_issues = function(repos_table) {
-      if (nrow(repos_table) > 0) {
-        issues <- purrr::map(repos_table$id, function(repos_id) {
-          id <- gsub("gid://gitlab/Project/", "", repos_id)
-          issues_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/issues_statistics")
-
-          self$response(
-            endpoint = issues_endpoint
-          )[["statistics"]][["counts"]]
-        })
-        repos_table$issues_open <- purrr::map_dbl(issues, ~ .$opened)
-        repos_table$issues_closed <- purrr::map_dbl(issues, ~ .$closed)
       }
       return(repos_table)
     },
@@ -297,6 +279,25 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         )
       })
       projects_list
+    },
+
+    # @description A method to add information on repository contributors.
+    # @param repos_table A table of repositories.
+    # @return A table of repositories with added information on contributors.
+    add_repos_issues = function(repos_table) {
+      if (nrow(repos_table) > 0) {
+        issues <- purrr::map(repos_table$id, function(repos_id) {
+          id <- gsub("gid://gitlab/Project/", "", repos_id)
+          issues_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/issues_statistics")
+
+          self$response(
+            endpoint = issues_endpoint
+          )[["statistics"]][["counts"]]
+        })
+        repos_table$issues_open <- purrr::map_dbl(issues, ~ .$opened)
+        repos_table$issues_closed <- purrr::map_dbl(issues, ~ .$closed)
+      }
+      return(repos_table)
     },
 
     # @description Filter repositories by contributors.
