@@ -73,8 +73,7 @@ EngineRest <- R6::R6Class("EngineRest",
           ) %>% round(2),
           forks = as.integer(forks),
           issues_open = as.integer(issues_open),
-          issues_closed = as.integer(issues_closed),
-          api_url = self$rest_api_url
+          issues_closed = as.integer(issues_closed)
         )
       }
       return(repos_dt)
