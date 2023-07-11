@@ -106,7 +106,7 @@ test_that("`pull_commits_from_org()` pulls commits from repo", {
     date_from = "2023-01-01",
     date_until = "2023-04-20"
   )
-  expect_gl_commit(
+  expect_gl_commit_rest(
     gl_commits_org[[1]]
   )
   test_mocker$cache(gl_commits_org)
@@ -127,7 +127,7 @@ test_that("`filter_commits_by_team()` filters commits by team", {
     team = team
   )
 
-  expect_gl_commit(
+  expect_gl_commit_rest(
     gl_commits_team[[1]]
   )
 

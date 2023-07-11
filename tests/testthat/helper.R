@@ -104,7 +104,7 @@ expect_gh_user_repos <- function(object) {
   )
 }
 
-expect_gl_commit <- function(object) {
+expect_gl_commit_rest <- function(object) {
   expect_type(
     object,
     "list"
@@ -119,7 +119,22 @@ expect_gl_commit <- function(object) {
   )
 }
 
-expect_gh_commit <- function(object) {
+expect_gh_commit_rest <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  expect_gt(
+    length(object),
+    0
+  )
+  expect_list_contains(object[[1]],
+                       c("sha", "node_id", "commit", "url",
+                         "html_url", "comments_url", "author",
+                         "committer", "parents"))
+}
+
+expect_gh_commit_gql <- function(object) {
   expect_type(
     object,
     "list"
@@ -227,7 +242,7 @@ expect_repos_table <- function(get_repos_object) {
   expect_gt(nrow(get_repos_object), 0)
 }
 
-expect_commits_table <- function(get_commits_object) {
+expect_commits_table <- function(get_commits_object, with_stats = TRUE) {
   commit_cols <- c(
     "id", "committed_date", "author", "additions", "deletions",
     "repository", "organization", "api_url"
@@ -236,8 +251,10 @@ expect_commits_table <- function(get_commits_object) {
   expect_named(get_commits_object, commit_cols)
   expect_gt(nrow(get_commits_object), 0)
   expect_s3_class(get_commits_object$committed_date, "POSIXt")
-  expect_type(get_commits_object$additions, "integer")
-  expect_type(get_commits_object$deletions, "integer")
+  if (with_stats) {
+    expect_type(get_commits_object$additions, "integer")
+    expect_type(get_commits_object$deletions, "integer")
+  }
 }
 
 expect_empty_table <- function(object) {

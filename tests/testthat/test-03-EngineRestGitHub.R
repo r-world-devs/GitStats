@@ -123,6 +123,88 @@ test_that("`add_repos_issues()` adds issues to repos table", {
   test_mocker$cache(gh_repos_by_phrase_table)
 })
 
+test_that("`pull_commits_from_repo()` pulls all commits from repository", {
+  commits_from_repo <- test_rest_priv$pull_commits_from_repo(
+    repo_fullname = "r-world-devs/GitStats",
+    date_from = "2023-01-01",
+    date_until = "2023-06-01"
+  )
+  expect_gh_commit_rest(
+    commits_from_repo
+  )
+})
+
+test_that("`pull_commits_from_org()` pulls all commits from organization", {
+  suppressMessages({
+    gh_rest_commits_from_org <- test_rest_priv$pull_commits_from_org(
+      repos_table = test_mocker$use("gh_repos_table"),
+      date_from = "2023-01-01",
+      date_until = "2023-06-01"
+    )
+  })
+  expect_gh_commit_rest(
+    gh_rest_commits_from_org[[1]]
+  )
+  test_mocker$cache(gh_rest_commits_from_org)
+})
+
+test_that("`filter_commits_by_team()` filters properly commits by team members", {
+  gh_rest_team_commits <- test_rest_priv$filter_commits_by_team(
+    repos_list_with_commits = test_mocker$use("gh_rest_commits_from_org"),
+    team = test_team
+  )
+  expect_gh_commit_rest(
+    gh_rest_team_commits[[1]]
+  )
+  expect_true(
+    length(gh_rest_team_commits) < length(test_mocker$use("gh_rest_commits_from_org"))
+  )
+  test_mocker$cache(gh_rest_team_commits)
+})
+
+test_that("`tailor_commits_info()` tailors commits list (by org and team)", {
+  gh_rest_tailored_commits_list <- test_rest_priv$tailor_commits_info(
+    repos_list_with_commits = test_mocker$use("gh_rest_commits_from_org"),
+    org = "r-world-devs"
+  )
+  expect_tailored_commits_list(
+    gh_rest_tailored_commits_list[[1]][[1]]
+  )
+  test_mocker$cache(gh_rest_tailored_commits_list)
+  gh_rest_tailored_commits_list_team <- test_rest_priv$tailor_commits_info(
+    repos_list_with_commits = test_mocker$use("gh_rest_team_commits"),
+    org = "r-world-devs"
+  )
+  expect_tailored_commits_list(
+    gh_rest_tailored_commits_list_team[[1]][[1]]
+  )
+  test_mocker$cache(gh_rest_tailored_commits_list_team)
+})
+
+test_that("`prepare_commits_table()` prepares commits table (for orgs and for teams)", {
+  gh_rest_commits_table <- test_rest_priv$prepare_commits_table(
+    commits_list = test_mocker$use("gh_rest_tailored_commits_list")
+  )
+  expect_commits_table(gh_rest_commits_table, with_stats = FALSE)
+  test_mocker$cache(gh_rest_commits_table)
+
+  gh_rest_commits_table_team <- test_rest_priv$prepare_commits_table(
+    commits_list = test_mocker$use("gh_rest_tailored_commits_list_team")
+  )
+  expect_commits_table(gh_rest_commits_table_team, with_stats = FALSE)
+  test_mocker$cache(gh_rest_commits_table_team)
+})
+
+test_that("`add_commits_stats()` works as expected", {
+  expect_snapshot(
+    gh_rest_commits_table_with_stats <- test_rest_priv$add_commits_stats(
+      commits_table = test_mocker$use("gh_rest_commits_table")[1:5,]
+    )
+  )
+  expect_commits_table(gh_rest_commits_table_with_stats)
+  test_mocker$cache(gh_rest_commits_table_with_stats)
+})
+
 # public methods
 
 test_that("`add_repos_contributors()` adds contributors to repos table", {
@@ -161,4 +243,36 @@ test_that("`get_repos()` works", {
   )
 
   expect_repos_table(result)
+})
+
+test_that("supportive method for getting commits works", {
+  mockery::stub(
+    test_rest$get_commits_supportive,
+    "self$get_repos_supportive",
+    test_mocker$use("gh_repos_table")
+  )
+  mockery::stub(
+    test_rest$get_commits_supportive,
+    "private$pull_commits_from_org",
+    test_mocker$use("gh_rest_commits_from_org")
+  )
+  mockery::stub(
+    test_rest$get_commits_supportive,
+    "private$add_commits_stats",
+    test_mocker$use("gh_rest_commits_table_with_stats")
+  )
+  test_settings <- list(
+    search_param = "org"
+  )
+  expect_snapshot(
+    gh_rest_commits_table <- test_rest$get_commits_supportive(
+      org = "r-world-devs",
+      date_from = "2023-01-01",
+      date_until = "2023-07-01",
+      settings = test_settings
+    )
+  )
+  expect_commits_table(
+    gh_rest_commits_table
+  )
 })

@@ -11,7 +11,7 @@ test_that("`gql_response()` work as expected for GitHub", {
   gh_commits_by_repo_gql_response <- test_gql$gql_response(
     test_mocker$use("gh_commits_by_repo_query")
   )
-  expect_gh_commit(
+  expect_gh_commit_gql(
     gh_commits_by_repo_gql_response
   )
   test_mocker$cache(gh_commits_by_repo_gql_response)

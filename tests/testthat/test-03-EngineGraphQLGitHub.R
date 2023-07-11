@@ -25,7 +25,7 @@ test_that("`pull_commits_page_from_repo()` pulls commits page from repository", 
     date_from = "2023-01-01",
     date_until = "2023-02-28"
   )
-  expect_gh_commit(
+  expect_gh_commit_gql(
     commits_page
   )
   test_mocker$cache(commits_page)

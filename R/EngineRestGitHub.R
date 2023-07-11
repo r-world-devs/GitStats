@@ -100,6 +100,45 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       NULL
     },
 
+    #' @description A suportive method to get commits, run when GraphQL fails.
+    #' @param org An organization of repositories.
+    #' @param date_from A starting date to look commits for.
+    #' @param date_until An end date to look commits for.
+    #' @param settings A list of  `GitStats` settings.
+    #' @return A table of commits.
+    get_commits_supportive = function(org,
+                                      date_from,
+                                      date_until = Sys.date(),
+                                      settings) {
+      repos_table <- self$get_repos_supportive(
+        org = org,
+        settings = list(search_param = "org")
+      )
+      if (settings$search_param == "org") {
+        cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{org}] Pulling commits...")
+      } else if (settings$search_param == "team") {
+        cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{org}][team:{settings$team_name}] Pulling commits...")
+      }
+      repos_list_with_commits <- private$pull_commits_from_org(
+        repos_table = repos_table,
+        date_from = date_from,
+        date_until = date_until
+      ) %>%
+        purrr::discard(~ length(.) == 0)
+      if (settings$search_param == "team") {
+        repos_list_with_commits <- private$filter_commits_by_team(
+          repos_list_with_commits = repos_list_with_commits,
+          team = settings$team
+        )
+      }
+      commits_table <- repos_list_with_commits %>%
+        private$tailor_commits_info(org = org) %>%
+        private$prepare_commits_table() %>%
+        private$add_commits_stats()
+
+      return(commits_table)
+    },
+
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
@@ -341,6 +380,149 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         )
       })
       repos_list
+    },
+
+    # @description Method to pull all commits from organization.
+    # @param repos_table A table of repositories.
+    # @param date_from A starting date to look commits for.
+    # @param date_until An end date to look commits for.
+    # @return A list of repositories with commits.
+    pull_commits_from_org = function(repos_table,
+                                     date_from,
+                                     date_until) {
+      repos_names <- repos_table$name
+      repo_fullnames <- paste0(repos_table$organization, "/", repos_table$name)
+
+      repos_list_with_commits <- purrr::map(repo_fullnames, function(repo_fullname) {
+        commits_from_repo <- private$pull_commits_from_repo(
+          repo_fullname = repo_fullname,
+          date_from = date_from,
+          date_until = date_until
+        )
+        return(commits_from_repo)
+      }, .progress = TRUE)
+      names(repos_list_with_commits) <- repos_names
+      return(repos_list_with_commits)
+    },
+
+    # @description Iterator over pages of commits response.
+    # @param repo_fullname Id of a project.
+    # @param date_from A starting date to look commits for.
+    # @param date_until An end date to look commits for.
+    # @return A list of commits.
+    pull_commits_from_repo = function(repo_fullname,
+                                      date_from,
+                                      date_until) {
+      all_commits_in_repo <- list()
+      page <- 1
+      repeat {
+        commits_page <- self$response(
+          endpoint = paste0(
+            self$rest_api_url,
+            "/repos/",
+            repo_fullname,
+            "/commits?since=",
+            date_to_gts(date_from),
+            "&until=",
+            date_to_gts(date_until),
+            "&page=", page
+          )
+        )
+        if (length(commits_page) > 0) {
+          all_commits_in_repo <- append(all_commits_in_repo, commits_page)
+          page <- page + 1
+        } else {
+          break
+        }
+      }
+      return(all_commits_in_repo)
+    },
+
+    # @description A helper to retrieve only important info on commits.
+    # @param repos_list_with_commits A list of repositories with commits.
+    # @param org A character, name of a group.
+    # @return A list of commits with selected information.
+    tailor_commits_info = function(repos_list_with_commits,
+                                   org) {
+      repos_list_with_commits_cut <- purrr::imap(repos_list_with_commits, function(repo, repo_name) {
+        purrr::map(repo, function(commit) {
+          list(
+            "id" = commit$sha,
+            "committed_date" = gts_to_posixt(commit$commit$author$date),
+            "author" = commit$commit$author$name,
+            "additions" = NA,
+            "deletions" = NA,
+            "repository" = repo_name,
+            "organization" = org
+          )
+        })
+      })
+      return(repos_list_with_commits_cut)
+    },
+
+    # @description Filter by contributors.
+    # @param repos_list_with_commits A list of repositories with commits.
+    # @param team A list of team members.
+    # @return A list.
+    filter_commits_by_team = function(repos_list_with_commits,
+                                      team) {
+      team_logins <- purrr::map(team, ~ .$logins) %>% unlist() %>% unname()
+      repos_list_with_team_commits <- purrr::map(repos_list_with_commits, function(repo) {
+        purrr::keep(repo, function(commit) {
+          if (length(commit$author$login > 0)) {
+            commit$author$login %in% team_logins
+          } else {
+            FALSE
+          }
+        })
+      }) %>% purrr::discard(~ length(.) == 0)
+
+      return(repos_list_with_team_commits)
+    },
+
+    # @description A helper to turn list of data.frames into one data.frame
+    # @param commits_list A list
+    # @return A data.frame
+    prepare_commits_table = function(commits_list) {
+      commits_table <- purrr::map(commits_list, function(commit) {
+        purrr::map(commit, ~ data.frame(.)) %>%
+          rbindlist()
+      }) %>% rbindlist()
+
+      if (length(commits_table) > 0) {
+        commits_table <- dplyr::mutate(
+          commits_table,
+          api_url = self$rest_api_url
+        )
+      }
+      return(commits_table)
+    },
+
+    # @description A wrapper to pull stats for all commits
+    # @param commits_table A table with commits
+    # @return A data.frame
+    add_commits_stats = function(commits_table) {
+      cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}] Pulling commits stats...")
+      repo_fullnames <- paste0(commits_table$organization, "/", commits_table$repository)
+      commit_stats <- purrr::map2_dfr(commits_table$id, repo_fullnames,
+                                      function(commit_sha,
+                                               repo_fullname) {
+        commit <- self$response(
+          endpoint = paste0(
+            self$rest_api_url,
+            "/repos/",
+            repo_fullname,
+            "/commits/",
+            commit_sha)
+        )
+        list(
+          additions = commit$stats$additions,
+          deletions = commit$stats$deletions
+        )
+      }, .progress = TRUE)
+      commits_table$additions <- commit_stats$additions
+      commits_table$deletions <- commit_stats$deletions
+      return(commits_table)
     }
   )
 )
