@@ -18,7 +18,7 @@ test_gql_gl <- EngineGraphQLGitLab$new(
 )
 
 test_that("get_users build users table for GitLab", {
-  users_result <- test_gql$get_users(
+  users_result <- test_gql_gl$get_users(
     users = c("maciekbanas", "Cotau", "marcinkowskak")
   )
   expect_users_table(

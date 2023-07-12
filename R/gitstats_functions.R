@@ -187,6 +187,7 @@ get_commits <- function(gitstats_obj,
 #' @title Get users statistics.
 #' @name get_users
 #' @description Get information on users.
+#' @param gitstats_obj A GitStats object.
 #' @param users A character vector of users.
 #' @examples
 #' \dontrun{
