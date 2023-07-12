@@ -7,6 +7,8 @@
 get_users(gitstats_obj, users)
 }
 \arguments{
+\item{gitstats_obj}{A GitStats object.}
+
 \item{users}{A character vector of users.}
 }
 \value{

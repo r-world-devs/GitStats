@@ -5,6 +5,9 @@ GitStats 0.1.0.9000
 - added `get_users()` function to pull information on users (I: #199 PR: #238)
 - removed `contributors` as basic stat when pulling `repos` and added `add_repos_contributors()` user function and `add_contributors` parameter to `get_repos()` function to add conditionally information on contributors to repositories table (I: #235 PR: #243)
 - OOP optimization: moved method on adding issues do repository table via REST to privates (I: #235 PR: #243)
+- handled errors when tokens do not grant access (I: #242 PR: #247)
+- in repositories output set `api_url` column as an address to the repo, not the host (I: #201 PR: )
+
 
 GitStats 0.1.0
 

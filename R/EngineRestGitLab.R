@@ -296,7 +296,8 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           "issues_open" = project$issues_open,
           "issues_closed" = project$issues_closed,
           "organization" = project$namespace$path,
-          "repo_url" = paste0(self$rest_api_url, "/projects/", project$id)
+          "repo_url" = project$web_url,
+          "api_url" = paste0(self$rest_api_url, "/projects/", project$id)
         )
       })
       projects_list

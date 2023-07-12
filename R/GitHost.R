@@ -95,7 +95,7 @@ GitHost <- R6::R6Class("GitHost",
     #' @return A table of repositories with added information on contributors.
     add_repos_contributors = function(repos_table) {
       repos_table <- repos_table %>%
-        dplyr::filter(api_url == gsub("/v+.*", "", private$api_url))
+        dplyr::filter(grepl(gsub("/v+.*", "", private$api_url), api_url))
       repos_table <- purrr::map_dfr(private$engines, function (engine) {
         if (inherits(engine, "EngineRest")) {
           engine$add_repos_contributors(

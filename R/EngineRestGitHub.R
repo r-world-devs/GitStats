@@ -297,7 +297,8 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
           "issues_open" = repo$issues_open,
           "issues_closed" = repo$issues_closed,
           "organization" = repo$owner$login,
-          "repo_url" = repo$url
+          "repo_url" = repo$html_url,
+          "api_url" = repo$url
         )
       })
 
