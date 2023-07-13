@@ -11,7 +11,7 @@ git_stats <- create_gitstats() %>%
   set_connection(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-    orgs = c("mbtests", "erasmusmc-public-health")
+    orgs = c("mbtests", "gitlab-org")
   )
 
 git_stats
@@ -47,6 +47,8 @@ setup(git_stats,
 # now pull repos by default by team
 get_repos(git_stats)
 get_commits(git_stats, date_from = "2020-01-01")
+
+reset_language(git_stats)
 
 # Change your settings to searches by phrase:
 setup(git_stats,

@@ -213,3 +213,16 @@ get_users <- function(gitstats_obj,
   )
   return(invisible(gitstats_obj))
 }
+
+#' @title Reset language settings
+#' @name reset_language
+#' @description Sets language parameter to NULL (switches of filtering by language.)
+#' @param gitstats_obj A GitStats object.
+#' @return A GitStats object.
+#' @export
+reset_language <- function(gitstats_obj){
+  priv <- environment(gitstats_obj$setup)$private
+  priv$settings$language <- NULL
+  cli::cli_alert_info("Setting language parameter to NULL.")
+  return(gitstats_obj)
+}

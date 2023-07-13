@@ -36,3 +36,18 @@
       Repositories output: <not defined>
       Commits output: <not defined>
 
+# Setting language to NULL resets language settings
+
+    Code
+      setup(test_gitstats, language = NULL)
+    Output
+      A <GitStats> object for 0 hosts:
+      Hosts: 
+      Organisations: 
+      Search preference: org
+      Team: RWD-IE (0 members)
+      Phrase: covid
+      Language: <not defined>
+      Repositories output: <not defined>
+      Commits output: <not defined>
+

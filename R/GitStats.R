@@ -64,8 +64,10 @@ GitStats <- R6::R6Class("GitStats",
       if (!is.null(language)) {
         private$settings$language <- private$language_handler(language)
         cli::cli_alert_success(
-          paste0("Your programming language is set to <", language, ">.")
+          "Your programming language is set to {cli::col_green({language})}."
         )
+      } else {
+        private$settings$language <- NULL
       }
       private$settings$print_out <- print_out
     },
