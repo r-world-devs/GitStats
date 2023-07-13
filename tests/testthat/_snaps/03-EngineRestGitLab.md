@@ -6,7 +6,7 @@
 
     Code
       gl_repos_table <- test_rest$add_repos_contributors(test_mocker$use(
-        "gl_repos_by_phrase_table"))
+        "gl_repos_table"))
     Message <cliMessage>
       i [GitLab][Engine:REST] Pulling contributors...
 

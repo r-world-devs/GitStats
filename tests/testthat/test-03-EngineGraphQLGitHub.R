@@ -182,6 +182,7 @@ test_that("`prepare_repos_table()` prepares repos table", {
   expect_repos_table(
     gh_repos_table_team
   )
+  test_mocker$cache(gh_repos_table_team)
 })
 
 test_that("`prepare_commits_table()` prepares commits table", {

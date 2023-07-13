@@ -207,8 +207,6 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
           break
         }
       }
-      full_repos_list <- full_repos_list #%>%
-        #private$pull_repos_languages()
       return(full_repos_list)
     },
 

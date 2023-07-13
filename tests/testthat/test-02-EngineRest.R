@@ -58,7 +58,7 @@ test_that("`perform_request()` returns proper status", {
 # public methods
 
 test_that("`response()` returns search response from GitHub's REST API", {
-  search_endpoint <- "https://api.github.com/search/code?q='shiny'+user:r-world-devs"
+  search_endpoint <- "https://api.github.com/search/code?q='shiny'+user:openpharma"
   test_mocker$cache(search_endpoint)
   gh_search_response <- test_rest$response(search_endpoint)
 
@@ -75,7 +75,7 @@ test_rest <- EngineRest$new(
 
 test_that("`response()` returns commits response from GitLab's REST API", {
   gl_search_response <- test_rest$response(
-    "https://gitlab.com/api/v4/groups/2853599/search?scope=blobs&search=covid"
+    "https://gitlab.com/api/v4/groups/9970/search?scope=blobs&search=covid"
   )
   expect_gl_search_response(gl_search_response[[1]])
   test_mocker$cache(gl_search_response)

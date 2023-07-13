@@ -45,7 +45,7 @@ test_that("`pull_repos_languages` works", {
 test_that("`search_repos_by_phrase()` works", {
   gl_repos_by_phrase <- test_rest_priv$search_repos_by_phrase(
     phrase = "covid",
-    org = "erasmusmc-public-health"
+    org = "gitlab-org"
   )
   expect_list_contains(
     gl_repos_by_phrase[[1]],
@@ -157,8 +157,7 @@ test_that("`prepare_commits_table()` prepares table of commits properly", {
 })
 
 test_that("`add_repos_issues()` adds issues to repos table", {
-  gl_repos_by_phrase_table <- test_mocker$use("gl_repos_table")
-
+  gl_repos_by_phrase_table <- test_mocker$use("gl_repos_by_phrase_table")
   gl_repos_by_phrase_table <- test_rest_priv$add_repos_issues(
     gl_repos_by_phrase_table
   )
@@ -178,7 +177,7 @@ test_that("`add_repos_issues()` adds issues to repos table", {
 test_that("`add_repos_contributors()` adds contributors to repos table", {
   expect_snapshot(
     gl_repos_table <- test_rest$add_repos_contributors(
-      test_mocker$use("gl_repos_by_phrase_table")
+      test_mocker$use("gl_repos_table")
     )
   )
   expect_repos_table_with_contributors(
@@ -236,7 +235,7 @@ test_that("`get_commits()` works as expected", {
 test_that("Engine filters GitLab repositories' table by team members", {
   gl_repos_table <- test_mocker$use("gl_repos_table")
 
-  result <- test_rest_priv$filter_repos_by_team(
+  gl_repos_table_team <- test_rest_priv$filter_repos_by_team(
     gl_repos_table,
     team = list(
       "Member1" = list(
@@ -245,18 +244,19 @@ test_that("Engine filters GitLab repositories' table by team members", {
     )
   )
   expect_type(
-    result,
+    gl_repos_table_team,
     "list"
   )
   expect_length(
-    result,
+    gl_repos_table_team,
     length(gl_repos_table)
   )
   expect_gt(
-    length(result$contributors),
+    length(gl_repos_table_team$contributors),
     0
   )
   expect_true(
-    all(grepl("Maciej Banaś", result$contributors))
+    all(grepl("Maciej Banaś", gl_repos_table_team$contributors))
   )
+  test_mocker$cache(gl_repos_table_team)
 })
