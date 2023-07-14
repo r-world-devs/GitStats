@@ -5,7 +5,6 @@ pkgload::load_all()
 git_stats <- create_gitstats() %>%
   set_connection(
     api_url = "https://api.github.com",
-    token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma")
   ) %>%
   set_connection(

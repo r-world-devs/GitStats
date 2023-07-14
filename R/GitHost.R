@@ -18,6 +18,9 @@ GitHost <- R6::R6Class("GitHost",
                           token = NA,
                           api_url = NA) {
       private$api_url <- api_url
+      if (is.null(token)){
+        token <- private$set_default_token()
+      }
       if (grepl("https://", api_url) && grepl("github", api_url)) {
         private$engines$rest <- EngineRestGitHub$new(
           token = token,
@@ -185,6 +188,18 @@ GitHost <- R6::R6Class("GitHost",
 
     # @field engines A placeholder for REST and GraphQL Engine classes.
     engines = list(),
+
+    # @description Set default token if none exists.
+    set_default_token = function() {
+      if (grepl("github", private$api_url)) {
+        token <- Sys.getenv("GITHUB_PAT")
+        cli::cli_alert_info("Using GitHub PAT from GITHUB_PAT envar.")
+      } else {
+        token <- Sys.getenv("GITLAB_PAT")
+        cli::cli_alert_info("Using GitLab PAT from GITLAB_PAT envar.")
+      }
+      return(token)
+    },
 
     # @description GraphQL url handler (if not provided).
     # @param rest_api_url REST API url.

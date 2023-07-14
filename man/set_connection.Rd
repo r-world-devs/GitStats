@@ -4,7 +4,7 @@
 \alias{set_connection}
 \title{Setting connections}
 \usage{
-set_connection(gitstats_obj, api_url, token, orgs)
+set_connection(gitstats_obj, api_url, token = NULL, orgs)
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
@@ -28,7 +28,6 @@ Setting connections
 my_gitstats <- create_gitstats() \%>\%
   set_connection(
     api_url = "https://api.github.com",
-    token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma", "pharmaverse")
   ) \%>\%
   set_connection(

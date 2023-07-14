@@ -22,7 +22,6 @@ create_gitstats <- function() {
 #' my_gitstats <- create_gitstats() %>%
 #'   set_connection(
 #'     api_url = "https://api.github.com",
-#'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma", "pharmaverse")
 #'   ) %>%
 #'   set_connection(
@@ -34,7 +33,7 @@ create_gitstats <- function() {
 #' @export
 set_connection <- function(gitstats_obj,
                            api_url,
-                           token,
+                           token = NULL,
                            orgs) {
   gitstats_obj$add_host(
     api_url = api_url,
