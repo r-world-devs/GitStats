@@ -20,7 +20,7 @@
       test_gitstats <- create_gitstats() %>% set_connection(api_url = "https://api.github.com",
         orgs = c("openpharma", "r-world-devs"))
     Message <cliMessage>
-      i Using GitHub PAT from GITHUB_PAT envar.
+      i Using PAT from GITHUB_PAT envar.
       v Set connection to GitHub.
 
 # When empty token for GitLab, GitStats pulls default token
@@ -31,7 +31,7 @@
           orgs = "mbtests")
       })
     Message <cliMessage>
-      i Using GitLab PAT from GITLAB_PAT envar.
+      i Using PAT from GITLAB_PAT envar.
       v Set connection to GitLab.
 
 # Warning shows if organizations are not specified and host is not passed

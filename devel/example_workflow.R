@@ -9,7 +9,6 @@ git_stats <- create_gitstats() %>%
   ) %>%
   set_connection(
     api_url = "https://gitlab.com/api/v4",
-    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = c("mbtests", "gitlab-org")
   )
 
@@ -18,7 +17,8 @@ git_stats
 # examples for getting repos (default search parameter is 'org')
 get_repos(git_stats)
 add_repos_contributors(git_stats)
-git_stats$show_repos()
+dplyr::glimpse(git_stats$show_repos())
+
 get_repos(git_stats, add_contributors = TRUE)
 
 get_commits(git_stats, date_from = "2022-01-01")

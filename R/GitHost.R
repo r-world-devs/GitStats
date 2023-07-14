@@ -192,13 +192,43 @@ GitHost <- R6::R6Class("GitHost",
     # @description Set default token if none exists.
     set_default_token = function() {
       if (grepl("github", private$api_url)) {
-        token <- Sys.getenv("GITHUB_PAT")
-        cli::cli_alert_info("Using GitHub PAT from GITHUB_PAT envar.")
+        primary_token_name <- "GITHUB_PAT"
       } else {
-        token <- Sys.getenv("GITLAB_PAT")
-        cli::cli_alert_info("Using GitLab PAT from GITLAB_PAT envar.")
+        primary_token_name <- "GITLAB_PAT"
+      }
+      token <- Sys.getenv(primary_token_name)
+      if (private$test_token(token)) {
+        cli::cli_alert_info("Using PAT from {primary_token_name} envar.")
+      } else {
+        pat_names <- names(Sys.getenv()[grepl(primary_token_name, names(Sys.getenv()))])
+        possible_tokens <- pat_names[pat_names != primary_token_name]
+        for (token_name in possible_tokens) {
+          if (private$test_token(Sys.getenv(token_name))) {
+            token <- Sys.getenv(token_name)
+            cli::cli_alert_info("Using PAT from {token_name} envar.")
+            break
+          }
+        }
       }
       return(token)
+    },
+
+    # @description Helper to test if a token works
+    test_token = function(token) {
+      response <- NULL
+      test_endpoint <- if (grepl("github", private$api_url)) {
+        private$api_url
+      } else {
+        paste0(private$api_url, "/projects")
+      }
+      try(response <- httr2::request(test_endpoint) %>%
+        httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
+        httr2::req_perform(), silent = TRUE)
+      if (!is.null(response)) {
+        TRUE
+      } else {
+        FALSE
+      }
     },
 
     # @description GraphQL url handler (if not provided).

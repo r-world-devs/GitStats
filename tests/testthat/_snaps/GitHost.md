@@ -3,7 +3,7 @@
     Code
       default_token <- test_host$set_default_token()
     Message <cliMessage>
-      i Using GitHub PAT from GITHUB_PAT envar.
+      i Using PAT from GITHUB_PAT envar.
 
 # `set_default_token` sets default token for GitLab
 
@@ -12,7 +12,7 @@
         default_token <- test_gl_host$set_default_token()
       })
     Message <cliMessage>
-      i Using GitLab PAT from GITLAB_PAT envar.
+      i Using PAT from GITLAB_PAT envar.
 
 # GitHost filters GitHub repositories' (pulled by org) table by languages
 
