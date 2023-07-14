@@ -1,8 +1,12 @@
 Package: GitStats
 Title: Get Statistics from Git Hosting Services
 Version: 0.1.0.9000
-Authors@R: 
-    person("Maciej", "Banaś", , "banasmaciek@gmail.com", role = c("aut", "cre"))
+Authors@R: c(
+    person(given = "Maciej", family = "Banaś", email = "banasmaciek@gmail.com", role = c("aut", "cre")),
+    person(given = "Kamil", family = "Koziej", email = "koziej.k@gmail.com", role = "aut"),
+    person(given = "Karolina", family = "Marcinkowska", email = "karolina_marcinkowska@onet.pl", role = "aut"),
+    person(given = "Matt", family = "Secrest", email = "secrestm@gene.com", role = "aut")
+  )
 Description: Obtain statistics in a standardized way from multiple Git services: GitHub and GitLab for the time-being. 
     Its main purpose is to help teams, whose activities are spread across multiple git platforms, get their repository 
     metadata in a standardized way from all these platforms.
