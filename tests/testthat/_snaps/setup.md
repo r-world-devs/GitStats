@@ -24,7 +24,7 @@
     Code
       setup(test_gitstats, language = "Python")
     Message <cliMessage>
-      v Your programming language is set to <Python>.
+      v Your programming language is set to Python.
     Output
       A <GitStats> object for 0 hosts:
       Hosts: 

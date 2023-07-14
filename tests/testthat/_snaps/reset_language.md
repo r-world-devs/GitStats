@@ -4,11 +4,6 @@
       reset_language(test_gitstats)
     Message <cliMessage>
       i Setting language parameter to NULL.
-
----
-
-    Code
-      test_gitstats
     Output
       A <GitStats> object for 2 hosts:
       Hosts: https://api.github.com, https://gitlab.com/api/v4
