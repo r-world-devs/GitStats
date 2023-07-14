@@ -60,6 +60,15 @@ test_that("`set_default_token` sets default token for GitLab", {
   )
 })
 
+test_that("`test_token` works properly", {
+  expect_true(
+    test_host$test_token(Sys.getenv("GITHUB_PAT"))
+  )
+  expect_false(
+    test_host$test_token("false_token")
+  )
+})
+
 test_that("`set_gql_url()` correctly sets gql api url - for public GitHub", {
   expect_equal(
     test_host$set_gql_url("https://api.github.com"),
