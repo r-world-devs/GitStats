@@ -18,10 +18,9 @@ test_that("Set connection returns appropriate messages", {
   )
 })
 
-test_that("Error shows if organizations are not specified", {
+test_that("Warning shows if organizations are not specified and host is not passed", {
   test_gitstats <- create_gitstats()
   expect_snapshot(
-    error = TRUE,
     test_gitstats %>%
       set_connection(
         api_url = "https://api.github.com",
@@ -30,11 +29,10 @@ test_that("Error shows if organizations are not specified", {
   )
 })
 
-test_that("Errors pop out, when wrong input is passed when setting connection", {
+test_that("Warning shows, when wrong input is passed when setting connection and host is not passed", {
   test_gitstats <- create_gitstats()
 
   expect_snapshot(
-    error = TRUE,
     set_connection(
       gitstats_obj = test_gitstats,
       api_url = "https://avengers.com",

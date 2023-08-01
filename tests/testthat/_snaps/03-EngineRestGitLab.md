@@ -1,3 +1,7 @@
+# `check_token()` prints error when token exists but does not grant access
+
+    x HTTP 401 Unauthorized.
+
 # `add_repos_contributors()` adds contributors to repos table
 
     Code

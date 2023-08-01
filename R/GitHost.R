@@ -27,7 +27,6 @@ GitHost <- R6::R6Class("GitHost",
           token = token,
           gql_api_url = private$set_gql_url(api_url)
         )
-        cli::cli_alert_success("Set connection to GitHub.")
       } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
         private$engines$rest <- EngineRestGitLab$new(
           token = token,
@@ -37,7 +36,6 @@ GitHost <- R6::R6Class("GitHost",
           token = token,
           gql_api_url = private$set_gql_url(api_url)
         )
-        cli::cli_alert_success("Set connection to GitLab.")
       } else {
         stop("This connection is not supported by GitStats class object.")
       }
@@ -97,7 +95,7 @@ GitHost <- R6::R6Class("GitHost",
     #' @return A table of repositories with added information on contributors.
     add_repos_contributors = function(repos_table) {
       repos_table <- repos_table %>%
-        dplyr::filter(api_url == gsub("/v+.*", "", private$api_url))
+        dplyr::filter(grepl(gsub("/v+.*", "", private$api_url), api_url))
       repos_table <- purrr::map_dfr(private$engines, function (engine) {
         if (inherits(engine, "EngineRest")) {
           engine$add_repos_contributors(

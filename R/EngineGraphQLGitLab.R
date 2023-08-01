@@ -146,7 +146,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
        })
        repos_table <- dplyr::mutate(
          repos_table,
-         api_url = gsub("/graphql", "", self$gql_api_url)
+         api_url = paste0(gsub("/graphql", "", self$gql_api_url), "/projects/", gsub("gid://gitlab/Project/", "", id))
        ) %>%
          dplyr::relocate(
            repo_url,

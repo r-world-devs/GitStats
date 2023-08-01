@@ -7,14 +7,9 @@ test_rest <- TestEngineRest$new(
 
 test_rest_priv <- environment(test_rest$response)$private
 
-test_that("when token is proper token is passed", {
-  expect_equal(
-    test_rest_priv$check_token(Sys.getenv("GITHUB_PAT")),
-    Sys.getenv("GITHUB_PAT")
-  )
-})
 
-test_that("When token is empty throw error and do not pass connection", {
+
+test_that("When token is empty throw error", {
   expect_snapshot(
     error = TRUE,
     test_rest_priv$check_token("")

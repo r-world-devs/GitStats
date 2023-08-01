@@ -11,7 +11,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
                           token) {
       super$initialize(
         rest_api_url = rest_api_url,
-        token = token
+        token = private$check_token(token)
       )
     },
 
@@ -167,6 +167,27 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
   ),
   private = list(
 
+    # @description Check if the token gives access to API.
+    # @param token A token.
+    # @return A token.
+    check_token = function(token) {
+      super$check_token(token)
+      if (nchar(token) > 0) {
+        withCallingHandlers({
+          self$response(endpoint = paste0(self$rest_api_url, "/projects"),
+                        token = token)
+        },
+        message = function(m) {
+          if (grepl("401", m$message)) {
+            cli::cli_abort(c(
+              "x" = m$message
+            ))
+          }
+        })
+      }
+      return(invisible(token))
+    },
+
     # @description Iterator over pulling pages of repositories.
     # @param org A character, a group of projects.
     # @return A list of repositories from organization.
@@ -275,7 +296,8 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           "issues_open" = project$issues_open,
           "issues_closed" = project$issues_closed,
           "organization" = project$namespace$path,
-          "repo_url" = paste0(self$rest_api_url, "/projects/", project$id)
+          "repo_url" = project$web_url,
+          "api_url" = paste0(self$rest_api_url, "/projects/", project$id)
         )
       })
       projects_list

@@ -17,8 +17,8 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
      #' @param token A token.
      initialize = function(gql_api_url,
                            token) {
-       private$token <- token
        self$gql_api_url <- gql_api_url
+       private$token <- token
      },
 
      #' @description Wrapper of GraphQL API request and response.
