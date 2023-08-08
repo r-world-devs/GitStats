@@ -105,6 +105,21 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         private$prepare_commits_table(org)
 
       return(commits_table)
+    },
+
+    #' @description Method to get commits.
+    #' @details This method must exist as it is called from the GitHost wrapper
+    #'   above.
+    #' @param org An organization.
+    #' @param date_from A starting date to look commits for.
+    #' @param date_until An end date to look commits for.
+    #' @param settings A list of  `GitStats` settings.
+    #' @return A table of commits.
+    get_commits_supportive = function(org,
+                                      date_from,
+                                      date_until = Sys.date(),
+                                      settings) {
+      NULL
     }
   ),
   private = list(

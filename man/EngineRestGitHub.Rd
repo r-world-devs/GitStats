@@ -17,6 +17,7 @@ A class for methods wrapping GitHub's REST API responses.
 \item \href{#method-get_repos}{\code{EngineRestGitHub$get_repos()}}
 \item \href{#method-get_repos_supportive}{\code{EngineRestGitHub$get_repos_supportive()}}
 \item \href{#method-get_commits}{\code{EngineRestGitHub$get_commits()}}
+\item \href{#method-get_commits_supportive}{\code{EngineRestGitHub$get_commits_supportive()}}
 \item \href{#method-add_repos_contributors}{\code{EngineRestGitHub$add_repos_contributors()}}
 \item \href{#method-clone}{\code{EngineRestGitHub$clone()}}
 }
@@ -140,6 +141,37 @@ commits - it is done for GitHub via GraphQL. Still the method must
 exist as it is called from the GitHost wrapper above.
 }
 
+\subsection{Returns}{
+A table of commits.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_commits_supportive"></a>}}
+\if{latex}{\out{\hypertarget{method-get_commits_supportive}{}}}
+\subsection{Method \code{get_commits_supportive()}}{
+A suportive method to get commits, run when GraphQL fails.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$get_commits_supportive(
+  org,
+  date_from,
+  date_until = Sys.date(),
+  settings
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{org}}{An organization of repositories.}
+
+\item{\code{date_from}}{A starting date to look commits for.}
+
+\item{\code{date_until}}{An end date to look commits for.}
+
+\item{\code{settings}}{A list of  \code{GitStats} settings.}
+}
+\if{html}{\out{</div>}}
+}
 \subsection{Returns}{
 A table of commits.
 }

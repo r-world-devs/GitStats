@@ -123,13 +123,35 @@ GitHost <- R6::R6Class("GitHost",
       }
 
       commits_table <- purrr::map(private$orgs, function(org) {
-        commits_table_org <- purrr::map(private$engines, ~ .$get_commits(
-          org = org,
-          date_from = date_from,
-          date_until = date_until,
-          settings = settings
-        )) %>%
-          purrr::list_rbind()
+        tryCatch({
+          commits_table_org <- purrr::map(private$engines, ~ .$get_commits(
+            org = org,
+            date_from = date_from,
+            date_until = date_until,
+            settings = settings
+          )) %>%
+            purrr::list_rbind()
+        },
+        error = function(e) {
+          if (grepl("502|400", e)) {
+            if (grepl("502", e)) {
+              cli::cli_alert_warning(cli::col_yellow("HTTP 502 Bad Gateway Error."))
+            } else if (grepl("400", e)) {
+              cli::cli_alert_warning(cli::col_yellow("HTTP 400 Bad Request."))
+            }
+            cli::cli_alert_info("Switching to REST engine.")
+            commits_table_org <<- purrr::map(private$engines, function (engine) {
+              engine$get_commits_supportive(
+                org = org,
+                date_from = date_from,
+                date_until = date_until,
+                settings = settings
+              )
+            })
+          } else {
+            e
+          }
+        })
 
         return(commits_table_org)
       }) %>%
