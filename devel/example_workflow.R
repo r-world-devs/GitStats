@@ -46,6 +46,7 @@ setup(git_stats,
 
 # now pull repos by default by team
 get_repos(git_stats)
+git_stats$show_repos()
 get_commits(git_stats, date_from = "2020-01-01")
 
 # Change your settings to searches by phrase:

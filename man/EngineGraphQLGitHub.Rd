@@ -16,6 +16,7 @@ A class for methods wrapping GitHub's GraphQL API responses.
 \item \href{#method-get_repos}{\code{EngineGraphQLGitHub$get_repos()}}
 \item \href{#method-get_repos_supportive}{\code{EngineGraphQLGitHub$get_repos_supportive()}}
 \item \href{#method-get_commits}{\code{EngineGraphQLGitHub$get_commits()}}
+\item \href{#method-get_commits_supportive}{\code{EngineGraphQLGitHub$get_commits_supportive()}}
 \item \href{#method-clone}{\code{EngineGraphQLGitHub$clone()}}
 }
 }
@@ -114,6 +115,42 @@ filtered by team members.
 }
 \if{html}{\out{</div>}}
 }
+\subsection{Returns}{
+A table of commits.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_commits_supportive"></a>}}
+\if{latex}{\out{\hypertarget{method-get_commits_supportive}{}}}
+\subsection{Method \code{get_commits_supportive()}}{
+Method to get commits.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$get_commits_supportive(
+  org,
+  date_from,
+  date_until = Sys.date(),
+  settings
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{org}}{An organization.}
+
+\item{\code{date_from}}{A starting date to look commits for.}
+
+\item{\code{date_until}}{An end date to look commits for.}
+
+\item{\code{settings}}{A list of  \code{GitStats} settings.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+This method must exist as it is called from the GitHost wrapper
+above.
+}
+
 \subsection{Returns}{
 A table of commits.
 }

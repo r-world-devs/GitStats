@@ -9,7 +9,20 @@ get_repos(gitstats_obj, add_contributors = FALSE)
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
 
-\item{add_contributors}{A boolean to decide whether to add contributors information to repositories.}
+\item{add_contributors}{A logical parameter to decide whether to add
+information about repositories' contributors to the repositories output
+(table) when pulling them by organizations (\code{orgs}) or \code{phrase}. By default
+it is set to \code{FALSE} which makes function run faster as, in the case of
+\code{orgs} search parameter, it reaches only \code{GraphQL} endpoint with a query on
+repositories, and in the case of \code{phrase} search parameter it reaches only
+\verb{repositories REST API} endpoint. However, the pitfall is that the result
+does not convey information on contributors. \cr\cr When set to \code{TRUE},
+\code{GitStats} iterates additionally over pulled repositories and reaches to
+the \verb{contributors APIs}, which makes it slower, but gives additional
+information. The same may be achieved with running separately function
+\code{add_repos_contributors()} on the \code{GitStats} object with the \code{repositories}
+output. \cr\cr When pulling repositories by \bold{\code{team}} the parameter
+always turns to \code{TRUE} and pulls information on \code{contributors}.}
 }
 \value{
 A \code{GitStats} class object with updated \verb{$repos} field.
