@@ -76,6 +76,10 @@ GitHost <- R6::R6Class("GitHost",
       }) %>%
         purrr::list_rbind()
 
+      if (settings$search_param == "team") {
+        add_contributors <- TRUE
+      }
+
       if (add_contributors) {
         repos_table <- self$add_repos_contributors(repos_table)
       }

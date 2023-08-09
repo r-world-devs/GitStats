@@ -68,10 +68,13 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         repos_table <- private$pull_repos_from_org(org) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
-          private$add_repos_issues() %>%
-          self$add_repos_contributors() %>%
+          private$add_repos_issues()
+        suppressMessages({
+        repos_table <- self$add_repos_contributors(
+          repos_table = repos_table
+          ) %>%
           private$filter_repos_by_team(team = settings$team)
-        repos_table$contributors <- NULL
+        })
       } else {
         repos_table <- NULL
       }
