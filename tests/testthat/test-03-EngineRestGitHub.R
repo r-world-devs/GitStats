@@ -60,7 +60,7 @@ test_that("`search_repos_by_phrase()` for GitHub prepares a list of repositories
   gh_repos_by_phrase <- test_rest_priv$search_repos_by_phrase(
     phrase = "shiny",
     org = "openpharma",
-    language = NULL
+    language = "All"
   )
   expect_gh_search_response(
     gh_repos_by_phrase[[1]]

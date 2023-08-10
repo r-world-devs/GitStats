@@ -1,4 +1,4 @@
-test_that("`reset_language()` resets only language settings to NULL", {
+test_that("`reset_language()` resets language settings to 'All'", {
   test_gitstats <- create_test_gitstats(hosts = 2)
   suppressMessages({
     invisible(
@@ -22,6 +22,6 @@ test_that("`reset_language()` resets only language settings to NULL", {
   )
   expect_equal(
     priv$settings$language,
-    NULL
+    "All"
   )
 })
