@@ -79,3 +79,11 @@ test_that("Setting language works correctly", {
     )
   )
 })
+
+test_that("Setting language to 'All' resets language settings", {
+  expect_snapshot(
+    setup(test_gitstats,
+          language = "All"
+    )
+  )
+})

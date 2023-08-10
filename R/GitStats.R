@@ -61,11 +61,13 @@ GitStats <- R6::R6Class("GitStats",
         }
       }
       private$settings$search_param <- search_param
-      if (!is.null(language)) {
+      if (language != "All") {
         private$settings$language <- private$language_handler(language)
         cli::cli_alert_success(
-          paste0("Your programming language is set to <", language, ">.")
+          "Your programming language is set to {cli::col_green({language})}."
         )
+      } else {
+        private$settings$language <- "All"
       }
       private$settings$print_out <- print_out
     },
@@ -262,7 +264,7 @@ GitStats <- R6::R6Class("GitStats",
       phrase = NULL,
       team_name = NULL,
       team = list(),
-      language = NULL,
+      language = "All",
       print_out = TRUE
     ),
 
@@ -311,7 +313,7 @@ GitStats <- R6::R6Class("GitStats",
     # @param language A character, language name
     # @return A character
     language_handler = function(language) {
-      if (!is.null(language)) {
+      if (language != "All") {
         substr(language, 1, 1) <- toupper(substr(language, 1, 1))
       } else if (language %in% c("javascript", "Javascript", "js", "JS", "Js")) {
         language <- "JavaScript"

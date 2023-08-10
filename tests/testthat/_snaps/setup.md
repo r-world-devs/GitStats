@@ -15,7 +15,7 @@
       Search preference: phrase
       Team: RWD-IE (0 members)
       Phrase: covid
-      Language: <not defined>
+      Language: All
       Repositories output: <not defined>
       Commits output: <not defined>
 
@@ -24,7 +24,7 @@
     Code
       setup(test_gitstats, language = "Python")
     Message <cliMessage>
-      v Your programming language is set to <Python>.
+      v Your programming language is set to Python.
     Output
       A <GitStats> object for 0 hosts:
       Hosts: 
@@ -33,6 +33,21 @@
       Team: RWD-IE (0 members)
       Phrase: covid
       Language: Python
+      Repositories output: <not defined>
+      Commits output: <not defined>
+
+# Setting language to 'All' resets language settings
+
+    Code
+      setup(test_gitstats, language = "All")
+    Output
+      A <GitStats> object for 0 hosts:
+      Hosts: 
+      Organisations: 
+      Search preference: org
+      Team: RWD-IE (0 members)
+      Phrase: covid
+      Language: All
       Repositories output: <not defined>
       Commits output: <not defined>
 

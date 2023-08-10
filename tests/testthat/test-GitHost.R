@@ -29,7 +29,7 @@ test_that("`set_gql_url()` correctly sets gql api url - for public and private g
   )
 })
 
-test_that("GitHost filters repositories' table by languages", {
+test_that("GitHost filters GitHub repositories' (pulled by org) table by languages", {
   repos_table <- test_mocker$use("gh_repos_table")
   expect_snapshot(
     result <- test_host$filter_repos_by_language(
@@ -41,8 +41,117 @@ test_that("GitHost filters repositories' table by languages", {
     result,
     length(repos_table)
   )
+  expect_gt(
+    nrow(result),
+    0
+  )
   expect_true(
     all(grepl("JavaScript", result$languages))
+  )
+})
+
+test_that("GitHost filters GitHub repositories' (pulled by team) table by languages", {
+  repos_table <- test_mocker$use("gh_repos_table_team")
+  expect_snapshot(
+    result <- test_host$filter_repos_by_language(
+      repos_table,
+      language = "CSS"
+    )
+  )
+  expect_length(
+    result,
+    length(repos_table)
+  )
+  expect_gt(
+    nrow(result),
+    0
+  )
+  expect_true(
+    all(grepl("CSS", result$languages))
+  )
+})
+
+test_that("GitHost filters GitHub repositories' (pulled by phrase) table by languages", {
+  gh_repos_table <- test_mocker$use("gh_repos_by_phrase_table")
+  expect_snapshot(
+    result <- test_host$filter_repos_by_language(
+      gh_repos_table,
+      language = "R"
+    )
+  )
+  expect_length(
+    result,
+    length(gh_repos_table)
+  )
+  expect_gt(
+    nrow(result),
+    0
+  )
+  expect_true(
+    all(grepl("R", result$languages))
+  )
+})
+
+test_that("GitHost filters GitLab repositories' (pulled by org) table by languages", {
+  gl_repos_table <- test_mocker$use("gl_repos_table")
+  expect_snapshot(
+    result <- test_host$filter_repos_by_language(
+      gl_repos_table,
+      language = "Python"
+    )
+  )
+  expect_length(
+    result,
+    length(gl_repos_table)
+  )
+  expect_gt(
+    nrow(result),
+    0
+  )
+  expect_true(
+    all(grepl("Python", result$languages))
+  )
+})
+
+test_that("GitHost filters GitLab repositories' (pulled by team) table by languages", {
+  repos_table <- test_mocker$use("gl_repos_table_team")
+  expect_snapshot(
+    result <- test_host$filter_repos_by_language(
+      repos_table,
+      language = "Python"
+    )
+  )
+  expect_length(
+    result,
+    length(repos_table)
+  )
+  expect_gt(
+    nrow(result),
+    0
+  )
+  expect_true(
+    all(grepl("Python", result$languages))
+  )
+})
+
+test_that("GitHost filters GitLab repositories' (pulled by phrase) table by languages", {
+  gl_repos_table <- test_mocker$use("gl_repos_by_phrase_table")
+  expect_snapshot(
+    result <- test_host$filter_repos_by_language(
+      gl_repos_table,
+      language = "C"
+    )
+  )
+  expect_length(
+    result,
+    length(gl_repos_table)
+  )
+  expect_gt(
+    nrow(result),
+    0
+  )
+  expect_true(
+    all(grepl("C", result$languages))
   )
 })
 

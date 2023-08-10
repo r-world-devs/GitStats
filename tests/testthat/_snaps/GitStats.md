@@ -9,7 +9,7 @@
       Search preference: org
       Team: <not defined>
       Phrase: <not defined>
-      Language: <not defined>
+      Language: All
       Repositories output: <not defined>
       Commits output: <not defined>
 
@@ -24,7 +24,7 @@
       Search preference: org
       Team: <not defined>
       Phrase: <not defined>
-      Language: <not defined>
+      Language: All
       Repositories output: <not defined>
       Commits output: <not defined>
 
@@ -39,7 +39,7 @@
       Search preference: team
       Team: RWD-IE (0 members)
       Phrase: <not defined>
-      Language: <not defined>
+      Language: All
       Repositories output: <not defined>
       Commits output: <not defined>
 

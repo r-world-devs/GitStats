@@ -9,7 +9,7 @@ setup(
   search_param = NULL,
   team_name = NULL,
   phrase = NULL,
-  language = NULL,
+  language = "All",
   print_out = TRUE
 )
 }

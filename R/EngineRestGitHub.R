@@ -207,8 +207,6 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
           break
         }
       }
-      full_repos_list <- full_repos_list #%>%
-        #private$pull_repos_languages()
       return(full_repos_list)
     },
 
@@ -226,7 +224,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
                                       org,
                                       language,
                                       byte_max = "384000") {
-      search_endpoint <- if (!is.null(language)) {
+      search_endpoint <- if (language != "All") {
         paste0(self$rest_api_url, "/search/code?q='", phrase, "'+user:", org, "+language:", language)
       } else {
         paste0(self$rest_api_url, "/search/code?q='", phrase, "'+user:", org)

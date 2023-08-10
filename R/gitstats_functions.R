@@ -68,7 +68,7 @@ setup <- function(gitstats_obj,
                   search_param = NULL,
                   team_name = NULL,
                   phrase = NULL,
-                  language = NULL,
+                  language = "All",
                   print_out = TRUE) {
   gitstats_obj$setup(
     search_param = search_param,
@@ -225,4 +225,17 @@ get_users <- function(gitstats_obj,
     users = users
   )
   return(invisible(gitstats_obj))
+}
+
+#' @title Reset language settings
+#' @name reset_language
+#' @description Sets language parameter to NULL (switches of filtering by language.)
+#' @param gitstats_obj A GitStats object.
+#' @return A GitStats object.
+#' @export
+reset_language <- function(gitstats_obj){
+  priv <- environment(gitstats_obj$setup)$private
+  priv$settings$language <- "All"
+  cli::cli_alert_info("Setting language parameter to 'All'.")
+  return(gitstats_obj)
 }
