@@ -22,10 +22,64 @@ test_host <- create_testhost(
   mode = "private"
 )
 
-test_that("`set_gql_url()` correctly sets gql api url - for public and private github", {
+test_that("`set_default_token` sets default token for public GitHub", {
+  expect_snapshot(
+    default_token <- test_host$set_default_token()
+  )
+  test_rest <- create_testrest(token = default_token,
+                               mode = "private")
+  expect_equal(
+    test_rest$perform_request(
+      endpoint = "https://api.github.com",
+      token = default_token
+    )$status,
+    200
+  )
+})
+
+test_that("`set_default_token` sets default token for GitLab", {
+  test_gl_host <- create_testhost(
+    api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    orgs = c("openpharma", "r-world-devs"),
+    mode = "private"
+  )
+  expect_snapshot(
+    withr::with_envvar(new = c("GITLAB_PAT" = Sys.getenv("GITLAB_PAT_PUBLIC")), {
+      default_token <- test_gl_host$set_default_token()
+    })
+  )
+  test_rest <- create_testrest(token = default_token,
+                               mode = "private")
+  expect_equal(
+    test_rest$perform_request(
+      endpoint = "https://gitlab.com/api/v4/projects",
+      token = default_token
+    )$status,
+    200
+  )
+})
+
+test_that("`test_token` works properly", {
+  expect_true(
+    test_host$test_token(Sys.getenv("GITHUB_PAT"))
+  )
+  expect_false(
+    test_host$test_token("false_token")
+  )
+})
+
+test_that("`set_gql_url()` correctly sets gql api url - for public GitHub", {
   expect_equal(
     test_host$set_gql_url("https://api.github.com"),
     "https://api.github.com/graphql"
+  )
+})
+
+test_that("`set_gql_url()` correctly sets gql api url - for public GitLab", {
+  expect_equal(
+    test_host$set_gql_url("https://gitlab.com/api/v4"),
+    "https://gitlab.com/api/graphql"
   )
 })
 

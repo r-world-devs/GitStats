@@ -14,6 +14,26 @@
     Message <cliMessage>
       v Set connection to GitLab.
 
+# When empty token for GitHub, GitStats pulls default token
+
+    Code
+      test_gitstats <- create_gitstats() %>% set_connection(api_url = "https://api.github.com",
+        orgs = c("openpharma", "r-world-devs"))
+    Message <cliMessage>
+      i Using PAT from GITHUB_PAT envar.
+      v Set connection to GitHub.
+
+# When empty token for GitLab, GitStats pulls default token
+
+    Code
+      withr::with_envvar(new = c(GITLAB_PAT = Sys.getenv("GITLAB_PAT_PUBLIC")), {
+        test_gitstats <- create_gitstats() %>% set_connection(api_url = "https://gitlab.com/api/v4",
+          orgs = "mbtests")
+      })
+    Message <cliMessage>
+      i Using PAT from GITLAB_PAT envar.
+      v Set connection to GitLab.
+
 # Warning shows if organizations are not specified and host is not passed
 
     Code

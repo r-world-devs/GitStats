@@ -82,3 +82,17 @@ TestEngineRest <- R6::R6Class("TestEngineRest",
     }
   )
 )
+
+#' @noRd
+create_testrest <- function(rest_api_url = "https://api.github.com",
+                            token,
+                            mode = "") {
+  test_rest <- TestEngineRest$new(
+    token = token,
+    rest_api_url = rest_api_url
+  )
+  if (mode == "private") {
+    test_rest <- environment(test_rest$initialize)$private
+  }
+  return(test_rest)
+}
