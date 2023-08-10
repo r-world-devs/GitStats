@@ -15,7 +15,7 @@
       Search preference: phrase
       Team: RWD-IE (0 members)
       Phrase: covid
-      Language: <not defined>
+      Language: All
       Repositories output: <not defined>
       Commits output: <not defined>
 
@@ -36,10 +36,10 @@
       Repositories output: <not defined>
       Commits output: <not defined>
 
-# Setting language to NULL resets language settings
+# Setting language to 'All' resets language settings
 
     Code
-      setup(test_gitstats, language = NULL)
+      setup(test_gitstats, language = "All")
     Output
       A <GitStats> object for 0 hosts:
       Hosts: 
@@ -47,7 +47,7 @@
       Search preference: org
       Team: RWD-IE (0 members)
       Phrase: covid
-      Language: <not defined>
+      Language: All
       Repositories output: <not defined>
       Commits output: <not defined>
 

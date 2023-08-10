@@ -67,7 +67,7 @@ setup <- function(gitstats_obj,
                   search_param = NULL,
                   team_name = NULL,
                   phrase = NULL,
-                  language = NULL,
+                  language = "All",
                   print_out = TRUE) {
   gitstats_obj$setup(
     search_param = search_param,
@@ -110,7 +110,20 @@ add_team_member <- function(gitstats_obj,
 #' @description  List all repositories for an organization, a team or by a
 #'   keyword.
 #' @param gitstats_obj A GitStats object.
-#' @param add_contributors A boolean to decide whether to add contributors information to repositories.
+#' @param add_contributors A logical parameter to decide whether to add
+#'   information about repositories' contributors to the repositories output
+#'   (table) when pulling them by organizations (`orgs`) or `phrase`. By default
+#'   it is set to `FALSE` which makes function run faster as, in the case of
+#'   `orgs` search parameter, it reaches only `GraphQL` endpoint with a query on
+#'   repositories, and in the case of `phrase` search parameter it reaches only
+#'   `repositories REST API` endpoint. However, the pitfall is that the result
+#'   does not convey information on contributors. \cr\cr When set to `TRUE`,
+#'   `GitStats` iterates additionally over pulled repositories and reaches to
+#'   the `contributors APIs`, which makes it slower, but gives additional
+#'   information. The same may be achieved with running separately function
+#'   `add_repos_contributors()` on the `GitStats` object with the `repositories`
+#'   output. \cr\cr When pulling repositories by \bold{`team`} the parameter
+#'   always turns to `TRUE` and pulls information on `contributors`.
 #' @return A `GitStats` class object with updated `$repos` field.
 #' @examples
 #' \dontrun{
@@ -221,7 +234,7 @@ get_users <- function(gitstats_obj,
 #' @export
 reset_language <- function(gitstats_obj){
   priv <- environment(gitstats_obj$setup)$private
-  priv$settings$language <- NULL
-  cli::cli_alert_info("Setting language parameter to NULL.")
+  priv$settings$language <- "All"
+  cli::cli_alert_info("Setting language parameter to 'All'.")
   return(gitstats_obj)
 }

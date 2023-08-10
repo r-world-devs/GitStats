@@ -79,11 +79,15 @@ GitHost <- R6::R6Class("GitHost",
       }) %>%
         purrr::list_rbind()
 
+      if (settings$search_param == "team") {
+        add_contributors <- TRUE
+      }
+
       if (add_contributors) {
         repos_table <- self$add_repos_contributors(repos_table)
       }
 
-      if (nrow(repos_table) > 0 && !is.null(settings$language)) {
+      if (nrow(repos_table) > 0 && settings$language != "All") {
         repos_table <- private$filter_repos_by_language(
           repos_table = repos_table,
           language = settings$language

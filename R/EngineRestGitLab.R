@@ -75,7 +75,6 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           ) %>%
           private$filter_repos_by_team(team = settings$team)
         })
-        repos_table$contributors <- NULL
       } else {
         repos_table <- NULL
       }
