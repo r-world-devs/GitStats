@@ -15,10 +15,13 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
      #' @description Create `EngineGraphQL` object.
      #' @param gql_api_url GraphQL API url.
      #' @param token A token.
+     #' @param scan_whole_host A boolean.
      initialize = function(gql_api_url,
-                           token) {
+                           token,
+                           scan_whole_host) {
        self$gql_api_url <- gql_api_url
        private$token <- token
+       private$scan_whole_host <- scan_whole_host
      },
 
      #' @description Wrapper of GraphQL API request and response.
@@ -48,6 +51,9 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
    private = list(
      # @field token A token authorizing access to API.
      token = NULL,
+
+     # @field A boolean.
+     scan_whole_host = FALSE,
 
      # @description A method to pull information on user.
      # @param username A login.

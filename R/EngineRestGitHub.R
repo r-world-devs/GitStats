@@ -7,11 +7,14 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     #' @description Create new `EngineRestGitHub` object.
     #' @param rest_api_url A REST API url.
     #' @param token A token.
+    #' @param scan_whole_host A boolean.
     initialize = function(rest_api_url,
-                          token) {
+                          token,
+                          scan_whole_host) {
       super$initialize(
         rest_api_url = rest_api_url,
-        token = private$check_token(token)
+        token = private$check_token(token),
+        scan_whole_host = scan_whole_host
       )
     },
 
@@ -73,7 +76,9 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     get_repos_supportive = function(org,
                                     settings) {
       if (settings$search_param %in% c("org")) {
-        cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
+        if (!private$scan_whole_host) {
+          cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
+        }
         repos_table <- private$pull_repos_from_org(
           org = org
         ) %>%

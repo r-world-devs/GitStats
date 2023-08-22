@@ -13,11 +13,14 @@ EngineRest <- R6::R6Class("EngineRest",
     #' @description Create a new `Rest` object
     #' @param rest_api_url A character, url of Rest API.
     #' @param token A token.
+    #' @param scan_whole_host A boolean.
     #' @return A `Rest` object.
     initialize = function(rest_api_url = NA,
-                          token = NA) {
+                          token = NA,
+                          scan_whole_host) {
       self$rest_api_url <- rest_api_url
       private$token <- token
+      private$scan_whole_host <- scan_whole_host
     },
 
     #' @description A wrapper for httr2 functions to perform get request to REST API endpoints.
@@ -40,6 +43,9 @@ EngineRest <- R6::R6Class("EngineRest",
 
     # @field token A token authorizing access to API.
     token = NULL,
+
+    # @field A boolean.
+    scan_whole_host = FALSE,
 
     # @description Check whether the token exists.
     # @param token A token.
@@ -91,14 +97,16 @@ EngineRest <- R6::R6Class("EngineRest",
         },
         error = function(e) {
           if (!is.null(e$status)) {
-            if (e$status == 400) {
-              message("HTTP 400 Bad Request.")
-            } else if (e$status == 401) {
-              message("HTTP 401 Unauthorized.")
-            } else if (e$status == 403) {
-              message("HTTP 403 API limit reached.")
-            } else if (e$status == 404) {
-              message("HTTP 404 No such address")
+            if (!private$scan_whole_host) {
+              if (e$status == 400) {
+                message("HTTP 400 Bad Request.")
+              } else if (e$status == 401) {
+                message("HTTP 401 Unauthorized.")
+              } else if (e$status == 403) {
+                message("HTTP 403 API limit reached.")
+              } else if (e$status == 404) {
+                message("HTTP 404 No such address")
+              }
             }
           } else if (grepl("Could not resolve host", e)) {
             cli::cli_abort(c(

@@ -4,7 +4,7 @@
 \alias{set_connection}
 \title{Setting connections}
 \usage{
-set_connection(gitstats_obj, api_url, token = NULL, orgs)
+set_connection(gitstats_obj, api_url, token = NULL, orgs = NULL)
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
@@ -13,8 +13,12 @@ set_connection(gitstats_obj, api_url, token = NULL, orgs)
 
 \item{token}{A token.}
 
-\item{orgs}{A character vector of organisations (owners of repositories
-in case of GitHub and groups of projects in case of GitLab).}
+\item{orgs}{A character vector of organisations (owners of repositories in
+case of GitHub and groups of projects in case of GitLab). You do not need
+to define \code{orgs} if you wish to scan whole internal Git platform (such as
+enterprise version of GitHub or GitLab). In case of a public one (like
+GitHub) you need to define \code{orgs} as scanning through all organizations
+would be an overkill.}
 }
 \value{
 A \code{GitStats} class object with added information on connection

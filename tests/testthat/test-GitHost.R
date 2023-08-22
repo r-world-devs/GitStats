@@ -22,6 +22,40 @@ test_host <- create_testhost(
   mode = "private"
 )
 
+test_that("`check_if_public` checks correctly if Git Platform is public or not", {
+  expect_true(
+    test_host$check_if_public("https://api.github.com")
+  )
+  expect_true(
+    test_host$check_if_public("https://gitlab.com/api/v4")
+  )
+  expect_false(
+    test_host$check_if_public("https://code.internal.com/api/v4")
+  )
+  expect_false(
+    test_host$check_if_public("https://github.internal.com/api/v4")
+  )
+})
+
+test_that("`set_host_name` checks correctly if Git Platform is public or not", {
+  expect_equal(
+    test_host$set_host_name("https://api.github.com"),
+    "GitHub"
+  )
+  expect_equal(
+    test_host$set_host_name("https://gitlab.com/api/v4"),
+    "GitLab"
+  )
+  expect_equal(
+    test_host$set_host_name("https://code.internal.com/api/v4"),
+    "GitLab"
+  )
+  expect_equal(
+    test_host$set_host_name("https://github.internal.com/api/v4"),
+    "GitHub"
+  )
+})
+
 test_that("`set_default_token` sets default token for public GitHub", {
   expect_snapshot(
     default_token <- test_host$set_default_token()

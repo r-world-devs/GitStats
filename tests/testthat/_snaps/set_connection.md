@@ -40,7 +40,7 @@
       test_gitstats %>% set_connection(api_url = "https://api.github.com", token = Sys.getenv(
         "GITHUB_PAT"))
     Message <cliMessage>
-      ! argument "orgs" is missing, with no default
+      ! You need to specify `orgs` for public Git platform.
       x Host will not be passed.
 
 # Warning shows, when wrong input is passed when setting connection and host is not passed

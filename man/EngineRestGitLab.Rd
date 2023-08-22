@@ -34,7 +34,7 @@ A class for methods wrapping GitLab's REST API responses.
 \subsection{Method \code{new()}}{
 Create new \code{EngineRestGitLab} object.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitLab$new(rest_api_url, token)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitLab$new(rest_api_url, token, scan_whole_host)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -43,6 +43,8 @@ Create new \code{EngineRestGitLab} object.
 \item{\code{rest_api_url}}{A REST API url.}
 
 \item{\code{token}}{A token.}
+
+\item{\code{scan_whole_host}}{A boolean.}
 }
 \if{html}{\out{</div>}}
 }

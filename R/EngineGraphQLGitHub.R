@@ -10,10 +10,13 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @description Create `EngineGraphQLGitHub` object.
     #' @param gql_api_url GraphQL API url.
     #' @param token A token.
+    #' @param scan_whole_host A boolean.
     initialize = function(gql_api_url,
-                          token) {
+                          token,
+                          scan_whole_host) {
       super$initialize(gql_api_url = gql_api_url,
-                       token = token)
+                       token = token,
+                       scan_whole_host = scan_whole_host)
       self$gql_query <- GQLQueryGitHub$new()
     },
 

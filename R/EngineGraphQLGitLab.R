@@ -9,11 +9,34 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      #' @description Create `EngineGraphQLGitLab` object.
      #' @param gql_api_url GraphQL API url.
      #' @param token A token.
+     #' @param scan_whole_host A boolean.
      initialize = function(gql_api_url,
-                           token) {
+                           token,
+                           scan_whole_host) {
        super$initialize(gql_api_url = gql_api_url,
-                        token = token)
+                        token = token,
+                        scan_whole_host = scan_whole_host)
        self$gql_query <- GQLQueryGitLab$new()
+     },
+
+     #' @description Get all groups from GitLab.
+     get_orgs = function() {
+       group_cursor <- ""
+       has_next_page <- TRUE
+       full_orgs_list <- list()
+       i <- 1
+       while(has_next_page) {
+         response <- self$gql_response(
+           gql_query = self$gql_query$groups(),
+           vars = list("groupCursor" = group_cursor)
+         )
+         orgs_list <- purrr::map(response$data$groups$edges, ~.$node$fullPath)
+         full_orgs_list <- append(full_orgs_list, orgs_list)
+         has_next_page <- response$data$groups$pageInfo$hasNextPage
+         group_cursor <- response$data$groups$pageInfo$endCursor
+       }
+       all_orgs <- unlist(full_orgs_list)
+       return(all_orgs)
      },
 
      #' @description A method to retrieve all repositories for an organization in
@@ -24,7 +47,9 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      get_repos = function(org,
                           settings) {
        if (settings$search_param == "org") {
-         cli::cli_alert_info("[GitLab][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
+         if (!private$scan_whole_host) {
+           cli::cli_alert_info("[GitLab][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
+         }
          repos_table <- private$pull_repos(
            from = "org",
            org = org

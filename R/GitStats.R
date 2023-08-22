@@ -242,8 +242,7 @@ GitStats <- R6::R6Class("GitStats",
       orgs <- purrr::map(private$hosts, function(host) {
         host_priv <- environment(host$initialize)$private
         orgs <- host_priv$orgs
-        paste0(orgs, collapse = ", ")
-      }) %>% paste0(collapse = ", ")
+      })
       private$print_item("Organisations", orgs)
       private$print_item("Search preference", private$settings$search_param)
       private$print_item("Team", private$settings$team_name, paste0(private$settings$team_name, " (", length(private$settings$team), " members)"))
@@ -329,6 +328,18 @@ GitStats <- R6::R6Class("GitStats",
     print_item = function(item_name,
                           item_to_check,
                           item_to_print = item_to_check) {
+      if (item_name == "Organisations") {
+        item_to_print <- unlist(item_to_print)
+        if (length(item_to_print) < 10) {
+          list_items <- paste0(item_to_print, collapse = ", ")
+
+        } else {
+          item_to_print_cut <- item_to_print[1:10]
+          list_items <- paste0(item_to_print_cut, collapse = ", ") %>%
+            paste0("... and ", length(item_to_print) - 10, " more")
+        }
+        item_to_print <- paste0("[", cli::col_green(length(item_to_print)), "] ", list_items)
+      }
       cat(paste0(
         cli::col_blue(paste0(item_name, ": ")),
         ifelse(is.null(item_to_check),

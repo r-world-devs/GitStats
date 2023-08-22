@@ -7,11 +7,14 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @description Create new `EngineRestGitLab` object.
     #' @param rest_api_url A REST API url.
     #' @param token A token.
+    #' @param scan_whole_host A boolean.
     initialize = function(rest_api_url,
-                          token) {
+                          token,
+                          scan_whole_host) {
       super$initialize(
         rest_api_url = rest_api_url,
-        token = private$check_token(token)
+        token = private$check_token(token),
+        scan_whole_host = scan_whole_host
       )
     },
 
@@ -53,7 +56,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     get_repos = function(org,
                          settings) {
       if (settings$search_param == "phrase") {
-        cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{org}] Searching repositories...")
+        if (!private$scan_whole_host) {
+          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{org}] Searching repositories...")
+        }
         repos_table <- private$search_repos_by_phrase(
           org = org,
           phrase = settings$phrase,
@@ -63,7 +68,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           private$prepare_repos_table() %>%
           private$add_repos_issues()
       } else if (settings$search_param == "team") {
-        cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}][team:{settings$team_name}] Pulling repositories...")
+        if (!private$scan_whole_host) {
+          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}][team:{settings$team_name}] Pulling repositories...")
+        }
         org <- private$get_group_id(org)
         repos_table <- private$pull_repos_from_org(org) %>%
           private$tailor_repos_info() %>%
@@ -88,7 +95,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     get_repos_supportive = function(org,
                                     settings) {
       if (settings$search_param == "org") {
-        cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
+        if (!private$scan_whole_host) {
+          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
+        }
         org <- private$get_group_id(org)
         repos_table <- private$pull_repos_from_org(org) %>%
           private$tailor_repos_info() %>%

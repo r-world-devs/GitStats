@@ -4,6 +4,24 @@
 GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
   public = list(
 
+    #' @description Prepare query to list groups from GitLab.
+    #' @return A query.
+    groups = function() {
+      'query GetGroups($groupCursor: String!) {
+            groups (after: $groupCursor) {
+              pageInfo {
+                endCursor
+                hasNextPage
+              }
+              edges {
+                node {
+                  fullPath
+                }
+              }
+            }
+        }'
+    },
+
     #' @description Prepare query to get repositories from GitLab.
     #' @param repo_cursor An end cursor for repositories page.
     #' @return A query.

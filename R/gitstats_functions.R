@@ -13,8 +13,12 @@ create_gitstats <- function() {
 #' @param gitstats_obj A GitStats object.
 #' @param api_url A character, url address of API.
 #' @param token A token.
-#' @param orgs A character vector of organisations (owners of repositories
-#'   in case of GitHub and groups of projects in case of GitLab).
+#' @param orgs A character vector of organisations (owners of repositories in
+#'   case of GitHub and groups of projects in case of GitLab). You do not need
+#'   to define `orgs` if you wish to scan whole internal Git platform (such as
+#'   enterprise version of GitHub or GitLab). In case of a public one (like
+#'   GitHub) you need to define `orgs` as scanning through all organizations
+#'   would be an overkill.
 #' @return A `GitStats` class object with added information on connection
 #'   (`$hosts` field).
 #' @examples
@@ -34,7 +38,7 @@ create_gitstats <- function() {
 set_connection <- function(gitstats_obj,
                            api_url,
                            token = NULL,
-                           orgs) {
+                           orgs = NULL) {
   gitstats_obj$add_host(
     api_url = api_url,
     token = token,
