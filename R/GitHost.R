@@ -19,9 +19,9 @@ GitHost <- R6::R6Class("GitHost",
                           api_url = NA) {
       private$api_url <- api_url
       private$is_public <- private$check_if_public(api_url)
-      private$host <- private$set_host_name(api_url)
+      private$host <- private$set_host(api_url)
       if (is.null(token)){
-        token <- private$set_default_token()
+        private$token <- private$set_default_token()
       }
       if (is.null(orgs)) {
         if (private$is_public) {
@@ -32,43 +32,16 @@ GitHost <- R6::R6Class("GitHost",
           cli::cli_alert_warning(cli::col_yellow(
             "No `orgs` specified. I will pull all organizations from the Git Host."
           ))
-          private$scan_whole_host <- TRUE
+          private$scan_all <- TRUE
         }
+      }
+      private$engines$rest <- private$setup_engine(type = "rest")
+      private$engines$graphql <- private$setup_engine(type = "graphql")
+      if (private$scan_all) {
+        cli::cli_alert_info("[{private$host}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
+        private$orgs <- private$engines$graphql$get_orgs()
       } else {
         private$orgs <- private$engines$rest$check_organizations(orgs)
-      }
-      if (grepl("https://", api_url) && grepl("github", api_url)) {
-        private$engines$rest <- EngineRestGitHub$new(
-          token = token,
-          rest_api_url = api_url,
-          scan_whole_host = private$scan_whole_host
-        )
-        private$engines$graphql <- EngineGraphQLGitHub$new(
-          token = token,
-          gql_api_url = private$set_gql_url(api_url),
-          scan_whole_host = private$scan_whole_host
-        )
-      } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
-        private$engines$rest <- EngineRestGitLab$new(
-          token = token,
-          rest_api_url = api_url,
-          scan_whole_host = private$scan_whole_host
-        )
-        private$engines$graphql <- EngineGraphQLGitLab$new(
-          token = token,
-          gql_api_url = private$set_gql_url(api_url),
-          scan_whole_host = private$scan_whole_host
-        )
-      } else {
-        stop("This connection is not supported by GitStats class object.")
-      }
-      if (private$scan_whole_host) {
-        cli::cli_alert_info("[{private$host}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
-        if (private$host == "GitLab") {
-          private$orgs <- private$engines$graphql$get_orgs()
-        } else {
-          # private$orgs <- private$engines$rest$get_orgs()
-        }
       }
     },
 
@@ -191,6 +164,9 @@ GitHost <- R6::R6Class("GitHost",
     # @field A REST API url.
     api_url = NULL,
 
+    # @field A token.
+    token = NULL,
+
     # @field public A boolean.
     is_public = NULL,
 
@@ -201,7 +177,7 @@ GitHost <- R6::R6Class("GitHost",
     orgs = NULL,
 
     # @field A boolean.
-    scan_whole_host = FALSE,
+    scan_all = FALSE,
 
     # @field engines A placeholder for REST and GraphQL Engine classes.
     engines = list(),
@@ -216,11 +192,13 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # @description Set name of a Git Host.
-    set_host_name = function(api_url) {
-      if (grepl("github", api_url)) {
+    set_host = function(api_url) {
+      if (grepl("https://", private$api_url) && grepl("github", private$api_url)) {
         "GitHub"
-      } else {
+      } else if (grepl("https://", private$api_url) && grepl("gitlab|code", private$api_url)) {
         "GitLab"
+      } else {
+        stop("This connection is not supported by GitStats class object.")
       }
     },
 
@@ -246,6 +224,40 @@ GitHost <- R6::R6Class("GitHost",
         }
       }
       return(token)
+    },
+
+    # Setup REST and GraphQL engines
+    setup_engine = function(type) {
+      engine <- if (private$host == "GitHub") {
+        if (type == "rest") {
+          EngineRestGitHub$new(
+            rest_api_url = private$api_url,
+            token = private$token,
+            scan_all = private$scan_all
+          )
+        } else {
+          EngineGraphQLGitHub$new(
+            gql_api_url = private$set_gql_url(private$api_url),
+            token = private$token,
+            scan_all = private$scan_all
+          )
+        }
+      } else {
+        if (type == "rest") {
+          EngineRestGitLab$new(
+            rest_api_url = private$api_url,
+            token = private$token,
+            scan_all = private$scan_all
+          )
+        } else {
+          EngineGraphQLGitLab$new(
+            gql_api_url = private$set_gql_url(private$api_url),
+            token = private$token,
+            scan_all = private$scan_all
+          )
+        }
+      }
+      return(engine)
     },
 
     # @description Helper to test if a token works
@@ -285,7 +297,7 @@ GitHost <- R6::R6Class("GitHost",
           })
         },
         error = function(e) {
-          if (!private$scan_whole_host) {
+          if (!private$scan_all) {
             if (grepl("502", e)) {
               cli::cli_alert_warning(cli::col_yellow("HTTP 502 Bad Gateway Error. Switch to another Engine."))
             } else {
@@ -301,7 +313,7 @@ GitHost <- R6::R6Class("GitHost",
         })
         repos_table_org <- purrr::list_rbind(repos_list)
         return(repos_table_org)
-      }, .progress = private$scan_whole_host) %>%
+      }, .progress = private$scan_all) %>%
         purrr::list_rbind()
     },
 

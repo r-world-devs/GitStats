@@ -27,7 +27,7 @@ A superclass for methods wrapping Rest API responses.
 \subsection{Method \code{new()}}{
 Create a new \code{Rest} object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRest$new(rest_api_url = NA, token = NA, scan_whole_host)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineRest$new(rest_api_url = NA, token = NA, scan_all)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -37,7 +37,7 @@ Create a new \code{Rest} object
 
 \item{\code{token}}{A token.}
 
-\item{\code{scan_whole_host}}{A boolean.}
+\item{\code{scan_all}}{A boolean.}
 }
 \if{html}{\out{</div>}}
 }

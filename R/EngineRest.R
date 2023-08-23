@@ -13,14 +13,14 @@ EngineRest <- R6::R6Class("EngineRest",
     #' @description Create a new `Rest` object
     #' @param rest_api_url A character, url of Rest API.
     #' @param token A token.
-    #' @param scan_whole_host A boolean.
+    #' @param scan_all A boolean.
     #' @return A `Rest` object.
     initialize = function(rest_api_url = NA,
                           token = NA,
-                          scan_whole_host) {
+                          scan_all) {
       self$rest_api_url <- rest_api_url
       private$token <- token
-      private$scan_whole_host <- scan_whole_host
+      private$scan_all <- scan_all
     },
 
     #' @description A wrapper for httr2 functions to perform get request to REST API endpoints.
@@ -45,7 +45,7 @@ EngineRest <- R6::R6Class("EngineRest",
     token = NULL,
 
     # @field A boolean.
-    scan_whole_host = FALSE,
+    scan_all = FALSE,
 
     # @description Check whether the token exists.
     # @param token A token.
@@ -97,7 +97,7 @@ EngineRest <- R6::R6Class("EngineRest",
         },
         error = function(e) {
           if (!is.null(e$status)) {
-            if (!private$scan_whole_host) {
+            if (!private$scan_all) {
               if (e$status == 400) {
                 message("HTTP 400 Bad Request.")
               } else if (e$status == 401) {

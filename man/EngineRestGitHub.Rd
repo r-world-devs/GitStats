@@ -35,7 +35,7 @@ A class for methods wrapping GitHub's REST API responses.
 \subsection{Method \code{new()}}{
 Create new \code{EngineRestGitHub} object.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$new(rest_api_url, token, scan_whole_host)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$new(rest_api_url, token, scan_all)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -45,7 +45,7 @@ Create new \code{EngineRestGitHub} object.
 
 \item{\code{token}}{A token.}
 
-\item{\code{scan_whole_host}}{A boolean.}
+\item{\code{scan_all}}{A boolean.}
 }
 \if{html}{\out{</div>}}
 }

@@ -7,14 +7,14 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     #' @description Create new `EngineRestGitHub` object.
     #' @param rest_api_url A REST API url.
     #' @param token A token.
-    #' @param scan_whole_host A boolean.
+    #' @param scan_all A boolean.
     initialize = function(rest_api_url,
                           token,
-                          scan_whole_host) {
+                          scan_all) {
       super$initialize(
         rest_api_url = rest_api_url,
         token = private$check_token(token),
-        scan_whole_host = scan_whole_host
+        scan_all = scan_all
       )
     },
 
@@ -29,8 +29,8 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
             self$response(endpoint = paste0(self$rest_api_url, org_endpoint, org))
           },
           message = function(m) {
-            if (grepl("404", m)) {
-              cli::cli_alert_danger("Organization you provided does not exist. Check spelling in: {org}")
+            if (grepl("40", m)) {
+              cli::cli_abort("Improper name of organization.")
               org <<- NULL
             }
           }
@@ -75,8 +75,9 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     #' @return A table of repositories.
     get_repos_supportive = function(org,
                                     settings) {
+      repos_table <- NULL
       if (settings$search_param %in% c("org")) {
-        if (!private$scan_whole_host) {
+        if (!private$scan_all) {
           cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
         }
         repos_table <- private$pull_repos_from_org(
@@ -333,8 +334,8 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
           "name" = repo$name,
           "stars" = repo$stargazers_count,
           "forks" = repo$forks_count,
-          "created_at" = repo$created_at,
-          "last_activity_at" = repo$pushed_at,
+          "created_at" = gts_to_posixt(repo$created_at),
+          "last_activity_at" = if (!is.null(repo$pushed_at)) gts_to_posixt(repo$pushed_at) else gts_to_posixt(repo$created_at),
           "languages" = repo$language,
           "issues_open" = repo$issues_open,
           "issues_closed" = repo$issues_closed,

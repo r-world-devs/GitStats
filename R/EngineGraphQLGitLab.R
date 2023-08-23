@@ -9,13 +9,13 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      #' @description Create `EngineGraphQLGitLab` object.
      #' @param gql_api_url GraphQL API url.
      #' @param token A token.
-     #' @param scan_whole_host A boolean.
+     #' @param scan_all A boolean.
      initialize = function(gql_api_url,
                            token,
-                           scan_whole_host) {
+                           scan_all) {
        super$initialize(gql_api_url = gql_api_url,
                         token = token,
-                        scan_whole_host = scan_whole_host)
+                        scan_all = scan_all)
        self$gql_query <- GQLQueryGitLab$new()
      },
 
@@ -24,7 +24,6 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
        group_cursor <- ""
        has_next_page <- TRUE
        full_orgs_list <- list()
-       i <- 1
        while(has_next_page) {
          response <- self$gql_response(
            gql_query = self$gql_query$groups(),
@@ -47,7 +46,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      get_repos = function(org,
                           settings) {
        if (settings$search_param == "org") {
-         if (!private$scan_whole_host) {
+         if (!private$scan_all) {
            cli::cli_alert_info("[GitLab][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
          }
          repos_table <- private$pull_repos(

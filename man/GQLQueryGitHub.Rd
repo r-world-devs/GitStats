@@ -9,11 +9,32 @@ A class with methods to build GraphQL Queries for GitHub.
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
+\item \href{#method-orgs}{\code{GQLQueryGitHub$orgs()}}
 \item \href{#method-repos_by_org}{\code{GQLQueryGitHub$repos_by_org()}}
 \item \href{#method-repos_by_user}{\code{GQLQueryGitHub$repos_by_user()}}
 \item \href{#method-user}{\code{GQLQueryGitHub$user()}}
 \item \href{#method-commits_by_repo}{\code{GQLQueryGitHub$commits_by_repo()}}
 \item \href{#method-clone}{\code{GQLQueryGitHub$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-orgs"></a>}}
+\if{latex}{\out{\hypertarget{method-orgs}{}}}
+\subsection{Method \code{orgs()}}{
+Prepare query to list organizations from GitHub.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GQLQueryGitHub$orgs(end_cursor)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{end_cursor}}{An end cursor to paginate.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A query.
 }
 }
 \if{html}{\out{<hr>}}

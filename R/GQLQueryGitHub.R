@@ -4,6 +4,35 @@
 GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
   public = list(
 
+    #' @description Prepare query to list organizations from GitHub.
+    #' @param end_cursor An end cursor to paginate.
+    #' @return A query.
+    orgs = function(end_cursor) {
+      if (is.null(end_cursor)) {
+        pagination_phrase <- ''
+      } else {
+        pagination_phrase <- paste0('after: "', end_cursor, '"')
+      }
+
+      paste0(
+      'query {
+        search(first: 100, type: USER, query: "type:org" ', pagination_phrase, ') {
+          pageInfo {
+             hasNextPage
+             endCursor
+          }
+          edges {
+            node{
+              ... on Organization {
+                name
+                url
+              }
+            }
+          }
+        }
+      }')
+    },
+
     #' @description Prepare query to get repositories from GitHub.
     #' @param org An organization of repositories.
     #' @param repo_cursor An end cursor for repositories page.

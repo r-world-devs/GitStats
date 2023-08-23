@@ -13,6 +13,7 @@ A class for methods wrapping GitHub's GraphQL API responses.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{EngineGraphQLGitHub$new()}}
+\item \href{#method-get_orgs}{\code{EngineGraphQLGitHub$get_orgs()}}
 \item \href{#method-get_repos}{\code{EngineGraphQLGitHub$get_repos()}}
 \item \href{#method-get_repos_supportive}{\code{EngineGraphQLGitHub$get_repos_supportive()}}
 \item \href{#method-get_commits}{\code{EngineGraphQLGitHub$get_commits()}}
@@ -34,7 +35,7 @@ A class for methods wrapping GitHub's GraphQL API responses.
 \subsection{Method \code{new()}}{
 Create \code{EngineGraphQLGitHub} object.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$new(gql_api_url, token, scan_whole_host)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$new(gql_api_url, token, scan_all)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -44,10 +45,20 @@ Create \code{EngineGraphQLGitHub} object.
 
 \item{\code{token}}{A token.}
 
-\item{\code{scan_whole_host}}{A boolean.}
+\item{\code{scan_all}}{A boolean.}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_orgs"></a>}}
+\if{latex}{\out{\hypertarget{method-get_orgs}{}}}
+\subsection{Method \code{get_orgs()}}{
+Get all groups from GitLab.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$get_orgs()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-get_repos"></a>}}

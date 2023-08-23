@@ -95,7 +95,7 @@ GitStats <- R6::R6Class("GitStats",
         }
       },
       error = function(e){
-        cli::cli_alert_warning(e$message)
+        print(e)
         cli::cli_alert_danger("Host will not be passed.")
       })
       if (!is.null(new_host)) {
