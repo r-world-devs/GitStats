@@ -122,10 +122,12 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         org = org,
         settings = list(search_param = "org")
       )
-      if (settings$search_param == "org") {
-        cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{org}] Pulling commits...")
-      } else if (settings$search_param == "team") {
-        cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{org}][team:{settings$team_name}] Pulling commits...")
+      if (!private$scan_all) {
+        if (settings$search_param == "org") {
+          cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{org}] Pulling commits...")
+        } else if (settings$search_param == "team") {
+          cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{org}][team:{settings$team_name}] Pulling commits...")
+        }
       }
       repos_list_with_commits <- private$pull_commits_from_org(
         repos_table = repos_table,
@@ -152,7 +154,9 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     #' @return A table of repositories with added information on contributors.
     add_repos_contributors = function(repos_table) {
       if (nrow(repos_table) > 0) {
-        cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}] Pulling contributors...")
+        if (!private$scan_all) {
+          cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}] Pulling contributors...")
+        }
         repo_iterator <- paste0(repos_table$organization, "/", repos_table$name)
         user_name <- rlang::expr(.$login)
         repos_table$contributors <- purrr::map_chr(repo_iterator, function(repos_id) {

@@ -106,7 +106,9 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       repos_names <- repos_table$name
 
       if (settings$search_param == "org") {
-        cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling commits...")
+        if (!private$scan_all) {
+          cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling commits...")
+        }
         repos_list_with_commits <- private$pull_commits_from_repos(
           org = org,
           repos = repos_names,
@@ -115,7 +117,9 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         )
       }
       if (settings$search_param == "team") {
-        cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][team:{settings$team_name}] Pulling commits...")
+        if (!private$scan_all) {
+          cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][team:{settings$team_name}] Pulling commits...")
+        }
         repos_list_with_commits <- private$pull_commits_from_repos(
           org = org,
           repos = repos_names,
@@ -302,7 +306,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           }
           return(full_commits_list)
         }
-      }, .progress = TRUE)
+      }, .progress = !private$scan_all)
       return(repos_list_with_commits)
     },
 

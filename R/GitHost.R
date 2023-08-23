@@ -105,7 +105,9 @@ GitHost <- R6::R6Class("GitHost",
           "i" = "Please change your `search_param` either to 'org' or 'team' with `setup()`."
         ))
       }
-
+      if (private$scan_all) {
+        cli::cli_alert_info("[Host:{private$host}] {cli::col_yellow('Pulling commits from all organizations...')}")
+      }
       commits_table <- purrr::map(private$orgs, function(org) {
         tryCatch({
           commits_table_org <- purrr::map(private$engines, ~ .$get_commits(
@@ -138,7 +140,7 @@ GitHost <- R6::R6Class("GitHost",
         })
 
         return(commits_table_org)
-      }) %>%
+      }, .progress = private$scan_all) %>%
         purrr::list_rbind()
 
       return(commits_table)
@@ -287,6 +289,9 @@ GitHost <- R6::R6Class("GitHost",
 
     # @description Pull repositories from organisations.
     pull_repos_from_orgs = function(settings) {
+      if (private$scan_all) {
+        cli::cli_alert_info("[Host:{private$host}] {cli::col_yellow('Pulling repositories from all organizations...')}")
+      }
       repos_table <- purrr::map(private$orgs, function(org) {
         tryCatch({
           repos_list <- purrr::map(private$engines, function (engine) {
