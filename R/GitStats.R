@@ -82,27 +82,23 @@ GitStats <- R6::R6Class("GitStats",
                         token,
                         orgs) {
       new_host <- NULL
-      tryCatch({
-        new_host <- GitHost$new(
-          orgs = orgs,
-          token = token,
-          api_url = api_url
-        )
-        if  (grepl("https://", api_url) && grepl("github", api_url)) {
-          cli::cli_alert_success("Set connection to GitHub.")
-        } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
-          cli::cli_alert_success("Set connection to GitLab.")
-        }
-      },
-      error = function(e){
-        print(e)
-        cli::cli_alert_danger("Host will not be passed.")
-      })
-      if (!is.null(new_host)) {
-        private$hosts <- new_host %>%
-          private$check_for_duplicate_hosts() %>%
-          append(private$hosts, .)
+
+      new_host <- GitHost$new(
+        orgs = orgs,
+        token = token,
+        api_url = api_url
+      )
+      if  (grepl("https://", api_url) && grepl("github", api_url)) {
+        cli::cli_alert_success("Set connection to GitHub.")
+      } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
+        cli::cli_alert_success("Set connection to GitLab.")
       }
+
+    if (!is.null(new_host)) {
+      private$hosts <- new_host %>%
+        private$check_for_duplicate_hosts() %>%
+        append(private$hosts, .)
+    }
     },
 
     #' @description A method to add a team member.

@@ -18,6 +18,7 @@ A superclass for methods wrapping Rest API responses.
 \itemize{
 \item \href{#method-new}{\code{EngineRest$new()}}
 \item \href{#method-response}{\code{EngineRest$response()}}
+\item \href{#method-check_organizations}{\code{EngineRest$check_organizations()}}
 \item \href{#method-clone}{\code{EngineRest$clone()}}
 }
 }
@@ -27,7 +28,7 @@ A superclass for methods wrapping Rest API responses.
 \subsection{Method \code{new()}}{
 Create a new \code{Rest} object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRest$new(rest_api_url = NA, token = NA, scan_all)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineRest$new(rest_api_url = NA, token = NA, scan_all = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -65,6 +66,26 @@ A wrapper for httr2 functions to perform get request to REST API endpoints.
 }
 \subsection{Returns}{
 A content of response formatted to list.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-check_organizations"></a>}}
+\if{latex}{\out{\hypertarget{method-check_organizations}{}}}
+\subsection{Method \code{check_organizations()}}{
+Check if an organization exists
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{EngineRest$check_organizations(orgs)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{orgs}}{A character vector of organizations}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+orgs or NULL.
 }
 }
 \if{html}{\out{<hr>}}

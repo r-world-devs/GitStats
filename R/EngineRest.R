@@ -17,9 +17,9 @@ EngineRest <- R6::R6Class("EngineRest",
     #' @return A `Rest` object.
     initialize = function(rest_api_url = NA,
                           token = NA,
-                          scan_all) {
+                          scan_all = FALSE) {
       self$rest_api_url <- rest_api_url
-      private$token <- token
+      private$token <- private$check_token(token)
       private$scan_all <- scan_all
     },
 
@@ -37,7 +37,38 @@ EngineRest <- R6::R6Class("EngineRest",
       }
 
       return(result)
+    },
+
+    #' @description Check if an organization exists
+    #' @param orgs A character vector of organizations
+    #' @return orgs or NULL.
+    check_organizations = function(orgs) {
+      orgs <- purrr::map(orgs, function(org) {
+        org_endpoint <- if(grepl("github", self$rest_api_url)) "/orgs/" else "/groups/"
+        withCallingHandlers(
+          {
+            self$response(endpoint = paste0(self$rest_api_url, org_endpoint, org))
+          },
+          message = function(m) {
+            if (grepl("404", m)) {
+              cli::cli_alert_danger("Organization you provided does not exist or its name was passed in a wrong way: {org}")
+              cli::cli_alert_warning("Please type your organization name as you see it in `url`.")
+              cli::cli_alert_info("E.g. do not use spaces. Organization names as you see on the page may differ from their 'address' name.")
+              org <<- NULL
+            }
+          }
+        )
+        return(org)
+      }) %>%
+        purrr::keep(~ length(.) > 0) %>%
+        unlist()
+
+      if (length(orgs) == 0) {
+        return(NULL)
+      }
+      orgs
     }
+
   ),
   private = list(
 

@@ -11,7 +11,7 @@
     Output
       A <GitStats> object for 0 hosts:
       Hosts: 
-      Organisations: 
+      Organisations: [0] 
       Search preference: phrase
       Team: RWD-IE (0 members)
       Phrase: covid
@@ -28,7 +28,7 @@
     Output
       A <GitStats> object for 0 hosts:
       Hosts: 
-      Organisations: 
+      Organisations: [0] 
       Search preference: org
       Team: RWD-IE (0 members)
       Phrase: covid
@@ -43,7 +43,7 @@
     Output
       A <GitStats> object for 0 hosts:
       Hosts: 
-      Organisations: 
+      Organisations: [0] 
       Search preference: org
       Team: RWD-IE (0 members)
       Phrase: covid

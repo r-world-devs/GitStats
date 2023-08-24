@@ -16,9 +16,9 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
      #' @param gql_api_url GraphQL API url.
      #' @param token A token.
      #' @param scan_all A boolean.
-     initialize = function(gql_api_url,
-                           token,
-                           scan_all) {
+     initialize = function(gql_api_url = NA,
+                           token = NA,
+                           scan_all = FALSE) {
        self$gql_api_url <- gql_api_url
        private$token <- token
        private$scan_all <- scan_all

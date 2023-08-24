@@ -18,16 +18,21 @@ GitHost <- R6::R6Class("GitHost",
                           token = NA,
                           api_url = NA) {
       private$api_url <- api_url
-      private$is_public <- private$check_if_public(api_url)
-      private$host <- private$set_host(api_url)
+      private$is_public <- private$check_if_public()
+      private$host <- private$set_host()
       if (is.null(token)){
         private$token <- private$set_default_token()
+      } else {
+        private$token <- token
       }
       if (is.null(orgs)) {
         if (private$is_public) {
-          cli::cli_abort(
-            "You need to specify `orgs` for public Git platform."
-          )
+          cli::cli_abort(c(
+            "You need to specify `orgs` for public Git Host.",
+            "x" = "Host will not be added.",
+            "i" = "Add organizations to your `orgs` parameter."
+          ),
+          call = NULL)
         } else {
           cli::cli_alert_warning(cli::col_yellow(
             "No `orgs` specified. I will pull all organizations from the Git Host."
@@ -185,8 +190,8 @@ GitHost <- R6::R6Class("GitHost",
     engines = list(),
 
     # @description Check whether Git platform is public or internal.
-    check_if_public = function(api_url) {
-      if (grepl("api.github.com|gitlab.com/api", api_url)) {
+    check_if_public = function() {
+      if (grepl("api.github.com|gitlab.com/api", private$api_url)) {
         TRUE
       } else {
         FALSE
@@ -194,13 +199,18 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # @description Set name of a Git Host.
-    set_host = function(api_url) {
+    set_host = function() {
       if (grepl("https://", private$api_url) && grepl("github", private$api_url)) {
         "GitHub"
       } else if (grepl("https://", private$api_url) && grepl("gitlab|code", private$api_url)) {
         "GitLab"
       } else {
-        stop("This connection is not supported by GitStats class object.")
+        cli::cli_abort(c(
+          "This connection is not supported by GitStats class object.",
+          "x" = "Host will not be added."
+          ),
+          call = NULL
+        )
       }
     },
 

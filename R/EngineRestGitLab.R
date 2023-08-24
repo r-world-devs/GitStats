@@ -4,50 +4,6 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
   inherit = EngineRest,
   public = list(
 
-    #' @description Create new `EngineRestGitLab` object.
-    #' @param rest_api_url A REST API url.
-    #' @param token A token.
-    #' @param scan_all A boolean.
-    initialize = function(rest_api_url,
-                          token,
-                          scan_all) {
-      super$initialize(
-        rest_api_url = rest_api_url,
-        token = private$check_token(token),
-        scan_all = scan_all
-      )
-    },
-
-    #' @description Check if an organization exists
-    #' @param orgs A character vector of organizations
-    #' @return orgs or NULL.
-    check_organizations = function(orgs) {
-      orgs <- purrr::map(orgs, function(org) {
-        org_endpoint <- "/groups/"
-        withCallingHandlers(
-          {
-            self$response(endpoint = paste0(self$rest_api_url, org_endpoint, org))
-          },
-          message = function(m) {
-            if (grepl("404", m)) {
-              cli::cli_alert_danger("Group name passed in a wrong way: {org}")
-              cli::cli_alert_warning("If you are using `GitLab`, please type your group name as you see it in `url`.")
-              cli::cli_alert_info("E.g. do not use spaces. Group names as you see on the page may differ from their 'address' name.")
-              org <<- NULL
-            }
-          }
-        )
-        return(org)
-      }) %>%
-        purrr::keep(~ length(.) > 0) %>%
-        unlist()
-
-      if (length(orgs) == 0) {
-        return(NULL)
-      }
-      orgs
-    },
-
     #' @description A method to retrieve all repositories for an organization in
     #'   a table format.
     #' @param org A character, a group of projects.

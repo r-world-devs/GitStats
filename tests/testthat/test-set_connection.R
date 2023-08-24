@@ -40,21 +40,25 @@ test_that("When empty token for GitLab, GitStats pulls default token", {
   )
 })
 
-test_that("Warning shows if organizations are not specified and host is not passed", {
+test_that("Error shows if organizations are not specified and host is not passed", {
   test_gitstats <- create_gitstats()
-  expect_snapshot(
+  expect_snapshot_error(
     test_gitstats %>%
       set_connection(
         api_url = "https://api.github.com",
         token = Sys.getenv("GITHUB_PAT")
       )
   )
+  expect_length(
+    test_gitstats$.__enclos_env__$private$hosts,
+    0
+  )
 })
 
-test_that("Warning shows, when wrong input is passed when setting connection and host is not passed", {
+test_that("Error shows, when wrong input is passed when setting connection and host is not passed", {
   test_gitstats <- create_gitstats()
 
-  expect_snapshot(
+  expect_snapshot_error(
     set_connection(
       gitstats_obj = test_gitstats,
       api_url = "https://avengers.com",
@@ -100,26 +104,13 @@ test_that("`Org` name is not passed to the object if it does not exist", {
         orgs = c("openparma", "mbtests")
       )
   )
-})
-
-test_that("Error with message pops out, when you pass to your `GitLab` connection group name as you see it on the page (not from url)", {
-  testthat::skip_on_ci()
 
   expect_snapshot(
     test_gitstats <- create_gitstats() %>%
       set_connection(
-        api_url = "https://gitlab.com/api/v4",
-        token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-        orgs = "MB Tests"
-      )
-  )
-
-  expect_snapshot(
-    test_gitstats <- create_gitstats() %>%
-      set_connection(
-        api_url = "https://gitlab.com/api/v4",
-        token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-        orgs = c("mbtests", "MB Tests")
+        api_url = "https://api.github.com",
+        token = Sys.getenv("GITHUB_PAT"),
+        orgs = c("openpharma", "r_world_devs")
       )
   )
 })

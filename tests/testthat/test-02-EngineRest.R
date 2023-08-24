@@ -68,7 +68,7 @@ test_that("`response()` returns search response from GitHub's REST API", {
   test_mocker$cache(gh_search_response)
 })
 
-test_rest <- EngineRest$new(
+test_rest <- create_testrest(
   rest_api_url = "https://gitlab.com/api/v4",
   token = Sys.getenv("GITLAB_PAT_PUBLIC")
 )

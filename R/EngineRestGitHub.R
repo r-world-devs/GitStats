@@ -4,48 +4,6 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
   inherit = EngineRest,
   public = list(
 
-    #' @description Create new `EngineRestGitHub` object.
-    #' @param rest_api_url A REST API url.
-    #' @param token A token.
-    #' @param scan_all A boolean.
-    initialize = function(rest_api_url,
-                          token,
-                          scan_all) {
-      super$initialize(
-        rest_api_url = rest_api_url,
-        token = private$check_token(token),
-        scan_all = scan_all
-      )
-    },
-
-    #' @description Check if an organization exists
-    #' @param orgs A character vector of organizations
-    #' @return orgs or NULL.
-    check_organizations = function(orgs) {
-      orgs <- purrr::map(orgs, function(org) {
-        org_endpoint <- "/orgs/"
-        withCallingHandlers(
-          {
-            self$response(endpoint = paste0(self$rest_api_url, org_endpoint, org))
-          },
-          message = function(m) {
-            if (grepl("40", m)) {
-              cli::cli_abort("Improper name of organization.")
-              org <<- NULL
-            }
-          }
-        )
-        return(org)
-      }) %>%
-        purrr::keep(~ length(.) > 0) %>%
-        unlist()
-
-      if (length(orgs) == 0) {
-        return(NULL)
-      }
-      orgs
-    },
-
     #' @description Method to get repositories with phrase in code blobs.
     #' @param org An organization
     #' @param settings A list of  `GitStats` settings.

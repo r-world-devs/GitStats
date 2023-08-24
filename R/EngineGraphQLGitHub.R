@@ -13,7 +13,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param scan_all A boolean.
     initialize = function(gql_api_url,
                           token,
-                          scan_all) {
+                          scan_all = FALSE) {
       super$initialize(gql_api_url = gql_api_url,
                        token = token,
                        scan_all = scan_all)

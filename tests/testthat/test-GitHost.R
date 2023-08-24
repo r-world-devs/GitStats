@@ -15,46 +15,57 @@ test_that("GitHost gets users tables", {
 
 # private methods
 
+test_that("`check_if_public` and `set_host` work correctly", {
+  test_host <- create_testhost(
+    api_url = "https://api.github.com",
+    mode = "private"
+  )
+  expect_true(
+    test_host$check_if_public()
+  )
+  expect_equal(
+    test_host$set_host(),
+    "GitHub"
+  )
+  test_host <- create_testhost(
+    api_url = "https://gitlab.com/api/v4",
+    mode = "private"
+  )
+  expect_true(
+    test_host$check_if_public()
+  )
+  expect_equal(
+    test_host$set_host(),
+    "GitLab"
+  )
+  test_host <- create_testhost(
+    api_url = "https://code.internal.com/api/v4",
+    mode = "private"
+  )
+  expect_false(
+    test_host$check_if_public()
+  )
+  expect_equal(
+    test_host$set_host(),
+    "GitLab"
+  )
+  test_host <- create_testhost(
+    api_url = "https://github.internal.com/api/v4",
+    mode = "private"
+  )
+  expect_false(
+    test_host$check_if_public()
+  )
+  expect_equal(
+    test_host$set_host(),
+    "GitHub"
+  )
+})
+
 test_host <- create_testhost(
   api_url = "https://api.github.com",
-  token = Sys.getenv("GITHUB_PAT"),
-  orgs = c("openpharma", "r-world-devs"),
   mode = "private"
 )
-
-test_that("`check_if_public` checks correctly if Git Platform is public or not", {
-  expect_true(
-    test_host$check_if_public("https://api.github.com")
-  )
-  expect_true(
-    test_host$check_if_public("https://gitlab.com/api/v4")
-  )
-  expect_false(
-    test_host$check_if_public("https://code.internal.com/api/v4")
-  )
-  expect_false(
-    test_host$check_if_public("https://github.internal.com/api/v4")
-  )
-})
-
-test_that("`set_host_name` checks correctly if Git Platform is public or not", {
-  expect_equal(
-    test_host$set_host_name("https://api.github.com"),
-    "GitHub"
-  )
-  expect_equal(
-    test_host$set_host_name("https://gitlab.com/api/v4"),
-    "GitLab"
-  )
-  expect_equal(
-    test_host$set_host_name("https://code.internal.com/api/v4"),
-    "GitLab"
-  )
-  expect_equal(
-    test_host$set_host_name("https://github.internal.com/api/v4"),
-    "GitHub"
-  )
-})
 
 test_that("`set_default_token` sets default token for public GitHub", {
   expect_snapshot(

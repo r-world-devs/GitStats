@@ -34,7 +34,7 @@ A class for methods wrapping GitLab's GraphQL API responses.
 \subsection{Method \code{new()}}{
 Create \code{EngineGraphQLGitLab} object.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitLab$new(gql_api_url, token, scan_all)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitLab$new(gql_api_url, token, scan_all = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

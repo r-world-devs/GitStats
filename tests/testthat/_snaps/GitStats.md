@@ -5,7 +5,7 @@
     Output
       A <GitStats> object for 0 hosts:
       Hosts: 
-      Organisations: 
+      Organisations: [0] 
       Search preference: org
       Team: <not defined>
       Phrase: <not defined>
@@ -20,7 +20,7 @@
     Output
       A <GitStats> object for 2 hosts:
       Hosts: https://api.github.com, https://gitlab.com/api/v4
-      Organisations: r-world-devs, openpharma, mbtests
+      Organisations: [3] r-world-devs, openpharma, mbtests
       Search preference: org
       Team: <not defined>
       Phrase: <not defined>
@@ -35,7 +35,7 @@
     Output
       A <GitStats> object for 2 hosts:
       Hosts: https://api.github.com, https://gitlab.com/api/v4
-      Organisations: r-world-devs, openpharma, mbtests
+      Organisations: [3] r-world-devs, openpharma, mbtests
       Search preference: team
       Team: RWD-IE (0 members)
       Phrase: <not defined>
