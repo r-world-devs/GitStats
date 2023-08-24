@@ -1,7 +1,8 @@
 GitStats 0.1.0.9000
 
 - added setting tokens by default - if a user does have all the PATs set up in environment variables (as e.g. `GITHUB_PAT` or `GITLAB_PAT`), there is no need to pass them as an arugment to `set_connection` (I: #120 PR: #268),
-- added `get_users()` function to pull information on users (I: #199 PR: #238)
+- added `get_users()` function to pull information on users (I: #199 PR: #238),
+- added scanning whole internal git platforms (I: #258),
 - added switching to REST engine in case GraphQL fails with 502 error (I: #225 PRs: #227 (for repos) #261 (for commits))
 - added GraphQL engine for getting GitLab repos by organization (I: #218 PR: #233)
 - removed `contributors` as basic stat when pulling `repos` by `org` and by `phrase` to improve speed of pulling repositories data. Added `add_repos_contributors()` user function and `add_contributors` parameter to `get_repos()` function to add conditionally information on contributors to repositories table (I: #235 PRs: #243 #264)
