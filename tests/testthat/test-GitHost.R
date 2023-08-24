@@ -113,6 +113,25 @@ test_that("`test_token` works properly", {
     test_host$test_token("false_token")
   )
 })
+suppressMessages(
+  test_host <- GitHost$new(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = "r-world-devs"
+  )
+)
+test_host <- test_host$.__enclos_env__$private
+
+test_that("`setup_engine` adds engines to host", {
+  expect_s3_class(
+    test_host$setup_engine(type = "rest"),
+    "EngineRest"
+  )
+  expect_s3_class(
+    test_host$setup_engine(type = "graphql"),
+    "EngineGraphQL"
+  )
+})
 
 test_that("`set_gql_url()` correctly sets gql api url - for public GitHub", {
   expect_equal(
@@ -125,6 +144,16 @@ test_that("`set_gql_url()` correctly sets gql api url - for public GitLab", {
   expect_equal(
     test_host$set_gql_url("https://gitlab.com/api/v4"),
     "https://gitlab.com/api/graphql"
+  )
+})
+
+test_that("GitHost pulls repos from orgs", {
+  settings <- list(search_param = "org")
+  expect_snapshot(
+    gh_repos_table <- test_host$pull_repos_from_orgs(settings)
+  )
+  expect_repos_table(
+    gh_repos_table
   )
 })
 
@@ -261,6 +290,23 @@ test_host <- create_testhost(
   token = Sys.getenv("GITHUB_PAT"),
   orgs = c("openpharma", "r-world-devs")
 )
+
+test_that("get_repos returns table of repositories", {
+  mockery::stub(
+    test_host$get_repos,
+    "private$pull_repos_from_org",
+    test_mocker$use("gh_repos_table")
+  )
+  expect_snapshot(
+    repos_table <- test_host$get_repos(
+      settings = list(search_param = "org",
+                      language = "All")
+    )
+  )
+  expect_repos_table(
+    repos_table
+  )
+})
 
 test_that("add_repos_contributors returns table with contributors", {
 
