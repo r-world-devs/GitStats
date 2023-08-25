@@ -299,10 +299,14 @@ GitHost <- R6::R6Class("GitHost",
 
     # @description Pull repositories from organisations.
     pull_repos_from_orgs = function(settings) {
+      orgs <- private$orgs
       if (private$scan_all) {
         cli::cli_alert_info("[Host:{private$host}] {cli::col_yellow('Pulling repositories from all organizations...')}")
+        if (settings$search_param == "phrase") {
+          orgs <- "no_orgs"
+        }
       }
-      repos_table <- purrr::map(private$orgs, function(org) {
+      repos_table <- purrr::map(orgs, function(org) {
         tryCatch({
           repos_list <- purrr::map(private$engines, function (engine) {
             engine$get_repos(

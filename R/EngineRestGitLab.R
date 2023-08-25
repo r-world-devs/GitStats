@@ -198,12 +198,15 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       page <- 1
       still_more_hits <- TRUE
       resp_list <- list()
-      groups_id <- private$get_group_id(org)
-
+      groups_url <- if (!private$scan_all) {
+        paste0("/groups/", private$get_group_id(org))
+      } else {
+        ""
+      }
       while (still_more_hits | page < page_max) {
         resp <- self$response(
           paste0(
-            self$rest_api_url, "/groups/", groups_id,
+            self$rest_api_url, groups_url,
             "/search?scope=blobs&search=", phrase, "&per_page=100&page=", page
           )
         )

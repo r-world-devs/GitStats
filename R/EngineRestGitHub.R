@@ -194,10 +194,15 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
                                       org,
                                       language,
                                       byte_max = "384000") {
-      search_endpoint <- if (language != "All") {
-        paste0(self$rest_api_url, "/search/code?q='", phrase, "'+user:", org, "+language:", language)
+      org_url <- if (!private$scan_all) {
+        paste0("'+user:", org)
       } else {
-        paste0(self$rest_api_url, "/search/code?q='", phrase, "'+user:", org)
+        ""
+      }
+      search_endpoint <- if (language != "All") {
+        paste0(self$rest_api_url, "/search/code?q='", phrase, org_url, "+language:", language)
+      } else {
+        paste0(self$rest_api_url, "/search/code?q='", phrase, org_url)
       }
 
       total_n <- self$response(search_endpoint)[["total_count"]]
@@ -239,14 +244,14 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         resp_list <- list()
         index <- c(0, 50)
 
-        pb <- progress::progress_bar$new(
-          format = "GitHub search limit (1000 results) exceeded. Results will be divided. :elapsedfull"
+        spinner <- cli::make_spinner(
+          template = cli::col_grey("GitHub search limit (1000 results) exceeded. Results will be divided. {spin}")
         )
 
         while (index[2] < as.numeric(byte_max)) {
           size_formula <- paste0("+size:", as.character(index[1]), "..", as.character(index[2]))
 
-          pb$tick(0)
+          spinner$spin()
 
           n_count <- tryCatch(
             {
@@ -283,7 +288,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
             index[2] <- index[2] + 10000
           }
         }
-
+        spinner$finish()
         resp_list
       }
     },
