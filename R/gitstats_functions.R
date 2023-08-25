@@ -8,33 +8,37 @@ create_gitstats <- function() {
   GitStats$new()
 }
 
-#' @title Setting connections
-#' @name set_connection
+#' @title Add Git host
+#' @name add_host
 #' @param gitstats_obj A GitStats object.
 #' @param api_url A character, url address of API.
 #' @param token A token.
-#' @param orgs A character vector of organisations (owners of repositories
-#'   in case of GitHub and groups of projects in case of GitLab).
+#' @param orgs A character vector of organisations (owners of repositories in
+#'   case of GitHub and groups of projects in case of GitLab). You do not need
+#'   to define `orgs` if you wish to scan whole internal Git platform (such as
+#'   enterprise version of GitHub or GitLab). In case of a public one (like
+#'   GitHub) you need to define `orgs` as scanning through all organizations
+#'   would be an overkill.
 #' @return A `GitStats` class object with added information on connection
 #'   (`$hosts` field).
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
-#'   set_connection(
+#'   add_host(
 #'     api_url = "https://api.github.com",
 #'     orgs = c("r-world-devs", "openpharma", "pharmaverse")
 #'   ) %>%
-#'   set_connection(
+#'   add_host(
 #'     api_url = "https://gitlab.com/api/v4",
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "erasmusmc-public-health"
 #'   )
 #' }
 #' @export
-set_connection <- function(gitstats_obj,
-                           api_url,
-                           token = NULL,
-                           orgs) {
+add_host <- function(gitstats_obj,
+                     api_url,
+                     token = NULL,
+                     orgs = NULL) {
   gitstats_obj$add_host(
     api_url = api_url,
     token = token,
@@ -43,6 +47,12 @@ set_connection <- function(gitstats_obj,
 
   return(invisible(gitstats_obj))
 }
+
+#' @title Add Git host
+#' @name set_connection
+#' @inheritParams add_host
+#' @export
+set_connection <- add_host
 
 #' @title Set up your search settings.
 #' @name setup
@@ -224,6 +234,27 @@ get_users <- function(gitstats_obj,
     users = users
   )
   return(invisible(gitstats_obj))
+}
+
+#' @title Reset GitStats settings
+#' @name reset
+#' @description Sets all settings to default: search_param to `org`, language to
+#'   `All` and other to `NULL`s.
+#' @param gitstats_obj A GitStats object.
+#' @return A GitStats object.
+#' @export
+reset <- function(gitstats_obj){
+  priv <- environment(gitstats_obj$setup)$private
+  priv$settings <- list(
+    search_param = "org",
+    phrase = NULL,
+    team_name = NULL,
+    team = list(),
+    language = "All",
+    print_out = TRUE
+  )
+  cli::cli_alert_info("Reset settings to default.")
+  return(gitstats_obj)
 }
 
 #' @title Reset language settings

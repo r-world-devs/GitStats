@@ -9,9 +9,23 @@ A class with methods to build GraphQL Queries for GitLab.
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
+\item \href{#method-groups}{\code{GQLQueryGitLab$groups()}}
 \item \href{#method-repos_by_org}{\code{GQLQueryGitLab$repos_by_org()}}
 \item \href{#method-user}{\code{GQLQueryGitLab$user()}}
 \item \href{#method-clone}{\code{GQLQueryGitLab$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-groups"></a>}}
+\if{latex}{\out{\hypertarget{method-groups}{}}}
+\subsection{Method \code{groups()}}{
+Prepare query to list groups from GitLab.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GQLQueryGitLab$groups()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A query.
 }
 }
 \if{html}{\out{<hr>}}

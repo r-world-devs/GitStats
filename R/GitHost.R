@@ -18,31 +18,36 @@ GitHost <- R6::R6Class("GitHost",
                           token = NA,
                           api_url = NA) {
       private$api_url <- api_url
+      private$is_public <- private$check_if_public()
+      private$host <- private$set_host()
       if (is.null(token)){
-        token <- private$set_default_token()
-      }
-      if (grepl("https://", api_url) && grepl("github", api_url)) {
-        private$engines$rest <- EngineRestGitHub$new(
-          token = token,
-          rest_api_url = api_url
-        )
-        private$engines$graphql <- EngineGraphQLGitHub$new(
-          token = token,
-          gql_api_url = private$set_gql_url(api_url)
-        )
-      } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
-        private$engines$rest <- EngineRestGitLab$new(
-          token = token,
-          rest_api_url = api_url
-        )
-        private$engines$graphql <- EngineGraphQLGitLab$new(
-          token = token,
-          gql_api_url = private$set_gql_url(api_url)
-        )
+        private$token <- private$set_default_token()
       } else {
-        stop("This connection is not supported by GitStats class object.")
+        private$token <- token
       }
-      private$orgs <- private$engines$rest$check_organizations(orgs)
+      if (is.null(orgs)) {
+        if (private$is_public) {
+          cli::cli_abort(c(
+            "You need to specify `orgs` for public Git Host.",
+            "x" = "Host will not be added.",
+            "i" = "Add organizations to your `orgs` parameter."
+          ),
+          call = NULL)
+        } else {
+          cli::cli_alert_warning(cli::col_yellow(
+            "No `orgs` specified. I will pull all organizations from the Git Host."
+          ))
+          private$scan_all <- TRUE
+        }
+      }
+      private$engines$rest <- private$setup_engine(type = "rest")
+      private$engines$graphql <- private$setup_engine(type = "graphql")
+      if (private$scan_all) {
+        cli::cli_alert_info("[{private$host}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
+        private$orgs <- private$engines$graphql$get_orgs()
+      } else {
+        private$orgs <- private$engines$rest$check_organizations(orgs)
+      }
     },
 
     #' @description  A method to list all repositories for an organization, a
@@ -52,32 +57,9 @@ GitHost <- R6::R6Class("GitHost",
     #'   column to repositories table.
     #' @return A data.frame of repositories.
     get_repos = function(settings, add_contributors = FALSE) {
-      repos_table <- purrr::map(private$orgs, function(org) {
-        tryCatch({
-          repos_list <- purrr::map(private$engines, function (engine) {
-            engine$get_repos(
-                org = org,
-                settings = settings
-              )
-          })
-        },
-        error = function(e) {
-          if (grepl("502", e)) {
-            cli::cli_alert_warning(cli::col_yellow("HTTP 502 Bad Gateway Error. Switch to another Engine."))
-            repos_list <<- purrr::map(private$engines, function (engine) {
-              engine$get_repos_supportive(
-                org = org,
-                settings = settings
-              )
-            })
-          } else {
-            e
-          }
-        })
-        repos_table_org <- purrr::list_rbind(repos_list)
-        return(repos_table_org)
-      }) %>%
-        purrr::list_rbind()
+      repos_table <- private$pull_repos_from_orgs(
+        settings = settings
+      )
 
       if (settings$search_param == "team") {
         add_contributors <- TRUE
@@ -128,7 +110,9 @@ GitHost <- R6::R6Class("GitHost",
           "i" = "Please change your `search_param` either to 'org' or 'team' with `setup()`."
         ))
       }
-
+      if (private$scan_all) {
+        cli::cli_alert_info("[Host:{private$host}] {cli::col_yellow('Pulling commits from all organizations...')}")
+      }
       commits_table <- purrr::map(private$orgs, function(org) {
         tryCatch({
           commits_table_org <- purrr::map(private$engines, ~ .$get_commits(
@@ -161,7 +145,7 @@ GitHost <- R6::R6Class("GitHost",
         })
 
         return(commits_table_org)
-      }) %>%
+      }, .progress = private$scan_all) %>%
         purrr::list_rbind()
 
       return(commits_table)
@@ -187,11 +171,48 @@ GitHost <- R6::R6Class("GitHost",
     # @field A REST API url.
     api_url = NULL,
 
+    # @field A token.
+    token = NULL,
+
+    # @field public A boolean.
+    is_public = NULL,
+
+    # @field Host name.
+    host = NULL,
+
     # @field orgs A character vector of repo organizations.
     orgs = NULL,
 
+    # @field A boolean.
+    scan_all = FALSE,
+
     # @field engines A placeholder for REST and GraphQL Engine classes.
     engines = list(),
+
+    # @description Check whether Git platform is public or internal.
+    check_if_public = function() {
+      if (grepl("api.github.com|gitlab.com/api", private$api_url)) {
+        TRUE
+      } else {
+        FALSE
+      }
+    },
+
+    # @description Set name of a Git Host.
+    set_host = function() {
+      if (grepl("https://", private$api_url) && grepl("github", private$api_url)) {
+        "GitHub"
+      } else if (grepl("https://", private$api_url) && grepl("gitlab|code", private$api_url)) {
+        "GitLab"
+      } else {
+        cli::cli_abort(c(
+          "This connection is not supported by GitStats class object.",
+          "x" = "Host will not be added."
+          ),
+          call = NULL
+        )
+      }
+    },
 
     # @description Set default token if none exists.
     set_default_token = function() {
@@ -217,6 +238,40 @@ GitHost <- R6::R6Class("GitHost",
       return(token)
     },
 
+    # Setup REST and GraphQL engines
+    setup_engine = function(type) {
+      engine <- if (private$host == "GitHub") {
+        if (type == "rest") {
+          EngineRestGitHub$new(
+            rest_api_url = private$api_url,
+            token = private$token,
+            scan_all = private$scan_all
+          )
+        } else {
+          EngineGraphQLGitHub$new(
+            gql_api_url = private$set_gql_url(private$api_url),
+            token = private$token,
+            scan_all = private$scan_all
+          )
+        }
+      } else {
+        if (type == "rest") {
+          EngineRestGitLab$new(
+            rest_api_url = private$api_url,
+            token = private$token,
+            scan_all = private$scan_all
+          )
+        } else {
+          EngineGraphQLGitLab$new(
+            gql_api_url = private$set_gql_url(private$api_url),
+            token = private$token,
+            scan_all = private$scan_all
+          )
+        }
+      }
+      return(engine)
+    },
+
     # @description Helper to test if a token works
     test_token = function(token) {
       response <- NULL
@@ -240,6 +295,45 @@ GitHost <- R6::R6Class("GitHost",
     # @return GraphQL API url.
     set_gql_url = function(rest_api_url) {
       paste0(gsub("/v+.*", "", rest_api_url), "/graphql")
+    },
+
+    # @description Pull repositories from organisations.
+    pull_repos_from_orgs = function(settings) {
+      orgs <- private$orgs
+      if (private$scan_all) {
+        cli::cli_alert_info("[Host:{private$host}] {cli::col_yellow('Pulling repositories from all organizations...')}")
+        if (settings$search_param == "phrase") {
+          orgs <- "no_orgs"
+        }
+      }
+      repos_table <- purrr::map(orgs, function(org) {
+        tryCatch({
+          repos_list <- purrr::map(private$engines, function (engine) {
+            engine$get_repos(
+              org = org,
+              settings = settings
+            )
+          })
+        },
+        error = function(e) {
+          if (!private$scan_all) {
+            if (grepl("502", e)) {
+              cli::cli_alert_warning(cli::col_yellow("HTTP 502 Bad Gateway Error. Switch to another Engine."))
+            } else {
+              cli::cli_alert_warning(cli::col_yellow("Error. Switch to another Engine."))
+            }
+          }
+          repos_list <<- purrr::map(private$engines, function (engine) {
+            engine$get_repos_supportive(
+              org = org,
+              settings = settings
+            )
+          })
+        })
+        repos_table_org <- purrr::list_rbind(repos_list)
+        return(repos_table_org)
+      }, .progress = private$scan_all) %>%
+        purrr::list_rbind()
     },
 
     # @description Filter repositories by contributors.

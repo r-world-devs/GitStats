@@ -12,8 +12,6 @@ A class for methods wrapping GitHub's REST API responses.
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{EngineRestGitHub$new()}}
-\item \href{#method-check_organizations}{\code{EngineRestGitHub$check_organizations()}}
 \item \href{#method-get_repos}{\code{EngineRestGitHub$get_repos()}}
 \item \href{#method-get_repos_supportive}{\code{EngineRestGitHub$get_repos_supportive()}}
 \item \href{#method-get_commits}{\code{EngineRestGitHub$get_commits()}}
@@ -25,48 +23,11 @@ A class for methods wrapping GitHub's REST API responses.
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
+\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="EngineRest" data-id="check_organizations">}\href{../../GitStats/html/EngineRest.html#method-check_organizations}{\code{GitStats::EngineRest$check_organizations()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="EngineRest" data-id="initialize">}\href{../../GitStats/html/EngineRest.html#method-initialize}{\code{GitStats::EngineRest$initialize()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="EngineRest" data-id="response">}\href{../../GitStats/html/EngineRest.html#method-response}{\code{GitStats::EngineRest$response()}}\out{</span>}
 }
 \out{</details>}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
-\subsection{Method \code{new()}}{
-Create new \code{EngineRestGitHub} object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$new(rest_api_url, token)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{rest_api_url}}{A REST API url.}
-
-\item{\code{token}}{A token.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-check_organizations"></a>}}
-\if{latex}{\out{\hypertarget{method-check_organizations}{}}}
-\subsection{Method \code{check_organizations()}}{
-Check if an organization exists
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$check_organizations(orgs)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{orgs}}{A character vector of organizations}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-orgs or NULL.
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-get_repos"></a>}}

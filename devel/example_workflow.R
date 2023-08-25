@@ -3,11 +3,11 @@ pkgload::load_all()
 
 # Start by creating your GitStats object and setting connections.
 git_stats <- create_gitstats() %>%
-  set_connection(
+  add_host(
     api_url = "https://api.github.com",
     orgs = c("r-world-devs", "openpharma")
   ) %>%
-  set_connection(
+  add_host(
     api_url = "https://gitlab.com/api/v4",
     orgs = c("mbtests", "gitlab-org")
   )
@@ -61,7 +61,15 @@ get_repos(git_stats)
 # you can plot repos sorted by last activity
 plot_repos(git_stats)
 
-# examples for getting and plotting commits
+# error should pop out when search param set to 'phrase':
+get_commits(git_stats, date_from = "2020-01-01")
+
+reset(git_stats)
+
+# now it should work
+get_commits(git_stats, date_from = "2020-01-01")
+
+# examples for plotting commits
 plot_commits(git_stats)
 
 # get information on users
@@ -75,7 +83,7 @@ git_stats$show_users()
 # should switch to REST if that is the case
 
 create_gitstats() %>%
-  set_connection(
+  add_host(
     api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("insightsengineering")
@@ -84,12 +92,12 @@ create_gitstats() %>%
 # one token does not exist
 
 git_stats <- create_gitstats() %>%
-  set_connection(
+  add_host(
     api_url = "https://api.github.com",
     token = Sys.getenv("DOES_NOT_EXIST"),
     orgs = c("r-world-devs", "openpharma")
   ) %>%
-  set_connection(
+  add_host(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = c("mbtests", "erasmusmc-public-health")
@@ -99,12 +107,12 @@ git_stats
 # a token exists but does not grant access
 
 git_stats <- create_gitstats() %>%
-  set_connection(
+  add_host(
     api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma")
   ) %>%
-  set_connection(
+  add_host(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT"),
     orgs = c("mbtests", "erasmusmc-public-health")
@@ -114,12 +122,12 @@ git_stats
 # wrong orgs
 
 git_stats <- create_gitstats() %>%
-  set_connection(
+  add_host(
     api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("rworlddevs", "openpharma")
   ) %>%
-  set_connection(
+  add_host(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = c("mbtests", "public health")

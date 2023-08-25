@@ -13,6 +13,7 @@ A class for methods wrapping GitLab's GraphQL API responses.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{EngineGraphQLGitLab$new()}}
+\item \href{#method-get_orgs}{\code{EngineGraphQLGitLab$get_orgs()}}
 \item \href{#method-get_repos}{\code{EngineGraphQLGitLab$get_repos()}}
 \item \href{#method-get_repos_supportive}{\code{EngineGraphQLGitLab$get_repos_supportive()}}
 \item \href{#method-get_commits}{\code{EngineGraphQLGitLab$get_commits()}}
@@ -33,7 +34,7 @@ A class for methods wrapping GitLab's GraphQL API responses.
 \subsection{Method \code{new()}}{
 Create \code{EngineGraphQLGitLab} object.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitLab$new(gql_api_url, token)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitLab$new(gql_api_url, token, scan_all = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -42,9 +43,21 @@ Create \code{EngineGraphQLGitLab} object.
 \item{\code{gql_api_url}}{GraphQL API url.}
 
 \item{\code{token}}{A token.}
+
+\item{\code{scan_all}}{A boolean.}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_orgs"></a>}}
+\if{latex}{\out{\hypertarget{method-get_orgs}{}}}
+\subsection{Method \code{get_orgs()}}{
+Get all groups from GitLab.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitLab$get_orgs()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-get_repos"></a>}}
