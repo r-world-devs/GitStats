@@ -29,8 +29,9 @@ TestHost <- R6::R6Class("TestHost",
                           token = NA,
                           api_url = NA) {
       private$api_url <- api_url
+      private$host <- private$set_host()
       if (grepl("https://", api_url) && grepl("github", api_url)) {
-        private$engines$rest <- EngineRestGitHub$new(
+        private$engines$rest <- TestEngineRestGitHub$new(
           token = token,
           rest_api_url = api_url
         )
@@ -39,7 +40,7 @@ TestHost <- R6::R6Class("TestHost",
           gql_api_url = private$set_gql_url(api_url)
         )
       } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
-        private$engines$rest <- EngineRestGitLab$new(
+        private$engines$rest <- TestEngineRest$new(
           token = token,
           rest_api_url = api_url
         )
@@ -81,6 +82,32 @@ TestEngineRest <- R6::R6Class("TestEngineRest",
       self$rest_api_url <- rest_api_url
     }
   )
+)
+
+#' @noRd
+#' @description A helper class to use in tests.
+TestEngineRestGitHub <- R6::R6Class("TestEngineRestGitHub",
+                              inherit = EngineRestGitHub,
+                              public = list(
+                                initialize = function(token,
+                                                      rest_api_url) {
+                                  private$token <- token
+                                  self$rest_api_url <- rest_api_url
+                                }
+                              )
+)
+
+#' @noRd
+#' @description A helper class to use in tests.
+TestEngineRestGitLab <- R6::R6Class("TestEngineRestGitLab",
+                                    inherit = EngineRestGitLab,
+                                    public = list(
+                                      initialize = function(token,
+                                                            rest_api_url) {
+                                        private$token <- token
+                                        self$rest_api_url <- rest_api_url
+                                      }
+                                    )
 )
 
 #' @noRd

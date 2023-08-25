@@ -30,7 +30,7 @@ A class for methods wrapping GitHub's GraphQL API responses.
 \subsection{Method \code{new()}}{
 Create \code{EngineGraphQL} object.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQL$new(gql_api_url, token)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQL$new(gql_api_url = NA, token = NA, scan_all = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -39,6 +39,8 @@ Create \code{EngineGraphQL} object.
 \item{\code{gql_api_url}}{GraphQL API url.}
 
 \item{\code{token}}{A token.}
+
+\item{\code{scan_all}}{A boolean.}
 }
 \if{html}{\out{</div>}}
 }

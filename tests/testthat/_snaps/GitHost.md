@@ -14,6 +14,13 @@
     Message <cliMessage>
       i Using PAT from GITLAB_PAT envar.
 
+# GitHost pulls repos from orgs
+
+    Code
+      gh_repos_table <- test_host$pull_repos_from_orgs(settings)
+    Message <cliMessage>
+      i [GitHub][Engine:GraphQL][org:r-world-devs] Pulling repositories...
+
 # GitHost filters GitHub repositories' (pulled by org) table by languages
 
     Code
@@ -55,6 +62,15 @@
       result <- test_host$filter_repos_by_language(gl_repos_table, language = "C")
     Message <cliMessage>
       i Filtering by language.
+
+# get_repos returns table of repositories
+
+    Code
+      repos_table <- test_host$get_repos(settings = list(search_param = "org",
+        language = "All"))
+    Message <cliMessage>
+      i [GitHub][Engine:GraphQL][org:openpharma] Pulling repositories...
+      i [GitHub][Engine:GraphQL][org:r-world-devs] Pulling repositories...
 
 # add_repos_contributors returns table with contributors
 
