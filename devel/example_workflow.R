@@ -133,3 +133,13 @@ git_stats <- create_gitstats() %>%
     orgs = c("mbtests", "public health")
   )
 git_stats
+
+## add gitlab subgroups
+
+git_stats <- create_gitstats() %>%
+  add_host(
+    api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    orgs = "mbtests/subgroup"
+  )
+git_stats

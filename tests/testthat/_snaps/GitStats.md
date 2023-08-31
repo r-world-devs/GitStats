@@ -59,3 +59,18 @@
       i [GitHub][Engine:REST] Pulling contributors...
       i [GitLab][Engine:REST] Pulling contributors...
 
+# subgroups are cleanly printed in GitStats
+
+    Code
+      test_gitstats
+    Output
+      A <GitStats> object for 1 hosts:
+      Hosts: https://gitlab.com/api/v4
+      Organisations: [1] mbtests/subgroup
+      Search preference: org
+      Team: <not defined>
+      Phrase: <not defined>
+      Language: All
+      Repositories output: <not defined>
+      Commits output: <not defined>
+

@@ -16,6 +16,7 @@ An R6 class object with methods to derive information from multiple Git platform
 \item \href{#method-add_repos_contributors}{\code{GitStats$add_repos_contributors()}}
 \item \href{#method-get_commits}{\code{GitStats$get_commits()}}
 \item \href{#method-get_users}{\code{GitStats$get_users()}}
+\item \href{#method-show_orgs}{\code{GitStats$show_orgs()}}
 \item \href{#method-show_repos}{\code{GitStats$show_repos()}}
 \item \href{#method-show_commits}{\code{GitStats$show_commits()}}
 \item \href{#method-show_users}{\code{GitStats$show_users()}}
@@ -175,6 +176,16 @@ Get information on users.
 \subsection{Returns}{
 A data.frame of users.
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-show_orgs"></a>}}
+\if{latex}{\out{\hypertarget{method-show_orgs}{}}}
+\subsection{Method \code{show_orgs()}}{
+Print organizations.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$show_orgs()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-show_repos"></a>}}

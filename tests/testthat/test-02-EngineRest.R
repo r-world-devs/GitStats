@@ -7,8 +7,6 @@ test_rest <- TestEngineRest$new(
 
 test_rest_priv <- environment(test_rest$response)$private
 
-
-
 test_that("When token is empty throw error", {
   expect_snapshot(
     error = TRUE,
@@ -95,4 +93,25 @@ test_that("`response()` returns commits response from GitLab's REST API", {
     gl_commits_rest_response_repo_2
   )
   test_mocker$cache(gl_commits_rest_response_repo_2)
+})
+
+test_that("check_organizations returns orgs if they are correct", {
+  expect_equal(
+    test_rest$check_organizations("mbtests"),
+    "mbtests"
+  )
+})
+
+test_that("check_organizations returns orgs if GitLab subroups are passed", {
+  expect_equal(
+    test_rest$check_organizations("mbtests/subgroup"),
+    "mbtests%2fsubgroup"
+  )
+})
+
+test_that("check_organizations returns NULL if orgs are wrong", {
+  expect_snapshot(
+    orgs <- test_rest$check_organizations("does_not_exist")
+  )
+  expect_null(orgs)
 })
