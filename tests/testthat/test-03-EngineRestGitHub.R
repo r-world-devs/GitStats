@@ -207,9 +207,9 @@ test_that("`add_commits_stats()` works as expected", {
 
 # public methods
 
-test_that("`add_repos_contributors()` adds contributors to repos table", {
+test_that("`get_repos_contributors()` adds contributors to repos table", {
   expect_snapshot(
-    gh_repos_by_phrase_table <- test_rest$add_repos_contributors(
+    gh_repos_by_phrase_table <- test_rest$get_repos_contributors(
       test_mocker$use("gh_repos_by_phrase_table")
     )
   )

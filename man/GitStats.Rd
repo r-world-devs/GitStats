@@ -10,10 +10,10 @@ An R6 class object with methods to derive information from multiple Git platform
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-setup}{\code{GitStats$setup()}}
-\item \href{#method-add_host}{\code{GitStats$add_host()}}
-\item \href{#method-add_team_member}{\code{GitStats$add_team_member()}}
+\item \href{#method-set_host}{\code{GitStats$set_host()}}
+\item \href{#method-set_team_member}{\code{GitStats$set_team_member()}}
 \item \href{#method-get_repos}{\code{GitStats$get_repos()}}
-\item \href{#method-add_repos_contributors}{\code{GitStats$add_repos_contributors()}}
+\item \href{#method-get_repos_contributors}{\code{GitStats$get_repos_contributors()}}
 \item \href{#method-get_commits}{\code{GitStats$get_commits()}}
 \item \href{#method-get_users}{\code{GitStats$get_users()}}
 \item \href{#method-show_repos}{\code{GitStats$show_repos()}}
@@ -53,12 +53,12 @@ Nothing.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-add_host"></a>}}
-\if{latex}{\out{\hypertarget{method-add_host}{}}}
-\subsection{Method \code{add_host()}}{
+\if{html}{\out{<a id="method-set_host"></a>}}
+\if{latex}{\out{\hypertarget{method-set_host}{}}}
+\subsection{Method \code{set_host()}}{
 Method to set connections to Git platforms
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$add_host(api_url, token, orgs)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$set_host(api_url, token, orgs)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -78,12 +78,12 @@ Nothing, puts connection information into \verb{$hosts} slot
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-add_team_member"></a>}}
-\if{latex}{\out{\hypertarget{method-add_team_member}{}}}
-\subsection{Method \code{add_team_member()}}{
+\if{html}{\out{<a id="method-set_team_member"></a>}}
+\if{latex}{\out{\hypertarget{method-set_team_member}{}}}
+\subsection{Method \code{set_team_member()}}{
 A method to add a team member.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$add_team_member(member_name, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$set_team_member(member_name, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -122,12 +122,12 @@ A data.frame of repositories
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-add_repos_contributors"></a>}}
-\if{latex}{\out{\hypertarget{method-add_repos_contributors}{}}}
-\subsection{Method \code{add_repos_contributors()}}{
+\if{html}{\out{<a id="method-get_repos_contributors"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos_contributors}{}}}
+\subsection{Method \code{get_repos_contributors()}}{
 A method to add information on repository contributors.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$add_repos_contributors()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos_contributors()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{

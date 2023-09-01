@@ -3,11 +3,11 @@ pkgload::load_all()
 
 # Start by creating your GitStats object and setting connections.
 git_stats <- create_gitstats() %>%
-  add_host(
+  set_host(
     api_url = "https://api.github.com",
     orgs = c("r-world-devs", "openpharma")
   ) %>%
-  add_host(
+  set_host(
     api_url = "https://gitlab.com/api/v4",
     orgs = c("mbtests", "gitlab-org")
   )
@@ -16,7 +16,7 @@ git_stats
 
 # examples for getting repos (default search parameter is 'org')
 get_repos(git_stats)
-add_repos_contributors(git_stats)
+get_repos_contributors(git_stats)
 dplyr::glimpse(git_stats$show_repos())
 
 get_repos(git_stats, add_contributors = TRUE)
@@ -30,12 +30,12 @@ get_repos(git_stats)
 
 # set your team members
 git_stats %>%
-  add_team_member("Adam Foryś", "galachad") %>%
-  add_team_member("Kamil Wais", "kalimu") %>%
-  add_team_member("Krystian Igras", "krystian8207") %>%
-  add_team_member("Karolina Marcinkowska", "marcinkowskak") %>%
-  add_team_member("Kamil Koziej", "Cotau") %>%
-  add_team_member("Maciej Banaś", "maciekbanas")
+  set_team_member("Adam Foryś", "galachad") %>%
+  set_team_member("Kamil Wais", "kalimu") %>%
+  set_team_member("Krystian Igras", "krystian8207") %>%
+  set_team_member("Karolina Marcinkowska", "marcinkowskak") %>%
+  set_team_member("Kamil Koziej", "Cotau") %>%
+  set_team_member("Maciej Banaś", "maciekbanas")
 
 # You can set your search preferences
 setup(git_stats,
@@ -83,7 +83,7 @@ git_stats$show_users()
 # should switch to REST if that is the case
 
 create_gitstats() %>%
-  add_host(
+  set_host(
     api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("insightsengineering")
@@ -92,12 +92,12 @@ create_gitstats() %>%
 # one token does not exist
 
 git_stats <- create_gitstats() %>%
-  add_host(
+  set_host(
     api_url = "https://api.github.com",
     token = Sys.getenv("DOES_NOT_EXIST"),
     orgs = c("r-world-devs", "openpharma")
   ) %>%
-  add_host(
+  set_host(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = c("mbtests", "erasmusmc-public-health")
@@ -107,12 +107,12 @@ git_stats
 # a token exists but does not grant access
 
 git_stats <- create_gitstats() %>%
-  add_host(
+  set_host(
     api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma")
   ) %>%
-  add_host(
+  set_host(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT"),
     orgs = c("mbtests", "erasmusmc-public-health")
@@ -122,12 +122,12 @@ git_stats
 # wrong orgs
 
 git_stats <- create_gitstats() %>%
-  add_host(
+  set_host(
     api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("rworlddevs", "openpharma")
   ) %>%
-  add_host(
+  set_host(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = c("mbtests", "public health")

@@ -110,7 +110,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
-    add_repos_contributors = function(repos_table) {
+    get_repos_contributors = function(repos_table) {
       if (nrow(repos_table) > 0) {
         if (!private$scan_all) {
           cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}] Pulling contributors...")

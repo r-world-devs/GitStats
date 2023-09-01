@@ -42,7 +42,7 @@ GitStats <- R6::R6Class("GitStats",
           if (length(private$settings$team) == 0) {
             cli::cli_alert_warning(
               cli::col_yellow(
-                "No team members in the team. Add them with `add_team_member()`."
+                "No team members in the team. Add them with `set_team_member()`."
               )
             )
           }
@@ -78,7 +78,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @param orgs A character vector of organisations (owners of repositories
     #'   in case of GitHub and groups of projects in case of GitLab).
     #' @return Nothing, puts connection information into `$hosts` slot
-    add_host = function(api_url,
+    set_host = function(api_url,
                         token,
                         orgs) {
       new_host <- NULL
@@ -105,7 +105,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @param member_name Name of a member.
     #' @param ... User names on Git platforms.
     #' @return Nothing, pass information on team member to `GitStats`.
-    add_team_member = function(member_name,
+    set_team_member = function(member_name,
                                ...) {
       team_member <- list(
         "name" = member_name,
@@ -123,7 +123,7 @@ GitStats <- R6::R6Class("GitStats",
     get_repos = function(add_contributors = FALSE) {
       if (private$settings$search_param == "team") {
         if (length(private$settings$team) == 0) {
-          cli::cli_abort("You have to specify a team first with 'add_team_member()'.")
+          cli::cli_abort("You have to specify a team first with 'set_team_member()'.")
         }
       } else if (private$settings$search_param == "phrase") {
         if (is.null(private$settings$phrase)) {
@@ -148,11 +148,11 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description A method to add information on repository contributors.
     #' @return A table of repositories with added information on contributors.
-    add_repos_contributors = function() {
+    get_repos_contributors = function() {
       if (length(private$repos) == 0) {
         cli::cli_abort("You need to pull repos first with `get_repos()`.")
       } else {
-        private$repos <- purrr::map_dfr(private$hosts, ~ .$add_repos_contributors(
+        private$repos <- purrr::map_dfr(private$hosts, ~ .$get_repos_contributors(
           repos_table = private$repos
         ))
       }
@@ -170,7 +170,7 @@ GitStats <- R6::R6Class("GitStats",
 
       if (private$settings$search_param == "team") {
         if (length(private$settings$team) == 0) {
-          cli::cli_abort("You have to specify a team first with 'add_team_member()'.")
+          cli::cli_abort("You have to specify a team first with 'set_team_member()'.")
         }
       }
 

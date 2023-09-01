@@ -54,7 +54,7 @@
 # Add_repos_contributors adds repos contributors to repos table
 
     Code
-      test_gitstats$add_repos_contributors()
+      test_gitstats$get_repos_contributors()
     Message <cliMessage>
       i [GitHub][Engine:REST] Pulling contributors...
       i [GitLab][Engine:REST] Pulling contributors...

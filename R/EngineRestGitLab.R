@@ -33,7 +33,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           private$prepare_repos_table() %>%
           private$add_repos_issues()
         suppressMessages({
-        repos_table <- self$add_repos_contributors(
+        repos_table <- self$get_repos_contributors(
           repos_table = repos_table
           ) %>%
           private$filter_repos_by_team(team = settings$team)
@@ -67,7 +67,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
-    add_repos_contributors = function(repos_table) {
+    get_repos_contributors = function(repos_table) {
       if (nrow(repos_table) > 0) {
         if (!private$scan_all) {
           cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}] Pulling contributors...")
