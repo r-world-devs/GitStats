@@ -156,9 +156,9 @@ test_that("`prepare_commits_table()` prepares table of commits properly", {
   )
 })
 
-test_that("`add_repos_issues()` adds issues to repos table", {
+test_that("`get_repos_issues()` adds issues to repos table", {
   gl_repos_by_phrase_table <- test_mocker$use("gl_repos_by_phrase_table")
-  gl_repos_by_phrase_table <- test_rest_priv$add_repos_issues(
+  gl_repos_by_phrase_table <- test_rest_priv$get_repos_issues(
     gl_repos_by_phrase_table
   )
   expect_gt(

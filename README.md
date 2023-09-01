@@ -26,6 +26,8 @@ devtools::install_github("r-world-devs/GitStats")
 
 ## Getting started
 
+Please remember to have your access tokens stored as environment variables: `GITHUB_PAT` for access to GitHub API and `GITLAB_PAT` for GitLab API.
+
 You can start by creating your `GitStats` object, where you will hold
 information on your multiple connections.
 
@@ -34,14 +36,12 @@ library(GitStats)
 library(magrittr)
 
 git_stats <- create_gitstats() %>%
-  set_connection(
+  set_host(
     api_url = "https://api.github.com",
-    token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma", "pharmaverse")
   ) %>%
-  set_connection(
+  set_host(
     api_url = "https://gitlab.com/api/v4",
-    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = c("mbtests")
   )
 ```
@@ -58,12 +58,11 @@ members first:
 
 ``` r
 git_stats %>%
-  add_team_member("Adam Foryś", "galachad") %>%
-  add_team_member("Kamil Wais", "kalimu") %>%
-  add_team_member("Krystian Igras", "krystian8207") %>%
-  add_team_member("Karolina Marcinkowska", "marcinkowskak") %>%
-  add_team_member("Kamil Koziej", "Cotau") %>%
-  add_team_member("Maciej Banaś", "maciekbanas")
+  set_team_member("Kamil Wais", "kalimu") %>%
+  set_team_member("Krystian Igras", "krystian8207") %>%
+  set_team_member("Karolina Marcinkowska", "marcinkowskak") %>%
+  set_team_member("Kamil Koziej", "Cotau") %>%
+  set_team_member("Maciej Banaś", "maciekbanas")
 
 setup(git_stats,
   search_param = "team",
@@ -71,43 +70,43 @@ setup(git_stats,
 )
 #> A <GitStats> object for 2 hosts:
 #> Hosts: https://api.github.com, https://gitlab.com/api/v4
-#> Organisations: r-world-devs, openpharma, pharmaverse, mbtests
+#> Organisations: [4] r-world-devs, openpharma, pharmaverse, mbtests
 #> Search preference: team
-#> Team: RWD (6 members)
+#> Team: RWD (5 members)
 #> Phrase: <not defined>
-#> Language: <not defined>
+#> Language: All
 #> Repositories output: <not defined>
 #> Commits output: <not defined>
 
 # now pull repos and commits by default by team
 get_repos(git_stats)
-#> Rows: 23
+#> Rows: 18
 #> Columns: 13
-#> $ id               <chr> "R_kgDOJWYrCA", "R_kgDOIvtxsg", "R_kgDOJAtHJA", "R_kg…
-#> $ name             <chr> "hypothesis", "GitStats", "shinyTimelines", "shinyGiz…
-#> $ stars            <int> 2, 1, 2, 16, 2, 4, 4, 10, 22, 2, 144, 1, 3, 7, 7, 0, …
-#> $ forks            <int> 0, 0, 0, 0, 2, 0, 0, 1, 5, 1, 36, 0, 3, 6, 4, NA, NA,…
-#> $ created_at       <dttm> 2023-04-13 13:52:24, 2023-01-09 14:02:20, 2023-02-21…
-#> $ last_activity_at <drtn> 14.38 days, 0.38 days, 7.38 days, 4.38 days, 7.38 da…
-#> $ languages        <chr> "R, JavaScript", "R", "R, CSS", "R, CSS, JavaScript",…
-#> $ issues_open      <dbl> 0, 65, 0, 5, 22, 27, 1, 0, 0, 2, 64, 6, 3, 39, 26, 0,…
-#> $ issues_closed    <dbl> 0, 79, 0, 12, 1, 4, 0, 0, 1, 0, 986, 55, 23, 121, 35,…
-#> $ contributors     <chr> "krystian8207", "maciekbanas", "krystian8207", "kryst…
+#> $ id               <chr> "R_kgDOIvtxsg", "R_kgDOJAtHJA", "R_kgDOHNMr2w", "R_kg…
+#> $ name             <chr> "GitStats", "shinyTimelines", "shinyGizmo", "cohortBu…
+#> $ stars            <int> 1, 2, 16, 3, 5, 2, 10, 22, 2, 0, 0, 0, 0, 0, 0, 0, 0,…
+#> $ forks            <int> 0, 0, 0, 2, 0, 0, 1, 5, 1, NA, NA, NA, NA, NA, NA, NA…
+#> $ created_at       <dttm> 2023-01-09 14:02:20, 2023-02-21 16:41:59, 2022-04-20…
+#> $ last_activity_at <drtn> 0.64 days, 119.64 days, 116.64 days, 119.64 days, 4.…
+#> $ languages        <chr> "R", "R, CSS", "R, CSS, JavaScript", "R", "R, CSS, Ja…
+#> $ issues_open      <dbl> 80, 0, 5, 22, 32, 3, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 1,…
+#> $ issues_closed    <dbl> 107, 0, 12, 1, 4, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
 #> $ organization     <chr> "r-world-devs", "r-world-devs", "r-world-devs", "r-wo…
-#> $ repo_url         <chr> "https://github.com/r-world-devs/hypothesis", "https:…
-#> $ api_url          <chr> "https://api.github.com", "https://api.github.com", "…
+#> $ repo_url         <chr> "https://github.com/r-world-devs/GitStats", "https://…
+#> $ api_url          <chr> "https://api.github.com/repositories/r-world-devs/Git…
+#> $ contributors     <chr> "maciekbanas, Cotau", "krystian8207", "krystian8207, …
 
 get_commits(git_stats,
   date_from = "2022-01-01",
   date_until = "2023-03-31"
 )
-#> Rows: 304
+#> Rows: 553
 #> Columns: 8
-#> $ id             <chr> "C_kwDOHNMr29oAKGFjZWNlMDA5ZDNiMWQ2MWY1OWJhZGVlNmNmMzg2…
-#> $ committed_date <dttm> 2022-05-23 15:00:08, 2022-05-18 07:32:23, 2023-03-01 1…
-#> $ author         <chr> "Adam Forys", "Adam Forys", "Krystian Igras", "Krystian…
-#> $ additions      <int> 1, 33, 296, 18, 10, 29, 8, 17, 1, 11, 267, 876, 1, 6, 3…
-#> $ deletions      <int> 1, 6, 153, 11, 7, 14, 4, 8, 1, 5, 146, 146, 1, 4, 3, 9,…
+#> $ id             <chr> "C_kwDOHNMr29oAKGI3ZmRlYTNkNjY0NmM2MmRmMzA0N2Y0NDhkODQy…
+#> $ committed_date <dttm> 2023-03-01 15:05:10, 2023-03-01 14:58:22, 2023-02-28 1…
+#> $ author         <chr> "Krystian Igras", "Krystian Igras", "Krystian Igras", "…
+#> $ additions      <int> 296, 18, 10, 29, 8, 17, 1, 11, 267, 876, 1, 6, 3, 20, 1…
+#> $ deletions      <int> 153, 11, 7, 14, 4, 8, 1, 5, 146, 146, 1, 4, 3, 9, 107, …
 #> $ repository     <chr> "shinyGizmo", "shinyGizmo", "shinyGizmo", "shinyGizmo",…
 #> $ organization   <chr> "r-world-devs", "r-world-devs", "r-world-devs", "r-worl…
 #> $ api_url        <chr> "https://api.github.com", "https://api.github.com", "ht…
@@ -125,39 +124,40 @@ setup(git_stats,
 )
 #> A <GitStats> object for 2 hosts:
 #> Hosts: https://api.github.com, https://gitlab.com/api/v4
-#> Organisations: r-world-devs, openpharma, pharmaverse, mbtests
+#> Organisations: [4] r-world-devs, openpharma, pharmaverse, mbtests
 #> Search preference: phrase
-#> Team: RWD (6 members)
+#> Team: RWD (5 members)
 #> Phrase: shiny
-#> Language: <not defined>
-#> Repositories output: Rows number: 23
-#> Commits output: Since: 2022-01-20 14:57:56; Until: 2023-03-30 14:15:33; Rows number: 304
+#> Language: All
+#> Repositories output: Rows number: 18
+#> Commits output: Since: 2022-01-20 14:57:56; Until: 2023-03-30 14:35:34; Rows number: 553
 
 # now pull repos by default by phrase
 get_repos(git_stats)
-#> Rows: 3
-#> Columns: 13
-#> $ id               <chr> "495151911", "512764983", "431378047"
-#> $ name             <chr> "shinyCohortBuilder", "openpharma_ml", "elaborator"
-#> $ stars            <int> 4, 0, 2
-#> $ forks            <int> 0, 0, 0
-#> $ created_at       <dttm> 2022-05-22, 2022-07-11, 2021-11-24
-#> $ last_activity_at <drtn> 7.38 days, 1.38 days, 455.38 days
-#> $ languages        <chr> "R", "Python", "R"
-#> $ issues_open      <int> 27, 0, 0
-#> $ issues_closed    <int> 0, 0, 0
-#> $ contributors     <chr> "krystian8207, galachad", "MathieuCayssol, epijim", "…
-#> $ organization     <chr> "r-world-devs", "openpharma", "openpharma"
-#> $ repo_url         <chr> "https://api.github.com/repos/r-world-devs/shinyCohor…
-#> $ api_url          <chr> "https://api.github.com", "https://api.github.com", "…
+#> Rows: 4
+#> Columns: 12
+#> $ id               <chr> "495151911", "586903986", "431378047", "512764983"
+#> $ name             <chr> "shinyCohortBuilder", "GitStats", "elaborator", "open…
+#> $ stars            <int> 5, 1, 2, 0
+#> $ forks            <int> 0, 0, 0, 0
+#> $ created_at       <dttm> 2022-05-22 19:04:12, 2023-01-09 14:02:20, 2021-11-24 …
+#> $ last_activity_at <drtn> 4.30 days, 0.10 days, 567.09 days, 112.08 days
+#> $ languages        <chr> "R", "R", "R", "Python"
+#> $ issues_open      <int> 30, 30, 0, 0
+#> $ issues_closed    <int> 0, 0, 0, 0
+#> $ organization     <chr> "r-world-devs", "r-world-devs", "openpharma", "openph…
+#> $ repo_url         <chr> "https://github.com/r-world-devs/shinyCohortBuilder",…
+#> $ api_url          <chr> "https://api.github.com/repos/r-world-devs/shinyCoho…
 ```
 
 ### Acknowledgement
 
 Special thanks to:
 
-- @Cotau - for reviewing permanently my pull requests and suggesting
-  more efficient solutions,
-- @marcinkowskak - for substantial improvements on plots,
-- @kalimu, @galachad, @krystian8207 - for your guidelines at the very
-  beginning of the project.
+- Kamil Koziej @Cotau - for reviewing permanently my pull requests and
+  suggesting more efficient solutions,
+- Karolina Marcinkowska @marcinkowskak - for substantial improvements on
+  plots,
+- Matt Secrest @mattsecrest - for making use of your scripts to apply search feature,
+- Kamil Wais @kalimu, Krystian Igraś @krystian8207, Adam Foryś
+  @galachad - for your guidelines at the very beginning of the project.

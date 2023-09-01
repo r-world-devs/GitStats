@@ -2,10 +2,10 @@
 
     x HTTP 401 Unauthorized.
 
-# `add_commits_stats()` works as expected
+# `get_commits_stats()` works as expected
 
     Code
-      gh_rest_commits_table_with_stats <- test_rest_priv$add_commits_stats(
+      gh_rest_commits_table_with_stats <- test_rest_priv$get_commits_stats(
         commits_table = test_mocker$use("gh_rest_commits_table")[1:5, ])
     Message <cliMessage>
       i [GitHub][Engine:REST] Pulling commits stats...

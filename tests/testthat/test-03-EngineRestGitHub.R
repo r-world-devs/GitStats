@@ -106,10 +106,10 @@ test_that("`prepare_repos_table()` prepares repos table", {
   test_mocker$cache(gh_repos_by_phrase_table)
 })
 
-test_that("`add_repos_issues()` adds issues to repos table", {
+test_that("`get_repos_issues()` adds issues to repos table", {
   gh_repos_by_phrase_table <- test_mocker$use("gh_repos_by_phrase_table")
 
-  gh_repos_by_phrase_table <- test_rest_priv$add_repos_issues(
+  gh_repos_by_phrase_table <- test_rest_priv$get_repos_issues(
     gh_repos_by_phrase_table
   )
   expect_gt(
@@ -195,9 +195,9 @@ test_that("`prepare_commits_table()` prepares commits table (for orgs and for te
   test_mocker$cache(gh_rest_commits_table_team)
 })
 
-test_that("`add_commits_stats()` works as expected", {
+test_that("`get_commits_stats()` works as expected", {
   expect_snapshot(
-    gh_rest_commits_table_with_stats <- test_rest_priv$add_commits_stats(
+    gh_rest_commits_table_with_stats <- test_rest_priv$get_commits_stats(
       commits_table = test_mocker$use("gh_rest_commits_table")[1:5,]
     )
   )
@@ -258,7 +258,7 @@ test_that("supportive method for getting commits works", {
   )
   mockery::stub(
     test_rest$get_commits_supportive,
-    "private$add_commits_stats",
+    "private$get_commits_stats",
     test_mocker$use("gh_rest_commits_table_with_stats")
   )
   test_settings <- list(
