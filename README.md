@@ -26,7 +26,9 @@ devtools::install_github("r-world-devs/GitStats")
 
 ## Getting started
 
-Please remember to have your access tokens stored as environment variables: `GITHUB_PAT` for access to GitHub API and `GITLAB_PAT` for GitLab API.
+Please remember to have your access tokens stored as environment
+variables: `GITHUB_PAT` for access to GitHub API and `GITLAB_PAT` for
+GitLab API.
 
 You can start by creating your `GitStats` object, where you will hold
 information on your multiple connections.
@@ -87,7 +89,7 @@ get_repos(git_stats)
 #> $ stars            <int> 1, 2, 16, 3, 5, 2, 10, 22, 2, 0, 0, 0, 0, 0, 0, 0, 0,…
 #> $ forks            <int> 0, 0, 0, 2, 0, 0, 1, 5, 1, NA, NA, NA, NA, NA, NA, NA…
 #> $ created_at       <dttm> 2023-01-09 14:02:20, 2023-02-21 16:41:59, 2022-04-20…
-#> $ last_activity_at <drtn> 0.64 days, 119.64 days, 116.64 days, 119.64 days, 4.…
+#> $ last_activity_at <drtn> 0.66 days, 119.66 days, 116.66 days, 119.66 days, 4.…
 #> $ languages        <chr> "R", "R, CSS", "R, CSS, JavaScript", "R", "R, CSS, Ja…
 #> $ issues_open      <dbl> 80, 0, 5, 22, 32, 3, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 1,…
 #> $ issues_closed    <dbl> 107, 0, 12, 1, 4, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
@@ -141,7 +143,7 @@ get_repos(git_stats)
 #> $ stars            <int> 5, 1, 2, 0
 #> $ forks            <int> 0, 0, 0, 0
 #> $ created_at       <dttm> 2022-05-22 19:04:12, 2023-01-09 14:02:20, 2021-11-24 …
-#> $ last_activity_at <drtn> 4.30 days, 0.10 days, 567.09 days, 112.08 days
+#> $ last_activity_at <drtn> 4.32 days, 0.01 days, 567.11 days, 112.11 days
 #> $ languages        <chr> "R", "R", "R", "Python"
 #> $ issues_open      <int> 30, 30, 0, 0
 #> $ issues_closed    <int> 0, 0, 0, 0
@@ -158,6 +160,7 @@ Special thanks to:
   suggesting more efficient solutions,
 - Karolina Marcinkowska @marcinkowskak - for substantial improvements on
   plots,
-- Matt Secrest @mattsecrest - for making use of your scripts to apply search feature,
+- Matt Secrest @mattsecrest - for making use of your scripts to apply
+  search feature,
 - Kamil Wais @kalimu, Krystian Igraś @krystian8207, Adam Foryś
   @galachad - for your guidelines at the very beginning of the project.
