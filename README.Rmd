@@ -33,6 +33,8 @@ devtools::install_github("r-world-devs/GitStats")
 
 ## Getting started
 
+Please remember to have your access tokens stored as environment variables: `GITHUB_PAT` for access to GitHub API and `GITLAB_PAT` for GitLab API.
+
 You can start by creating your `GitStats` object, where you will hold information on your multiple connections.
 
 ```{r}
@@ -40,14 +42,12 @@ library(GitStats)
 library(magrittr)
 
 git_stats <- create_gitstats() %>%
-  set_connection(
+  set_host(
     api_url = "https://api.github.com",
-    token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma", "pharmaverse")
   ) %>%
-  set_connection(
+  set_host(
     api_url = "https://gitlab.com/api/v4",
-    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = c("mbtests")
   )
 ```
@@ -62,12 +62,11 @@ If you with to setup your search parameter to team, add your team members first:
 
 ```{r}
 git_stats %>%
-  add_team_member("Adam Foryś", "galachad") %>%
-  add_team_member("Kamil Wais", "kalimu") %>%
-  add_team_member("Krystian Igras", "krystian8207") %>%
-  add_team_member("Karolina Marcinkowska", "marcinkowskak") %>%
-  add_team_member("Kamil Koziej", "Cotau") %>%
-  add_team_member("Maciej Banaś", "maciekbanas")
+  set_team_member("Kamil Wais", "kalimu") %>%
+  set_team_member("Krystian Igras", "krystian8207") %>%
+  set_team_member("Karolina Marcinkowska", "marcinkowskak") %>%
+  set_team_member("Kamil Koziej", "Cotau") %>%
+  set_team_member("Maciej Banaś", "maciekbanas")
 
 setup(git_stats,
   search_param = "team",
@@ -101,7 +100,8 @@ get_repos(git_stats)
 
 Special thanks to:
 
-- @Cotau - for reviewing permanently my pull requests and suggesting more efficient solutions,
-- @marcinkowskak - for substantial improvements on plots,
-- @kalimu, @galachad, @krystian8207 - for your guidelines at the very beginning of the project.
+- Kamil Koziej @Cotau - for reviewing permanently my pull requests and suggesting more efficient solutions,
+- Karolina Marcinkowska @marcinkowskak - for substantial improvements on plots,
+- Matt Secrest @mattsecrest - for making use of your scripts to apply search feature,
+- Kamil Wais @kalimu, Krystian Igraś @krystian8207, Adam Foryś @galachad - for your guidelines at the very beginning of the project.
 

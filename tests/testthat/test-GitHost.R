@@ -308,11 +308,11 @@ test_that("get_repos returns table of repositories", {
   )
 })
 
-test_that("add_repos_contributors returns table with contributors", {
+test_that("get_repos_contributors returns table with contributors", {
 
   repos_table_1 <- test_mocker$use("gh_repos_table")
   expect_snapshot(
-    repos_table_2 <- test_host$add_repos_contributors(repos_table_1)
+    repos_table_2 <- test_host$get_repos_contributors(repos_table_1)
   )
   expect_repos_table_with_contributors(repos_table_2)
   expect_gt(

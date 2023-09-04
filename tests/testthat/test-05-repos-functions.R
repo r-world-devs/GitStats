@@ -8,9 +8,9 @@ test_that("get_repos pulls repos in the table format", {
   expect_repos_table(repos_table)
 })
 
-test_that("add_repos_contributors adds contributors column to repos table", {
+test_that("get_repos_contributors adds contributors column to repos table", {
   expect_snapshot(
-    add_repos_contributors(
+    get_repos_contributors(
       test_gitstats
     )
   )

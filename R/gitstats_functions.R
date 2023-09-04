@@ -8,8 +8,8 @@ create_gitstats <- function() {
   GitStats$new()
 }
 
-#' @title Setting connections
-#' @name set_connection
+#' @title Add Git host
+#' @name set_host
 #' @param gitstats_obj A GitStats object.
 #' @param api_url A character, url address of API.
 #' @param token A token.
@@ -24,22 +24,22 @@ create_gitstats <- function() {
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
-#'   set_connection(
+#'   set_host(
 #'     api_url = "https://api.github.com",
 #'     orgs = c("r-world-devs", "openpharma", "pharmaverse")
 #'   ) %>%
-#'   set_connection(
+#'   set_host(
 #'     api_url = "https://gitlab.com/api/v4",
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "erasmusmc-public-health"
 #'   )
 #' }
 #' @export
-set_connection <- function(gitstats_obj,
-                           api_url,
-                           token = NULL,
-                           orgs = NULL) {
-  gitstats_obj$add_host(
+set_host <- function(gitstats_obj,
+                     api_url,
+                     token = NULL,
+                     orgs = NULL) {
+  gitstats_obj$set_host(
     api_url = api_url,
     token = token,
     orgs = orgs
@@ -85,7 +85,7 @@ setup <- function(gitstats_obj,
 }
 
 #' @title Add your team member
-#' @name add_team_member
+#' @name set_team_member
 #' @description Passes information on team member to your `team` field.
 #' @param gitstats_obj `GitStats` object.
 #' @param member_name Name of a member.
@@ -94,14 +94,14 @@ setup <- function(gitstats_obj,
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
-#'   add_team_member("Peter Parker", "spider_man", "spidey") %>%
-#'   add_team_member("Tony Stark", "ironMan", "tony_s")
+#'   set_team_member("Peter Parker", "spider_man", "spidey") %>%
+#'   set_team_member("Tony Stark", "ironMan", "tony_s")
 #' }
 #' @export
-add_team_member <- function(gitstats_obj,
+set_team_member <- function(gitstats_obj,
                             member_name,
                             ...) {
-  gitstats_obj$add_team_member(
+  gitstats_obj$set_team_member(
     member_name = member_name,
     ... = ...
   )
@@ -125,19 +125,19 @@ add_team_member <- function(gitstats_obj,
 #'   `GitStats` iterates additionally over pulled repositories and reaches to
 #'   the `contributors APIs`, which makes it slower, but gives additional
 #'   information. The same may be achieved with running separately function
-#'   `add_repos_contributors()` on the `GitStats` object with the `repositories`
+#'   `get_repos_contributors()` on the `GitStats` object with the `repositories`
 #'   output. \cr\cr When pulling repositories by \bold{`team`} the parameter
 #'   always turns to `TRUE` and pulls information on `contributors`.
 #' @return A `GitStats` class object with updated `$repos` field.
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
-#'   set_connection(
+#'   set_host(
 #'     api_url = "https://api.github.com",
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma")
 #'   ) %>%
-#'   set_connection(
+#'   set_host(
 #'     api_url = "https://gitlab.com/api/v4",
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
@@ -151,13 +151,13 @@ get_repos <- function(gitstats_obj, add_contributors = FALSE) {
 }
 
 #' @title Add information on contributors to your repositories.
-#' @name add_repos_contributors
+#' @name get_repos_contributors
 #' @param gitstats_obj A GitStats object.
 #' @description A method to add information on repository contributors.
 #' @return A table of repositories with added information on contributors.
 #' @export
-add_repos_contributors <- function(gitstats_obj) {
-  gitstats_obj$add_repos_contributors()
+get_repos_contributors <- function(gitstats_obj) {
+  gitstats_obj$get_repos_contributors()
   return(invisible(gitstats_obj))
 }
 
@@ -171,12 +171,12 @@ add_repos_contributors <- function(gitstats_obj) {
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
-#'   set_connection(
+#'   set_host(
 #'     api_url = "https://api.github.com",
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs")
 #'   ) %>%
-#'   set_connection(
+#'   set_host(
 #'     api_url = "https://gitlab.com/api/v4",
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
@@ -185,7 +185,7 @@ add_repos_contributors <- function(gitstats_obj) {
 #'     search_param = "team",
 #'     team_name = "rwdevs"
 #'   ) %>%
-#'   add_team_member("Maciej Banaś", "maciekbanas") %>%
+#'   set_team_member("Maciej Banaś", "maciekbanas") %>%
 #'   get_commits(date_from = "2018-01-01")
 #' }
 #' @export
@@ -208,12 +208,12 @@ get_commits <- function(gitstats_obj,
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
-#'   set_connection(
+#'   set_host(
 #'     api_url = "https://api.github.com",
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs")
 #'   ) %>%
-#'   set_connection(
+#'   set_host(
 #'     api_url = "https://gitlab.com/api/v4",
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
@@ -228,6 +228,27 @@ get_users <- function(gitstats_obj,
     users = users
   )
   return(invisible(gitstats_obj))
+}
+
+#' @title Reset GitStats settings
+#' @name reset
+#' @description Sets all settings to default: search_param to `org`, language to
+#'   `All` and other to `NULL`s.
+#' @param gitstats_obj A GitStats object.
+#' @return A GitStats object.
+#' @export
+reset <- function(gitstats_obj){
+  priv <- environment(gitstats_obj$setup)$private
+  priv$settings <- list(
+    search_param = "org",
+    phrase = NULL,
+    team_name = NULL,
+    team = list(),
+    language = "All",
+    print_out = TRUE
+  )
+  cli::cli_alert_info("Reset settings to default.")
+  return(gitstats_obj)
 }
 
 #' @title Reset language settings

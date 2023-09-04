@@ -13,7 +13,7 @@ A GitHost superclass
 \itemize{
 \item \href{#method-new}{\code{GitHost$new()}}
 \item \href{#method-get_repos}{\code{GitHost$get_repos()}}
-\item \href{#method-add_repos_contributors}{\code{GitHost$add_repos_contributors()}}
+\item \href{#method-get_repos_contributors}{\code{GitHost$get_repos_contributors()}}
 \item \href{#method-get_commits}{\code{GitHost$get_commits()}}
 \item \href{#method-get_users}{\code{GitHost$get_users()}}
 \item \href{#method-clone}{\code{GitHost$clone()}}
@@ -69,12 +69,12 @@ A data.frame of repositories.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-add_repos_contributors"></a>}}
-\if{latex}{\out{\hypertarget{method-add_repos_contributors}{}}}
-\subsection{Method \code{add_repos_contributors()}}{
+\if{html}{\out{<a id="method-get_repos_contributors"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos_contributors}{}}}
+\subsection{Method \code{get_repos_contributors()}}{
 A method to add information on repository contributors.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitHost$add_repos_contributors(repos_table)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitHost$get_repos_contributors(repos_table)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
