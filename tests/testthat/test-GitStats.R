@@ -57,10 +57,10 @@ test_that("GitStats get users info", {
 
 test_gitstats <- create_test_gitstats(hosts = 2)
 
-test_that("GitStats throws error when add_contributors is run with empty repos field", {
+test_that("GitStats throws error when get_repos_contributors is run with empty repos field", {
 
   expect_snapshot_error(
-    test_gitstats$add_repos_contributors()
+    test_gitstats$get_repos_contributors()
   )
 })
 
@@ -70,7 +70,7 @@ test_that("Add_repos_contributors adds repos contributors to repos table", {
   })
   repos_without_contributors <- test_gitstats$show_repos()
   expect_snapshot(
-    test_gitstats$add_repos_contributors()
+    test_gitstats$get_repos_contributors()
   )
   repos_with_contributors <- test_gitstats$show_repos()
   expect_repos_table_with_contributors(repos_with_contributors)

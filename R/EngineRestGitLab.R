@@ -22,7 +22,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         ) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
-          private$add_repos_issues()
+          private$get_repos_issues()
       } else if (settings$search_param == "team") {
         if (!private$scan_all) {
           cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{gsub('%2f', '/', org)}][team:{settings$team_name}] Pulling repositories...")
@@ -31,9 +31,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         repos_table <- private$pull_repos_from_org(org) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
-          private$add_repos_issues()
+          private$get_repos_issues()
         suppressMessages({
-        repos_table <- self$add_repos_contributors(
+        repos_table <- self$get_repos_contributors(
           repos_table = repos_table
           ) %>%
           private$filter_repos_by_team(team = settings$team)
@@ -59,7 +59,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         repos_table <- private$pull_repos_from_org(org) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
-          private$add_repos_issues()
+          private$get_repos_issues()
       }
       return(repos_table)
     },
@@ -67,7 +67,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
-    add_repos_contributors = function(repos_table) {
+    get_repos_contributors = function(repos_table) {
       if (nrow(repos_table) > 0) {
         if (!private$scan_all) {
           cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}] Pulling contributors...")
@@ -277,10 +277,10 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       projects_list
     },
 
-    # @description A method to add information on repository contributors.
+    # @description A method to add information on open and closed issues of a repository.
     # @param repos_table A table of repositories.
-    # @return A table of repositories with added information on contributors.
-    add_repos_issues = function(repos_table) {
+    # @return A table of repositories with added information on issues.
+    get_repos_issues = function(repos_table) {
       if (nrow(repos_table) > 0) {
         issues <- purrr::map(repos_table$id, function(repos_id) {
           id <- gsub("gid://gitlab/Project/", "", repos_id)

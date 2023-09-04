@@ -66,7 +66,7 @@ GitHost <- R6::R6Class("GitHost",
       }
 
       if (add_contributors) {
-        repos_table <- self$add_repos_contributors(repos_table)
+        repos_table <- self$get_repos_contributors(repos_table)
       }
 
       if (nrow(repos_table) > 0 && settings$language != "All") {
@@ -82,12 +82,12 @@ GitHost <- R6::R6Class("GitHost",
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
-    add_repos_contributors = function(repos_table) {
+    get_repos_contributors = function(repos_table) {
       repos_table <- repos_table %>%
         dplyr::filter(grepl(gsub("/v+.*", "", private$api_url), api_url))
       repos_table <- purrr::map_dfr(private$engines, function (engine) {
         if (inherits(engine, "EngineRest")) {
-          engine$add_repos_contributors(
+          engine$get_repos_contributors(
             repos_table
           )
         } else {

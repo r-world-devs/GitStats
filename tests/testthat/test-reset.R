@@ -17,8 +17,8 @@ test_that("`reset()` resets all settings", {
             search_param = "team",
             team_name = "Testers",
             language = "CSS") %>%
-        add_team_member("John Test") %>%
-        add_team_member("Bob Test")
+        set_team_member("John Test") %>%
+        set_team_member("Bob Test")
     )
   })
   expect_snapshot(

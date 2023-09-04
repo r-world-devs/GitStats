@@ -2,18 +2,18 @@
 
     x HTTP 401 Unauthorized.
 
-# `add_commits_stats()` works as expected
+# `get_commits_stats()` works as expected
 
     Code
-      gh_rest_commits_table_with_stats <- test_rest_priv$add_commits_stats(
+      gh_rest_commits_table_with_stats <- test_rest_priv$get_commits_stats(
         commits_table = test_mocker$use("gh_rest_commits_table")[1:5, ])
     Message <cliMessage>
       i [GitHub][Engine:REST] Pulling commits stats...
 
-# `add_repos_contributors()` adds contributors to repos table
+# `get_repos_contributors()` adds contributors to repos table
 
     Code
-      gh_repos_by_phrase_table <- test_rest$add_repos_contributors(test_mocker$use(
+      gh_repos_by_phrase_table <- test_rest$get_repos_contributors(test_mocker$use(
         "gh_repos_by_phrase_table"))
     Message <cliMessage>
       i [GitHub][Engine:REST] Pulling contributors...

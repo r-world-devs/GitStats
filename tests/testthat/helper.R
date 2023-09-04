@@ -4,7 +4,7 @@ create_test_gitstats <- function(hosts = 0, priv_mode = FALSE) {
 
   if (hosts == 1) {
     suppressMessages({
-      test_gitstats$add_host(
+      test_gitstats$set_host(
         api_url = "https://api.github.com",
         token = Sys.getenv("GITHUB_PAT"),
         orgs = c("r-world-devs", "openpharma")
@@ -12,12 +12,12 @@ create_test_gitstats <- function(hosts = 0, priv_mode = FALSE) {
     })
   } else if (hosts == 2) {
     suppressMessages({
-      test_gitstats$add_host(
+      test_gitstats$set_host(
         api_url = "https://api.github.com",
         token = Sys.getenv("GITHUB_PAT"),
         orgs = c("r-world-devs", "openpharma")
       )
-      test_gitstats$add_host(
+      test_gitstats$set_host(
         api_url = "https://gitlab.com/api/v4",
         token = Sys.getenv("GITLAB_PAT_PUBLIC"),
         orgs = "mbtests"

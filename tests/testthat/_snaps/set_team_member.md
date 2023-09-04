@@ -1,7 +1,7 @@
-# add_team_member() adds team member in `GitStats` object
+# set_team_member() adds team member in `GitStats` object
 
     Code
-      add_team_member(test_gitstats, "John Test")
+      set_team_member(test_gitstats, "John Test")
     Message <cliMessage>
       v John Test successfully added to team.
 
@@ -22,7 +22,7 @@
 ---
 
     Code
-      add_team_member(test_gitstats, "George Test", "george_test")
+      set_team_member(test_gitstats, "George Test", "george_test")
     Message <cliMessage>
       v George Test successfully added to team.
 

@@ -20,7 +20,7 @@ does not convey information on contributors. \cr\cr When set to \code{TRUE},
 \code{GitStats} iterates additionally over pulled repositories and reaches to
 the \verb{contributors APIs}, which makes it slower, but gives additional
 information. The same may be achieved with running separately function
-\code{add_repos_contributors()} on the \code{GitStats} object with the \code{repositories}
+\code{get_repos_contributors()} on the \code{GitStats} object with the \code{repositories}
 output. \cr\cr When pulling repositories by \bold{\code{team}} the parameter
 always turns to \code{TRUE} and pulls information on \code{contributors}.}
 }
@@ -34,12 +34,12 @@ keyword.
 \examples{
 \dontrun{
 my_gitstats <- create_gitstats() \%>\%
-  set_connection(
+  set_host(
     api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma")
   ) \%>\%
-  set_connection(
+  set_host(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "mbtests"

@@ -22,12 +22,12 @@ List all repositories for an organization, a team.
 \examples{
 \dontrun{
 my_gitstats <- create_gitstats() \%>\%
-  set_connection(
+  set_host(
     api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs")
   ) \%>\%
-  set_connection(
+  set_host(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "mbtests"
@@ -36,7 +36,7 @@ my_gitstats <- create_gitstats() \%>\%
     search_param = "team",
     team_name = "rwdevs"
   ) \%>\%
-  add_team_member("Maciej Banaś", "maciekbanas") \%>\%
+  set_team_member("Maciej Banaś", "maciekbanas") \%>\%
   get_commits(date_from = "2018-01-01")
 }
 }
