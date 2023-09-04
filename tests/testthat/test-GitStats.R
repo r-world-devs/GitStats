@@ -86,7 +86,7 @@ test_that("show_orgs print orgs properly", {
 
 suppressMessages(
   test_gitstats <- create_gitstats() %>%
-    add_host(
+    set_host(
       api_url = "https://gitlab.com/api/v4",
       orgs = "mbtests/subgroup"
     )
