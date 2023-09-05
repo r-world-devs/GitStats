@@ -263,3 +263,15 @@ reset_language <- function(gitstats_obj){
   cli::cli_alert_info("Setting language parameter to 'All'.")
   return(gitstats_obj)
 }
+
+#' @title Show organizations
+#' @name show_orgs
+#' @description Prints organizations downloaded in `GitStats`. Especially
+#'   helpful when user is scanning whole git platform and want to have a glimpse
+#'   at organizations.
+#' @param gitstats_obj A GitStats object.
+#' @return A vector of organizations.
+#' @export
+show_orgs <- function(gitstats_obj){
+  return(gitstats_obj$show_orgs())
+}

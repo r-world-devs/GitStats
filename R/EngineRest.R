@@ -45,6 +45,9 @@ EngineRest <- R6::R6Class("EngineRest",
     check_organizations = function(orgs) {
       orgs <- purrr::map(orgs, function(org) {
         org_endpoint <- if(grepl("github", self$rest_api_url)) "/orgs/" else "/groups/"
+        if (grepl("/", org)) {
+          org <- gsub("/", "%2f", org)
+        }
         withCallingHandlers(
           {
             self$response(endpoint = paste0(self$rest_api_url, org_endpoint, org))

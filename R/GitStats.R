@@ -212,6 +212,14 @@ GitStats <- R6::R6Class("GitStats",
       return(users_table)
     },
 
+    #' @description Print organizations.
+    show_orgs = function() {
+      purrr::map(private$hosts, function(host) {
+        orgs <- host$.__enclos_env__$private$orgs
+        purrr::map_vec(orgs, ~ gsub("%2f", "/", .))
+        }) %>% unlist()
+    },
+
     #' @description Print repositories output.
     show_repos = function() {
       private$repos
@@ -326,9 +334,11 @@ GitStats <- R6::R6Class("GitStats",
                           item_to_print = item_to_check) {
       if (item_name == "Organisations") {
         item_to_print <- unlist(item_to_print)
+        item_to_print <- purrr::map_vec(item_to_print, function(org) {
+          gsub("%2f", "/", org)
+        })
         if (length(item_to_print) < 10) {
           list_items <- paste0(item_to_print, collapse = ", ")
-
         } else {
           item_to_print_cut <- item_to_print[1:10]
           list_items <- paste0(item_to_print_cut, collapse = ", ") %>%

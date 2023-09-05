@@ -13,7 +13,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
                          settings) {
       if (settings$search_param == "phrase") {
         if (!private$scan_all) {
-          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{org}] Searching repositories...")
+          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{gsub('%2f', '/', org)}] Searching repositories...")
         }
         repos_table <- private$search_repos_by_phrase(
           org = org,
@@ -25,7 +25,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           private$get_repos_issues()
       } else if (settings$search_param == "team") {
         if (!private$scan_all) {
-          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}][team:{settings$team_name}] Pulling repositories...")
+          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{gsub('%2f', '/', org)}][team:{settings$team_name}] Pulling repositories...")
         }
         org <- private$get_group_id(org)
         repos_table <- private$pull_repos_from_org(org) %>%
@@ -53,7 +53,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       repos_table <- NULL
       if (settings$search_param == "org") {
         if (!private$scan_all) {
-          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
+          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{gsub('%2f', '/', org)}] Pulling repositories...")
         }
         org <- private$get_group_id(org)
         repos_table <- private$pull_repos_from_org(org) %>%

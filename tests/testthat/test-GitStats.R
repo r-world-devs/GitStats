@@ -76,3 +76,31 @@ test_that("Add_repos_contributors adds repos contributors to repos table", {
   expect_repos_table_with_contributors(repos_with_contributors)
   expect_equal(nrow(repos_without_contributors), nrow(repos_with_contributors))
 })
+
+test_that("show_orgs print orgs properly", {
+  expect_equal(
+    test_gitstats$show_orgs(),
+    c("r-world-devs", "openpharma", "mbtests")
+  )
+})
+
+suppressMessages(
+  test_gitstats <- create_gitstats() %>%
+    set_host(
+      api_url = "https://gitlab.com/api/v4",
+      orgs = "mbtests/subgroup"
+    )
+)
+
+test_that("show_orgs print subgroups properly", {
+  expect_equal(
+    test_gitstats$show_orgs(),
+    "mbtests/subgroup"
+  )
+})
+
+test_that("subgroups are cleanly printed in GitStats", {
+  expect_snapshot(
+    test_gitstats
+  )
+})
