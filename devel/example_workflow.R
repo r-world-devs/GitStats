@@ -137,7 +137,7 @@ git_stats
 ## add gitlab subgroups
 
 git_stats <- create_gitstats() %>%
-  add_host(
+  set_host(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "mbtests/subgroup"
