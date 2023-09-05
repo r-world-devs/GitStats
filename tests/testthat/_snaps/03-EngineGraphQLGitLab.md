@@ -2,6 +2,6 @@
 
     Code
       gl_repos_org <- test_gql_gl$get_repos(org = "mbtests", settings = settings)
-    Message <cliMessage>
+    Message
       i [GitLab][Engine:GraphQL][org:mbtests] Pulling repositories...
 

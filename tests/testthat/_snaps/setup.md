@@ -6,7 +6,7 @@
 
     Code
       setup(test_gitstats, search_param = "phrase", phrase = "covid")
-    Message <cliMessage>
+    Message
       v Your search preferences set to phrase: covid.
     Output
       A <GitStats> object for 0 hosts:
@@ -23,7 +23,7 @@
 
     Code
       setup(test_gitstats, language = "Python")
-    Message <cliMessage>
+    Message
       v Your programming language is set to Python.
     Output
       A <GitStats> object for 0 hosts:

@@ -2,7 +2,7 @@
 
     Code
       reset(test_gitstats)
-    Message <cliMessage>
+    Message
       i Reset settings to default.
     Output
       A <GitStats> object for 2 hosts:
@@ -19,7 +19,7 @@
 
     Code
       reset(test_gitstats)
-    Message <cliMessage>
+    Message
       i Reset settings to default.
     Output
       A <GitStats> object for 2 hosts:
@@ -36,7 +36,7 @@
 
     Code
       reset_language(test_gitstats)
-    Message <cliMessage>
+    Message
       i Setting language parameter to 'All'.
     Output
       A <GitStats> object for 2 hosts:

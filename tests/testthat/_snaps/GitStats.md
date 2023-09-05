@@ -55,7 +55,7 @@
 
     Code
       test_gitstats$get_repos_contributors()
-    Message <cliMessage>
+    Message
       i [GitHub][Engine:REST] Pulling contributors...
       i [GitLab][Engine:REST] Pulling contributors...
 

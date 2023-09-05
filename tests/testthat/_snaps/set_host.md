@@ -3,7 +3,7 @@
     Code
       set_host(gitstats_obj = test_gitstats, api_url = "https://api.github.com",
         token = Sys.getenv("GITHUB_PAT"), orgs = c("openpharma", "r-world-devs"))
-    Message <cliMessage>
+    Message
       v Set connection to GitHub.
 
 ---
@@ -11,7 +11,7 @@
     Code
       test_gitstats %>% set_host(api_url = "https://gitlab.com/api/v4", token = Sys.getenv(
         "GITLAB_PAT_PUBLIC"), orgs = c("mbtests"))
-    Message <cliMessage>
+    Message
       v Set connection to GitLab.
 
 # When empty token for GitHub, GitStats pulls default token
@@ -19,7 +19,7 @@
     Code
       test_gitstats <- create_gitstats() %>% set_host(api_url = "https://api.github.com",
         orgs = c("openpharma", "r-world-devs"))
-    Message <cliMessage>
+    Message
       i Using PAT from GITHUB_PAT envar.
       v Set connection to GitHub.
 
@@ -30,7 +30,7 @@
         test_gitstats <- create_gitstats() %>% set_host(api_url = "https://gitlab.com/api/v4",
           orgs = "mbtests")
       })
-    Message <cliMessage>
+    Message
       i Using PAT from GITLAB_PAT envar.
       v Set connection to GitLab.
 
@@ -51,11 +51,12 @@
       test_gitstats %>% set_host(api_url = "https://api.github.com", token = Sys.getenv(
         "GITHUB_PAT"), orgs = "pharmaverse") %>% set_host(api_url = "https://api.github.com",
         token = Sys.getenv("GITHUB_PAT"), orgs = "openpharma")
-    Message <cliMessage>
+    Message
       v Set connection to GitHub.
       v Set connection to GitHub.
-    Error <simpleError>
-      You can not provide two hosts of the same API urls.
+    Condition
+      Error:
+      ! You can not provide two hosts of the same API urls.
                      If you wish to change/add more organizations you can do it with `set_organizations()` function.
 
 # `Org` name is not passed to the object if it does not exist
@@ -63,13 +64,11 @@
     Code
       test_gitstats <- create_gitstats() %>% set_host(api_url = "https://api.github.com",
         token = Sys.getenv("GITHUB_PAT"), orgs = c("openparma"))
-    Message <cliMessage>
+    Message
       x Organization you provided does not exist or its name was passed in a wrong way: openparma
       ! Please type your organization name as you see it in `url`.
       i E.g. do not use spaces. Organization names as you see on the page may differ from their 'address' name.
-    Message <simpleMessage>
       HTTP 404 No such address
-    Message <cliMessage>
       v Set connection to GitHub.
 
 ---
@@ -77,13 +76,11 @@
     Code
       test_gitstats <- create_gitstats() %>% set_host(api_url = "https://gitlab.com/api/v4",
         token = Sys.getenv("GITLAB_PAT_PUBLIC"), orgs = c("openparma", "mbtests"))
-    Message <cliMessage>
+    Message
       x Organization you provided does not exist or its name was passed in a wrong way: openparma
       ! Please type your organization name as you see it in `url`.
       i E.g. do not use spaces. Organization names as you see on the page may differ from their 'address' name.
-    Message <simpleMessage>
       HTTP 404 No such address
-    Message <cliMessage>
       v Set connection to GitLab.
 
 ---
@@ -91,12 +88,10 @@
     Code
       test_gitstats <- create_gitstats() %>% set_host(api_url = "https://api.github.com",
         token = Sys.getenv("GITHUB_PAT"), orgs = c("openpharma", "r_world_devs"))
-    Message <cliMessage>
+    Message
       x Organization you provided does not exist or its name was passed in a wrong way: r_world_devs
       ! Please type your organization name as you see it in `url`.
       i E.g. do not use spaces. Organization names as you see on the page may differ from their 'address' name.
-    Message <simpleMessage>
       HTTP 404 No such address
-    Message <cliMessage>
       v Set connection to GitHub.
 
