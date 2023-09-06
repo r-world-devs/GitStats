@@ -35,12 +35,11 @@ information on your multiple connections.
 
 ``` r
 library(GitStats)
-library(magrittr)
 
 git_stats <- create_gitstats() %>%
   set_host(
     api_url = "https://api.github.com",
-    orgs = c("r-world-devs", "openpharma", "pharmaverse")
+    orgs = c("r-world-devs", "openpharma")
   ) %>%
   set_host(
     api_url = "https://gitlab.com/api/v4",
@@ -72,7 +71,7 @@ setup(git_stats,
 )
 #> A <GitStats> object for 2 hosts:
 #> Hosts: https://api.github.com, https://gitlab.com/api/v4
-#> Organisations: [4] r-world-devs, openpharma, pharmaverse, mbtests
+#> Organisations: [3] r-world-devs, openpharma, mbtests
 #> Search preference: team
 #> Team: RWD (5 members)
 #> Phrase: <not defined>
@@ -89,20 +88,20 @@ get_repos(git_stats)
 #> $ stars            <int> 1, 2, 16, 3, 5, 2, 10, 22, 2, 0, 0, 0, 0, 0, 0, 0, 0,…
 #> $ forks            <int> 0, 0, 0, 2, 0, 0, 1, 5, 1, NA, NA, NA, NA, NA, NA, NA…
 #> $ created_at       <dttm> 2023-01-09 14:02:20, 2023-02-21 16:41:59, 2022-04-20…
-#> $ last_activity_at <drtn> 0.66 days, 119.66 days, 116.66 days, 119.66 days, 4.…
+#> $ last_activity_at <drtn> 0.52 days, 124.52 days, 121.52 days, 124.52 days, 9.…
 #> $ languages        <chr> "R", "R, CSS", "R, CSS, JavaScript", "R", "R, CSS, Ja…
-#> $ issues_open      <dbl> 80, 0, 5, 22, 32, 3, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 1,…
-#> $ issues_closed    <dbl> 107, 0, 12, 1, 4, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+#> $ issues_open      <dbl> 78, 0, 5, 22, 32, 3, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 1,…
+#> $ issues_closed    <dbl> 113, 0, 12, 1, 4, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
 #> $ organization     <chr> "r-world-devs", "r-world-devs", "r-world-devs", "r-wo…
 #> $ repo_url         <chr> "https://github.com/r-world-devs/GitStats", "https://…
 #> $ api_url          <chr> "https://api.github.com/repositories/r-world-devs/Git…
 #> $ contributors     <chr> "maciekbanas, Cotau", "krystian8207", "krystian8207, …
 
 get_commits(git_stats,
-  date_from = "2022-01-01",
+  date_from = "2023-01-01",
   date_until = "2023-03-31"
 )
-#> Rows: 553
+#> Rows: 398
 #> Columns: 8
 #> $ id             <chr> "C_kwDOHNMr29oAKGI3ZmRlYTNkNjY0NmM2MmRmMzA0N2Y0NDhkODQy…
 #> $ committed_date <dttm> 2023-03-01 15:05:10, 2023-03-01 14:58:22, 2023-02-28 1…
@@ -126,13 +125,13 @@ setup(git_stats,
 )
 #> A <GitStats> object for 2 hosts:
 #> Hosts: https://api.github.com, https://gitlab.com/api/v4
-#> Organisations: [4] r-world-devs, openpharma, pharmaverse, mbtests
+#> Organisations: [3] r-world-devs, openpharma, mbtests
 #> Search preference: phrase
 #> Team: RWD (5 members)
 #> Phrase: shiny
 #> Language: All
 #> Repositories output: Rows number: 18
-#> Commits output: Since: 2022-01-20 14:57:56; Until: 2023-03-30 14:35:34; Rows number: 553
+#> Commits output: Since: 2023-01-09 14:54:35; Until: 2023-03-30 14:35:34; Rows number: 398
 
 # now pull repos by default by phrase
 get_repos(git_stats)
@@ -143,7 +142,7 @@ get_repos(git_stats)
 #> $ stars            <int> 5, 1, 2, 0
 #> $ forks            <int> 0, 0, 0, 0
 #> $ created_at       <dttm> 2022-05-22 19:04:12, 2023-01-09 14:02:20, 2021-11-24 …
-#> $ last_activity_at <drtn> 4.32 days, 0.01 days, 567.11 days, 112.11 days
+#> $ last_activity_at <drtn> 9.18 days, 0.01 days, 571.97 days, 116.97 days
 #> $ languages        <chr> "R", "R", "R", "Python"
 #> $ issues_open      <int> 30, 30, 0, 0
 #> $ issues_closed    <int> 0, 0, 0, 0

@@ -39,12 +39,11 @@ You can start by creating your `GitStats` object, where you will hold informatio
 
 ```{r}
 library(GitStats)
-library(magrittr)
 
 git_stats <- create_gitstats() %>%
   set_host(
     api_url = "https://api.github.com",
-    orgs = c("r-world-devs", "openpharma", "pharmaverse")
+    orgs = c("r-world-devs", "openpharma")
   ) %>%
   set_host(
     api_url = "https://gitlab.com/api/v4",
@@ -77,7 +76,7 @@ setup(git_stats,
 get_repos(git_stats)
 
 get_commits(git_stats,
-  date_from = "2022-01-01",
+  date_from = "2023-01-01",
   date_until = "2023-03-31"
 )
 ```
