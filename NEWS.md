@@ -1,5 +1,5 @@
 
-GitStats 0.1.0.9002
+GitStats 0.1.0.9004
 
 - set new name for `set_connection` function: `set_host` as it is more informative (and shorter) (I: #271),
 - changed name of a function: `add_team_member` to `set_team_member` (I: #271),
@@ -15,7 +15,8 @@ GitStats 0.1.0.9002
 - OOP optimization: moved method on adding issues do repository table via REST to privates (I: #235 PR: #243)
 - handled errors when tokens do not grant access (I: #242 PR: #247)
 - in repositories output set `api_url` column as an address to the repo, not the host (I: #201 PR: #249)
-- fixed adding GitLab subgroups (I: #176)
+- fixed adding GitLab subgroups (I: #176),
+- exported pipe operator (`%>%`) (I: #289).
 
 GitStats 0.1.0
 
