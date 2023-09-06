@@ -275,3 +275,23 @@ reset_language <- function(gitstats_obj){
 show_orgs <- function(gitstats_obj){
   return(gitstats_obj$show_orgs())
 }
+
+#' @title Show repositories
+#' @name show_repos
+#' @description Prints repositories table pulled by `GitStats`.
+#' @param gitstats_obj A GitStats object.
+#' @return A table of repositories.
+#' @export
+show_repos <- function(gitstats_obj){
+  return(gitstats_obj$show_repos())
+}
+
+#' @title Show commits
+#' @name show_commits
+#' @description Prints commits table pulled by `GitStats`.
+#' @param gitstats_obj A GitStats object.
+#' @return A table of commits.
+#' @export
+show_commits <- function(gitstats_obj){
+  return(gitstats_obj$show_commits())
+}
