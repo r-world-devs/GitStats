@@ -2,7 +2,7 @@
 
     Code
       set_team_member(test_gitstats, "John Test")
-    Message <cliMessage>
+    Message
       v John Test successfully added to team.
 
 ---
@@ -23,7 +23,7 @@
 
     Code
       set_team_member(test_gitstats, "George Test", "george_test")
-    Message <cliMessage>
+    Message
       v George Test successfully added to team.
 
 ---
