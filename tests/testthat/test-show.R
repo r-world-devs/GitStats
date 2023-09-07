@@ -1,7 +1,20 @@
+test_gitstats <- create_test_gitstats(hosts = 2)
+
 test_that("show_orgs() shows orgs", {
-  test_gitstats <- create_test_gitstats(hosts = 2)
   expect_equal(
     show_orgs(test_gitstats),
     c("r-world-devs", "openpharma", "mbtests")
   )
+})
+
+test_that("show_repos() shows repos table", {
+  test_gitstats$.__enclos_env__$private$repos <- test_mocker$use("gh_repos_table")
+  repos_table <- show_repos(test_gitstats)
+  expect_repos_table(repos_table)
+})
+
+test_that("show_commits() shows commits table", {
+  test_gitstats$.__enclos_env__$private$commits <- test_mocker$use("commits_table")
+  commits_table <- show_commits(test_gitstats)
+  expect_commits_table(commits_table)
 })

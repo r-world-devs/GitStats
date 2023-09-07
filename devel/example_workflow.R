@@ -17,7 +17,7 @@ git_stats
 # examples for getting repos (default search parameter is 'org')
 get_repos(git_stats)
 get_repos_contributors(git_stats)
-dplyr::glimpse(git_stats$show_repos())
+dplyr::glimpse(show_repos(git_stats))
 
 get_repos(git_stats, add_contributors = TRUE)
 
