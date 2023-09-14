@@ -89,6 +89,7 @@ suppressMessages(
   test_gitstats <- create_gitstats() %>%
     set_host(
       api_url = "https://gitlab.com/api/v4",
+      token = Sys.getenv("GITLAB_PAT_PUBLIC"),
       orgs = "mbtests/subgroup"
     )
 )
