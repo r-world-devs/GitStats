@@ -20,10 +20,10 @@ GitStats <- R6::R6Class("GitStats",
     #'   pulling.
     #' @return Nothing.
     set_params = function(search_param,
-                     team_name,
-                     phrase,
-                     language,
-                     print_out) {
+                          team_name,
+                          phrase,
+                          language,
+                          print_out) {
       search_param <- match.arg(
         search_param,
         c("org", "team", "phrase")
@@ -209,7 +209,8 @@ GitStats <- R6::R6Class("GitStats",
         unique() %>%
         purrr::list_rbind()
       private$users <- users_table
-      return(users_table)
+      if (private$settings$print_out) dplyr::glimpse(users_table)
+      return(invisible(self))
     },
 
     #' @description Print organizations.

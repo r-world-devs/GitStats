@@ -47,9 +47,10 @@ test_that("check_for_host works", {
 
 test_that("GitStats get users info", {
   test_gitstats <- create_test_gitstats(hosts = 2)
-  users_result <- test_gitstats$pull_users(
+  test_gitstats$pull_users(
     c("maciekbanas", "kalimu", "marcinkowskak")
   )
+  users_result <- get_users(test_gitstats)
   expect_users_table(
     users_result
   )
