@@ -17,7 +17,7 @@ git_stats
 # examples for getting repos (default search parameter is 'org')
 pull_repos(git_stats)
 pull_repos_contributors(git_stats)
-dplyr::glimpse(show_repos(git_stats))
+dplyr::glimpse(get_repos(git_stats))
 
 pull_repos(git_stats, add_contributors = TRUE)
 
@@ -49,7 +49,7 @@ set_params(
 
 # now pull repos by default by team
 pull_repos(git_stats)
-show_repos(git_stats)
+get_repos(git_stats)
 pull_commits(git_stats, date_from = "2020-01-01")
 
 reset_language(git_stats)
@@ -81,7 +81,7 @@ plot_commits(git_stats)
 # get information on users
 git_stats %>%
   pull_users(c("maciekbanas", "kalimu", "marcinkowskak", "Cotau", "krystian8207"))
-git_stats$show_users()
+git_stats$get_users()
 
 # SHOWCASES
 

@@ -1,6 +1,6 @@
 GitStats (development version)
 
-- changed names of `get_*` to `pull_*` functions (I: #294),
+- changed names of `get_*` to `pull_*` functions; `get_*` functions are now to retrieve already pulled data from GitStats object (I: #294),
 - changed name of `setup` to `set_params` function (I: #294),
 - set new name for `set_connection` function: `set_host` as it is more informative (and shorter) (I: #271),
 - changed name of a function: `add_team_member` to `set_team_member` (I: #271),
@@ -8,9 +8,9 @@ GitStats (development version)
 - added `pull_users()` function to pull information on users (I: #199 PR: #238),
 - added possibility of scanning whole internal git platforms if no `orgs` are passed (I: #258),
 - added switching to REST engine in case GraphQL fails with 502 error (I: #225 PRs: #227 (for repos) #261 (for commits))
-- added `show_orgs()` function to print all organizations (I: #283),
+- added `get_orgs()` function to print all organizations (I: #283),
 - added GraphQL engine for getting GitLab repos by organization (I: #218 PR: #233)
-- removed `contributors` as basic stat when pulling `repos` by `org` and by `phrase` to improve speed of pulling repositories data. Added `get_repos_contributors()` user function and `add_contributors` parameter to `get_repos()` function to add conditionally information on contributors to repositories table (I: #235 PRs: #243 #264)
+- removed `contributors` as basic stat when pulling `repos` by `org` and by `phrase` to improve speed of pulling repositories data. Added `pull_repos_contributors()` user function and `add_contributors` parameter to `pull_repos()` function to add conditionally information on contributors to repositories table (I: #235 PRs: #243 #264)
 - added resetting all settings to default with `reset()` function (I: #270)
 - added resetting language in your search preferences with `reset_language()` or setting `language` parameter to `All` in `setup()` function (I: #231 PR: #265)
 - OOP optimization: moved method on adding issues do repository table via REST to privates (I: #235 PR: #243)

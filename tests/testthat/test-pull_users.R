@@ -23,7 +23,7 @@ test_that("pull_users works as expected", {
   })
   pull_users(test_gitstats,
             c("maciekbanas", "kalimu"))
-  users_table <- test_gitstats$show_users()
+  users_table <- test_gitstats$get_users()
   expect_users_table(
     users_table
   )

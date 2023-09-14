@@ -213,7 +213,7 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     #' @description Print organizations.
-    show_orgs = function() {
+    get_orgs = function() {
       purrr::map(private$hosts, function(host) {
         orgs <- host$.__enclos_env__$private$orgs
         purrr::map_vec(orgs, ~ gsub("%2f", "/", .))
@@ -221,17 +221,17 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     #' @description Print repositories output.
-    show_repos = function() {
+    get_repos = function() {
       private$repos
     },
 
     #' @description Print commits output.
-    show_commits = function() {
+    get_commits = function() {
       private$commits
     },
 
     #' @description Print users output.
-    show_users = function() {
+    get_users = function() {
       private$users
     },
 

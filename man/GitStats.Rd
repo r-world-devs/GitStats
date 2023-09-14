@@ -16,10 +16,10 @@ An R6 class object with methods to derive information from multiple Git platform
 \item \href{#method-pull_repos_contributors}{\code{GitStats$pull_repos_contributors()}}
 \item \href{#method-pull_commits}{\code{GitStats$pull_commits()}}
 \item \href{#method-pull_users}{\code{GitStats$pull_users()}}
-\item \href{#method-show_orgs}{\code{GitStats$show_orgs()}}
-\item \href{#method-show_repos}{\code{GitStats$show_repos()}}
-\item \href{#method-show_commits}{\code{GitStats$show_commits()}}
-\item \href{#method-show_users}{\code{GitStats$show_users()}}
+\item \href{#method-get_orgs}{\code{GitStats$get_orgs()}}
+\item \href{#method-get_repos}{\code{GitStats$get_repos()}}
+\item \href{#method-get_commits}{\code{GitStats$get_commits()}}
+\item \href{#method-get_users}{\code{GitStats$get_users()}}
 \item \href{#method-print}{\code{GitStats$print()}}
 \item \href{#method-clone}{\code{GitStats$clone()}}
 }
@@ -178,42 +178,42 @@ A data.frame of users.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-show_orgs"></a>}}
-\if{latex}{\out{\hypertarget{method-show_orgs}{}}}
-\subsection{Method \code{show_orgs()}}{
+\if{html}{\out{<a id="method-get_orgs"></a>}}
+\if{latex}{\out{\hypertarget{method-get_orgs}{}}}
+\subsection{Method \code{get_orgs()}}{
 Print organizations.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$show_orgs()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_orgs()}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-show_repos"></a>}}
-\if{latex}{\out{\hypertarget{method-show_repos}{}}}
-\subsection{Method \code{show_repos()}}{
+\if{html}{\out{<a id="method-get_repos"></a>}}
+\if{latex}{\out{\hypertarget{method-get_repos}{}}}
+\subsection{Method \code{get_repos()}}{
 Print repositories output.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$show_repos()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos()}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-show_commits"></a>}}
-\if{latex}{\out{\hypertarget{method-show_commits}{}}}
-\subsection{Method \code{show_commits()}}{
+\if{html}{\out{<a id="method-get_commits"></a>}}
+\if{latex}{\out{\hypertarget{method-get_commits}{}}}
+\subsection{Method \code{get_commits()}}{
 Print commits output.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$show_commits()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits()}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-show_users"></a>}}
-\if{latex}{\out{\hypertarget{method-show_users}{}}}
-\subsection{Method \code{show_users()}}{
+\if{html}{\out{<a id="method-get_users"></a>}}
+\if{latex}{\out{\hypertarget{method-get_users}{}}}
+\subsection{Method \code{get_users()}}{
 Print users output.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$show_users()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_users()}\if{html}{\out{</div>}}
 }
 
 }

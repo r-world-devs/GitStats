@@ -68,18 +68,18 @@ test_that("Add_repos_contributors adds repos contributors to repos table", {
   suppressMessages({
     test_gitstats$pull_repos()
   })
-  repos_without_contributors <- test_gitstats$show_repos()
+  repos_without_contributors <- test_gitstats$get_repos()
   expect_snapshot(
     test_gitstats$pull_repos_contributors()
   )
-  repos_with_contributors <- test_gitstats$show_repos()
+  repos_with_contributors <- test_gitstats$get_repos()
   expect_repos_table_with_contributors(repos_with_contributors)
   expect_equal(nrow(repos_without_contributors), nrow(repos_with_contributors))
 })
 
-test_that("show_orgs print orgs properly", {
+test_that("get_orgs print orgs properly", {
   expect_equal(
-    test_gitstats$show_orgs(),
+    test_gitstats$get_orgs(),
     c("r-world-devs", "openpharma", "mbtests")
   )
 })
@@ -92,9 +92,9 @@ suppressMessages(
     )
 )
 
-test_that("show_orgs print subgroups properly", {
+test_that("get_orgs print subgroups properly", {
   expect_equal(
-    test_gitstats$show_orgs(),
+    test_gitstats$get_orgs(),
     "mbtests/subgroup"
   )
 })
