@@ -43,15 +43,40 @@ library(GitStats)
 git_stats <- create_gitstats() %>%
   set_host(
     api_url = "https://api.github.com",
-    orgs = c("r-world-devs", "openpharma")
+    orgs = c("r-world-devs", "openpharma"),
+    token = Sys.getenv("GITHUB_PAT")
   ) %>%
   set_host(
     api_url = "https://gitlab.com/api/v4",
-    orgs = c("mbtests")
+    orgs = c("mbtests"),
+    token = Sys.getenv("GITLAB_PAT_PUBLIC")
   )
 ```
 
-## Setup
+By default your search preferences are set to `organizations` (`org`).
+
+```{r}
+git_stats
+
+pull_repos(
+  git_stats
+)
+
+pull_commits(
+  git_stats,
+  date_from = "2023-01-01",
+  date_until = "2023-03-31"
+)
+```
+
+Finally you can retrieve your repos to separate object.
+
+```{r}
+repos_dt <- get_repos(git_stats)
+commits_dt <- get_commits(git_stats)
+```
+
+## Set
 
 You can setup your search preferences, either to `org`, `team` or `phrase`. 
 
@@ -60,39 +85,75 @@ You can setup your search preferences, either to `org`, `team` or `phrase`.
 If you with to setup your search parameter to team, add your team members first:
 
 ```{r}
+
 git_stats %>%
   set_team_member("Kamil Wais", "kalimu") %>%
   set_team_member("Krystian Igras", "krystian8207") %>%
   set_team_member("Karolina Marcinkowska", "marcinkowskak") %>%
   set_team_member("Kamil Koziej", "Cotau") %>%
-  set_team_member("Maciej Banaś", "maciekbanas")
+  set_team_member("Maciej Banaś", "maciekbanas") %>% 
+  set_params(
+    search_param = "team",
+    team_name = "RWD"
+  ) %>% 
+  pull_repos()
 
-setup(git_stats,
-  search_param = "team",
-  team_name = "RWD"
-)
-
-# now pull repos and commits by default by team
-get_repos(git_stats)
-
-pull_commits(git_stats,
+pull_commits(
+  gitstats_obj = git_stats,
   date_from = "2023-01-01",
   date_until = "2023-03-31"
 )
 ```
 
-### Keyword
+### Phrase
 
 With `GitStats` you can look for the repos with a certain phrase in code blobs.
 
 ```{r}
-setup(git_stats,
+set_params(
+  gitstats_obj = git_stats,
   search_param = "phrase",
   phrase = "shiny"
-)
+) %>% 
+  pull_repos()
+```
 
-# now pull repos by default by phrase
-get_repos(git_stats)
+### Language
+
+You can define a programming language in your settings.
+
+```{r}
+set_params(
+  gitstats_obj = git_stats,
+  search_param = "org",
+  language = "JavaScript"
+) %>% 
+  pull_repos()
+```
+
+You can always get back to All languages.
+
+```{r}
+reset_language(git_stats)
+```
+
+## Users
+
+You can retrieve data about users with GitStats.
+
+```{r}
+pull_users(
+  gitstats_obj = git_stats,
+  users = c("maciekbanas", "kalimu", "Cotau", "marcinkowskak", "@krystian8207")
+)
+```
+
+## Reset your settings
+
+If you wish to get back to default settings, run:
+
+```{r}
+reset(git_stats)
 ```
 
 ### Acknowledgement
@@ -101,6 +162,7 @@ Special thanks to:
 
 - Kamil Koziej @Cotau - for reviewing permanently my pull requests and suggesting more efficient solutions,
 - Karolina Marcinkowska @marcinkowskak - for substantial improvements on plots,
+- Krystian Igraś @krystian8207 - for the major review of GitStats and,
 - Matt Secrest @mattsecrest - for making use of your scripts to apply search feature,
-- Kamil Wais @kalimu, Krystian Igraś @krystian8207, Adam Foryś @galachad - for your guidelines at the very beginning of the project.
+- Kamil Wais @kalimu, Adam Foryś @galachad - for your guidelines at the very beginning of the project.
 
