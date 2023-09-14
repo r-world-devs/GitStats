@@ -2,7 +2,7 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{get_commits}
 \alias{get_commits}
-\title{Show commits}
+\title{Get commits}
 \usage{
 get_commits(gitstats_obj)
 }
@@ -13,5 +13,5 @@ get_commits(gitstats_obj)
 A table of commits.
 }
 \description{
-Prints commits table pulled by \code{GitStats}.
+Retrieves commits table pulled by \code{GitStats}.
 }

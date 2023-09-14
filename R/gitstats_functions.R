@@ -264,9 +264,9 @@ reset_language <- function(gitstats_obj){
   return(gitstats_obj)
 }
 
-#' @title Show organizations
+#' @title Get organizations
 #' @name get_orgs
-#' @description Prints organizations downloaded in `GitStats`. Especially
+#' @description Retrieves organizations downloaded in `GitStats`. Especially
 #'   helpful when user is scanning whole git platform and want to have a glimpse
 #'   at organizations.
 #' @param gitstats_obj A GitStats object.
@@ -276,9 +276,9 @@ get_orgs <- function(gitstats_obj){
   return(gitstats_obj$get_orgs())
 }
 
-#' @title Show repositories
+#' @title Get repositories
 #' @name get_repos
-#' @description Prints repositories table pulled by `GitStats`.
+#' @description Retrieves repositories table pulled by `GitStats`.
 #' @param gitstats_obj A GitStats object.
 #' @return A table of repositories.
 #' @export
@@ -286,12 +286,22 @@ get_repos <- function(gitstats_obj){
   return(gitstats_obj$get_repos())
 }
 
-#' @title Show commits
+#' @title Get commits
 #' @name get_commits
-#' @description Prints commits table pulled by `GitStats`.
+#' @description Retrieves commits table pulled by `GitStats`.
 #' @param gitstats_obj A GitStats object.
 #' @return A table of commits.
 #' @export
 get_commits <- function(gitstats_obj){
   return(gitstats_obj$get_commits())
+}
+
+#' @title Get users
+#' @name get_users
+#' @description Retrieves users table pulled by `GitStats`.
+#' @param gitstats_obj A GitStats object.
+#' @return A table of users.
+#' @export
+get_users <- function(gitstats_obj){
+  return(gitstats_obj$get_users())
 }

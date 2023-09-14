@@ -11,6 +11,7 @@ test_that("GitHost gets users tables", {
     users = c("maciekbanas", "kalimu", "galachad")
   )
   expect_users_table(users_table)
+  test_mocker$cache(users_table)
 })
 
 # private methods

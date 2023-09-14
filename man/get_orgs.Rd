@@ -2,7 +2,7 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{get_orgs}
 \alias{get_orgs}
-\title{Show organizations}
+\title{Get organizations}
 \usage{
 get_orgs(gitstats_obj)
 }
@@ -13,7 +13,7 @@ get_orgs(gitstats_obj)
 A vector of organizations.
 }
 \description{
-Prints organizations downloaded in \code{GitStats}. Especially
+Retrieves organizations downloaded in \code{GitStats}. Especially
 helpful when user is scanning whole git platform and want to have a glimpse
 at organizations.
 }
