@@ -23,13 +23,13 @@ test_that("`pull_repos_page()` pulls repos page from GitLab group", {
   test_mocker$cache(gl_repos_page)
 })
 
-test_that("`pull_repos()` prepares formatted list", {
+test_that("`pull_repos_from_org()` prepares formatted list", {
   mockery::stub(
-    test_gql_gl$pull_repos,
+    test_gql_gl$pull_repos_from_org,
     "private$pull_repos_page",
     test_mocker$use("gl_repos_page")
   )
-  gl_repos_from_org <- test_gql_gl$pull_repos(
+  gl_repos_from_org <- test_gql_gl$pull_repos_from_org(
     from = "org",
     org = "mbtests"
   )
@@ -71,15 +71,15 @@ test_gql_gl <- EngineGraphQLGitLab$new(
   token = Sys.getenv("GITLAB_PAT_PUBLIC")
 )
 
-test_that("`get_repos()` works as expected", {
+test_that("`pull_repos()` works as expected", {
   mockery::stub(
-    test_gql_gl$get_repos,
+    test_gql_gl$pull_repos,
     "private$pull_repos",
     test_mocker$use("gl_repos_from_org")
   )
   settings <- list(search_param = "org")
   expect_snapshot(
-    gl_repos_org <- test_gql_gl$get_repos(
+    gl_repos_org <- test_gql_gl$pull_repos(
       org = "mbtests",
       settings = settings
     )

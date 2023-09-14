@@ -110,7 +110,7 @@ set_team_member <- function(gitstats_obj,
 }
 
 #' @title Get information on repositories.
-#' @name get_repos
+#' @name pull_repos
 #' @description  List all repositories for an organization, a team or by a
 #'   keyword.
 #' @param gitstats_obj A GitStats object.
@@ -125,7 +125,7 @@ set_team_member <- function(gitstats_obj,
 #'   `GitStats` iterates additionally over pulled repositories and reaches to
 #'   the `contributors APIs`, which makes it slower, but gives additional
 #'   information. The same may be achieved with running separately function
-#'   `get_repos_contributors()` on the `GitStats` object with the `repositories`
+#'   `pull_repos_contributors()` on the `GitStats` object with the `repositories`
 #'   output. \cr\cr When pulling repositories by \bold{`team`} the parameter
 #'   always turns to `TRUE` and pulls information on `contributors`.
 #' @return A `GitStats` class object with updated `$repos` field.
@@ -142,22 +142,22 @@ set_team_member <- function(gitstats_obj,
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
 #'   ) %>%
-#'   get_repos()
+#'   pull_repos()
 #' }
 #' @export
-get_repos <- function(gitstats_obj, add_contributors = FALSE) {
-  gitstats_obj$get_repos(add_contributors = add_contributors)
+pull_repos <- function(gitstats_obj, add_contributors = FALSE) {
+  gitstats_obj$pull_repos(add_contributors = add_contributors)
   return(invisible(gitstats_obj))
 }
 
 #' @title Add information on contributors to your repositories.
-#' @name get_repos_contributors
+#' @name pull_repos_contributors
 #' @param gitstats_obj A GitStats object.
 #' @description A method to add information on repository contributors.
 #' @return A table of repositories with added information on contributors.
 #' @export
-get_repos_contributors <- function(gitstats_obj) {
-  gitstats_obj$get_repos_contributors()
+pull_repos_contributors <- function(gitstats_obj) {
+  gitstats_obj$pull_repos_contributors()
   return(invisible(gitstats_obj))
 }
 

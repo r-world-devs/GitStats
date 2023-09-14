@@ -10,18 +10,18 @@
     Message
       i [GitHub][Engine:REST] Pulling commits stats...
 
-# `get_repos_contributors()` adds contributors to repos table
+# `pull_repos_contributors()` adds contributors to repos table
 
     Code
-      gh_repos_by_phrase_table <- test_rest$get_repos_contributors(test_mocker$use(
+      gh_repos_by_phrase_table <- test_rest$pull_repos_contributors(test_mocker$use(
         "gh_repos_by_phrase_table"))
     Message
       i [GitHub][Engine:REST] Pulling contributors...
 
-# `get_repos()` works
+# `pull_repos()` works
 
     Code
-      result <- test_rest$get_repos(org = "r-world-devs", settings = settings)
+      result <- test_rest$pull_repos(org = "r-world-devs", settings = settings)
     Message
       i [GitHub][Engine:REST][phrase:shiny][org:r-world-devs] Searching repositories...
 

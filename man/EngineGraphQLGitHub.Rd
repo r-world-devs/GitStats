@@ -14,8 +14,8 @@ A class for methods wrapping GitHub's GraphQL API responses.
 \itemize{
 \item \href{#method-new}{\code{EngineGraphQLGitHub$new()}}
 \item \href{#method-get_orgs}{\code{EngineGraphQLGitHub$get_orgs()}}
-\item \href{#method-get_repos}{\code{EngineGraphQLGitHub$get_repos()}}
-\item \href{#method-get_repos_supportive}{\code{EngineGraphQLGitHub$get_repos_supportive()}}
+\item \href{#method-pull_repos}{\code{EngineGraphQLGitHub$pull_repos()}}
+\item \href{#method-pull_repos_supportive}{\code{EngineGraphQLGitHub$pull_repos_supportive()}}
 \item \href{#method-get_commits}{\code{EngineGraphQLGitHub$get_commits()}}
 \item \href{#method-get_commits_supportive}{\code{EngineGraphQLGitHub$get_commits_supportive()}}
 \item \href{#method-clone}{\code{EngineGraphQLGitHub$clone()}}
@@ -61,13 +61,13 @@ Get all groups from GitLab.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos}{}}}
-\subsection{Method \code{get_repos()}}{
+\if{html}{\out{<a id="method-pull_repos"></a>}}
+\if{latex}{\out{\hypertarget{method-pull_repos}{}}}
+\subsection{Method \code{pull_repos()}}{
 A method to retrieve all repositories for an organization in
 a table format.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$get_repos(org, settings)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$pull_repos(org, settings)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -84,12 +84,12 @@ A table.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos_supportive"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos_supportive}{}}}
-\subsection{Method \code{get_repos_supportive()}}{
+\if{html}{\out{<a id="method-pull_repos_supportive"></a>}}
+\if{latex}{\out{\hypertarget{method-pull_repos_supportive}{}}}
+\subsection{Method \code{pull_repos_supportive()}}{
 An empty method to satisfy engine iterator.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$get_repos_supportive(org, settings)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$pull_repos_supportive(org, settings)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

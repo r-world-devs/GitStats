@@ -56,7 +56,7 @@ GitHost <- R6::R6Class("GitHost",
     #' @param add_contributors A boolean to decide wether to add contributors
     #'   column to repositories table.
     #' @return A data.frame of repositories.
-    get_repos = function(settings, add_contributors = FALSE) {
+    pull_repos = function(settings, add_contributors = FALSE) {
       repos_table <- private$pull_repos_from_orgs(
         settings = settings
       )
@@ -66,7 +66,7 @@ GitHost <- R6::R6Class("GitHost",
       }
 
       if (add_contributors) {
-        repos_table <- self$get_repos_contributors(repos_table)
+        repos_table <- self$pull_repos_contributors(repos_table)
       }
 
       if (nrow(repos_table) > 0 && settings$language != "All") {
@@ -82,12 +82,12 @@ GitHost <- R6::R6Class("GitHost",
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
-    get_repos_contributors = function(repos_table) {
+    pull_repos_contributors = function(repos_table) {
       repos_table <- repos_table %>%
         dplyr::filter(grepl(gsub("/v+.*", "", private$api_url), api_url))
       repos_table <- purrr::map_dfr(private$engines, function (engine) {
         if (inherits(engine, "EngineRest")) {
-          engine$get_repos_contributors(
+          engine$pull_repos_contributors(
             repos_table
           )
         } else {
@@ -309,7 +309,7 @@ GitHost <- R6::R6Class("GitHost",
       repos_table <- purrr::map(orgs, function(org) {
         tryCatch({
           repos_list <- purrr::map(private$engines, function (engine) {
-            engine$get_repos(
+            engine$pull_repos(
               org = org,
               settings = settings
             )
@@ -324,7 +324,7 @@ GitHost <- R6::R6Class("GitHost",
             }
           }
           repos_list <<- purrr::map(private$engines, function (engine) {
-            engine$get_repos_supportive(
+            engine$pull_repos_supportive(
               org = org,
               settings = settings
             )

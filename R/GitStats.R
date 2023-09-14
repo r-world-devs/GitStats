@@ -120,7 +120,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @param add_contributors A boolean to decide whether to add contributors
     #'   information to repositories.
     #' @return A data.frame of repositories
-    get_repos = function(add_contributors = FALSE) {
+    pull_repos = function(add_contributors = FALSE) {
       if (private$settings$search_param == "team") {
         if (length(private$settings$team) == 0) {
           cli::cli_abort("You have to specify a team first with 'set_team_member()'.")
@@ -131,7 +131,7 @@ GitStats <- R6::R6Class("GitStats",
         }
       }
 
-      repos_table <- purrr::map(private$hosts, ~ .$get_repos(
+      repos_table <- purrr::map(private$hosts, ~ .$pull_repos(
         settings = private$settings,
         add_contributors = add_contributors
       )) %>%
@@ -148,11 +148,11 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description A method to add information on repository contributors.
     #' @return A table of repositories with added information on contributors.
-    get_repos_contributors = function() {
+    pull_repos_contributors = function() {
       if (length(private$repos) == 0) {
-        cli::cli_abort("You need to pull repos first with `get_repos()`.")
+        cli::cli_abort("You need to pull repos first with `pull_repos()`.")
       } else {
-        private$repos <- purrr::map_dfr(private$hosts, ~ .$get_repos_contributors(
+        private$repos <- purrr::map_dfr(private$hosts, ~ .$pull_repos_contributors(
           repos_table = private$repos
         ))
       }

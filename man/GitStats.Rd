@@ -12,8 +12,8 @@ An R6 class object with methods to derive information from multiple Git platform
 \item \href{#method-setup}{\code{GitStats$setup()}}
 \item \href{#method-set_host}{\code{GitStats$set_host()}}
 \item \href{#method-set_team_member}{\code{GitStats$set_team_member()}}
-\item \href{#method-get_repos}{\code{GitStats$get_repos()}}
-\item \href{#method-get_repos_contributors}{\code{GitStats$get_repos_contributors()}}
+\item \href{#method-pull_repos}{\code{GitStats$pull_repos()}}
+\item \href{#method-pull_repos_contributors}{\code{GitStats$pull_repos_contributors()}}
 \item \href{#method-get_commits}{\code{GitStats$get_commits()}}
 \item \href{#method-get_users}{\code{GitStats$get_users()}}
 \item \href{#method-show_orgs}{\code{GitStats$show_orgs()}}
@@ -101,13 +101,13 @@ Nothing, pass information on team member to \code{GitStats}.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos}{}}}
-\subsection{Method \code{get_repos()}}{
+\if{html}{\out{<a id="method-pull_repos"></a>}}
+\if{latex}{\out{\hypertarget{method-pull_repos}{}}}
+\subsection{Method \code{pull_repos()}}{
 A method to list all repositories for an organization,
 a team or by a keyword.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos(add_contributors = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$pull_repos(add_contributors = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -123,12 +123,12 @@ A data.frame of repositories
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos_contributors"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos_contributors}{}}}
-\subsection{Method \code{get_repos_contributors()}}{
+\if{html}{\out{<a id="method-pull_repos_contributors"></a>}}
+\if{latex}{\out{\hypertarget{method-pull_repos_contributors}{}}}
+\subsection{Method \code{pull_repos_contributors()}}{
 A method to add information on repository contributors.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_repos_contributors()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$pull_repos_contributors()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{

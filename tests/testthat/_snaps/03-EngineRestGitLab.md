@@ -2,18 +2,18 @@
 
     x HTTP 401 Unauthorized.
 
-# `get_repos_contributors()` adds contributors to repos table
+# `pull_repos_contributors()` adds contributors to repos table
 
     Code
-      gl_repos_table <- test_rest$get_repos_contributors(test_mocker$use(
+      gl_repos_table <- test_rest$pull_repos_contributors(test_mocker$use(
         "gl_repos_table"))
     Message
       i [GitLab][Engine:REST] Pulling contributors...
 
-# `get_repos_by_phrase()` works
+# `pull_repos_by_phrase()` works
 
     Code
-      result <- test_rest$get_repos(org = "erasmusmc-public-health", settings = settings)
+      result <- test_rest$pull_repos(org = "erasmusmc-public-health", settings = settings)
     Message
       i [GitLab][Engine:REST][phrase:covid][org:erasmusmc-public-health] Searching repositories...
 

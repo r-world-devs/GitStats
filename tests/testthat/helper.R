@@ -220,26 +220,26 @@ expect_users_table <- function(get_user_object) {
   expect_gt(nrow(get_user_object), 1)
 }
 
-expect_repos_table_with_contributors <- function(get_repos_object) {
+expect_repos_table_with_contributors <- function(pull_repos_object) {
   repo_cols <- c(
     "id", "name", "stars", "forks", "created_at",
     "last_activity_at", "languages", "issues_open", "issues_closed",
     "organization", "repo_url", "api_url", "contributors"
   )
-  expect_s3_class(get_repos_object, "data.frame")
-  expect_named(get_repos_object, repo_cols)
-  expect_gt(nrow(get_repos_object), 0)
+  expect_s3_class(pull_repos_object, "data.frame")
+  expect_named(pull_repos_object, repo_cols)
+  expect_gt(nrow(pull_repos_object), 0)
 }
 
-expect_repos_table <- function(get_repos_object) {
+expect_repos_table <- function(pull_repos_object) {
   repo_cols <- c(
     "id", "name", "stars", "forks", "created_at",
     "last_activity_at", "languages", "issues_open", "issues_closed",
     "organization", "repo_url", "api_url"
   )
-  expect_s3_class(get_repos_object, "data.frame")
-  expect_named(get_repos_object, repo_cols)
-  expect_gt(nrow(get_repos_object), 0)
+  expect_s3_class(pull_repos_object, "data.frame")
+  expect_named(pull_repos_object, repo_cols)
+  expect_gt(nrow(pull_repos_object), 0)
 }
 
 expect_commits_table <- function(get_commits_object, with_stats = TRUE) {

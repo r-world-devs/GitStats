@@ -12,11 +12,11 @@ A class for methods wrapping GitHub's REST API responses.
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-get_repos}{\code{EngineRestGitHub$get_repos()}}
-\item \href{#method-get_repos_supportive}{\code{EngineRestGitHub$get_repos_supportive()}}
+\item \href{#method-pull_repos}{\code{EngineRestGitHub$pull_repos()}}
+\item \href{#method-pull_repos_supportive}{\code{EngineRestGitHub$pull_repos_supportive()}}
 \item \href{#method-get_commits}{\code{EngineRestGitHub$get_commits()}}
 \item \href{#method-get_commits_supportive}{\code{EngineRestGitHub$get_commits_supportive()}}
-\item \href{#method-get_repos_contributors}{\code{EngineRestGitHub$get_repos_contributors()}}
+\item \href{#method-pull_repos_contributors}{\code{EngineRestGitHub$pull_repos_contributors()}}
 \item \href{#method-clone}{\code{EngineRestGitHub$clone()}}
 }
 }
@@ -30,12 +30,12 @@ A class for methods wrapping GitHub's REST API responses.
 \out{</details>}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos}{}}}
-\subsection{Method \code{get_repos()}}{
+\if{html}{\out{<a id="method-pull_repos"></a>}}
+\if{latex}{\out{\hypertarget{method-pull_repos}{}}}
+\subsection{Method \code{pull_repos()}}{
 Method to get repositories with phrase in code blobs.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$get_repos(org, settings)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$pull_repos(org, settings)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -52,13 +52,13 @@ Table of repositories.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos_supportive"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos_supportive}{}}}
-\subsection{Method \code{get_repos_supportive()}}{
+\if{html}{\out{<a id="method-pull_repos_supportive"></a>}}
+\if{latex}{\out{\hypertarget{method-pull_repos_supportive}{}}}
+\subsection{Method \code{pull_repos_supportive()}}{
 An supportive method to pull repos by org in case GraphQL
 Engine breaks.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$get_repos_supportive(org, settings)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$pull_repos_supportive(org, settings)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -138,12 +138,12 @@ A table of commits.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos_contributors"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos_contributors}{}}}
-\subsection{Method \code{get_repos_contributors()}}{
+\if{html}{\out{<a id="method-pull_repos_contributors"></a>}}
+\if{latex}{\out{\hypertarget{method-pull_repos_contributors}{}}}
+\subsection{Method \code{pull_repos_contributors()}}{
 A method to add information on repository contributors.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$get_repos_contributors(repos_table)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$pull_repos_contributors(repos_table)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

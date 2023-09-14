@@ -43,14 +43,14 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      #' @param org An organization.
      #' @param settings A list of  `GitStats` settings.
      #' @return A table.
-     get_repos = function(org,
+     pull_repos = function(org,
                           settings) {
        org <- gsub("%2f", "/", org)
        if (settings$search_param == "org") {
          if (!private$scan_all) {
            cli::cli_alert_info("[GitLab][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
          }
-         repos_table <- private$pull_repos(
+         repos_table <- private$pull_repos_from_org(
            from = "org",
            org = org
          ) %>%
@@ -65,7 +65,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      #' @param org An organization.
      #' @param settings A list of  `GitStats` settings.
      #' @return Nothing.
-     get_repos_supportive = function(org,
+     pull_repos_supportive = function(org,
                                      settings) {
        NULL
      },
@@ -94,9 +94,9 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      # @param org An organization.
      # @param user A user.
      # @return A list of repositories from organization.
-     pull_repos = function(from,
-                           org = NULL,
-                           users = NULL) {
+     pull_repos_from_org = function(from,
+                                    org = NULL,
+                                    users = NULL) {
        full_repos_list <- list()
        next_page <- TRUE
        repo_cursor <- ""

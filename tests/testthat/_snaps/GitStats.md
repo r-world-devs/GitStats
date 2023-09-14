@@ -47,14 +47,14 @@
 
     Add first your hosts with `set_connection()`.
 
-# GitStats throws error when get_repos_contributors is run with empty repos field
+# GitStats throws error when pull_repos_contributors is run with empty repos field
 
-    You need to pull repos first with `get_repos()`.
+    You need to pull repos first with `pull_repos()`.
 
 # Add_repos_contributors adds repos contributors to repos table
 
     Code
-      test_gitstats$get_repos_contributors()
+      test_gitstats$pull_repos_contributors()
     Message
       i [GitHub][Engine:REST] Pulling contributors...
       i [GitLab][Engine:REST] Pulling contributors...

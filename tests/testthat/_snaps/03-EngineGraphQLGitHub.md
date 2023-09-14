@@ -4220,17 +4220,17 @@
       
       
 
-# `get_repos()` works as expected
+# `pull_repos()` works as expected
 
     Code
-      gh_repos_org <- test_gql_gh$get_repos(org = "r-world-devs", settings = settings)
+      gh_repos_org <- test_gql_gh$pull_repos(org = "r-world-devs", settings = settings)
     Message
       i [GitHub][Engine:GraphQL][org:r-world-devs] Pulling repositories...
 
 ---
 
     Code
-      gh_repos_team <- test_gql_gh$get_repos(org = "r-world-devs", settings = settings)
+      gh_repos_team <- test_gql_gh$pull_repos(org = "r-world-devs", settings = settings)
     Message
       i [GitHub][Engine:GraphQL][org:r-world-devs][team:] Pulling repositories...
 

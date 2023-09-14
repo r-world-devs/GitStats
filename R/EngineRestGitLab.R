@@ -9,7 +9,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @param org A character, a group of projects.
     #' @param settings A list of  `GitStats` settings.
     #' @return A table.
-    get_repos = function(org,
+    pull_repos = function(org,
                          settings) {
       if (settings$search_param == "phrase") {
         if (!private$scan_all) {
@@ -22,7 +22,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         ) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
-          private$get_repos_issues()
+          private$pull_repos_issues()
       } else if (settings$search_param == "team") {
         if (!private$scan_all) {
           cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{gsub('%2f', '/', org)}][team:{settings$team_name}] Pulling repositories...")
@@ -31,9 +31,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         repos_table <- private$pull_repos_from_org(org) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
-          private$get_repos_issues()
+          private$pull_repos_issues()
         suppressMessages({
-        repos_table <- self$get_repos_contributors(
+        repos_table <- self$pull_repos_contributors(
           repos_table = repos_table
           ) %>%
           private$filter_repos_by_team(team = settings$team)
@@ -48,7 +48,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @param org An organization.
     #' @param settings A list of  `GitStats` settings.
     #' @return Nothing.
-    get_repos_supportive = function(org,
+    pull_repos_supportive = function(org,
                                     settings) {
       repos_table <- NULL
       if (settings$search_param == "org") {
@@ -59,7 +59,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         repos_table <- private$pull_repos_from_org(org) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
-          private$get_repos_issues()
+          private$pull_repos_issues()
       }
       return(repos_table)
     },
@@ -67,7 +67,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
-    get_repos_contributors = function(repos_table) {
+    pull_repos_contributors = function(repos_table) {
       if (nrow(repos_table) > 0) {
         if (!private$scan_all) {
           cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}] Pulling contributors...")
@@ -105,7 +105,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
                            date_from,
                            date_until = Sys.date(),
                            settings) {
-      repos_table <- self$get_repos_supportive(
+      repos_table <- self$pull_repos_supportive(
         org = org,
         settings = list(search_param = "org")
       )
@@ -280,7 +280,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     # @description A method to add information on open and closed issues of a repository.
     # @param repos_table A table of repositories.
     # @return A table of repositories with added information on issues.
-    get_repos_issues = function(repos_table) {
+    pull_repos_issues = function(repos_table) {
       if (nrow(repos_table) > 0) {
         issues <- purrr::map(repos_table$id, function(repos_id) {
           id <- gsub("gid://gitlab/Project/", "", repos_id)
