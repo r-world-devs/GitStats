@@ -45,7 +45,7 @@
 
 # check_for_host works
 
-    Add first your hosts with `set_connection()`.
+    Add first your hosts with `set_host()`.
 
 # GitStats throws error when pull_repos_contributors is run with empty repos field
 

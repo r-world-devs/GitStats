@@ -97,7 +97,7 @@ get_repos(git_stats)
 #> $ api_url          <chr> "https://api.github.com/repositories/r-world-devs/Git…
 #> $ contributors     <chr> "maciekbanas, Cotau", "krystian8207", "krystian8207, …
 
-get_commits(git_stats,
+pull_commits(git_stats,
   date_from = "2023-01-01",
   date_until = "2023-03-31"
 )

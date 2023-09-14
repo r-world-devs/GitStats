@@ -7,7 +7,7 @@ test_host <- create_testhost(
 )
 
 test_that("GitHost gets users tables", {
-  users_table <- test_host$get_users(
+  users_table <- test_host$pull_users(
     users = c("maciekbanas", "kalimu", "galachad")
   )
   expect_users_table(users_table)

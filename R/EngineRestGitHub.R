@@ -59,7 +59,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     #' @param date_until An end date to look commits for.
     #' @param settings A list of  `GitStats` settings.
     #' @return A table of commits.
-    get_commits = function(org,
+    pull_commits = function(org,
                            date_from,
                            date_until = Sys.date(),
                            settings) {
@@ -72,7 +72,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     #' @param date_until An end date to look commits for.
     #' @param settings A list of  `GitStats` settings.
     #' @return A table of commits.
-    get_commits_supportive = function(org,
+    pull_commits_supportive = function(org,
                                       date_from,
                                       date_until = Sys.date(),
                                       settings) {
@@ -102,7 +102,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       commits_table <- repos_list_with_commits %>%
         private$tailor_commits_info(org = org) %>%
         private$prepare_commits_table() %>%
-        private$get_commits_stats()
+        private$pull_commits_stats()
 
       return(commits_table)
     },
@@ -474,7 +474,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     # @description A wrapper to pull stats for all commits.
     # @param commits_table A table with commits.
     # @return A data.frame
-    get_commits_stats = function(commits_table) {
+    pull_commits_stats = function(commits_table) {
       cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}] Pulling commits stats...")
       repo_fullnames <- paste0(commits_table$organization, "/", commits_table$repository)
       commit_stats <- purrr::map2_dfr(commits_table$id, repo_fullnames,

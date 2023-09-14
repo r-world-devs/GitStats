@@ -1,6 +1,6 @@
 suppressMessages(test_gitstats <- create_gitstats())
 
-test_gitstats_priv <- environment(test_gitstats$setup)$private
+test_gitstats_priv <- environment(test_gitstats$set_params)$private
 
 test_that("set_team_member() adds team member in `GitStats` object", {
   expect_snapshot(

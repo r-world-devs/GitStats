@@ -250,15 +250,15 @@ test_that("`pull_repos()` works as expected", {
   )
 })
 
-test_that("`get_commits()` retrieves commits in the table format", {
+test_that("`pull_commits()` retrieves commits in the table format", {
   mockery::stub(
-    test_gql_gh$get_commits,
+    test_gql_gh$pull_commits,
     "private$pull_commits_from_repos",
     test_mocker$use("commits_from_repos")
   )
 
   mockery::stub(
-    test_gql_gh$get_commits,
+    test_gql_gh$pull_commits,
     "private$prepare_commits_table",
     test_mocker$use("commits_table")
   )
@@ -267,7 +267,7 @@ test_that("`get_commits()` retrieves commits in the table format", {
     dplyr::filter(name == "GitStats")
 
   mockery::stub(
-    test_gql_gh$get_commits,
+    test_gql_gh$pull_commits,
     "self$pull_repos",
     repos_table
   )
@@ -275,7 +275,7 @@ test_that("`get_commits()` retrieves commits in the table format", {
   settings <- list(search_param = "org")
 
   expect_snapshot(
-    commits_table <- test_gql_gh$get_commits(
+    commits_table <- test_gql_gh$pull_commits(
       org = "r-world-devs",
       date_from = "2023-01-01",
       date_until = "2023-02-28",

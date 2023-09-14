@@ -15,18 +15,20 @@ git_stats <- create_gitstats() %>%
 git_stats
 
 # examples for getting repos (default search parameter is 'org')
-get_repos(git_stats)
-get_repos_contributors(git_stats)
+pull_repos(git_stats)
+pull_repos_contributors(git_stats)
 dplyr::glimpse(show_repos(git_stats))
 
-get_repos(git_stats, add_contributors = TRUE)
+pull_repos(git_stats, add_contributors = TRUE)
 
-get_commits(git_stats, date_from = "2022-01-01")
+pull_commits(git_stats, date_from = "2022-01-01")
 
 # setup your language you are interested in
-setup(git_stats,
-      language = "Python")
-get_repos(git_stats)
+set_params(
+  git_stats,
+  language = "Python"
+)
+pull_repos(git_stats)
 
 # set your team members
 git_stats %>%
@@ -38,43 +40,47 @@ git_stats %>%
   set_team_member("Maciej Banaś", "maciekbanas")
 
 # You can set your search preferences
-setup(git_stats,
-      search_param = "team",
-      team_name = "RWD",
-      language = "R")
+set_params(
+  git_stats,
+  search_param = "team",
+  team_name = "RWD",
+  language = "R"
+)
 
 # now pull repos by default by team
-get_repos(git_stats)
-git_stats$show_repos()
-get_commits(git_stats, date_from = "2020-01-01")
+pull_repos(git_stats)
+show_repos(git_stats)
+pull_commits(git_stats, date_from = "2020-01-01")
 
 reset_language(git_stats)
 
 # Change your settings to searches by phrase:
-setup(git_stats,
-      search_param = "phrase",
-      phrase = "shiny")
+set_params(
+  git_stats,
+  search_param = "phrase",
+  phrase = "shiny"
+)
 
 # Search by phrase
-get_repos(git_stats)
+pull_repos(git_stats)
 
 # you can plot repos sorted by last activity
 plot_repos(git_stats)
 
 # error should pop out when search param set to 'phrase':
-get_commits(git_stats, date_from = "2020-01-01")
+pull_commits(git_stats, date_from = "2020-01-01")
 
 reset(git_stats)
 
 # now it should work
-get_commits(git_stats, date_from = "2020-01-01")
+pull_commits(git_stats, date_from = "2020-01-01")
 
 # examples for plotting commits
 plot_commits(git_stats)
 
 # get information on users
 git_stats %>%
-  get_users(c("maciekbanas", "kalimu", "marcinkowskak", "Cotau", "krystian8207"))
+  pull_users(c("maciekbanas", "kalimu", "marcinkowskak", "Cotau", "krystian8207"))
 git_stats$show_users()
 
 # SHOWCASES

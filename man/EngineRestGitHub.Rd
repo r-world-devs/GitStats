@@ -14,8 +14,8 @@ A class for methods wrapping GitHub's REST API responses.
 \itemize{
 \item \href{#method-pull_repos}{\code{EngineRestGitHub$pull_repos()}}
 \item \href{#method-pull_repos_supportive}{\code{EngineRestGitHub$pull_repos_supportive()}}
-\item \href{#method-get_commits}{\code{EngineRestGitHub$get_commits()}}
-\item \href{#method-get_commits_supportive}{\code{EngineRestGitHub$get_commits_supportive()}}
+\item \href{#method-pull_commits}{\code{EngineRestGitHub$pull_commits()}}
+\item \href{#method-pull_commits_supportive}{\code{EngineRestGitHub$pull_commits_supportive()}}
 \item \href{#method-pull_repos_contributors}{\code{EngineRestGitHub$pull_repos_contributors()}}
 \item \href{#method-clone}{\code{EngineRestGitHub$clone()}}
 }
@@ -75,12 +75,17 @@ A table of repositories.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_commits"></a>}}
-\if{latex}{\out{\hypertarget{method-get_commits}{}}}
-\subsection{Method \code{get_commits()}}{
+\if{html}{\out{<a id="method-pull_commits"></a>}}
+\if{latex}{\out{\hypertarget{method-pull_commits}{}}}
+\subsection{Method \code{pull_commits()}}{
 Method to get commits.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$get_commits(org, date_from, date_until = Sys.date(), settings)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$pull_commits(
+  org,
+  date_from,
+  date_until = Sys.date(),
+  settings
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -107,12 +112,12 @@ A table of commits.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_commits_supportive"></a>}}
-\if{latex}{\out{\hypertarget{method-get_commits_supportive}{}}}
-\subsection{Method \code{get_commits_supportive()}}{
+\if{html}{\out{<a id="method-pull_commits_supportive"></a>}}
+\if{latex}{\out{\hypertarget{method-pull_commits_supportive}{}}}
+\subsection{Method \code{pull_commits_supportive()}}{
 A suportive method to get commits, run when GraphQL fails.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$get_commits_supportive(
+\if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$pull_commits_supportive(
   org,
   date_from,
   date_until = Sys.date(),

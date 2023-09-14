@@ -2,10 +2,10 @@
 
     x HTTP 401 Unauthorized.
 
-# `get_commits_stats()` works as expected
+# `pull_commits_stats()` works as expected
 
     Code
-      gh_rest_commits_table_with_stats <- test_rest_priv$get_commits_stats(
+      gh_rest_commits_table_with_stats <- test_rest_priv$pull_commits_stats(
         commits_table = test_mocker$use("gh_rest_commits_table")[1:5, ])
     Message
       i [GitHub][Engine:REST] Pulling commits stats...
@@ -28,7 +28,7 @@
 # supportive method for getting commits works
 
     Code
-      gh_rest_commits_table <- test_rest$get_commits_supportive(org = "r-world-devs",
+      gh_rest_commits_table <- test_rest$pull_commits_supportive(org = "r-world-devs",
         date_from = "2023-01-01", date_until = "2023-07-01", settings = test_settings)
     Message
       i [GitHub][Engine:REST][org:r-world-devs] Pulling commits...

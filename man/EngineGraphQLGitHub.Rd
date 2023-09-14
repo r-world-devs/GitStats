@@ -13,19 +13,19 @@ A class for methods wrapping GitHub's GraphQL API responses.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{EngineGraphQLGitHub$new()}}
-\item \href{#method-get_orgs}{\code{EngineGraphQLGitHub$get_orgs()}}
+\item \href{#method-pull_orgs}{\code{EngineGraphQLGitHub$pull_orgs()}}
 \item \href{#method-pull_repos}{\code{EngineGraphQLGitHub$pull_repos()}}
 \item \href{#method-pull_repos_supportive}{\code{EngineGraphQLGitHub$pull_repos_supportive()}}
-\item \href{#method-get_commits}{\code{EngineGraphQLGitHub$get_commits()}}
-\item \href{#method-get_commits_supportive}{\code{EngineGraphQLGitHub$get_commits_supportive()}}
+\item \href{#method-pull_commits}{\code{EngineGraphQLGitHub$pull_commits()}}
+\item \href{#method-pull_commits_supportive}{\code{EngineGraphQLGitHub$pull_commits_supportive()}}
 \item \href{#method-clone}{\code{EngineGraphQLGitHub$clone()}}
 }
 }
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
-\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="EngineGraphQL" data-id="get_users">}\href{../../GitStats/html/EngineGraphQL.html#method-get_users}{\code{GitStats::EngineGraphQL$get_users()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="EngineGraphQL" data-id="gql_response">}\href{../../GitStats/html/EngineGraphQL.html#method-gql_response}{\code{GitStats::EngineGraphQL$gql_response()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GitStats" data-topic="EngineGraphQL" data-id="pull_users">}\href{../../GitStats/html/EngineGraphQL.html#method-pull_users}{\code{GitStats::EngineGraphQL$pull_users()}}\out{</span>}
 }
 \out{</details>}
 }
@@ -51,12 +51,12 @@ Create \code{EngineGraphQLGitHub} object.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_orgs"></a>}}
-\if{latex}{\out{\hypertarget{method-get_orgs}{}}}
-\subsection{Method \code{get_orgs()}}{
+\if{html}{\out{<a id="method-pull_orgs"></a>}}
+\if{latex}{\out{\hypertarget{method-pull_orgs}{}}}
+\subsection{Method \code{pull_orgs()}}{
 Get all groups from GitLab.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$get_orgs()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$pull_orgs()}\if{html}{\out{</div>}}
 }
 
 }
@@ -106,13 +106,13 @@ Nothing.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_commits"></a>}}
-\if{latex}{\out{\hypertarget{method-get_commits}{}}}
-\subsection{Method \code{get_commits()}}{
+\if{html}{\out{<a id="method-pull_commits"></a>}}
+\if{latex}{\out{\hypertarget{method-pull_commits}{}}}
+\subsection{Method \code{pull_commits()}}{
 Method to pull all commits from organization, optionally
 filtered by team members.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$get_commits(org, date_from, date_until, settings)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$pull_commits(org, date_from, date_until, settings)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -133,12 +133,12 @@ A table of commits.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_commits_supportive"></a>}}
-\if{latex}{\out{\hypertarget{method-get_commits_supportive}{}}}
-\subsection{Method \code{get_commits_supportive()}}{
+\if{html}{\out{<a id="method-pull_commits_supportive"></a>}}
+\if{latex}{\out{\hypertarget{method-pull_commits_supportive}{}}}
+\subsection{Method \code{pull_commits_supportive()}}{
 Method to get commits.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$get_commits_supportive(
+\if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$pull_commits_supportive(
   org,
   date_from,
   date_until = Sys.date(),

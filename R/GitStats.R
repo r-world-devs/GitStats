@@ -19,7 +19,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @param print_out A boolean stating if you want to print output after
     #'   pulling.
     #' @return Nothing.
-    setup = function(search_param,
+    set_params = function(search_param,
                      team_name,
                      phrase,
                      language,
@@ -162,7 +162,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @param date_from A starting date to look commits for
     #' @param date_until An end date to look commits for
     #' @return A data.frame of commits
-    get_commits = function(date_from,
+    pull_commits = function(date_from,
                            date_until) {
       if (is.null(date_from)) {
         stop("You need to define `date_from`.", call. = FALSE)
@@ -175,7 +175,7 @@ GitStats <- R6::R6Class("GitStats",
       }
 
       commits_table <- purrr::map(private$hosts, function(host) {
-        commits_table_host <- host$get_commits(
+        commits_table_host <- host$pull_commits(
           date_from = date_from,
           date_until = date_until,
           settings = private$settings
@@ -201,10 +201,10 @@ GitStats <- R6::R6Class("GitStats",
     #' @description Get information on users.
     #' @param users Character vector of users.
     #' @return A data.frame of users.
-    get_users = function(users) {
+    pull_users = function(users) {
       private$check_for_host()
       users_table <- purrr::map(private$hosts, function(host) {
-        host$get_users(users)
+        host$pull_users(users)
       }) %>%
         unique() %>%
         purrr::list_rbind()
@@ -305,7 +305,7 @@ GitStats <- R6::R6Class("GitStats",
     # @description Helper to check if there are any hosts
     check_for_host = function() {
       if (length(private$hosts) == 0) {
-        cli::cli_abort("Add first your hosts with `set_connection()`.")
+        cli::cli_abort("Add first your hosts with `set_host()`.")
       }
     },
 

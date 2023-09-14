@@ -39,7 +39,7 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
      #' @description Get information on users in the form of table
      #' @param users A character vector of users
      #' @return A table
-     get_users = function(users) {
+     pull_users = function(users) {
        purrr::map(users, function(user) {
          private$pull_user(username = user) %>%
            private$prepare_user_table()

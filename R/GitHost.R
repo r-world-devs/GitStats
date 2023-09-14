@@ -44,7 +44,7 @@ GitHost <- R6::R6Class("GitHost",
       private$engines$graphql <- private$setup_engine(type = "graphql")
       if (private$scan_all) {
         cli::cli_alert_info("[{private$host}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
-        private$orgs <- private$engines$graphql$get_orgs()
+        private$orgs <- private$engines$graphql$pull_orgs()
       } else {
         private$orgs <- private$engines$rest$check_organizations(orgs)
       }
@@ -101,13 +101,13 @@ GitHost <- R6::R6Class("GitHost",
     #' @param date_until An end date to look commits for.
     #' @param settings A list of `GitStats` settings.
     #' @return A data.frame of commits
-    get_commits = function(date_from,
+    pull_commits = function(date_from,
                            date_until = Sys.Date(),
                            settings) {
       if (settings$search_param == "phrase") {
         cli::cli_abort(c(
           "x" = "Pulling commits by phrase in code blobs is not supported.",
-          "i" = "Please change your `search_param` either to 'org' or 'team' with `setup()`."
+          "i" = "Please change your `search_param` either to 'org' or 'team' with `set_params()`."
         ))
       }
       if (private$scan_all) {
@@ -115,7 +115,7 @@ GitHost <- R6::R6Class("GitHost",
       }
       commits_table <- purrr::map(private$orgs, function(org) {
         tryCatch({
-          commits_table_org <- purrr::map(private$engines, ~ .$get_commits(
+          commits_table_org <- purrr::map(private$engines, ~ .$pull_commits(
             org = org,
             date_from = date_from,
             date_until = date_until,
@@ -132,7 +132,7 @@ GitHost <- R6::R6Class("GitHost",
             }
             cli::cli_alert_info("Switching to REST engine.")
             commits_table_org <<- purrr::map(private$engines, function (engine) {
-              engine$get_commits_supportive(
+              engine$pull_commits_supportive(
                 org = org,
                 date_from = date_from,
                 date_until = date_until,
@@ -154,10 +154,10 @@ GitHost <- R6::R6Class("GitHost",
     #' @description Get information about users
     #' @param users A character vector of users
     #' @return Table of users
-    get_users = function(users) {
+    pull_users = function(users) {
       users_table <- purrr::map(private$engines, function(engine) {
         if (inherits(engine, "EngineGraphQL")) {
-          engine$get_users(users)
+          engine$pull_users(users)
         } else {
           NULL
         }

@@ -2,10 +2,12 @@ test_that("`reset()` resets all settings", {
   test_gitstats <- create_test_gitstats(hosts = 2)
   suppressMessages({
     invisible(
-      setup(test_gitstats,
-            search_param = "phrase",
-            phrase = "test-phrase",
-            language = "Python")
+      set_params(
+        test_gitstats,
+        search_param = "phrase",
+        phrase = "test-phrase",
+        language = "Python"
+      )
     )
   })
   expect_snapshot(
@@ -13,12 +15,14 @@ test_that("`reset()` resets all settings", {
   )
   suppressMessages({
     invisible(
-      setup(test_gitstats,
-            search_param = "team",
-            team_name = "Testers",
-            language = "CSS") %>%
-        set_team_member("John Test") %>%
-        set_team_member("Bob Test")
+      set_params(
+        test_gitstats,
+        search_param = "team",
+        team_name = "Testers",
+        language = "CSS"
+      ) %>%
+      set_team_member("John Test") %>%
+      set_team_member("Bob Test")
     )
   })
   expect_snapshot(
@@ -30,16 +34,18 @@ test_that("`reset_language()` resets language settings to 'All'", {
   test_gitstats <- create_test_gitstats(hosts = 2)
   suppressMessages({
     invisible(
-      setup(test_gitstats,
-            search_param = "phrase",
-            phrase = "test-phrase",
-            language = "Python")
+      set_params(
+        test_gitstats,
+        search_param = "phrase",
+        phrase = "test-phrase",
+        language = "Python"
+      )
     )
   })
   expect_snapshot(
     reset_language(test_gitstats)
   )
-  priv <- environment(test_gitstats$setup)$private
+  priv <- environment(test_gitstats$set_params)$private
   expect_equal(
     priv$settings$search_param,
     "phrase"

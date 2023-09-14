@@ -49,7 +49,7 @@ set_host <- function(gitstats_obj,
 }
 
 #' @title Set up your search settings.
-#' @name setup
+#' @name set_params
 #' @param gitstats_obj A GitStats object.
 #' @param search_param One of three: team, orgs or phrase.
 #' @param team_name Name of a team.
@@ -60,20 +60,20 @@ set_host <- function(gitstats_obj,
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
-#'   setup(
+#'   set_params(
 #'     search_param = "team",
 #'     team_name = "Avengers",
 #'     language = "R"
 #'   )
 #' }
 #' @export
-setup <- function(gitstats_obj,
+set_params <- function(gitstats_obj,
                   search_param = NULL,
                   team_name = NULL,
                   phrase = NULL,
                   language = "All",
                   print_out = TRUE) {
-  gitstats_obj$setup(
+  gitstats_obj$set_params(
     search_param = search_param,
     team_name = team_name,
     phrase = phrase,
@@ -162,7 +162,7 @@ pull_repos_contributors <- function(gitstats_obj) {
 }
 
 #' @title Get information on commits.
-#' @name get_commits
+#' @name pull_commits
 #' @description List all repositories for an organization, a team.
 #' @param gitstats_obj  A GitStats object.
 #' @param date_from A starting date to look commits for
@@ -181,18 +181,18 @@ pull_repos_contributors <- function(gitstats_obj) {
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
 #'   ) %>%
-#'   setup(
+#'   set_params(
 #'     search_param = "team",
 #'     team_name = "rwdevs"
 #'   ) %>%
 #'   set_team_member("Maciej Banaś", "maciekbanas") %>%
-#'   get_commits(date_from = "2018-01-01")
+#'   pull_commits(date_from = "2018-01-01")
 #' }
 #' @export
-get_commits <- function(gitstats_obj,
+pull_commits <- function(gitstats_obj,
                         date_from = NULL,
                         date_until = Sys.time()) {
-  gitstats_obj$get_commits(
+  gitstats_obj$pull_commits(
     date_from = date_from,
     date_until = date_until
   )
@@ -201,7 +201,7 @@ get_commits <- function(gitstats_obj,
 }
 
 #' @title Get users statistics.
-#' @name get_users
+#' @name pull_users
 #' @description Get information on users.
 #' @param gitstats_obj A GitStats object.
 #' @param users A character vector of users.
@@ -218,13 +218,13 @@ get_commits <- function(gitstats_obj,
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
 #'   ) %>%
-#'   get_users(c("maciekabanas", "marcinkowskak"))
+#'   pull_users(c("maciekabanas", "marcinkowskak"))
 #' }
 #' @return A table of users.
 #' @export
-get_users <- function(gitstats_obj,
+pull_users <- function(gitstats_obj,
                       users){
-  gitstats_obj$get_users(
+  gitstats_obj$pull_users(
     users = users
   )
   return(invisible(gitstats_obj))
@@ -238,7 +238,7 @@ get_users <- function(gitstats_obj,
 #' @return A GitStats object.
 #' @export
 reset <- function(gitstats_obj){
-  priv <- environment(gitstats_obj$setup)$private
+  priv <- environment(gitstats_obj$set_params)$private
   priv$settings <- list(
     search_param = "org",
     phrase = NULL,
@@ -258,7 +258,7 @@ reset <- function(gitstats_obj){
 #' @return A GitStats object.
 #' @export
 reset_language <- function(gitstats_obj){
-  priv <- environment(gitstats_obj$setup)$private
+  priv <- environment(gitstats_obj$set_params)$private
   priv$settings$language <- "All"
   cli::cli_alert_info("Setting language parameter to 'All'.")
   return(gitstats_obj)

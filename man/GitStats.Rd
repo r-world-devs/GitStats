@@ -9,13 +9,13 @@ An R6 class object with methods to derive information from multiple Git platform
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-setup}{\code{GitStats$setup()}}
+\item \href{#method-set_params}{\code{GitStats$set_params()}}
 \item \href{#method-set_host}{\code{GitStats$set_host()}}
 \item \href{#method-set_team_member}{\code{GitStats$set_team_member()}}
 \item \href{#method-pull_repos}{\code{GitStats$pull_repos()}}
 \item \href{#method-pull_repos_contributors}{\code{GitStats$pull_repos_contributors()}}
-\item \href{#method-get_commits}{\code{GitStats$get_commits()}}
-\item \href{#method-get_users}{\code{GitStats$get_users()}}
+\item \href{#method-pull_commits}{\code{GitStats$pull_commits()}}
+\item \href{#method-pull_users}{\code{GitStats$pull_users()}}
 \item \href{#method-show_orgs}{\code{GitStats$show_orgs()}}
 \item \href{#method-show_repos}{\code{GitStats$show_repos()}}
 \item \href{#method-show_commits}{\code{GitStats$show_commits()}}
@@ -25,12 +25,12 @@ An R6 class object with methods to derive information from multiple Git platform
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-setup"></a>}}
-\if{latex}{\out{\hypertarget{method-setup}{}}}
-\subsection{Method \code{setup()}}{
+\if{html}{\out{<a id="method-set_params"></a>}}
+\if{latex}{\out{\hypertarget{method-set_params}{}}}
+\subsection{Method \code{set_params()}}{
 Set up your search settings.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$setup(search_param, team_name, phrase, language, print_out)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$set_params(search_param, team_name, phrase, language, print_out)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -136,12 +136,12 @@ A table of repositories with added information on contributors.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_commits"></a>}}
-\if{latex}{\out{\hypertarget{method-get_commits}{}}}
-\subsection{Method \code{get_commits()}}{
+\if{html}{\out{<a id="method-pull_commits"></a>}}
+\if{latex}{\out{\hypertarget{method-pull_commits}{}}}
+\subsection{Method \code{pull_commits()}}{
 A method to get information on commits.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_commits(date_from, date_until)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$pull_commits(date_from, date_until)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -158,12 +158,12 @@ A data.frame of commits
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_users"></a>}}
-\if{latex}{\out{\hypertarget{method-get_users}{}}}
-\subsection{Method \code{get_users()}}{
+\if{html}{\out{<a id="method-pull_users"></a>}}
+\if{latex}{\out{\hypertarget{method-pull_users}{}}}
+\subsection{Method \code{pull_users()}}{
 Get information on users.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitStats$get_users(users)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitStats$pull_users(users)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

@@ -5,7 +5,7 @@
 # Setting up settings to `phrase` works correctly
 
     Code
-      setup(test_gitstats, search_param = "phrase", phrase = "covid")
+      set_params(test_gitstats, search_param = "phrase", phrase = "covid")
     Message
       v Your search preferences set to phrase: covid.
     Output
@@ -22,7 +22,7 @@
 # Setting language works correctly
 
     Code
-      setup(test_gitstats, language = "Python")
+      set_params(test_gitstats, language = "Python")
     Message
       v Your programming language is set to Python.
     Output
@@ -39,7 +39,7 @@
 # Setting language to 'All' resets language settings
 
     Code
-      setup(test_gitstats, language = "All")
+      set_params(test_gitstats, language = "All")
     Output
       A <GitStats> object for 0 hosts:
       Hosts: 

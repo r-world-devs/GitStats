@@ -17,7 +17,7 @@ test_that("GitStats prints the proper info when connections are added.", {
 })
 
 suppressMessages({
-  setup(
+  set_params(
     test_gitstats,
     search_param = "team",
     team_name = "RWD-IE"
@@ -47,7 +47,7 @@ test_that("check_for_host works", {
 
 test_that("GitStats get users info", {
   test_gitstats <- create_test_gitstats(hosts = 2)
-  users_result <- test_gitstats$get_users(
+  users_result <- test_gitstats$pull_users(
     c("maciekbanas", "kalimu", "marcinkowskak")
   )
   expect_users_table(

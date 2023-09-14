@@ -1,5 +1,5 @@
 test_gitstats <- create_gitstats()
-test_gitstats_priv <- environment(test_gitstats$setup)$private
+test_gitstats_priv <- environment(test_gitstats$set_params)$private
 
 test_that("By default search param is set to 'orgs'", {
   expect_equal(
@@ -10,7 +10,7 @@ test_that("By default search param is set to 'orgs'", {
 
 test_that("Setting up settings to `team` throws error when team_name is not defined", {
   expect_snapshot_error(
-    setup(test_gitstats,
+    set_params(test_gitstats,
       search_param = "team"
     )
   )
@@ -18,7 +18,7 @@ test_that("Setting up settings to `team` throws error when team_name is not defi
 
 test_that("Setting up settings to `team` passes information to 'team' field", {
   suppressMessages(
-    setup(test_gitstats,
+    set_params(test_gitstats,
       search_param = "team",
       team_name = "RWD-IE"
     )
@@ -30,7 +30,7 @@ test_that("Setting up settings to `team` passes information to 'team' field", {
 })
 
 test_that("Setting up settings to `orgs` works correctly", {
-  setup(test_gitstats,
+  set_params(test_gitstats,
     search_param = "org"
   )
   expect_equal(
@@ -41,7 +41,7 @@ test_that("Setting up settings to `orgs` works correctly", {
 
 test_that("Setting up settings to `phrase` throws error when phrase is not defined", {
   expect_error(
-    setup(test_gitstats,
+    set_params(test_gitstats,
       search_param = "phrase"
     )
   )
@@ -49,7 +49,7 @@ test_that("Setting up settings to `phrase` throws error when phrase is not defin
 
 test_that("Setting up settings to `phrase` works correctly", {
   expect_snapshot(
-    setup(test_gitstats,
+    set_params(test_gitstats,
       search_param = "phrase",
       phrase = "covid"
     )
@@ -66,7 +66,7 @@ test_that("Setting up settings to `phrase` works correctly", {
 
 test_that("Error shows, when you pass not proper param", {
   expect_error(
-    setup(test_gitstats,
+    set_params(test_gitstats,
       search_param = "twilight"
     )
   )
@@ -74,7 +74,7 @@ test_that("Error shows, when you pass not proper param", {
 
 test_that("Setting language works correctly", {
   expect_snapshot(
-    setup(test_gitstats,
+    set_params(test_gitstats,
       language = "Python"
     )
   )
@@ -82,7 +82,7 @@ test_that("Setting language works correctly", {
 
 test_that("Setting language to 'All' resets language settings", {
   expect_snapshot(
-    setup(test_gitstats,
+    set_params(test_gitstats,
           language = "All"
     )
   )

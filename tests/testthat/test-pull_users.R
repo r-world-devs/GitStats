@@ -1,12 +1,12 @@
-test_that("get_users shows error when no hosts are defined", {
+test_that("pull_users shows error when no hosts are defined", {
   test_gitstats <- create_gitstats()
   expect_snapshot_error(
-    get_users(test_gitstats,
+    pull_users(test_gitstats,
               c("maciekbanas", "kalimu"))
   )
 })
 
-test_that("get_users works as expected", {
+test_that("pull_users works as expected", {
   test_gitstats <- create_gitstats()
   suppressMessages({
     test_gitstats$set_host(
@@ -21,7 +21,7 @@ test_that("get_users works as expected", {
       orgs = "mbtests"
     )
   })
-  get_users(test_gitstats,
+  pull_users(test_gitstats,
             c("maciekbanas", "kalimu"))
   users_table <- test_gitstats$show_users()
   expect_users_table(

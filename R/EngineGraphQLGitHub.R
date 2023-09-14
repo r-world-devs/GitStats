@@ -21,7 +21,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     },
 
     #' @description Get all groups from GitLab.
-    get_orgs = function() {
+    pull_orgs = function() {
       end_cursor <- NULL
       has_next_page <- TRUE
       full_orgs_list <- list()
@@ -95,7 +95,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param date_until An end date to look commits for.
     #' @param settings A list of  `GitStats` settings.
     #' @return A table of commits.
-    get_commits = function(org,
+    pull_commits = function(org,
                            date_from,
                            date_until,
                            settings) {
@@ -146,7 +146,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param date_until An end date to look commits for.
     #' @param settings A list of  `GitStats` settings.
     #' @return A table of commits.
-    get_commits_supportive = function(org,
+    pull_commits_supportive = function(org,
                                       date_from,
                                       date_until = Sys.date(),
                                       settings) {

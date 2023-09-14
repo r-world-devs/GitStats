@@ -101,7 +101,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @param date_until An end date to look commits for.
     #' @param settings A list of  `GitStats` settings.
     #' @return A table of commits.
-    get_commits = function(org,
+    pull_commits = function(org,
                            date_from,
                            date_until = Sys.date(),
                            settings) {

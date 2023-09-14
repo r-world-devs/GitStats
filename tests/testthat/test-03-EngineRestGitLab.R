@@ -210,9 +210,9 @@ test_that("`pull_repos_by_phrase()` works", {
   expect_repos_table(result)
 })
 
-test_that("`get_commits()` works as expected", {
+test_that("`pull_commits()` works as expected", {
   mockery::stub(
-    test_rest$get_commits,
+    test_rest$pull_commits,
     "private$pull_commits_from_org",
     test_mocker$use("gl_commits_org")
   )
@@ -220,7 +220,7 @@ test_that("`get_commits()` works as expected", {
     search_param = "org"
   )
   expect_snapshot(
-    result <- test_rest$get_commits(
+    result <- test_rest$pull_commits(
       org = "mbtests",
       date_from = "2023-01-01",
       date_until = "2023-04-20",
