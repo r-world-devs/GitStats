@@ -14,7 +14,7 @@
 #' @export
 plot_repos <- function(gitstats_obj,
                        repos_n = 10) {
-  repos_to_plot <- data.table::copy(gitstats_obj$show_repos())
+  repos_to_plot <- data.table::copy(gitstats_obj$get_repos())
   if (is.null(repos_to_plot)) {
     cli::cli_abort("No repositories in `GitStats` object to plot.")
   }
@@ -62,7 +62,7 @@ plot_commits <- function(gitstats_obj,
                          time_interval = c("month", "day", "week")) {
   time_interval <- match.arg(time_interval)
 
-  commits_dt <- data.table::copy(gitstats_obj$show_commits())
+  commits_dt <- data.table::copy(gitstats_obj$get_commits())
   if (is.null(commits_dt)) {
     cli::cli_abort("No commits in `GitStats` object to plot.")
   }

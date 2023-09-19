@@ -47,13 +47,13 @@ test_that("`pull_repos_page_from_org()` pulls repos page from GitHub organizatio
   test_mocker$cache(gh_repos_page)
 })
 
-test_that("`pull_repos()` prepares formatted list", {
+test_that("`pull_repos_from_org()` prepares formatted list", {
   mockery::stub(
-    test_gql_gh$pull_repos,
+    test_gql_gh$pull_repos_from_org,
     "private$pull_repos_page",
     test_mocker$use("gh_repos_page")
   )
-  gh_repos_from_org <- test_gql_gh$pull_repos(
+  gh_repos_from_org <- test_gql_gh$pull_repos_from_org(
     from = "org",
     org = "r-world-devs"
   )
@@ -84,13 +84,13 @@ test_that("`pull_repos_page()` pulls repos page from GitHub user", {
   test_mocker$cache(gh_repos_user_page)
 })
 
-test_that("`pull_repos()` from user prepares formatted list", {
+test_that("`pull_repos_from_org()` from user prepares formatted list", {
   mockery::stub(
-    test_gql_gh$pull_repos,
+    test_gql_gh$pull_repos_from_org,
     "private$pull_repos_page",
     test_mocker$use("gh_repos_user_page")
   )
-  gh_repos_from_user <- test_gql_gh$pull_repos(
+  gh_repos_from_user <- test_gql_gh$pull_repos_from_org(
     from = "user",
     user = "maciekbanas"
   )
@@ -213,15 +213,15 @@ test_gql_gh <- EngineGraphQLGitHub$new(
   token = Sys.getenv("GITHUB_PAT")
 )
 
-test_that("`get_repos()` works as expected", {
+test_that("`pull_repos()` works as expected", {
   mockery::stub(
-    test_gql_gh$get_repos,
+    test_gql_gh$pull_repos,
     "private$pull_repos",
     test_mocker$use("gh_repos_from_org")
   )
   settings <- list(search_param = "org")
   expect_snapshot(
-    gh_repos_org <- test_gql_gh$get_repos(
+    gh_repos_org <- test_gql_gh$pull_repos(
       org = "r-world-devs",
       settings = settings
     )
@@ -231,7 +231,7 @@ test_that("`get_repos()` works as expected", {
   )
 
   mockery::stub(
-    test_gql_gh$get_repos,
+    test_gql_gh$pull_repos,
     "private$pull_repos_from_team",
     test_mocker$use("gh_repos_from_team")
   )
@@ -240,7 +240,7 @@ test_that("`get_repos()` works as expected", {
     team = test_team
   )
   expect_snapshot(
-    gh_repos_team <- test_gql_gh$get_repos(
+    gh_repos_team <- test_gql_gh$pull_repos(
       org = "r-world-devs",
       settings = settings
     )
@@ -250,15 +250,15 @@ test_that("`get_repos()` works as expected", {
   )
 })
 
-test_that("`get_commits()` retrieves commits in the table format", {
+test_that("`pull_commits()` retrieves commits in the table format", {
   mockery::stub(
-    test_gql_gh$get_commits,
+    test_gql_gh$pull_commits,
     "private$pull_commits_from_repos",
     test_mocker$use("commits_from_repos")
   )
 
   mockery::stub(
-    test_gql_gh$get_commits,
+    test_gql_gh$pull_commits,
     "private$prepare_commits_table",
     test_mocker$use("commits_table")
   )
@@ -267,15 +267,15 @@ test_that("`get_commits()` retrieves commits in the table format", {
     dplyr::filter(name == "GitStats")
 
   mockery::stub(
-    test_gql_gh$get_commits,
-    "self$get_repos",
+    test_gql_gh$pull_commits,
+    "self$pull_repos",
     repos_table
   )
 
   settings <- list(search_param = "org")
 
   expect_snapshot(
-    commits_table <- test_gql_gh$get_commits(
+    commits_table <- test_gql_gh$pull_commits(
       org = "r-world-devs",
       date_from = "2023-01-01",
       date_until = "2023-02-28",

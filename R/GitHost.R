@@ -44,7 +44,7 @@ GitHost <- R6::R6Class("GitHost",
       private$engines$graphql <- private$setup_engine(type = "graphql")
       if (private$scan_all) {
         cli::cli_alert_info("[{private$host}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
-        private$orgs <- private$engines$graphql$get_orgs()
+        private$orgs <- private$engines$graphql$pull_orgs()
       } else {
         private$orgs <- private$engines$rest$check_organizations(orgs)
       }
@@ -56,7 +56,7 @@ GitHost <- R6::R6Class("GitHost",
     #' @param add_contributors A boolean to decide wether to add contributors
     #'   column to repositories table.
     #' @return A data.frame of repositories.
-    get_repos = function(settings, add_contributors = FALSE) {
+    pull_repos = function(settings, add_contributors = FALSE) {
       repos_table <- private$pull_repos_from_orgs(
         settings = settings
       )
@@ -66,7 +66,7 @@ GitHost <- R6::R6Class("GitHost",
       }
 
       if (add_contributors) {
-        repos_table <- self$get_repos_contributors(repos_table)
+        repos_table <- self$pull_repos_contributors(repos_table)
       }
 
       if (nrow(repos_table) > 0 && settings$language != "All") {
@@ -82,12 +82,12 @@ GitHost <- R6::R6Class("GitHost",
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
-    get_repos_contributors = function(repos_table) {
+    pull_repos_contributors = function(repos_table) {
       repos_table <- repos_table %>%
         dplyr::filter(grepl(gsub("/v+.*", "", private$api_url), api_url))
       repos_table <- purrr::map_dfr(private$engines, function (engine) {
         if (inherits(engine, "EngineRest")) {
-          engine$get_repos_contributors(
+          engine$pull_repos_contributors(
             repos_table
           )
         } else {
@@ -101,13 +101,13 @@ GitHost <- R6::R6Class("GitHost",
     #' @param date_until An end date to look commits for.
     #' @param settings A list of `GitStats` settings.
     #' @return A data.frame of commits
-    get_commits = function(date_from,
+    pull_commits = function(date_from,
                            date_until = Sys.Date(),
                            settings) {
       if (settings$search_param == "phrase") {
         cli::cli_abort(c(
           "x" = "Pulling commits by phrase in code blobs is not supported.",
-          "i" = "Please change your `search_param` either to 'org' or 'team' with `setup()`."
+          "i" = "Please change your `search_param` either to 'org' or 'team' with `set_params()`."
         ))
       }
       if (private$scan_all) {
@@ -115,7 +115,7 @@ GitHost <- R6::R6Class("GitHost",
       }
       commits_table <- purrr::map(private$orgs, function(org) {
         tryCatch({
-          commits_table_org <- purrr::map(private$engines, ~ .$get_commits(
+          commits_table_org <- purrr::map(private$engines, ~ .$pull_commits(
             org = org,
             date_from = date_from,
             date_until = date_until,
@@ -132,7 +132,7 @@ GitHost <- R6::R6Class("GitHost",
             }
             cli::cli_alert_info("Switching to REST engine.")
             commits_table_org <<- purrr::map(private$engines, function (engine) {
-              engine$get_commits_supportive(
+              engine$pull_commits_supportive(
                 org = org,
                 date_from = date_from,
                 date_until = date_until,
@@ -154,10 +154,10 @@ GitHost <- R6::R6Class("GitHost",
     #' @description Get information about users
     #' @param users A character vector of users
     #' @return Table of users
-    get_users = function(users) {
+    pull_users = function(users) {
       users_table <- purrr::map(private$engines, function(engine) {
         if (inherits(engine, "EngineGraphQL")) {
-          engine$get_users(users)
+          engine$pull_users(users)
         } else {
           NULL
         }
@@ -309,7 +309,7 @@ GitHost <- R6::R6Class("GitHost",
       repos_table <- purrr::map(orgs, function(org) {
         tryCatch({
           repos_list <- purrr::map(private$engines, function (engine) {
-            engine$get_repos(
+            engine$pull_repos(
               org = org,
               settings = settings
             )
@@ -324,7 +324,7 @@ GitHost <- R6::R6Class("GitHost",
             }
           }
           repos_list <<- purrr::map(private$engines, function (engine) {
-            engine$get_repos_supportive(
+            engine$pull_repos_supportive(
               org = org,
               settings = settings
             )

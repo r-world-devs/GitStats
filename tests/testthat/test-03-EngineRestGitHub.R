@@ -106,10 +106,10 @@ test_that("`prepare_repos_table()` prepares repos table", {
   test_mocker$cache(gh_repos_by_phrase_table)
 })
 
-test_that("`get_repos_issues()` adds issues to repos table", {
+test_that("`pull_repos_issues()` adds issues to repos table", {
   gh_repos_by_phrase_table <- test_mocker$use("gh_repos_by_phrase_table")
 
-  gh_repos_by_phrase_table <- test_rest_priv$get_repos_issues(
+  gh_repos_by_phrase_table <- test_rest_priv$pull_repos_issues(
     gh_repos_by_phrase_table
   )
   expect_gt(
@@ -195,9 +195,9 @@ test_that("`prepare_commits_table()` prepares commits table (for orgs and for te
   test_mocker$cache(gh_rest_commits_table_team)
 })
 
-test_that("`get_commits_stats()` works as expected", {
+test_that("`pull_commits_stats()` works as expected", {
   expect_snapshot(
-    gh_rest_commits_table_with_stats <- test_rest_priv$get_commits_stats(
+    gh_rest_commits_table_with_stats <- test_rest_priv$pull_commits_stats(
       commits_table = test_mocker$use("gh_rest_commits_table")[1:5,]
     )
   )
@@ -207,9 +207,9 @@ test_that("`get_commits_stats()` works as expected", {
 
 # public methods
 
-test_that("`get_repos_contributors()` adds contributors to repos table", {
+test_that("`pull_repos_contributors()` adds contributors to repos table", {
   expect_snapshot(
-    gh_repos_by_phrase_table <- test_rest$get_repos_contributors(
+    gh_repos_by_phrase_table <- test_rest$pull_repos_contributors(
       test_mocker$use("gh_repos_by_phrase_table")
     )
   )
@@ -223,9 +223,9 @@ test_that("`get_repos_contributors()` adds contributors to repos table", {
   test_mocker$cache(gh_repos_by_phrase_table)
 })
 
-test_that("`get_repos()` works", {
+test_that("`pull_repos()` works", {
   mockery::stub(
-    test_rest$get_repos,
+    test_rest$pull_repos,
     "private$search_repos_by_phrase",
     test_mocker$use("gh_repos_by_phrase")
   )
@@ -236,7 +236,7 @@ test_that("`get_repos()` works", {
   )
 
   expect_snapshot(
-    result <- test_rest$get_repos(
+    result <- test_rest$pull_repos(
       org = "r-world-devs",
       settings = settings
     )
@@ -247,25 +247,25 @@ test_that("`get_repos()` works", {
 
 test_that("supportive method for getting commits works", {
   mockery::stub(
-    test_rest$get_commits_supportive,
-    "self$get_repos_supportive",
+    test_rest$pull_commits_supportive,
+    "self$pull_repos_supportive",
     test_mocker$use("gh_repos_table")
   )
   mockery::stub(
-    test_rest$get_commits_supportive,
+    test_rest$pull_commits_supportive,
     "private$pull_commits_from_org",
     test_mocker$use("gh_rest_commits_from_org")
   )
   mockery::stub(
-    test_rest$get_commits_supportive,
-    "private$get_commits_stats",
+    test_rest$pull_commits_supportive,
+    "private$pull_commits_stats",
     test_mocker$use("gh_rest_commits_table_with_stats")
   )
   test_settings <- list(
     search_param = "org"
   )
   expect_snapshot(
-    gh_rest_commits_table <- test_rest$get_commits_supportive(
+    gh_rest_commits_table <- test_rest$pull_commits_supportive(
       org = "r-world-devs",
       date_from = "2023-01-01",
       date_until = "2023-07-01",

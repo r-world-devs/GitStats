@@ -17,7 +17,7 @@ test_that("GitStats prints the proper info when connections are added.", {
 })
 
 suppressMessages({
-  setup(
+  set_params(
     test_gitstats,
     search_param = "team",
     team_name = "RWD-IE"
@@ -47,9 +47,10 @@ test_that("check_for_host works", {
 
 test_that("GitStats get users info", {
   test_gitstats <- create_test_gitstats(hosts = 2)
-  users_result <- test_gitstats$get_users(
+  test_gitstats$pull_users(
     c("maciekbanas", "kalimu", "marcinkowskak")
   )
+  users_result <- get_users(test_gitstats)
   expect_users_table(
     users_result
   )
@@ -57,29 +58,29 @@ test_that("GitStats get users info", {
 
 test_gitstats <- create_test_gitstats(hosts = 2)
 
-test_that("GitStats throws error when get_repos_contributors is run with empty repos field", {
+test_that("GitStats throws error when pull_repos_contributors is run with empty repos field", {
 
   expect_snapshot_error(
-    test_gitstats$get_repos_contributors()
+    test_gitstats$pull_repos_contributors()
   )
 })
 
 test_that("Add_repos_contributors adds repos contributors to repos table", {
   suppressMessages({
-    test_gitstats$get_repos()
+    test_gitstats$pull_repos()
   })
-  repos_without_contributors <- test_gitstats$show_repos()
+  repos_without_contributors <- test_gitstats$get_repos()
   expect_snapshot(
-    test_gitstats$get_repos_contributors()
+    test_gitstats$pull_repos_contributors()
   )
-  repos_with_contributors <- test_gitstats$show_repos()
+  repos_with_contributors <- test_gitstats$get_repos()
   expect_repos_table_with_contributors(repos_with_contributors)
   expect_equal(nrow(repos_without_contributors), nrow(repos_with_contributors))
 })
 
-test_that("show_orgs print orgs properly", {
+test_that("get_orgs print orgs properly", {
   expect_equal(
-    test_gitstats$show_orgs(),
+    test_gitstats$get_orgs(),
     c("r-world-devs", "openpharma", "mbtests")
   )
 })
@@ -88,13 +89,14 @@ suppressMessages(
   test_gitstats <- create_gitstats() %>%
     set_host(
       api_url = "https://gitlab.com/api/v4",
+      token = Sys.getenv("GITLAB_PAT_PUBLIC"),
       orgs = "mbtests/subgroup"
     )
 )
 
-test_that("show_orgs print subgroups properly", {
+test_that("get_orgs print subgroups properly", {
   expect_equal(
-    test_gitstats$show_orgs(),
+    test_gitstats$get_orgs(),
     "mbtests/subgroup"
   )
 })

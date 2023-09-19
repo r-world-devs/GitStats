@@ -156,9 +156,9 @@ test_that("`prepare_commits_table()` prepares table of commits properly", {
   )
 })
 
-test_that("`get_repos_issues()` adds issues to repos table", {
+test_that("`pull_repos_issues()` adds issues to repos table", {
   gl_repos_by_phrase_table <- test_mocker$use("gl_repos_by_phrase_table")
-  gl_repos_by_phrase_table <- test_rest_priv$get_repos_issues(
+  gl_repos_by_phrase_table <- test_rest_priv$pull_repos_issues(
     gl_repos_by_phrase_table
   )
   expect_gt(
@@ -174,9 +174,9 @@ test_that("`get_repos_issues()` adds issues to repos table", {
 
 # public methods
 
-test_that("`get_repos_contributors()` adds contributors to repos table", {
+test_that("`pull_repos_contributors()` adds contributors to repos table", {
   expect_snapshot(
-    gl_repos_table <- test_rest$get_repos_contributors(
+    gl_repos_table <- test_rest$pull_repos_contributors(
       test_mocker$use("gl_repos_table")
     )
   )
@@ -190,9 +190,9 @@ test_that("`get_repos_contributors()` adds contributors to repos table", {
   test_mocker$cache(gl_repos_table)
 })
 
-test_that("`get_repos_by_phrase()` works", {
+test_that("`pull_repos_by_phrase()` works", {
   mockery::stub(
-    test_rest$get_repos,
+    test_rest$pull_repos,
     "private$search_repos_by_phrase",
     test_mocker$use("gl_repos_by_phrase")
   )
@@ -202,7 +202,7 @@ test_that("`get_repos_by_phrase()` works", {
     phrase = "covid"
   )
   expect_snapshot(
-    result <- test_rest$get_repos(
+    result <- test_rest$pull_repos(
       org = "erasmusmc-public-health",
       settings = settings
     )
@@ -210,9 +210,9 @@ test_that("`get_repos_by_phrase()` works", {
   expect_repos_table(result)
 })
 
-test_that("`get_commits()` works as expected", {
+test_that("`pull_commits()` works as expected", {
   mockery::stub(
-    test_rest$get_commits,
+    test_rest$pull_commits,
     "private$pull_commits_from_org",
     test_mocker$use("gl_commits_org")
   )
@@ -220,7 +220,7 @@ test_that("`get_commits()` works as expected", {
     search_param = "org"
   )
   expect_snapshot(
-    result <- test_rest$get_commits(
+    result <- test_rest$pull_commits(
       org = "mbtests",
       date_from = "2023-01-01",
       date_until = "2023-04-20",

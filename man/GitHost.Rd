@@ -12,10 +12,10 @@ A GitHost superclass
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{GitHost$new()}}
-\item \href{#method-get_repos}{\code{GitHost$get_repos()}}
-\item \href{#method-get_repos_contributors}{\code{GitHost$get_repos_contributors()}}
-\item \href{#method-get_commits}{\code{GitHost$get_commits()}}
-\item \href{#method-get_users}{\code{GitHost$get_users()}}
+\item \href{#method-pull_repos}{\code{GitHost$pull_repos()}}
+\item \href{#method-pull_repos_contributors}{\code{GitHost$pull_repos_contributors()}}
+\item \href{#method-pull_commits}{\code{GitHost$pull_commits()}}
+\item \href{#method-pull_users}{\code{GitHost$pull_users()}}
 \item \href{#method-clone}{\code{GitHost$clone()}}
 }
 }
@@ -45,13 +45,13 @@ A new \code{GitHost} object
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos}{}}}
-\subsection{Method \code{get_repos()}}{
+\if{html}{\out{<a id="method-pull_repos"></a>}}
+\if{latex}{\out{\hypertarget{method-pull_repos}{}}}
+\subsection{Method \code{pull_repos()}}{
 A method to list all repositories for an organization, a
 team or by a keyword.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitHost$get_repos(settings, add_contributors = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitHost$pull_repos(settings, add_contributors = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -69,12 +69,12 @@ A data.frame of repositories.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_repos_contributors"></a>}}
-\if{latex}{\out{\hypertarget{method-get_repos_contributors}{}}}
-\subsection{Method \code{get_repos_contributors()}}{
+\if{html}{\out{<a id="method-pull_repos_contributors"></a>}}
+\if{latex}{\out{\hypertarget{method-pull_repos_contributors}{}}}
+\subsection{Method \code{pull_repos_contributors()}}{
 A method to add information on repository contributors.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitHost$get_repos_contributors(repos_table)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitHost$pull_repos_contributors(repos_table)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -89,12 +89,12 @@ A table of repositories with added information on contributors.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_commits"></a>}}
-\if{latex}{\out{\hypertarget{method-get_commits}{}}}
-\subsection{Method \code{get_commits()}}{
+\if{html}{\out{<a id="method-pull_commits"></a>}}
+\if{latex}{\out{\hypertarget{method-pull_commits}{}}}
+\subsection{Method \code{pull_commits()}}{
 A method to get information on commits.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitHost$get_commits(date_from, date_until = Sys.Date(), settings)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitHost$pull_commits(date_from, date_until = Sys.Date(), settings)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -113,12 +113,12 @@ A data.frame of commits
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_users"></a>}}
-\if{latex}{\out{\hypertarget{method-get_users}{}}}
-\subsection{Method \code{get_users()}}{
+\if{html}{\out{<a id="method-pull_users"></a>}}
+\if{latex}{\out{\hypertarget{method-pull_users}{}}}
+\subsection{Method \code{pull_users()}}{
 Get information about users
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GitHost$get_users(users)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GitHost$pull_users(users)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

@@ -19,11 +19,11 @@ GitStats <- R6::R6Class("GitStats",
     #' @param print_out A boolean stating if you want to print output after
     #'   pulling.
     #' @return Nothing.
-    setup = function(search_param,
-                     team_name,
-                     phrase,
-                     language,
-                     print_out) {
+    set_params = function(search_param,
+                          team_name,
+                          phrase,
+                          language,
+                          print_out) {
       search_param <- match.arg(
         search_param,
         c("org", "team", "phrase")
@@ -120,7 +120,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @param add_contributors A boolean to decide whether to add contributors
     #'   information to repositories.
     #' @return A data.frame of repositories
-    get_repos = function(add_contributors = FALSE) {
+    pull_repos = function(add_contributors = FALSE) {
       if (private$settings$search_param == "team") {
         if (length(private$settings$team) == 0) {
           cli::cli_abort("You have to specify a team first with 'set_team_member()'.")
@@ -131,7 +131,7 @@ GitStats <- R6::R6Class("GitStats",
         }
       }
 
-      repos_table <- purrr::map(private$hosts, ~ .$get_repos(
+      repos_table <- purrr::map(private$hosts, ~ .$pull_repos(
         settings = private$settings,
         add_contributors = add_contributors
       )) %>%
@@ -148,11 +148,11 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description A method to add information on repository contributors.
     #' @return A table of repositories with added information on contributors.
-    get_repos_contributors = function() {
+    pull_repos_contributors = function() {
       if (length(private$repos) == 0) {
-        cli::cli_abort("You need to pull repos first with `get_repos()`.")
+        cli::cli_abort("You need to pull repos first with `pull_repos()`.")
       } else {
-        private$repos <- purrr::map_dfr(private$hosts, ~ .$get_repos_contributors(
+        private$repos <- purrr::map_dfr(private$hosts, ~ .$pull_repos_contributors(
           repos_table = private$repos
         ))
       }
@@ -162,7 +162,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @param date_from A starting date to look commits for
     #' @param date_until An end date to look commits for
     #' @return A data.frame of commits
-    get_commits = function(date_from,
+    pull_commits = function(date_from,
                            date_until) {
       if (is.null(date_from)) {
         stop("You need to define `date_from`.", call. = FALSE)
@@ -175,7 +175,7 @@ GitStats <- R6::R6Class("GitStats",
       }
 
       commits_table <- purrr::map(private$hosts, function(host) {
-        commits_table_host <- host$get_commits(
+        commits_table_host <- host$pull_commits(
           date_from = date_from,
           date_until = date_until,
           settings = private$settings
@@ -201,19 +201,20 @@ GitStats <- R6::R6Class("GitStats",
     #' @description Get information on users.
     #' @param users Character vector of users.
     #' @return A data.frame of users.
-    get_users = function(users) {
+    pull_users = function(users) {
       private$check_for_host()
       users_table <- purrr::map(private$hosts, function(host) {
-        host$get_users(users)
+        host$pull_users(users)
       }) %>%
         unique() %>%
         purrr::list_rbind()
       private$users <- users_table
-      return(users_table)
+      if (private$settings$print_out) dplyr::glimpse(users_table)
+      return(invisible(self))
     },
 
     #' @description Print organizations.
-    show_orgs = function() {
+    get_orgs = function() {
       purrr::map(private$hosts, function(host) {
         orgs <- host$.__enclos_env__$private$orgs
         purrr::map_vec(orgs, ~ gsub("%2f", "/", .))
@@ -221,17 +222,17 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     #' @description Print repositories output.
-    show_repos = function() {
+    get_repos = function() {
       private$repos
     },
 
     #' @description Print commits output.
-    show_commits = function() {
+    get_commits = function() {
       private$commits
     },
 
     #' @description Print users output.
-    show_users = function() {
+    get_users = function() {
       private$users
     },
 
@@ -305,7 +306,7 @@ GitStats <- R6::R6Class("GitStats",
     # @description Helper to check if there are any hosts
     check_for_host = function() {
       if (length(private$hosts) == 0) {
-        cli::cli_abort("Add first your hosts with `set_connection()`.")
+        cli::cli_abort("Add first your hosts with `set_host()`.")
       }
     },
 

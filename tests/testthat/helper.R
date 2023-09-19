@@ -1,6 +1,6 @@
 create_test_gitstats <- function(hosts = 0, priv_mode = FALSE) {
   test_gitstats <- create_gitstats() %>%
-    setup(print_out = FALSE)
+    set_params(print_out = FALSE)
 
   if (hosts == 1) {
     suppressMessages({
@@ -25,7 +25,7 @@ create_test_gitstats <- function(hosts = 0, priv_mode = FALSE) {
     })
   }
   if (priv_mode) {
-    test_gitstats <- environment(test_gitstats$setup)$private
+    test_gitstats <- environment(test_gitstats$set_params)$private
   }
   return(test_gitstats)
 }
@@ -220,40 +220,40 @@ expect_users_table <- function(get_user_object) {
   expect_gt(nrow(get_user_object), 1)
 }
 
-expect_repos_table_with_contributors <- function(get_repos_object) {
+expect_repos_table_with_contributors <- function(pull_repos_object) {
   repo_cols <- c(
     "id", "name", "stars", "forks", "created_at",
     "last_activity_at", "languages", "issues_open", "issues_closed",
     "organization", "repo_url", "api_url", "contributors"
   )
-  expect_s3_class(get_repos_object, "data.frame")
-  expect_named(get_repos_object, repo_cols)
-  expect_gt(nrow(get_repos_object), 0)
+  expect_s3_class(pull_repos_object, "data.frame")
+  expect_named(pull_repos_object, repo_cols)
+  expect_gt(nrow(pull_repos_object), 0)
 }
 
-expect_repos_table <- function(get_repos_object) {
+expect_repos_table <- function(pull_repos_object) {
   repo_cols <- c(
     "id", "name", "stars", "forks", "created_at",
     "last_activity_at", "languages", "issues_open", "issues_closed",
     "organization", "repo_url", "api_url"
   )
-  expect_s3_class(get_repos_object, "data.frame")
-  expect_named(get_repos_object, repo_cols)
-  expect_gt(nrow(get_repos_object), 0)
+  expect_s3_class(pull_repos_object, "data.frame")
+  expect_named(pull_repos_object, repo_cols)
+  expect_gt(nrow(pull_repos_object), 0)
 }
 
-expect_commits_table <- function(get_commits_object, with_stats = TRUE) {
+expect_commits_table <- function(pull_commits_object, with_stats = TRUE) {
   commit_cols <- c(
     "id", "committed_date", "author", "additions", "deletions",
     "repository", "organization", "api_url"
   )
-  expect_s3_class(get_commits_object, "data.frame")
-  expect_named(get_commits_object, commit_cols)
-  expect_gt(nrow(get_commits_object), 0)
-  expect_s3_class(get_commits_object$committed_date, "POSIXt")
+  expect_s3_class(pull_commits_object, "data.frame")
+  expect_named(pull_commits_object, commit_cols)
+  expect_gt(nrow(pull_commits_object), 0)
+  expect_s3_class(pull_commits_object$committed_date, "POSIXt")
   if (with_stats) {
-    expect_type(get_commits_object$additions, "integer")
-    expect_type(get_commits_object$deletions, "integer")
+    expect_type(pull_commits_object$additions, "integer")
+    expect_type(pull_commits_object$deletions, "integer")
   }
 }
 

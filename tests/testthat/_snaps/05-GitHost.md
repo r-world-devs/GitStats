@@ -63,19 +63,19 @@
     Message
       i Filtering by language.
 
-# get_repos returns table of repositories
+# pull_repos returns table of repositories
 
     Code
-      repos_table <- test_host$get_repos(settings = list(search_param = "org",
+      repos_table <- test_host$pull_repos(settings = list(search_param = "org",
         language = "All"))
     Message
       i [GitHub][Engine:GraphQL][org:openpharma] Pulling repositories...
       i [GitHub][Engine:GraphQL][org:r-world-devs] Pulling repositories...
 
-# get_repos_contributors returns table with contributors
+# pull_repos_contributors returns table with contributors
 
     Code
-      repos_table_2 <- test_host$get_repos_contributors(repos_table_1)
+      repos_table_2 <- test_host$pull_repos_contributors(repos_table_1)
     Message
       i [GitHub][Engine:REST] Pulling contributors...
 

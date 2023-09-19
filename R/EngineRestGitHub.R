@@ -8,7 +8,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     #' @param org An organization
     #' @param settings A list of  `GitStats` settings.
     #' @return Table of repositories.
-    get_repos = function(org,
+    pull_repos = function(org,
                          settings) {
       if (settings$search_param == "phrase") {
         if (!private$scan_all) {
@@ -21,7 +21,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         ) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
-          private$get_repos_issues()
+          private$pull_repos_issues()
       } else {
         repos_table <- NULL
       }
@@ -33,7 +33,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     #' @param org An organization.
     #' @param settings A list of  `GitStats` settings.
     #' @return A table of repositories.
-    get_repos_supportive = function(org,
+    pull_repos_supportive = function(org,
                                     settings) {
       repos_table <- NULL
       if (settings$search_param %in% c("org")) {
@@ -45,7 +45,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         ) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
-          private$get_repos_issues()
+          private$pull_repos_issues()
       }
       return(repos_table)
     },
@@ -59,7 +59,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     #' @param date_until An end date to look commits for.
     #' @param settings A list of  `GitStats` settings.
     #' @return A table of commits.
-    get_commits = function(org,
+    pull_commits = function(org,
                            date_from,
                            date_until = Sys.date(),
                            settings) {
@@ -72,11 +72,11 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     #' @param date_until An end date to look commits for.
     #' @param settings A list of  `GitStats` settings.
     #' @return A table of commits.
-    get_commits_supportive = function(org,
+    pull_commits_supportive = function(org,
                                       date_from,
                                       date_until = Sys.date(),
                                       settings) {
-      repos_table <- self$get_repos_supportive(
+      repos_table <- self$pull_repos_supportive(
         org = org,
         settings = list(search_param = "org")
       )
@@ -102,7 +102,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       commits_table <- repos_list_with_commits %>%
         private$tailor_commits_info(org = org) %>%
         private$prepare_commits_table() %>%
-        private$get_commits_stats()
+        private$pull_commits_stats()
 
       return(commits_table)
     },
@@ -110,7 +110,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
-    get_repos_contributors = function(repos_table) {
+    pull_repos_contributors = function(repos_table) {
       if (nrow(repos_table) > 0) {
         if (!private$scan_all) {
           cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}] Pulling contributors...")
@@ -320,7 +320,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     # @description A method to add information on open and closed issues of a repository.
     # @param repos_table A table of repositories.
     # @return A table of repositories with added information on issues.
-    get_repos_issues = function(repos_table) {
+    pull_repos_issues = function(repos_table) {
       if (nrow(repos_table) > 0) {
         repos_iterator <- paste0(repos_table$organization, "/", repos_table$name)
         issues <- purrr::map_dfr(repos_iterator, function(repo_path) {
@@ -474,7 +474,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     # @description A wrapper to pull stats for all commits.
     # @param commits_table A table with commits.
     # @return A data.frame
-    get_commits_stats = function(commits_table) {
+    pull_commits_stats = function(commits_table) {
       cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}] Pulling commits stats...")
       repo_fullnames <- paste0(commits_table$organization, "/", commits_table$repository)
       commit_stats <- purrr::map2_dfr(commits_table$id, repo_fullnames,

@@ -21,7 +21,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     },
 
     #' @description Get all groups from GitLab.
-    get_orgs = function() {
+    pull_orgs = function() {
       end_cursor <- NULL
       has_next_page <- TRUE
       full_orgs_list <- list()
@@ -45,14 +45,14 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param org An organization.
     #' @param settings A list of  `GitStats` settings.
     #' @return A table.
-    get_repos = function(org,
+    pull_repos = function(org,
                          settings) {
       if (settings$search_param %in% c("org", "team")) {
         if (settings$search_param == "org") {
           if (!private$scan_all) {
             cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
           }
-          repos_table <- private$pull_repos(
+          repos_table <- private$pull_repos_from_org(
             from = "org",
             org = org
           ) %>%
@@ -83,7 +83,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param org An organization.
     #' @param settings A list of  `GitStats` settings.
     #' @return Nothing.
-    get_repos_supportive = function(org,
+    pull_repos_supportive = function(org,
                                     settings) {
       NULL
     },
@@ -95,11 +95,11 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param date_until An end date to look commits for.
     #' @param settings A list of  `GitStats` settings.
     #' @return A table of commits.
-    get_commits = function(org,
+    pull_commits = function(org,
                            date_from,
                            date_until,
                            settings) {
-      repos_table <- self$get_repos(
+      repos_table <- self$pull_repos(
         org = org,
         settings = list(search_param = "org")
       )
@@ -146,7 +146,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param date_until An end date to look commits for.
     #' @param settings A list of  `GitStats` settings.
     #' @return A table of commits.
-    get_commits_supportive = function(org,
+    pull_commits_supportive = function(org,
                                       date_from,
                                       date_until = Sys.date(),
                                       settings) {
@@ -160,7 +160,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     # @param org An organization.
     # @param user A user.
     # @return A list of repositories from organization.
-    pull_repos = function(from,
+    pull_repos_from_org = function(from,
                           org = NULL,
                           user = NULL) {
       full_repos_list <- list()
@@ -200,7 +200,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       for (member in team) {
         for (login in member$logins) {
           user_repos <-
-            private$pull_repos(
+            private$pull_repos_from_org(
               from = "user",
               user = login
             )

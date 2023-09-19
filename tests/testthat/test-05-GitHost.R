@@ -7,10 +7,11 @@ test_host <- create_testhost(
 )
 
 test_that("GitHost gets users tables", {
-  users_table <- test_host$get_users(
+  users_table <- test_host$pull_users(
     users = c("maciekbanas", "kalimu", "galachad")
   )
   expect_users_table(users_table)
+  test_mocker$cache(users_table)
 })
 
 # private methods
@@ -291,14 +292,14 @@ test_host <- create_testhost(
   orgs = c("openpharma", "r-world-devs")
 )
 
-test_that("get_repos returns table of repositories", {
+test_that("pull_repos returns table of repositories", {
   mockery::stub(
-    test_host$get_repos,
+    test_host$pull_repos,
     "private$pull_repos_from_org",
     test_mocker$use("gh_repos_table")
   )
   expect_snapshot(
-    repos_table <- test_host$get_repos(
+    repos_table <- test_host$pull_repos(
       settings = list(search_param = "org",
                       language = "All")
     )
@@ -308,11 +309,11 @@ test_that("get_repos returns table of repositories", {
   )
 })
 
-test_that("get_repos_contributors returns table with contributors", {
+test_that("pull_repos_contributors returns table with contributors", {
 
   repos_table_1 <- test_mocker$use("gh_repos_table")
   expect_snapshot(
-    repos_table_2 <- test_host$get_repos_contributors(repos_table_1)
+    repos_table_2 <- test_host$pull_repos_contributors(repos_table_1)
   )
   expect_repos_table_with_contributors(repos_table_2)
   expect_gt(

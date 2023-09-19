@@ -3,8 +3,8 @@ test_gql <- EngineGraphQLGitHub$new(
   token = Sys.getenv("GITHUB_PAT")
 )
 
-test_that("get_users build users table for GitHub", {
-  users_result <- test_gql$get_users(
+test_that("pull_users build users table for GitHub", {
+  users_result <- test_gql$pull_users(
     users = c("maciekbanas", "Cotau", "marcinkowskak")
   )
   expect_users_table(
@@ -17,8 +17,8 @@ test_gql_gl <- EngineGraphQLGitLab$new(
   token = Sys.getenv("GITLAB_PAT_PUBLIC")
 )
 
-test_that("get_users build users table for GitLab", {
-  users_result <- test_gql_gl$get_users(
+test_that("pull_users build users table for GitLab", {
+  users_result <- test_gql_gl$pull_users(
     users = c("maciekbanas", "Cotau", "marcinkowskak")
   )
   expect_users_table(
