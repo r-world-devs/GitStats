@@ -4,98 +4,93 @@
 #' @importFrom utils head
 #' @importFrom stringr str_remove_all
 #' @importFrom data.table setorder as.data.table
-#'
-#' @title Plot repository data.
-#' @name plot_repos
-#' @description Plots top repositories by last activity.
-#' @param gitstats_obj  A GitStats object.
-#' @param repos_n An integer, a number of repos to show on the plot.
+
+#' @title Plot Git Statistics.
+#' @name gitstats_plot
+#' @description A generic to plot statistics from repositories or commits.
+#' @param stats_table A table with repository or commits statistics.
+#' @param value_to_plot Value to be plotted.
+#' @param value_decreasing A boolean to set ordering of a value on the plot.
+#' @param plotly_mode A boolean, if TRUE, turns plot into interactive plotly.
+#' @param n An integer, a maximum number of repos/organizations to show on the plot.
 #' @return A plot.
 #' @export
-plot_repos <- function(gitstats_obj,
-                       repos_n = 10) {
-  repos_to_plot <- data.table::copy(gitstats_obj$get_repos())
-  if (is.null(repos_to_plot)) {
-    cli::cli_abort("No repositories in `GitStats` object to plot.")
+gitstats_plot <- function(stats_table = NULL,
+                          value_to_plot = NULL,
+                          plotly_mode = FALSE,
+                          value_decreasing = TRUE,
+                          n = NULL) {
+  if (is.null(stats_table)) {
+    cli::cli_abort("Prepare your stats first with `get_*_stats()` function.")
   }
-
-  data.table::setorder(repos_to_plot, last_activity_at)
-  repos_to_plot <- data.table::as.data.table(head(repos_to_plot, repos_n))
-
-  repos_to_plot[, row_no := 1:nrow(repos_to_plot)]
-  repos_to_plot[, fullname := paste0(organization, "/", name)][, fullname := factor(fullname, levels = unique(fullname)[order(last_activity_at, decreasing = TRUE)])]
-  repos_to_plot[
-    , platform := stringr::str_remove_all(api_url,
-      pattern = "(?<=com).*|(https://)"
-    ),
-    .(row_no)
-  ][, row_no := NULL]
-
-  plotly::plot_ly(repos_to_plot,
-    y = ~fullname,
-    x = ~last_activity_at,
-    color = ~platform,
-    type = "bar",
-    orientation = "h",
-    hoverinfo = "text",
-    hovertext = ~ paste(
-      "Repository: ", fullname, "\n",
-      "Last activity at: ", last_activity_at, "days ago \n",
-      "Platform: ", platform
-    )
-  ) %>%
-    plotly::layout(
-      margin = list(l = 0, r = 0, b = 20, t = 20, pad = 5),
-      yaxis = list(title = ""),
-      xaxis = list(title = "last activity - days ago"),
-      legend = list(orientation = "h", title = list(text = "Platform"))
-    )
+  UseMethod("gitstats_plot")
 }
 
-#' @title Plot commits data.
-#' @name plot_commits
-#' @param gitstats_obj  A GitStats object.
-#' @param time_interval A character, specifying time interval to show statistics.
-#' @return A plot.
-#' @export
-plot_commits <- function(gitstats_obj,
-                         time_interval = c("month", "day", "week")) {
-  time_interval <- match.arg(time_interval)
-
-  commits_dt <- data.table::copy(gitstats_obj$get_commits())
-  if (is.null(commits_dt)) {
-    cli::cli_abort("No commits in `GitStats` object to plot.")
+#' @exportS3Method
+gitstats_plot.repos_stats <- function(stats_table = NULL,
+                                      value_to_plot = "last_activity",
+                                      plotly_mode = FALSE,
+                                      value_decreasing = TRUE,
+                                      n = 10) {
+  if (value_decreasing) {
+    arrange_expression <- rlang::expr(
+      eval(parse(text = value_to_plot))
+    )
+  } else {
+    arrange_expression <- rlang::expr(
+      dplyr::desc(eval(parse(text = value_to_plot)))
+    )
   }
+  repos_stats <- dplyr::as_tibble(stats_table) %>%
+    dplyr::arrange(
+      eval(arrange_expression)
+    )
+  repos_to_plot <- head(repos_stats, n) %>%
+    dplyr::mutate(
+      repository = factor(repository, levels = unique(repository)[
+        order(.data[[value_to_plot]], decreasing = value_decreasing)])
+    )
+  plt <- ggplot2::ggplot(
+    repos_to_plot,
+    ggplot2::aes(
+      x = repository,
+      y = .data[[value_to_plot]],
+      fill = platform
+    )) +
+    ggplot2::geom_bar(stat = "identity") +
+    ggplot2::coord_flip() +
+    ggplot2::theme_minimal() +
+    ggplot2::labs(y = gsub("_", " ", value_to_plot), x = "")
 
-  commits_dt[, row_no := 1:nrow(commits_dt)]
-  commits_dt[, stats_date := lubridate::floor_date(committed_date,
-    unit = time_interval
-  )]
+  suppressMessages({
+    if (plotly_mode) {
+      plotly::ggplotly(plt) %>%
+        plotly::layout(legend = list(
+          orientation = "h",
+          title = ""
+        ))
+    } else {
+      plt
+    }
+  })
+}
 
-  commits_dt[
-    , platform := stringr::str_remove_all(api_url,
-      pattern = "(?<=com).*|(https://)"
-    ),
-    .(row_no)
-  ][, row_no := NULL]
-
-  commits_n <- commits_dt[, .(commits_n = .N),
-    by = .(stats_date = stats_date, platform, organization)
-  ]
-
-  data.table::setorder(commits_n, stats_date)
-
-  date_breaks_value <- switch(time_interval,
+#' @exportS3Method
+gitstats_plot.commits_stats <- function(stats_table = NULL,
+                                       value_to_plot = "commits_n",
+                                       plotly_mode = FALSE,
+                                       value_decreasing = TRUE,
+                                       n = NULL) {
+  date_breaks_value <- switch(attr(stats_table, "time_interval"),
     "day" = "1 week",
     "month" = "1 month",
     "week" = "2 weeks"
   )
-
   plt <- ggplot2::ggplot(
-    commits_n,
+    as.data.frame(stats_table),
     ggplot2::aes(
       x = stats_date,
-      y = commits_n,
+      y = .data[[value_to_plot]],
       color = organization
     )
   ) +
@@ -114,7 +109,7 @@ plot_commits <- function(gitstats_obj,
       strip.position = "right"
     ) +
     ggplot2::theme_minimal() +
-    ggplot2::labs(y = "no. of commmits", x = "") +
+    ggplot2::labs(y = value_to_plot, x = "") +
     ggplot2::theme(
       legend.position = "bottom",
       legend.title = ggplot2::element_blank(),
@@ -124,10 +119,13 @@ plot_commits <- function(gitstats_obj,
         vjust = 0.5
       )
     )
-
-  plotly::ggplotly(plt) %>%
-    plotly::layout(legend = list(
-      orientation = "h",
-      title = ""
-    ))
+  if (plotly_mode) {
+    plotly::ggplotly(plt) %>%
+      plotly::layout(legend = list(
+        orientation = "h",
+        title = ""
+      ))
+  } else {
+    plt
+  }
 }
