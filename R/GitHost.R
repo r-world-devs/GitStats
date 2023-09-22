@@ -139,7 +139,8 @@ GitHost <- R6::R6Class("GitHost",
                 date_until = date_until,
                 settings = settings
               )
-            })
+            }) %>%
+              purrr::list_rbind()
           } else {
             e
           }
