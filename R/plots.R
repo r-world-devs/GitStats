@@ -54,7 +54,7 @@ gitstats_plot.repos_stats <- function(stats_table = NULL,
     repos_to_plot,
     ggplot2::aes(
       x = repository,
-      y = .data[[value_to_plot]],
+      y = as.double(.data[[value_to_plot]]),
       fill = platform
     )) +
     ggplot2::geom_bar(stat = "identity") +
