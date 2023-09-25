@@ -1,5 +1,7 @@
 GitStats (development version)
 
+- added `get_*_stats` functions to prepare summary stats from pulled data: repositories and commits (I: #276),
+- rename and refactor plot functions to one generic `gitstats_plot` which takes as an input `repos_stats` or `commits_stats` (I: #276),
 - changed names of `get_*` to `pull_*` functions; `get_*` functions are now to retrieve already pulled data from GitStats object (I: #294),
 - changed name of `setup` to `set_params` function (I: #294),
 - set new name for `set_connection` function: `set_host` as it is more informative (and shorter) (I: #271),

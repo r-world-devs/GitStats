@@ -77,5 +77,5 @@
     Code
       repos_table_2 <- test_host$pull_repos_contributors(repos_table_1)
     Message
-      i [GitHub][Engine:REST] Pulling contributors...
+      i [GitHub][Engine:REST][org:r-world-devs] Pulling contributors...
 

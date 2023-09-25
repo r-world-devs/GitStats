@@ -108,9 +108,7 @@ EngineRest <- R6::R6Class("EngineRest",
         repos_dt <- dplyr::mutate(repos_dt,
           id = as.character(id),
           created_at = as.POSIXct(created_at),
-          last_activity_at = difftime(Sys.time(), as.POSIXct(last_activity_at),
-            units = "days"
-          ) %>% round(2),
+          last_activity_at = as.POSIXct(last_activity_at),
           forks = as.integer(forks),
           issues_open = as.integer(issues_open),
           issues_closed = as.integer(issues_closed)

@@ -114,6 +114,7 @@ GitHost <- R6::R6Class("GitHost",
         cli::cli_alert_info("[Host:{private$host}] {cli::col_yellow('Pulling commits from all organizations...')}")
       }
       commits_table <- purrr::map(private$orgs, function(org) {
+        commits_table_org <- NULL
         tryCatch({
           commits_table_org <- purrr::map(private$engines, ~ .$pull_commits(
             org = org,
@@ -138,12 +139,12 @@ GitHost <- R6::R6Class("GitHost",
                 date_until = date_until,
                 settings = settings
               )
-            })
+            }) %>%
+              purrr::list_rbind()
           } else {
             e
           }
         })
-
         return(commits_table_org)
       }, .progress = private$scan_all) %>%
         purrr::list_rbind()

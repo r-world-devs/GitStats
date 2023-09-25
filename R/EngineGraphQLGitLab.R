@@ -162,9 +162,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
          repo$issues_open <- repo$issues$opened
          repo$issues_closed <- repo$issues$closed
          repo$issues <- NULL
-         repo$last_activity_at <- difftime(Sys.time(), as.POSIXct(repo$last_activity_at),
-                                           units = "days"
-         ) %>% round(2)
+         repo$last_activity_at <- as.POSIXct(repo$last_activity_at)
          repo$organization <- repo$group$name
          repo$group <- NULL
          data.frame(repo)

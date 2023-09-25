@@ -70,7 +70,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     pull_repos_contributors = function(repos_table) {
       if (nrow(repos_table) > 0) {
         if (!private$scan_all) {
-          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}] Pulling contributors...")
+          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{unique(repos_table$organization)}] Pulling contributors...")
         }
         repo_iterator <- repos_table$id
         user_name <- rlang::expr(.$name)

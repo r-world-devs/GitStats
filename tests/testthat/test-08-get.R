@@ -1,4 +1,8 @@
-test_gitstats <- create_test_gitstats(hosts = 2)
+test_gitstats <- create_test_gitstats(
+  hosts = 2,
+  inject_repos = "gh_repos_table",
+  inject_commits = "commits_table"
+)
 
 test_that("get_orgs() returns orgs", {
   expect_equal(
@@ -8,13 +12,11 @@ test_that("get_orgs() returns orgs", {
 })
 
 test_that("get_repos() returns repos table", {
-  test_gitstats$.__enclos_env__$private$repos <- test_mocker$use("gh_repos_table")
   repos_table <- get_repos(test_gitstats)
   expect_repos_table(repos_table)
 })
 
 test_that("get_commits() returns commits table", {
-  test_gitstats$.__enclos_env__$private$commits <- test_mocker$use("commits_table")
   commits_table <- get_commits(test_gitstats)
   expect_commits_table(commits_table)
 })

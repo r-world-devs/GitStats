@@ -8,7 +8,7 @@
       gl_repos_table <- test_rest$pull_repos_contributors(test_mocker$use(
         "gl_repos_table"))
     Message
-      i [GitLab][Engine:REST] Pulling contributors...
+      i [GitLab][Engine:REST][org:MB Tests] Pulling contributors...
 
 # `pull_repos_by_phrase()` works
 

@@ -1,4 +1,9 @@
-create_test_gitstats <- function(hosts = 0, priv_mode = FALSE) {
+create_test_gitstats <- function(
+    hosts = 0,
+    priv_mode = FALSE,
+    inject_repos = NULL,
+    inject_commits = NULL
+  ) {
   test_gitstats <- create_gitstats() %>%
     set_params(print_out = FALSE)
 
@@ -23,6 +28,12 @@ create_test_gitstats <- function(hosts = 0, priv_mode = FALSE) {
         orgs = "mbtests"
       )
     })
+  }
+  if (!is.null(inject_repos)) {
+    test_gitstats$.__enclos_env__$private$repos <- test_mocker$use(inject_repos)
+  }
+  if (!is.null(inject_commits)) {
+    test_gitstats$.__enclos_env__$private$commits <- test_mocker$use(inject_commits)
   }
   if (priv_mode) {
     test_gitstats <- environment(test_gitstats$set_params)$private
