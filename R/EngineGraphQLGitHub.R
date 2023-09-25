@@ -20,7 +20,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       self$gql_query <- GQLQueryGitHub$new()
     },
 
-    #' @description Get all groups from GitLab.
+    #' @description Get all orgs from GitHub.
     pull_orgs = function() {
       end_cursor <- NULL
       has_next_page <- TRUE
@@ -134,7 +134,6 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       commits_table <- repos_list_with_commits %>%
         purrr::discard(~ length(.) == 0) %>%
         private$prepare_commits_table(org)
-
       return(commits_table)
     },
 
@@ -390,7 +389,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         commits_row
       }) %>%
         purrr::discard(~ length(.) == 1) %>%
-        rbindlist()
+        rbindlist(use.names = TRUE)
 
       if (nrow(commits_table) > 0) {
         commits_table <- commits_table %>%

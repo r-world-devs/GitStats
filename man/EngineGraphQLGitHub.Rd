@@ -54,7 +54,7 @@ Create \code{EngineGraphQLGitHub} object.
 \if{html}{\out{<a id="method-pull_orgs"></a>}}
 \if{latex}{\out{\hypertarget{method-pull_orgs}{}}}
 \subsection{Method \code{pull_orgs()}}{
-Get all groups from GitLab.
+Get all orgs from GitHub.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{EngineGraphQLGitHub$pull_orgs()}\if{html}{\out{</div>}}
 }
