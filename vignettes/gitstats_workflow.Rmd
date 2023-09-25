@@ -38,7 +38,7 @@ git_stats <- create_gitstats() %>%
 
 If you have your token environment variables stored in `GITHUB_PAT` or `GITHUB_PAT_*` and `GITLAB_PAT` or `GITLAB_PAT_*` you do not need to specify them in `set_host()` function, `GitStats` will automatically find them.
 
-```{r}
+```{r, eval = FALSE}
 git_stats <- create_gitstats() %>%
   set_host(
     api_url = "https://api.github.com",
@@ -96,13 +96,13 @@ gitstats_plot(
 
 If you work with interactive app, you can use a `plotly_mode`.
 
-```r
+```{r}
 gitstats_plot(repos_stats, plotly_mode = TRUE)
 ```
 
 ## Commits workflow
 
-It is basically very simillar to the repositories one, but you should specify additionally at least `date_from` parameter.
+It is basically very similar to the repositories one, but you should specify additionally at least `date_from` parameter.
 
 ```{r, message = FALSE}
 pull_commits(

@@ -26,6 +26,14 @@ Please remember to have your access tokens stored as environment
 variables: `GITHUB_PAT` for access to GitHub API and `GITLAB_PAT` for
 GitLab API.
 
+### Scope of tokens
+
+In the spirit of good practice of setting minimal scope of access to
+tokens for `GitStats` to work you need:
+
+- \[GitHub\] `public_repo` and `read:user` scopes,
+- \[GitLab\] `read_api` scope.
+
 ## GitStats workflow
 
 On how to use GitStats, refer to the
