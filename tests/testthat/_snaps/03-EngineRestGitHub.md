@@ -16,7 +16,7 @@
       gh_repos_by_phrase_table <- test_rest$pull_repos_contributors(test_mocker$use(
         "gh_repos_by_phrase_table"))
     Message
-      i [GitHub][Engine:REST] Pulling contributors...
+      i [GitHub][Engine:REST][org:openpharma] Pulling contributors...
 
 # `pull_repos()` works
 

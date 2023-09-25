@@ -113,7 +113,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     pull_repos_contributors = function(repos_table) {
       if (nrow(repos_table) > 0) {
         if (!private$scan_all) {
-          cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}] Pulling contributors...")
+          cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{unique(repos_table$organization)}] Pulling contributors...")
         }
         repo_iterator <- paste0(repos_table$organization, "/", repos_table$name)
         user_name <- rlang::expr(.$login)
