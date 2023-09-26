@@ -158,6 +158,29 @@ test_that("GitHost pulls repos from orgs", {
   )
 })
 
+test_that("GitHost adds `repo_api_url` column to GitHub repos table", {
+  repos_table <- test_mocker$use("gh_repos_table")
+  gh_repos_table_with_api_url <- test_host$add_repo_api_url(repos_table)
+  expect_true(all(grepl("api.github.com", gh_repos_table_with_api_url$api_url)))
+  test_mocker$cache(gh_repos_table_with_api_url)
+})
+
+suppressMessages(
+  test_gl_host <- GitHost$new(
+    api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    orgs = "mbtests"
+  )
+)
+test_gl_host <- test_gl_host$.__enclos_env__$private
+
+test_that("GitHost adds `repo_api_url` column to GitLab repos table", {
+  repos_table <- test_mocker$use("gl_repos_table")
+  gl_repos_table_with_api_url <- test_gl_host$add_repo_api_url(repos_table)
+  expect_true(all(grepl("gitlab.com/api/v4", gl_repos_table_with_api_url$api_url)))
+  test_mocker$cache(gl_repos_table_with_api_url)
+})
+
 test_that("GitHost filters GitHub repositories' (pulled by org) table by languages", {
   repos_table <- test_mocker$use("gh_repos_table")
   expect_snapshot(
@@ -304,22 +327,36 @@ test_that("pull_repos returns table of repositories", {
                       language = "All")
     )
   )
-  expect_repos_table(
+  expect_repos_table_with_api_url(
     repos_table
   )
 })
 
-test_that("pull_repos_contributors returns table with contributors", {
-
-  repos_table_1 <- test_mocker$use("gh_repos_table")
+test_that("pull_repos_contributors returns table with contributors for GitHub", {
+  repos_table_1 <- test_mocker$use("gh_repos_table_with_api_url")
   expect_snapshot(
     repos_table_2 <- test_host$pull_repos_contributors(repos_table_1)
   )
-  expect_repos_table_with_contributors(repos_table_2)
   expect_gt(
     length(repos_table_2$contributors),
     0
   )
   expect_equal(nrow(repos_table_1), nrow(repos_table_2))
+})
 
+test_that("pull_repos_contributors returns table with contributors for GitLab", {
+  test_gl_host <- create_testhost(
+    api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    orgs = c("mbtests")
+  )
+  repos_table_1 <- test_mocker$use("gl_repos_table_with_api_url")
+  expect_snapshot(
+    repos_table_2 <- test_gl_host$pull_repos_contributors(repos_table_1)
+  )
+  expect_gt(
+    length(repos_table_2$contributors),
+    0
+  )
+  expect_equal(nrow(repos_table_1), nrow(repos_table_2))
 })

@@ -176,18 +176,18 @@ test_that("`pull_repos_issues()` adds issues to repos table", {
 
 test_that("`pull_repos_contributors()` adds contributors to repos table", {
   expect_snapshot(
-    gl_repos_table <- test_rest$pull_repos_contributors(
+    gl_repos_table_with_contributors <- test_rest$pull_repos_contributors(
       test_mocker$use("gl_repos_table")
     )
   )
   expect_repos_table_with_contributors(
-    gl_repos_table
+    gl_repos_table_with_contributors
   )
   expect_gt(
-    length(gl_repos_table$contributors),
+    length(gl_repos_table_with_contributors$contributors),
     0
   )
-  test_mocker$cache(gl_repos_table)
+  test_mocker$cache(gl_repos_table_with_contributors)
 })
 
 test_that("`pull_repos_by_phrase()` works", {
@@ -233,7 +233,7 @@ test_that("`pull_commits()` works as expected", {
 # private methods
 
 test_that("Engine filters GitLab repositories' table by team members", {
-  gl_repos_table <- test_mocker$use("gl_repos_table")
+  gl_repos_table <- test_mocker$use("gl_repos_table_with_contributors")
 
   gl_repos_table_team <- test_rest_priv$filter_repos_by_team(
     gl_repos_table,
