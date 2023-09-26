@@ -336,16 +336,18 @@ GitHost <- R6::R6Class("GitHost",
 
     # add do repos table `api_url` column
     add_repo_api_url = function(repos_table){
-      repos_table <- if (private$host == "GitHub") {
-        dplyr::mutate(
-          repos_table,
-          api_url = paste0(private$api_url, "/repos/", organization, "/", name),
-        )
-      } else if (private$host == "GitLab") {
-        dplyr::mutate(
-          repos_table,
-          api_url = paste0(private$api_url, "/projects/", gsub("gid://gitlab/Project/", "", id))
-        )
+      if (length(repos_table) > 0) {
+        repos_table <- if (private$host == "GitHub") {
+          dplyr::mutate(
+            repos_table,
+            api_url = paste0(private$api_url, "/repos/", organization, "/", name),
+          )
+        } else if (private$host == "GitLab") {
+          dplyr::mutate(
+            repos_table,
+            api_url = paste0(private$api_url, "/projects/", gsub("gid://gitlab/Project/", "", id))
+          )
+        }
       }
       return(repos_table)
     },
