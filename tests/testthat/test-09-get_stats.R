@@ -1,6 +1,6 @@
 test_gitstats <- create_test_gitstats(
   hosts = 2,
-  inject_repos = "repos_table"
+  inject_repos = "repos_table_without_contributors"
 )
 
 test_that("get_repos_stats prepares table with statistics on repository level", {

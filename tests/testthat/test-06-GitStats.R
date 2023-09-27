@@ -56,26 +56,31 @@ test_that("GitStats get users info", {
   )
 })
 
-test_gitstats <- create_test_gitstats(hosts = 2)
-
 test_that("GitStats throws error when pull_repos_contributors is run with empty repos field", {
-
+  test_gitstats_empty <- create_test_gitstats(hosts = 2)
   expect_snapshot_error(
-    test_gitstats$pull_repos_contributors()
+    test_gitstats_empty$pull_repos_contributors()
   )
 })
 
 test_that("Add_repos_contributors adds repos contributors to repos table", {
-  suppressMessages({
-    test_gitstats$pull_repos()
-  })
-  repos_without_contributors <- test_gitstats$get_repos()
+  repos_table_without_contributors <- data.table::rbindlist(
+    list(
+      test_mocker$use("gh_repos_table_with_api_url"),
+      test_mocker$use("gl_repos_table_with_api_url")
+    )
+  )
+  test_mocker$cache(repos_table_without_contributors)
+  test_gitstats <- create_test_gitstats(
+    hosts = 2,
+    inject_repos = "repos_table_without_contributors"
+  )
   expect_snapshot(
     test_gitstats$pull_repos_contributors()
   )
-  repos_with_contributors <- test_gitstats$get_repos()
-  expect_repos_table_with_contributors(repos_with_contributors)
-  expect_equal(nrow(repos_without_contributors), nrow(repos_with_contributors))
+  repos_table_with_contributors <- test_gitstats$get_repos()
+  expect_true("contributors" %in% names(repos_table_with_contributors))
+  expect_equal(nrow(repos_table_without_contributors), nrow(repos_table_with_contributors))
 })
 
 test_that("get_orgs print orgs properly", {

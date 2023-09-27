@@ -5,8 +5,8 @@
 # `pull_repos_contributors()` adds contributors to repos table
 
     Code
-      gl_repos_table <- test_rest$pull_repos_contributors(test_mocker$use(
-        "gl_repos_table"))
+      gl_repos_table_with_contributors <- test_rest$pull_repos_contributors(
+        test_mocker$use("gl_repos_table"))
     Message
       i [GitLab][Engine:REST][org:MB Tests] Pulling contributors...
 

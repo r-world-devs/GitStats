@@ -60,22 +60,19 @@ GitHost <- R6::R6Class("GitHost",
       repos_table <- private$pull_repos_from_orgs(
         settings = settings
       )
-
       if (settings$search_param == "team") {
         add_contributors <- TRUE
       }
-
+      repos_table <- private$add_repo_api_url(repos_table)
       if (add_contributors) {
         repos_table <- self$pull_repos_contributors(repos_table)
       }
-
       if (nrow(repos_table) > 0 && settings$language != "All") {
         repos_table <- private$filter_repos_by_language(
           repos_table = repos_table,
           language = settings$language
         )
       }
-
       return(repos_table)
     },
 
@@ -335,6 +332,24 @@ GitHost <- R6::R6Class("GitHost",
         return(repos_table_org)
       }, .progress = private$scan_all) %>%
         purrr::list_rbind()
+    },
+
+    # add do repos table `api_url` column
+    add_repo_api_url = function(repos_table){
+      if (length(repos_table) > 0) {
+        repos_table <- if (private$host == "GitHub") {
+          dplyr::mutate(
+            repos_table,
+            api_url = paste0(private$api_url, "/repos/", organization, "/", name),
+          )
+        } else if (private$host == "GitLab") {
+          dplyr::mutate(
+            repos_table,
+            api_url = paste0(private$api_url, "/projects/", gsub("gid://gitlab/Project/", "", id))
+          )
+        }
+      }
+      return(repos_table)
     },
 
     # @description Filter repositories by contributors.

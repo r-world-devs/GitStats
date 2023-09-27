@@ -40,7 +40,7 @@ TestHost <- R6::R6Class("TestHost",
           gql_api_url = private$set_gql_url(api_url)
         )
       } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
-        private$engines$rest <- TestEngineRest$new(
+        private$engines$rest <- TestEngineRestGitLab$new(
           token = token,
           rest_api_url = api_url
         )

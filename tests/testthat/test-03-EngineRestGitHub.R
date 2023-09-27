@@ -99,7 +99,6 @@ test_that("`prepare_repos_table()` prepares repos table", {
   gh_repos_by_phrase_table <- test_rest_priv$prepare_repos_table(
     repos_list = test_mocker$use("gh_repos_by_phrase_tailored")
   )
-
   expect_repos_table(
     gh_repos_by_phrase_table
   )

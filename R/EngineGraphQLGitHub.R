@@ -254,10 +254,6 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         repo$organization <- repo$organization$login
         data.frame(repo)
       })
-      repos_table <- dplyr::mutate(
-        repos_table,
-        api_url = paste0(gsub("/graphql", "", self$gql_api_url), "/repositories/", organization, "/", name),
-      )
       return(repos_table)
     },
 

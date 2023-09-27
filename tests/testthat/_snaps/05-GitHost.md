@@ -72,10 +72,17 @@
       i [GitHub][Engine:GraphQL][org:openpharma] Pulling repositories...
       i [GitHub][Engine:GraphQL][org:r-world-devs] Pulling repositories...
 
-# pull_repos_contributors returns table with contributors
+# pull_repos_contributors returns table with contributors for GitHub
 
     Code
       repos_table_2 <- test_host$pull_repos_contributors(repos_table_1)
     Message
       i [GitHub][Engine:REST][org:r-world-devs] Pulling contributors...
+
+# pull_repos_contributors returns table with contributors for GitLab
+
+    Code
+      repos_table_2 <- test_gl_host$pull_repos_contributors(repos_table_1)
+    Message
+      i [GitLab][Engine:REST][org:MB Tests] Pulling contributors...
 
