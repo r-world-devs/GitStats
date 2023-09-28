@@ -1,5 +1,4 @@
 #' @importFrom dplyr distinct mutate relocate filter
-#' @importFrom progress progress_bar
 #'
 #' @title A EngineGraphQL class
 #' @description A class for methods wrapping GitHub's GraphQL API responses.

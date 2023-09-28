@@ -115,7 +115,7 @@ A table of commits.
 \if{html}{\out{<a id="method-pull_commits_supportive"></a>}}
 \if{latex}{\out{\hypertarget{method-pull_commits_supportive}{}}}
 \subsection{Method \code{pull_commits_supportive()}}{
-A suportive method to get commits, run when GraphQL fails.
+A supportive method to get commits, run when GraphQL fails.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{EngineRestGitHub$pull_commits_supportive(
   org,

@@ -23,12 +23,12 @@ Imports:
     lubridate,
     magrittr,
     plotly,
-    progress,
     rlang (>= 1.1.0),
     R6,
     purrr (>= 1.0.0),
     stringr
-Suggests: 
+Suggests:
+    spelling, 
     covr,
     knitr,
     mockery,
@@ -37,3 +37,4 @@ Suggests:
     withr
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+Language: en-US
