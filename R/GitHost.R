@@ -53,7 +53,7 @@ GitHost <- R6::R6Class("GitHost",
     #' @description  A method to list all repositories for an organization, a
     #'   team or by a keyword.
     #' @param settings A list of `GitStats` settings.
-    #' @param add_contributors A boolean to decide wether to add contributors
+    #' @param add_contributors A boolean to decide whether to add contributors
     #'   column to repositories table.
     #' @return A data.frame of repositories.
     pull_repos = function(settings, add_contributors = FALSE) {

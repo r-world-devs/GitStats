@@ -6,7 +6,7 @@ GitStats (development version)
 - changed name of `setup` to `set_params` function (I: #294),
 - set new name for `set_connection` function: `set_host` as it is more informative (and shorter) (I: #271),
 - changed name of a function: `add_team_member` to `set_team_member` (I: #271),
-- added setting tokens by default - if a user does have all the PATs set up in environment variables (as e.g. `GITHUB_PAT` or `GITLAB_PAT`), there is no need to pass them as an arugment to `set_connection` (I: #120 PR: #268),
+- added setting tokens by default - if a user does have all the PATs set up in environment variables (as e.g. `GITHUB_PAT` or `GITLAB_PAT`), there is no need to pass them as an argument to `set_connection` (I: #120 PR: #268),
 - added `pull_users()` function to pull information on users (I: #199 PR: #238),
 - added possibility of scanning whole internal git platforms if no `orgs` are passed (I: #258),
 - added switching to REST engine in case GraphQL fails with 502 error (I: #225 PRs: #227 (for repos) #261 (for commits))

@@ -59,7 +59,7 @@ team or by a keyword.
 \describe{
 \item{\code{settings}}{A list of \code{GitStats} settings.}
 
-\item{\code{add_contributors}}{A boolean to decide wether to add contributors
+\item{\code{add_contributors}}{A boolean to decide whether to add contributors
 column to repositories table.}
 }
 \if{html}{\out{</div>}}

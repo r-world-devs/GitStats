@@ -66,7 +66,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       NULL
     },
 
-    #' @description A suportive method to get commits, run when GraphQL fails.
+    #' @description A supportive method to get commits, run when GraphQL fails.
     #' @param org An organization of repositories.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
