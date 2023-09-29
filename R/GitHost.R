@@ -315,18 +315,29 @@ GitHost <- R6::R6Class("GitHost",
         },
         error = function(e) {
           if (!private$scan_all) {
-            if (grepl("502", e)) {
-              cli::cli_alert_warning(cli::col_yellow("HTTP 502 Bad Gateway Error. Switch to another Engine."))
-            } else {
-              cli::cli_alert_warning(cli::col_yellow("Error. Switch to another Engine."))
+            if (grepl("502|400", e)) {
+              if (grepl("502", e)) {
+                cli::cli_alert_warning(cli::col_yellow("HTTP 502 Bad Gateway Error."))
+              } else if (grepl("400", e)) {
+                cli::cli_alert_warning(cli::col_yellow("HTTP 400 Bad Request."))
+              }
+              cli::cli_alert_info("Switching to REST engine.")
+              repos_list <<- purrr::map(private$engines, function (engine) {
+                engine$pull_repos_supportive(
+                  org = org,
+                  settings = settings
+                )
+              })
+            } else if (grepl("Empty", e)) {
+              cli::cli_abort(
+                c(
+                  "x" = "Empty response.",
+                  "!" = "Your token probably does not cover scope to pull repositories.",
+                  "i" = "Set `read_api` scope when creating GitLab token."
+                )
+              )
             }
           }
-          repos_list <<- purrr::map(private$engines, function (engine) {
-            engine$pull_repos_supportive(
-              org = org,
-              settings = settings
-            )
-          })
         })
         repos_table_org <- purrr::list_rbind(repos_list)
         return(repos_table_org)

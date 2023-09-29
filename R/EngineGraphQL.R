@@ -62,6 +62,11 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
          gql_query = self$gql_query$user(),
          vars = list("user" = username)
        )
+       if (length(response$errors) > 0) {
+         cli::cli_abort(
+           response$errors[[1]]$message
+         )
+       }
        return(response)
      }
    )

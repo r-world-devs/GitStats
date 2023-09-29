@@ -29,6 +29,15 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
            gql_query = self$gql_query$groups(),
            vars = list("groupCursor" = group_cursor)
          )
+         if (length(response$data$groups$edges) == 0) {
+           cli::cli_abort(
+             c(
+               "x" = "Empty response.",
+               "!" = "Your token probably does not cover scope to pull organizations.",
+               "i" = "Set `read_api` scope when creating GitLab token."
+             )
+           )
+         }
          orgs_list <- purrr::map(response$data$groups$edges, ~.$node$fullPath)
          full_orgs_list <- append(full_orgs_list, orgs_list)
          has_next_page <- response$data$groups$pageInfo$hasNextPage
@@ -107,6 +116,9 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
            users = users,
            repo_cursor = repo_cursor
          )
+         if (length(repos_response$data$group) == 0) {
+           cli::cli_abort("Empty")
+         }
          if (from == "org") {
            core_response <- repos_response$data$group$projects
            repos_list <- core_response$edges

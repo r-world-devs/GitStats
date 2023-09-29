@@ -31,7 +31,7 @@ GitLab API.
 In the spirit of good practice of setting minimal scope of access to
 tokens for `GitStats` to work you need:
 
-- \[GitHub\] `public_repo` and `read:user` scopes,
+- \[GitHub\] `public_repo`, `read:org` and `read:user` scopes,
 - \[GitLab\] `read_api` scope.
 
 ## GitStats workflow
