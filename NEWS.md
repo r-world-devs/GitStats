@@ -14,7 +14,7 @@
 - set new name for `set_connection` function: `set_host` as it is more informative (and shorter) (I: #271),
 - changed name of a function: `add_team_member` to `set_team_member` (I: #271).
 
-## Major chagnes:
+## Major changes:
 
 ### New features:
 
