@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9012</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,22 +50,22 @@
 <h3 id="breaking-changes-1-0-0">Breaking changes:<a class="anchor" aria-label="anchor" href="#breaking-changes-1-0-0"></a></h3>
 <div class="section level4">
 <h4 id="new-functions-1-0-0">New functions:<a class="anchor" aria-label="anchor" href="#new-functions-1-0-0"></a></h4>
-<ul><li>added <code>get_*_stats</code> functions to prepare summary stats from pulled data: repositories and commits (I: #276),</li>
-<li>rename and refactor plot functions to one generic <code>gitstats_plot</code> which takes as an input <code>repos_stats</code> or <code>commits_stats</code> class objects (I: #276),</li>
+<ul><li>added <code>get_*_stats()</code> functions to prepare summary stats from pulled data: repositories and commits (I: #276),</li>
+<li>rename and refactor plot functions to one generic <code><a href="../reference/gitstats_plot.html">gitstats_plot()</a></code> which takes as an input <code>repos_stats</code> or <code>commits_stats</code> class objects (I: #276),</li>
 </ul></div>
 <div class="section level4">
 <h4 id="new-names-for-core-functions-1-0-0">New names for core functions:<a class="anchor" aria-label="anchor" href="#new-names-for-core-functions-1-0-0"></a></h4>
-<ul><li>changed names of <code>get_*</code> to <code>pull_*</code> functions; <code>get_*</code> functions are now to retrieve already pulled data from GitStats object (I: #294),</li>
-<li>changed name of <code>setup</code> to <code>set_params</code> function (I: #294),</li>
-<li>set new name for <code>set_connection</code> function: <code>set_host</code> as it is more informative (and shorter) (I: #271),</li>
-<li>changed name of a function: <code>add_team_member</code> to <code>set_team_member</code> (I: #271).</li>
+<ul><li>changed names from <code>get_*</code> to <code>pull_*</code>; <code>get_*</code> functions are now to retrieve already pulled data from GitStats object (I: #294),</li>
+<li>changed name from <code>setup()</code> to <code><a href="../reference/set_params.html">set_params()</a></code> (I: #294),</li>
+<li>changed name from <code>set_connection()</code> to <code><a href="../reference/set_host.html">set_host()</a></code> (I: #271),</li>
+<li>changed name from <code>add_team_member()</code> to <code><a href="../reference/set_team_member.html">set_team_member()</a></code> (I: #271).</li>
 </ul></div>
 </div>
 <div class="section level3">
 <h3 id="major-changes-1-0-0">Major changes:<a class="anchor" aria-label="anchor" href="#major-changes-1-0-0"></a></h3>
 <div class="section level4">
 <h4 id="new-features-1-0-0">New features:<a class="anchor" aria-label="anchor" href="#new-features-1-0-0"></a></h4>
-<ul><li>added setting tokens by default - if a user does have all the PATs set up in environment variables (as e.g. <code>GITHUB_PAT</code> or <code>GITLAB_PAT</code>), there is no need to pass them as an argument to <code>set_connection</code> (I: #120),</li>
+<ul><li>added setting tokens by default - if the user does have all the PATs set up in environment variables (as e.g. <code>GITHUB_PAT</code> or <code>GITLAB_PAT</code>), there is no need to pass them as an argument to <code><a href="../reference/set_host.html">set_host()</a></code> (I: #120),</li>
 <li>added <code><a href="../reference/pull_users.html">pull_users()</a></code> function to pull information on users (I: #199),</li>
 <li>added possibility of scanning whole internal git platforms if no <code>orgs</code> are passed (I: #258),</li>
 <li>added <code><a href="../reference/get_orgs.html">get_orgs()</a></code> function to print all organizations (I: #283),</li>
@@ -75,14 +75,14 @@
 <div class="section level4">
 <h4 id="improving-performance-with-rest-and-graphql-apis-1-0-0">Improving performance with REST and GraphQL APIs:<a class="anchor" aria-label="anchor" href="#improving-performance-with-rest-and-graphql-apis-1-0-0"></a></h4>
 <ul><li>added switching to REST engine in case GraphQL fails with 502 error (I: #225)</li>
-<li>added GraphQL engine for getting GitLab repos by organization (I: #218)</li>
+<li>added GraphQL engine for getting GitLab repositories by organization (I: #218)</li>
 <li>removed <code>contributors</code> as basic stat when pulling <code>repos</code> by <code>org</code> and by <code>phrase</code> to improve speed of pulling repositories data. Added <code><a href="../reference/pull_repos_contributors.html">pull_repos_contributors()</a></code> user function and <code>add_contributors</code> parameter to <code><a href="../reference/pull_repos.html">pull_repos()</a></code> function to add conditionally information on contributors to repositories table (I: #235)</li>
 </ul></div>
 </div>
 <div class="section level3">
 <h3 id="minor-changes-1-0-0">Minor changes:<a class="anchor" aria-label="anchor" href="#minor-changes-1-0-0"></a></h3>
 <ul><li>handled errors with proper messages when tokens do not grant access (I: #242 #301),</li>
-<li>in repositories output set <code>api_url</code> column as an address to the repo, not the host (I: #201),</li>
+<li>in repositories output set <code>api_url</code> column as an address to the repository, not the host (I: #201),</li>
 <li>fixed adding GitLab subgroups (I: #176),</li>
 <li>exported pipe operator (<code>%&gt;%</code>) (I: #289).</li>
 </ul></div>

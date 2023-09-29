@@ -42,7 +42,7 @@ For `GitStats` to work you need:
 
 ## GitStats workflow
 
-On how to use GitStats, refer to the [documentation](placeholder for a link to docs).
+On how to use GitStats, refer to the [documentation](https://r-world-devs.github.io/GitStats/index.html).
 
 ## Acknowledgement
 

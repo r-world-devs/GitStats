@@ -2,7 +2,7 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{pull_commits}
 \alias{pull_commits}
-\title{Get information on commits}
+\title{Pull information on commits}
 \usage{
 pull_commits(gitstats_obj, date_from = NULL, date_until = Sys.time())
 }

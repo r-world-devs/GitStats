@@ -162,7 +162,7 @@ pull_repos_contributors <- function(gitstats_obj) {
   return(invisible(gitstats_obj))
 }
 
-#' @title Get information on commits
+#' @title Pull information on commits
 #' @name pull_commits
 #' @description List all commits from all repositories for an organization or a team.
 #' @param gitstats_obj  A GitStats object.
