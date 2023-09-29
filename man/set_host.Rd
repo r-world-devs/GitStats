@@ -2,7 +2,7 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{set_host}
 \alias{set_host}
-\title{Add Git host}
+\title{Set Git host}
 \usage{
 set_host(gitstats_obj, api_url, token = NULL, orgs = NULL)
 }
@@ -25,7 +25,7 @@ A \code{GitStats} class object with added information on connection
 (\verb{$hosts} field).
 }
 \description{
-Add Git host
+Set Git host
 }
 \examples{
 \dontrun{

@@ -8,7 +8,7 @@ create_gitstats <- function() {
   GitStats$new()
 }
 
-#' @title Add Git host
+#' @title Set Git host
 #' @name set_host
 #' @param gitstats_obj A GitStats object.
 #' @param api_url A character, url address of API.
@@ -48,7 +48,7 @@ set_host <- function(gitstats_obj,
   return(invisible(gitstats_obj))
 }
 
-#' @title Set up your search settings.
+#' @title Set up your search settings
 #' @name set_params
 #' @param gitstats_obj A GitStats object.
 #' @param search_param One of three: team, orgs or phrase.
@@ -84,7 +84,7 @@ set_params <- function(gitstats_obj,
   return(gitstats_obj)
 }
 
-#' @title Add your team member
+#' @title Set your team member
 #' @name set_team_member
 #' @description Passes information on team member to your `team` field.
 #' @param gitstats_obj `GitStats` object.
@@ -109,7 +109,7 @@ set_team_member <- function(gitstats_obj,
   return(invisible(gitstats_obj))
 }
 
-#' @title Get information on repositories.
+#' @title Pull information on repositories
 #' @name pull_repos
 #' @description  List all repositories for an organization, a team or by a
 #'   keyword.
@@ -150,10 +150,11 @@ pull_repos <- function(gitstats_obj, add_contributors = FALSE) {
   return(invisible(gitstats_obj))
 }
 
-#' @title Add information on contributors to your repositories.
+#' @title Pull information on contributors
 #' @name pull_repos_contributors
 #' @param gitstats_obj A GitStats object.
-#' @description A method to add information on repository contributors.
+#' @description A method to add information on contributors to already pulled
+#'   repositories table.
 #' @return A table of repositories with added information on contributors.
 #' @export
 pull_repos_contributors <- function(gitstats_obj) {
@@ -161,9 +162,9 @@ pull_repos_contributors <- function(gitstats_obj) {
   return(invisible(gitstats_obj))
 }
 
-#' @title Get information on commits.
+#' @title Get information on commits
 #' @name pull_commits
-#' @description List all repositories for an organization, a team.
+#' @description List all commits from all repositories for an organization or a team.
 #' @param gitstats_obj  A GitStats object.
 #' @param date_from A starting date to look commits for
 #' @param date_until An end date to look commits for
@@ -200,9 +201,9 @@ pull_commits <- function(gitstats_obj,
   return(invisible(gitstats_obj))
 }
 
-#' @title Get users statistics.
+#' @title Pull users data
 #' @name pull_users
-#' @description Get information on users.
+#' @description Pull users data from Git Host.
 #' @param gitstats_obj A GitStats object.
 #' @param users A character vector of users.
 #' @examples

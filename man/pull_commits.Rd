@@ -2,7 +2,7 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{pull_commits}
 \alias{pull_commits}
-\title{Get information on commits.}
+\title{Get information on commits}
 \usage{
 pull_commits(gitstats_obj, date_from = NULL, date_until = Sys.time())
 }
@@ -17,7 +17,7 @@ pull_commits(gitstats_obj, date_from = NULL, date_until = Sys.time())
 A \code{GitStats} class object with updated \verb{$commits} field.
 }
 \description{
-List all repositories for an organization, a team.
+List all commits from all repositories for an organization or a team.
 }
 \examples{
 \dontrun{

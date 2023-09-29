@@ -2,7 +2,7 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{pull_repos_contributors}
 \alias{pull_repos_contributors}
-\title{Add information on contributors to your repositories.}
+\title{Pull information on contributors}
 \usage{
 pull_repos_contributors(gitstats_obj)
 }
@@ -13,5 +13,6 @@ pull_repos_contributors(gitstats_obj)
 A table of repositories with added information on contributors.
 }
 \description{
-A method to add information on repository contributors.
+A method to add information on contributors to already pulled
+repositories table.
 }

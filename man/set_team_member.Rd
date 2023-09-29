@@ -2,7 +2,7 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{set_team_member}
 \alias{set_team_member}
-\title{Add your team member}
+\title{Set your team member}
 \usage{
 set_team_member(gitstats_obj, member_name, ...)
 }

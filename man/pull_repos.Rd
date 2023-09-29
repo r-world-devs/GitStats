@@ -2,7 +2,7 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{pull_repos}
 \alias{pull_repos}
-\title{Get information on repositories.}
+\title{Pull information on repositories}
 \usage{
 pull_repos(gitstats_obj, add_contributors = FALSE)
 }
