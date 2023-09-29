@@ -114,23 +114,19 @@ test_that("`pull_commits_from_org()` pulls commits from repo", {
 
 test_that("`filter_commits_by_team()` filters commits by team", {
   gl_commits_org <- test_mocker$use("gl_commits_org")
-
   team <- list(
     "Member1" = list(
       name = "Maciej Banaś",
       logins = "maciekbanas"
     )
   )
-
   gl_commits_team <- test_rest_priv$filter_commits_by_team(
     repos_list_with_commits = gl_commits_org,
     team = team
   )
-
   expect_gl_commit_rest(
     gl_commits_team[[1]]
   )
-
   test_mocker$cache(gl_commits_team)
 })
 
@@ -147,9 +143,32 @@ test_that("`tailor_commits_info()` retrieves only necessary info", {
   test_mocker$cache(gl_commits_list_cut)
 })
 
+test_that("`tailor_commits_info()` works for commits by team", {
+  gl_commits_list <- test_mocker$use("gl_commits_team")
+
+  gl_commits_team_list_cut <- test_rest_priv$tailor_commits_info(
+    gl_commits_list,
+    org = "mbtests"
+  )
+  expect_tailored_commits_list(
+    gl_commits_team_list_cut[[1]][[1]]
+  )
+  test_mocker$cache(gl_commits_team_list_cut)
+})
+
 test_that("`prepare_commits_table()` prepares table of commits properly", {
   gl_commits_table <- test_rest_priv$prepare_commits_table(
     commits_list = test_mocker$use("gl_commits_list_cut")
+  )
+  expect_commits_table(
+    gl_commits_table
+  )
+  test_mocker$cache(gl_commits_table)
+})
+
+test_that("`prepare_commits_table()` prepares table of commits by team properly", {
+  gl_commits_table <- test_rest_priv$prepare_commits_table(
+    commits_list = test_mocker$use("gl_commits_team_list_cut")
   )
   expect_commits_table(
     gl_commits_table

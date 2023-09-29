@@ -56,6 +56,18 @@ test_that("GitStats get users info", {
   )
 })
 
+test_that("pull_repos works properly", {
+  test_gitstats <- create_test_gitstats(
+    hosts = 2
+  )
+  suppressMessages(
+    test_gitstats$pull_repos()
+  )
+  expect_repos_table_with_api_url(
+    test_gitstats$get_repos()
+  )
+})
+
 test_that("GitStats throws error when pull_repos_contributors is run with empty repos field", {
   test_gitstats_empty <- create_test_gitstats(hosts = 2)
   expect_snapshot_error(
@@ -81,6 +93,21 @@ test_that("Add_repos_contributors adds repos contributors to repos table", {
   repos_table_with_contributors <- test_gitstats$get_repos()
   expect_true("contributors" %in% names(repos_table_with_contributors))
   expect_equal(nrow(repos_table_without_contributors), nrow(repos_table_with_contributors))
+})
+
+test_that("pull_commits works properly", {
+  test_gitstats <- create_test_gitstats(hosts = 2)
+  suppressMessages(
+    test_gitstats$pull_commits(
+      date_from = "2023-06-01",
+      date_until = "2023-06-15"
+    )
+  )
+  commits_table <- test_gitstats$get_commits()
+  expect_commits_table(
+    commits_table
+  )
+  test_mocker$cache(commits_table)
 })
 
 test_that("get_orgs print orgs properly", {

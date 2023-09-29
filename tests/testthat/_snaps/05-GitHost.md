@@ -86,3 +86,8 @@
     Message
       i [GitLab][Engine:REST][org:MB Tests] Pulling contributors...
 
+# pull_commits throws error when search param is set to `phrase`
+
+    x Pulling commits by phrase in code blobs is not supported.
+    i Please change your `search_param` either to 'org' or 'team' with `set_params()`.
+

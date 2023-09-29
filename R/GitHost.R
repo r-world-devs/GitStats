@@ -99,8 +99,8 @@ GitHost <- R6::R6Class("GitHost",
     #' @param settings A list of `GitStats` settings.
     #' @return A data.frame of commits
     pull_commits = function(date_from,
-                           date_until = Sys.Date(),
-                           settings) {
+                            date_until = Sys.Date(),
+                            settings) {
       if (settings$search_param == "phrase") {
         cli::cli_abort(c(
           "x" = "Pulling commits by phrase in code blobs is not supported.",

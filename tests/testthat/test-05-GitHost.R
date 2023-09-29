@@ -344,12 +344,13 @@ test_that("pull_repos_contributors returns table with contributors for GitHub", 
   expect_equal(nrow(repos_table_1), nrow(repos_table_2))
 })
 
+test_gl_host <- create_testhost(
+  api_url = "https://gitlab.com/api/v4",
+  token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+  orgs = c("mbtests")
+)
+
 test_that("pull_repos_contributors returns table with contributors for GitLab", {
-  test_gl_host <- create_testhost(
-    api_url = "https://gitlab.com/api/v4",
-    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-    orgs = c("mbtests")
-  )
   repos_table_1 <- test_mocker$use("gl_repos_table_with_api_url")
   expect_snapshot(
     repos_table_2 <- test_gl_host$pull_repos_contributors(repos_table_1)
@@ -359,4 +360,40 @@ test_that("pull_repos_contributors returns table with contributors for GitLab", 
     0
   )
   expect_equal(nrow(repos_table_1), nrow(repos_table_2))
+})
+
+test_that("pull_commits throws error when search param is set to `phrase`", {
+  expect_snapshot_error(
+    test_gl_host$pull_commits(
+      date_from = "2023-03-01",
+      date_until = "2023-04-01",
+      settings = list(search_param = "phrase")
+    )
+  )
+})
+
+test_that("pull_commits for GitLab works", {
+  suppressMessages(
+    gl_commits_table <- test_gl_host$pull_commits(
+      date_from = "2023-03-01",
+      date_until = "2023-04-01",
+      settings = list(search_param = "org")
+    )
+  )
+  expect_commits_table(
+    gl_commits_table
+  )
+})
+
+test_that("pull_commits for GitHub works", {
+  suppressMessages(
+    gh_commits_table <- test_host$pull_commits(
+      date_from = "2023-03-01",
+      date_until = "2023-04-01",
+      settings = list(search_param = "org")
+    )
+  )
+  expect_commits_table(
+    gh_commits_table
+  )
 })
