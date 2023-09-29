@@ -1,3 +1,4 @@
+#' @noRd
 #' @importFrom dplyr distinct mutate filter
 #'
 #' @title A EngineGraphQLGitHub class

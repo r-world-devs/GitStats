@@ -1,0 +1,7 @@
+pandoc: 2.19.2
+pkgdown: 2.0.7
+pkgdown_sha: ~
+articles:
+  gitstats_workflow: gitstats_workflow.html
+last_built: 2023-09-29T12:04Z
+

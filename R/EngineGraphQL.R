@@ -1,3 +1,4 @@
+#' @noRd
 #' @importFrom dplyr distinct mutate relocate filter
 #'
 #' @title A EngineGraphQL class

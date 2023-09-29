@@ -1,3 +1,4 @@
+#' @noRd
 #' @title A GQLQueryGitHub class
 #' @description A class with methods to build GraphQL Queries for GitHub.
 

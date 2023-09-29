@@ -1,3 +1,4 @@
+#' @noRd
 #' @importFrom dplyr relocate
 #'
 #' @title A EngineGraphQLGitLab class

@@ -1,3 +1,4 @@
+#' @noRd
 #' @importFrom R6 R6Class
 #' @importFrom rlang expr
 #' @importFrom cli cli_alert_danger cli_alert_success
