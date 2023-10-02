@@ -5,7 +5,7 @@
 #' @importFrom stringr str_remove_all
 #' @importFrom data.table setorder as.data.table
 
-#' @title Plot Git Statistics.
+#' @title Plot Git statistics
 #' @name gitstats_plot
 #' @description A generic to plot statistics from repositories or commits.
 #' @param stats_table A table with repository or commits statistics.

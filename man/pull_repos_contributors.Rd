@@ -10,9 +10,10 @@ pull_repos_contributors(gitstats_obj)
 \item{gitstats_obj}{A GitStats object.}
 }
 \value{
-A table of repositories with added information on contributors.
+A \code{GitStats} class object with repositories table with added
+information on contributors.
 }
 \description{
-A method to add information on contributors to already pulled
-repositories table.
+Adds information on contributors to already pulled repositories
+table.
 }

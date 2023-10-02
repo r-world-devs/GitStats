@@ -12,7 +12,7 @@ pull_users(gitstats_obj, users)
 \item{users}{A character vector of users.}
 }
 \value{
-A table of users.
+A \code{GitStats} object with table of users.
 }
 \description{
 Pull users data from Git Host.

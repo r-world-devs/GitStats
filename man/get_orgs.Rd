@@ -13,7 +13,7 @@ get_orgs(gitstats_obj)
 A vector of organizations.
 }
 \description{
-Retrieves organizations downloaded in \code{GitStats}. Especially
-helpful when user is scanning whole git platform and want to have a glimpse
-at organizations.
+Retrieves organizations set or pulled by \code{GitStats}. Especially
+helpful when user is scanning whole git platform and wants to have a
+glimpse at organizations.
 }

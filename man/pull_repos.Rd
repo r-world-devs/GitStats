@@ -25,7 +25,7 @@ output. \cr\cr When pulling repositories by \bold{\code{team}} the parameter
 always turns to \code{TRUE} and pulls information on \code{contributors}.}
 }
 \value{
-A \code{GitStats} class object with updated \verb{$repos} field.
+A \code{GitStats} class object with repositories table.
 }
 \description{
 List all repositories for an organization, a team or by a

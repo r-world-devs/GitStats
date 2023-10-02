@@ -10,8 +10,9 @@ reset_language(gitstats_obj)
 \item{gitstats_obj}{A GitStats object.}
 }
 \value{
-A GitStats object.
+A \code{GitStats} object.
 }
 \description{
-Sets language parameter to NULL (switches of filtering by language.)
+Sets language parameter to \code{NULL} (switches of filtering by
+language.).
 }

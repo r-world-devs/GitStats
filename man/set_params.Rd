@@ -22,9 +22,9 @@ set_params(
 
 \item{phrase}{A phrase to look for.}
 
-\item{language}{A language of programming code.}
+\item{language}{Code programming language.}
 
-\item{print_out}{A boolean to decide whether to print output}
+\item{print_out}{A boolean to decide whether to print output.}
 }
 \value{
 A \code{GitStats} object.

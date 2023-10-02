@@ -7,7 +7,7 @@
 set_team_member(gitstats_obj, member_name, ...)
 }
 \arguments{
-\item{gitstats_obj}{\code{GitStats} object.}
+\item{gitstats_obj}{A GitStats object.}
 
 \item{member_name}{Name of a member.}
 

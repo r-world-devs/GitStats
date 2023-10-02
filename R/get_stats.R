@@ -76,7 +76,7 @@ get_commits_stats <- function(gitstats_obj,
 }
 
 #' @noRd
-#' @description A constructor for `commits_stats` class
+#' @description A constructor for `commits_stats` class.
 commits_stats <- function(object, time_interval) {
   stopifnot(inherits(object, "grouped_df"))
   object <- dplyr::ungroup(object)

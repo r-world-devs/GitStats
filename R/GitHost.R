@@ -9,12 +9,12 @@
 GitHost <- R6::R6Class("GitHost",
   public = list(
 
-    #' @description Create a new `GitHost` object
+    #' @description Create a new `GitHost` object.
     #' @param orgs A character vector of organisations (owners of repositories
     #'   in case of GitHub and groups of projects in case of GitLab).
     #' @param token A token.
-    #' @param api_url An API url.
-    #' @return A new `GitHost` object
+    #' @param api_url An API URL.
+    #' @return A new `GitHost` object.
     initialize = function(orgs = NA,
                           token = NA,
                           api_url = NA) {
@@ -98,7 +98,7 @@ GitHost <- R6::R6Class("GitHost",
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
     #' @param settings A list of `GitStats` settings.
-    #' @return A data.frame of commits
+    #' @return A data.frame of commits.
     pull_commits = function(date_from,
                             date_until = Sys.Date(),
                             settings) {
@@ -150,9 +150,9 @@ GitHost <- R6::R6Class("GitHost",
       return(commits_table)
     },
 
-    #' @description Get information about users
-    #' @param users A character vector of users
-    #' @return Table of users
+    #' @description Pull information about users.
+    #' @param users A character vector of users.
+    #' @return Table of users.
     pull_users = function(users) {
       users_table <- purrr::map(private$engines, function(engine) {
         if (inherits(engine, "EngineGraphQL")) {
@@ -167,7 +167,7 @@ GitHost <- R6::R6Class("GitHost",
   ),
   private = list(
 
-    # @field A REST API url.
+    # @field A REST API URL.
     api_url = NULL,
 
     # @field A token.
@@ -346,7 +346,7 @@ GitHost <- R6::R6Class("GitHost",
         purrr::list_rbind()
     },
 
-    # add do repos table `api_url` column
+    # @description Add `api_url` column to repos table.
     add_repo_api_url = function(repos_table){
       if (length(repos_table) > 0) {
         repos_table <- if (private$host == "GitHub") {
