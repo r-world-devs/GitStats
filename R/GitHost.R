@@ -348,7 +348,7 @@ GitHost <- R6::R6Class("GitHost",
 
     # @description Add `api_url` column to repos table.
     add_repo_api_url = function(repos_table){
-      if (length(repos_table) > 0) {
+      if (!is.null(repos_table) && nrow(repos_table) > 0) {
         repos_table <- if (private$host == "GitHub") {
           dplyr::mutate(
             repos_table,
