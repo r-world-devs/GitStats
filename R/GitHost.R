@@ -81,17 +81,19 @@ GitHost <- R6::R6Class("GitHost",
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
     pull_repos_contributors = function(repos_table) {
-      repos_table <- repos_table %>%
-        dplyr::filter(grepl(gsub("/v+.*", "", private$api_url), api_url))
-      repos_table <- purrr::map_dfr(private$engines, function (engine) {
-        if (inherits(engine, "EngineRest")) {
-          engine$pull_repos_contributors(
-            repos_table
-          )
-        } else {
-          NULL
-        }
-      })
+      if (!is.null(repos_table) && nrow(repos_table) > 0) {
+        repos_table <- repos_table %>%
+          dplyr::filter(grepl(gsub("/v+.*", "", private$api_url), api_url))
+        repos_table <- purrr::map_dfr(private$engines, function (engine) {
+          if (inherits(engine, "EngineRest")) {
+            engine$pull_repos_contributors(
+              repos_table
+            )
+          } else {
+            NULL
+          }
+        })
+      }
     },
 
     #' @description A method to get information on commits.
