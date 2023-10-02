@@ -2,7 +2,7 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{set_params}
 \alias{set_params}
-\title{Set up your search settings.}
+\title{Set up your search settings}
 \usage{
 set_params(
   gitstats_obj,
@@ -22,15 +22,15 @@ set_params(
 
 \item{phrase}{A phrase to look for.}
 
-\item{language}{A language of programming code.}
+\item{language}{Code programming language.}
 
-\item{print_out}{A boolean to decide whether to print output}
+\item{print_out}{A boolean to decide whether to print output.}
 }
 \value{
 A \code{GitStats} object.
 }
 \description{
-Set up your search settings.
+Set up your search settings
 }
 \examples{
 \dontrun{

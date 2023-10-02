@@ -1,4 +1,4 @@
-#' @title Get Statistics On Repositories
+#' @title Get statistics on repositories
 #' @name get_repos_stats
 #' @description Prepare statistics from the pulled repositories data.
 #' @param gitstats_obj A GitStats class object.
@@ -41,7 +41,7 @@ get_repos_stats <- function(gitstats_obj){
   return(repos_stats)
 }
 
-#' @title Get Statistics On Commits
+#' @title Get statistics on commits
 #' @name get_commits_stats
 #' @description Prepare statistics from the pulled commits data.
 #' @param gitstats_obj A GitStats class object.
@@ -76,7 +76,7 @@ get_commits_stats <- function(gitstats_obj,
 }
 
 #' @noRd
-#' @description A constructor for `commits_stats` class
+#' @description A constructor for `commits_stats` class.
 commits_stats <- function(object, time_interval) {
   stopifnot(inherits(object, "grouped_df"))
   object <- dplyr::ungroup(object)

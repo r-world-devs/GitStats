@@ -1,8 +1,8 @@
 Package: GitStats
-Title: Get Statistics from Git Hosting Services
-Version: 0.1.0.9011
+Title: Get Statistics from GitHub and GitLab
+Version: 1.0.0
 Authors@R: c(
-    person(given = "Maciej", family = "Banaś", email = "banasmaciek@gmail.com", role = c("aut", "cre")),
+    person(given = "Maciej", family = "Banas", email = "banasmaciek@gmail.com", role = c("aut", "cre")),
     person(given = "Kamil", family = "Koziej", email = "koziej.k@gmail.com", role = "aut"),
     person(given = "Karolina", family = "Marcinkowska", email = "karolina_marcinkowska@onet.pl", role = "aut"),
     person(given = "Matt", family = "Secrest", email = "secrestm@gene.com", role = "aut")

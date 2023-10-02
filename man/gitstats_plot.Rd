@@ -2,7 +2,7 @@
 % Please edit documentation in R/plots.R
 \name{gitstats_plot}
 \alias{gitstats_plot}
-\title{Plot Git Statistics.}
+\title{Plot Git statistics}
 \usage{
 gitstats_plot(
   stats_table = NULL,

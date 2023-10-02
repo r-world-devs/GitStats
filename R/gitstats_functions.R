@@ -8,19 +8,18 @@ create_gitstats <- function() {
   GitStats$new()
 }
 
-#' @title Add Git host
+#' @title Set Git host
 #' @name set_host
 #' @param gitstats_obj A GitStats object.
-#' @param api_url A character, url address of API.
+#' @param api_url A character, URL address of API.
 #' @param token A token.
 #' @param orgs A character vector of organisations (owners of repositories in
 #'   case of GitHub and groups of projects in case of GitLab). You do not need
 #'   to define `orgs` if you wish to scan whole internal Git platform (such as
 #'   enterprise version of GitHub or GitLab). In case of a public one (like
 #'   GitHub) you need to define `orgs` as scanning through all organizations
-#'   would be an overkill.
-#' @return A `GitStats` class object with added information on connection
-#'   (`$hosts` field).
+#'   may take large amount of time.
+#' @return A `GitStats` object with added information on host.
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
@@ -48,14 +47,14 @@ set_host <- function(gitstats_obj,
   return(invisible(gitstats_obj))
 }
 
-#' @title Set up your search settings.
+#' @title Set up your search settings
 #' @name set_params
 #' @param gitstats_obj A GitStats object.
 #' @param search_param One of three: team, orgs or phrase.
 #' @param team_name Name of a team.
 #' @param phrase A phrase to look for.
-#' @param language A language of programming code.
-#' @param print_out A boolean to decide whether to print output
+#' @param language Code programming language.
+#' @param print_out A boolean to decide whether to print output.
 #' @return A `GitStats` object.
 #' @examples
 #' \dontrun{
@@ -68,11 +67,11 @@ set_host <- function(gitstats_obj,
 #' }
 #' @export
 set_params <- function(gitstats_obj,
-                  search_param = NULL,
-                  team_name = NULL,
-                  phrase = NULL,
-                  language = "All",
-                  print_out = TRUE) {
+                       search_param = NULL,
+                       team_name = NULL,
+                       phrase = NULL,
+                       language = "All",
+                       print_out = TRUE) {
   gitstats_obj$set_params(
     search_param = search_param,
     team_name = team_name,
@@ -84,10 +83,10 @@ set_params <- function(gitstats_obj,
   return(gitstats_obj)
 }
 
-#' @title Add your team member
+#' @title Set your team member
 #' @name set_team_member
 #' @description Passes information on team member to your `team` field.
-#' @param gitstats_obj `GitStats` object.
+#' @param gitstats_obj A GitStats object.
 #' @param member_name Name of a member.
 #' @param ... All user logins.
 #' @return `GitStats` object with new information on team member.
@@ -109,7 +108,7 @@ set_team_member <- function(gitstats_obj,
   return(invisible(gitstats_obj))
 }
 
-#' @title Get information on repositories.
+#' @title Pull information on repositories
 #' @name pull_repos
 #' @description  List all repositories for an organization, a team or by a
 #'   keyword.
@@ -128,7 +127,7 @@ set_team_member <- function(gitstats_obj,
 #'   `pull_repos_contributors()` on the `GitStats` object with the `repositories`
 #'   output. \cr\cr When pulling repositories by \bold{`team`} the parameter
 #'   always turns to `TRUE` and pulls information on `contributors`.
-#' @return A `GitStats` class object with updated `$repos` field.
+#' @return A `GitStats` class object with repositories table.
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
@@ -150,24 +149,27 @@ pull_repos <- function(gitstats_obj, add_contributors = FALSE) {
   return(invisible(gitstats_obj))
 }
 
-#' @title Add information on contributors to your repositories.
+#' @title Pull information on contributors
 #' @name pull_repos_contributors
 #' @param gitstats_obj A GitStats object.
-#' @description A method to add information on repository contributors.
-#' @return A table of repositories with added information on contributors.
+#' @description Adds information on contributors to already pulled repositories
+#'   table.
+#' @return  A `GitStats` class object with repositories table with added
+#'   information on contributors.
 #' @export
 pull_repos_contributors <- function(gitstats_obj) {
   gitstats_obj$pull_repos_contributors()
   return(invisible(gitstats_obj))
 }
 
-#' @title Get information on commits.
+#' @title Pull information on commits
 #' @name pull_commits
-#' @description List all repositories for an organization, a team.
+#' @description List all commits from all repositories for an organization or a
+#'   team.
 #' @param gitstats_obj  A GitStats object.
-#' @param date_from A starting date to look commits for
-#' @param date_until An end date to look commits for
-#' @return A `GitStats` class object with updated `$commits` field.
+#' @param date_from A starting date of commits.
+#' @param date_until An end date of commits.
+#' @return A `GitStats` class object with commits table.
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
@@ -190,8 +192,8 @@ pull_repos_contributors <- function(gitstats_obj) {
 #' }
 #' @export
 pull_commits <- function(gitstats_obj,
-                        date_from = NULL,
-                        date_until = Sys.time()) {
+                         date_from = NULL,
+                         date_until = Sys.time()) {
   gitstats_obj$pull_commits(
     date_from = date_from,
     date_until = date_until
@@ -200,9 +202,9 @@ pull_commits <- function(gitstats_obj,
   return(invisible(gitstats_obj))
 }
 
-#' @title Get users statistics.
+#' @title Pull users data
 #' @name pull_users
-#' @description Get information on users.
+#' @description Pull users data from Git Host.
 #' @param gitstats_obj A GitStats object.
 #' @param users A character vector of users.
 #' @examples
@@ -220,10 +222,10 @@ pull_commits <- function(gitstats_obj,
 #'   ) %>%
 #'   pull_users(c("maciekabanas", "marcinkowskak"))
 #' }
-#' @return A table of users.
+#' @return A `GitStats` object with table of users.
 #' @export
 pull_users <- function(gitstats_obj,
-                      users){
+                       users){
   gitstats_obj$pull_users(
     users = users
   )
@@ -235,7 +237,7 @@ pull_users <- function(gitstats_obj,
 #' @description Sets all settings to default: search_param to `org`, language to
 #'   `All` and other to `NULL`s.
 #' @param gitstats_obj A GitStats object.
-#' @return A GitStats object.
+#' @return A `GitStats` object.
 #' @export
 reset <- function(gitstats_obj){
   priv <- environment(gitstats_obj$set_params)$private
@@ -253,9 +255,10 @@ reset <- function(gitstats_obj){
 
 #' @title Reset language settings
 #' @name reset_language
-#' @description Sets language parameter to NULL (switches of filtering by language.)
+#' @description Sets language parameter to \code{NULL} (switches of filtering by
+#'   language.).
 #' @param gitstats_obj A GitStats object.
-#' @return A GitStats object.
+#' @return A `GitStats` object.
 #' @export
 reset_language <- function(gitstats_obj){
   priv <- environment(gitstats_obj$set_params)$private
@@ -266,9 +269,9 @@ reset_language <- function(gitstats_obj){
 
 #' @title Get organizations
 #' @name get_orgs
-#' @description Retrieves organizations downloaded in `GitStats`. Especially
-#'   helpful when user is scanning whole git platform and want to have a glimpse
-#'   at organizations.
+#' @description Retrieves organizations set or pulled by `GitStats`. Especially
+#'   helpful when user is scanning whole git platform and wants to have a
+#'   glimpse at organizations.
 #' @param gitstats_obj A GitStats object.
 #' @return A vector of organizations.
 #' @export

@@ -2,22 +2,23 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{pull_commits}
 \alias{pull_commits}
-\title{Get information on commits.}
+\title{Pull information on commits}
 \usage{
 pull_commits(gitstats_obj, date_from = NULL, date_until = Sys.time())
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
 
-\item{date_from}{A starting date to look commits for}
+\item{date_from}{A starting date of commits.}
 
-\item{date_until}{An end date to look commits for}
+\item{date_until}{An end date of commits.}
 }
 \value{
-A \code{GitStats} class object with updated \verb{$commits} field.
+A \code{GitStats} class object with commits table.
 }
 \description{
-List all repositories for an organization, a team.
+List all commits from all repositories for an organization or a
+team.
 }
 \examples{
 \dontrun{

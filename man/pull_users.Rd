@@ -2,7 +2,7 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{pull_users}
 \alias{pull_users}
-\title{Get users statistics.}
+\title{Pull users data}
 \usage{
 pull_users(gitstats_obj, users)
 }
@@ -12,10 +12,10 @@ pull_users(gitstats_obj, users)
 \item{users}{A character vector of users.}
 }
 \value{
-A table of users.
+A \code{GitStats} object with table of users.
 }
 \description{
-Get information on users.
+Pull users data from Git Host.
 }
 \examples{
 \dontrun{

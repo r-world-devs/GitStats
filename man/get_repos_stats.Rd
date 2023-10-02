@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_stats.R
 \name{get_repos_stats}
 \alias{get_repos_stats}
-\title{Get Statistics On Repositories}
+\title{Get statistics on repositories}
 \usage{
 get_repos_stats(gitstats_obj)
 }

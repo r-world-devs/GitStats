@@ -1,3 +1,4 @@
+#' @noRd
 #' @importFrom httr2 request req_headers req_perform resp_body_json
 #' @importFrom cli cli_abort col_green
 #' @importFrom rlang %||%

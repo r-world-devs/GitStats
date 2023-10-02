@@ -22,6 +22,19 @@ test_that("pull_repos_contributors adds contributors column to repos table", {
   test_mocker$cache(repos_table_with_contributors)
 })
 
+test_that("pull_commits works", {
+  test_gitstats <- create_test_gitstats(hosts = 2)
+  suppressMessages(
+    pull_commits(
+      gitstats_obj = test_gitstats,
+      date_from = "2023-06-01",
+      date_until = "2023-06-15"
+    )
+  )
+  commits_table <- test_gitstats$get_commits()
+  expect_commits_table(commits_table)
+})
+
 test_that("pull_users shows error when no hosts are defined", {
   test_gitstats <- create_gitstats()
   expect_snapshot_error(

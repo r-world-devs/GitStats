@@ -1,3 +1,4 @@
+#' @noRd
 #' @importFrom R6 R6Class
 #' @importFrom rlang expr
 #' @importFrom cli cli_alert_danger cli_alert_success
@@ -8,12 +9,12 @@
 GitHost <- R6::R6Class("GitHost",
   public = list(
 
-    #' @description Create a new `GitHost` object
+    #' @description Create a new `GitHost` object.
     #' @param orgs A character vector of organisations (owners of repositories
     #'   in case of GitHub and groups of projects in case of GitLab).
     #' @param token A token.
-    #' @param api_url An API url.
-    #' @return A new `GitHost` object
+    #' @param api_url An API URL.
+    #' @return A new `GitHost` object.
     initialize = function(orgs = NA,
                           token = NA,
                           api_url = NA) {
@@ -80,27 +81,29 @@ GitHost <- R6::R6Class("GitHost",
     #' @param repos_table A table of repositories.
     #' @return A table of repositories with added information on contributors.
     pull_repos_contributors = function(repos_table) {
-      repos_table <- repos_table %>%
-        dplyr::filter(grepl(gsub("/v+.*", "", private$api_url), api_url))
-      repos_table <- purrr::map_dfr(private$engines, function (engine) {
-        if (inherits(engine, "EngineRest")) {
-          engine$pull_repos_contributors(
-            repos_table
-          )
-        } else {
-          NULL
-        }
-      })
+      if (!is.null(repos_table) && nrow(repos_table) > 0) {
+        repos_table <- repos_table %>%
+          dplyr::filter(grepl(gsub("/v+.*", "", private$api_url), api_url))
+        repos_table <- purrr::map_dfr(private$engines, function (engine) {
+          if (inherits(engine, "EngineRest")) {
+            engine$pull_repos_contributors(
+              repos_table
+            )
+          } else {
+            NULL
+          }
+        })
+      }
     },
 
     #' @description A method to get information on commits.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
     #' @param settings A list of `GitStats` settings.
-    #' @return A data.frame of commits
+    #' @return A data.frame of commits.
     pull_commits = function(date_from,
-                           date_until = Sys.Date(),
-                           settings) {
+                            date_until = Sys.Date(),
+                            settings) {
       if (settings$search_param == "phrase") {
         cli::cli_abort(c(
           "x" = "Pulling commits by phrase in code blobs is not supported.",
@@ -149,9 +152,9 @@ GitHost <- R6::R6Class("GitHost",
       return(commits_table)
     },
 
-    #' @description Get information about users
-    #' @param users A character vector of users
-    #' @return Table of users
+    #' @description Pull information about users.
+    #' @param users A character vector of users.
+    #' @return Table of users.
     pull_users = function(users) {
       users_table <- purrr::map(private$engines, function(engine) {
         if (inherits(engine, "EngineGraphQL")) {
@@ -166,7 +169,7 @@ GitHost <- R6::R6Class("GitHost",
   ),
   private = list(
 
-    # @field A REST API url.
+    # @field A REST API URL.
     api_url = NULL,
 
     # @field A token.
@@ -315,18 +318,29 @@ GitHost <- R6::R6Class("GitHost",
         },
         error = function(e) {
           if (!private$scan_all) {
-            if (grepl("502", e)) {
-              cli::cli_alert_warning(cli::col_yellow("HTTP 502 Bad Gateway Error. Switch to another Engine."))
-            } else {
-              cli::cli_alert_warning(cli::col_yellow("Error. Switch to another Engine."))
+            if (grepl("502|400", e)) {
+              if (grepl("502", e)) {
+                cli::cli_alert_warning(cli::col_yellow("HTTP 502 Bad Gateway Error."))
+              } else if (grepl("400", e)) {
+                cli::cli_alert_warning(cli::col_yellow("HTTP 400 Bad Request."))
+              }
+              cli::cli_alert_info("Switching to REST engine.")
+              repos_list <<- purrr::map(private$engines, function (engine) {
+                engine$pull_repos_supportive(
+                  org = org,
+                  settings = settings
+                )
+              })
+            } else if (grepl("Empty", e)) {
+              cli::cli_abort(
+                c(
+                  "x" = "Empty response.",
+                  "!" = "Your token probably does not cover scope to pull repositories.",
+                  "i" = "Set `read_api` scope when creating GitLab token."
+                )
+              )
             }
           }
-          repos_list <<- purrr::map(private$engines, function (engine) {
-            engine$pull_repos_supportive(
-              org = org,
-              settings = settings
-            )
-          })
         })
         repos_table_org <- purrr::list_rbind(repos_list)
         return(repos_table_org)
@@ -334,9 +348,9 @@ GitHost <- R6::R6Class("GitHost",
         purrr::list_rbind()
     },
 
-    # add do repos table `api_url` column
+    # @description Add `api_url` column to repos table.
     add_repo_api_url = function(repos_table){
-      if (length(repos_table) > 0) {
+      if (!is.null(repos_table) && nrow(repos_table) > 0) {
         repos_table <- if (private$host == "GitHub") {
           dplyr::mutate(
             repos_table,

@@ -1,3 +1,4 @@
+#' @noRd
 #' @importFrom dplyr distinct mutate filter
 #'
 #' @title A EngineGraphQLGitHub class
@@ -30,6 +31,11 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
             end_cursor = end_cursor
           )
         )
+        if (length(response$errors) > 0) {
+          cli::cli_abort(
+            response$errors[[1]]$message
+          )
+        }
         orgs_list <- purrr::map(response$data$search$edges, ~stringr::str_match(.$node$url, "[^\\/]*$"))
         full_orgs_list <- append(full_orgs_list, orgs_list)
         has_next_page <- response$data$search$pageInfo$hasNextPage

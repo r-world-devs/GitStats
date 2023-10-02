@@ -10,7 +10,7 @@ reset(gitstats_obj)
 \item{gitstats_obj}{A GitStats object.}
 }
 \value{
-A GitStats object.
+A \code{GitStats} object.
 }
 \description{
 Sets all settings to default: search_param to \code{org}, language to
