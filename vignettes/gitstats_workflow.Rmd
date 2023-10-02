@@ -227,18 +227,6 @@ You can always get back to All languages.
 reset_language(git_stats)
 ```
 
-## Users
-
-You can retrieve data about users with GitStats.
-
-```{r}
-pull_users(
-  gitstats_obj = git_stats,
-  users = c("maciekbanas", "kalimu", "Cotau", "marcinkowskak", "krystian8207")
-) %>% 
-  get_users()
-```
-
 ## Reset your settings
 
 If you wish to get back to default settings, run:
