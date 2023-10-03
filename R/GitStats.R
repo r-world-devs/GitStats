@@ -1,6 +1,7 @@
+#' @noRd
 #' @importFrom R6 R6Class
 #' @importFrom cli cli_alert_info cli_alert_success cli_alert_warning col_yellow
-#' @importFrom data.table rbindlist :=
+#' @importFrom data.table rbindlist
 #' @importFrom dplyr glimpse
 #' @importFrom magrittr %>%
 #' @importFrom purrr map map_chr
@@ -19,11 +20,11 @@ GitStats <- R6::R6Class("GitStats",
     #' @param print_out A boolean stating if you want to print output after
     #'   pulling.
     #' @return Nothing.
-    setup = function(search_param,
-                     team_name,
-                     phrase,
-                     language,
-                     print_out) {
+    set_params = function(search_param,
+                          team_name,
+                          phrase,
+                          language,
+                          print_out) {
       search_param <- match.arg(
         search_param,
         c("org", "team", "phrase")
@@ -42,7 +43,7 @@ GitStats <- R6::R6Class("GitStats",
           if (length(private$settings$team) == 0) {
             cli::cli_alert_warning(
               cli::col_yellow(
-                "No team members in the team. Add them with `add_team_member()`."
+                "No team members in the team. Add them with `set_team_member()`."
               )
             )
           }
@@ -61,40 +62,51 @@ GitStats <- R6::R6Class("GitStats",
         }
       }
       private$settings$search_param <- search_param
-      if (!is.null(language)) {
+      if (language != "All") {
         private$settings$language <- private$language_handler(language)
         cli::cli_alert_success(
-          paste0("Your programming language is set to <", language, ">.")
+          "Your programming language is set to {cli::col_green({language})}."
         )
+      } else {
+        private$settings$language <- "All"
       }
       private$settings$print_out <- print_out
     },
 
-    #' @description Method to set connections to Git platforms
+    #' @description Method to set connections to Git platforms.
     #' @param api_url A character, url address of API.
     #' @param token A token.
     #' @param orgs A character vector of organisations (owners of repositories
     #'   in case of GitHub and groups of projects in case of GitLab).
-    #' @return Nothing, puts connection information into `$hosts` slot
-    add_host = function(api_url,
+    #' @return Nothing, puts connection information into `$hosts` slot.
+    set_host = function(api_url,
                         token,
                         orgs) {
+      new_host <- NULL
+
       new_host <- GitHost$new(
         orgs = orgs,
         token = token,
         api_url = api_url
       )
+      if  (grepl("https://", api_url) && grepl("github", api_url)) {
+        cli::cli_alert_success("Set connection to GitHub.")
+      } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
+        cli::cli_alert_success("Set connection to GitLab.")
+      }
 
+    if (!is.null(new_host)) {
       private$hosts <- new_host %>%
-        private$check_host() %>%
+        private$check_for_duplicate_hosts() %>%
         append(private$hosts, .)
+    }
     },
 
     #' @description A method to add a team member.
     #' @param member_name Name of a member.
     #' @param ... User names on Git platforms.
-    #' @return Nothing, pass information on team member to `GitStats`.
-    add_team_member = function(member_name,
+    #' @return Nothing, passes information on team member to `GitStats`.
+    set_team_member = function(member_name,
                                ...) {
       team_member <- list(
         "name" = member_name,
@@ -106,11 +118,13 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description  A method to list all repositories for an organization,
     #'   a team or by a keyword.
-    #' @return A data.frame of repositories
-    get_repos = function() {
+    #' @param add_contributors A boolean to decide whether to add contributors
+    #'   information to repositories.
+    #' @return A data.frame of repositories.
+    pull_repos = function(add_contributors = FALSE) {
       if (private$settings$search_param == "team") {
         if (length(private$settings$team) == 0) {
-          cli::cli_abort("You have to specify a team first with 'add_team_member()'.")
+          cli::cli_abort("You have to specify a team first with 'set_team_member()'.")
         }
       } else if (private$settings$search_param == "phrase") {
         if (is.null(private$settings$phrase)) {
@@ -118,8 +132,9 @@ GitStats <- R6::R6Class("GitStats",
         }
       }
 
-      repos_table <- purrr::map(private$hosts, ~ .$get_repos(
-        settings = private$settings
+      repos_table <- purrr::map(private$hosts, ~ .$pull_repos(
+        settings = private$settings,
+        add_contributors = add_contributors
       )) %>%
         purrr::list_rbind()
 
@@ -132,11 +147,23 @@ GitStats <- R6::R6Class("GitStats",
       return(invisible(self))
     },
 
+    #' @description A method to add information on repository contributors.
+    #' @return A table of repositories with added information on contributors.
+    pull_repos_contributors = function() {
+      if (length(private$repos) == 0) {
+        cli::cli_abort("You need to pull repos first with `pull_repos()`.")
+      } else {
+        private$repos <- purrr::map_dfr(private$hosts, ~ .$pull_repos_contributors(
+          repos_table = private$repos
+        ))
+      }
+    },
+
     #' @description A method to get information on commits.
-    #' @param date_from A starting date to look commits for
-    #' @param date_until An end date to look commits for
-    #' @return A data.frame of commits
-    get_commits = function(date_from,
+    #' @param date_from A starting date for commits.
+    #' @param date_until An end date for commits.
+    #' @return A data.frame of commits.
+    pull_commits = function(date_from,
                            date_until) {
       if (is.null(date_from)) {
         stop("You need to define `date_from`.", call. = FALSE)
@@ -144,12 +171,12 @@ GitStats <- R6::R6Class("GitStats",
 
       if (private$settings$search_param == "team") {
         if (length(private$settings$team) == 0) {
-          cli::cli_abort("You have to specify a team first with 'add_team_member()'.")
+          cli::cli_abort("You have to specify a team first with 'set_team_member()'.")
         }
       }
 
       commits_table <- purrr::map(private$hosts, function(host) {
-        commits_table_host <- host$get_commits(
+        commits_table_host <- host$pull_commits(
           date_from = date_from,
           date_until = date_until,
           settings = private$settings
@@ -172,17 +199,45 @@ GitStats <- R6::R6Class("GitStats",
       return(invisible(self))
     },
 
-    #' @description Print repositories output.
-    show_repos = function() {
+    #' @description Get information on users.
+    #' @param users Character vector of users.
+    #' @return A data.frame of users.
+    pull_users = function(users) {
+      private$check_for_host()
+      users_table <- purrr::map(private$hosts, function(host) {
+        host$pull_users(users)
+      }) %>%
+        unique() %>%
+        purrr::list_rbind()
+      private$users <- users_table
+      if (private$settings$print_out) dplyr::glimpse(users_table)
+      return(invisible(self))
+    },
+
+    #' @description Return organizations vector from GitStats.
+    get_orgs = function() {
+      purrr::map(private$hosts, function(host) {
+        orgs <- host$.__enclos_env__$private$orgs
+        purrr::map_vec(orgs, ~ gsub("%2f", "/", .))
+        }) %>% unlist()
+    },
+
+    #' @description Return repositories table from GitStats.
+    get_repos = function() {
       private$repos
     },
 
-    #' @description Print commits output.
-    show_commits = function() {
+    #' @description Return commits table from GitStats.
+    get_commits = function() {
       private$commits
     },
 
-    #' @description A print method for a GitStats object
+    #' @description Return users table from GitStats.
+    get_users = function() {
+      private$users
+    },
+
+    #' @description A print method for a GitStats object.
     print = function() {
       cat(paste0("A <GitStats> object for ", length(private$hosts), " hosts:"), sep = "\n")
       hosts <- purrr::map_chr(private$hosts, function(host) {
@@ -193,8 +248,7 @@ GitStats <- R6::R6Class("GitStats",
       orgs <- purrr::map(private$hosts, function(host) {
         host_priv <- environment(host$initialize)$private
         orgs <- host_priv$orgs
-        paste0(orgs, collapse = ", ")
-      }) %>% paste0(collapse = ", ")
+      })
       private$print_item("Organisations", orgs)
       private$print_item("Search preference", private$settings$search_param)
       private$print_item("Team", private$settings$team_name, paste0(private$settings$team_name, " (", length(private$settings$team), " members)"))
@@ -215,7 +269,7 @@ GitStats <- R6::R6Class("GitStats",
       phrase = NULL,
       team_name = NULL,
       team = list(),
-      language = NULL,
+      language = "All",
       print_out = TRUE
     ),
 
@@ -225,13 +279,15 @@ GitStats <- R6::R6Class("GitStats",
     # @field commits An output table of commits.
     commits = NULL,
 
+    # @field users An output table of users.
+    users = NULL,
+
     # @description Check whether the urls do not repeat in input.
-    # @param host An object of GitPlatform class
-    # @return A GitPlatform object
-    check_host = function(host) {
+    # @param host An object of GitPlatform class.
+    # @return A GitPlatform object.
+    check_for_duplicate_hosts = function(host) {
       if (length(private$hosts) > 0) {
         hosts_to_check <- append(host, private$hosts)
-
         urls <- purrr::map_chr(hosts_to_check, function(host) {
           host_priv <- environment(host$initialize)$private
           host_priv$engines$rest$rest_api_url
@@ -248,14 +304,21 @@ GitStats <- R6::R6Class("GitStats",
       host
     },
 
-    # @description Switcher to manage language names
+    # @description Helper to check if there are any hosts.
+    check_for_host = function() {
+      if (length(private$hosts) == 0) {
+        cli::cli_abort("Add first your hosts with `set_host()`.")
+      }
+    },
+
+    # @description Switcher to manage language names.
     # @details E.g. GitLab API will not filter
     #   properly if you provide 'python' language
     #   with small letter.
-    # @param language A character, language name
-    # @return A character
+    # @param language Code programming language.
+    # @return A character.
     language_handler = function(language) {
-      if (!is.null(language)) {
+      if (language != "All") {
         substr(language, 1, 1) <- toupper(substr(language, 1, 1))
       } else if (language %in% c("javascript", "Javascript", "js", "JS", "Js")) {
         language <- "JavaScript"
@@ -271,6 +334,20 @@ GitStats <- R6::R6Class("GitStats",
     print_item = function(item_name,
                           item_to_check,
                           item_to_print = item_to_check) {
+      if (item_name == "Organisations") {
+        item_to_print <- unlist(item_to_print)
+        item_to_print <- purrr::map_vec(item_to_print, function(org) {
+          gsub("%2f", "/", org)
+        })
+        if (length(item_to_print) < 10) {
+          list_items <- paste0(item_to_print, collapse = ", ")
+        } else {
+          item_to_print_cut <- item_to_print[1:10]
+          list_items <- paste0(item_to_print_cut, collapse = ", ") %>%
+            paste0("... and ", length(item_to_print) - 10, " more")
+        }
+        item_to_print <- paste0("[", cli::col_green(length(item_to_print)), "] ", list_items)
+      }
       cat(paste0(
         cli::col_blue(paste0(item_name, ": ")),
         ifelse(is.null(item_to_check),

@@ -1,0 +1,11 @@
+url: ~
+template:
+  bootstrap: 5
+reference:
+- contents:
+  - matches("create_gitstats")
+  - starts_with("set_")
+  - starts_with("pull_")
+  - starts_with("get_")
+  - starts_with("reset")
+  - matches("gitstats_plot")

@@ -2,7 +2,7 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{get_repos}
 \alias{get_repos}
-\title{Get information on repositories.}
+\title{Get repositories}
 \usage{
 get_repos(gitstats_obj)
 }
@@ -10,25 +10,8 @@ get_repos(gitstats_obj)
 \item{gitstats_obj}{A GitStats object.}
 }
 \value{
-A \code{GitStats} class object with updated \verb{$repos} field.
+A table of repositories.
 }
 \description{
-List all repositories for an organization, a team or by a
-keyword.
-}
-\examples{
-\dontrun{
-my_gitstats <- create_gitstats() \%>\%
-  set_connection(
-    api_url = "https://api.github.com",
-    token = Sys.getenv("GITHUB_PAT"),
-    orgs = c("r-world-devs", "openpharma")
-  ) \%>\%
-  set_connection(
-    api_url = "https://gitlab.com/api/v4",
-    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-    orgs = "mbtests"
-  ) \%>\%
-  get_repos()
-}
+Retrieves repositories table pulled by \code{GitStats}.
 }

@@ -1,14 +1,44 @@
+#' @noRd
 #' @title A GQLQueryGitHub class
 #' @description A class with methods to build GraphQL Queries for GitHub.
 
 GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
   public = list(
 
+    #' @description Prepare query to list organizations from GitHub.
+    #' @param end_cursor An end cursor to paginate.
+    #' @return A query.
+    orgs = function(end_cursor) {
+      if (is.null(end_cursor)) {
+        pagination_phrase <- ''
+      } else {
+        pagination_phrase <- paste0('after: "', end_cursor, '"')
+      }
+
+      paste0(
+      'query {
+        search(first: 100, type: USER, query: "type:org" ', pagination_phrase, ') {
+          pageInfo {
+             hasNextPage
+             endCursor
+          }
+          edges {
+            node{
+              ... on Organization {
+                name
+                url
+              }
+            }
+          }
+        }
+      }')
+    },
+
     #' @description Prepare query to get repositories from GitHub.
     #' @param org An organization of repositories.
     #' @param repo_cursor An end cursor for repositories page.
     #' @return A query.
-    repos_by_org = function(org, repo_cursor = "") {
+    repos_by_org = function(repo_cursor = "") {
       if (nchar(repo_cursor) == 0) {
         after_cursor <- repo_cursor
       } else {
@@ -16,8 +46,8 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       }
 
       paste0('
-        query {
-          repositoryOwner(login: "', org, '") {
+        query GetReposByOrg($org: String!) {
+          repositoryOwner(login: $org) {
             ... on Organization {
               repositories(first: 100 ', after_cursor, ') {
               ', private$repository_field(),'
@@ -28,10 +58,9 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     },
 
     #' @description Prepare query to get repositories from GitHub.
-    #' @param user A GitHub user.
     #' @param repo_cursor An end cursor for repositories page.
     #' @return A query.
-    repos_by_user = function(user, repo_cursor = "") {
+    repos_by_user = function(repo_cursor = "") {
       if (nchar(repo_cursor) == 0) {
         after_cursor <- repo_cursor
       } else {
@@ -39,8 +68,8 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       }
 
       paste0('
-        query {
-          user(login: "', user, '") {
+        query GetReposByUser($user: String!) {
+          user(login: $user) {
             repositories(
               first: 100
               ownerAffiliations: COLLABORATOR
@@ -55,32 +84,27 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     #' @param login A login of a user.
     #' @return A query.
     user = function(login) {
-      paste0('{
-        user(login: "', login, '") {
-          id
-          name
-          email
-          bio
-          location
-          updatedAt
-          repositories(first: 100) {
-            edges {
-              node {
-                name
-              }
-            }
-          }
-          followers(first: 100) {
-            totalCount
-          }
-          following(first: 100) {
-            totalCount
-          }
-          status {
+      paste0('
+        query GetUser($user: String!) {
+          user(login: $user) {
             id
+            name
+            login
+            email
+            location
+            starred_repos: starredRepositories {
+              totalCount
+            }
+            contributions: contributionsCollection {
+              totalIssueContributions
+              totalCommitContributions
+              totalPullRequestContributions
+              totalPullRequestReviewContributions
+            }
+            avatar_url: avatarUrl
+            web_url: websiteUrl
           }
-        }
-      }')
+        }')
     },
 
     #' @description Prepare query to get commits on GitHub.
@@ -171,25 +195,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
           }
           issues_closed: issues (first: 100 states: [CLOSED]) {
             totalCount
-          }
-          contributors: defaultBranchRef {
-            target {
-              ... on Commit {
-                id
-                history(since: "2000-01-01T00:00:00Z") {
-                  edges {
-                    node {
-                      committer {
-                        user {
-                          login
-                          id
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
           }
           organization: owner {
             login

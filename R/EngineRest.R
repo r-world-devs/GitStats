@@ -1,3 +1,4 @@
+#' @noRd
 #' @importFrom httr2 request req_headers req_perform resp_body_json
 #' @importFrom cli cli_abort col_green
 #' @importFrom rlang %||%
@@ -13,11 +14,14 @@ EngineRest <- R6::R6Class("EngineRest",
     #' @description Create a new `Rest` object
     #' @param rest_api_url A character, url of Rest API.
     #' @param token A token.
+    #' @param scan_all A boolean.
     #' @return A `Rest` object.
     initialize = function(rest_api_url = NA,
-                          token = NA) {
-      private$token <- private$check_token(token)
+                          token = NA,
+                          scan_all = FALSE) {
       self$rest_api_url <- rest_api_url
+      private$token <- private$check_token(token)
+      private$scan_all <- scan_all
     },
 
     #' @description A wrapper for httr2 functions to perform get request to REST API endpoints.
@@ -34,12 +38,49 @@ EngineRest <- R6::R6Class("EngineRest",
       }
 
       return(result)
+    },
+
+    #' @description Check if an organization exists
+    #' @param orgs A character vector of organizations
+    #' @return orgs or NULL.
+    check_organizations = function(orgs) {
+      orgs <- purrr::map(orgs, function(org) {
+        org_endpoint <- if(grepl("github", self$rest_api_url)) "/orgs/" else "/groups/"
+        if (grepl("/", org)) {
+          org <- gsub("/", "%2f", org)
+        }
+        withCallingHandlers(
+          {
+            self$response(endpoint = paste0(self$rest_api_url, org_endpoint, org))
+          },
+          message = function(m) {
+            if (grepl("404", m)) {
+              cli::cli_alert_danger("Organization you provided does not exist or its name was passed in a wrong way: {org}")
+              cli::cli_alert_warning("Please type your organization name as you see it in `url`.")
+              cli::cli_alert_info("E.g. do not use spaces. Organization names as you see on the page may differ from their 'address' name.")
+              org <<- NULL
+            }
+          }
+        )
+        return(org)
+      }) %>%
+        purrr::keep(~ length(.) > 0) %>%
+        unlist()
+
+      if (length(orgs) == 0) {
+        return(NULL)
+      }
+      orgs
     }
+
   ),
   private = list(
 
     # @field token A token authorizing access to API.
     token = NULL,
+
+    # @field A boolean.
+    scan_all = FALSE,
 
     # @description Check whether the token exists.
     # @param token A token.
@@ -47,11 +88,9 @@ EngineRest <- R6::R6Class("EngineRest",
     check_token = function(token) {
       if (nchar(token) == 0) {
         cli::cli_abort(c(
-          "i" = "No token provided.",
-          "x" = "Host will not be passed to `GitStats` object."
+          "i" = "No token provided."
         ))
       }
-      return(invisible(token))
     },
 
     # @description A helper to prepare table for repositories content
@@ -70,13 +109,10 @@ EngineRest <- R6::R6Class("EngineRest",
         repos_dt <- dplyr::mutate(repos_dt,
           id = as.character(id),
           created_at = as.POSIXct(created_at),
-          last_activity_at = difftime(Sys.time(), as.POSIXct(last_activity_at),
-            units = "days"
-          ) %>% round(2),
+          last_activity_at = as.POSIXct(last_activity_at),
           forks = as.integer(forks),
           issues_open = as.integer(issues_open),
-          issues_closed = as.integer(issues_closed),
-          api_url = self$rest_api_url
+          issues_closed = as.integer(issues_closed)
         )
       }
       return(repos_dt)
@@ -94,14 +130,16 @@ EngineRest <- R6::R6Class("EngineRest",
         },
         error = function(e) {
           if (!is.null(e$status)) {
-            if (e$status == 400) {
-              message("HTTP 400 Bad Request.")
-            } else if (e$status == 401) {
-              message("HTTP 401 Unauthorized.")
-            } else if (e$status == 403) {
-              message("HTTP 403 API limit reached.")
-            } else if (e$status == 404) {
-              message("HTTP 404 No such address")
+            if (!private$scan_all) {
+              if (e$status == 400) {
+                message("HTTP 400 Bad Request.")
+              } else if (e$status == 401) {
+                message("HTTP 401 Unauthorized.")
+              } else if (e$status == 403) {
+                message("HTTP 403 API limit reached.")
+              } else if (e$status == 404) {
+                message("HTTP 404 No such address")
+              }
             }
           } else if (grepl("Could not resolve host", e)) {
             cli::cli_abort(c(
