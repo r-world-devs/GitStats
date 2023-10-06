@@ -7,6 +7,7 @@ Authors@R: c(
     person(given = "Karolina", family = "Marcinkowska", email = "karolina_marcinkowska@onet.pl", role = "aut"),
     person(given = "Matt", family = "Secrest", email = "secrestm@gene.com", role = "aut")
   )
+Maintainer: Maciej Banas <banasmaciek@gmail.com>
 Description: Obtain statistics in a standardized way from multiple Git services: GitHub and GitLab for the time-being. 
     Its main purpose is to help teams, whose activities are spread across multiple git platforms, get their repository 
     metadata in a standardized way from all these platforms.
