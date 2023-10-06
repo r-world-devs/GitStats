@@ -1,8 +1,18 @@
-# When token is empty throw error and do not pass connection
+# When token is empty throw error
 
     Code
       test_rest_priv$check_token("")
-    Error <rlang_error>
+    Condition
+      Error in `test_rest_priv$check_token()`:
       i No token provided.
-      x Host will not be passed to `GitStats` object.
+
+# check_organizations returns NULL if orgs are wrong
+
+    Code
+      orgs <- test_rest$check_organizations("does_not_exist")
+    Message
+      x Organization you provided does not exist or its name was passed in a wrong way: does_not_exist
+      ! Please type your organization name as you see it in `url`.
+      i E.g. do not use spaces. Organization names as you see on the page may differ from their 'address' name.
+      HTTP 404 No such address
 

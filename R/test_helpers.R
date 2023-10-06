@@ -28,19 +28,25 @@ TestHost <- R6::R6Class("TestHost",
     initialize = function(orgs = NA,
                           token = NA,
                           api_url = NA) {
+      private$api_url <- api_url
+      private$host <- private$set_host()
       if (grepl("https://", api_url) && grepl("github", api_url)) {
-        private$engines$rest <- EngineRestGitHub$new(
+        private$engines$rest <- TestEngineRestGitHub$new(
           token = token,
           rest_api_url = api_url
         )
         private$engines$graphql <- EngineGraphQLGitHub$new(
           token = token,
-          gql_api_url = api_url
+          gql_api_url = private$set_gql_url(api_url)
         )
       } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
-        private$engines$rest <- EngineRestGitLab$new(
+        private$engines$rest <- TestEngineRestGitLab$new(
           token = token,
           rest_api_url = api_url
+        )
+        private$engines$graphql <- EngineGraphQLGitLab$new(
+          token = token,
+          gql_api_url = private$set_gql_url(api_url)
         )
       }
       private$orgs <- orgs
@@ -77,3 +83,43 @@ TestEngineRest <- R6::R6Class("TestEngineRest",
     }
   )
 )
+
+#' @noRd
+#' @description A helper class to use in tests.
+TestEngineRestGitHub <- R6::R6Class("TestEngineRestGitHub",
+                              inherit = EngineRestGitHub,
+                              public = list(
+                                initialize = function(token,
+                                                      rest_api_url) {
+                                  private$token <- token
+                                  self$rest_api_url <- rest_api_url
+                                }
+                              )
+)
+
+#' @noRd
+#' @description A helper class to use in tests.
+TestEngineRestGitLab <- R6::R6Class("TestEngineRestGitLab",
+                                    inherit = EngineRestGitLab,
+                                    public = list(
+                                      initialize = function(token,
+                                                            rest_api_url) {
+                                        private$token <- token
+                                        self$rest_api_url <- rest_api_url
+                                      }
+                                    )
+)
+
+#' @noRd
+create_testrest <- function(rest_api_url = "https://api.github.com",
+                            token,
+                            mode = "") {
+  test_rest <- TestEngineRest$new(
+    token = token,
+    rest_api_url = rest_api_url
+  )
+  if (mode == "private") {
+    test_rest <- environment(test_rest$initialize)$private
+  }
+  return(test_rest)
+}

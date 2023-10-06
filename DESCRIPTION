@@ -1,8 +1,12 @@
 Package: GitStats
-Title: Get Statistics from Git Hosting Services
-Version: 0.1.0
-Authors@R: 
-    person("Maciej", "Banaś", , "banasmaciek@gmail.com", role = c("aut", "cre"))
+Title: Get Statistics from GitHub and GitLab
+Version: 1.0.0
+Authors@R: c(
+    person(given = "Maciej", family = "Banas", email = "banasmaciek@gmail.com", role = c("aut", "cre")),
+    person(given = "Kamil", family = "Koziej", email = "koziej.k@gmail.com", role = "aut"),
+    person(given = "Karolina", family = "Marcinkowska", email = "karolina_marcinkowska@onet.pl", role = "aut"),
+    person(given = "Matt", family = "Secrest", email = "secrestm@gene.com", role = "aut")
+  )
 Description: Obtain statistics in a standardized way from multiple Git services: GitHub and GitLab for the time-being. 
     Its main purpose is to help teams, whose activities are spread across multiple git platforms, get their repository 
     metadata in a standardized way from all these platforms.
@@ -19,16 +23,18 @@ Imports:
     lubridate,
     magrittr,
     plotly,
-    progress,
-    rlang,
+    rlang (>= 1.1.0),
     R6,
-    purrr,
+    purrr (>= 1.0.0),
     stringr
-Suggests: 
+Suggests:
+    spelling, 
     covr,
     knitr,
     mockery,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    withr
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+Language: en-US

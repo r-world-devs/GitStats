@@ -2,41 +2,16 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{get_commits}
 \alias{get_commits}
-\title{Get information on commits.}
+\title{Get commits}
 \usage{
-get_commits(gitstats_obj, date_from = NULL, date_until = Sys.time())
+get_commits(gitstats_obj)
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
-
-\item{date_from}{A starting date to look commits for}
-
-\item{date_until}{An end date to look commits for}
 }
 \value{
-A \code{GitStats} class object with updated \verb{$commits} field.
+A table of commits.
 }
 \description{
-List all repositories for an organization, a team.
-}
-\examples{
-\dontrun{
-my_gitstats <- create_gitstats() \%>\%
-  set_connection(
-    api_url = "https://api.github.com",
-    token = Sys.getenv("GITHUB_PAT"),
-    orgs = c("r-world-devs")
-  ) \%>\%
-  set_connection(
-    api_url = "https://gitlab.com/api/v4",
-    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-    orgs = "mbtests"
-  ) \%>\%
-  setup(
-    search_param = "team",
-    team_name = "rwdevs"
-  ) \%>\%
-  add_team_member("Maciej Banaś", "maciekbanas") \%>\%
-  get_commits(date_from = "2018-01-01")
-}
+Retrieves commits table pulled by \code{GitStats}.
 }

@@ -4220,25 +4220,25 @@
       
       
 
-# `get_repos()` works as expected
+# `pull_repos()` works as expected
 
     Code
-      gh_repos_org <- test_gql_gh$get_repos(org = "r-world-devs", settings = settings)
-    Message <cliMessage>
+      gh_repos_org <- test_gql_gh$pull_repos(org = "r-world-devs", settings = settings)
+    Message
       i [GitHub][Engine:GraphQL][org:r-world-devs] Pulling repositories...
 
 ---
 
     Code
-      gh_repos_team <- test_gql_gh$get_repos(org = "r-world-devs", settings = settings)
-    Message <cliMessage>
+      gh_repos_team <- test_gql_gh$pull_repos(org = "r-world-devs", settings = settings)
+    Message
       i [GitHub][Engine:GraphQL][org:r-world-devs][team:] Pulling repositories...
 
-# `get_commits()` retrieves commits in the table format
+# `pull_commits()` retrieves commits in the table format
 
     Code
-      commits_table <- test_gql_gh$get_commits(org = "r-world-devs", date_from = "2023-01-01",
+      commits_table <- test_gql_gh$pull_commits(org = "r-world-devs", date_from = "2023-01-01",
         date_until = "2023-02-28", settings = settings)
-    Message <cliMessage>
+    Message
       i [GitHub][Engine:GraphQL][org:r-world-devs] Pulling commits...
 

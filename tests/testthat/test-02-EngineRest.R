@@ -7,14 +7,7 @@ test_rest <- TestEngineRest$new(
 
 test_rest_priv <- environment(test_rest$response)$private
 
-test_that("when token is proper token is passed", {
-  expect_equal(
-    test_rest_priv$check_token(Sys.getenv("GITHUB_PAT")),
-    Sys.getenv("GITHUB_PAT")
-  )
-})
-
-test_that("When token is empty throw error and do not pass connection", {
+test_that("When token is empty throw error", {
   expect_snapshot(
     error = TRUE,
     test_rest_priv$check_token("")
@@ -63,7 +56,7 @@ test_that("`perform_request()` returns proper status", {
 # public methods
 
 test_that("`response()` returns search response from GitHub's REST API", {
-  search_endpoint <- "https://api.github.com/search/code?q='shiny'+user:r-world-devs"
+  search_endpoint <- "https://api.github.com/search/code?q='shiny'+user:openpharma"
   test_mocker$cache(search_endpoint)
   gh_search_response <- test_rest$response(search_endpoint)
 
@@ -73,14 +66,14 @@ test_that("`response()` returns search response from GitHub's REST API", {
   test_mocker$cache(gh_search_response)
 })
 
-test_rest <- EngineRest$new(
+test_rest <- create_testrest(
   rest_api_url = "https://gitlab.com/api/v4",
   token = Sys.getenv("GITLAB_PAT_PUBLIC")
 )
 
 test_that("`response()` returns commits response from GitLab's REST API", {
   gl_search_response <- test_rest$response(
-    "https://gitlab.com/api/v4/groups/2853599/search?scope=blobs&search=covid"
+    "https://gitlab.com/api/v4/groups/9970/search?scope=blobs&search=covid"
   )
   expect_gl_search_response(gl_search_response[[1]])
   test_mocker$cache(gl_search_response)
@@ -88,7 +81,7 @@ test_that("`response()` returns commits response from GitLab's REST API", {
   gl_commits_rest_response_repo_1 <- test_rest$response(
     "https://gitlab.com/api/v4/projects/44293594/repository/commits?since='2023-01-01T00:00:00'&until='2023-04-20T00:00:00'&with_stats=true"
   )
-  expect_gl_commit(
+  expect_gl_commit_rest(
     gl_commits_rest_response_repo_1
   )
   test_mocker$cache(gl_commits_rest_response_repo_1)
@@ -96,8 +89,29 @@ test_that("`response()` returns commits response from GitLab's REST API", {
   gl_commits_rest_response_repo_2 <- test_rest$response(
     "https://gitlab.com/api/v4/projects/44346961/repository/commits?since='2023-01-01T00:00:00'&until='2023-04-20T00:00:00'&with_stats=true"
   )
-  expect_gl_commit(
+  expect_gl_commit_rest(
     gl_commits_rest_response_repo_2
   )
   test_mocker$cache(gl_commits_rest_response_repo_2)
+})
+
+test_that("check_organizations returns orgs if they are correct", {
+  expect_equal(
+    test_rest$check_organizations("mbtests"),
+    "mbtests"
+  )
+})
+
+test_that("check_organizations returns orgs if GitLab subroups are passed", {
+  expect_equal(
+    test_rest$check_organizations("mbtests/subgroup"),
+    "mbtests%2fsubgroup"
+  )
+})
+
+test_that("check_organizations returns NULL if orgs are wrong", {
+  expect_snapshot(
+    orgs <- test_rest$check_organizations("does_not_exist")
+  )
+  expect_null(orgs)
 })
