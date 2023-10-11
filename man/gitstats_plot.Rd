@@ -29,3 +29,24 @@ A plot.
 \description{
 A generic to plot statistics from repositories or commits.
 }
+\examples{
+ repos_stats <- create_gitstats() \%>\%
+  set_host(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("r-world-devs")
+  ) \%>\%
+  set_host(
+    api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    orgs = "mbtests"
+  ) \%>\%
+  pull_repos() \%>\%
+  get_repos_stats()
+
+  gitstats_plot(
+    stats_table = repos_stats,
+    value_to_plot = "contributors_n",
+    value_decreasing = FALSE
+  )
+}

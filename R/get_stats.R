@@ -2,8 +2,22 @@
 #' @name get_repos_stats
 #' @description Prepare statistics from the pulled repositories data.
 #' @param gitstats_obj A GitStats class object.
-#' @return A table of `repos_stats` class.
+#' @returns A table of `repos_stats` class.
 #' @export
+#' @examples
+#'  create_gitstats() %>%
+#'   set_host(
+#'     api_url = "https://api.github.com",
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs")
+#'   ) %>%
+#'   set_host(
+#'     api_url = "https://gitlab.com/api/v4",
+#'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+#'     orgs = "mbtests"
+#'   ) %>%
+#'   pull_repos() %>%
+#'   get_repos_stats()
 get_repos_stats <- function(gitstats_obj){
   repos_data <- data.table::copy(get_repos(gitstats_obj))
   repos_stats <- repos_data %>%
@@ -46,8 +60,25 @@ get_repos_stats <- function(gitstats_obj){
 #' @description Prepare statistics from the pulled commits data.
 #' @param gitstats_obj A GitStats class object.
 #' @param time_interval A character, specifying time interval to show statistics.
-#' @return A table of `commits_stats` class.
+#' @returns A table of `commits_stats` class.
 #' @export
+#' @examples
+#'  create_gitstats() %>%
+#'   set_host(
+#'     api_url = "https://api.github.com",
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs")
+#'   ) %>%
+#'   set_host(
+#'     api_url = "https://gitlab.com/api/v4",
+#'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+#'     orgs = "mbtests"
+#'   ) %>%
+#'   pull_commits(
+#'     date_from = "2023-03-01",
+#'     date_until = "2023-03-15"
+#'   ) %>%
+#'   get_commits_stats()
 get_commits_stats <- function(gitstats_obj,
                               time_interval = c("month", "day", "week")){
   commits_data <- data.table::copy(get_commits(gitstats_obj))

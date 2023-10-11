@@ -15,3 +15,18 @@ A table of \code{repos_stats} class.
 \description{
 Prepare statistics from the pulled repositories data.
 }
+\examples{
+ create_gitstats() \%>\%
+  set_host(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("r-world-devs")
+  ) \%>\%
+  set_host(
+    api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    orgs = "mbtests"
+  ) \%>\%
+  pull_repos() \%>\%
+  get_repos_stats()
+}

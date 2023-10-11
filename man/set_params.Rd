@@ -33,12 +33,10 @@ A \code{GitStats} object.
 Set up your search settings
 }
 \examples{
-\dontrun{
 my_gitstats <- create_gitstats() \%>\%
   set_params(
     search_param = "team",
     team_name = "Avengers",
     language = "R"
   )
-}
 }

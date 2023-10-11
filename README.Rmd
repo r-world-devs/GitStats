@@ -25,6 +25,14 @@ The goal of GitStats is to pull git statistics in a uniform way from different G
 
 ## Installation
 
+CRAN version:
+
+```r
+install.packages("GitStats")
+```
+
+GitHub version:
+
 ```r
 devtools::install_github("r-world-devs/GitStats")
 ```

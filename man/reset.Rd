@@ -16,3 +16,12 @@ A \code{GitStats} object.
 Sets all settings to default: search_param to \code{org}, language to
 \code{All} and other to \code{NULL}s.
 }
+\examples{
+my_gitstats <- create_gitstats() \%>\%
+  set_params(
+    search_param = "team",
+    team_name = "Avengers",
+    language = "R"
+  )
+reset(my_gitstats)
+}

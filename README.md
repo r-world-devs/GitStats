@@ -16,6 +16,14 @@ different Git platforms (GitHub and GitLab for the time-being).
 
 ## Installation
 
+CRAN version:
+
+``` r
+install.packages("GitStats")
+```
+
+GitHub version:
+
 ``` r
 devtools::install_github("r-world-devs/GitStats")
 ```

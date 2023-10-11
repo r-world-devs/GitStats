@@ -16,3 +16,10 @@ A \code{GitStats} object.
 Sets language parameter to \code{NULL} (switches of filtering by
 language.).
 }
+\examples{
+my_gitstats <- create_gitstats() \%>\%
+  set_params(
+    language = "R"
+  )
+reset_language(my_gitstats)
+}

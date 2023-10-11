@@ -27,7 +27,6 @@ A \code{GitStats} object with added information on host.
 Set Git host
 }
 \examples{
-\dontrun{
 my_gitstats <- create_gitstats() \%>\%
   set_host(
     api_url = "https://api.github.com",
@@ -38,5 +37,4 @@ my_gitstats <- create_gitstats() \%>\%
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "erasmusmc-public-health"
   )
-}
 }

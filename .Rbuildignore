@@ -12,3 +12,4 @@
 ^docs$
 ^pkgdown$
 ^meta_data.yaml
+^cran-comments\.md$

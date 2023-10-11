@@ -1,9 +1,9 @@
 #' @title Create a `GitStats` object
 #' @name create_gitstats
+#' @returns A `GitStats` object.
+#' @export
 #' @examples
 #' my_gitstats <- create_gitstats()
-#' @return A `GitStats` object.
-#' @export
 create_gitstats <- function() {
   GitStats$new()
 }
@@ -19,9 +19,9 @@ create_gitstats <- function() {
 #'   enterprise version of GitHub or GitLab). In case of a public one (like
 #'   GitHub) you need to define `orgs` as scanning through all organizations
 #'   may take large amount of time.
-#' @return A `GitStats` object with added information on host.
+#' @returns A `GitStats` object with added information on host.
+#' @export
 #' @examples
-#' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
 #'   set_host(
 #'     api_url = "https://api.github.com",
@@ -32,8 +32,6 @@ create_gitstats <- function() {
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "erasmusmc-public-health"
 #'   )
-#' }
-#' @export
 set_host <- function(gitstats_obj,
                      api_url,
                      token = NULL,
@@ -55,17 +53,15 @@ set_host <- function(gitstats_obj,
 #' @param phrase A phrase to look for.
 #' @param language Code programming language.
 #' @param print_out A boolean to decide whether to print output.
-#' @return A `GitStats` object.
+#' @returns A `GitStats` object.
+#' @export
 #' @examples
-#' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
 #'   set_params(
 #'     search_param = "team",
 #'     team_name = "Avengers",
 #'     language = "R"
 #'   )
-#' }
-#' @export
 set_params <- function(gitstats_obj,
                        search_param = NULL,
                        team_name = NULL,
@@ -89,14 +85,12 @@ set_params <- function(gitstats_obj,
 #' @param gitstats_obj A GitStats object.
 #' @param member_name Name of a member.
 #' @param ... All user logins.
-#' @return `GitStats` object with new information on team member.
+#' @returns `GitStats` object with new information on team member.
+#' @export
 #' @examples
-#' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
 #'   set_team_member("Peter Parker", "spider_man", "spidey") %>%
 #'   set_team_member("Tony Stark", "ironMan", "tony_s")
-#' }
-#' @export
 set_team_member <- function(gitstats_obj,
                             member_name,
                             ...) {
@@ -127,9 +121,9 @@ set_team_member <- function(gitstats_obj,
 #'   `pull_repos_contributors()` on the `GitStats` object with the `repositories`
 #'   output. \cr\cr When pulling repositories by \bold{`team`} the parameter
 #'   always turns to `TRUE` and pulls information on `contributors`.
-#' @return A `GitStats` class object with repositories table.
+#' @returns A `GitStats` class object with repositories table.
+#' @export
 #' @examples
-#' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
 #'   set_host(
 #'     api_url = "https://api.github.com",
@@ -142,8 +136,6 @@ set_team_member <- function(gitstats_obj,
 #'     orgs = "mbtests"
 #'   ) %>%
 #'   pull_repos()
-#' }
-#' @export
 pull_repos <- function(gitstats_obj, add_contributors = FALSE) {
   gitstats_obj$pull_repos(add_contributors = add_contributors)
   return(invisible(gitstats_obj))
@@ -154,9 +146,23 @@ pull_repos <- function(gitstats_obj, add_contributors = FALSE) {
 #' @param gitstats_obj A GitStats object.
 #' @description Adds information on contributors to already pulled repositories
 #'   table.
-#' @return  A `GitStats` class object with repositories table with added
+#' @returns  A `GitStats` class object with repositories table with added
 #'   information on contributors.
 #' @export
+#' @examples
+#' my_gitstats <- create_gitstats() %>%
+#'   set_host(
+#'     api_url = "https://api.github.com",
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs", "openpharma")
+#'   ) %>%
+#'   set_host(
+#'     api_url = "https://gitlab.com/api/v4",
+#'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+#'     orgs = "mbtests"
+#'   ) %>%
+#'   pull_repos() %>%
+#'   pull_repos_contributors()
 pull_repos_contributors <- function(gitstats_obj) {
   gitstats_obj$pull_repos_contributors()
   return(invisible(gitstats_obj))
@@ -169,9 +175,9 @@ pull_repos_contributors <- function(gitstats_obj) {
 #' @param gitstats_obj  A GitStats object.
 #' @param date_from A starting date of commits.
 #' @param date_until An end date of commits.
-#' @return A `GitStats` class object with commits table.
+#' @returns A `GitStats` class object with commits table.
+#' @export
 #' @examples
-#' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
 #'   set_host(
 #'     api_url = "https://api.github.com",
@@ -188,9 +194,10 @@ pull_repos_contributors <- function(gitstats_obj) {
 #'     team_name = "rwdevs"
 #'   ) %>%
 #'   set_team_member("Maciej Banaś", "maciekbanas") %>%
-#'   pull_commits(date_from = "2018-01-01")
-#' }
-#' @export
+#'   pull_commits(
+#'     date_from = "2023-01-01",
+#'     date_until = "2023-01-15"
+#'   )
 pull_commits <- function(gitstats_obj,
                          date_from = NULL,
                          date_until = Sys.time()) {
@@ -207,8 +214,9 @@ pull_commits <- function(gitstats_obj,
 #' @description Pull users data from Git Host.
 #' @param gitstats_obj A GitStats object.
 #' @param users A character vector of users.
+#' @returns A `GitStats` object with table of users.
+#' @export
 #' @examples
-#' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
 #'   set_host(
 #'     api_url = "https://api.github.com",
@@ -220,10 +228,7 @@ pull_commits <- function(gitstats_obj,
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
 #'   ) %>%
-#'   pull_users(c("maciekabanas", "marcinkowskak"))
-#' }
-#' @return A `GitStats` object with table of users.
-#' @export
+#'   pull_users(c("maciekbanas", "marcinkowskak"))
 pull_users <- function(gitstats_obj,
                        users){
   gitstats_obj$pull_users(
@@ -237,8 +242,16 @@ pull_users <- function(gitstats_obj,
 #' @description Sets all settings to default: search_param to `org`, language to
 #'   `All` and other to `NULL`s.
 #' @param gitstats_obj A GitStats object.
-#' @return A `GitStats` object.
+#' @returns A `GitStats` object.
 #' @export
+#' @examples
+#' my_gitstats <- create_gitstats() %>%
+#'   set_params(
+#'     search_param = "team",
+#'     team_name = "Avengers",
+#'     language = "R"
+#'   )
+#' reset(my_gitstats)
 reset <- function(gitstats_obj){
   priv <- environment(gitstats_obj$set_params)$private
   priv$settings <- list(
@@ -258,8 +271,14 @@ reset <- function(gitstats_obj){
 #' @description Sets language parameter to \code{NULL} (switches of filtering by
 #'   language.).
 #' @param gitstats_obj A GitStats object.
-#' @return A `GitStats` object.
+#' @returns A `GitStats` object.
 #' @export
+#' @examples
+#' my_gitstats <- create_gitstats() %>%
+#'   set_params(
+#'     language = "R"
+#'   )
+#' reset_language(my_gitstats)
 reset_language <- function(gitstats_obj){
   priv <- environment(gitstats_obj$set_params)$private
   priv$settings$language <- "All"
@@ -273,8 +292,21 @@ reset_language <- function(gitstats_obj){
 #'   helpful when user is scanning whole git platform and wants to have a
 #'   glimpse at organizations.
 #' @param gitstats_obj A GitStats object.
-#' @return A vector of organizations.
+#' @returns A vector of organizations.
 #' @export
+#' @examples
+#' create_gitstats() %>%
+#'   set_host(
+#'     api_url = "https://api.github.com",
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs", "openpharma")
+#'   ) %>%
+#'   set_host(
+#'     api_url = "https://gitlab.com/api/v4",
+#'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+#'     orgs = "mbtests"
+#'   ) %>%
+#'   get_orgs()
 get_orgs <- function(gitstats_obj){
   return(gitstats_obj$get_orgs())
 }
@@ -283,8 +315,22 @@ get_orgs <- function(gitstats_obj){
 #' @name get_repos
 #' @description Retrieves repositories table pulled by `GitStats`.
 #' @param gitstats_obj A GitStats object.
-#' @return A table of repositories.
+#' @returns A table of repositories.
 #' @export
+#' @examples
+#' create_gitstats() %>%
+#'   set_host(
+#'     api_url = "https://api.github.com",
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs", "openpharma")
+#'   ) %>%
+#'   set_host(
+#'     api_url = "https://gitlab.com/api/v4",
+#'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+#'     orgs = "mbtests"
+#'   ) %>%
+#'   pull_repos() %>%
+#'   get_repos()
 get_repos <- function(gitstats_obj){
   return(gitstats_obj$get_repos())
 }
@@ -293,8 +339,25 @@ get_repos <- function(gitstats_obj){
 #' @name get_commits
 #' @description Retrieves commits table pulled by `GitStats`.
 #' @param gitstats_obj A GitStats object.
-#' @return A table of commits.
+#' @returns A table of commits.
 #' @export
+#' @examples
+#' my_gitstats <- create_gitstats() %>%
+#'   set_host(
+#'     api_url = "https://api.github.com",
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs")
+#'   ) %>%
+#'   set_host(
+#'     api_url = "https://gitlab.com/api/v4",
+#'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+#'     orgs = "mbtests"
+#'   ) %>%
+#'   pull_commits(
+#'     date_from = "2023-01-01",
+#'     date_until = "2023-01-15"
+#'   ) %>%
+#'   get_commits()
 get_commits <- function(gitstats_obj){
   return(gitstats_obj$get_commits())
 }
@@ -303,8 +366,22 @@ get_commits <- function(gitstats_obj){
 #' @name get_users
 #' @description Retrieves users table pulled by `GitStats`.
 #' @param gitstats_obj A GitStats object.
-#' @return A table of users.
+#' @returns A table of users.
 #' @export
+#' @examples
+#'  my_gitstats <- create_gitstats() %>%
+#'   set_host(
+#'     api_url = "https://api.github.com",
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs")
+#'   ) %>%
+#'   set_host(
+#'     api_url = "https://gitlab.com/api/v4",
+#'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+#'     orgs = "mbtests"
+#'   ) %>%
+#'   pull_users(c("maciekbanas", "marcinkowskak")) %>%
+#'   get_users()
 get_users <- function(gitstats_obj){
   return(gitstats_obj$get_users())
 }
