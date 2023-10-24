@@ -18,7 +18,6 @@ A \code{GitStats} object with table of users.
 Pull users data from Git Host.
 }
 \examples{
-\dontrun{
  my_gitstats <- create_gitstats() \%>\%
   set_host(
     api_url = "https://api.github.com",
@@ -30,6 +29,5 @@ Pull users data from Git Host.
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "mbtests"
   ) \%>\%
-  pull_users(c("maciekabanas", "marcinkowskak"))
-}
+  pull_users(c("maciekbanas", "marcinkowskak"))
 }

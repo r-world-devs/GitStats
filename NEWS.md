@@ -1,3 +1,7 @@
+# GitStats 1.0.1
+
+- adjusted to CRAN release - complete function docs with examples.
+
 # GitStats 1.0.0
 
 ## Breaking changes:

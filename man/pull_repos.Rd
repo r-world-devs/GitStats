@@ -32,7 +32,6 @@ List all repositories for an organization, a team or by a
 keyword.
 }
 \examples{
-\dontrun{
 my_gitstats <- create_gitstats() \%>\%
   set_host(
     api_url = "https://api.github.com",
@@ -45,5 +44,4 @@ my_gitstats <- create_gitstats() \%>\%
     orgs = "mbtests"
   ) \%>\%
   pull_repos()
-}
 }

@@ -13,8 +13,28 @@
 #' @param value_decreasing A boolean to set ordering of a value on the plot.
 #' @param plotly_mode A boolean, if TRUE, turns plot into interactive plotly.
 #' @param n An integer, a maximum number of repos/organizations to show on the plot.
-#' @return A plot.
+#' @returns A plot.
 #' @export
+#' @examples
+#'  repos_stats <- create_gitstats() %>%
+#'   set_host(
+#'     api_url = "https://api.github.com",
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs")
+#'   ) %>%
+#'   set_host(
+#'     api_url = "https://gitlab.com/api/v4",
+#'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+#'     orgs = "mbtests"
+#'   ) %>%
+#'   pull_repos() %>%
+#'   get_repos_stats()
+#'
+#'   gitstats_plot(
+#'     stats_table = repos_stats,
+#'     value_to_plot = "contributors_n",
+#'     value_decreasing = FALSE
+#'   )
 gitstats_plot <- function(stats_table = NULL,
                           value_to_plot = NULL,
                           plotly_mode = FALSE,

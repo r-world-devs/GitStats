@@ -21,7 +21,6 @@ List all commits from all repositories for an organization or a
 team.
 }
 \examples{
-\dontrun{
 my_gitstats <- create_gitstats() \%>\%
   set_host(
     api_url = "https://api.github.com",
@@ -38,6 +37,8 @@ my_gitstats <- create_gitstats() \%>\%
     team_name = "rwdevs"
   ) \%>\%
   set_team_member("Maciej Banaś", "maciekbanas") \%>\%
-  pull_commits(date_from = "2018-01-01")
-}
+  pull_commits(
+    date_from = "2023-01-01",
+    date_until = "2023-01-15"
+  )
 }
