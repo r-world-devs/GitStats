@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 [![Codecov test coverage](https://codecov.io/gh/r-world-devs/GitStats/branch/devel/graph/badge.svg)](https://app.codecov.io/gh/r-world-devs/GitStats?branch=devel)
 <!-- badges: end -->
 
-The goal of GitStats is to pull git statistics in a uniform way from different Git platforms (GitHub and GitLab for the time-being). 
+The goal of GitStats is to gather git statistics from different Git platforms (GitHub and GitLab for the time-being) in a standardized form. 
 
 ## Installation
 
