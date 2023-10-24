@@ -13,3 +13,4 @@
 ^pkgdown$
 ^meta_data.yaml
 ^cran-comments\.md$
+^CRAN-SUBMISSION$
