@@ -127,6 +127,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
          next_page <- core_response$pageInfo$hasNextPage
          if (is.null(next_page)) next_page <- FALSE
          if (is.null(repos_list)) repos_list <- list()
+         if (length(repos_list) == 0) next_page <- FALSE
          if (next_page) {
            repo_cursor <- core_response$pageInfo$endCursor
          } else {
@@ -163,27 +164,31 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      # @param repos_list A list of repositories.
      # @return Table of repositories.
      prepare_repos_table = function(repos_list) {
-       repos_table <- purrr::map_dfr(repos_list, function(repo) {
-         repo <- repo$node
-         repo$languages <- if (length(repo$languages) > 0) {
-           purrr::map_chr(repo$languages, ~ .$name) %>%
-           paste0(collapse = ", ")
-         } else {
-           ""
-         }
-         repo$created_at <- gts_to_posixt(repo$created_at)
-         repo$issues_open <- repo$issues$opened
-         repo$issues_closed <- repo$issues$closed
-         repo$issues <- NULL
-         repo$last_activity_at <- as.POSIXct(repo$last_activity_at)
-         repo$organization <- repo$group$name
-         repo$group <- NULL
-         data.frame(repo)
-       }) %>%
-         dplyr::relocate(
-           repo_url,
-           .after = organization
-         )
+       if (length(repos_list) > 0) {
+         repos_table <- purrr::map_dfr(repos_list, function(repo) {
+           repo <- repo$node
+           repo$languages <- if (length(repo$languages) > 0) {
+             purrr::map_chr(repo$languages, ~ .$name) %>%
+               paste0(collapse = ", ")
+           } else {
+             ""
+           }
+           repo$created_at <- gts_to_posixt(repo$created_at)
+           repo$issues_open <- repo$issues$opened
+           repo$issues_closed <- repo$issues$closed
+           repo$issues <- NULL
+           repo$last_activity_at <- as.POSIXct(repo$last_activity_at)
+           repo$organization <- repo$group$name
+           repo$group <- NULL
+           data.frame(repo)
+         }) %>%
+           dplyr::relocate(
+             repo_url,
+             .after = organization
+           )
+       } else {
+         repos_table <- NULL
+       }
        return(repos_table)
      },
 
