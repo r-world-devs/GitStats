@@ -1,3 +1,9 @@
+# GitStats 1.0.1
+
+## Fixes:
+
+- fixed pulling responses when GitLab groups have private or empty content ([#314](https://github.com/r-world-devs/GitStats/issues/314).
+
 # GitStats 1.0.0
 
 ## Breaking changes:
