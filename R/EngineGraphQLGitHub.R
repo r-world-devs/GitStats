@@ -249,16 +249,20 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     # @param repos_list A list of repositories.
     # @return Table of repositories.
     prepare_repos_table = function(repos_list) {
-      repos_table <- purrr::map_dfr(repos_list, function(repo) {
-        repo$languages <- purrr::map_chr(repo$languages$nodes, ~ .$name) %>%
-          paste0(collapse = ", ")
-        repo$created_at <- gts_to_posixt(repo$created_at)
-        repo$issues_open <- repo$issues_open$totalCount
-        repo$issues_closed <- repo$issues_closed$totalCount
-        repo$last_activity_at <- as.POSIXct(repo$last_activity_at)
-        repo$organization <- repo$organization$login
-        data.frame(repo)
-      })
+      if (length(repos_list) > 0) {
+        repos_table <- purrr::map_dfr(repos_list, function(repo) {
+          repo$languages <- purrr::map_chr(repo$languages$nodes, ~ .$name) %>%
+            paste0(collapse = ", ")
+          repo$created_at <- gts_to_posixt(repo$created_at)
+          repo$issues_open <- repo$issues_open$totalCount
+          repo$issues_closed <- repo$issues_closed$totalCount
+          repo$last_activity_at <- as.POSIXct(repo$last_activity_at)
+          repo$organization <- repo$organization$login
+          data.frame(repo)
+        })
+      } else {
+        repos_table <- NULL
+      }
       return(repos_table)
     },
 

@@ -308,6 +308,7 @@ GitHost <- R6::R6Class("GitHost",
         }
       }
       repos_table <- purrr::map(orgs, function(org) {
+        repos_list <- list()
         tryCatch({
           repos_list <- purrr::map(private$engines, function (engine) {
             engine$pull_repos(
@@ -340,6 +341,8 @@ GitHost <- R6::R6Class("GitHost",
                 )
               )
             }
+          } else {
+            e
           }
         })
         repos_table_org <- purrr::list_rbind(repos_list)

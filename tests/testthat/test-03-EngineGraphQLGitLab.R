@@ -44,6 +44,43 @@ test_that("`pull_repos_from_org()` prepares formatted list", {
   test_mocker$cache(gl_repos_from_org)
 })
 
+test_that("`pull_repos_from_org()` does not fail when GraphQL response is not complete", {
+  mockery::stub(
+    test_gql_gl$pull_repos_from_org,
+    "private$pull_repos_page",
+    test_fixtures$empty_gql_response
+  )
+  gl_repos_from_org <- test_gql_gl$pull_repos_from_org(
+    from = "org",
+    org = "mbtests"
+  )
+  expect_type(
+    gl_repos_from_org,
+    "list"
+  )
+  expect_length(
+    gl_repos_from_org,
+    0
+  )
+  mockery::stub(
+    test_gql_gl$pull_repos_from_org,
+    "private$pull_repos_page",
+    test_fixtures$half_empty_gql_response
+  )
+  gl_repos_from_org <- test_gql_gl$pull_repos_from_org(
+    from = "org",
+    org = "mbtests"
+  )
+  expect_type(
+    gl_repos_from_org,
+    "list"
+  )
+  expect_length(
+    gl_repos_from_org,
+    0
+  )
+})
+
 test_that("`prepare_repos_table()` prepares repos table", {
   gl_repos_table <- test_gql_gl$prepare_repos_table(
     repos_list = test_mocker$use("gl_repos_from_org")
