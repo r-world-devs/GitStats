@@ -305,3 +305,9 @@ expect_github_files_response <- function(object) {
     )
   })
 }
+
+expect_files_table <- function(files_object) {
+  expect_s3_class(files_object, "data.frame")
+  expect_named(files_object, c("repository", "file_content", "file_size"))
+  expect_gt(nrow(files_object), 0)
+}

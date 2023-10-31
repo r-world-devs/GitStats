@@ -206,13 +206,20 @@ test_that("GitHub prepares user table", {
   test_mocker$cache(gh_user_table)
 })
 
-test_that("File response", {
+test_that("GitHub GraphQL Engine pulls files from organization", {
   github_files_response <- test_gql_gh$pull_file_from_org(
     "r-world-devs",
     "meta_data.yaml"
   )
   expect_github_files_response(github_files_response)
   test_mocker$cache(github_files_response)
+})
+
+test_that("GitHub GraphQL Engine prepares table from files response", {
+  files_table <- test_gql_gh$prepare_files_table(
+    files_response = test_mocker$use("github_files_response")
+  )
+  expect_files_table(files_table)
 })
 
 # public methods
@@ -295,4 +302,13 @@ test_that("`pull_commits()` retrieves commits in the table format", {
   expect_commits_table(
     commits_table
   )
+})
+
+test_that("`pull_files()` pulls files in the table format", {
+  gh_files_table <- test_gql_gh$pull_files(
+    org = "r-world-devs",
+    file_path = "LICENSE"
+  )
+  expect_files_table(gh_files_table)
+  test_mocker$cache(gh_files_table)
 })

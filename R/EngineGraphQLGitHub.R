@@ -155,7 +155,22 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
                                       date_until = Sys.date(),
                                       settings) {
       NULL
+    },
+
+    #' @description A method to retrieve given files from all repositories for
+    #'   an organization in a table format.
+    #' @param org An organization.
+    #' @param file_path A file path.
+    #' @return A table.
+    pull_files = function(org, file_path) {
+      files_table <- private$pull_file_from_org(
+        org = org,
+        file_path = file_path
+      ) %>%
+        private$prepare_files_table()
+      return(files_table)
     }
+
   ),
   private = list(
 
@@ -485,7 +500,25 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         full_repos_list <- append(full_repos_list, repos_list)
       }
       return(full_repos_list)
+    },
 
+    # @description Prepare files table.
+    # @param files_response A list.
+    # @return A table with information on files.
+    prepare_files_table = function(files_response) {
+      if (!is.null(files_response)) {
+        files_table <- purrr::map(files_response, function(repository) {
+          data.frame(
+            "repository" = repository$name,
+            "file_content" = repository$object$text,
+            "file_size" = repository$object$byteSize
+          )
+        }) %>%
+          purrr::list_rbind()
+      } else {
+        files_table <- NULL
+      }
+      return(files_table)
     }
   )
 )
