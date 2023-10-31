@@ -450,6 +450,17 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         user_table <- NULL
       }
       return(user_table)
+    },
+
+    pull_file_from_org = function(org, file_path) {
+      files_query <- self$gql_query$files_by_org()
+      response <- self$gql_response(
+        gql_query = files_query,
+        vars = list(
+          "org" = org,
+          "file_path" = paste0("master:", file_path)
+        )
+      )
     }
   )
 )

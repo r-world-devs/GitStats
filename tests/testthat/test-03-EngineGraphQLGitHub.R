@@ -206,6 +206,14 @@ test_that("GitHub prepares user table", {
   test_mocker$cache(gh_user_table)
 })
 
+test_that("File response", {
+  browser()
+  response <- test_gql_gh$pull_file_from_org(
+    "r-world-devs",
+    "meta_data.yaml"
+  )
+})
+
 # public methods
 
 test_gql_gh <- EngineGraphQLGitHub$new(

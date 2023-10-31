@@ -159,6 +159,24 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
             }
           }
         }")
+    },
+
+    files_by_org = function(){
+      'query FilesByOrg($org: String!, $file_path: String!) {
+        organization(login: $org) {
+          repositories(first: 100) {
+            nodes {
+              name
+              content_a: object(expression: $file_path) {
+                ... on Blob {
+                  text
+                  byteSize
+                }
+              }
+            }
+          }
+        }
+      }'
     }
   ),
   private = list(
