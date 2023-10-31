@@ -214,6 +214,48 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
          user_table <- NULL
        }
        return(user_table)
+     },
+
+     # @description Pull all given files from all repositories of a group.
+     # @param org An organization.
+     # @param file_path Path to a file.
+     # @return A response in a list form.
+     pull_file_from_org = function(org, file_path) {
+       full_files_list <- list()
+       next_page <- TRUE
+       end_cursor <- ""
+       while (next_page) {
+         files_query <- self$gql_query$files_by_org(
+           end_cursor = end_cursor
+         )
+         files_response <- self$gql_response(
+           gql_query = files_query,
+           vars = list(
+             "org" = org,
+             "file_paths" = file_path
+           )
+         )
+         if (length(files_response$data$group) == 0) {
+           cli::cli_abort("Empty")
+         }
+         projects <- files_response$data$group$projects
+         files_list <- purrr::map(projects$edges, function(edge) {
+           edge$node$repository$blobs$nodes
+         }) %>%
+           purrr::discard(~ length(.) == 0)
+         files_list <- files_list[[1]]
+         next_page <- files_response$pageInfo$hasNextPage
+         if (is.null(next_page)) next_page <- FALSE
+         if (is.null(files_list)) files_list <- list()
+         if (length(files_list) == 0) next_page <- FALSE
+         if (next_page) {
+           end_cursor <- files_response$pageInfo$endCursor
+         } else {
+           end_cursor <- ""
+         }
+         full_files_list <- append(full_files_list, files_list)
+       }
+       return(full_files_list)
      }
    )
 )

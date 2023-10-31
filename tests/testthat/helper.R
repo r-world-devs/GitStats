@@ -306,6 +306,25 @@ expect_github_files_response <- function(object) {
   })
 }
 
+expect_gitlab_files_response <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  expect_gt(
+    length(object),
+    0
+  )
+  purrr::walk(object, function(repository) {
+    expect_list_contains(
+      repository,
+      c(
+        "name", "rawBlob", "size"
+      )
+    )
+  })
+}
+
 expect_files_table <- function(files_object) {
   expect_s3_class(files_object, "data.frame")
   expect_named(files_object, c("repository", "file_content", "file_size"))

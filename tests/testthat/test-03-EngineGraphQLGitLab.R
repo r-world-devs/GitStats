@@ -101,6 +101,15 @@ test_that("GitLab prepares user table", {
   test_mocker$cache(gl_user_table)
 })
 
+test_that("GitLab GraphQL Engine pulls files from a group", {
+  gitlab_files_response <- test_gql_gl$pull_file_from_org(
+    "mbtests",
+    "meta_data.yaml"
+  )
+  expect_gitlab_files_response(gitlab_files_response)
+  test_mocker$cache(gitlab_files_response)
+})
+
 # public methods
 
 test_gql_gl <- EngineGraphQLGitLab$new(
