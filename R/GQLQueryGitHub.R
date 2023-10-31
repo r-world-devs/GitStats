@@ -167,7 +167,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     #' @return A query.
     files_by_org = function(end_cursor = ""){
       paste0(
-      'query FilesByOrg($org: String!, $file_path: String!) {
+      'query GetFilesByOrg($org: String!, $file_path: String!) {
         organization(login: $org) {
           repositories(first: 100',
                        private$add_cursor(end_cursor),') {

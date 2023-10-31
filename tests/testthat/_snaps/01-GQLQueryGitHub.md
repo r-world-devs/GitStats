@@ -26,3 +26,10 @@
     Output
       [1] "\n        query GetUser($user: String!) {\n          user(login: $user) {\n            id\n            name\n            login\n            email\n            location\n            starred_repos: starredRepositories {\n              totalCount\n            }\n            contributions: contributionsCollection {\n              totalIssueContributions\n              totalCommitContributions\n              totalPullRequestContributions\n              totalPullRequestReviewContributions\n            }\n            avatar_url: avatarUrl\n            web_url: websiteUrl\n          }\n        }"
 
+# file query is built properly
+
+    Code
+      gh_files_query
+    Output
+      [1] "query GetFilesByOrg($org: String!, $file_path: String!) {\n        organization(login: $org) {\n          repositories(first: 100) {\n            totalCount\n            pageInfo {\n              hasNextPage\n              endCursor\n            }\n            nodes {\n              name\n              object(expression: $file_path) {\n                ... on Blob {\n                  text\n                  byteSize\n                }\n              }\n            }\n          }\n        }\n      }"
+
