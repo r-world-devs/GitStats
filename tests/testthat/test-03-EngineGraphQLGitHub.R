@@ -207,11 +207,12 @@ test_that("GitHub prepares user table", {
 })
 
 test_that("File response", {
-  browser()
-  response <- test_gql_gh$pull_file_from_org(
+  github_files_response <- test_gql_gh$pull_file_from_org(
     "r-world-devs",
     "meta_data.yaml"
   )
+  expect_github_files_response(github_files_response)
+  test_mocker$cache(github_files_response)
 })
 
 # public methods

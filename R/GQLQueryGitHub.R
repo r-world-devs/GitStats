@@ -161,13 +161,24 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
         }")
     },
 
-    files_by_org = function(){
+    #' @description Prepare query to get files in a standard filepath from
+    #'   GitHub repositories.
+    #' @param end_cursor An endCursor.
+    #' @return A query.
+    files_by_org = function(end_cursor = ""){
+      paste0(
       'query FilesByOrg($org: String!, $file_path: String!) {
         organization(login: $org) {
-          repositories(first: 100) {
+          repositories(first: 100',
+                       private$add_cursor(end_cursor),') {
+            totalCount
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
             nodes {
               name
-              content_a: object(expression: $file_path) {
+              object(expression: $file_path) {
                 ... on Blob {
                   text
                   byteSize
@@ -177,6 +188,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
           }
         }
       }'
+      )
     }
   ),
   private = list(

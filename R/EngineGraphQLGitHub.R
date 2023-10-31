@@ -452,15 +452,40 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       return(user_table)
     },
 
+    # @description Pull all given files from all repositories of an organization.
+    # @param org An organization.
+    # @param file_path Path to a file.
+    # @return A response in a list form.
     pull_file_from_org = function(org, file_path) {
-      files_query <- self$gql_query$files_by_org()
-      response <- self$gql_response(
-        gql_query = files_query,
-        vars = list(
-          "org" = org,
-          "file_path" = paste0("master:", file_path)
+      full_repos_list <- list()
+      next_page <- TRUE
+      end_cursor <- ""
+      while (next_page) {
+        files_query <- self$gql_query$files_by_org(
+          end_cursor = end_cursor
         )
-      )
+        files_response <- self$gql_response(
+          gql_query = files_query,
+          vars = list(
+            "org" = org,
+            "file_path" = paste0("master:", file_path)
+          )
+        )
+        repositories <- files_response$data$organization$repositories
+        repos_list <- repositories$nodes %>%
+          purrr::discard(~ is.null(.$object))
+        next_page <- repositories$pageInfo$hasNextPage
+        if (is.null(next_page)) next_page <- FALSE
+        if (is.null(repos_list)) repos_list <- list()
+        if (next_page) {
+          end_cursor <- repositories$pageInfo$endCursor
+        } else {
+          end_cursor <- ""
+        }
+        full_repos_list <- append(full_repos_list, repos_list)
+      }
+      return(full_repos_list)
+
     }
   )
 )

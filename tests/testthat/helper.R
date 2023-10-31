@@ -280,3 +280,28 @@ expect_empty_table <- function(object) {
   expect_s3_class(object, "data.frame")
   expect_equal(nrow(object), 0)
 }
+
+expect_github_files_response <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  expect_gt(
+    length(object),
+    0
+  )
+  purrr::walk(object, function(repository) {
+    expect_list_contains(
+      repository,
+      c(
+        "name", "object"
+      )
+    )
+    expect_list_contains(
+      repository$object,
+      c(
+        "text", "byteSize"
+      )
+    )
+  })
+}
