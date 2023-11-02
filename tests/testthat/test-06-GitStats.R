@@ -110,6 +110,20 @@ test_that("pull_commits works properly", {
   test_mocker$cache(commits_table)
 })
 
+test_that("pull_files works properly", {
+  test_gitstats <- create_test_gitstats(hosts = 2)
+  suppressMessages(
+    test_gitstats$pull_files(
+      file_path = "meta_data.yaml"
+    )
+  )
+  files_table <- test_gitstats$get_files()
+  expect_files_table(
+    files_table
+  )
+  test_mocker$cache(files_table)
+})
+
 test_that("get_orgs print orgs properly", {
   expect_equal(
     test_gitstats$get_orgs(),

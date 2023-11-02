@@ -95,6 +95,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
                             settings) {
        NULL
      }
+
    ),
 
    private = list(
@@ -256,6 +257,25 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
          full_files_list <- append(full_files_list, files_list)
        }
        return(full_files_list)
+     },
+
+     # @description Prepare files table.
+     # @param files_response A list.
+     # @return A table with information on files.
+     prepare_files_table = function(files_response) {
+       if (!is.null(files_response)) {
+         files_table <- purrr::map(files_response, function(repository) {
+           data.frame(
+             "repository" = repository$name,
+             "file_content" = repository$rawBlob,
+             "file_size" = as.integer(repository$size)
+           )
+         }) %>%
+           purrr::list_rbind()
+       } else {
+         files_table <- NULL
+       }
+       return(files_table)
      }
    )
 )

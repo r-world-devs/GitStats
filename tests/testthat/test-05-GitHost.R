@@ -397,3 +397,25 @@ test_that("pull_commits for GitHub works", {
     gh_commits_table
   )
 })
+
+test_that("pull_files for GitLab works", {
+  suppressMessages(
+    gl_files_table <- test_gl_host$pull_files(
+      file_path = "meta_data.yaml"
+    )
+  )
+  expect_files_table(
+    gl_files_table
+  )
+})
+
+test_that("pull_files for GitHub works", {
+  suppressMessages(
+    gh_files_table <- test_host$pull_files(
+      file_path = "DESCRIPTION"
+    )
+  )
+  expect_files_table(
+    gh_files_table
+  )
+})

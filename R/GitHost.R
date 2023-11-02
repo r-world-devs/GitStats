@@ -165,6 +165,28 @@ GitHost <- R6::R6Class("GitHost",
       }) %>%
         purrr::list_rbind()
       return(users_table)
+    },
+
+    #' @description A method to retrieve given files from all repositories for
+    #'   a host in a table format.
+    #' @param file_path A file path.
+    #' @return A table.
+    pull_files = function(file_path) {
+      files_table <- purrr::map(private$engines, function(engine) {
+        if (inherits(engine, "EngineGraphQL")) {
+          repos_table <- purrr::map(private$orgs, function(org) {
+            engine$pull_files(
+              org = org,
+              file_path = file_path
+            )
+          }) %>%
+            purrr::list_rbind()
+        } else {
+          NULL
+        }
+      }) %>%
+        purrr::list_rbind()
+      return(files_table)
     }
   ),
   private = list(

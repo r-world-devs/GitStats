@@ -155,20 +155,6 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
                                       date_until = Sys.date(),
                                       settings) {
       NULL
-    },
-
-    #' @description A method to retrieve given files from all repositories for
-    #'   an organization in a table format.
-    #' @param org An organization.
-    #' @param file_path A file path.
-    #' @return A table.
-    pull_files = function(org, file_path) {
-      files_table <- private$pull_file_from_org(
-        org = org,
-        file_path = file_path
-      ) %>%
-        private$prepare_files_table()
-      return(files_table)
     }
 
   ),

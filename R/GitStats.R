@@ -214,6 +214,20 @@ GitStats <- R6::R6Class("GitStats",
       return(invisible(self))
     },
 
+    #' @description Pull text content of a file from all repositories.
+    #' @param file_path A file path.
+    #' @return A data.frame of files.
+    pull_files = function(file_path) {
+      private$check_for_host()
+      files_table <- purrr::map(private$hosts, function(host) {
+        host$pull_files(file_path)
+      }) %>%
+        purrr::list_rbind()
+      private$files <- files_table
+      if (private$settings$print_out) dplyr::glimpse(files_table)
+      return(invisible(self))
+    },
+
     #' @description Return organizations vector from GitStats.
     get_orgs = function() {
       purrr::map(private$hosts, function(host) {
@@ -235,6 +249,11 @@ GitStats <- R6::R6Class("GitStats",
     #' @description Return users table from GitStats.
     get_users = function() {
       private$users
+    },
+
+    #' @description Return files table from GitStats.
+    get_files = function() {
+      private$files
     },
 
     #' @description A print method for a GitStats object.
@@ -281,6 +300,9 @@ GitStats <- R6::R6Class("GitStats",
 
     # @field users An output table of users.
     users = NULL,
+
+    # @field files An output table of files.
+    files = NULL,
 
     # @description Check whether the urls do not repeat in input.
     # @param host An object of GitPlatform class.
