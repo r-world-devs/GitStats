@@ -122,6 +122,7 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
                 }
                 edges {
                   node {
+                    name
                     repository {
                       blobs(paths: $file_paths) {
                         nodes {

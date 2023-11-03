@@ -247,12 +247,11 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
          }
          projects <- files_response$data$group$projects
          files_list <- purrr::map(projects$edges, function(edge) {
-           edge$node$repository$blobs$nodes
+           edge$node
          }) %>%
-           purrr::discard(~ length(.) == 0)
+           purrr::discard(~ length(.$repository$blobs$nodes) == 0)
          if (is.null(files_list)) files_list <- list()
          if (length(files_list) > 0) {
-           files_list <- files_list[[1]]
            next_page <- files_response$pageInfo$hasNextPage
          } else {
            next_page <- FALSE
@@ -274,13 +273,13 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      # @return A table with information on files.
      prepare_files_table = function(files_response, org, file_path) {
        if (!is.null(files_response)) {
-         files_table <- purrr::map(files_response, function(repository) {
+         files_table <- purrr::map(files_response, function(project) {
            data.frame(
-             "repository" = repository$name,
+             "repository" = project$name,
              "organization" = org,
-             "file_path" = file_path,
-             "file_content" = repository$rawBlob,
-             "file_size" = as.integer(repository$size)
+             "file_path" = project$repository$blobs$nodes[[1]]$name,
+             "file_content" = project$repository$blobs$nodes[[1]]$rawBlob,
+             "file_size" = as.integer(project$repository$blobs$nodes[[1]]$size)
            )
          }) %>%
            purrr::list_rbind()

@@ -307,9 +307,15 @@ expect_gitlab_files_response <- function(object) {
     length(object),
     0
   )
-  purrr::walk(object, function(repository) {
+  purrr::walk(object, function(project) {
     expect_list_contains(
-      repository,
+      project,
+      c(
+        "name", "repository"
+      )
+    )
+    expect_list_contains(
+      project$repository$blobs$nodes[[1]],
       c(
         "name", "rawBlob", "size"
       )
