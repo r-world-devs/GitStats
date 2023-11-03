@@ -53,11 +53,17 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
      #' @param file_path A file path.
      #' @return A table.
      pull_files = function(org, file_path) {
+       if (!private$scan_all) {
+         cli::cli_alert_info("[Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling {file_path} files...")
+       }
        files_table <- private$pull_file_from_org(
          org = org,
          file_path = file_path
        ) %>%
-         private$prepare_files_table()
+         private$prepare_files_table(
+           org = org,
+           file_path = file_path
+         )
        return(files_table)
      }
 

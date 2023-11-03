@@ -55,8 +55,10 @@ test_that("pull_users works as expected", {
 
 test_that("pull_files works as expected", {
   test_gitstats <- create_test_gitstats(hosts = 2)
-  pull_files(test_gitstats,
-             "meta_data.yaml")
+  expect_snapshot(
+    pull_files(test_gitstats,
+               "meta_data.yaml")
+  )
   files_table <- test_gitstats$get_files()
   expect_files_table(
     files_table

@@ -19,3 +19,12 @@
 
     Add first your hosts with `set_host()`.
 
+# pull_files works as expected
+
+    Code
+      pull_files(test_gitstats, "meta_data.yaml")
+    Message
+      i [Engine:GraphQL][org:r-world-devs] Pulling meta_data.yaml files...
+      i [Engine:GraphQL][org:openpharma] Pulling meta_data.yaml files...
+      i [Engine:GraphQL][org:mbtests] Pulling meta_data.yaml files...
+

@@ -252,6 +252,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     prepare_repos_table = function(repos_list) {
       if (length(repos_list) > 0) {
         repos_table <- purrr::map_dfr(repos_list, function(repo) {
+          repo$default_branch <- repo$default_branch$name
           repo$languages <- purrr::map_chr(repo$languages$nodes, ~ .$name) %>%
             paste0(collapse = ", ")
           repo$created_at <- gts_to_posixt(repo$created_at)
@@ -259,7 +260,11 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           repo$issues_closed <- repo$issues_closed$totalCount
           repo$last_activity_at <- as.POSIXct(repo$last_activity_at)
           repo$organization <- repo$organization$login
-          data.frame(repo)
+          repo <- data.frame(repo) %>%
+            dplyr::relocate(
+              default_branch,
+              .after = name
+            )
         })
       } else {
         repos_table <- NULL
@@ -458,46 +463,42 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     # @param file_path Path to a file.
     # @return A response in a list form.
     pull_file_from_org = function(org, file_path) {
-      full_repos_list <- list()
-      next_page <- TRUE
-      end_cursor <- ""
-      while (next_page) {
-        files_query <- self$gql_query$files_by_org(
-          end_cursor = end_cursor
-        )
+      repos_list <- private$pull_repos_from_org(
+        from = "org",
+        org = org
+      )
+      repositories <- purrr::map(repos_list, ~ .$name)
+      def_branches <- purrr::map(repos_list, ~ .$default_branch$name)
+      files_list <- purrr::map2(repositories, def_branches, function(repository, def_branch) {
+        files_query <- self$gql_query$files_by_repo()
         files_response <- self$gql_response(
           gql_query = files_query,
           vars = list(
             "org" = org,
-            "file_path" = paste0("master:", file_path)
+            "repo" = repository,
+            "file_path" = paste0(def_branch, ":", file_path)
           )
         )
-        repositories <- files_response$data$organization$repositories
-        repos_list <- repositories$nodes %>%
-          purrr::discard(~ is.null(.$object))
-        next_page <- repositories$pageInfo$hasNextPage
-        if (is.null(next_page)) next_page <- FALSE
-        if (is.null(repos_list)) repos_list <- list()
-        if (next_page) {
-          end_cursor <- repositories$pageInfo$endCursor
-        } else {
-          end_cursor <- ""
-        }
-        full_repos_list <- append(full_repos_list, repos_list)
-      }
-      return(full_repos_list)
+      }) %>%
+        purrr::map(~ .$data$repository$object)
+      names(files_list) <- repositories
+      files_list <- purrr::discard(files_list, ~ length(.) == 0)
+      return(files_list)
     },
 
     # @description Prepare files table.
     # @param files_response A list.
+    # @param org An organization.
     # @return A table with information on files.
-    prepare_files_table = function(files_response) {
+    prepare_files_table = function(files_response, org, file_path) {
       if (!is.null(files_response)) {
-        files_table <- purrr::map(files_response, function(repository) {
+        files_table <- purrr::imap(files_response, function(repository, name) {
           data.frame(
-            "repository" = repository$name,
-            "file_content" = repository$object$text,
-            "file_size" = repository$object$byteSize
+            "repository" = name,
+            "organization" = org,
+            "file_path" = file_path,
+            "file_content" = repository$text,
+            "file_size" = repository$byteSize
           )
         }) %>%
           purrr::list_rbind()

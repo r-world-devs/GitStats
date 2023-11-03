@@ -44,7 +44,7 @@ test_that("user query is built properly", {
 
 test_that("file query is built properly", {
   gh_files_query <-
-    test_gqlquery_gh$files_by_org()
+    test_gqlquery_gh$files_by_repo()
   expect_snapshot(
     gh_files_query
   )

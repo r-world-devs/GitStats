@@ -72,7 +72,7 @@ expect_gl_repos_gql_response <- function(object) {
   expect_list_contains(
     object$data$group$projects$edges[[1]]$node,
     c(
-      "id", "name", "createdAt", "starCount", "forksCount"
+      "id", "name", "repository", "stars", "forks", "created_at", "last_activity_at"
     )
   )
 }
@@ -232,7 +232,7 @@ expect_users_table <- function(get_user_object) {
 }
 
 repo_table_colnames <- c(
-  "id", "name", "stars", "forks", "created_at",
+  "id", "name", "default_branch", "stars", "forks", "created_at",
   "last_activity_at", "languages", "issues_open", "issues_closed",
   "organization", "repo_url"
 )
@@ -293,15 +293,7 @@ expect_github_files_response <- function(object) {
   purrr::walk(object, function(repository) {
     expect_list_contains(
       repository,
-      c(
-        "name", "object"
-      )
-    )
-    expect_list_contains(
-      repository$object,
-      c(
-        "text", "byteSize"
-      )
+      c("text", "byteSize")
     )
   })
 }
@@ -327,7 +319,7 @@ expect_gitlab_files_response <- function(object) {
 
 expect_files_table <- function(files_object) {
   expect_s3_class(files_object, "data.frame")
-  expect_named(files_object, c("repository", "file_content", "file_size"))
+  expect_named(files_object, c("repository", "organization", "file_path", "file_content", "file_size"))
   expect_type(files_object$file_size, "integer")
   expect_gt(nrow(files_object), 0)
 }

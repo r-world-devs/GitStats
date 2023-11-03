@@ -44,6 +44,11 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
               node {
                 id
                 name
+                ... on Project {
+                  repository {
+                    rootRef
+                  }
+                }
                 stars: starCount
                 forks: forksCount
                 created_at: createdAt
@@ -121,7 +126,7 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
                       blobs(paths: $file_paths) {
                         nodes {
                           name
-                          rawBlob,
+                          rawBlob
                           size
                         }
                       }

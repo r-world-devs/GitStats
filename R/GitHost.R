@@ -172,19 +172,24 @@ GitHost <- R6::R6Class("GitHost",
     #' @param file_path A file path.
     #' @return A table.
     pull_files = function(file_path) {
-      files_table <- purrr::map(private$engines, function(engine) {
-        if (inherits(engine, "EngineGraphQL")) {
-          repos_table <- purrr::map(private$orgs, function(org) {
+      files_table <- purrr::map(private$orgs, function(org) {
+        repos_table <- purrr::map(private$engines, function(engine) {
+          if (inherits(engine, "EngineGraphQL")) {
             engine$pull_files(
               org = org,
               file_path = file_path
             )
-          }) %>%
-            purrr::list_rbind()
-        } else {
-          NULL
-        }
-      }) %>%
+          } else {
+            NULL
+          }
+        }) %>%
+          purrr::list_rbind()
+      }, .progress = if (private$scan_all) {
+            cli::cli_alert_info("[{private$host}][Engine:{cli::col_yellow('GraphQL')}] Pulling {file_path} files...")
+          } else {
+            FALSE
+          }
+      ) %>%
         purrr::list_rbind()
       return(files_table)
     }

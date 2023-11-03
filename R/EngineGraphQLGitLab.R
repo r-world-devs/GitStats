@@ -168,6 +168,8 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
        if (length(repos_list) > 0) {
          repos_table <- purrr::map_dfr(repos_list, function(repo) {
            repo <- repo$node
+           repo$default_branch <- repo$repository$rootRef
+           repo$repository <- NULL
            repo$languages <- if (length(repo$languages) > 0) {
              purrr::map_chr(repo$languages, ~ .$name) %>%
                paste0(collapse = ", ")
@@ -186,6 +188,10 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
            dplyr::relocate(
              repo_url,
              .after = organization
+           ) %>%
+           dplyr::relocate(
+             default_branch,
+             .after = name
            )
        } else {
          repos_table <- NULL
@@ -244,11 +250,14 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
            edge$node$repository$blobs$nodes
          }) %>%
            purrr::discard(~ length(.) == 0)
-         files_list <- files_list[[1]]
-         next_page <- files_response$pageInfo$hasNextPage
-         if (is.null(next_page)) next_page <- FALSE
          if (is.null(files_list)) files_list <- list()
-         if (length(files_list) == 0) next_page <- FALSE
+         if (length(files_list) > 0) {
+           files_list <- files_list[[1]]
+           next_page <- files_response$pageInfo$hasNextPage
+         } else {
+           next_page <- FALSE
+         }
+         if (is.null(next_page)) next_page <- FALSE
          if (next_page) {
            end_cursor <- files_response$pageInfo$endCursor
          } else {
@@ -261,12 +270,15 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
 
      # @description Prepare files table.
      # @param files_response A list.
+     # @param org An organization.
      # @return A table with information on files.
-     prepare_files_table = function(files_response) {
+     prepare_files_table = function(files_response, org, file_path) {
        if (!is.null(files_response)) {
          files_table <- purrr::map(files_response, function(repository) {
            data.frame(
              "repository" = repository$name,
+             "organization" = org,
+             "file_path" = file_path,
              "file_content" = repository$rawBlob,
              "file_size" = as.integer(repository$size)
            )

@@ -112,7 +112,9 @@ test_that("GitLab GraphQL Engine pulls files from a group", {
 
 test_that("GitLab GraphQL Engine prepares table from files response", {
   files_table <- test_gql_gl$prepare_files_table(
-    files_response = test_mocker$use("gitlab_files_response")
+    files_response = test_mocker$use("gitlab_files_response"),
+    org = "mbtests",
+    file_path = "meta_data.yaml"
   )
   expect_files_table(files_table)
 })
@@ -143,9 +145,11 @@ test_that("`pull_repos()` works as expected", {
 })
 
 test_that("`pull_files()` pulls files in the table format", {
-  gl_files_table <- test_gql_gl$pull_files(
-    org = "mbtests",
-    file_path = "README.md"
+  expect_snapshot(
+    gl_files_table <- test_gql_gl$pull_files(
+      org = "mbtests",
+      file_path = "README.md"
+    )
   )
   expect_files_table(gl_files_table)
   test_mocker$cache(gl_files_table)
