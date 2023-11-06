@@ -480,9 +480,9 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           )
         )
       }) %>%
-        purrr::map(~ .$data$repository$object)
+        purrr::map(~ .$data$repository)
       names(files_list) <- repositories
-      files_list <- purrr::discard(files_list, ~ length(.) == 0)
+      files_list <- purrr::discard(files_list, ~ length(.$object) == 0)
       return(files_list)
     },
 
@@ -494,11 +494,12 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       if (!is.null(files_response)) {
         files_table <- purrr::imap(files_response, function(repository, name) {
           data.frame(
-            "repository" = name,
+            "repository_name" = repository$name,
+            "repository_id" = repository$id,
             "organization" = org,
             "file_path" = file_path,
-            "file_content" = repository$text,
-            "file_size" = repository$byteSize,
+            "file_content" = repository$object$text,
+            "file_size" = repository$object$byteSize,
             "api_url" = self$gql_api_url
           )
         }) %>%

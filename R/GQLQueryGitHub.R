@@ -168,6 +168,8 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       paste0(
       'query GetFilesByRepo($org: String!, $repo: String!, $file_path: String!) {
           repository(owner: $org, name: $repo) {
+            id
+            name
             object(expression: $file_path) {
               ... on Blob {
                 text

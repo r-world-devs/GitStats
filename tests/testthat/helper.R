@@ -293,6 +293,10 @@ expect_github_files_response <- function(object) {
   purrr::walk(object, function(repository) {
     expect_list_contains(
       repository,
+      c("name", "id", "object")
+    )
+    expect_list_contains(
+      repository$object,
       c("text", "byteSize")
     )
   })
@@ -311,7 +315,7 @@ expect_gitlab_files_response <- function(object) {
     expect_list_contains(
       project,
       c(
-        "name", "repository"
+        "name", "id", "repository"
       )
     )
     expect_list_contains(
@@ -325,7 +329,7 @@ expect_gitlab_files_response <- function(object) {
 
 expect_files_table <- function(files_object) {
   expect_s3_class(files_object, "data.frame")
-  expect_named(files_object, c("repository", "organization", "file_path", "file_content", "file_size", "api_url"))
+  expect_named(files_object, c("repository_name", "repository_id", "organization", "file_path", "file_content", "file_size", "api_url"))
   expect_type(files_object$file_size, "integer")
   expect_type(files_object$api_url, "character")
   expect_true(

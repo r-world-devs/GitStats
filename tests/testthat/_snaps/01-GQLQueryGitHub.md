@@ -31,5 +31,5 @@
     Code
       gh_files_query
     Output
-      [1] "query GetFilesByRepo($org: String!, $repo: String!, $file_path: String!) {\n          repository(owner: $org, name: $repo) {\n            object(expression: $file_path) {\n              ... on Blob {\n                text\n                byteSize\n              }\n            }\n          }\n      }"
+      [1] "query GetFilesByRepo($org: String!, $repo: String!, $file_path: String!) {\n          repository(owner: $org, name: $repo) {\n            id\n            name\n            object(expression: $file_path) {\n              ... on Blob {\n                text\n                byteSize\n              }\n            }\n          }\n      }"
 
