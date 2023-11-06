@@ -325,7 +325,11 @@ expect_gitlab_files_response <- function(object) {
 
 expect_files_table <- function(files_object) {
   expect_s3_class(files_object, "data.frame")
-  expect_named(files_object, c("repository", "organization", "file_path", "file_content", "file_size"))
+  expect_named(files_object, c("repository", "organization", "file_path", "file_content", "file_size", "api_url"))
   expect_type(files_object$file_size, "integer")
+  expect_type(files_object$api_url, "character")
+  expect_true(
+    all(purrr::map_lgl(files_object$api_url, ~ grepl("api", .)))
+  )
   expect_gt(nrow(files_object), 0)
 }

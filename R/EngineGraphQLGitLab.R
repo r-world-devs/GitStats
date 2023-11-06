@@ -279,7 +279,8 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
              "organization" = org,
              "file_path" = project$repository$blobs$nodes[[1]]$name,
              "file_content" = project$repository$blobs$nodes[[1]]$rawBlob,
-             "file_size" = as.integer(project$repository$blobs$nodes[[1]]$size)
+             "file_size" = as.integer(project$repository$blobs$nodes[[1]]$size),
+             "api_url" = self$gql_api_url
            )
          }) %>%
            purrr::list_rbind()

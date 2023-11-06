@@ -498,7 +498,8 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
             "organization" = org,
             "file_path" = file_path,
             "file_content" = repository$text,
-            "file_size" = repository$byteSize
+            "file_size" = repository$byteSize,
+            "api_url" = self$gql_api_url
           )
         }) %>%
           purrr::list_rbind()
