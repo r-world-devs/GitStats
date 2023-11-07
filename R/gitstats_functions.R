@@ -232,6 +232,36 @@ pull_users <- function(gitstats_obj,
   return(invisible(gitstats_obj))
 }
 
+#' @title Pull files content
+#' @name pull_files
+#' @description Pull files content from Git Hosts.
+#' @param gitstats_obj A GitStats object.
+#' @param file_path A standardized path to file in repositories.
+#' @examples
+#' \dontrun{
+#'  my_gitstats <- create_gitstats() %>%
+#'   set_host(
+#'     api_url = "https://api.github.com",
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs")
+#'   ) %>%
+#'   set_host(
+#'     api_url = "https://gitlab.com/api/v4",
+#'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+#'     orgs = "mbtests"
+#'   ) %>%
+#'   pull_files("meta_data.yaml")
+#' }
+#' @return A `GitStats` object with table of files.
+#' @export
+pull_files <- function(gitstats_obj,
+                       file_path){
+  gitstats_obj$pull_files(
+    file_path = file_path
+  )
+  return(invisible(gitstats_obj))
+}
+
 #' @title Reset GitStats settings
 #' @name reset
 #' @description Sets all settings to default: search_param to `org`, language to
@@ -307,4 +337,14 @@ get_commits <- function(gitstats_obj){
 #' @export
 get_users <- function(gitstats_obj){
   return(gitstats_obj$get_users())
+}
+
+#' @title Get files
+#' @name get_files
+#' @description Retrieves files table pulled by `GitStats`.
+#' @param gitstats_obj A GitStats object.
+#' @return A table of files content.
+#' @export
+get_files <- function(gitstats_obj){
+  return(gitstats_obj$get_files())
 }

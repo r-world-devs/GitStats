@@ -17,3 +17,11 @@ test_that("user query is built properly", {
   )
   test_mocker$cache(gl_user_query)
 })
+
+test_that("file query is built properly", {
+  gl_files_query <-
+    test_gqlquery_gl$files_by_org()
+  expect_snapshot(
+    gl_files_query
+  )
+})

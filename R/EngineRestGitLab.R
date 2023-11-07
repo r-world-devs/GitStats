@@ -263,6 +263,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         list(
           "id" = project$id,
           "name" = project$name,
+          "default_branch" = project$default_branch,
           "stars" = project$star_count,
           "forks" = project$fork_count,
           "created_at" = project$created_at,

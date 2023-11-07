@@ -44,6 +44,11 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
               node {
                 id
                 name
+                ... on Project {
+                  repository {
+                    rootRef
+                  }
+                }
                 stars: starCount
                 forks: forksCount
                 created_at: createdAt
@@ -92,6 +97,48 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
           }
         }
       ')
+    },
+
+    #' @description Prepare query to get files in a standard filepath from
+    #'   GitLab repositories.
+    #' @param end_cursor An endCursor.
+    #' @return A query.
+    files_by_org = function(end_cursor = ""){
+      if (nchar(end_cursor) == 0) {
+        after_cursor <- end_cursor
+      } else {
+        after_cursor <- paste0('after: "', end_cursor, '" ')
+      }
+      paste0(
+        'query GetFilesByOrg($org: ID!, $file_paths: [String!]!) {
+            group(fullPath: $org) {
+              projects(first: 100',
+                       after_cursor,
+                       ') {
+                count
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
+                edges {
+                  node {
+                    name
+                    id
+                    repository {
+                      blobs(paths: $file_paths) {
+                        nodes {
+                          name
+                          rawBlob
+                          size
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }'
+      )
     }
   )
 )

@@ -165,6 +165,34 @@ GitHost <- R6::R6Class("GitHost",
       }) %>%
         purrr::list_rbind()
       return(users_table)
+    },
+
+    #' @description A method to retrieve given files from all repositories for
+    #'   a host in a table format.
+    #' @param file_path A file path.
+    #' @return A table.
+    pull_files = function(file_path) {
+      files_table <- purrr::map(private$orgs, function(org) {
+        repos_table <- purrr::map(private$engines, function(engine) {
+          if (inherits(engine, "EngineGraphQL")) {
+            engine$pull_files(
+              org = org,
+              file_path = file_path
+            )
+          } else {
+            NULL
+          }
+        }) %>%
+          purrr::list_rbind()
+      }, .progress = if (private$scan_all) {
+            cli::cli_alert_info("[{private$host}][Engine:{cli::col_yellow('GraphQL')}] Pulling {file_path} files...")
+          } else {
+            FALSE
+          }
+      ) %>%
+        purrr::list_rbind() %>%
+        private$add_repo_api_url()
+      return(files_table)
     }
   ),
   private = list(
@@ -351,18 +379,25 @@ GitHost <- R6::R6Class("GitHost",
         purrr::list_rbind()
     },
 
-    # @description Add `api_url` column to repos table.
+    # @description Add `api_url` column to table.
     add_repo_api_url = function(repos_table){
+      if ("file_content" %in% colnames(repos_table)) {
+        repo_name <- rlang::expr("repository_name")
+        repo_id <- rlang::expr("repository_id")
+      } else {
+        repo_name <- rlang::expr("name")
+        repo_id <- rlang::expr("id")
+      }
       if (!is.null(repos_table) && nrow(repos_table) > 0) {
         repos_table <- if (private$host == "GitHub") {
           dplyr::mutate(
             repos_table,
-            api_url = paste0(private$api_url, "/repos/", organization, "/", name),
+            api_url = paste0(private$api_url, "/repos/", organization, "/", eval(parse(text = repo_name))),
           )
         } else if (private$host == "GitLab") {
           dplyr::mutate(
             repos_table,
-            api_url = paste0(private$api_url, "/projects/", gsub("gid://gitlab/Project/", "", id))
+            api_url = paste0(private$api_url, "/projects/", gsub("gid://gitlab/Project/", "", eval(parse(text = repo_id))))
           )
         }
       }

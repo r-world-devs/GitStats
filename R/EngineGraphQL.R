@@ -45,6 +45,26 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
            private$prepare_user_table()
        }) %>%
          purrr::list_rbind()
+     },
+
+     #' @description A method to retrieve given files from all repositories for
+     #'   an organization in a table format.
+     #' @param org An organization.
+     #' @param file_path A file path.
+     #' @return A table.
+     pull_files = function(org, file_path) {
+       if (!private$scan_all) {
+         cli::cli_alert_info("[Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling {file_path} files...")
+       }
+       files_table <- private$pull_file_from_org(
+         org = org,
+         file_path = file_path
+       ) %>%
+         private$prepare_files_table(
+           org = org,
+           file_path = file_path
+         )
+       return(files_table)
      }
 
    ),

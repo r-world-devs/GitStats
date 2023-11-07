@@ -1,4 +1,9 @@
-# GitStats 1.0.1
+# GitStats 1.0.1.9000
+
+## Features:
+
+- added `pull_files()` with `get_files()` to pull content of text files ([#200](https://github.com/r-world-devs/GitStats/issues/200)),
+- added a `default_branch` column to repositories output as a consequence of [#200](https://github.com/r-world-devs/GitStats/issues/200).
 
 ## Fixes:
 

@@ -72,7 +72,7 @@ expect_gl_repos_gql_response <- function(object) {
   expect_list_contains(
     object$data$group$projects$edges[[1]]$node,
     c(
-      "id", "name", "createdAt", "starCount", "forksCount"
+      "id", "name", "repository", "stars", "forks", "created_at", "last_activity_at"
     )
   )
 }
@@ -232,7 +232,7 @@ expect_users_table <- function(get_user_object) {
 }
 
 repo_table_colnames <- c(
-  "id", "name", "stars", "forks", "created_at",
+  "id", "name", "default_branch", "stars", "forks", "created_at",
   "last_activity_at", "languages", "issues_open", "issues_closed",
   "organization", "repo_url"
 )
@@ -279,4 +279,61 @@ expect_commits_table <- function(pull_commits_object, with_stats = TRUE) {
 expect_empty_table <- function(object) {
   expect_s3_class(object, "data.frame")
   expect_equal(nrow(object), 0)
+}
+
+expect_github_files_response <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  expect_gt(
+    length(object),
+    0
+  )
+  purrr::walk(object, function(repository) {
+    expect_list_contains(
+      repository,
+      c("name", "id", "object")
+    )
+    expect_list_contains(
+      repository$object,
+      c("text", "byteSize")
+    )
+  })
+}
+
+expect_gitlab_files_response <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  expect_gt(
+    length(object),
+    0
+  )
+  purrr::walk(object, function(project) {
+    expect_list_contains(
+      project,
+      c(
+        "name", "id", "repository"
+      )
+    )
+    expect_list_contains(
+      project$repository$blobs$nodes[[1]],
+      c(
+        "name", "rawBlob", "size"
+      )
+    )
+  })
+}
+
+expect_files_table <- function(files_object) {
+  expect_s3_class(files_object, "data.frame")
+  expect_named(files_object, c("repository_name", "repository_id", "organization", "file_path", "file_content", "file_size", "api_url"))
+  expect_type(files_object$file_size, "integer")
+  expect_type(files_object$api_url, "character")
+  expect_true(
+    all(purrr::map_lgl(files_object$api_url, ~ grepl("api", .)))
+  )
+  expect_gt(nrow(files_object), 0)
 }

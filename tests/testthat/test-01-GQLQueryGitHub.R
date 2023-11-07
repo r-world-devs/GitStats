@@ -40,3 +40,12 @@ test_that("user query is built properly", {
   )
   test_mocker$cache(gh_user_query)
 })
+
+
+test_that("file query is built properly", {
+  gh_files_query <-
+    test_gqlquery_gh$files_by_repo()
+  expect_snapshot(
+    gh_files_query
+  )
+})

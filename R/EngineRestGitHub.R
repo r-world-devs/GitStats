@@ -302,6 +302,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         list(
           "id" = repo$id,
           "name" = repo$name,
+          "default_branch" = repo$default_branch,
           "stars" = repo$stargazers_count,
           "forks" = repo$forks_count,
           "created_at" = gts_to_posixt(repo$created_at),
