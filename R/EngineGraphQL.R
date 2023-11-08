@@ -79,15 +79,13 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
      # @param username A login.
      # @return A user response.
      pull_user = function(username) {
-       response <- self$gql_response(
-         gql_query = self$gql_query$user(),
-         vars = list("user" = username)
-       )
-       if (length(response$errors) > 0) {
-         cli::cli_abort(
-           response$errors[[1]]$message
+       response <- NULL
+       try(
+         response <- self$gql_response(
+           gql_query = self$gql_query$user(),
+           vars = list("user" = username)
          )
-       }
+       )
        return(response)
      }
    )
