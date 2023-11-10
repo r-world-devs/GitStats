@@ -95,8 +95,9 @@ test_that("GitLab prepares user table", {
   gl_user_table <- test_gql_gl$prepare_user_table(
     user_response = test_mocker$use("gl_user_response")
   )
-  expect_user_table(
-    gl_user_table
+  expect_users_table(
+    gl_user_table,
+    one_user = TRUE
   )
   test_mocker$cache(gl_user_table)
 })

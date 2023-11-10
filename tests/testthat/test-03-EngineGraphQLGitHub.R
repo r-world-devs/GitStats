@@ -200,8 +200,9 @@ test_that("GitHub prepares user table", {
   gh_user_table <- test_gql_gh$prepare_user_table(
     user_response = test_mocker$use("gh_user_response")
   )
-  expect_user_table(
-    gh_user_table
+  expect_users_table(
+    gh_user_table,
+    one_user = TRUE
   )
   test_mocker$cache(gh_user_table)
 })
