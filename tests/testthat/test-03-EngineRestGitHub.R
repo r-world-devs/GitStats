@@ -128,7 +128,7 @@ test_that("`pull_commits_from_repo()` pulls all commits from repository", {
     date_from = "2023-01-01",
     date_until = "2023-06-01"
   )
-  expect_gh_commit_rest(
+  expect_gh_commit_rest_response(
     commits_from_repo
   )
 })
@@ -141,7 +141,7 @@ test_that("`pull_commits_from_org()` pulls all commits from organization", {
       date_until = "2023-06-01"
     )
   })
-  expect_gh_commit_rest(
+  expect_gh_commit_rest_response(
     gh_rest_commits_from_org[[1]]
   )
   test_mocker$cache(gh_rest_commits_from_org)
@@ -152,7 +152,7 @@ test_that("`filter_commits_by_team()` filters properly commits by team members",
     repos_list_with_commits = test_mocker$use("gh_rest_commits_from_org"),
     team = test_team
   )
-  expect_gh_commit_rest(
+  expect_gh_commit_rest_response(
     gh_rest_team_commits[[1]]
   )
   expect_true(

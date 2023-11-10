@@ -81,7 +81,7 @@ test_that("`response()` returns commits response from GitLab's REST API", {
   gl_commits_rest_response_repo_1 <- test_rest$response(
     "https://gitlab.com/api/v4/projects/44293594/repository/commits?since='2023-01-01T00:00:00'&until='2023-04-20T00:00:00'&with_stats=true"
   )
-  expect_gl_commit_rest(
+  expect_gl_commit_rest_response(
     gl_commits_rest_response_repo_1
   )
   test_mocker$cache(gl_commits_rest_response_repo_1)
@@ -89,7 +89,7 @@ test_that("`response()` returns commits response from GitLab's REST API", {
   gl_commits_rest_response_repo_2 <- test_rest$response(
     "https://gitlab.com/api/v4/projects/44346961/repository/commits?since='2023-01-01T00:00:00'&until='2023-04-20T00:00:00'&with_stats=true"
   )
-  expect_gl_commit_rest(
+  expect_gl_commit_rest_response(
     gl_commits_rest_response_repo_2
   )
   test_mocker$cache(gl_commits_rest_response_repo_2)

@@ -24,7 +24,7 @@ test_that("`find_repos_by_id()` works", {
   gl_search_repos_by_phrase <- test_rest_priv$find_repos_by_id(
     gl_search_response
   )
-  expect_gl_repos(
+  expect_gl_repos_rest_response(
     gl_search_repos_by_phrase
   )
   test_mocker$cache(gl_search_repos_by_phrase)
@@ -106,7 +106,7 @@ test_that("`pull_commits_from_org()` pulls commits from repo", {
     date_from = "2023-01-01",
     date_until = "2023-04-20"
   )
-  expect_gl_commit_rest(
+  expect_gl_commit_rest_response(
     gl_commits_org[[1]]
   )
   test_mocker$cache(gl_commits_org)
@@ -124,7 +124,7 @@ test_that("`filter_commits_by_team()` filters commits by team", {
     repos_list_with_commits = gl_commits_org,
     team = team
   )
-  expect_gl_commit_rest(
+  expect_gl_commit_rest_response(
     gl_commits_team[[1]]
   )
   test_mocker$cache(gl_commits_team)

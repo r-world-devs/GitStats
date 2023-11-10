@@ -25,7 +25,7 @@ test_that("`pull_commits_page_from_repo()` pulls commits page from repository", 
     date_from = "2023-01-01",
     date_until = "2023-02-28"
   )
-  expect_gh_commit_gql(
+  expect_gh_commit_gql_response(
     commits_page
   )
   test_mocker$cache(commits_page)
@@ -41,7 +41,7 @@ test_that("`pull_repos_page_from_org()` pulls repos page from GitHub organizatio
     from = "org",
     org = "r-world-devs"
   )
-  expect_gh_repos(
+  expect_gh_repos_gql_response(
     gh_repos_page
   )
   test_mocker$cache(gh_repos_page)
@@ -78,7 +78,7 @@ test_that("`pull_repos_page()` pulls repos page from GitHub user", {
     from = "user",
     user = "maciekbanas"
   )
-  expect_gh_user_repos(
+  expect_gh_user_repos_gql_response(
     gh_repos_user_page
   )
   test_mocker$cache(gh_repos_user_page)
