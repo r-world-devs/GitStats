@@ -21,10 +21,10 @@ GitStats <- R6::R6Class("GitStats",
     #'   pulling.
     #' @return Nothing.
     set_params = function(search_param,
-                          team_name,
-                          phrase,
-                          language,
-                          print_out) {
+                          team_name = NULL,
+                          phrase = NULL,
+                          language = "All",
+                          print_out = TRUE) {
       search_param <- match.arg(
         search_param,
         c("org", "team", "phrase")
@@ -114,6 +114,31 @@ GitStats <- R6::R6Class("GitStats",
       )
       private$settings$team[[paste0(member_name)]] <- team_member
       cli::cli_alert_success("{member_name} successfully added to team.")
+    },
+
+    #' @description Wrapper over pulling repositories by phrase.
+    check_package_usage = function(package_name) {
+      package_usage_phrases <- c(
+        paste0("library(", package_name, ")"),
+        paste0("require(", package_name, ")"),
+        paste0(package_name, "::")
+      )
+      cli::cli_alert_info("Checking {package_name} package usage across repositories...")
+      package_usage_table <- purrr::map(package_usage_phrases, function(package_phrase) {
+        suppressMessages({
+          self$set_params(
+            search_param = "phrase",
+            phrase = package_phrase,
+            print_out = FALSE
+          )
+          self$pull_repos()
+          repos_table <- self$get_repos()
+        })
+        return(repos_table)
+      }, .progress = TRUE) %>%
+        purrr::list_rbind() %>%
+        dplyr::distinct()
+      return(package_usage_table)
     },
 
     #' @description  A method to list all repositories for an organization,
