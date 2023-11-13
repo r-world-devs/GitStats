@@ -3,6 +3,7 @@
 S3method(gitstats_plot,commits_stats)
 S3method(gitstats_plot,repos_stats)
 export("%>%")
+export(check_package_usage)
 export(create_gitstats)
 export(get_commits)
 export(get_commits_stats)

@@ -117,6 +117,8 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     #' @description Wrapper over pulling repositories by phrase.
+    #' @param package_name A character, name of the package.
+    #' @return A table of repositories content.
     check_package_usage = function(package_name) {
       package_usage_phrases <- c(
         paste0("library(", package_name, ")"),
@@ -138,7 +140,8 @@ GitStats <- R6::R6Class("GitStats",
       }, .progress = TRUE) %>%
         purrr::list_rbind() %>%
         dplyr::distinct()
-      return(package_usage_table)
+      private$repos <- package_usage_table
+      return(invisible(self))
     },
 
     #' @description  A method to list all repositories for an organization,

@@ -352,8 +352,9 @@ get_files <- function(gitstats_obj){
 #' @title Check package usage across repositories
 #' @name check_package_usage
 #' @description Wrapper over searching repositories by code blobs related to
-#'   using package (library(package), require(package) and package::).
+#'   using package (`library(package)`, `require(package)` and `package::`).
 #' @param gitstats_obj A GitStats object.
+#' @param package_name A character, name of the package.
 #' @return A table of repositories content.
 #' @examples
 #' \dontrun{
