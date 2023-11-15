@@ -4,27 +4,12 @@ repo_table_colnames <- c(
   "organization", "repo_url"
 )
 
-expect_repos_table_with_contributors <- function(pull_repos_object) {
+expect_repos_table <- function(pull_repos_object, add_col = NULL) {
   repo_cols <- c(
-    repo_table_colnames, "contributors"
+    repo_table_colnames, add_col
   )
   expect_s3_class(pull_repos_object, "data.frame")
   expect_named(pull_repos_object, repo_cols)
-  expect_gt(nrow(pull_repos_object), 0)
-}
-
-expect_repos_table_with_api_url <- function(pull_repos_object) {
-  repo_cols <- c(
-    repo_table_colnames, "api_url"
-  )
-  expect_s3_class(pull_repos_object, "data.frame")
-  expect_named(pull_repos_object, repo_cols)
-  expect_gt(nrow(pull_repos_object), 0)
-}
-
-expect_repos_table <- function(pull_repos_object) {
-  expect_s3_class(pull_repos_object, "data.frame")
-  expect_named(pull_repos_object, repo_table_colnames)
   expect_gt(nrow(pull_repos_object), 0)
 }
 

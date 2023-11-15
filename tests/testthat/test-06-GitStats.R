@@ -63,8 +63,9 @@ test_that("pull_repos works properly", {
   suppressMessages(
     test_gitstats$pull_repos()
   )
-  expect_repos_table_with_api_url(
-    test_gitstats$get_repos()
+  expect_repos_table(
+    test_gitstats$get_repos(),
+    add_col = "api_url"
   )
 })
 
@@ -150,5 +151,19 @@ test_that("get_orgs print subgroups properly", {
 test_that("subgroups are cleanly printed in GitStats", {
   expect_snapshot(
     test_gitstats
+  )
+})
+
+test_that("check_package_usage works as expected", {
+  test_gitstats <- create_test_gitstats(hosts = 1)
+  suppressMessages(
+    test_gitstats$check_package_usage(
+      "testthat"
+    )
+  )
+  repos_table <- test_gitstats$get_repos()
+  expect_repos_table(
+    repos_table,
+    add_col = "api_url"
   )
 })

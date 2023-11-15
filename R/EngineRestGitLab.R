@@ -11,9 +11,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @param settings A list of  `GitStats` settings.
     #' @return A table.
     pull_repos = function(org,
-                         settings) {
+                          settings) {
       if (settings$search_param == "phrase") {
-        if (!private$scan_all) {
+        if (!private$scan_all && !settings$silence) {
           cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{gsub('%2f', '/', org)}] Searching repositories...")
         }
         repos_table <- private$search_repos_by_phrase(
@@ -25,7 +25,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           private$prepare_repos_table() %>%
           private$pull_repos_issues()
       } else if (settings$search_param == "team") {
-        if (!private$scan_all) {
+        if (!private$scan_all && !settings$silence) {
           cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{gsub('%2f', '/', org)}][team:{settings$team_name}] Pulling repositories...")
         }
         org <- private$get_group_id(org)
@@ -50,10 +50,10 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @param settings A list of  `GitStats` settings.
     #' @return Nothing.
     pull_repos_supportive = function(org,
-                                    settings) {
+                                     settings) {
       repos_table <- NULL
       if (settings$search_param == "org") {
-        if (!private$scan_all) {
+        if (!private$scan_all && !settings$silence) {
           cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{gsub('%2f', '/', org)}] Pulling repositories...")
         }
         org <- private$get_group_id(org)
@@ -103,14 +103,15 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @param settings A list of  `GitStats` settings.
     #' @return A table of commits.
     pull_commits = function(org,
-                           date_from,
-                           date_until = Sys.date(),
-                           settings) {
+                            date_from,
+                            date_until = Sys.date(),
+                            settings) {
       repos_table <- self$pull_repos_supportive(
         org = org,
-        settings = list(search_param = "org")
+        settings = list(search_param = "org",
+                        silence = TRUE)
       )
-      if (!private$scan_all) {
+      if (!private$scan_all && !settings$silence) {
         if (settings$search_param == "org") {
           cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}] Pulling commits...")
         } else if (settings$search_param == "team") {

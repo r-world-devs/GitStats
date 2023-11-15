@@ -57,7 +57,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
                           settings) {
        org <- gsub("%2f", "/", org)
        if (settings$search_param == "org") {
-         if (!private$scan_all) {
+         if (!private$scan_all && !settings$silence) {
            cli::cli_alert_info("[GitLab][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
          }
          repos_table <- private$pull_repos_from_org(
@@ -76,7 +76,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      #' @param settings A list of  `GitStats` settings.
      #' @return Nothing.
      pull_repos_supportive = function(org,
-                                     settings) {
+                                      settings) {
        NULL
      },
 
@@ -90,9 +90,9 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      #' @param settings A list of  `GitStats` settings.
      #' @return A table of commits.
      pull_commits = function(org,
-                            date_from,
-                            date_until = Sys.date(),
-                            settings) {
+                             date_from,
+                             date_until = Sys.date(),
+                             settings) {
        NULL
      }
 

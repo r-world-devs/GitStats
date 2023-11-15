@@ -212,8 +212,9 @@ test_that("`pull_repos_contributors()` adds contributors to repos table", {
       test_mocker$use("gh_repos_by_phrase_table")
     )
   )
-  expect_repos_table_with_contributors(
-    gh_repos_by_phrase_table
+  expect_repos_table(
+    gh_repos_by_phrase_table,
+    add_col = "contributors"
   )
   expect_gt(
     length(gh_repos_by_phrase_table$contributors),
@@ -229,15 +230,13 @@ test_that("`pull_repos()` works", {
     test_mocker$use("gh_repos_by_phrase")
   )
 
-  settings <- list(
-    search_param = "phrase",
-    phrase = "shiny"
-  )
+  test_settings[["search_param"]] <- "phrase"
+  test_settings[["phrase"]] <- "shiny"
 
   expect_snapshot(
     result <- test_rest$pull_repos(
       org = "r-world-devs",
-      settings = settings
+      settings = test_settings
     )
   )
 
@@ -259,9 +258,6 @@ test_that("supportive method for getting commits works", {
     test_rest$pull_commits_supportive,
     "private$pull_commits_stats",
     test_mocker$use("gh_rest_commits_table_with_stats")
-  )
-  test_settings <- list(
-    search_param = "org"
   )
   expect_snapshot(
     gh_rest_commits_table <- test_rest$pull_commits_supportive(

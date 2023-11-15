@@ -133,11 +133,10 @@ test_that("`pull_repos()` works as expected", {
     "private$pull_repos",
     test_mocker$use("gl_repos_from_org")
   )
-  settings <- list(search_param = "org")
   expect_snapshot(
     gl_repos_org <- test_gql_gl$pull_repos(
       org = "mbtests",
-      settings = settings
+      settings = test_settings
     )
   )
   expect_repos_table(

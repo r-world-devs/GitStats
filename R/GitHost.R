@@ -330,9 +330,10 @@ GitHost <- R6::R6Class("GitHost",
     pull_repos_from_orgs = function(settings) {
       orgs <- private$orgs
       if (private$scan_all) {
-        cli::cli_alert_info("[Host:{private$host}] {cli::col_yellow('Pulling repositories from all organizations...')}")
         if (settings$search_param == "phrase") {
           orgs <- "no_orgs"
+        } else {
+          cli::cli_alert_info("[Host:{private$host}] {cli::col_yellow('Pulling repositories from all organizations...')}")
         }
       }
       repos_table <- purrr::map(orgs, function(org) {

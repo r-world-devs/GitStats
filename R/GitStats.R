@@ -122,25 +122,38 @@ GitStats <- R6::R6Class("GitStats",
     check_package_usage = function(package_name) {
       package_usage_phrases <- c(
         paste0("library(", package_name, ")"),
+        paste0(package_name, "::"),
         paste0("require(", package_name, ")"),
-        paste0(package_name, "::")
+        paste0("importFrom ", package_name)
       )
-      cli::cli_alert_info("Checking {package_name} package usage across repositories...")
+      cli::cli_alert_info("Checking [{package_name}] package usage across repositories...")
       package_usage_table <- purrr::map(package_usage_phrases, function(package_phrase) {
-        suppressMessages({
-          self$set_params(
-            search_param = "phrase",
-            phrase = package_phrase,
-            print_out = FALSE
+        withCallingHandlers({
+          suppressMessages(
+            self$set_params(
+              search_param = "phrase",
+              phrase = package_phrase,
+              print_out = FALSE
+            )
           )
+          private$settings$silence <- TRUE
           self$pull_repos()
           repos_table <- self$get_repos()
+        },
+        message = function(m) {
+          if (grepl("403", m)) {
+            cli::cli_alert_info("HTTP 403 error: I will run request one more time after 60 secs...")
+            Sys.sleep(60)
+            self$pull_repos()
+            repos_table <<- self$get_repos()
+          }
         })
         return(repos_table)
       }, .progress = TRUE) %>%
         purrr::list_rbind() %>%
         dplyr::distinct()
       private$repos <- package_usage_table
+      private$settings$silence <- FALSE
       return(invisible(self))
     },
 
@@ -317,7 +330,8 @@ GitStats <- R6::R6Class("GitStats",
       team_name = NULL,
       team = list(),
       language = "All",
-      print_out = TRUE
+      print_out = TRUE,
+      silence = FALSE
     ),
 
     # @field repos An output table of repositories.

@@ -199,8 +199,9 @@ test_that("`pull_repos_contributors()` adds contributors to repos table", {
       test_mocker$use("gl_repos_table")
     )
   )
-  expect_repos_table_with_contributors(
-    gl_repos_table_with_contributors
+  expect_repos_table(
+    gl_repos_table_with_contributors,
+    add_col = "contributors"
   )
   expect_gt(
     length(gl_repos_table_with_contributors$contributors),
@@ -216,14 +217,13 @@ test_that("`pull_repos_by_phrase()` works", {
     test_mocker$use("gl_repos_by_phrase")
   )
 
-  settings <- list(
-    search_param = "phrase",
-    phrase = "covid"
-  )
+  test_settings[["search_param"]] <- "phrase"
+  test_settings[["phrase"]] <- "covid"
+
   expect_snapshot(
     result <- test_rest$pull_repos(
       org = "erasmusmc-public-health",
-      settings = settings
+      settings = test_settings
     )
   )
   expect_repos_table(result)
@@ -235,15 +235,12 @@ test_that("`pull_commits()` works as expected", {
     "private$pull_commits_from_org",
     test_mocker$use("gl_commits_org")
   )
-  settings <- list(
-    search_param = "org"
-  )
   expect_snapshot(
     result <- test_rest$pull_commits(
       org = "mbtests",
       date_from = "2023-01-01",
       date_until = "2023-04-20",
-      settings = settings
+      settings = test_settings
     )
   )
   expect_commits_table(result)

@@ -51,10 +51,10 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param settings A list of  `GitStats` settings.
     #' @return A table.
     pull_repos = function(org,
-                         settings) {
+                          settings) {
       if (settings$search_param %in% c("org", "team")) {
         if (settings$search_param == "org") {
-          if (!private$scan_all) {
+          if (!private$scan_all && !settings$silence) {
             cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
           }
           repos_table <- private$pull_repos_from_org(
@@ -63,7 +63,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           ) %>%
             private$prepare_repos_table()
         } else {
-          if (!private$scan_all) {
+          if (!private$scan_all && !settings$silence) {
             cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][team:{settings$team_name}] Pulling repositories...")
           }
           repos_table <- private$pull_repos_from_team(
@@ -89,7 +89,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param settings A list of  `GitStats` settings.
     #' @return Nothing.
     pull_repos_supportive = function(org,
-                                    settings) {
+                                     settings) {
       NULL
     },
 
@@ -101,17 +101,18 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param settings A list of  `GitStats` settings.
     #' @return A table of commits.
     pull_commits = function(org,
-                           date_from,
-                           date_until,
-                           settings) {
+                            date_from,
+                            date_until,
+                            settings) {
       repos_table <- self$pull_repos(
         org = org,
-        settings = list(search_param = "org")
+        settings = list(search_param = "org",
+                        silence = TRUE)
       )
       repos_names <- repos_table$name
 
       if (settings$search_param == "org") {
-        if (!private$scan_all) {
+        if (!private$scan_all  && !settings$silence) {
           cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling commits...")
         }
         repos_list_with_commits <- private$pull_commits_from_repos(
@@ -122,7 +123,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         )
       }
       if (settings$search_param == "team") {
-        if (!private$scan_all) {
+        if (!private$scan_all && !settings$silence) {
           cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][team:{settings$team_name}] Pulling commits...")
         }
         repos_list_with_commits <- private$pull_commits_from_repos(

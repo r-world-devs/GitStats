@@ -17,7 +17,7 @@
 # GitHost pulls repos from orgs
 
     Code
-      gh_repos_table <- test_host$pull_repos_from_orgs(settings)
+      gh_repos_table <- test_host$pull_repos_from_orgs(test_settings)
     Message
       i [GitHub][Engine:GraphQL][org:r-world-devs] Pulling repositories...
 
@@ -66,8 +66,7 @@
 # pull_repos returns table of repositories
 
     Code
-      repos_table <- test_host$pull_repos(settings = list(search_param = "org",
-        language = "All"))
+      repos_table <- test_host$pull_repos(settings = test_settings)
     Message
       i [GitHub][Engine:GraphQL][org:openpharma] Pulling repositories...
       i [GitHub][Engine:GraphQL][org:r-world-devs] Pulling repositories...
