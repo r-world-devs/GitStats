@@ -145,15 +145,17 @@ expect_github_files_response <- function(object) {
     length(object),
     0
   )
-  purrr::walk(object, function(repository) {
-    expect_list_contains(
-      repository,
-      c("name", "id", "object")
-    )
-    expect_list_contains(
-      repository$object,
-      c("text", "byteSize")
-    )
+  purrr::walk(object, function(file_path) {
+    purrr::walk(file_path, function(repository) {
+      expect_list_contains(
+        repository,
+        c("name", "id", "object")
+      )
+      expect_list_contains(
+        repository$object,
+        c("text", "byteSize")
+      )
+    })
   })
 }
 

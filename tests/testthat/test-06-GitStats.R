@@ -29,7 +29,7 @@ test_that("GitStats prints team name when team is added.", {
 })
 
 # private methods
-test_gitstats_priv <- create_test_gitstats(priv_mode = TRUE)
+test_gitstats_priv <- create_test_gitstats(hosts = 0, priv_mode = TRUE)
 
 test_that("Language handler works properly", {
   expect_equal(test_gitstats_priv$language_handler("r"), "R")
@@ -37,10 +37,28 @@ test_that("Language handler works properly", {
   expect_equal(test_gitstats_priv$language_handler("javascript"), "Javascript")
 })
 
-test_that("check_for_host works", {
+test_that("check_for_host returns error when no hosts are passed", {
   expect_snapshot_error(
     test_gitstats_priv$check_for_host()
   )
+})
+
+test_gitstats_priv <- create_test_gitstats(hosts = 1, priv_mode = TRUE)
+
+test_that("check_R_package_loading", {
+  suppressMessages(
+    R_package_loading <- test_gitstats_priv$check_R_package_loading("purrr")
+  )
+  expect_package_usage_table(R_package_loading)
+  test_mocker$cache(R_package_loading)
+})
+
+test_that("check_R_package_as_dependency", {
+  suppressMessages(
+    R_package_as_dependency <- test_gitstats_priv$check_R_package_as_dependency("purrr")
+  )
+  expect_package_usage_table(R_package_as_dependency)
+  test_mocker$cache(R_package_as_dependency)
 })
 
 # public methods
@@ -154,16 +172,24 @@ test_that("subgroups are cleanly printed in GitStats", {
   )
 })
 
-test_that("check_package_usage works as expected", {
+test_that("check_R_package_usage works as expected", {
   test_gitstats <- create_test_gitstats(hosts = 1)
+  mockery::stub(
+    test_gitstats$check_R_package_usage,
+    "private$check_R_package_as_dependency",
+    test_mocker$use("R_package_as_dependency")
+  )
+  mockery::stub(
+    test_gitstats$check_R_package_usage,
+    "private$check_R_package_loading",
+    test_mocker$use("R_package_loading")
+  )
   suppressMessages(
-    test_gitstats$check_package_usage(
-      "testthat"
+    test_gitstats$check_R_package_usage(
+      "purrr"
     )
   )
-  repos_table <- test_gitstats$get_repos()
-  expect_repos_table(
-    repos_table,
-    add_col = "api_url"
+  expect_package_usage_table(
+    test_gitstats$.__enclos_env__$private$R_package_usage
   )
 })

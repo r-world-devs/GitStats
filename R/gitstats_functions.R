@@ -236,7 +236,8 @@ pull_users <- function(gitstats_obj,
 #' @name pull_files
 #' @description Pull files content from Git Hosts.
 #' @param gitstats_obj A GitStats object.
-#' @param file_path A standardized path to file in repositories.
+#' @param file_path A standardized path to file(s) in repositories. May be a
+#'   character vector if multiple files are to be pulled.
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
@@ -350,11 +351,19 @@ get_files <- function(gitstats_obj){
 }
 
 #' @title Check package usage across repositories
-#' @name check_package_usage
+#' @name check_R_package_usage
 #' @description Wrapper over searching repositories by code blobs related to
 #'   using package (`library(package)`, `require(package)` and `package::`).
 #' @param gitstats_obj A GitStats object.
 #' @param package_name A character, name of the package.
+#' @param only_loading A boolean, if `TRUE` function will check only if package
+#'   is loaded in repositories, not used as dependencies. This is much faster
+#'   approach as searching usage only with loading (i.e. library(package)) is
+#'   based on Search APIs (one endpoint), whereas searching usage as a
+#'   dependency pulls text files from all repositories (many endpoints). This is
+#'   a good option to choose when you want to check package usage but guess that
+#'   it may be used mainly by loading in data scripts and not used as a
+#'   dependency of other packages.
 #' @return A table of repositories content.
 #' @examples
 #' \dontrun{
@@ -364,13 +373,27 @@ get_files <- function(gitstats_obj){
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma")
 #'   ) %>%
-#'   check_package_usage("Shiny")
+#'   check_R_package_usage("Shiny")
 #' }
 #' @export
-check_package_usage <- function(gitstats_obj,
-                                package_name) {
-  gitstats_obj$check_package_usage(
-    package_name = package_name
+check_R_package_usage <- function(
+    gitstats_obj,
+    package_name,
+    only_loading = FALSE
+  ) {
+  gitstats_obj$check_R_package_usage(
+    package_name = package_name,
+    only_loading = only_loading
   )
   return(invisible(gitstats_obj))
+}
+
+#' @title Get R package usage
+#' @name get_files
+#' @description Retrieves list of repositories that make use of a package.
+#' @param gitstats_obj A GitStats object.
+#' @return A table with repo urls.
+#' @export
+get_R_package_usage <- function(gitstats_obj) {
+  return(gitstats_obj$get_R_package_usage())
 }

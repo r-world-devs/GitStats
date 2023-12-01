@@ -18,8 +18,7 @@ test_settings <- list(
   team_name = NULL,
   team = list(),
   language = "All",
-  print_out = TRUE,
-  silence = FALSE
+  print_out = TRUE
 )
 
 if (nchar(Sys.getenv("GITHUB_PAT")) == 0) {

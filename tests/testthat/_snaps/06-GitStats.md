@@ -43,7 +43,7 @@
       Repositories output: <not defined>
       Commits output: <not defined>
 
-# check_for_host works
+# check_for_host returns error when no hosts are passed
 
     Add first your hosts with `set_host()`.
 

@@ -13,7 +13,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     pull_repos = function(org,
                           settings) {
       if (settings$search_param == "phrase") {
-        if (!private$scan_all && !settings$silence) {
+        if (!private$scan_all) {
           cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{gsub('%2f', '/', org)}] Searching repositories...")
         }
         repos_table <- private$search_repos_by_phrase(
@@ -25,7 +25,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           private$prepare_repos_table() %>%
           private$pull_repos_issues()
       } else if (settings$search_param == "team") {
-        if (!private$scan_all && !settings$silence) {
+        if (!private$scan_all) {
           cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{gsub('%2f', '/', org)}][team:{settings$team_name}] Pulling repositories...")
         }
         org <- private$get_group_id(org)
@@ -53,7 +53,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
                                      settings) {
       repos_table <- NULL
       if (settings$search_param == "org") {
-        if (!private$scan_all && !settings$silence) {
+        if (!private$scan_all) {
           cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{gsub('%2f', '/', org)}] Pulling repositories...")
         }
         org <- private$get_group_id(org)
@@ -108,10 +108,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
                             settings) {
       repos_table <- self$pull_repos_supportive(
         org = org,
-        settings = list(search_param = "org",
-                        silence = TRUE)
+        settings = list(search_param = "org")
       )
-      if (!private$scan_all && !settings$silence) {
+      if (!private$scan_all) {
         if (settings$search_param == "org") {
           cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}] Pulling commits...")
         } else if (settings$search_param == "team") {
@@ -201,15 +200,15 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       still_more_hits <- TRUE
       resp_list <- list()
       groups_url <- if (!private$scan_all) {
-        paste0("/groups/", private$get_group_id(org))
+        paste0('/groups/', private$get_group_id(org))
       } else {
-        ""
+        ''
       }
       while (still_more_hits | page < page_max) {
         resp <- self$response(
           paste0(
             self$rest_api_url, groups_url,
-            "/search?scope=blobs&search=", phrase, "&per_page=100&page=", page
+            '/search?scope=blobs&search="', phrase, '"&per_page=100&page=', page
           )
         )
 
@@ -221,7 +220,6 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           page <- page + 1
         }
       }
-
       repos_list <- resp_list %>%
         private$find_repos_by_id() %>%
         private$pull_repos_languages()

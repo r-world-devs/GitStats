@@ -23,5 +23,6 @@
       result <- test_rest$pull_commits(org = "mbtests", date_from = "2023-01-01",
         date_until = "2023-04-20", settings = test_settings)
     Message
+      i [GitLab][Engine:REST][org:mbtests] Pulling repositories...
       i [GitLab][Engine:REST][org:mbtests] Pulling commits...
 

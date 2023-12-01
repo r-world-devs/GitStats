@@ -4,6 +4,12 @@ repo_table_colnames <- c(
   "organization", "repo_url"
 )
 
+expect_package_usage_table <- function(object, add_col = NULL) {
+  expect_s3_class(object, "data.frame")
+  expect_named(object, c("api_url", "package_usage"))
+  expect_gt(nrow(object), 0)
+}
+
 expect_repos_table <- function(pull_repos_object, add_col = NULL) {
   repo_cols <- c(
     repo_table_colnames, add_col

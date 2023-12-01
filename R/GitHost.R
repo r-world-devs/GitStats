@@ -170,15 +170,18 @@ GitHost <- R6::R6Class("GitHost",
     #' @description A method to retrieve given files from all repositories for
     #'   a host in a table format.
     #' @param file_path A file path.
+    #' @param pulled_repos Optional parameter to pass repository output object.
     #' @return A table.
-    pull_files = function(file_path) {
+    pull_files = function(file_path, pulled_repos = NULL) {
       files_table <- purrr::map(private$orgs, function(org) {
         repos_table <- purrr::map(private$engines, function(engine) {
           if (inherits(engine, "EngineGraphQL")) {
-            engine$pull_files(
+            files_table <- engine$pull_files(
               org = org,
-              file_path = file_path
+              file_path = file_path,
+              pulled_repos = pulled_repos
             )
+            return(files_table)
           } else {
             NULL
           }

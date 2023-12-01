@@ -12,14 +12,13 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     pull_repos = function(org,
                           settings) {
       if (settings$search_param == "phrase") {
-        if (!private$scan_all  && !settings$silence) {
+        if (!private$scan_all) {
           cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{org}] Searching repositories...")
         }
         repos_table <- private$search_repos_by_phrase(
           org = org,
           phrase = settings$phrase,
-          language = settings$language,
-          .silence = settings$silence
+          language = settings$language
         ) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
@@ -39,7 +38,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
                                      settings) {
       repos_table <- NULL
       if (settings$search_param %in% c("org")) {
-        if (!private$scan_all && !settings$silence) {
+        if (!private$scan_all) {
           cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
         }
         repos_table <- private$pull_repos_from_org(
@@ -80,9 +79,9 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
                                        settings) {
       repos_table <- self$pull_repos_supportive(
         org = org,
-        settings = list(search_param = "org", silence = TRUE)
+        settings = list(search_param = "org")
       )
-      if (!private$scan_all && !settings$silence) {
+      if (!private$scan_all) {
         if (settings$search_param == "org") {
           cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{org}] Pulling commits...")
         } else if (settings$search_param == "team") {
@@ -195,32 +194,28 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     search_repos_by_phrase = function(phrase,
                                       org,
                                       language,
-                                      byte_max = "384000",
-                                      .silence = FALSE) {
+                                      byte_max = "384000") {
       user_query <- if (!private$scan_all) {
-        paste0("+user:", org)
+        paste0('+user:', org)
       } else {
-        ""
+        ''
       }
-      query <- paste0(phrase, user_query, "+in:file")
+      query <- paste0('"', phrase, '"', user_query)
       if (language != "All") {
-        query <- paste0(query, "+language:", language)
+        query <- paste0(query, '+language:', language)
       }
-      search_endpoint <- paste0(self$rest_api_url, "/search/code?q=", query)
+      search_endpoint <- paste0(self$rest_api_url, '/search/code?q=', query)
       total_n <- self$response(search_endpoint)[["total_count"]]
-
       if (length(total_n) > 0) {
         repos_list <- private$search_response(
           search_endpoint = search_endpoint,
           total_n = total_n,
-          byte_max = byte_max,
-          .silence = .silence
+          byte_max = byte_max
         )
         repos_list <- private$find_repos_by_id(repos_list)
       } else {
         repos_list <- list()
       }
-
       return(repos_list)
     },
 
@@ -231,8 +226,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     # @return A list
     search_response = function(search_endpoint,
                                total_n,
-                               byte_max,
-                               .silence = FALSE) {
+                               byte_max) {
       if (total_n >= 0 & total_n < 1e3) {
         resp_list <- list()
 
@@ -248,11 +242,12 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         resp_list <- list()
         index <- c(0, 50)
 
-        if (!.silence) {
-          spinner <- cli::make_spinner(
-            template = cli::col_grey("GitHub search limit (1000 results) exceeded. Results will be divided. {spin}")
+        spinner <- cli::make_spinner(
+          which = "timeTravel",
+          template = cli::col_grey(
+            "GitHub search limit (1000 results) exceeded. Results will be divided. {spin}"
           )
-        }
+        )
 
         while (index[2] < as.numeric(byte_max)) {
           size_formula <- paste0("+size:", as.character(index[1]), "..", as.character(index[2]))

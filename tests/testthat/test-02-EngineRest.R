@@ -16,7 +16,6 @@ test_that("When token is empty throw error", {
 
 test_that("`perform_request()` returns proper status when token is empty or invalid", {
   wrong_tokens <- c("", "bad_token")
-
   purrr::walk(
     wrong_tokens,
     ~ expect_message(
@@ -31,11 +30,12 @@ test_that("`perform_request()` returns proper status when token is empty or inva
 
 test_that("`perform_request()` throws error on bad host", {
   bad_host <- "https://github.bad_host.com"
-
   expect_error(
-    test_rest_priv$perform_request(
-      endpoint = paste0(bad_host, "/orgs/good_org"),
-      token = Sys.getenv("GITHUB_PAT")
+    suppressMessages(
+      test_rest_priv$perform_request(
+        endpoint = paste0(bad_host),
+        token = Sys.getenv("GITHUB_PAT")
+      )
     ),
     "Could not resolve host"
   )
@@ -43,7 +43,6 @@ test_that("`perform_request()` throws error on bad host", {
 
 test_that("`perform_request()` returns proper status", {
   bad_endpoint <- "https://api.github.com/orgs/everybody_loves_somebody"
-
   expect_message(
     test_rest_priv$perform_request(
       endpoint = bad_endpoint,
@@ -56,10 +55,9 @@ test_that("`perform_request()` returns proper status", {
 # public methods
 
 test_that("`response()` returns search response from GitHub's REST API", {
-  search_endpoint <- "https://api.github.com/search/code?q='shiny'+user:openpharma"
+  search_endpoint <- "https://api.github.com/search/code?q=shiny+user:openpharma"
   test_mocker$cache(search_endpoint)
   gh_search_response <- test_rest$response(search_endpoint)
-
   expect_gh_search_response(
     gh_search_response$items[[1]]
   )
