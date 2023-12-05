@@ -13,9 +13,9 @@
 # `pull_repos_by_phrase()` works
 
     Code
-      result <- test_rest$pull_repos(org = "erasmusmc-public-health", settings = test_settings)
+      result <- test_rest$pull_repos(org = "gitlab-org", settings = test_settings)
     Message
-      i [GitLab][Engine:REST][phrase:covid][org:erasmusmc-public-health] Searching repositories...
+      i [GitLab][Engine:REST][phrase:covid][org:gitlab-org] Searching repositories...
 
 # `pull_commits()` works as expected
 

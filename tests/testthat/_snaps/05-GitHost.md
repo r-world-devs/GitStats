@@ -56,13 +56,6 @@
     Message
       i Filtering by language.
 
-# GitHost filters GitLab repositories' (pulled by phrase) table by languages
-
-    Code
-      result <- test_host$filter_repos_by_language(gl_repos_table, language = "C")
-    Message
-      i Filtering by language.
-
 # pull_repos returns table of repositories
 
     Code

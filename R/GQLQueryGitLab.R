@@ -42,8 +42,8 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
             }
             edges {
               node {
-                id
-                name
+                repo_id: id
+                repo_name: name
                 ... on Project {
                   repository {
                     rootRef
@@ -124,6 +124,7 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
                   node {
                     name
                     id
+                    webUrl
                     repository {
                       blobs(paths: $file_paths) {
                         nodes {
@@ -139,6 +140,28 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
             }
           }'
       )
+    },
+
+    #' @description Prepare query to get files in a standard filepath from
+    #'   GitLab repositories.
+    #' @return A query.
+    files_from_repo = function(){
+      'query GetFilesFromRepo($file_paths: [String!]!, $project_path: ID!) {
+              project(fullPath: $project_path) {
+                name
+                id
+                webUrl
+                repository {
+                  blobs(paths: $file_paths) {
+                    nodes {
+                      name
+                      rawBlob
+                      size
+                    }
+                  }
+                }
+              }
+          }'
     }
   )
 )

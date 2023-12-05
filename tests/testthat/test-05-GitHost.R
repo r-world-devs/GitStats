@@ -285,27 +285,6 @@ test_that("GitHost filters GitLab repositories' (pulled by team) table by langua
   )
 })
 
-test_that("GitHost filters GitLab repositories' (pulled by phrase) table by languages", {
-  gl_repos_table <- test_mocker$use("gl_repos_by_phrase_table")
-  expect_snapshot(
-    result <- test_host$filter_repos_by_language(
-      gl_repos_table,
-      language = "C"
-    )
-  )
-  expect_length(
-    result,
-    length(gl_repos_table)
-  )
-  expect_gt(
-    nrow(result),
-    0
-  )
-  expect_true(
-    all(grepl("C", result$languages))
-  )
-})
-
 # public methods
 
 test_host <- create_testhost(

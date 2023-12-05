@@ -369,7 +369,7 @@ GitStats <- R6::R6Class("GitStats",
         if (!is.null(repos_using_package)) {
           repos_using_package$package_usage <- "library"
           repos_using_package <- repos_using_package %>%
-            dplyr::select(api_url, package_usage)
+            dplyr::select(repo_name, repo_url, api_url, package_usage)
         }
         return(repos_using_package)
       }) %>%
@@ -392,7 +392,7 @@ GitStats <- R6::R6Class("GitStats",
         repos_with_package$package_usage <- "import"
       }
       repos_with_package <- repos_with_package %>%
-        dplyr::select(api_url, package_usage)
+        dplyr::select(repo_name, repo_url, api_url, package_usage)
       return(repos_with_package)
     },
 

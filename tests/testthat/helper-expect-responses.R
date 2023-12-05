@@ -142,7 +142,7 @@ expect_github_files_response <- function(object) {
     "list"
   )
   expect_gt(
-    length(object),
+    length(object[[1]]),
     0
   )
   purrr::walk(object, function(file_path) {

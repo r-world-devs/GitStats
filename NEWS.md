@@ -10,6 +10,10 @@
 
 - fixed pulling responses when GitLab groups have private or empty content ([#314](https://github.com/r-world-devs/GitStats/issues/314).
 
+## Minor changes:
+
+- rename column names for repository output - `id` to `repo_id` and `name` to `repo_name`.
+
 # GitStats 1.0.0
 
 ## Breaking changes:

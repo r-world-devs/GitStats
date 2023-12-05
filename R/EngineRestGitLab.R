@@ -73,7 +73,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         if (!private$scan_all) {
           cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{unique(repos_table$organization)}] Pulling contributors...")
         }
-        repo_iterator <- repos_table$id
+        repo_iterator <- repos_table$repo_id
         user_name <- rlang::expr(.$name)
         repos_table$contributors <- purrr::map_chr(repo_iterator, function(repos_id) {
           id <- gsub("gid://gitlab/Project/", "", repos_id)
@@ -194,7 +194,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     # @return A list of repositories.
     search_repos_by_phrase = function(phrase,
                                       org,
-                                      language,
+                                      language = "All",
                                       page_max = 1e6) {
       page <- 1
       still_more_hits <- TRUE
@@ -223,7 +223,6 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       repos_list <- resp_list %>%
         private$find_repos_by_id() %>%
         private$pull_repos_languages()
-
       return(repos_list)
     },
 
@@ -260,8 +259,8 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     tailor_repos_info = function(projects_list) {
       projects_list <- purrr::map(projects_list, function(project) {
         list(
-          "id" = project$id,
-          "name" = project$name,
+          "repo_id" = project$id,
+          "repo_name" = project$name,
           "default_branch" = project$default_branch,
           "stars" = project$star_count,
           "forks" = project$fork_count,
@@ -282,7 +281,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     # @return A table of repositories with added information on issues.
     pull_repos_issues = function(repos_table) {
       if (nrow(repos_table) > 0) {
-        issues <- purrr::map(repos_table$id, function(repos_id) {
+        issues <- purrr::map(repos_table$repo_id, function(repos_id) {
           id <- gsub("gid://gitlab/Project/", "", repos_id)
           issues_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/issues_statistics")
 
@@ -325,8 +324,8 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     pull_commits_from_org = function(repos_table,
                                      date_from,
                                      date_until) {
-      repos_names <- repos_table$name
-      projects_ids <- gsub("gid://gitlab/Project/", "", repos_table$id)
+      repos_names <- repos_table$repo_name
+      projects_ids <- gsub("gid://gitlab/Project/", "", repos_table$repo_id)
 
       repos_list_with_commits <- purrr::map(projects_ids, function(project_id) {
         commits_from_repo <- private$pull_commits_from_repo(

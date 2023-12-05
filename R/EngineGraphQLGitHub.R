@@ -108,7 +108,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         org = org,
         settings = list(search_param = "org")
       )
-      repos_names <- repos_table$name
+      repos_names <- repos_table$repo_name
 
       if (settings$search_param == "org") {
         if (!private$scan_all) {
@@ -263,7 +263,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           repo <- data.frame(repo) %>%
             dplyr::relocate(
               default_branch,
-              .after = name
+              .after = repo_name
             )
         })
       } else {
@@ -471,10 +471,10 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           from = "org",
           org = org
         )
-        repositories <- purrr::map(repos_list, ~ .$name)
+        repositories <- purrr::map(repos_list, ~ .$repo_name)
         def_branches <- purrr::map(repos_list, ~ .$default_branch$name)
       } else {
-        repositories <- pulled_repos$name
+        repositories <- pulled_repos$repo_name
         def_branches <- pulled_repos$default_branch
       }
       files_list <- purrr::map(file_path, function(file_path) {
@@ -507,12 +507,13 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         files_table <- purrr::map(file_path, function(file) {
           purrr::imap(files_response[[file]], function(repository, name) {
             data.frame(
-              "repository_name" = repository$name,
-              "repository_id" = repository$id,
+              "repo_name" = repository$name,
+              "repo_id" = repository$id,
               "organization" = org,
               "file_path" = file,
               "file_content" = repository$object$text,
               "file_size" = repository$object$byteSize,
+              "repo_url" = repository$url,
               "api_url" = self$gql_api_url
             )
           }) %>%

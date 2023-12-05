@@ -42,20 +42,8 @@ test_that("`pull_repos_languages` works", {
   )
 })
 
-test_that("`search_repos_by_phrase()` works", {
-  gl_repos_by_phrase <- test_rest_priv$search_repos_by_phrase(
-    phrase = "covid",
-    org = "gitlab-org"
-  )
-  expect_list_contains(
-    gl_repos_by_phrase[[1]],
-    c("id", "description", "name", "created_at", "languages")
-  )
-  test_mocker$cache(gl_repos_by_phrase)
-})
-
 test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
-  gl_repos_by_phrase <- test_mocker$use("gl_repos_by_phrase")
+  gl_repos_by_phrase <- test_mocker$use("gl_search_repos_by_phrase")
 
   gl_repos_by_phrase_tailored <-
     test_rest_priv$tailor_repos_info(gl_repos_by_phrase)
@@ -67,17 +55,15 @@ test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
   expect_list_contains_only(
     gl_repos_by_phrase_tailored[[1]],
     c(
-      "id", "name", "created_at", "last_activity_at",
+      "repo_id", "repo_name", "created_at", "last_activity_at",
       "forks", "stars", "languages", "issues_open",
       "issues_closed", "organization"
     )
   )
-
   expect_lt(
     length(gl_repos_by_phrase_tailored[[1]]),
     length(gl_repos_by_phrase[[1]])
   )
-
   test_mocker$cache(gl_repos_by_phrase_tailored)
 })
 
@@ -214,15 +200,13 @@ test_that("`pull_repos_by_phrase()` works", {
   mockery::stub(
     test_rest$pull_repos,
     "private$search_repos_by_phrase",
-    test_mocker$use("gl_repos_by_phrase")
+    test_mocker$use("gl_search_repos_by_phrase")
   )
-
   test_settings[["search_param"]] <- "phrase"
   test_settings[["phrase"]] <- "covid"
-
   expect_snapshot(
     result <- test_rest$pull_repos(
-      org = "erasmusmc-public-health",
+      org = "gitlab-org",
       settings = test_settings
     )
   )
@@ -250,7 +234,6 @@ test_that("`pull_commits()` works as expected", {
 
 test_that("Engine filters GitLab repositories' table by team members", {
   gl_repos_table <- test_mocker$use("gl_repos_table_with_contributors")
-
   gl_repos_table_team <- test_rest_priv$filter_repos_by_team(
     gl_repos_table,
     team = list(

@@ -1,12 +1,12 @@
 repo_table_colnames <- c(
-  "id", "name", "default_branch", "stars", "forks", "created_at",
+  "repo_id", "repo_name", "default_branch", "stars", "forks", "created_at",
   "last_activity_at", "languages", "issues_open", "issues_closed",
   "organization", "repo_url"
 )
 
 expect_package_usage_table <- function(object, add_col = NULL) {
   expect_s3_class(object, "data.frame")
-  expect_named(object, c("api_url", "package_usage"))
+  expect_named(object, c("repo_name", "repo_url", "api_url", "package_usage"))
   expect_gt(nrow(object), 0)
 }
 
@@ -50,7 +50,12 @@ expect_users_table <- function(get_user_object, one_user = FALSE) {
 
 expect_files_table <- function(files_object) {
   expect_s3_class(files_object, "data.frame")
-  expect_named(files_object, c("repository_name", "repository_id", "organization", "file_path", "file_content", "file_size", "api_url"))
+  expect_named(
+    files_object,
+    c("repo_name", "repo_id", "organization",
+      "file_path", "file_content", "file_size",
+      "repo_url", "api_url")
+  )
   expect_type(files_object$file_size, "integer")
   expect_type(files_object$api_url, "character")
   expect_true(

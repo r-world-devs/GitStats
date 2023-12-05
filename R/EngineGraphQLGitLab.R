@@ -191,7 +191,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
            ) %>%
            dplyr::relocate(
              default_branch,
-             .after = name
+             .after = repo_name
            )
        } else {
          repos_table <- NULL
@@ -305,12 +305,13 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
        if (!is.null(files_response)) {
          files_table <- purrr::map(files_response, function(project) {
            data.frame(
-             "repository_name" = project$name,
-             "repository_id" = project$id,
+             "repo_name" = project$name,
+             "repo_id" = project$id,
              "organization" = org,
              "file_path" = project$repository$blobs$nodes[[1]]$name,
              "file_content" = project$repository$blobs$nodes[[1]]$rawBlob,
              "file_size" = as.integer(project$repository$blobs$nodes[[1]]$size),
+             "repo_url" = project$webUrl,
              "api_url" = self$gql_api_url
            )
          }) %>%

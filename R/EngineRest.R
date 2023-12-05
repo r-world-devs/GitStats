@@ -107,7 +107,7 @@ EngineRest <- R6::R6Class("EngineRest",
 
       if (length(repos_dt) > 0) {
         repos_dt <- dplyr::mutate(repos_dt,
-          id = as.character(id),
+          repo_id = as.character(repo_id),
           created_at = as.POSIXct(created_at),
           last_activity_at = as.POSIXct(last_activity_at),
           forks = as.integer(forks),

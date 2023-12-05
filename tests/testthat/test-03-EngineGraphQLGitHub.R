@@ -283,7 +283,7 @@ test_that("`pull_commits()` retrieves commits in the table format", {
   )
 
   repos_table <- test_mocker$use("gh_repos_table") %>%
-    dplyr::filter(name == "GitStats")
+    dplyr::filter(repo_name == "GitStats")
 
   mockery::stub(
     test_gql_gh$pull_commits,

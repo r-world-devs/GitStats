@@ -111,6 +111,14 @@ test_that("GitLab GraphQL Engine pulls files from a group", {
   test_mocker$cache(gitlab_files_response)
 })
 
+test_that("GitLab GraphQL Engine pulls files from a repository", {
+  gitlab_files_response <- test_gql_gl$pull_file_from_repos(
+    file_path = "meta_data.yaml",
+    repos_table = test_mocker$use("gl_repos_table")
+  )
+  expect_gitlab_files_response(gitlab_files_response)
+})
+
 test_that("GitLab GraphQL Engine prepares table from files response", {
   files_table <- test_gql_gl$prepare_files_table(
     files_response = test_mocker$use("gitlab_files_response"),

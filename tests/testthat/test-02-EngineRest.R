@@ -71,7 +71,7 @@ test_rest <- create_testrest(
 
 test_that("`response()` returns commits response from GitLab's REST API", {
   gl_search_response <- test_rest$response(
-    "https://gitlab.com/api/v4/groups/9970/search?scope=blobs&search=covid"
+    "https://gitlab.com/api/v4/groups/9970/search?scope=blobs&search=git"
   )
   expect_gl_search_response(gl_search_response[[1]])
   test_mocker$cache(gl_search_response)
