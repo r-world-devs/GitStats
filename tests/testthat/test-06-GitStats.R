@@ -172,20 +172,20 @@ test_that("subgroups are cleanly printed in GitStats", {
   )
 })
 
-test_that("check_R_package_usage works as expected", {
+test_that("pull_R_package_usage works as expected", {
   test_gitstats <- create_test_gitstats(hosts = 1)
   mockery::stub(
-    test_gitstats$check_R_package_usage,
+    test_gitstats$pull_R_package_usage,
     "private$check_R_package_as_dependency",
     test_mocker$use("R_package_as_dependency")
   )
   mockery::stub(
-    test_gitstats$check_R_package_usage,
+    test_gitstats$pull_R_package_usage,
     "private$check_R_package_loading",
     test_mocker$use("R_package_loading")
   )
   suppressMessages(
-    test_gitstats$check_R_package_usage(
+    test_gitstats$pull_R_package_usage(
       "purrr"
     )
   )

@@ -351,7 +351,7 @@ get_files <- function(gitstats_obj){
 }
 
 #' @title Check package usage across repositories
-#' @name check_R_package_usage
+#' @name pull_R_package_usage
 #' @description Wrapper over searching repositories by code blobs related to
 #'   using package (`library(package)`, `require(package)` and `package::`).
 #' @param gitstats_obj A GitStats object.
@@ -373,15 +373,15 @@ get_files <- function(gitstats_obj){
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma")
 #'   ) %>%
-#'   check_R_package_usage("Shiny")
+#'   pull_R_package_usage("Shiny")
 #' }
 #' @export
-check_R_package_usage <- function(
+pull_R_package_usage <- function(
     gitstats_obj,
     package_name,
     only_loading = FALSE
   ) {
-  gitstats_obj$check_R_package_usage(
+  gitstats_obj$pull_R_package_usage(
     package_name = package_name,
     only_loading = only_loading
   )

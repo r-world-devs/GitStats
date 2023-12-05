@@ -126,7 +126,7 @@ GitStats <- R6::R6Class("GitStats",
     #'   a good option to choose when you want to check package usage but guess that
     #'   it may be used mainly by loading in data scripts and not used as a
     #'   dependency of other packages.
-    check_R_package_usage = function(package_name, only_loading = FALSE) {
+    pull_R_package_usage = function(package_name, only_loading = FALSE) {
       repos_using_package <- private$check_R_package_loading(package_name)
       repos_with_package_as_dependency <- if (!only_loading) {
         private$check_R_package_as_dependency(package_name)
