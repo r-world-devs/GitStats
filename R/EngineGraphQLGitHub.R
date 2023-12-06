@@ -252,7 +252,11 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     prepare_repos_table = function(repos_list) {
       if (length(repos_list) > 0) {
         repos_table <- purrr::map_dfr(repos_list, function(repo) {
-          repo$default_branch <- repo$default_branch$name
+          repo$default_branch <- if(!is.null(repo$default_branch)) {
+            repo$default_branch$name
+          } else {
+            ""
+          }
           repo$languages <- purrr::map_chr(repo$languages$nodes, ~ .$name) %>%
             paste0(collapse = ", ")
           repo$created_at <- gts_to_posixt(repo$created_at)
