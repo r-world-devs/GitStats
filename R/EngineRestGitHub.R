@@ -10,7 +10,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     #' @param settings A list of  `GitStats` settings.
     #' @return Table of repositories.
     pull_repos = function(org,
-                         settings) {
+                          settings) {
       if (settings$search_param == "phrase") {
         if (!private$scan_all) {
           cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{org}] Searching repositories...")
@@ -35,7 +35,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     #' @param settings A list of  `GitStats` settings.
     #' @return A table of repositories.
     pull_repos_supportive = function(org,
-                                    settings) {
+                                     settings) {
       repos_table <- NULL
       if (settings$search_param %in% c("org")) {
         if (!private$scan_all) {
@@ -61,9 +61,9 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     #' @param settings A list of  `GitStats` settings.
     #' @return A table of commits.
     pull_commits = function(org,
-                           date_from,
-                           date_until = Sys.date(),
-                           settings) {
+                            date_from,
+                            date_until = Sys.date(),
+                            settings) {
       NULL
     },
 
@@ -74,9 +74,9 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     #' @param settings A list of  `GitStats` settings.
     #' @return A table of commits.
     pull_commits_supportive = function(org,
-                                      date_from,
-                                      date_until = Sys.date(),
-                                      settings) {
+                                       date_from,
+                                       date_until = Sys.date(),
+                                       settings) {
       repos_table <- self$pull_repos_supportive(
         org = org,
         settings = list(search_param = "org")
@@ -116,7 +116,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         if (!private$scan_all) {
           cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{unique(repos_table$organization)}] Pulling contributors...")
         }
-        repo_iterator <- paste0(repos_table$organization, "/", repos_table$name)
+        repo_iterator <- paste0(repos_table$organization, "/", repos_table$repo_name)
         user_name <- rlang::expr(.$login)
         repos_table$contributors <- purrr::map_chr(repo_iterator, function(repos_id) {
           contributors_endpoint <- paste0(self$rest_api_url, "/repos/", repos_id, "/contributors")
@@ -195,19 +195,17 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
                                       org,
                                       language,
                                       byte_max = "384000") {
-      org_url <- if (!private$scan_all) {
-        paste0("'+user:", org)
+      user_query <- if (!private$scan_all) {
+        paste0('+user:', org)
       } else {
-        ""
+        ''
       }
-      search_endpoint <- if (language != "All") {
-        paste0(self$rest_api_url, "/search/code?q='", phrase, org_url, "+language:", language)
-      } else {
-        paste0(self$rest_api_url, "/search/code?q='", phrase, org_url)
+      query <- paste0('"', phrase, '"', user_query)
+      if (language != "All") {
+        query <- paste0(query, '+language:', language)
       }
-
+      search_endpoint <- paste0(self$rest_api_url, '/search/code?q=', query)
       total_n <- self$response(search_endpoint)[["total_count"]]
-
       if (length(total_n) > 0) {
         repos_list <- private$search_response(
           search_endpoint = search_endpoint,
@@ -218,7 +216,6 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       } else {
         repos_list <- list()
       }
-
       return(repos_list)
     },
 
@@ -232,28 +229,25 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
                                byte_max) {
       if (total_n >= 0 & total_n < 1e3) {
         resp_list <- list()
-
         for (page in 1:(total_n %/% 100)) {
           resp_list <- self$response(
             paste0(search_endpoint, "+size:0..", byte_max, "&page=", page, "&per_page=100")
           )[["items"]] %>%
             append(resp_list, .)
         }
-
         resp_list
       } else if (total_n >= 1e3) {
         resp_list <- list()
         index <- c(0, 50)
-
         spinner <- cli::make_spinner(
-          template = cli::col_grey("GitHub search limit (1000 results) exceeded. Results will be divided. {spin}")
+          which = "timeTravel",
+          template = cli::col_grey(
+            "GitHub search limit (1000 results) exceeded. Results will be divided. {spin}"
+          )
         )
-
         while (index[2] < as.numeric(byte_max)) {
           size_formula <- paste0("+size:", as.character(index[1]), "..", as.character(index[2]))
-
           spinner$spin()
-
           n_count <- tryCatch(
             {
               self$response(paste0(search_endpoint, size_formula))[["total_count"]]
@@ -262,7 +256,6 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
               NULL
             }
           )
-
           if (is.null(n_count)) {
             NULL
           } else if ((n_count - 1) %/% 100 > 0) {
@@ -273,9 +266,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
             resp_list <- self$response(paste0(search_endpoint, size_formula, "&page=1&per_page=100"))[["items"]] %>%
               append(resp_list, .)
           }
-
           index[1] <- index[2]
-
           if (index[2] < 1e3) {
             index[2] <- index[2] + 50
           }
@@ -300,8 +291,8 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     tailor_repos_info = function(repos_list) {
       repos_list <- purrr::map(repos_list, function(repo) {
         list(
-          "id" = repo$id,
-          "name" = repo$name,
+          "repo_id" = repo$id,
+          "repo_name" = repo$name,
           "default_branch" = repo$default_branch,
           "stars" = repo$stargazers_count,
           "forks" = repo$forks_count,
@@ -322,7 +313,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     # @return A table of repositories with added information on issues.
     pull_repos_issues = function(repos_table) {
       if (nrow(repos_table) > 0) {
-        repos_iterator <- paste0(repos_table$organization, "/", repos_table$name)
+        repos_iterator <- paste0(repos_table$organization, "/", repos_table$repo_name)
         issues <- purrr::map_dfr(repos_iterator, function(repo_path) {
           issues_endpoint <- paste0(self$rest_api_url, "/repos/", repo_path, "/issues")
 
@@ -363,8 +354,8 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     pull_commits_from_org = function(repos_table,
                                      date_from,
                                      date_until) {
-      repos_names <- repos_table$name
-      repo_fullnames <- paste0(repos_table$organization, "/", repos_table$name)
+      repos_names <- repos_table$repo_name
+      repo_fullnames <- paste0(repos_table$organization, "/", repos_table$repo_name)
 
       repos_list_with_commits <- purrr::map(repo_fullnames, function(repo_fullname) {
         commits_from_repo <- private$pull_commits_from_repo(

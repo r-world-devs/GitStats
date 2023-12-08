@@ -51,7 +51,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param settings A list of  `GitStats` settings.
     #' @return A table.
     pull_repos = function(org,
-                         settings) {
+                          settings) {
       if (settings$search_param %in% c("org", "team")) {
         if (settings$search_param == "org") {
           if (!private$scan_all) {
@@ -89,7 +89,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param settings A list of  `GitStats` settings.
     #' @return Nothing.
     pull_repos_supportive = function(org,
-                                    settings) {
+                                     settings) {
       NULL
     },
 
@@ -101,14 +101,14 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param settings A list of  `GitStats` settings.
     #' @return A table of commits.
     pull_commits = function(org,
-                           date_from,
-                           date_until,
-                           settings) {
+                            date_from,
+                            date_until,
+                            settings) {
       repos_table <- self$pull_repos(
         org = org,
         settings = list(search_param = "org")
       )
-      repos_names <- repos_table$name
+      repos_names <- repos_table$repo_name
 
       if (settings$search_param == "org") {
         if (!private$scan_all) {
@@ -252,7 +252,11 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     prepare_repos_table = function(repos_list) {
       if (length(repos_list) > 0) {
         repos_table <- purrr::map_dfr(repos_list, function(repo) {
-          repo$default_branch <- repo$default_branch$name
+          repo$default_branch <- if(!is.null(repo$default_branch)) {
+            repo$default_branch$name
+          } else {
+            ""
+          }
           repo$languages <- purrr::map_chr(repo$languages$nodes, ~ .$name) %>%
             paste0(collapse = ", ")
           repo$created_at <- gts_to_posixt(repo$created_at)
@@ -263,7 +267,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           repo <- data.frame(repo) %>%
             dplyr::relocate(
               default_branch,
-              .after = name
+              .after = repo_name
             )
         })
       } else {
@@ -458,31 +462,43 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       return(user_table)
     },
 
-    # @description Pull all given files from all repositories of an organization.
+    # @description Pull all given files from all repositories of an
+    #   organization.
     # @param org An organization.
     # @param file_path Path to a file.
+    # @param pulled_repos Optional, if not empty, function will make use of the
+    #   argument to iterate over it when pulling files.
     # @return A response in a list form.
-    pull_file_from_org = function(org, file_path) {
-      repos_list <- private$pull_repos_from_org(
-        from = "org",
-        org = org
-      )
-      repositories <- purrr::map(repos_list, ~ .$name)
-      def_branches <- purrr::map(repos_list, ~ .$default_branch$name)
-      files_list <- purrr::map2(repositories, def_branches, function(repository, def_branch) {
-        files_query <- self$gql_query$files_by_repo()
-        files_response <- self$gql_response(
-          gql_query = files_query,
-          vars = list(
-            "org" = org,
-            "repo" = repository,
-            "file_path" = paste0(def_branch, ":", file_path)
-          )
+    pull_file_from_org = function(org, file_path, pulled_repos = NULL) {
+      if (is.null(pulled_repos)) {
+        repos_list <- private$pull_repos_from_org(
+          from = "org",
+          org = org
         )
-      }) %>%
-        purrr::map(~ .$data$repository)
-      names(files_list) <- repositories
-      files_list <- purrr::discard(files_list, ~ length(.$object) == 0)
+        repositories <- purrr::map(repos_list, ~ .$repo_name)
+        def_branches <- purrr::map(repos_list, ~ .$default_branch$name)
+      } else {
+        repositories <- pulled_repos$repo_name
+        def_branches <- pulled_repos$default_branch
+      }
+      files_list <- purrr::map(file_path, function(file_path) {
+        files_list <- purrr::map2(repositories, def_branches, function(repository, def_branch) {
+          files_query <- self$gql_query$files_by_repo()
+          files_response <- self$gql_response(
+            gql_query = files_query,
+            vars = list(
+              "org" = org,
+              "repo" = repository,
+              "file_path" = paste0(def_branch, ":", file_path)
+            )
+          )
+        }) %>%
+          purrr::map(~ .$data$repository)
+        names(files_list) <- repositories
+        files_list <- purrr::discard(files_list, ~ length(.$object) == 0)
+        return(files_list)
+      })
+      names(files_list) <- file_path
       return(files_list)
     },
 
@@ -492,16 +508,20 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     # @return A table with information on files.
     prepare_files_table = function(files_response, org, file_path) {
       if (!is.null(files_response)) {
-        files_table <- purrr::imap(files_response, function(repository, name) {
-          data.frame(
-            "repository_name" = repository$name,
-            "repository_id" = repository$id,
-            "organization" = org,
-            "file_path" = file_path,
-            "file_content" = repository$object$text,
-            "file_size" = repository$object$byteSize,
-            "api_url" = self$gql_api_url
-          )
+        files_table <- purrr::map(file_path, function(file) {
+          purrr::imap(files_response[[file]], function(repository, name) {
+            data.frame(
+              "repo_name" = repository$name,
+              "repo_id" = repository$id,
+              "organization" = org,
+              "file_path" = file,
+              "file_content" = repository$object$text,
+              "file_size" = repository$object$byteSize,
+              "repo_url" = repository$url,
+              "api_url" = self$gql_api_url
+            )
+          }) %>%
+            purrr::list_rbind()
         }) %>%
           purrr::list_rbind()
       } else {

@@ -29,11 +29,12 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
      #' @param vars A list of named variables.
      #' @return A list.
      gql_response = function(gql_query, vars = "null") {
-       httr2::request(paste0(self$gql_api_url, "?")) %>%
-         httr2::req_headers("Authorization" = paste0("Bearer ", private$token)) %>%
-         httr2::req_body_json(list(query = gql_query, variables = vars)) %>%
-         httr2::req_perform() %>%
-         httr2::resp_body_json()
+       response <- private$perform_request(
+         gql_query = gql_query,
+         vars = vars
+       )
+       response_list <- httr2::resp_body_json(response)
+       return(response_list)
      },
 
      #' @description Get information on users in the form of table
@@ -51,14 +52,17 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
      #'   an organization in a table format.
      #' @param org An organization.
      #' @param file_path A file path.
+     #' @param pulled_repos Optional parameter to pass repository output object.
+     #' @param settings A list of  `GitStats` settings.
      #' @return A table.
-     pull_files = function(org, file_path) {
+     pull_files = function(org, file_path, pulled_repos = NULL) {
        if (!private$scan_all) {
          cli::cli_alert_info("[Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling {file_path} files...")
        }
        files_table <- private$pull_file_from_org(
          org = org,
-         file_path = file_path
+         file_path = file_path,
+         pulled_repos = pulled_repos
        ) %>%
          private$prepare_files_table(
            org = org,
@@ -74,6 +78,18 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
 
      # @field A boolean.
      scan_all = FALSE,
+
+     perform_request = function(gql_query, vars) {
+       response <- httr2::request(paste0(self$gql_api_url, "?")) %>%
+         httr2::req_headers("Authorization" = paste0("Bearer ", private$token)) %>%
+         httr2::req_body_json(list(query = gql_query, variables = vars)) %>%
+         httr2::req_retry(
+           is_transient = ~ httr2::resp_status(.x) == "400|502",
+           max_seconds = 60
+         ) %>%
+         httr2::req_perform()
+       return(response)
+     },
 
      # @description A method to pull information on user.
      # @param username A login.

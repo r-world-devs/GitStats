@@ -54,7 +54,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      #' @param settings A list of  `GitStats` settings.
      #' @return A table.
      pull_repos = function(org,
-                          settings) {
+                           settings) {
        org <- gsub("%2f", "/", org)
        if (settings$search_param == "org") {
          if (!private$scan_all) {
@@ -76,7 +76,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      #' @param settings A list of  `GitStats` settings.
      #' @return Nothing.
      pull_repos_supportive = function(org,
-                                     settings) {
+                                      settings) {
        NULL
      },
 
@@ -90,9 +90,9 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      #' @param settings A list of  `GitStats` settings.
      #' @return A table of commits.
      pull_commits = function(org,
-                            date_from,
-                            date_until = Sys.date(),
-                            settings) {
+                             date_from,
+                             date_until = Sys.date(),
+                             settings) {
        NULL
      }
 
@@ -191,7 +191,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
            ) %>%
            dplyr::relocate(
              default_branch,
-             .after = name
+             .after = repo_name
            )
        } else {
          repos_table <- NULL
@@ -226,45 +226,75 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      # @description Pull all given files from all repositories of a group.
      # @param org An organization.
      # @param file_path Path to a file.
+     # @param pulled_repos Optional, if not empty, function will make use of the
+     #   argument to iterate over it when pulling files.
      # @return A response in a list form.
-     pull_file_from_org = function(org, file_path) {
-       full_files_list <- list()
-       next_page <- TRUE
-       end_cursor <- ""
-       while (next_page) {
-         files_query <- self$gql_query$files_by_org(
-           end_cursor = end_cursor
-         )
+     pull_file_from_org = function(org, file_path, pulled_repos = NULL) {
+       if (!is.null(pulled_repos)) {
+        full_files_list <- private$pull_file_from_repos(
+          file_path = file_path,
+          repos_table = pulled_repos
+        )
+       } else {
+         full_files_list <- list()
+         next_page <- TRUE
+         end_cursor <- ""
+         while (next_page) {
+           files_query <- self$gql_query$files_by_org(
+             end_cursor = end_cursor
+           )
+           files_response <- self$gql_response(
+             gql_query = files_query,
+             vars = list(
+               "org" = org,
+               "file_paths" = file_path
+             )
+           )
+           if (length(files_response$data$group) == 0) {
+             cli::cli_alert_danger("Empty")
+           }
+           projects <- files_response$data$group$projects
+           files_list <- purrr::map(projects$edges, function(edge) {
+             edge$node
+           }) %>%
+             purrr::discard(~ length(.$repository$blobs$nodes) == 0)
+           if (is.null(files_list)) files_list <- list()
+           if (length(files_list) > 0) {
+             next_page <- files_response$pageInfo$hasNextPage
+           } else {
+             next_page <- FALSE
+           }
+           if (is.null(next_page)) next_page <- FALSE
+           if (next_page) {
+             end_cursor <- files_response$pageInfo$endCursor
+           } else {
+             end_cursor <- ""
+           }
+           full_files_list <- append(full_files_list, files_list)
+         }
+       }
+       return(full_files_list)
+     },
+
+     # @description Pull all given files from given repositories.
+     # @param file_path Path to a file.
+     # @param repos_table Repositories table.
+     # @return A response in a list form.
+     pull_file_from_repos = function(file_path, repos_table) {
+       files_list <- purrr::map(repos_table$repo_url, function(repo_url) {
+         files_query <- self$gql_query$files_from_repo()
          files_response <- self$gql_response(
            gql_query = files_query,
            vars = list(
-             "org" = org,
-             "file_paths" = file_path
+             "file_paths" = file_path,
+             "project_path" = stringr::str_replace(repo_url, ".*(?<=.com/)", "")
            )
          )
-         if (length(files_response$data$group) == 0) {
-           cli::cli_abort("Empty")
-         }
-         projects <- files_response$data$group$projects
-         files_list <- purrr::map(projects$edges, function(edge) {
-           edge$node
-         }) %>%
-           purrr::discard(~ length(.$repository$blobs$nodes) == 0)
-         if (is.null(files_list)) files_list <- list()
-         if (length(files_list) > 0) {
-           next_page <- files_response$pageInfo$hasNextPage
-         } else {
-           next_page <- FALSE
-         }
-         if (is.null(next_page)) next_page <- FALSE
-         if (next_page) {
-           end_cursor <- files_response$pageInfo$endCursor
-         } else {
-           end_cursor <- ""
-         }
-         full_files_list <- append(full_files_list, files_list)
-       }
-       return(full_files_list)
+         return(files_response)
+       }) %>%
+         purrr::discard(~ length(.$data$project$repository$blobs$nodes) == 0) %>%
+         purrr::map(~ .$data$project)
+       return(files_list)
      },
 
      # @description Prepare files table.
@@ -275,12 +305,13 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
        if (!is.null(files_response)) {
          files_table <- purrr::map(files_response, function(project) {
            data.frame(
-             "repository_name" = project$name,
-             "repository_id" = project$id,
+             "repo_name" = project$name,
+             "repo_id" = project$id,
              "organization" = org,
              "file_path" = project$repository$blobs$nodes[[1]]$name,
              "file_content" = project$repository$blobs$nodes[[1]]$rawBlob,
              "file_size" = as.integer(project$repository$blobs$nodes[[1]]$size),
+             "repo_url" = project$webUrl,
              "api_url" = self$gql_api_url
            )
          }) %>%

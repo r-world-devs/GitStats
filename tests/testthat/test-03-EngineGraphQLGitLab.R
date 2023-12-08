@@ -95,8 +95,9 @@ test_that("GitLab prepares user table", {
   gl_user_table <- test_gql_gl$prepare_user_table(
     user_response = test_mocker$use("gl_user_response")
   )
-  expect_user_table(
-    gl_user_table
+  expect_users_table(
+    gl_user_table,
+    one_user = TRUE
   )
   test_mocker$cache(gl_user_table)
 })
@@ -108,6 +109,14 @@ test_that("GitLab GraphQL Engine pulls files from a group", {
   )
   expect_gitlab_files_response(gitlab_files_response)
   test_mocker$cache(gitlab_files_response)
+})
+
+test_that("GitLab GraphQL Engine pulls files from a repository", {
+  gitlab_files_response <- test_gql_gl$pull_file_from_repos(
+    file_path = "meta_data.yaml",
+    repos_table = test_mocker$use("gl_repos_table")
+  )
+  expect_gitlab_files_response(gitlab_files_response)
 })
 
 test_that("GitLab GraphQL Engine prepares table from files response", {
@@ -132,11 +141,10 @@ test_that("`pull_repos()` works as expected", {
     "private$pull_repos",
     test_mocker$use("gl_repos_from_org")
   )
-  settings <- list(search_param = "org")
   expect_snapshot(
     gl_repos_org <- test_gql_gl$pull_repos(
       org = "mbtests",
-      settings = settings
+      settings = test_settings
     )
   )
   expect_repos_table(

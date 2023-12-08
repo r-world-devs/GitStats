@@ -4229,14 +4229,14 @@
 # `pull_repos()` works as expected
 
     Code
-      gh_repos_org <- test_gql_gh$pull_repos(org = "r-world-devs", settings = settings)
+      gh_repos_org <- test_gql_gh$pull_repos(org = "r-world-devs", settings = test_settings)
     Message
       i [GitHub][Engine:GraphQL][org:r-world-devs] Pulling repositories...
 
 ---
 
     Code
-      gh_repos_team <- test_gql_gh$pull_repos(org = "r-world-devs", settings = settings)
+      gh_repos_team <- test_gql_gh$pull_repos(org = "r-world-devs", settings = test_settings)
     Message
       i [GitHub][Engine:GraphQL][org:r-world-devs][team:] Pulling repositories...
 
@@ -4244,7 +4244,7 @@
 
     Code
       commits_table <- test_gql_gh$pull_commits(org = "r-world-devs", date_from = "2023-01-01",
-        date_until = "2023-02-28", settings = settings)
+        date_until = "2023-02-28", settings = test_settings)
     Message
       i [GitHub][Engine:GraphQL][org:r-world-devs] Pulling commits...
 

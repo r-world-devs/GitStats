@@ -2,16 +2,23 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{get_files}
 \alias{get_files}
+\alias{get_R_package_usage}
 \title{Get files}
 \usage{
 get_files(gitstats_obj)
+
+get_R_package_usage(gitstats_obj)
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
 }
 \value{
 A table of files content.
+
+A table with repo urls.
 }
 \description{
 Retrieves files table pulled by \code{GitStats}.
+
+Retrieves list of repositories that make use of a package.
 }

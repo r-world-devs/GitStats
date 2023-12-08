@@ -1,7 +1,7 @@
 # `pull_repos()` works as expected
 
     Code
-      gl_repos_org <- test_gql_gl$pull_repos(org = "mbtests", settings = settings)
+      gl_repos_org <- test_gql_gl$pull_repos(org = "mbtests", settings = test_settings)
     Message
       i [GitLab][Engine:GraphQL][org:mbtests] Pulling repositories...
 

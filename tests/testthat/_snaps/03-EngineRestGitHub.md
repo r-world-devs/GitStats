@@ -21,7 +21,7 @@
 # `pull_repos()` works
 
     Code
-      result <- test_rest$pull_repos(org = "r-world-devs", settings = settings)
+      result <- test_rest$pull_repos(org = "r-world-devs", settings = test_settings)
     Message
       i [GitHub][Engine:REST][phrase:shiny][org:r-world-devs] Searching repositories...
 

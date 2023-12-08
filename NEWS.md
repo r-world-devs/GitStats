@@ -1,13 +1,18 @@
-# GitStats 1.0.1.9000
+# GitStats 1.0.0.9005
 
 ## Features:
 
+- added `pull_R_package_usage()` function to pull repositories where package name is found in DESCRIPTION or NAMESPACE files or code blobs with phrases related to using an R package (`library(package)`, `package::`) ([#326](https://github.com/r-world-devs/GitStats/issues/326)),
 - added `pull_files()` with `get_files()` to pull content of text files ([#200](https://github.com/r-world-devs/GitStats/issues/200)),
 - added a `default_branch` column to repositories output as a consequence of [#200](https://github.com/r-world-devs/GitStats/issues/200).
 
 ## Fixes:
 
 - fixed pulling responses when GitLab groups have private or empty content ([#314](https://github.com/r-world-devs/GitStats/issues/314).
+
+## Minor changes:
+
+- rename column names for repository output - `id` to `repo_id` and `name` to `repo_name`.
 
 # GitStats 1.0.0
 

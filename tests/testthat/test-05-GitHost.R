@@ -149,9 +149,8 @@ test_that("`set_gql_url()` correctly sets gql api url - for public GitLab", {
 })
 
 test_that("GitHost pulls repos from orgs", {
-  settings <- list(search_param = "org")
   expect_snapshot(
-    gh_repos_table <- test_host$pull_repos_from_orgs(settings)
+    gh_repos_table <- test_host$pull_repos_from_orgs(test_settings)
   )
   expect_repos_table(
     gh_repos_table
@@ -286,27 +285,6 @@ test_that("GitHost filters GitLab repositories' (pulled by team) table by langua
   )
 })
 
-test_that("GitHost filters GitLab repositories' (pulled by phrase) table by languages", {
-  gl_repos_table <- test_mocker$use("gl_repos_by_phrase_table")
-  expect_snapshot(
-    result <- test_host$filter_repos_by_language(
-      gl_repos_table,
-      language = "C"
-    )
-  )
-  expect_length(
-    result,
-    length(gl_repos_table)
-  )
-  expect_gt(
-    nrow(result),
-    0
-  )
-  expect_true(
-    all(grepl("C", result$languages))
-  )
-})
-
 # public methods
 
 test_host <- create_testhost(
@@ -323,12 +301,12 @@ test_that("pull_repos returns table of repositories", {
   )
   expect_snapshot(
     repos_table <- test_host$pull_repos(
-      settings = list(search_param = "org",
-                      language = "All")
+      settings = test_settings
     )
   )
-  expect_repos_table_with_api_url(
-    repos_table
+  expect_repos_table(
+    repos_table,
+    add_col = "api_url"
   )
 })
 
@@ -363,11 +341,12 @@ test_that("pull_repos_contributors returns table with contributors for GitLab", 
 })
 
 test_that("pull_commits throws error when search param is set to `phrase`", {
+  test_settings[["search_param"]] <- "phrase"
   expect_snapshot_error(
     test_gl_host$pull_commits(
       date_from = "2023-03-01",
       date_until = "2023-04-01",
-      settings = list(search_param = "phrase")
+      settings = test_settings
     )
   )
 })
@@ -377,7 +356,7 @@ test_that("pull_commits for GitLab works", {
     gl_commits_table <- test_gl_host$pull_commits(
       date_from = "2023-03-01",
       date_until = "2023-04-01",
-      settings = list(search_param = "org")
+      settings = test_settings
     )
   )
   expect_commits_table(
@@ -390,7 +369,7 @@ test_that("pull_commits for GitHub works", {
     gh_commits_table <- test_host$pull_commits(
       date_from = "2023-03-01",
       date_until = "2023-04-01",
-      settings = list(search_param = "org")
+      settings = test_settings
     )
   )
   expect_commits_table(

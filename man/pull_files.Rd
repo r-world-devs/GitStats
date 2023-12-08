@@ -9,7 +9,8 @@ pull_files(gitstats_obj, file_path)
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
 
-\item{file_path}{A standardized path to file in repositories.}
+\item{file_path}{A standardized path to file(s) in repositories. May be a
+character vector if multiple files are to be pulled.}
 }
 \value{
 A \code{GitStats} object with table of files.

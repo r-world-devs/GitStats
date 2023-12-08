@@ -107,7 +107,7 @@ EngineRest <- R6::R6Class("EngineRest",
 
       if (length(repos_dt) > 0) {
         repos_dt <- dplyr::mutate(repos_dt,
-          id = as.character(id),
+          repo_id = as.character(repo_id),
           created_at = as.POSIXct(created_at),
           last_activity_at = as.POSIXct(last_activity_at),
           forks = as.integer(forks),
@@ -123,71 +123,41 @@ EngineRest <- R6::R6Class("EngineRest",
     # @param token An API token.
     # @returns A request.
     perform_request = function(endpoint, token) {
-      tryCatch(
-        {
-          resp <- private$build_request(endpoint, token) %>%
+      resp <- NULL
+      tryCatch({
+          resp <- httr2::request(endpoint) %>%
+            httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
+            httr2::req_error(is_error = function(resp) FALSE) %>%
             httr2::req_perform()
+          if (!private$scan_all) {
+            if (resp$status == 401) {
+              message("HTTP 401 Unauthorized.")
+            }
+            if (resp$status == 404) {
+              message("HTTP 404 No such address")
+            }
+          }
+          if (resp$status %in% c(400, 403)) {
+            resp <- httr2::request(endpoint) %>%
+              httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
+              httr2::req_retry(
+                is_transient = ~ httr2::resp_status(.x) %in% c(400, 403),
+                max_seconds = 60
+              ) %>%
+              httr2::req_perform()
+          }
         },
         error = function(e) {
-          if (!is.null(e$status)) {
-            if (!private$scan_all) {
-              if (e$status == 400) {
-                message("HTTP 400 Bad Request.")
-              } else if (e$status == 401) {
-                message("HTTP 401 Unauthorized.")
-              } else if (e$status == 403) {
-                message("HTTP 403 API limit reached.")
-              } else if (e$status == 404) {
-                message("HTTP 404 No such address")
-              }
-            }
-          } else if (grepl("Could not resolve host", e)) {
+          cli::cli_alert_danger(e$message)
+          if (!is.null(e$parent$message)) {
             cli::cli_abort(c(
-              "Could not resolve host {endpoint}",
+              e$parent$message,
               "x" = "'GitStats' object will not be created."
             ))
           }
-          resp <<- NULL
         }
       )
       return(resp)
-    },
-
-    # @description A wrapper for httr2 functions to prepare get request to REST API endpoint.
-    # @param endpoint An API endpoint.
-    # @param token An API token.
-    # @returns A request.
-    build_request = function(endpoint, token) {
-      httr2::request(endpoint) %>%
-        httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
-        httr2::req_error(body = private$resp_error_body) %>%
-        httr2::req_retry(
-          is_transient = private$resp_is_transient,
-          after = private$req_after
-        )
-    },
-
-    # @description Handler for rate-limit error (403 on GitHub).
-    resp_is_transient = function(resp) {
-      httr2::resp_status(resp) == 403 &&
-        httr2::resp_header(resp, "X-RateLimit-Remaining") == "0"
-    },
-
-    # @description Handler for rate-limit error (403 on GitHub).
-    req_after = function(resp) {
-      time <- as.numeric(httr2::resp_header(resp, "X-RateLimit-Reset"))
-      time - unclass(Sys.time())
-    },
-
-    # @description Handler for rate-limit error (403 on GitHub).
-    resp_error_body = function(resp) {
-      body <- httr2::resp_body_json(resp)
-
-      message <- body$message
-      if (!is.null(body$documentation_url)) {
-        message <- c(message, paste0("See docs at <", body$documentation_url, ">"))
-      }
-      message
     }
   )
 )

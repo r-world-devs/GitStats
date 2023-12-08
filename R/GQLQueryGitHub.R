@@ -170,6 +170,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
           repository(owner: $org, name: $repo) {
             id
             name
+            url
             object(expression: $file_path) {
               ... on Blob {
                 text
@@ -203,8 +204,8 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
           hasNextPage
         }
         nodes {
-          id
-          name
+          repo_id: id
+          repo_name: name
           default_branch: defaultBranchRef {
             name
           }

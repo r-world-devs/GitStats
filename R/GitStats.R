@@ -21,10 +21,10 @@ GitStats <- R6::R6Class("GitStats",
     #'   pulling.
     #' @return Nothing.
     set_params = function(search_param,
-                          team_name,
-                          phrase,
-                          language,
-                          print_out) {
+                          team_name = NULL,
+                          phrase = NULL,
+                          language = "All",
+                          print_out = TRUE) {
       search_param <- match.arg(
         search_param,
         c("org", "team", "phrase")
@@ -116,11 +116,43 @@ GitStats <- R6::R6Class("GitStats",
       cli::cli_alert_success("{member_name} successfully added to team.")
     },
 
+    #' @description Wrapper over pulling repositories by phrase.
+    #' @param package_name A character, name of the package.
+    #' @param only_loading A boolean, if `TRUE` function will check only if package
+    #'   is loaded in repositories, not used as dependencies. This is much faster
+    #'   approach as searching usage only with loading (i.e. library(package)) is
+    #'   based on Search APIs (one endpoint), whereas searching usage as a
+    #'   dependency pulls text files from all repositories (many endpoints). This is
+    #'   a good option to choose when you want to check package usage but guess that
+    #'   it may be used mainly by loading in data scripts and not used as a
+    #'   dependency of other packages.
+    pull_R_package_usage = function(package_name, only_loading = FALSE) {
+      repos_using_package <- private$check_R_package_loading(package_name)
+      repos_with_package_as_dependency <- if (!only_loading) {
+        private$check_R_package_as_dependency(package_name)
+      } else {
+        NULL
+      }
+      package_usage_table <- purrr::list_rbind(
+        list(
+          repos_with_package_as_dependency,
+          repos_using_package
+        )
+      )
+      duplicated_repos <- package_usage_table$api_url[duplicated(package_usage_table$api_url)]
+      package_usage_table <- package_usage_table[!duplicated(package_usage_table$api_url),]
+      package_usage_table <- package_usage_table %>%
+        dplyr::mutate(
+          package_usage = ifelse(api_url %in% duplicated_repos, "import, library", package_usage)
+        )
+      private$R_package_usage <- package_usage_table
+      return(invisible(self))
+    },
+
     #' @description  A method to list all repositories for an organization,
     #'   a team or by a keyword.
     #' @param add_contributors A boolean to decide whether to add contributors
     #'   information to repositories.
-    #' @return A data.frame of repositories.
     pull_repos = function(add_contributors = FALSE) {
       if (private$settings$search_param == "team") {
         if (length(private$settings$team) == 0) {
@@ -131,7 +163,6 @@ GitStats <- R6::R6Class("GitStats",
           cli::cli_abort("You have to provide a phrase to look for.")
         }
       }
-
       repos_table <- purrr::map(private$hosts, ~ .$pull_repos(
         settings = private$settings,
         add_contributors = add_contributors
@@ -162,19 +193,16 @@ GitStats <- R6::R6Class("GitStats",
     #' @description A method to get information on commits.
     #' @param date_from A starting date for commits.
     #' @param date_until An end date for commits.
-    #' @return A data.frame of commits.
     pull_commits = function(date_from,
                            date_until) {
       if (is.null(date_from)) {
         stop("You need to define `date_from`.", call. = FALSE)
       }
-
       if (private$settings$search_param == "team") {
         if (length(private$settings$team) == 0) {
           cli::cli_abort("You have to specify a team first with 'set_team_member()'.")
         }
       }
-
       commits_table <- purrr::map(private$hosts, function(host) {
         commits_table_host <- host$pull_commits(
           date_from = date_from,
@@ -215,12 +243,20 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     #' @description Pull text content of a file from all repositories.
-    #' @param file_path A file path.
-    #' @return A data.frame of files.
-    pull_files = function(file_path) {
+    #' @param file_path A file path, may be a character vector.
+    #' @param .use_pulled_repos A boolean if TRUE `GitStats` will pull files only
+    #'   from stored in the output repositories.
+    pull_files = function(file_path, .use_pulled_repos = FALSE) {
       private$check_for_host()
       files_table <- purrr::map(private$hosts, function(host) {
-        host$pull_files(file_path)
+        host$pull_files(
+          file_path = file_path,
+          pulled_repos = if (.use_pulled_repos) {
+            self$get_repos()
+          } else {
+            NULL
+          }
+        )
       }) %>%
         purrr::list_rbind()
       private$files <- files_table
@@ -254,6 +290,11 @@ GitStats <- R6::R6Class("GitStats",
     #' @description Return files table from GitStats.
     get_files = function() {
       private$files
+    },
+
+    #' @description Return R_package_usage table from GitStats.
+    get_R_package_usage = function() {
+      private$R_package_usage
     },
 
     #' @description A print method for a GitStats object.
@@ -303,6 +344,57 @@ GitStats <- R6::R6Class("GitStats",
 
     # @field files An output table of files.
     files = NULL,
+
+    # @field R_package_usage.
+    R_package_usage = NULL,
+
+    # @description Search repositories with `library(package_name)` in code blobs.
+    # @param package_name Name of a package.
+    check_R_package_loading = function(package_name) {
+      cli::cli_alert_info("Checking where [{package_name}] is loaded from library...")
+      package_usage_phrases <- c(
+        paste0("library(", package_name, ")"),
+        paste0(package_name, "::")
+      )
+      repos_using_package <- purrr::map(package_usage_phrases, ~ {
+        suppressMessages(
+          self$set_params(
+            search_param = "phrase",
+            phrase = .,
+            print_out = FALSE
+          )
+        )
+        self$pull_repos()
+        repos_using_package <- self$get_repos()
+        if (!is.null(repos_using_package)) {
+          repos_using_package$package_usage <- "library"
+          repos_using_package <- repos_using_package %>%
+            dplyr::select(repo_name, repo_url, api_url, package_usage)
+        }
+        return(repos_using_package)
+      }) %>%
+        purrr::list_rbind() %>%
+        unique()
+      return(repos_using_package)
+    },
+
+    # @description Search repositories with `package_name` in DESCRIPTION and NAMESPACE files.
+    # @param package_name Name of a package.
+    check_R_package_as_dependency = function(package_name) {
+      cli::cli_alert_info("Checking where [{package_name}] is used as a dependency...")
+      self$pull_files(
+        file_path = c("DESCRIPTION", "NAMESPACE")
+      )
+      desc_table <- self$get_files()
+      repos_with_package <- desc_table[grepl(package_name, desc_table$file_content), ]
+      if (nrow(repos_with_package) > 0) {
+        repos_with_package <- repos_with_package[!duplicated(repos_with_package$api_url),]
+        repos_with_package$package_usage <- "import"
+      }
+      repos_with_package <- repos_with_package %>%
+        dplyr::select(repo_name, repo_url, api_url, package_usage)
+      return(repos_with_package)
+    },
 
     # @description Check whether the urls do not repeat in input.
     # @param host An object of GitPlatform class.
