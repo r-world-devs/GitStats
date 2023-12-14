@@ -13,7 +13,7 @@ GitStats <- R6::R6Class("GitStats",
   public = list(
 
     #' @description Set up your search settings.
-    #' @param search_param One of three: `team`, `org` or `phrase`.
+    #' @param search_param One of four: `team`, `org`, `repo` or `phrase`.
     #' @param team_name A name of a team.
     #' @param phrase A phrase to look for.
     #' @param language A language of programming code.
@@ -27,7 +27,7 @@ GitStats <- R6::R6Class("GitStats",
                           print_out = TRUE) {
       search_param <- match.arg(
         search_param,
-        c("org", "team", "phrase")
+        c("org", "repo", "team", "phrase")
       )
 
       if (search_param == "team") {
@@ -38,7 +38,7 @@ GitStats <- R6::R6Class("GitStats",
         } else {
           private$settings$team_name <- team_name
           cli::cli_alert_success(
-            paste0("Your search preferences set to {cli::col_green('team: ", team_name, "')}.")
+            paste0("Your search parameter set to {cli::col_green('team: ", team_name, "')}.")
           )
           if (length(private$settings$team) == 0) {
             cli::cli_alert_warning(
@@ -76,30 +76,43 @@ GitStats <- R6::R6Class("GitStats",
     #' @description Method to set connections to Git platforms.
     #' @param api_url A character, url address of API.
     #' @param token A token.
-    #' @param orgs A character vector of organisations (owners of repositories
-    #'   in case of GitHub and groups of projects in case of GitLab).
+    #' @param orgs An optional character vector of organisations (owners of
+    #'   repositories in case of GitHub and groups of projects in case of GitLab).
+    #'   If you pass it, `repos` parameter should stay `NULL`.
+    #' @param repos An optional character vector of repositories full names
+    #'   (organization and repository name, e.g. "r-world-devs/GitStats"). If you
+    #'   pass it, `orgs` parameter should stay `NULL`.
     #' @return Nothing, puts connection information into `$hosts` slot.
     set_host = function(api_url,
-                        token,
-                        orgs) {
+                        token = NULL,
+                        orgs = NULL,
+                        repos = NULL) {
       new_host <- NULL
 
       new_host <- GitHost$new(
         orgs = orgs,
+        repos = repos,
         token = token,
         api_url = api_url
       )
-      if  (grepl("https://", api_url) && grepl("github", api_url)) {
+      if (grepl("https://", api_url) && grepl("github", api_url)) {
         cli::cli_alert_success("Set connection to GitHub.")
       } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
         cli::cli_alert_success("Set connection to GitLab.")
       }
-
-    if (!is.null(new_host)) {
-      private$hosts <- new_host %>%
-        private$check_for_duplicate_hosts() %>%
-        append(private$hosts, .)
-    }
+      if (!is.null(repos)) {
+        private$settings$search_param <- "repo"
+        cli::cli_alert_info(cli::col_grey("Your search parameter set to [repo]."))
+      }
+      if (!is.null(orgs)) {
+        private$settings$search_param <- "org"
+        cli::cli_alert_info(cli::col_grey("Your search parameter set to [org]."))
+      }
+      if (!is.null(new_host)) {
+        private$hosts <- new_host %>%
+          private$check_for_duplicate_hosts() %>%
+          append(private$hosts, .)
+      }
     },
 
     #' @description A method to add a team member.
@@ -154,6 +167,16 @@ GitStats <- R6::R6Class("GitStats",
     #' @param add_contributors A boolean to decide whether to add contributors
     #'   information to repositories.
     pull_repos = function(add_contributors = FALSE) {
+      if (private$settings$search_param == "repo") {
+        cli::cli_abort(
+          c(
+            "Can not pull repos when search parameter is set to `repo`",
+            "i" = "Pass `orgs` to `GitStats` with `set_host()` function.",
+            "i" = "Set your search parameter to `org`, `phrase` or `team` with `set_params()` function."
+          ),
+          call = NULL
+        )
+      }
       if (private$settings$search_param == "team") {
         if (length(private$settings$team) == 0) {
           cli::cli_abort("You have to specify a team first with 'set_team_member()'.")
@@ -194,7 +217,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @param date_from A starting date for commits.
     #' @param date_until An end date for commits.
     pull_commits = function(date_from,
-                           date_until) {
+                            date_until) {
       if (is.null(date_from)) {
         stop("You need to define `date_from`.", call. = FALSE)
       }
@@ -309,8 +332,13 @@ GitStats <- R6::R6Class("GitStats",
         host_priv <- environment(host$initialize)$private
         orgs <- host_priv$orgs
       })
+      repos <- purrr::map(private$hosts, function(host) {
+        host_priv <- environment(host$initialize)$private
+        repos <- host_priv$repos
+      })
       private$print_item("Organisations", orgs)
-      private$print_item("Search preference", private$settings$search_param)
+      private$print_item("Repositories", repos)
+      private$print_item("Search parameter", private$settings$search_param)
       private$print_item("Team", private$settings$team_name, paste0(private$settings$team_name, " (", length(private$settings$team), " members)"))
       private$print_item("Phrase", private$settings$phrase)
       private$print_item("Language", private$settings$language)
@@ -325,7 +353,7 @@ GitStats <- R6::R6Class("GitStats",
 
     # @field settings List of search preferences.
     settings = list(
-      search_param = "org",
+      search_param = NULL,
       phrase = NULL,
       team_name = NULL,
       team = list(),
@@ -448,10 +476,10 @@ GitStats <- R6::R6Class("GitStats",
     print_item = function(item_name,
                           item_to_check,
                           item_to_print = item_to_check) {
-      if (item_name == "Organisations") {
+      if (item_name %in% c("Organisations", "Repositories")) {
         item_to_print <- unlist(item_to_print)
-        item_to_print <- purrr::map_vec(item_to_print, function(org) {
-          gsub("%2f", "/", org)
+        item_to_print <- purrr::map_vec(item_to_print, function(element) {
+          gsub("%2f", "/", element)
         })
         if (length(item_to_print) < 10) {
           list_items <- paste0(item_to_print, collapse = ", ")

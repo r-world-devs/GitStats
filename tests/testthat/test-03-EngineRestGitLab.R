@@ -78,17 +78,19 @@ test_that("`prepare_repos_table()` prepares repos table", {
   test_mocker$cache(gl_repos_by_phrase_table)
 })
 
-test_that("`pull_commits_from_org()` pulls commits from repo", {
+test_that("`pull_commits_from_repos()` pulls commits from repo", {
   gl_commits_repo_1 <- test_mocker$use("gl_commits_rest_response_repo_1")
 
   mockery::stub(
-    test_rest_priv$pull_commits_from_org,
-    "private$pull_commits_from_repo",
+    test_rest_priv$pull_commits_from_repos,
+    "private$pull_commits_from_one_repo",
     gl_commits_repo_1
   )
-
-  gl_commits_org <- test_rest_priv$pull_commits_from_org(
-    repos_table = test_mocker$use("gl_repos_by_phrase_table"),
+  repos_table <- test_mocker$use("gl_repos_by_phrase_table")
+  repos_names <- stringr::str_remove(repos_table$repo_url, "https://gitlab.com/") %>%
+    stringr::str_replace_all("/", "%2f")
+  gl_commits_org <- test_rest_priv$pull_commits_from_repos(
+    repos_names = repos_names,
     date_from = "2023-01-01",
     date_until = "2023-04-20"
   )
@@ -216,7 +218,7 @@ test_that("`pull_repos_by_phrase()` works", {
 test_that("`pull_commits()` works as expected", {
   mockery::stub(
     test_rest$pull_commits,
-    "private$pull_commits_from_org",
+    "private$pull_commits_from_repos",
     test_mocker$use("gl_commits_org")
   )
   expect_snapshot(
@@ -225,6 +227,19 @@ test_that("`pull_commits()` works as expected", {
       date_from = "2023-01-01",
       date_until = "2023-04-20",
       settings = test_settings
+    )
+  )
+  expect_commits_table(result)
+})
+
+test_that("`pull_commits()` works with repositories implied", {
+  expect_snapshot(
+    result <- test_rest$pull_commits(
+      org = "mbtests",
+      repos = c("gitstatstesting", "gitstats-testing-2"),
+      date_from = "2023-01-01",
+      date_until = "2023-04-20",
+      settings = test_settings_repo
     )
   )
   expect_commits_table(result)

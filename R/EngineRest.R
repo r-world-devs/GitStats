@@ -40,39 +40,42 @@ EngineRest <- R6::R6Class("EngineRest",
       return(result)
     },
 
-    #' @description Check if an organization exists
+    #' @description Check if repositories exist
+    #' @param repos A character vector of repositories
+    #' @return repos or NULL.
+    check_repositories = function(repos) {
+      repos <- purrr::map(repos, function(repo) {
+        private$check_endpoint(
+          repo = repo
+        )
+        return(repo)
+      }) %>%
+        purrr::keep(~ length(.) > 0) %>%
+        unlist()
+
+      if (length(repos) == 0) {
+        return(NULL)
+      }
+      repos
+    },
+
+    #' @description Check if organizations exist
     #' @param orgs A character vector of organizations
     #' @return orgs or NULL.
     check_organizations = function(orgs) {
       orgs <- purrr::map(orgs, function(org) {
-        org_endpoint <- if(grepl("github", self$rest_api_url)) "/orgs/" else "/groups/"
-        if (grepl("/", org)) {
-          org <- gsub("/", "%2f", org)
-        }
-        withCallingHandlers(
-          {
-            self$response(endpoint = paste0(self$rest_api_url, org_endpoint, org))
-          },
-          message = function(m) {
-            if (grepl("404", m)) {
-              cli::cli_alert_danger("Organization you provided does not exist or its name was passed in a wrong way: {org}")
-              cli::cli_alert_warning("Please type your organization name as you see it in `url`.")
-              cli::cli_alert_info("E.g. do not use spaces. Organization names as you see on the page may differ from their 'address' name.")
-              org <<- NULL
-            }
-          }
+        org <- private$check_endpoint(
+          org = org
         )
         return(org)
       }) %>%
         purrr::keep(~ length(.) > 0) %>%
         unlist()
-
       if (length(orgs) == 0) {
         return(NULL)
       }
       orgs
     }
-
   ),
   private = list(
 
@@ -91,6 +94,38 @@ EngineRest <- R6::R6Class("EngineRest",
           "i" = "No token provided."
         ))
       }
+    },
+
+    # @description Check whether the endpoint exists.
+    # @param repo Repository path.
+    # @param org Organization path.
+    check_endpoint = function(repo = NULL, org = NULL) {
+      if (!is.null(repo)) {
+        type <- "Repository"
+        repo_endpoint <- if(grepl("github", self$rest_api_url)) "/repos/" else "/projects/"
+        endpoint <- paste0(self$rest_api_url, repo_endpoint, repo)
+        object <- repo
+      }
+      if (!is.null(org)) {
+        type <- "Organization"
+        org_endpoint <- if(grepl("github", self$rest_api_url)) "/orgs/" else "/groups/"
+        endpoint <- paste0(self$rest_api_url, org_endpoint, org)
+        object <- org
+      }
+      withCallingHandlers(
+        {
+          self$response(endpoint = endpoint)
+        },
+        message = function(m) {
+          if (grepl("404", m)) {
+            cli::cli_alert_danger("{type} you provided does not exist or its name was passed in a wrong way: {endpoint}")
+            cli::cli_alert_warning("Please type your {tolower(type)} name as you see it in `url`.")
+            cli::cli_alert_info("E.g. do not use spaces. {type} names as you see on the page may differ from their 'address' name.")
+            object <<- NULL
+          }
+        }
+      )
+      return(object)
     },
 
     # @description A helper to prepare table for repositories content

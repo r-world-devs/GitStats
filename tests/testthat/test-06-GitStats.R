@@ -16,6 +16,23 @@ test_that("GitStats prints the proper info when connections are added.", {
   expect_snapshot(test_gitstats)
 })
 
+test_that("GitStats prints the proper info when repos are passed instead of orgs.", {
+  suppressMessages(
+    test_gitstats <- create_gitstats() %>%
+      set_host(
+        api_url = "https://api.github.com",
+        token = Sys.getenv("GITHUB_PAT"),
+        repos = c("r-world-devs/GitStats", "openpharma/GithubMetrics")
+      ) %>%
+      set_host(
+        api_url = "https://gitlab.com/api/v4",
+        token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+        repos = c("mbtests/gitstatstesting", "mbtests/gitstats-testing-2")
+      )
+  )
+  expect_snapshot(test_gitstats)
+})
+
 suppressMessages({
   set_params(
     test_gitstats,

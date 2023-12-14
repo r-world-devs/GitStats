@@ -12,7 +12,8 @@
       A <GitStats> object for 0 hosts:
       Hosts: 
       Organisations: [0] 
-      Search preference: phrase
+      Repositories: [0] 
+      Search parameter: phrase
       Team: RWD-IE (0 members)
       Phrase: covid
       Language: All
@@ -29,7 +30,8 @@
       A <GitStats> object for 0 hosts:
       Hosts: 
       Organisations: [0] 
-      Search preference: org
+      Repositories: [0] 
+      Search parameter: org
       Team: RWD-IE (0 members)
       Phrase: covid
       Language: Python
@@ -44,7 +46,8 @@
       A <GitStats> object for 0 hosts:
       Hosts: 
       Organisations: [0] 
-      Search preference: org
+      Repositories: [0] 
+      Search parameter: org
       Team: RWD-IE (0 members)
       Phrase: covid
       Language: All

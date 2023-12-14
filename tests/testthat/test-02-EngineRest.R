@@ -52,6 +52,32 @@ test_that("`perform_request()` returns proper status", {
   )
 })
 
+test_that("check_endpoint returns repo or org if they are correct", {
+  expect_equal(
+    test_rest_priv$check_endpoint(
+      repo = "r-world-devs/GitStats"
+    ),
+    "r-world-devs/GitStats"
+  )
+  expect_equal(
+    test_rest_priv$check_endpoint(
+      org = "openpharma"
+    ),
+    "openpharma"
+  )
+})
+
+test_that("check_endpoint returns warning and NULL if they are not correct", {
+  expect_snapshot(
+    object <- test_rest_priv$check_endpoint(
+      repo = "r-worlddevs/GitStats"
+    )
+  )
+  expect_null(
+    object
+  )
+})
+
 # public methods
 
 test_that("`response()` returns search response from GitHub's REST API", {
@@ -102,14 +128,35 @@ test_that("check_organizations returns orgs if they are correct", {
 
 test_that("check_organizations returns orgs if GitLab subroups are passed", {
   expect_equal(
-    test_rest$check_organizations("mbtests/subgroup"),
+    test_rest$check_organizations("mbtests%2fsubgroup"),
     "mbtests%2fsubgroup"
   )
 })
 
 test_that("check_organizations returns NULL if orgs are wrong", {
   expect_snapshot(
-    orgs <- test_rest$check_organizations("does_not_exist")
+    org <- test_rest$check_organizations("does_not_exist")
   )
-  expect_null(orgs)
+  expect_null(org)
+})
+
+test_that("check_repositories returns repos names if they are correct", {
+  expect_equal(
+    test_rest$check_repositories(
+      c("mbtests%2fgitstatstesting", "mbtests%2fsubgroup%2ftest-project-in-subgroup")
+    ),
+    c("mbtests%2fgitstatstesting", "mbtests%2fsubgroup%2ftest-project-in-subgroup")
+  )
+})
+
+test_rest <- TestEngineRest$new(
+  rest_api_url = "https://api.github.com",
+  token = Sys.getenv("GITHUB_PAT")
+)
+
+test_that("check_repositories returns repos if they are correct", {
+  expect_equal(
+    test_rest$check_repositories("r-world-devs/GitStats"),
+    "r-world-devs/GitStats"
+  )
 })

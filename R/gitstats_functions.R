@@ -13,12 +13,17 @@ create_gitstats <- function() {
 #' @param gitstats_obj A GitStats object.
 #' @param api_url A character, URL address of API.
 #' @param token A token.
-#' @param orgs A character vector of organisations (owners of repositories in
-#'   case of GitHub and groups of projects in case of GitLab). You do not need
-#'   to define `orgs` if you wish to scan whole internal Git platform (such as
-#'   enterprise version of GitHub or GitLab). In case of a public one (like
-#'   GitHub) you need to define `orgs` as scanning through all organizations
-#'   may take large amount of time.
+#' @param orgs An optional character vector of organisations (owners of
+#'   repositories in case of GitHub and groups of projects in case of GitLab).
+#'   If you pass it, `repos` parameter should stay `NULL`.
+#' @param repos An optional character vector of repositories full names
+#'   (organization and repository name, e.g. "r-world-devs/GitStats"). If you
+#'   pass it, `orgs` parameter should stay `NULL`.
+#' @details If you do not define `orgs` and `repos`, `GitStats` will be set to
+#'   scan whole Git platform (such as enterprise version of GitHub or GitLab),
+#'   unless it is a public platform. In case of a public one (like GitHub) you
+#'   need to define `orgs` or `repos` as scanning through all organizations may
+#'   take large amount of time.
 #' @return A `GitStats` object with added information on host.
 #' @examples
 #' \dontrun{
@@ -37,11 +42,13 @@ create_gitstats <- function() {
 set_host <- function(gitstats_obj,
                      api_url,
                      token = NULL,
-                     orgs = NULL) {
+                     orgs = NULL,
+                     repos = NULL) {
   gitstats_obj$set_host(
     api_url = api_url,
     token = token,
-    orgs = orgs
+    orgs = orgs,
+    repos = repos
   )
 
   return(invisible(gitstats_obj))

@@ -14,6 +14,18 @@
     Message
       i Using PAT from GITLAB_PAT envar.
 
+# `check_orgs_and_repos` throws error when both `orgs` and `repos` are defined
+
+    Do not specify `orgs` while specifing `repos`.
+    x Host will not be added.
+    i Specify `orgs` or `repos`.
+
+# `check_orgs_and_repos` throws error when host is public one
+
+    Do not specify `orgs` while specifing `repos`.
+    x Host will not be added.
+    i Specify `orgs` or `repos`.
+
 # GitHost pulls repos from orgs
 
     Code
@@ -82,4 +94,12 @@
 
     x Pulling commits by phrase in code blobs is not supported.
     i Please change your `search_param` either to 'org' or 'team' with `set_params()`.
+
+# pull_commits for GitLab works with repos implied
+
+    Code
+      gl_commits_table <- test_host$pull_commits(date_from = "2023-01-01",
+        date_until = "2023-06-01", settings = test_settings_repo)
+    Message
+      i [GitLab][Engine:REST][org:mbtests][custom repositories] Pulling commits...
 

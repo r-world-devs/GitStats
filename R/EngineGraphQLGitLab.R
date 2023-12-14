@@ -90,6 +90,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      #' @param settings A list of  `GitStats` settings.
      #' @return A table of commits.
      pull_commits = function(org,
+                             repos = NULL,
                              date_from,
                              date_until = Sys.date(),
                              settings) {
