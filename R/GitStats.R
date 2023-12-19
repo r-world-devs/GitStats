@@ -410,10 +410,14 @@ GitStats <- R6::R6Class("GitStats",
     # @param package_name Name of a package.
     check_R_package_as_dependency = function(package_name) {
       cli::cli_alert_info("Checking where [{package_name}] is used as a dependency...")
-      self$pull_files(
-        file_path = c("DESCRIPTION", "NAMESPACE")
-      )
-      desc_table <- self$get_files()
+      if (all(c("DESCRIPTION", "NAMESPACE") %in% private$files$file_path)){
+        desc_table <- self$get_files()
+      } else {
+        self$pull_files(
+          file_path = c("DESCRIPTION", "NAMESPACE")
+        )
+        desc_table <- self$get_files()
+      }
       repos_with_package <- desc_table[grepl(package_name, desc_table$file_content), ]
       if (nrow(repos_with_package) > 0) {
         repos_with_package <- repos_with_package[!duplicated(repos_with_package$api_url),]
