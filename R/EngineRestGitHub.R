@@ -60,7 +60,8 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     #' @param date_until An end date to look commits for.
     #' @param settings A list of  `GitStats` settings.
     #' @return A table of commits.
-    pull_commits = function(org,
+    pull_commits = function(org = NULL,
+                            repos = NULL,
                             date_from,
                             date_until = Sys.date(),
                             settings) {

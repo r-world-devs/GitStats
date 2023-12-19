@@ -40,6 +40,55 @@ test_that("When empty token for GitLab, GitStats pulls default token", {
   )
 })
 
+test_that("Set GitHub host with particular repos vector instead of orgs", {
+  test_gitstats <- create_gitstats()
+  expect_snapshot(
+    test_gitstats %>%
+      set_host(
+        api_url = "https://api.github.com",
+        token = Sys.getenv("GITHUB_PAT"),
+        repos = c("r-world-devs/GitStats", "r-world-devs/shinyCohortBuilder", "openpharma/GithubMetrics", "openpharma/DataFakeR")
+      )
+  )
+  expect_length(
+    test_gitstats$.__enclos_env__$private$hosts,
+    1
+  )
+})
+
+test_that("Set GitLab host with particular repos vector instead of orgs", {
+  test_gitstats <- create_gitstats()
+  expect_snapshot(
+    test_gitstats %>%
+      set_host(
+        api_url = "https://gitlab.com/api/v4",
+        token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+        repos = c("mbtests/gitstatstesting", "mbtests/gitstats-testing-2")
+      )
+  )
+  expect_length(
+    test_gitstats$.__enclos_env__$private$hosts,
+    1
+  )
+})
+
+test_that("Set host prints error when repos and orgs are defined and host is not passed to GitStats", {
+  test_gitstats <- create_gitstats()
+  expect_snapshot_error(
+    test_gitstats %>%
+      set_host(
+        api_url = "https://api.github.com",
+        token = Sys.getenv("GITHUB_PAT"),
+        orgs = c('r-world-devs', "openpharma"),
+        repos = c("r-world-devs/GitStats", "r-world-devs/shinyCohortBuilder", "openpharma/GithubMetrics", "openpharma/DataFakeR")
+      )
+  )
+  expect_length(
+    test_gitstats$.__enclos_env__$private$hosts,
+    0
+  )
+})
+
 test_that("Error shows if organizations are not specified and host is not passed", {
   test_gitstats <- create_gitstats()
   expect_snapshot_error(

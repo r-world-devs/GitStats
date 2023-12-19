@@ -275,22 +275,18 @@ test_that("`pull_commits()` retrieves commits in the table format", {
     "private$pull_commits_from_repos",
     test_mocker$use("commits_from_repos")
   )
-
   mockery::stub(
     test_gql_gh$pull_commits,
     "private$prepare_commits_table",
     test_mocker$use("commits_table")
   )
-
   repos_table <- test_mocker$use("gh_repos_table") %>%
     dplyr::filter(repo_name == "GitStats")
-
   mockery::stub(
     test_gql_gh$pull_commits,
     "self$pull_repos",
     repos_table
   )
-
   expect_snapshot(
     commits_table <- test_gql_gh$pull_commits(
       org = "r-world-devs",
@@ -299,10 +295,22 @@ test_that("`pull_commits()` retrieves commits in the table format", {
       settings = test_settings
     )
   )
-
   expect_commits_table(
     commits_table
   )
+})
+
+test_that("`pull_commits()` works with repositories implied", {
+  suppressMessages(
+    result <- test_gql_gh$pull_commits(
+      org = "r-world-devs",
+      repos = c("GitStats", "shinyCohortBuilder", "cohortBuilder"),
+      date_from = "2023-01-01",
+      date_until = "2023-04-20",
+      settings = test_settings_repo
+    )
+  )
+  expect_commits_table(result)
 })
 
 test_that("`pull_files()` pulls files in the table format", {

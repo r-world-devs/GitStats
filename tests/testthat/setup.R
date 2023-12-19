@@ -21,6 +21,15 @@ test_settings <- list(
   print_out = TRUE
 )
 
+test_settings_repo <- list(
+  search_param = "repo",
+  phrase = NULL,
+  team_name = NULL,
+  team = list(),
+  language = "All",
+  print_out = TRUE
+)
+
 if (nchar(Sys.getenv("GITHUB_PAT")) == 0) {
   cli::cli_abort(c(
     "x" = "You did not set up your GITHUB_PAT environment variable.",

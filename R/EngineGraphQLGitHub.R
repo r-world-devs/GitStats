@@ -96,23 +96,34 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @description Method to pull all commits from organization, optionally
     #'   filtered by team members.
     #' @param org An organization.
+    #' @param repos_names A vector of names of repositories.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
     #' @param settings A list of  `GitStats` settings.
     #' @return A table of commits.
     pull_commits = function(org,
+                            repos = NULL,
                             date_from,
                             date_until,
                             settings) {
-      repos_table <- self$pull_repos(
-        org = org,
-        settings = list(search_param = "org")
-      )
-      repos_names <- repos_table$repo_name
-
-      if (settings$search_param == "org") {
+      if (is.null(repos)) {
+        repos_table <- self$pull_repos(
+          org = org,
+          settings = list(search_param = "org")
+        )
+        repos_names <- repos_table$repo_name
+      }
+      if (!is.null(repos)) {
+        repos_names <- repos
+      }
+      if (settings$search_param %in% c("org", "repo")) {
         if (!private$scan_all) {
-          cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling commits...")
+          if (settings$search_param == "org") {
+            cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling commits...")
+          }
+          if (settings$search_param == "repo") {
+            cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][custom repositories] Pulling commits...")
+          }
         }
         repos_list_with_commits <- private$pull_commits_from_repos(
           org = org,

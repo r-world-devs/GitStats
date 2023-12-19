@@ -4,7 +4,7 @@
 \alias{set_host}
 \title{Set Git host}
 \usage{
-set_host(gitstats_obj, api_url, token = NULL, orgs = NULL)
+set_host(gitstats_obj, api_url, token = NULL, orgs = NULL, repos = NULL)
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
@@ -13,18 +13,26 @@ set_host(gitstats_obj, api_url, token = NULL, orgs = NULL)
 
 \item{token}{A token.}
 
-\item{orgs}{A character vector of organisations (owners of repositories in
-case of GitHub and groups of projects in case of GitLab). You do not need
-to define \code{orgs} if you wish to scan whole internal Git platform (such as
-enterprise version of GitHub or GitLab). In case of a public one (like
-GitHub) you need to define \code{orgs} as scanning through all organizations
-may take large amount of time.}
+\item{orgs}{An optional character vector of organisations (owners of
+repositories in case of GitHub and groups of projects in case of GitLab).
+If you pass it, \code{repos} parameter should stay \code{NULL}.}
+
+\item{repos}{An optional character vector of repositories full names
+(organization and repository name, e.g. "r-world-devs/GitStats"). If you
+pass it, \code{orgs} parameter should stay \code{NULL}.}
 }
 \value{
 A \code{GitStats} object with added information on host.
 }
 \description{
 Set Git host
+}
+\details{
+If you do not define \code{orgs} and \code{repos}, \code{GitStats} will be set to
+scan whole Git platform (such as enterprise version of GitHub or GitLab),
+unless it is a public platform. In case of a public one (like GitHub) you
+need to define \code{orgs} or \code{repos} as scanning through all organizations may
+take large amount of time.
 }
 \examples{
 \dontrun{

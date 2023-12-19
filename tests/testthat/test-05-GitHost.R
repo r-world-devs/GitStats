@@ -1,5 +1,4 @@
 # public methods
-
 test_host <- create_testhost(
   api_url = "https://api.github.com",
   token = Sys.getenv("GITHUB_PAT"),
@@ -16,7 +15,7 @@ test_that("GitHost gets users tables", {
 
 # private methods
 
-test_that("`check_if_public` and `set_host` work correctly", {
+test_that("`check_if_public` and `set_host_name` work correctly", {
   test_host <- create_testhost(
     api_url = "https://api.github.com",
     mode = "private"
@@ -25,7 +24,7 @@ test_that("`check_if_public` and `set_host` work correctly", {
     test_host$check_if_public()
   )
   expect_equal(
-    test_host$set_host(),
+    test_host$set_host_name(),
     "GitHub"
   )
   test_host <- create_testhost(
@@ -36,7 +35,7 @@ test_that("`check_if_public` and `set_host` work correctly", {
     test_host$check_if_public()
   )
   expect_equal(
-    test_host$set_host(),
+    test_host$set_host_name(),
     "GitLab"
   )
   test_host <- create_testhost(
@@ -47,7 +46,7 @@ test_that("`check_if_public` and `set_host` work correctly", {
     test_host$check_if_public()
   )
   expect_equal(
-    test_host$set_host(),
+    test_host$set_host_name(),
     "GitLab"
   )
   test_host <- create_testhost(
@@ -58,7 +57,7 @@ test_that("`check_if_public` and `set_host` work correctly", {
     test_host$check_if_public()
   )
   expect_equal(
-    test_host$set_host(),
+    test_host$set_host_name(),
     "GitHub"
   )
 })
@@ -114,11 +113,70 @@ test_that("`test_token` works properly", {
     test_host$test_token("false_token")
   )
 })
+
+test_that("`check_orgs_and_repos` throws error when both `orgs` and `repos` are defined", {
+  expect_snapshot_error(
+    test_host$check_orgs_and_repos(
+      orgs = "mbtests",
+      repos = "mbtests/GitStatsTesting"
+    )
+  )
+})
+
+test_that("`check_orgs_and_repos` does not throw error when `orgs` or `repos` are defined", {
+  expect_no_condition(
+    test_host$check_orgs_and_repos(orgs = "mbtests", repos = NULL)
+  )
+  expect_no_condition(
+    test_host$check_orgs_and_repos(orgs = NULL, repos = "mbtests/GitStatsTesting")
+  )
+})
+
+test_that("`check_orgs_and_repos` throws error when host is public one", {
+  expect_snapshot_error(
+    test_host$check_orgs_and_repos(orgs = "mbtests", repos = "mbtests/GitStatsTesting")
+  )
+})
+
+test_that("`extract_repos_and_orgs` extracts fullnames vector into a list of GitHub organizations with assigned repositories", {
+  repos_fullnames <- c(
+    "r-world-devs/GitStats", "r-world-devs/shinyCohortBuilder",
+    "openpharma/DataFakeR", "openpharma/GithubMetrics"
+  )
+  expect_equal(
+    test_host$extract_repos_and_orgs(repos_fullnames),
+    list(
+      "r-world-devs" = c("GitStats", "shinyCohortBuilder"),
+      "openpharma" = c("DataFakeR", "GithubMetrics")
+    )
+  )
+})
+
+test_that("`extract_repos_and_orgs` extracts fullnames vector into a list of GitLab organizations with assigned repositories", {
+  test_gl_host <- create_testhost(
+    api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    mode = "private"
+  )
+  repos_fullnames <- c(
+    "mbtests/gitstatstesting", "mbtests/gitstats-testing-2", "mbtests/subgroup/test-project-in-subgroup"
+  )
+  expect_equal(
+    test_gl_host$extract_repos_and_orgs(repos_fullnames),
+    list(
+      "mbtests" = c("gitstatstesting", "gitstats-testing-2"),
+      "mbtests/subgroup" = c("test-project-in-subgroup")
+    )
+  )
+})
+
+# do not use create_testhost as full initializing with setup_engine has to be tested
 suppressMessages(
   test_host <- GitHost$new(
     api_url = "https://api.github.com",
     token = Sys.getenv("GITHUB_PAT"),
-    orgs = "r-world-devs"
+    orgs = "r-world-devs",
+    repos = NULL
   )
 )
 test_host <- test_host$.__enclos_env__$private
@@ -168,7 +226,8 @@ suppressMessages(
   test_gl_host <- GitHost$new(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-    orgs = "mbtests"
+    orgs = "mbtests",
+    repos = NULL
   )
 )
 test_gl_host <- test_gl_host$.__enclos_env__$private
@@ -364,12 +423,48 @@ test_that("pull_commits for GitLab works", {
   )
 })
 
+test_that("pull_commits for GitLab works with repos implied", {
+  test_host <- create_testhost(
+    api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    repos = c("mbtests/gitstatstesting", "mbtests/gitstats-testing-2")
+  )
+  expect_snapshot(
+    gl_commits_table <- test_host$pull_commits(
+      date_from = "2023-01-01",
+      date_until = "2023-06-01",
+      settings = test_settings_repo
+    )
+  )
+  expect_commits_table(
+    gl_commits_table
+  )
+})
+
 test_that("pull_commits for GitHub works", {
   suppressMessages(
     gh_commits_table <- test_host$pull_commits(
       date_from = "2023-03-01",
       date_until = "2023-04-01",
       settings = test_settings
+    )
+  )
+  expect_commits_table(
+    gh_commits_table
+  )
+})
+
+test_that("pull_commits for GitHub works with repos implied", {
+  test_host <- create_testhost(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"),
+    repos = c("openpharma/DataFakeR", "r-world-devs/GitStats", "r-world-devs/cohortBuilder")
+  )
+  suppressMessages(
+    gh_commits_table <- test_host$pull_commits(
+      date_from = "2023-03-01",
+      date_until = "2023-04-01",
+      settings = test_settings_repo
     )
   )
   expect_commits_table(
