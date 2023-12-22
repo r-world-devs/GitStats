@@ -218,6 +218,20 @@ test_that("GitHub GraphQL Engine pulls files from organization", {
   test_mocker$cache(github_files_response)
 })
 
+test_that("GitHub GraphQL Engine pulls two files from a group", {
+  github_files_response <- test_gql_gh$pull_file_from_org(
+    "r-world-devs",
+    c("DESCRIPTION", "NAMESPACE")
+  )
+  expect_github_files_response(github_files_response)
+  expect_true(
+    all(
+      c("DESCRIPTION", "NAMESPACE") %in%
+        names(github_files_response)
+    )
+  )
+})
+
 test_that("GitHub GraphQL Engine prepares table from files response", {
   files_table <- test_gql_gh$prepare_files_table(
     files_response = test_mocker$use("github_files_response"),

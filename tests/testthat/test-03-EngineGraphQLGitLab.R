@@ -111,6 +111,20 @@ test_that("GitLab GraphQL Engine pulls files from a group", {
   test_mocker$cache(gitlab_files_response)
 })
 
+test_that("GitLab GraphQL Engine pulls two files from a group", {
+  gitlab_files_response <- test_gql_gl$pull_file_from_org(
+    "mbtests",
+    c("meta_data.yaml", "README.md")
+  )
+  expect_gitlab_files_response(gitlab_files_response)
+  expect_true(
+    all(
+      c("meta_data.yaml", "README.md") %in%
+        purrr::map_vec(gitlab_files_response, ~.$repository$blobs$nodes[[1]]$name)
+    )
+  )
+})
+
 test_that("GitLab GraphQL Engine pulls files from a repository", {
   gitlab_files_response <- test_gql_gl$pull_file_from_repos(
     file_path = "meta_data.yaml",
@@ -161,4 +175,17 @@ test_that("`pull_files()` pulls files in the table format", {
   )
   expect_files_table(gl_files_table)
   test_mocker$cache(gl_files_table)
+})
+
+test_that("`pull_files()` pulls two files in the table format", {
+  expect_snapshot(
+    gl_files_table <- test_gql_gl$pull_files(
+      org = "mbtests",
+      file_path = c("meta_data.yaml", "README.md")
+    )
+  )
+  expect_files_table(gl_files_table)
+  expect_true(
+    all(c("meta_data.yaml", "README.md") %in% gl_files_table$file_path)
+  )
 })

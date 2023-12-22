@@ -231,6 +231,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      #   argument to iterate over it when pulling files.
      # @return A response in a list form.
      pull_file_from_org = function(org, file_path, pulled_repos = NULL) {
+       org <- gsub("%2f", "/", org)
        if (!is.null(pulled_repos)) {
         full_files_list <- private$pull_file_from_repos(
           file_path = file_path,
@@ -305,16 +306,19 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      prepare_files_table = function(files_response, org, file_path) {
        if (!is.null(files_response)) {
          files_table <- purrr::map(files_response, function(project) {
-           data.frame(
-             "repo_name" = project$name,
-             "repo_id" = project$id,
-             "organization" = org,
-             "file_path" = project$repository$blobs$nodes[[1]]$name,
-             "file_content" = project$repository$blobs$nodes[[1]]$rawBlob,
-             "file_size" = as.integer(project$repository$blobs$nodes[[1]]$size),
-             "repo_url" = project$webUrl,
-             "api_url" = self$gql_api_url
-           )
+           purrr::map(project$repository$blobs$nodes, function(file) {
+             data.frame(
+               "repo_name" = project$name,
+               "repo_id" = project$id,
+               "organization" = org,
+               "file_path" = file$name,
+               "file_content" = file$rawBlob,
+               "file_size" = as.integer(file$size),
+               "repo_url" = project$webUrl,
+               "api_url" = self$gql_api_url
+             )
+           }) %>%
+             purrr::list_rbind()
          }) %>%
            purrr::list_rbind()
        } else {
