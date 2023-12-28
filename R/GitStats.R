@@ -16,6 +16,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @param search_param One of four: `team`, `org`, `repo` or `phrase`.
     #' @param team_name A name of a team.
     #' @param phrase A phrase to look for.
+    #' @param files Define files to scan.
     #' @param language A language of programming code.
     #' @param print_out A boolean stating if you want to print output after
     #'   pulling.
@@ -23,6 +24,7 @@ GitStats <- R6::R6Class("GitStats",
     set_params = function(search_param,
                           team_name = NULL,
                           phrase = NULL,
+                          files = NULL,
                           language = "All",
                           print_out = TRUE) {
       search_param <- match.arg(
@@ -60,6 +62,12 @@ GitStats <- R6::R6Class("GitStats",
             paste0("Your search preferences set to {cli::col_green('phrase: ", phrase, "')}.")
           )
         }
+      }
+      if (!is.null(files)) {
+        private$settings$files <- files
+        cli::cli_alert_info("Set files {files} to scan.")
+      } else {
+        private$settings$files <- NULL
       }
       private$settings$search_param <- search_param
       if (language != "All") {
@@ -140,12 +148,12 @@ GitStats <- R6::R6Class("GitStats",
     #'   it may be used mainly by loading in data scripts and not used as a
     #'   dependency of other packages.
     pull_R_package_usage = function(package_name, only_loading = FALSE) {
-      repos_using_package <- private$check_R_package_loading(package_name)
-      repos_with_package_as_dependency <- if (!only_loading) {
-        private$check_R_package_as_dependency(package_name)
+      if (!only_loading) {
+        repos_with_package_as_dependency <- private$check_R_package_as_dependency(package_name)
       } else {
-        NULL
+        repos_with_package_as_dependency <- NULL
       }
+      repos_using_package <- private$check_R_package_loading(package_name)
       package_usage_table <- purrr::list_rbind(
         list(
           repos_with_package_as_dependency,
@@ -158,6 +166,7 @@ GitStats <- R6::R6Class("GitStats",
         dplyr::mutate(
           package_usage = ifelse(api_url %in% duplicated_repos, "import, library", package_usage)
         )
+      rownames(package_usage_table) <- c(1:nrow(package_usage_table))
       private$R_package_usage <- package_usage_table
       return(invisible(self))
     },
@@ -341,6 +350,7 @@ GitStats <- R6::R6Class("GitStats",
       private$print_item("Search parameter", private$settings$search_param)
       private$print_item("Team", private$settings$team_name, paste0(private$settings$team_name, " (", length(private$settings$team), " members)"))
       private$print_item("Phrase", private$settings$phrase)
+      private$print_item("Files", private$settings$files)
       private$print_item("Language", private$settings$language)
       private$print_item("Repositories output", private$repos, paste0("Rows number: ", nrow(private$repos)))
       private$print_item("Commits output", private$commits, paste0("Since: ", min(private$commits$committed_date), "; Until: ", max(private$commits$committed_date), "; Rows number: ", nrow(private$commits)))
@@ -355,6 +365,7 @@ GitStats <- R6::R6Class("GitStats",
     settings = list(
       search_param = NULL,
       phrase = NULL,
+      files = NULL,
       team_name = NULL,
       team = list(),
       language = "All",
@@ -382,17 +393,18 @@ GitStats <- R6::R6Class("GitStats",
       cli::cli_alert_info("Checking where [{package_name}] is loaded from library...")
       package_usage_phrases <- c(
         paste0("library(", package_name, ")"),
-        paste0(package_name, "::")
+        paste0("require(", package_name, ")")
       )
       repos_using_package <- purrr::map(package_usage_phrases, ~ {
-        suppressMessages(
+        suppressMessages({
           self$set_params(
             search_param = "phrase",
             phrase = .,
+            files = NULL,
             print_out = FALSE
           )
-        )
-        self$pull_repos()
+          self$pull_repos()
+        })
         repos_using_package <- self$get_repos()
         if (!is.null(repos_using_package)) {
           repos_using_package$package_usage <- "library"
@@ -410,15 +422,16 @@ GitStats <- R6::R6Class("GitStats",
     # @param package_name Name of a package.
     check_R_package_as_dependency = function(package_name) {
       cli::cli_alert_info("Checking where [{package_name}] is used as a dependency...")
-      if (any(c("DESCRIPTION", "NAMESPACE") %in% private$files$file_path)){
-        desc_table <- self$get_files()
-      } else {
-        self$pull_files(
-          file_path = c("DESCRIPTION", "NAMESPACE")
+      suppressMessages({
+        self$set_params(
+          search_param = "phrase",
+          phrase = package_name,
+          files = c("DESCRIPTION", "NAMESPACE"),
+          print_out = FALSE
         )
-        desc_table <- self$get_files()
-      }
-      repos_with_package <- desc_table[grepl(package_name, desc_table$file_content), ]
+        self$pull_repos()
+      })
+      repos_with_package <- self$get_repos()
       if (nrow(repos_with_package) > 0) {
         repos_with_package <- repos_with_package[!duplicated(repos_with_package$api_url),]
         repos_with_package$package_usage <- "import"
@@ -480,7 +493,7 @@ GitStats <- R6::R6Class("GitStats",
     print_item = function(item_name,
                           item_to_check,
                           item_to_print = item_to_check) {
-      if (item_name %in% c("Organisations", "Repositories")) {
+      if (item_name %in% c("Organisations", "Repositories", "Files")) {
         item_to_print <- unlist(item_to_print)
         item_to_print <- purrr::map_vec(item_to_print, function(element) {
           gsub("%2f", "/", element)

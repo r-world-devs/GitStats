@@ -17,6 +17,7 @@ test_settings <- list(
   phrase = NULL,
   team_name = NULL,
   team = list(),
+  files = NULL,
   language = "All",
   print_out = TRUE
 )
@@ -26,6 +27,7 @@ test_settings_repo <- list(
   phrase = NULL,
   team_name = NULL,
   team = list(),
+  files = NULL,
   language = "All",
   print_out = TRUE
 )

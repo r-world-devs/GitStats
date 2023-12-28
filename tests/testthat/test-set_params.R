@@ -57,6 +57,18 @@ test_that("Setting up settings to `phrase` works correctly", {
   )
 })
 
+test_that("Setting up `files` works correctly", {
+  expect_snapshot(
+    set_params(test_gitstats,
+               files = c("DESCRIPTION", "NAMESPACE")
+    )
+  )
+  expect_equal(
+    test_gitstats_priv$settings$files,
+    c("DESCRIPTION", "NAMESPACE")
+  )
+})
+
 test_that("Error shows, when you pass not proper param", {
   expect_error(
     set_params(test_gitstats,

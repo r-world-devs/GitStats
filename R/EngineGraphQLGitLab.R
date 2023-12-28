@@ -233,10 +233,12 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      pull_file_from_org = function(org, file_path, pulled_repos = NULL) {
        org <- gsub("%2f", "/", org)
        if (!is.null(pulled_repos)) {
-        full_files_list <- private$pull_file_from_repos(
-          file_path = file_path,
-          repos_table = pulled_repos
-        )
+         repos_table <- pulled_repos %>%
+           dplyr::filter(organization == org)
+         full_files_list <- private$pull_file_from_repos(
+           file_path = file_path,
+           repos_table = repos_table
+         )
        } else {
          full_files_list <- list()
          next_page <- TRUE

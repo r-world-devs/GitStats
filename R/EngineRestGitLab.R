@@ -19,6 +19,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         repos_table <- private$search_repos_by_phrase(
           org = org,
           phrase = settings$phrase,
+          files = settings$files,
           language = settings$language
         ) %>%
           private$tailor_repos_info() %>%
@@ -204,36 +205,41 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     # @return A list of repositories.
     search_repos_by_phrase = function(phrase,
                                       org,
+                                      files,
                                       language = "All",
                                       page_max = 1e6) {
       page <- 1
       still_more_hits <- TRUE
-      resp_list <- list()
+      full_repos_list <- list()
       groups_url <- if (!private$scan_all) {
-        paste0('/groups/', private$get_group_id(org))
+        paste0("/groups/", private$get_group_id(org))
       } else {
-        ''
+        ""
       }
       while (still_more_hits | page < page_max) {
-        resp <- self$response(
+        repos_list <- self$response(
           paste0(
             self$rest_api_url, groups_url,
-            '/search?scope=blobs&search="', phrase, '"&per_page=100&page=', page
+            "/search?scope=blobs&search=%22", phrase, "%22&per_page=100&page=", page
           )
         )
-
-        if (length(resp) == 0) {
+        if (length(repos_list) == 0) {
           still_more_hits <- FALSE
           break()
         } else {
-          resp_list <- append(resp_list, resp)
+          if (!is.null(files)) {
+            repos_list <- purrr::keep(repos_list, function(repository) {
+              any(repository$path %in% files)
+            })
+          }
+          full_repos_list <- append(full_repos_list, repos_list)
           page <- page + 1
         }
       }
-      repos_list <- resp_list %>%
+      full_repos_list <- full_repos_list %>%
         private$find_repos_by_id() %>%
         private$pull_repos_languages()
-      return(repos_list)
+      return(full_repos_list)
     },
 
     # @description Perform get request to find projects by ids.

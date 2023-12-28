@@ -60,12 +60,25 @@ test_that("`search_repos_by_phrase()` for GitHub prepares a list of repositories
   gh_repos_by_phrase <- test_rest_priv$search_repos_by_phrase(
     phrase = "shiny",
     org = "openpharma",
+    files = NULL,
     language = "All"
   )
   expect_gh_search_response(
     gh_repos_by_phrase[[1]]
   )
   test_mocker$cache(gh_repos_by_phrase)
+})
+
+test_that("`search_repos_by_phrase()` filters responses for specific files in GitHub", {
+  gh_repos_by_phrase <- test_rest_priv$search_repos_by_phrase(
+    phrase = "shiny",
+    org = "openpharma",
+    files = "DESCRIPTION",
+    language = "All"
+  )
+  purrr::walk(gh_repos_by_phrase, function(repo) {
+    expect_gh_search_response(repo)
+  })
 })
 
 test_that("`tailor_repos_info()` tailors precisely `repos_list`", {

@@ -2,7 +2,7 @@
 
 ## New functions:
 
-- `pull_R_package_usage()` with `get_R_package_usage()` functions to pull repositories where package name is found in DESCRIPTION or NAMESPACE files or code blobs with phrases related to using an R package (`library(package)`, `package::`) ([#326](https://github.com/r-world-devs/GitStats/issues/326)),
+- `pull_R_package_usage()` with `get_R_package_usage()` functions to pull repositories where package name is found in DESCRIPTION or NAMESPACE files or code blobs with phrases related to using an R package (`library(package)`, `require(package)`) ([#326](https://github.com/r-world-devs/GitStats/issues/326), [#341](https://github.com/r-world-devs/GitStats/issues/341)),
 - `pull_files()` with `get_files()` to pull content of text files ([#200](https://github.com/r-world-devs/GitStats/issues/200)).
 
 ## New features:

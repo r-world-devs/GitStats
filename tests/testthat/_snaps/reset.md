@@ -12,6 +12,7 @@
       Search parameter: org
       Team: <not defined>
       Phrase: <not defined>
+      Files: <not defined>
       Language: All
       Repositories output: <not defined>
       Commits output: <not defined>
@@ -30,6 +31,7 @@
       Search parameter: org
       Team: <not defined>
       Phrase: <not defined>
+      Files: <not defined>
       Language: All
       Repositories output: <not defined>
       Commits output: <not defined>
@@ -48,6 +50,7 @@
       Search parameter: phrase
       Team: <not defined>
       Phrase: test-phrase
+      Files: <not defined>
       Language: All
       Repositories output: <not defined>
       Commits output: <not defined>

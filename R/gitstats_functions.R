@@ -60,6 +60,7 @@ set_host <- function(gitstats_obj,
 #' @param search_param One of three: team, orgs or phrase.
 #' @param team_name Name of a team.
 #' @param phrase A phrase to look for.
+#' @param files Define files to scan.
 #' @param language Code programming language.
 #' @param print_out A boolean to decide whether to print output.
 #' @return A `GitStats` object.
@@ -77,12 +78,14 @@ set_params <- function(gitstats_obj,
                        search_param = NULL,
                        team_name = NULL,
                        phrase = NULL,
+                       files = NULL,
                        language = "All",
                        print_out = TRUE) {
   gitstats_obj$set_params(
     search_param = search_param,
     team_name = team_name,
     phrase = phrase,
+    files = files,
     language = language,
     print_out = print_out
   )
