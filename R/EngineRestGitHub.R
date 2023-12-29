@@ -18,6 +18,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         repos_table <- private$search_repos_by_phrase(
           org = org,
           phrase = settings$phrase,
+          files = settings$files,
           language = settings$language
         ) %>%
           private$tailor_repos_info() %>%
@@ -194,6 +195,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     # @return A list of repositories.
     search_repos_by_phrase = function(phrase,
                                       org,
+                                      files,
                                       language,
                                       byte_max = "384000") {
       user_query <- if (!private$scan_all) {
@@ -213,6 +215,11 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
           total_n = total_n,
           byte_max = byte_max
         )
+        if (!is.null(files)) {
+          repos_list <- purrr::keep(repos_list, function(repository) {
+            any(repository$path %in% files)
+          })
+        }
         repos_list <- private$find_repos_by_id(repos_list)
       } else {
         repos_list <- list()

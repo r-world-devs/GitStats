@@ -78,6 +78,13 @@ test_that("check_R_package_as_dependency", {
   test_mocker$cache(R_package_as_dependency)
 })
 
+test_that("check_R_package does not pull files if NAMESPACE and DESCRIPTION are already loaded", {
+  suppressMessages(
+    R_package_as_dependency <- test_gitstats_priv$check_R_package_as_dependency("dplyr")
+  )
+  expect_package_usage_table(R_package_as_dependency)
+})
+
 # public methods
 
 test_that("GitStats get users info", {

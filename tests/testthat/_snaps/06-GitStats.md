@@ -10,6 +10,7 @@
       Search parameter: <not defined>
       Team: <not defined>
       Phrase: <not defined>
+      Files: <not defined>
       Language: All
       Repositories output: <not defined>
       Commits output: <not defined>
@@ -26,6 +27,7 @@
       Search parameter: org
       Team: <not defined>
       Phrase: <not defined>
+      Files: <not defined>
       Language: All
       Repositories output: <not defined>
       Commits output: <not defined>
@@ -42,6 +44,7 @@
       Search parameter: repo
       Team: <not defined>
       Phrase: <not defined>
+      Files: <not defined>
       Language: All
       Repositories output: <not defined>
       Commits output: <not defined>
@@ -58,6 +61,7 @@
       Search parameter: team
       Team: RWD-IE (0 members)
       Phrase: <not defined>
+      Files: <not defined>
       Language: All
       Repositories output: <not defined>
       Commits output: <not defined>
@@ -90,6 +94,7 @@
       Search parameter: org
       Team: <not defined>
       Phrase: <not defined>
+      Files: <not defined>
       Language: All
       Repositories output: <not defined>
       Commits output: <not defined>

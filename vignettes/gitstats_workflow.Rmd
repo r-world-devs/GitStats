@@ -193,12 +193,16 @@ pull_commits(
 With `GitStats` you can look for the repos with a certain phrase in code blobs (you can not do it for the commits!).
 
 ```{r}
-repos_stats <- set_params(
-  gitstats_obj = git_stats,
-  search_param = "phrase",
-  phrase = "shiny",
-  print_out = FALSE
-) %>% 
+repos_stats <- create_gitstats() %>%
+  set_host(
+    api_url = "https://api.github.com",
+    orgs = c("r-world-devs", "openpharma")
+  ) %>% 
+  set_params(
+    search_param = "phrase",
+    phrase = "Shiny",
+    print_out = FALSE
+  ) %>% 
   pull_repos() %>% 
   get_repos_stats()
 

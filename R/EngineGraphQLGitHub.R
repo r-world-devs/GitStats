@@ -489,8 +489,10 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         repositories <- purrr::map(repos_list, ~ .$repo_name)
         def_branches <- purrr::map(repos_list, ~ .$default_branch$name)
       } else {
-        repositories <- pulled_repos$repo_name
-        def_branches <- pulled_repos$default_branch
+        repos_table <- pulled_repos %>%
+          dplyr::filter(organization == org)
+        repositories <- repos_table$repo_name
+        def_branches <- repos_table$default_branch
       }
       files_list <- purrr::map(file_path, function(file_path) {
         files_list <- purrr::map2(repositories, def_branches, function(repository, def_branch) {

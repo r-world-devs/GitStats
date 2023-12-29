@@ -158,7 +158,17 @@ GitHost <- R6::R6Class("GitHost",
     #' @param pulled_repos Optional parameter to pass repository output object.
     #' @return A table.
     pull_files = function(file_path, pulled_repos = NULL) {
-      files_table <- purrr::map(private$orgs, function(org) {
+      if (!is.null(pulled_repos)) {
+        orgs <- pulled_repos %>%
+          dplyr::filter(grepl(private$api_url, api_url)) %>%
+          dplyr::select(organization) %>%
+          unique() %>%
+          unlist() %>%
+          unname()
+      } else {
+        orgs <- private$orgs
+      }
+      files_table <- purrr::map(orgs, function(org) {
         repos_table <- purrr::map(private$engines, function(engine) {
           if (inherits(engine, "EngineGraphQL")) {
             files_table <- engine$pull_files(
