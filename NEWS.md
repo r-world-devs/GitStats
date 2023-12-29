@@ -1,4 +1,4 @@
-# GitStats 1.0.0.9006
+# GitStats 1.0.0.9007
 
 ## New functions:
 
