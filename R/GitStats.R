@@ -140,13 +140,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @description Wrapper over pulling repositories by phrase.
     #' @param package_name A character, name of the package.
     #' @param only_loading A boolean, if `TRUE` function will check only if package
-    #'   is loaded in repositories, not used as dependencies. This is much faster
-    #'   approach as searching usage only with loading (i.e. library(package)) is
-    #'   based on Search APIs (one endpoint), whereas searching usage as a
-    #'   dependency pulls text files from all repositories (many endpoints). This is
-    #'   a good option to choose when you want to check package usage but guess that
-    #'   it may be used mainly by loading in data scripts and not used as a
-    #'   dependency of other packages.
+    #'   is loaded in repositories, not used as dependencies.
     pull_R_package_usage = function(package_name, only_loading = FALSE) {
       if (!only_loading) {
         repos_with_package_as_dependency <- private$check_R_package_as_dependency(package_name)

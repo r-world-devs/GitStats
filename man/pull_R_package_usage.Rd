@@ -12,20 +12,15 @@ pull_R_package_usage(gitstats_obj, package_name, only_loading = FALSE)
 \item{package_name}{A character, name of the package.}
 
 \item{only_loading}{A boolean, if \code{TRUE} function will check only if package
-is loaded in repositories, not used as dependencies. This is much faster
-approach as searching usage only with loading (i.e. library(package)) is
-based on Search APIs (one endpoint), whereas searching usage as a
-dependency pulls text files from all repositories (many endpoints). This is
-a good option to choose when you want to check package usage but guess that
-it may be used mainly by loading in data scripts and not used as a
-dependency of other packages.}
+is loaded in repositories, not used as dependencies.}
 }
 \value{
 A table of repositories content.
 }
 \description{
 Wrapper over searching repositories by code blobs related to
-using package (\code{library(package)}, \code{require(package)} and \verb{package::}).
+loading package (\code{library(package)} and \code{require(package)} in all files) or
+using it as a depndency (\code{package} in \code{DESCRIPTION} and \code{NAMESPACE} files).
 }
 \examples{
 \dontrun{

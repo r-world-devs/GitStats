@@ -1,8 +1,8 @@
 ---
-title: "GitStats workflow"
+title: "Get repository stats"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{GitStats workflow}
+  %\VignetteIndexEntry{Get repository stats}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-You can start by creating your `GitStats` object, where you will hold information on your multiple connections.
+Start by creating your `GitStats` object, where you will hold information on your connections.
 
 > Example workflow makes use of public GitLab, but is rather more plausible, that you will use your internal git platforms.
 
@@ -49,8 +49,6 @@ git_stats <- create_gitstats() %>%
     orgs = c("mbtests")
   )
 ```
-
-## Repositories workflow
 
 By default your search preferences are set to `organizations` (`org`), which means that `GitStats` will pull all repositories from the organizations you specified in `set_host()`.
 
@@ -100,37 +98,6 @@ If you work with interactive app, you can use a `plotly_mode`.
 gitstats_plot(repos_stats, plotly_mode = TRUE)
 ```
 
-## Commits workflow
-
-It is basically very similar to the repositories one, but you should specify additionally at least `date_from` parameter.
-
-```{r, message = FALSE}
-pull_commits(
-  gitstats_obj = git_stats,
-  date_from = "2022-01-01",
-  date_until = "2023-08-31"
-) %>% 
-  get_commits_stats() %>% 
-  gitstats_plot()
-```
-
-You can pull stats by `week` or `day`.
-
-```{r}
-get_commits_stats(
-  gitstats_obj = git_stats,
-  time_interval = "week"
-) %>% 
-  gitstats_plot()
-```
-
-You can also retrieve just the pulled output.
-
-```{r}
-commits <- get_commits(git_stats)
-head(commits)
-```
-
 ## Set
 
 You can setup your search preferences, either to `org`, `team` or `phrase`. 
@@ -170,21 +137,11 @@ set_params(
 ) 
 ```
 
-Pull repositories or commits finally.
+Pull repositories.
 
 ```{r}
 pull_repos(git_stats) %>% 
   get_repos_stats() %>% 
-  gitstats_plot()
-```
-
-```{r message = FALSE}
-pull_commits(
-  gitstats_obj = git_stats,
-  date_from = "2022-01-01",
-  date_until = "2023-08-31"
-) %>% 
-  get_commits_stats() %>% 
   gitstats_plot()
 ```
 
