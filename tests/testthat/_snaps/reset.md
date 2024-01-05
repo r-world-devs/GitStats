@@ -8,9 +8,11 @@
       A <GitStats> object for 2 hosts:
       Hosts: https://api.github.com, https://gitlab.com/api/v4
       Organisations: [3] r-world-devs, openpharma, mbtests
-      Search preference: org
+      Repositories: [0] 
+      Search parameter: org
       Team: <not defined>
       Phrase: <not defined>
+      Files: <not defined>
       Language: All
       Repositories output: <not defined>
       Commits output: <not defined>
@@ -25,9 +27,11 @@
       A <GitStats> object for 2 hosts:
       Hosts: https://api.github.com, https://gitlab.com/api/v4
       Organisations: [3] r-world-devs, openpharma, mbtests
-      Search preference: org
+      Repositories: [0] 
+      Search parameter: org
       Team: <not defined>
       Phrase: <not defined>
+      Files: <not defined>
       Language: All
       Repositories output: <not defined>
       Commits output: <not defined>
@@ -42,9 +46,11 @@
       A <GitStats> object for 2 hosts:
       Hosts: https://api.github.com, https://gitlab.com/api/v4
       Organisations: [3] r-world-devs, openpharma, mbtests
-      Search preference: phrase
+      Repositories: [0] 
+      Search parameter: phrase
       Team: <not defined>
       Phrase: test-phrase
+      Files: <not defined>
       Language: All
       Repositories output: <not defined>
       Commits output: <not defined>

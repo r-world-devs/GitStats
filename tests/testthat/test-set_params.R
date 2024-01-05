@@ -1,13 +1,6 @@
 test_gitstats <- create_gitstats()
 test_gitstats_priv <- environment(test_gitstats$set_params)$private
 
-test_that("By default search param is set to 'orgs'", {
-  expect_equal(
-    test_gitstats_priv$settings$search_param,
-    "org"
-  )
-})
-
 test_that("Setting up settings to `team` throws error when team_name is not defined", {
   expect_snapshot_error(
     set_params(test_gitstats,
@@ -61,6 +54,18 @@ test_that("Setting up settings to `phrase` works correctly", {
   expect_equal(
     test_gitstats_priv$settings$phrase,
     "covid"
+  )
+})
+
+test_that("Setting up `files` works correctly", {
+  expect_snapshot(
+    set_params(test_gitstats,
+               files = c("DESCRIPTION", "NAMESPACE")
+    )
+  )
+  expect_equal(
+    test_gitstats_priv$settings$files,
+    c("DESCRIPTION", "NAMESPACE")
   )
 })
 

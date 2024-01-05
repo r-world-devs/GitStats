@@ -13,12 +13,17 @@ create_gitstats <- function() {
 #' @param gitstats_obj A GitStats object.
 #' @param api_url A character, URL address of API.
 #' @param token A token.
-#' @param orgs A character vector of organisations (owners of repositories in
-#'   case of GitHub and groups of projects in case of GitLab). You do not need
-#'   to define `orgs` if you wish to scan whole internal Git platform (such as
-#'   enterprise version of GitHub or GitLab). In case of a public one (like
-#'   GitHub) you need to define `orgs` as scanning through all organizations
-#'   may take large amount of time.
+#' @param orgs An optional character vector of organisations (owners of
+#'   repositories in case of GitHub and groups of projects in case of GitLab).
+#'   If you pass it, `repos` parameter should stay `NULL`.
+#' @param repos An optional character vector of repositories full names
+#'   (organization and repository name, e.g. "r-world-devs/GitStats"). If you
+#'   pass it, `orgs` parameter should stay `NULL`.
+#' @details If you do not define `orgs` and `repos`, `GitStats` will be set to
+#'   scan whole Git platform (such as enterprise version of GitHub or GitLab),
+#'   unless it is a public platform. In case of a public one (like GitHub) you
+#'   need to define `orgs` or `repos` as scanning through all organizations may
+#'   take large amount of time.
 #' @return A `GitStats` object with added information on host.
 #' @examples
 #' \dontrun{
@@ -37,11 +42,13 @@ create_gitstats <- function() {
 set_host <- function(gitstats_obj,
                      api_url,
                      token = NULL,
-                     orgs = NULL) {
+                     orgs = NULL,
+                     repos = NULL) {
   gitstats_obj$set_host(
     api_url = api_url,
     token = token,
-    orgs = orgs
+    orgs = orgs,
+    repos = repos
   )
 
   return(invisible(gitstats_obj))
@@ -53,6 +60,7 @@ set_host <- function(gitstats_obj,
 #' @param search_param One of three: team, orgs or phrase.
 #' @param team_name Name of a team.
 #' @param phrase A phrase to look for.
+#' @param files Define files to scan.
 #' @param language Code programming language.
 #' @param print_out A boolean to decide whether to print output.
 #' @return A `GitStats` object.
@@ -70,12 +78,14 @@ set_params <- function(gitstats_obj,
                        search_param = NULL,
                        team_name = NULL,
                        phrase = NULL,
+                       files = NULL,
                        language = "All",
                        print_out = TRUE) {
   gitstats_obj$set_params(
     search_param = search_param,
     team_name = team_name,
     phrase = phrase,
+    files = files,
     language = language,
     print_out = print_out
   )
@@ -232,7 +242,38 @@ pull_users <- function(gitstats_obj,
   return(invisible(gitstats_obj))
 }
 
-#' @title Reset GitStats settings
+#' @title Pull files content
+#' @name pull_files
+#' @description Pull files content from Git Hosts.
+#' @param gitstats_obj A GitStats object.
+#' @param file_path A standardized path to file(s) in repositories. May be a
+#'   character vector if multiple files are to be pulled.
+#' @examples
+#' \dontrun{
+#'  my_gitstats <- create_gitstats() %>%
+#'   set_host(
+#'     api_url = "https://api.github.com",
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs")
+#'   ) %>%
+#'   set_host(
+#'     api_url = "https://gitlab.com/api/v4",
+#'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+#'     orgs = "mbtests"
+#'   ) %>%
+#'   pull_files("meta_data.yaml")
+#' }
+#' @return A `GitStats` object with table of files.
+#' @export
+pull_files <- function(gitstats_obj,
+                       file_path){
+  gitstats_obj$pull_files(
+    file_path = file_path
+  )
+  return(invisible(gitstats_obj))
+}
+
+#' @title Reset all settings
 #' @name reset
 #' @description Sets all settings to default: search_param to `org`, language to
 #'   `All` and other to `NULL`s.
@@ -307,4 +348,57 @@ get_commits <- function(gitstats_obj){
 #' @export
 get_users <- function(gitstats_obj){
   return(gitstats_obj$get_users())
+}
+
+#' @title Get files
+#' @name get_files
+#' @description Retrieves files table pulled by `GitStats`.
+#' @param gitstats_obj A GitStats object.
+#' @return A table of files content.
+#' @export
+get_files <- function(gitstats_obj){
+  return(gitstats_obj$get_files())
+}
+
+#' @title Check package usage across repositories
+#' @name pull_R_package_usage
+#' @description Wrapper over searching repositories by code blobs related to
+#'   loading package (`library(package)` and `require(package)` in all files) or
+#'   using it as a depndency (`package` in `DESCRIPTION` and `NAMESPACE` files).
+#' @param gitstats_obj A GitStats object.
+#' @param package_name A character, name of the package.
+#' @param only_loading A boolean, if `TRUE` function will check only if package
+#'   is loaded in repositories, not used as dependencies.
+#' @return A table of repositories content.
+#' @examples
+#' \dontrun{
+#'  my_gitstats <- create_gitstats() %>%
+#'   set_host(
+#'     api_url = "https://api.github.com",
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs", "openpharma")
+#'   ) %>%
+#'   pull_R_package_usage("Shiny")
+#' }
+#' @export
+pull_R_package_usage <- function(
+    gitstats_obj,
+    package_name,
+    only_loading = FALSE
+  ) {
+  gitstats_obj$pull_R_package_usage(
+    package_name = package_name,
+    only_loading = only_loading
+  )
+  return(invisible(gitstats_obj))
+}
+
+#' @title Get R package usage
+#' @name get_R_package_usage
+#' @description Retrieves list of repositories that make use of a package.
+#' @param gitstats_obj A GitStats object.
+#' @return A table with repo urls.
+#' @export
+get_R_package_usage <- function(gitstats_obj) {
+  return(gitstats_obj$get_R_package_usage())
 }

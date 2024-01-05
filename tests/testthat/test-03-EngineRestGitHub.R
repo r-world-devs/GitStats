@@ -60,12 +60,25 @@ test_that("`search_repos_by_phrase()` for GitHub prepares a list of repositories
   gh_repos_by_phrase <- test_rest_priv$search_repos_by_phrase(
     phrase = "shiny",
     org = "openpharma",
+    files = NULL,
     language = "All"
   )
   expect_gh_search_response(
     gh_repos_by_phrase[[1]]
   )
   test_mocker$cache(gh_repos_by_phrase)
+})
+
+test_that("`search_repos_by_phrase()` filters responses for specific files in GitHub", {
+  gh_repos_by_phrase <- test_rest_priv$search_repos_by_phrase(
+    phrase = "shiny",
+    org = "openpharma",
+    files = "DESCRIPTION",
+    language = "All"
+  )
+  purrr::walk(gh_repos_by_phrase, function(repo) {
+    expect_gh_search_response(repo)
+  })
 })
 
 test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
@@ -81,7 +94,7 @@ test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
   expect_list_contains_only(
     gh_repos_by_phrase_tailored[[1]],
     c(
-      "id", "name", "created_at", "last_activity_at",
+      "repo_id", "repo_name", "created_at", "last_activity_at",
       "forks", "stars", "issues_open", "issues_closed",
       "organization"
     )
@@ -128,7 +141,7 @@ test_that("`pull_commits_from_repo()` pulls all commits from repository", {
     date_from = "2023-01-01",
     date_until = "2023-06-01"
   )
-  expect_gh_commit_rest(
+  expect_gh_commit_rest_response(
     commits_from_repo
   )
 })
@@ -141,7 +154,7 @@ test_that("`pull_commits_from_org()` pulls all commits from organization", {
       date_until = "2023-06-01"
     )
   })
-  expect_gh_commit_rest(
+  expect_gh_commit_rest_response(
     gh_rest_commits_from_org[[1]]
   )
   test_mocker$cache(gh_rest_commits_from_org)
@@ -152,7 +165,7 @@ test_that("`filter_commits_by_team()` filters properly commits by team members",
     repos_list_with_commits = test_mocker$use("gh_rest_commits_from_org"),
     team = test_team
   )
-  expect_gh_commit_rest(
+  expect_gh_commit_rest_response(
     gh_rest_team_commits[[1]]
   )
   expect_true(
@@ -212,8 +225,9 @@ test_that("`pull_repos_contributors()` adds contributors to repos table", {
       test_mocker$use("gh_repos_by_phrase_table")
     )
   )
-  expect_repos_table_with_contributors(
-    gh_repos_by_phrase_table
+  expect_repos_table(
+    gh_repos_by_phrase_table,
+    add_col = "contributors"
   )
   expect_gt(
     length(gh_repos_by_phrase_table$contributors),
@@ -229,15 +243,13 @@ test_that("`pull_repos()` works", {
     test_mocker$use("gh_repos_by_phrase")
   )
 
-  settings <- list(
-    search_param = "phrase",
-    phrase = "shiny"
-  )
+  test_settings[["search_param"]] <- "phrase"
+  test_settings[["phrase"]] <- "shiny"
 
   expect_snapshot(
     result <- test_rest$pull_repos(
       org = "r-world-devs",
-      settings = settings
+      settings = test_settings
     )
   )
 
@@ -259,9 +271,6 @@ test_that("supportive method for getting commits works", {
     test_rest$pull_commits_supportive,
     "private$pull_commits_stats",
     test_mocker$use("gh_rest_commits_table_with_stats")
-  )
-  test_settings <- list(
-    search_param = "org"
   )
   expect_snapshot(
     gh_rest_commits_table <- test_rest$pull_commits_supportive(

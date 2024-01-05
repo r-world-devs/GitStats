@@ -24,7 +24,7 @@ test_that("`find_repos_by_id()` works", {
   gl_search_repos_by_phrase <- test_rest_priv$find_repos_by_id(
     gl_search_response
   )
-  expect_gl_repos(
+  expect_gl_repos_rest_response(
     gl_search_repos_by_phrase
   )
   test_mocker$cache(gl_search_repos_by_phrase)
@@ -42,20 +42,8 @@ test_that("`pull_repos_languages` works", {
   )
 })
 
-test_that("`search_repos_by_phrase()` works", {
-  gl_repos_by_phrase <- test_rest_priv$search_repos_by_phrase(
-    phrase = "covid",
-    org = "gitlab-org"
-  )
-  expect_list_contains(
-    gl_repos_by_phrase[[1]],
-    c("id", "description", "name", "created_at", "languages")
-  )
-  test_mocker$cache(gl_repos_by_phrase)
-})
-
 test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
-  gl_repos_by_phrase <- test_mocker$use("gl_repos_by_phrase")
+  gl_repos_by_phrase <- test_mocker$use("gl_search_repos_by_phrase")
 
   gl_repos_by_phrase_tailored <-
     test_rest_priv$tailor_repos_info(gl_repos_by_phrase)
@@ -67,17 +55,15 @@ test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
   expect_list_contains_only(
     gl_repos_by_phrase_tailored[[1]],
     c(
-      "id", "name", "created_at", "last_activity_at",
+      "repo_id", "repo_name", "created_at", "last_activity_at",
       "forks", "stars", "languages", "issues_open",
       "issues_closed", "organization"
     )
   )
-
   expect_lt(
     length(gl_repos_by_phrase_tailored[[1]]),
     length(gl_repos_by_phrase[[1]])
   )
-
   test_mocker$cache(gl_repos_by_phrase_tailored)
 })
 
@@ -92,21 +78,23 @@ test_that("`prepare_repos_table()` prepares repos table", {
   test_mocker$cache(gl_repos_by_phrase_table)
 })
 
-test_that("`pull_commits_from_org()` pulls commits from repo", {
+test_that("`pull_commits_from_repos()` pulls commits from repo", {
   gl_commits_repo_1 <- test_mocker$use("gl_commits_rest_response_repo_1")
 
   mockery::stub(
-    test_rest_priv$pull_commits_from_org,
-    "private$pull_commits_from_repo",
+    test_rest_priv$pull_commits_from_repos,
+    "private$pull_commits_from_one_repo",
     gl_commits_repo_1
   )
-
-  gl_commits_org <- test_rest_priv$pull_commits_from_org(
-    repos_table = test_mocker$use("gl_repos_by_phrase_table"),
+  repos_table <- test_mocker$use("gl_repos_by_phrase_table")
+  repos_names <- stringr::str_remove(repos_table$repo_url, "https://gitlab.com/") %>%
+    stringr::str_replace_all("/", "%2f")
+  gl_commits_org <- test_rest_priv$pull_commits_from_repos(
+    repos_names = repos_names,
     date_from = "2023-01-01",
     date_until = "2023-04-20"
   )
-  expect_gl_commit_rest(
+  expect_gl_commit_rest_response(
     gl_commits_org[[1]]
   )
   test_mocker$cache(gl_commits_org)
@@ -124,7 +112,7 @@ test_that("`filter_commits_by_team()` filters commits by team", {
     repos_list_with_commits = gl_commits_org,
     team = team
   )
-  expect_gl_commit_rest(
+  expect_gl_commit_rest_response(
     gl_commits_team[[1]]
   )
   test_mocker$cache(gl_commits_team)
@@ -199,8 +187,9 @@ test_that("`pull_repos_contributors()` adds contributors to repos table", {
       test_mocker$use("gl_repos_table")
     )
   )
-  expect_repos_table_with_contributors(
-    gl_repos_table_with_contributors
+  expect_repos_table(
+    gl_repos_table_with_contributors,
+    add_col = "contributors"
   )
   expect_gt(
     length(gl_repos_table_with_contributors$contributors),
@@ -213,17 +202,14 @@ test_that("`pull_repos_by_phrase()` works", {
   mockery::stub(
     test_rest$pull_repos,
     "private$search_repos_by_phrase",
-    test_mocker$use("gl_repos_by_phrase")
+    test_mocker$use("gl_search_repos_by_phrase")
   )
-
-  settings <- list(
-    search_param = "phrase",
-    phrase = "covid"
-  )
+  test_settings[["search_param"]] <- "phrase"
+  test_settings[["phrase"]] <- "covid"
   expect_snapshot(
     result <- test_rest$pull_repos(
-      org = "erasmusmc-public-health",
-      settings = settings
+      org = "gitlab-org",
+      settings = test_settings
     )
   )
   expect_repos_table(result)
@@ -232,18 +218,28 @@ test_that("`pull_repos_by_phrase()` works", {
 test_that("`pull_commits()` works as expected", {
   mockery::stub(
     test_rest$pull_commits,
-    "private$pull_commits_from_org",
+    "private$pull_commits_from_repos",
     test_mocker$use("gl_commits_org")
-  )
-  settings <- list(
-    search_param = "org"
   )
   expect_snapshot(
     result <- test_rest$pull_commits(
       org = "mbtests",
       date_from = "2023-01-01",
       date_until = "2023-04-20",
-      settings = settings
+      settings = test_settings
+    )
+  )
+  expect_commits_table(result)
+})
+
+test_that("`pull_commits()` works with repositories implied", {
+  expect_snapshot(
+    result <- test_rest$pull_commits(
+      org = "mbtests",
+      repos = c("gitstatstesting", "gitstats-testing-2"),
+      date_from = "2023-01-01",
+      date_until = "2023-04-20",
+      settings = test_settings_repo
     )
   )
   expect_commits_table(result)
@@ -253,7 +249,6 @@ test_that("`pull_commits()` works as expected", {
 
 test_that("Engine filters GitLab repositories' table by team members", {
   gl_repos_table <- test_mocker$use("gl_repos_table_with_contributors")
-
   gl_repos_table_team <- test_rest_priv$filter_repos_by_team(
     gl_repos_table,
     team = list(
