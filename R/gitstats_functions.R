@@ -273,7 +273,7 @@ pull_files <- function(gitstats_obj,
   return(invisible(gitstats_obj))
 }
 
-#' @title Reset GitStats settings
+#' @title Reset all settings
 #' @name reset
 #' @description Sets all settings to default: search_param to `org`, language to
 #'   `All` and other to `NULL`s.
@@ -363,17 +363,12 @@ get_files <- function(gitstats_obj){
 #' @title Check package usage across repositories
 #' @name pull_R_package_usage
 #' @description Wrapper over searching repositories by code blobs related to
-#'   using package (`library(package)`, `require(package)` and `package::`).
+#'   loading package (`library(package)` and `require(package)` in all files) or
+#'   using it as a depndency (`package` in `DESCRIPTION` and `NAMESPACE` files).
 #' @param gitstats_obj A GitStats object.
 #' @param package_name A character, name of the package.
 #' @param only_loading A boolean, if `TRUE` function will check only if package
-#'   is loaded in repositories, not used as dependencies. This is much faster
-#'   approach as searching usage only with loading (i.e. library(package)) is
-#'   based on Search APIs (one endpoint), whereas searching usage as a
-#'   dependency pulls text files from all repositories (many endpoints). This is
-#'   a good option to choose when you want to check package usage but guess that
-#'   it may be used mainly by loading in data scripts and not used as a
-#'   dependency of other packages.
+#'   is loaded in repositories, not used as dependencies.
 #' @return A table of repositories content.
 #' @examples
 #' \dontrun{
@@ -399,7 +394,7 @@ pull_R_package_usage <- function(
 }
 
 #' @title Get R package usage
-#' @name get_files
+#' @name get_R_package_usage
 #' @description Retrieves list of repositories that make use of a package.
 #' @param gitstats_obj A GitStats object.
 #' @return A table with repo urls.

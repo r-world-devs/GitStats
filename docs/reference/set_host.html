@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,7 +24,8 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/gitstats_workflow.html">GitStats workflow</a>
+    <a class="dropdown-item" href="../articles/get_repository_stats.html">Get repository stats</a>
+    <a class="dropdown-item" href="../articles/get_commits_stats.html">Get commits stats</a>
   </div>
 </li>
 <li class="nav-item">
@@ -51,7 +52,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">set_host</span><span class="op">(</span><span class="va">gitstats_obj</span>, <span class="va">api_url</span>, token <span class="op">=</span> <span class="cn">NULL</span>, orgs <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">set_host</span><span class="op">(</span><span class="va">gitstats_obj</span>, <span class="va">api_url</span>, token <span class="op">=</span> <span class="cn">NULL</span>, orgs <span class="op">=</span> <span class="cn">NULL</span>, repos <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -69,12 +70,15 @@
 
 
 <dt>orgs</dt>
-<dd><p>A character vector of organisations (owners of repositories in
-case of GitHub and groups of projects in case of GitLab). You do not need
-to define <code>orgs</code> if you wish to scan whole internal Git platform (such as
-enterprise version of GitHub or GitLab). In case of a public one (like
-GitHub) you need to define <code>orgs</code> as scanning through all organizations
-may take large amount of time.</p></dd>
+<dd><p>An optional character vector of organisations (owners of
+repositories in case of GitHub and groups of projects in case of GitLab).
+If you pass it, <code>repos</code> parameter should stay <code>NULL</code>.</p></dd>
+
+
+<dt>repos</dt>
+<dd><p>An optional character vector of repositories full names
+(organization and repository name, e.g. "r-world-devs/GitStats"). If you
+pass it, <code>orgs</code> parameter should stay <code>NULL</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -82,6 +86,14 @@ may take large amount of time.</p></dd>
     
 
 <p>A <code>GitStats</code> object with added information on host.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>If you do not define <code>orgs</code> and <code>repos</code>, <code>GitStats</code> will be set to
+scan whole Git platform (such as enterprise version of GitHub or GitLab),
+unless it is a public platform. In case of a public one (like GitHub) you
+need to define <code>orgs</code> or <code>repos</code> as scanning through all organizations may
+take large amount of time.</p>
     </div>
 
     <div class="section level2">

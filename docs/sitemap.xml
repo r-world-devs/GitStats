@@ -13,6 +13,12 @@
     <loc>/articles/GitStats.html</loc>
   </url>
   <url>
+    <loc>/articles/get_commits_stats.html</loc>
+  </url>
+  <url>
+    <loc>/articles/get_repository_stats.html</loc>
+  </url>
+  <url>
     <loc>/articles/gitstats_workflow.html</loc>
   </url>
   <url>
@@ -85,10 +91,16 @@
     <loc>/reference/create_gitstats.html</loc>
   </url>
   <url>
+    <loc>/reference/get_R_package_usage.html</loc>
+  </url>
+  <url>
     <loc>/reference/get_commits.html</loc>
   </url>
   <url>
     <loc>/reference/get_commits_stats.html</loc>
+  </url>
+  <url>
+    <loc>/reference/get_files.html</loc>
   </url>
   <url>
     <loc>/reference/get_orgs.html</loc>
@@ -121,7 +133,13 @@
     <loc>/reference/plot_repos.html</loc>
   </url>
   <url>
+    <loc>/reference/pull_R_package_usage.html</loc>
+  </url>
+  <url>
     <loc>/reference/pull_commits.html</loc>
+  </url>
+  <url>
+    <loc>/reference/pull_files.html</loc>
   </url>
   <url>
     <loc>/reference/pull_repos.html</loc>
