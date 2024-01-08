@@ -6,9 +6,11 @@
       A <GitStats> object for 0 hosts:
       Hosts: 
       Organisations: [0] 
-      Search preference: org
+      Repositories: [0] 
+      Search parameter: <not defined>
       Team: <not defined>
       Phrase: <not defined>
+      Files: <not defined>
       Language: All
       Repositories output: <not defined>
       Commits output: <not defined>
@@ -21,9 +23,28 @@
       A <GitStats> object for 2 hosts:
       Hosts: https://api.github.com, https://gitlab.com/api/v4
       Organisations: [3] r-world-devs, openpharma, mbtests
-      Search preference: org
+      Repositories: [0] 
+      Search parameter: org
       Team: <not defined>
       Phrase: <not defined>
+      Files: <not defined>
+      Language: All
+      Repositories output: <not defined>
+      Commits output: <not defined>
+
+# GitStats prints the proper info when repos are passed instead of orgs.
+
+    Code
+      test_gitstats
+    Output
+      A <GitStats> object for 2 hosts:
+      Hosts: https://api.github.com, https://gitlab.com/api/v4
+      Organisations: [0] 
+      Repositories: [4] r-world-devs/GitStats, openpharma/GithubMetrics, mbtests/gitstatstesting, mbtests/gitstats-testing-2
+      Search parameter: repo
+      Team: <not defined>
+      Phrase: <not defined>
+      Files: <not defined>
       Language: All
       Repositories output: <not defined>
       Commits output: <not defined>
@@ -36,14 +57,16 @@
       A <GitStats> object for 2 hosts:
       Hosts: https://api.github.com, https://gitlab.com/api/v4
       Organisations: [3] r-world-devs, openpharma, mbtests
-      Search preference: team
+      Repositories: [0] 
+      Search parameter: team
       Team: RWD-IE (0 members)
       Phrase: <not defined>
+      Files: <not defined>
       Language: All
       Repositories output: <not defined>
       Commits output: <not defined>
 
-# check_for_host works
+# check_for_host returns error when no hosts are passed
 
     Add first your hosts with `set_host()`.
 
@@ -67,9 +90,11 @@
       A <GitStats> object for 1 hosts:
       Hosts: https://gitlab.com/api/v4
       Organisations: [1] mbtests/subgroup
-      Search preference: org
+      Repositories: [0] 
+      Search parameter: org
       Team: <not defined>
       Phrase: <not defined>
+      Files: <not defined>
       Language: All
       Repositories output: <not defined>
       Commits output: <not defined>

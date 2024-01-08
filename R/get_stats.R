@@ -8,7 +8,7 @@ get_repos_stats <- function(gitstats_obj){
   repos_data <- data.table::copy(get_repos(gitstats_obj))
   repos_stats <- repos_data %>%
     dplyr::mutate(
-      fullname = paste0(organization, "/", name)
+      fullname = paste0(organization, "/", repo_name)
     ) %>%
     dplyr::mutate(
       last_activity = difftime(

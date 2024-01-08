@@ -10,14 +10,14 @@
     Code
       gh_repos_by_org_query
     Output
-      [1] "\n        query GetReposByOrg($org: String!) {\n          repositoryOwner(login: $org) {\n            ... on Organization {\n              repositories(first: 100 ) {\n              totalCount\n        pageInfo {\n          endCursor\n          hasNextPage\n        }\n        nodes {\n          id\n          name\n          stars: stargazerCount\n          forks: forkCount\n          created_at: createdAt\n          last_activity_at: pushedAt\n          languages (first: 5) { nodes {name} }\n          issues_open: issues (first: 100 states: [OPEN]) {\n            totalCount\n          }\n          issues_closed: issues (first: 100 states: [CLOSED]) {\n            totalCount\n          }\n          organization: owner {\n            login\n          }\n          repo_url: url\n        }\n              }\n            }\n          }\n        }"
+      [1] "\n        query GetReposByOrg($org: String!) {\n          repositoryOwner(login: $org) {\n            ... on Organization {\n              repositories(first: 100 ) {\n              totalCount\n        pageInfo {\n          endCursor\n          hasNextPage\n        }\n        nodes {\n          repo_id: id\n          repo_name: name\n          default_branch: defaultBranchRef {\n            name\n          }\n          stars: stargazerCount\n          forks: forkCount\n          created_at: createdAt\n          last_activity_at: pushedAt\n          languages (first: 5) { nodes {name} }\n          issues_open: issues (first: 100 states: [OPEN]) {\n            totalCount\n          }\n          issues_closed: issues (first: 100 states: [CLOSED]) {\n            totalCount\n          }\n          organization: owner {\n            login\n          }\n          repo_url: url\n        }\n              }\n            }\n          }\n        }"
 
 # repos_by_user query is built properly
 
     Code
       gh_repos_by_user_query
     Output
-      [1] "\n        query GetReposByUser($user: String!) {\n          user(login: $user) {\n            repositories(\n              first: 100\n              ownerAffiliations: COLLABORATOR\n              ) {\n              totalCount\n        pageInfo {\n          endCursor\n          hasNextPage\n        }\n        nodes {\n          id\n          name\n          stars: stargazerCount\n          forks: forkCount\n          created_at: createdAt\n          last_activity_at: pushedAt\n          languages (first: 5) { nodes {name} }\n          issues_open: issues (first: 100 states: [OPEN]) {\n            totalCount\n          }\n          issues_closed: issues (first: 100 states: [CLOSED]) {\n            totalCount\n          }\n          organization: owner {\n            login\n          }\n          repo_url: url\n        }\n            }\n          }\n        }"
+      [1] "\n        query GetReposByUser($user: String!) {\n          user(login: $user) {\n            repositories(\n              first: 100\n              ownerAffiliations: COLLABORATOR\n              ) {\n              totalCount\n        pageInfo {\n          endCursor\n          hasNextPage\n        }\n        nodes {\n          repo_id: id\n          repo_name: name\n          default_branch: defaultBranchRef {\n            name\n          }\n          stars: stargazerCount\n          forks: forkCount\n          created_at: createdAt\n          last_activity_at: pushedAt\n          languages (first: 5) { nodes {name} }\n          issues_open: issues (first: 100 states: [OPEN]) {\n            totalCount\n          }\n          issues_closed: issues (first: 100 states: [CLOSED]) {\n            totalCount\n          }\n          organization: owner {\n            login\n          }\n          repo_url: url\n        }\n            }\n          }\n        }"
 
 # user query is built properly
 
@@ -25,4 +25,11 @@
       gh_user_query
     Output
       [1] "\n        query GetUser($user: String!) {\n          user(login: $user) {\n            id\n            name\n            login\n            email\n            location\n            starred_repos: starredRepositories {\n              totalCount\n            }\n            contributions: contributionsCollection {\n              totalIssueContributions\n              totalCommitContributions\n              totalPullRequestContributions\n              totalPullRequestReviewContributions\n            }\n            avatar_url: avatarUrl\n            web_url: websiteUrl\n          }\n        }"
+
+# file query is built properly
+
+    Code
+      gh_files_query
+    Output
+      [1] "query GetFilesByRepo($org: String!, $repo: String!, $file_path: String!) {\n          repository(owner: $org, name: $repo) {\n            id\n            name\n            url\n            object(expression: $file_path) {\n              ... on Blob {\n                text\n                byteSize\n              }\n            }\n          }\n      }"
 

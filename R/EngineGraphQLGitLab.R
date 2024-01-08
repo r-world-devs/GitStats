@@ -54,7 +54,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      #' @param settings A list of  `GitStats` settings.
      #' @return A table.
      pull_repos = function(org,
-                          settings) {
+                           settings) {
        org <- gsub("%2f", "/", org)
        if (settings$search_param == "org") {
          if (!private$scan_all) {
@@ -76,7 +76,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      #' @param settings A list of  `GitStats` settings.
      #' @return Nothing.
      pull_repos_supportive = function(org,
-                                     settings) {
+                                      settings) {
        NULL
      },
 
@@ -90,11 +90,13 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      #' @param settings A list of  `GitStats` settings.
      #' @return A table of commits.
      pull_commits = function(org,
-                            date_from,
-                            date_until = Sys.date(),
-                            settings) {
+                             repos = NULL,
+                             date_from,
+                             date_until = Sys.date(),
+                             settings) {
        NULL
      }
+
    ),
 
    private = list(
@@ -127,6 +129,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
          next_page <- core_response$pageInfo$hasNextPage
          if (is.null(next_page)) next_page <- FALSE
          if (is.null(repos_list)) repos_list <- list()
+         if (length(repos_list) == 0) next_page <- FALSE
          if (next_page) {
            repo_cursor <- core_response$pageInfo$endCursor
          } else {
@@ -163,27 +166,37 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      # @param repos_list A list of repositories.
      # @return Table of repositories.
      prepare_repos_table = function(repos_list) {
-       repos_table <- purrr::map_dfr(repos_list, function(repo) {
-         repo <- repo$node
-         repo$languages <- if (length(repo$languages) > 0) {
-           purrr::map_chr(repo$languages, ~ .$name) %>%
-           paste0(collapse = ", ")
-         } else {
-           ""
-         }
-         repo$created_at <- gts_to_posixt(repo$created_at)
-         repo$issues_open <- repo$issues$opened
-         repo$issues_closed <- repo$issues$closed
-         repo$issues <- NULL
-         repo$last_activity_at <- as.POSIXct(repo$last_activity_at)
-         repo$organization <- repo$group$name
-         repo$group <- NULL
-         data.frame(repo)
-       }) %>%
-         dplyr::relocate(
-           repo_url,
-           .after = organization
-         )
+       if (length(repos_list) > 0) {
+         repos_table <- purrr::map_dfr(repos_list, function(repo) {
+           repo <- repo$node
+           repo$default_branch <- repo$repository$rootRef
+           repo$repository <- NULL
+           repo$languages <- if (length(repo$languages) > 0) {
+             purrr::map_chr(repo$languages, ~ .$name) %>%
+               paste0(collapse = ", ")
+           } else {
+             ""
+           }
+           repo$created_at <- gts_to_posixt(repo$created_at)
+           repo$issues_open <- repo$issues$opened
+           repo$issues_closed <- repo$issues$closed
+           repo$issues <- NULL
+           repo$last_activity_at <- as.POSIXct(repo$last_activity_at)
+           repo$organization <- repo$group$name
+           repo$group <- NULL
+           data.frame(repo)
+         }) %>%
+           dplyr::relocate(
+             repo_url,
+             .after = organization
+           ) %>%
+           dplyr::relocate(
+             default_branch,
+             .after = repo_name
+           )
+       } else {
+         repos_table <- NULL
+       }
        return(repos_table)
      },
 
@@ -209,6 +222,111 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
          user_table <- NULL
        }
        return(user_table)
+     },
+
+     # @description Pull all given files from all repositories of a group.
+     # @param org An organization.
+     # @param file_path Path to a file.
+     # @param pulled_repos Optional, if not empty, function will make use of the
+     #   argument to iterate over it when pulling files.
+     # @return A response in a list form.
+     pull_file_from_org = function(org, file_path, pulled_repos = NULL) {
+       org <- gsub("%2f", "/", org)
+       if (!is.null(pulled_repos)) {
+         repos_table <- pulled_repos %>%
+           dplyr::filter(organization == org)
+         full_files_list <- private$pull_file_from_repos(
+           file_path = file_path,
+           repos_table = repos_table
+         )
+       } else {
+         full_files_list <- list()
+         next_page <- TRUE
+         end_cursor <- ""
+         while (next_page) {
+           files_query <- self$gql_query$files_by_org(
+             end_cursor = end_cursor
+           )
+           files_response <- self$gql_response(
+             gql_query = files_query,
+             vars = list(
+               "org" = org,
+               "file_paths" = file_path
+             )
+           )
+           if (length(files_response$data$group) == 0) {
+             cli::cli_alert_danger("Empty")
+           }
+           projects <- files_response$data$group$projects
+           files_list <- purrr::map(projects$edges, function(edge) {
+             edge$node
+           }) %>%
+             purrr::discard(~ length(.$repository$blobs$nodes) == 0)
+           if (is.null(files_list)) files_list <- list()
+           if (length(files_list) > 0) {
+             next_page <- files_response$pageInfo$hasNextPage
+           } else {
+             next_page <- FALSE
+           }
+           if (is.null(next_page)) next_page <- FALSE
+           if (next_page) {
+             end_cursor <- files_response$pageInfo$endCursor
+           } else {
+             end_cursor <- ""
+           }
+           full_files_list <- append(full_files_list, files_list)
+         }
+       }
+       return(full_files_list)
+     },
+
+     # @description Pull all given files from given repositories.
+     # @param file_path Path to a file.
+     # @param repos_table Repositories table.
+     # @return A response in a list form.
+     pull_file_from_repos = function(file_path, repos_table) {
+       files_list <- purrr::map(repos_table$repo_url, function(repo_url) {
+         files_query <- self$gql_query$files_from_repo()
+         files_response <- self$gql_response(
+           gql_query = files_query,
+           vars = list(
+             "file_paths" = file_path,
+             "project_path" = stringr::str_replace(repo_url, ".*(?<=.com/)", "")
+           )
+         )
+         return(files_response)
+       }) %>%
+         purrr::discard(~ length(.$data$project$repository$blobs$nodes) == 0) %>%
+         purrr::map(~ .$data$project)
+       return(files_list)
+     },
+
+     # @description Prepare files table.
+     # @param files_response A list.
+     # @param org An organization.
+     # @return A table with information on files.
+     prepare_files_table = function(files_response, org, file_path) {
+       if (!is.null(files_response)) {
+         files_table <- purrr::map(files_response, function(project) {
+           purrr::map(project$repository$blobs$nodes, function(file) {
+             data.frame(
+               "repo_name" = project$name,
+               "repo_id" = project$id,
+               "organization" = org,
+               "file_path" = file$name,
+               "file_content" = file$rawBlob,
+               "file_size" = as.integer(file$size),
+               "repo_url" = project$webUrl,
+               "api_url" = self$gql_api_url
+             )
+           }) %>%
+             purrr::list_rbind()
+         }) %>%
+           purrr::list_rbind()
+       } else {
+         files_table <- NULL
+       }
+       return(files_table)
      }
    )
 )

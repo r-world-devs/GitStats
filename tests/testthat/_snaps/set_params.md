@@ -12,9 +12,30 @@
       A <GitStats> object for 0 hosts:
       Hosts: 
       Organisations: [0] 
-      Search preference: phrase
+      Repositories: [0] 
+      Search parameter: phrase
       Team: RWD-IE (0 members)
       Phrase: covid
+      Files: <not defined>
+      Language: All
+      Repositories output: <not defined>
+      Commits output: <not defined>
+
+# Setting up `files` works correctly
+
+    Code
+      set_params(test_gitstats, files = c("DESCRIPTION", "NAMESPACE"))
+    Message
+      i Set files DESCRIPTION and NAMESPACE to scan.
+    Output
+      A <GitStats> object for 0 hosts:
+      Hosts: 
+      Organisations: [0] 
+      Repositories: [0] 
+      Search parameter: org
+      Team: RWD-IE (0 members)
+      Phrase: covid
+      Files: [2] DESCRIPTION, NAMESPACE
       Language: All
       Repositories output: <not defined>
       Commits output: <not defined>
@@ -29,9 +50,11 @@
       A <GitStats> object for 0 hosts:
       Hosts: 
       Organisations: [0] 
-      Search preference: org
+      Repositories: [0] 
+      Search parameter: org
       Team: RWD-IE (0 members)
       Phrase: covid
+      Files: <not defined>
       Language: Python
       Repositories output: <not defined>
       Commits output: <not defined>
@@ -44,9 +67,11 @@
       A <GitStats> object for 0 hosts:
       Hosts: 
       Organisations: [0] 
-      Search preference: org
+      Repositories: [0] 
+      Search parameter: org
       Team: RWD-IE (0 members)
       Phrase: covid
+      Files: <not defined>
       Language: All
       Repositories output: <not defined>
       Commits output: <not defined>

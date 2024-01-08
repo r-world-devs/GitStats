@@ -9,6 +9,7 @@ set_params(
   search_param = NULL,
   team_name = NULL,
   phrase = NULL,
+  files = NULL,
   language = "All",
   print_out = TRUE
 )
@@ -21,6 +22,8 @@ set_params(
 \item{team_name}{Name of a team.}
 
 \item{phrase}{A phrase to look for.}
+
+\item{files}{Define files to scan.}
 
 \item{language}{Code programming language.}
 
