@@ -5,7 +5,7 @@
 #' @return A table of `repos_stats` class.
 #' @export
 get_repos_stats <- function(gitstats_obj){
-  repos_data <- data.table::copy(get_repos(gitstats_obj))
+  repos_data <- data.table::copy(get_table(gitstats_obj, "repositories"))
   repos_stats <- repos_data %>%
     dplyr::mutate(
       fullname = paste0(organization, "/", repo_name)
@@ -50,7 +50,7 @@ get_repos_stats <- function(gitstats_obj){
 #' @export
 get_commits_stats <- function(gitstats_obj,
                               time_interval = c("month", "day", "week")){
-  commits_data <- data.table::copy(get_commits(gitstats_obj))
+  commits_data <- data.table::copy(get_table(gitstats_obj, "commits"))
   time_interval <- match.arg(time_interval)
 
   commits_stats <- commits_data %>%

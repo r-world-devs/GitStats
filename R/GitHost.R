@@ -90,6 +90,7 @@ GitHost <- R6::R6Class("GitHost",
             NULL
           }
         })
+        return(repos_table)
       }
     },
 

@@ -2,7 +2,10 @@ create_test_gitstats <- function(
     hosts = 0,
     priv_mode = FALSE,
     inject_repos = NULL,
-    inject_commits = NULL
+    inject_commits = NULL,
+    inject_files = NULL,
+    inject_users = NULL,
+    inject_package_usage = NULL
   ) {
   test_gitstats <- create_gitstats() %>%
     set_params(print_out = FALSE)
@@ -30,14 +33,23 @@ create_test_gitstats <- function(
     })
   }
   if (!is.null(inject_repos)) {
-    test_gitstats$.__enclos_env__$private$repos <- test_mocker$use(inject_repos)
+    test_gitstats$.__enclos_env__$private$storage$repositories <- test_mocker$use(inject_repos)
   }
   if (!is.null(inject_commits)) {
-    test_gitstats$.__enclos_env__$private$commits <- test_mocker$use(inject_commits)
+    test_gitstats$.__enclos_env__$private$storage$commits <- test_mocker$use(inject_commits)
+  }
+  if (!is.null(inject_files)) {
+    test_gitstats$.__enclos_env__$private$storage$files <- test_mocker$use(inject_files)
+  }
+  if (!is.null(inject_users)) {
+    test_gitstats$.__enclos_env__$private$storage$users <- test_mocker$use(inject_users)
+  }
+  if (!is.null(inject_package_usage)) {
+    test_gitstats$.__enclos_env__$private$storage$R_package_usage <- test_mocker$use(inject_package_usage)
   }
   if (priv_mode) {
-    test_gitstats <- environment(test_gitstats$set_params)$private
-  }
+    test_gitstats <- environment(test_gitstats$set_params)$private  }
+
   return(test_gitstats)
 }
 

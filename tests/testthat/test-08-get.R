@@ -11,24 +11,27 @@ test_that("get_orgs() returns orgs", {
   )
 })
 
-test_that("get_repos() returns repos table", {
-  repos_table <- get_repos(test_gitstats)
+test_that("get_table() returns repos table", {
+  repos_table <- get_table(
+    test_gitstats,
+    table = "repos"
+  )
   expect_repos_table(repos_table)
 })
 
-test_that("get_commits() returns commits table", {
-  commits_table <- get_commits(test_gitstats)
+test_that("get_table() returns commits table", {
+  commits_table <- get_table(test_gitstats, table = "commits")
   expect_commits_table(commits_table)
 })
 
-test_that("get_users() returns users table", {
-  test_gitstats$.__enclos_env__$private$users <- test_mocker$use("users_table")
-  users_table <- get_users(test_gitstats)
+test_that("get_table() returns users table", {
+  test_gitstats$.__enclos_env__$private$storage$users <- test_mocker$use("users_table")
+  users_table <- get_table(test_gitstats, "users")
   expect_users_table(users_table)
 })
 
-test_that("get_files() returns users table", {
-  test_gitstats$.__enclos_env__$private$files <- test_mocker$use("files_table")
-  files_table <- get_files(test_gitstats)
+test_that("get_table() returns files table", {
+  test_gitstats$.__enclos_env__$private$storage$files <- test_mocker$use("files_table")
+  files_table <- get_table(test_gitstats, "files")
   expect_files_table(files_table)
 })

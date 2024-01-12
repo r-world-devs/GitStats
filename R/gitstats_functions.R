@@ -93,6 +93,42 @@ set_params <- function(gitstats_obj,
   return(gitstats_obj)
 }
 
+#' @title Reset GitStats settings
+#' @name reset
+#' @description Sets all settings to default: search_param to `org`, language to
+#'   `All` and other to `NULL`s.
+#' @param gitstats_obj A GitStats object.
+#' @return A `GitStats` object.
+#' @export
+reset <- function(gitstats_obj){
+  priv <- environment(gitstats_obj$set_params)$private
+  priv$settings <- list(
+    search_param = "org",
+    phrase = NULL,
+    team_name = NULL,
+    team = list(),
+    language = "All",
+    print_out = TRUE,
+    storage = "On"
+  )
+  cli::cli_alert_info("Reset settings to default.")
+  return(gitstats_obj)
+}
+
+#' @title Reset language settings
+#' @name reset_language
+#' @description Sets language parameter to \code{NULL} (switches of filtering by
+#'   language.).
+#' @param gitstats_obj A GitStats object.
+#' @return A `GitStats` object.
+#' @export
+reset_language <- function(gitstats_obj){
+  priv <- environment(gitstats_obj$set_params)$private
+  priv$settings$language <- "All"
+  cli::cli_alert_info("Setting language parameter to 'All'.")
+  return(gitstats_obj)
+}
+
 #' @title Set your team member
 #' @name set_team_member
 #' @description Passes information on team member to your `team` field.
@@ -273,93 +309,6 @@ pull_files <- function(gitstats_obj,
   return(invisible(gitstats_obj))
 }
 
-#' @title Reset all settings
-#' @name reset
-#' @description Sets all settings to default: search_param to `org`, language to
-#'   `All` and other to `NULL`s.
-#' @param gitstats_obj A GitStats object.
-#' @return A `GitStats` object.
-#' @export
-reset <- function(gitstats_obj){
-  priv <- environment(gitstats_obj$set_params)$private
-  priv$settings <- list(
-    search_param = "org",
-    phrase = NULL,
-    team_name = NULL,
-    team = list(),
-    language = "All",
-    print_out = TRUE
-  )
-  cli::cli_alert_info("Reset settings to default.")
-  return(gitstats_obj)
-}
-
-#' @title Reset language settings
-#' @name reset_language
-#' @description Sets language parameter to \code{NULL} (switches of filtering by
-#'   language.).
-#' @param gitstats_obj A GitStats object.
-#' @return A `GitStats` object.
-#' @export
-reset_language <- function(gitstats_obj){
-  priv <- environment(gitstats_obj$set_params)$private
-  priv$settings$language <- "All"
-  cli::cli_alert_info("Setting language parameter to 'All'.")
-  return(gitstats_obj)
-}
-
-#' @title Get organizations
-#' @name get_orgs
-#' @description Retrieves organizations set or pulled by `GitStats`. Especially
-#'   helpful when user is scanning whole git platform and wants to have a
-#'   glimpse at organizations.
-#' @param gitstats_obj A GitStats object.
-#' @return A vector of organizations.
-#' @export
-get_orgs <- function(gitstats_obj){
-  return(gitstats_obj$get_orgs())
-}
-
-#' @title Get repositories
-#' @name get_repos
-#' @description Retrieves repositories table pulled by `GitStats`.
-#' @param gitstats_obj A GitStats object.
-#' @return A table of repositories.
-#' @export
-get_repos <- function(gitstats_obj){
-  return(gitstats_obj$get_repos())
-}
-
-#' @title Get commits
-#' @name get_commits
-#' @description Retrieves commits table pulled by `GitStats`.
-#' @param gitstats_obj A GitStats object.
-#' @return A table of commits.
-#' @export
-get_commits <- function(gitstats_obj){
-  return(gitstats_obj$get_commits())
-}
-
-#' @title Get users
-#' @name get_users
-#' @description Retrieves users table pulled by `GitStats`.
-#' @param gitstats_obj A GitStats object.
-#' @return A table of users.
-#' @export
-get_users <- function(gitstats_obj){
-  return(gitstats_obj$get_users())
-}
-
-#' @title Get files
-#' @name get_files
-#' @description Retrieves files table pulled by `GitStats`.
-#' @param gitstats_obj A GitStats object.
-#' @return A table of files content.
-#' @export
-get_files <- function(gitstats_obj){
-  return(gitstats_obj$get_files())
-}
-
 #' @title Check package usage across repositories
 #' @name pull_R_package_usage
 #' @description Wrapper over searching repositories by code blobs related to
@@ -393,12 +342,29 @@ pull_R_package_usage <- function(
   return(invisible(gitstats_obj))
 }
 
-#' @title Get R package usage
-#' @name get_R_package_usage
-#' @description Retrieves list of repositories that make use of a package.
+#' @title Get organizations
+#' @name get_orgs
+#' @description Retrieves organizations set or pulled by `GitStats`. Especially
+#'   helpful when user is scanning whole git platform and wants to have a
+#'   glimpse at organizations.
 #' @param gitstats_obj A GitStats object.
-#' @return A table with repo urls.
+#' @return A vector of organizations.
 #' @export
-get_R_package_usage <- function(gitstats_obj) {
-  return(gitstats_obj$get_R_package_usage())
+get_orgs <- function(gitstats_obj){
+  return(gitstats_obj$get_orgs())
+}
+
+#' @title Get data
+#' @name get_table
+#' @description Retrieves data pulled by `GitStats`.
+#' @param gitstats_obj A GitStats object.
+#' @param table Type of table (`repositories`, `commits`, `files`, `users`,
+#'   `R_package_usage`).
+#' @return A table.
+#' @export
+get_table <- function(gitstats_obj,
+                      table){
+  return(gitstats_obj$get_table(
+    table = table
+  ))
 }
