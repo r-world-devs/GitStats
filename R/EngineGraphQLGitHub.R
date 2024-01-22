@@ -100,17 +100,26 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
     #' @param settings A list of  `GitStats` settings.
+    #' @param .storage A storage of `GitStats` object.
     #' @return A table of commits.
     pull_commits = function(org,
                             repos = NULL,
                             date_from,
                             date_until,
-                            settings) {
+                            settings,
+                            .storage = NULL) {
       if (is.null(repos)) {
-        repos_table <- self$pull_repos(
-          org = org,
-          settings = list(search_param = "org")
-        )
+        if (is.null(.storage$repositories)) {
+          repos_table <- self$pull_repos(
+            org = org,
+            settings = list(search_param = "org")
+          )
+        } else {
+          repos_table <- .storage$repositories %>%
+            dplyr::filter(
+              organization == org
+            )
+        }
         repos_names <- repos_table$repo_name
       }
       if (!is.null(repos)) {

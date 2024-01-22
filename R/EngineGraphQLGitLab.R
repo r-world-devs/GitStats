@@ -88,12 +88,14 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      #' @param date_from A starting date to look commits for.
      #' @param date_until An end date to look commits for.
      #' @param settings A list of  `GitStats` settings.
+     #' @param .storage A storage of `GitStats` object.
      #' @return A table of commits.
      pull_commits = function(org,
                              repos = NULL,
                              date_from,
                              date_until = Sys.date(),
-                             settings) {
+                             settings,
+                             .storage = NULL) {
        NULL
      }
 

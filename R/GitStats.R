@@ -236,7 +236,8 @@ GitStats <- R6::R6Class("GitStats",
         commits_table_host <- host$pull_commits(
           date_from = date_from,
           date_until = date_until,
-          settings = private$settings
+          settings = private$settings,
+          .storage = private$storage
         )
         return(commits_table_host)
       }) %>% purrr::list_rbind()
@@ -271,18 +272,12 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description Pull text content of a file from all repositories.
     #' @param file_path A file path, may be a character vector.
-    #' @param .use_pulled_repos A boolean if TRUE `GitStats` will pull files only
-    #'   from stored in the output repositories.
-    pull_files = function(file_path, .use_pulled_repos = FALSE) {
+    pull_files = function(file_path) {
       private$check_for_host()
       files_table <- purrr::map(private$hosts, function(host) {
         host$pull_files(
           file_path = file_path,
-          pulled_repos = if (.use_pulled_repos) {
-            self$get_repos()
-          } else {
-            NULL
-          }
+          pulled_repos = self$get_table("repositories")
         )
       }) %>%
         purrr::list_rbind()
@@ -536,7 +531,10 @@ GitStats <- R6::R6Class("GitStats",
     print_storage = function(settings) {
       gitstats_storage <- purrr::imap(private$storage, function(storage_table, storage_name) {
         if (!is.null(storage_table)) {
-          paste0(storage_name, ": ", nrow(storage_table), " rows x ", length(storage_table), " cols")
+          paste0(
+            stringr::str_to_title(storage_name),
+            ": ", nrow(storage_table),
+            " rows x ", length(storage_table), " cols")
         }
       }) %>%
         purrr::discard(~is.null(.))
