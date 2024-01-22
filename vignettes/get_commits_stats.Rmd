@@ -77,7 +77,7 @@ get_commits_stats(
 You can also retrieve just the pulled output.
 
 ```{r}
-commits <- get_commits(git_stats)
+commits <- get_table(git_stats, "commits")
 head(commits)
 ```
 
