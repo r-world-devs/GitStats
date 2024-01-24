@@ -72,7 +72,7 @@ head(repos_stats)
 Or just retrieve the output.
 
 ```{r}
-repos <- get_repos(git_stats)
+repos <- get_table(git_stats, "repos")
 ```
 
 Finally, you can plot the statistics. By default `last_activity` is plotted for 10 repositories.

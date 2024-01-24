@@ -90,6 +90,7 @@ GitHost <- R6::R6Class("GitHost",
             NULL
           }
         })
+        return(repos_table)
       }
     },
 
@@ -97,10 +98,12 @@ GitHost <- R6::R6Class("GitHost",
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
     #' @param settings A list of `GitStats` settings.
+    #' @param .storage A storage of `GitStats` object.
     #' @return A data.frame of commits.
     pull_commits = function(date_from,
                             date_until = Sys.Date(),
-                            settings) {
+                            settings,
+                            .storage = NULL) {
       if (settings$search_param == "phrase") {
         cli::cli_abort(c(
           "x" = "Pulling commits by phrase in code blobs is not supported.",
@@ -128,7 +131,8 @@ GitHost <- R6::R6Class("GitHost",
           repos = repos,
           date_from = date_from,
           date_until = date_until,
-          settings = settings
+          settings = settings,
+          .storage = .storage
         )) %>%
           purrr::list_rbind()
         return(commits_table_org)

@@ -19,7 +19,8 @@ test_settings <- list(
   team = list(),
   files = NULL,
   language = "All",
-  print_out = TRUE
+  print_out = TRUE,
+  storage = TRUE
 )
 
 test_settings_repo <- list(
@@ -29,7 +30,8 @@ test_settings_repo <- list(
   team = list(),
   files = NULL,
   language = "All",
-  print_out = TRUE
+  print_out = TRUE,
+  storage = TRUE
 )
 
 if (nchar(Sys.getenv("GITHUB_PAT")) == 0) {

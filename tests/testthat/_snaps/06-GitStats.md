@@ -3,68 +3,72 @@
     Code
       test_gitstats
     Output
-      A <GitStats> object for 0 hosts:
+      A GitStats object for 0 hosts: 
       Hosts: 
-      Organisations: [0] 
-      Repositories: [0] 
-      Search parameter: <not defined>
-      Team: <not defined>
-      Phrase: <not defined>
-      Files: <not defined>
-      Language: All
-      Repositories output: <not defined>
-      Commits output: <not defined>
+      Scanning scope: 
+       Organizations: [0] 
+       Repositories: [0] 
+       Files: <not defined>
+      Search settings: 
+       Search parameter: <not defined>
+       Phrase: <not defined>
+       Language: All
+       Team: <not defined>
+      Storage: <no tables in storage>
 
 # GitStats prints the proper info when connections are added.
 
     Code
       test_gitstats
     Output
-      A <GitStats> object for 2 hosts:
+      A GitStats object for 2 hosts: 
       Hosts: https://api.github.com, https://gitlab.com/api/v4
-      Organisations: [3] r-world-devs, openpharma, mbtests
-      Repositories: [0] 
-      Search parameter: org
-      Team: <not defined>
-      Phrase: <not defined>
-      Files: <not defined>
-      Language: All
-      Repositories output: <not defined>
-      Commits output: <not defined>
+      Scanning scope: 
+       Organizations: [3] r-world-devs, openpharma, mbtests
+       Repositories: [0] 
+       Files: <not defined>
+      Search settings: 
+       Search parameter: org
+       Phrase: <not defined>
+       Language: All
+       Team: <not defined>
+      Storage: <no tables in storage>
 
 # GitStats prints the proper info when repos are passed instead of orgs.
 
     Code
       test_gitstats
     Output
-      A <GitStats> object for 2 hosts:
+      A GitStats object for 2 hosts: 
       Hosts: https://api.github.com, https://gitlab.com/api/v4
-      Organisations: [0] 
-      Repositories: [4] r-world-devs/GitStats, openpharma/GithubMetrics, mbtests/gitstatstesting, mbtests/gitstats-testing-2
-      Search parameter: repo
-      Team: <not defined>
-      Phrase: <not defined>
-      Files: <not defined>
-      Language: All
-      Repositories output: <not defined>
-      Commits output: <not defined>
+      Scanning scope: 
+       Organizations: [0] 
+       Repositories: [4] r-world-devs/GitStats, openpharma/GithubMetrics, mbtests/gitstatstesting, mbtests/gitstats-testing-2
+       Files: <not defined>
+      Search settings: 
+       Search parameter: repo
+       Phrase: <not defined>
+       Language: All
+       Team: <not defined>
+      Storage: <no tables in storage>
 
 # GitStats prints team name when team is added.
 
     Code
       test_gitstats
     Output
-      A <GitStats> object for 2 hosts:
+      A GitStats object for 2 hosts: 
       Hosts: https://api.github.com, https://gitlab.com/api/v4
-      Organisations: [3] r-world-devs, openpharma, mbtests
-      Repositories: [0] 
-      Search parameter: team
-      Team: RWD-IE (0 members)
-      Phrase: <not defined>
-      Files: <not defined>
-      Language: All
-      Repositories output: <not defined>
-      Commits output: <not defined>
+      Scanning scope: 
+       Organizations: [3] r-world-devs, openpharma, mbtests
+       Repositories: [0] 
+       Files: <not defined>
+      Search settings: 
+       Search parameter: team
+       Phrase: <not defined>
+       Language: All
+       Team: RWD-IE (0 members)
+      Storage: <no tables in storage>
 
 # check_for_host returns error when no hosts are passed
 
@@ -87,15 +91,37 @@
     Code
       test_gitstats
     Output
-      A <GitStats> object for 1 hosts:
+      A GitStats object for 1 hosts: 
       Hosts: https://gitlab.com/api/v4
-      Organisations: [1] mbtests/subgroup
-      Repositories: [0] 
-      Search parameter: org
-      Team: <not defined>
-      Phrase: <not defined>
-      Files: <not defined>
-      Language: All
-      Repositories output: <not defined>
-      Commits output: <not defined>
+      Scanning scope: 
+       Organizations: [1] mbtests/subgroup
+       Repositories: [0] 
+       Files: <not defined>
+      Search settings: 
+       Search parameter: org
+       Phrase: <not defined>
+       Language: All
+       Team: <not defined>
+      Storage: <no tables in storage>
+
+# GitStats prints with storage
+
+    Code
+      test_gitstats
+    Output
+      A GitStats object for 2 hosts: 
+      Hosts: https://api.github.com, https://gitlab.com/api/v4
+      Scanning scope: 
+       Organizations: [3] r-world-devs, openpharma, mbtests
+       Repositories: [0] 
+       Files: <not defined>
+      Search settings: 
+       Search parameter: org
+       Phrase: <not defined>
+       Language: All
+       Team: <not defined>
+      Storage: 
+       Repositories: 17 rows x 13 cols
+       Commits: 73 rows x 8 cols
+       R_package_usage: 12 rows x 4 cols
 

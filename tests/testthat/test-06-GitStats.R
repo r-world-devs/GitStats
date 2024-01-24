@@ -92,7 +92,7 @@ test_that("GitStats get users info", {
   test_gitstats$pull_users(
     c("maciekbanas", "kalimu", "marcinkowskak")
   )
-  users_result <- get_users(test_gitstats)
+  users_result <- test_gitstats$.__enclos_env__$private$storage$users
   expect_users_table(
     users_result
   )
@@ -106,7 +106,7 @@ test_that("pull_repos works properly", {
     test_gitstats$pull_repos()
   )
   expect_repos_table(
-    test_gitstats$get_repos(),
+    test_gitstats$.__enclos_env__$private$storage$repositories,
     add_col = "api_url"
   )
 })
@@ -133,7 +133,7 @@ test_that("Add_repos_contributors adds repos contributors to repos table", {
   expect_snapshot(
     test_gitstats$pull_repos_contributors()
   )
-  repos_table_with_contributors <- test_gitstats$get_repos()
+  repos_table_with_contributors <- test_gitstats$.__enclos_env__$private$storage$repositories
   expect_true("contributors" %in% names(repos_table_with_contributors))
   expect_equal(nrow(repos_table_without_contributors), nrow(repos_table_with_contributors))
 })
@@ -146,7 +146,7 @@ test_that("pull_commits works properly", {
       date_until = "2023-06-15"
     )
   )
-  commits_table <- test_gitstats$get_commits()
+  commits_table <- test_gitstats$.__enclos_env__$private$storage$commits
   expect_commits_table(
     commits_table
   )
@@ -160,7 +160,7 @@ test_that("pull_files works properly", {
       file_path = "meta_data.yaml"
     )
   )
-  files_table <- test_gitstats$get_files()
+  files_table <- test_gitstats$.__enclos_env__$private$storage$files
   expect_files_table(
     files_table
   )
@@ -213,7 +213,17 @@ test_that("pull_R_package_usage works as expected", {
       "purrr"
     )
   )
-  expect_package_usage_table(
-    test_gitstats$.__enclos_env__$private$R_package_usage
+  R_package_usage <- test_gitstats$.__enclos_env__$private$storage$R_package_usage
+  expect_package_usage_table(R_package_usage)
+  test_mocker$cache(R_package_usage)
+})
+
+test_that("GitStats prints with storage", {
+  test_gitstats <- create_test_gitstats(
+    hosts = 2,
+    inject_repos = "repos_table_without_contributors",
+    inject_commits = "commits_table",
+    inject_package_usage = "R_package_usage"
   )
+  expect_snapshot(test_gitstats)
 })

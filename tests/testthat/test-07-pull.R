@@ -3,7 +3,7 @@ test_that("pull_repos pulls repos in the table format", {
   expect_snapshot(
     pull_repos(test_gitstats)
   )
-  repos_table <- test_gitstats$get_repos()
+  repos_table <- test_gitstats$.__enclos_env__$private$storage$repositories
   expect_repos_table(repos_table, add_col = "api_url")
 })
 
@@ -17,7 +17,7 @@ test_that("pull_repos_contributors adds contributors column to repos table", {
       test_gitstats
     )
   )
-  repos_table_with_contributors <- test_gitstats$get_repos()
+  repos_table_with_contributors <- test_gitstats$.__enclos_env__$private$storage$repositories
   expect_true("contributors" %in% names(repos_table_with_contributors))
   test_mocker$cache(repos_table_with_contributors)
 })
@@ -31,7 +31,7 @@ test_that("pull_commits works", {
       date_until = "2023-06-15"
     )
   )
-  commits_table <- test_gitstats$get_commits()
+  commits_table <- test_gitstats$.__enclos_env__$private$storage$commits
   expect_commits_table(commits_table)
 })
 
@@ -47,7 +47,7 @@ test_that("pull_users works as expected", {
   test_gitstats <- create_test_gitstats(hosts = 2)
   pull_users(test_gitstats,
              c("maciekbanas", "kalimu"))
-  users_table <- test_gitstats$get_users()
+  users_table <- test_gitstats$.__enclos_env__$private$storage$users
   expect_users_table(
     users_table
   )
@@ -59,7 +59,7 @@ test_that("pull_files works as expected", {
     pull_files(test_gitstats,
                "meta_data.yaml")
   )
-  files_table <- test_gitstats$get_files()
+  files_table <- test_gitstats$.__enclos_env__$private$storage$files
   expect_files_table(
     files_table
   )

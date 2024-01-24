@@ -103,17 +103,26 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
     #' @param settings A list of  `GitStats` settings.
+    #' @param .storage A storage of `GitStats` object.
     #' @return A table of commits.
     pull_commits = function(org = NULL,
                             repos = NULL,
                             date_from,
                             date_until = Sys.date(),
-                            settings) {
+                            settings,
+                            .storage = NULL) {
       if (is.null(repos)) {
-        repos_table <- self$pull_repos_supportive(
-          org = org,
-          settings = list(search_param = "org")
-        )
+        if (is.null(.storage$repositories)) {
+          repos_table <- self$pull_repos_supportive(
+            org = org,
+            settings = list(search_param = "org")
+          )
+        } else {
+          repos_table <- .storage$repositories %>%
+            dplyr::filter(
+              organization == org
+            )
+        }
         gitlab_web_url <- stringr::str_extract(self$rest_api_url, "^.*?(?=api)")
         repos <- stringr::str_remove(repos_table$repo_url, gitlab_web_url)
         repos_names <- stringr::str_replace_all(repos, "/", "%2f")

@@ -9,17 +9,18 @@
     Message
       v Your search preferences set to phrase: covid.
     Output
-      A <GitStats> object for 0 hosts:
+      A GitStats object for 0 hosts: 
       Hosts: 
-      Organisations: [0] 
-      Repositories: [0] 
-      Search parameter: phrase
-      Team: RWD-IE (0 members)
-      Phrase: covid
-      Files: <not defined>
-      Language: All
-      Repositories output: <not defined>
-      Commits output: <not defined>
+      Scanning scope: 
+       Organizations: [0] 
+       Repositories: [0] 
+       Files: <not defined>
+      Search settings: 
+       Search parameter: phrase
+       Phrase: covid
+       Language: All
+       Team: RWD-IE (0 members)
+      Storage: <no tables in storage>
 
 # Setting up `files` works correctly
 
@@ -28,17 +29,18 @@
     Message
       i Set files DESCRIPTION and NAMESPACE to scan.
     Output
-      A <GitStats> object for 0 hosts:
+      A GitStats object for 0 hosts: 
       Hosts: 
-      Organisations: [0] 
-      Repositories: [0] 
-      Search parameter: org
-      Team: RWD-IE (0 members)
-      Phrase: covid
-      Files: [2] DESCRIPTION, NAMESPACE
-      Language: All
-      Repositories output: <not defined>
-      Commits output: <not defined>
+      Scanning scope: 
+       Organizations: [0] 
+       Repositories: [0] 
+       Files: [2] DESCRIPTION, NAMESPACE
+      Search settings: 
+       Search parameter: org
+       Phrase: covid
+       Language: All
+       Team: RWD-IE (0 members)
+      Storage: <no tables in storage>
 
 # Setting language works correctly
 
@@ -47,32 +49,34 @@
     Message
       v Your programming language is set to Python.
     Output
-      A <GitStats> object for 0 hosts:
+      A GitStats object for 0 hosts: 
       Hosts: 
-      Organisations: [0] 
-      Repositories: [0] 
-      Search parameter: org
-      Team: RWD-IE (0 members)
-      Phrase: covid
-      Files: <not defined>
-      Language: Python
-      Repositories output: <not defined>
-      Commits output: <not defined>
+      Scanning scope: 
+       Organizations: [0] 
+       Repositories: [0] 
+       Files: <not defined>
+      Search settings: 
+       Search parameter: org
+       Phrase: covid
+       Language: Python
+       Team: RWD-IE (0 members)
+      Storage: <no tables in storage>
 
 # Setting language to 'All' resets language settings
 
     Code
       set_params(test_gitstats, language = "All")
     Output
-      A <GitStats> object for 0 hosts:
+      A GitStats object for 0 hosts: 
       Hosts: 
-      Organisations: [0] 
-      Repositories: [0] 
-      Search parameter: org
-      Team: RWD-IE (0 members)
-      Phrase: covid
-      Files: <not defined>
-      Language: All
-      Repositories output: <not defined>
-      Commits output: <not defined>
+      Scanning scope: 
+       Organizations: [0] 
+       Repositories: [0] 
+       Files: <not defined>
+      Search settings: 
+       Search parameter: org
+       Phrase: covid
+       Language: All
+       Team: RWD-IE (0 members)
+      Storage: <no tables in storage>
 
