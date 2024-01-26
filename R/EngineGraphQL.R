@@ -69,6 +69,48 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
            file_path = file_path
          )
        return(files_table)
+     },
+
+     #' @description Method to get releases.
+     #' @param org An organization.
+     #' @param repos A vector of repositories.
+     #' @param date_from A starting date of releases.
+     #' @param date_until An end date for releases.
+     #' @param settings A list of  `GitStats` settings.
+     #' @param storage A storage of `GitStats` object.
+     #' @return A table of commits.
+     pull_release_logs = function(org,
+                                  repos = NULL,
+                                  date_from,
+                                  date_until = Sys.date(),
+                                  settings,
+                                  .storage = NULL) {
+       if (!private$scan_all) {
+         cli::cli_alert_info("[Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling releases...")
+       }
+       if (is.null(repos)) {
+         if (is.null(.storage$repositories)) {
+           repos_table <- self$pull_repos(
+             org = org,
+             settings = list(search_param = "org")
+           )
+         } else {
+           repos_table <- .storage$repositories %>%
+             dplyr::filter(
+               organization == org
+             )
+         }
+         repos_names <- repos_table$repo_name
+       } else {
+         repos_names <- repos
+       }
+       releases_table <- private$pull_releases_from_org(
+         repos_names = repos_names,
+         org = org
+       ) %>%
+         private$prepare_releases_table(org, date_from, date_until)
+
+       return(releases_table)
      }
 
    ),

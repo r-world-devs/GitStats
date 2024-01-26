@@ -48,6 +48,46 @@ GitHost <- R6::R6Class("GitHost",
       }
     },
 
+    #' Iterator over pulling release logs from engines
+    pull_release_logs = function(date_from, date_until, settings, .storage = NULL) {
+      if (settings$search_param == "phrase") {
+        cli::cli_abort(c(
+          "x" = "Pulling release logs by phrase is not supported.",
+          "i" = "Please change your `search_param` either to 'org' or 'team' with `set_params()`."
+        ))
+      }
+      if (private$scan_all) {
+        cli::cli_alert_info("[Host:{private$host}] {cli::col_yellow('Pulling release logs from all organizations...')}")
+      }
+      if (settings$search_param == "repo") {
+        orgs_repos <- private$extract_repos_and_orgs(private$repos)
+        orgs <- names(orgs_repos)
+      } else {
+        orgs <- private$orgs
+      }
+      release_logs_table <- purrr::map(orgs, function(org) {
+        release_logs_table_org <- NULL
+        if (settings$search_param == "repo") {
+          repos <- orgs_repos[[org]]
+        } else {
+          repos <- NULL
+        }
+        gql_engine <- private$engines$graphql
+        release_logs_table_org <- gql_engine$pull_release_logs(
+          org = org,
+          repos = repos,
+          date_from = date_from,
+          date_until = date_until,
+          settings = settings,
+          .storage = .storage
+        )
+        return(release_logs_table_org)
+      }, .progress = private$scan_all) %>%
+        purrr::list_rbind()
+      return(release_logs_table)
+    },
+
+
     #' @description  A method to list all repositories for an organization, a
     #'   team or by a keyword.
     #' @param settings A list of `GitStats` settings.

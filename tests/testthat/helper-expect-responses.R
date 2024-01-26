@@ -112,11 +112,7 @@ expect_gh_commit_gql_response <- function(object) {
     "list"
   )
   expect_list_contains(
-    object,
-    "data"
-  )
-  expect_list_contains(
-    object$data$repository$defaultBranchRef$target$history$edges[[1]]$node,
+    object$node,
     c("id", "committed_date", "author", "additions", "deletions")
   )
 }
@@ -181,5 +177,25 @@ expect_gitlab_files_response <- function(object) {
         "name", "rawBlob", "size"
       )
     )
+  })
+}
+
+expect_github_releases_response <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  purrr::walk(object, function(response) {
+    expect_gt(length(response), 0)
+    expect_list_contains(
+      response$data$repository,
+      c("releases")
+    )
+    purrr::walk(response$data$repository$releases$nodes, function(node) {
+      expect_list_contains(
+        node,
+        c("name", "tagName", "publishedAt", "url", "description")
+      )
+    })
   })
 }

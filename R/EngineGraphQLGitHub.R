@@ -96,7 +96,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @description Method to pull all commits from organization, optionally
     #'   filtered by team members.
     #' @param org An organization.
-    #' @param repos_names A vector of names of repositories.
+    #' @param repos A vector of repositories.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
     #' @param settings A list of  `GitStats` settings.
@@ -171,9 +171,9 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param settings A list of  `GitStats` settings.
     #' @return A table of commits.
     pull_commits_supportive = function(org,
-                                      date_from,
-                                      date_until = Sys.date(),
-                                      settings) {
+                                       date_from,
+                                       date_until = Sys.date(),
+                                       settings) {
       NULL
     }
 
@@ -550,6 +550,71 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         files_table <- NULL
       }
       return(files_table)
+    },
+
+    # @description Pull all releases from all repositories of an
+    #   organization.
+    # @param repos_names
+    # @param org An organization.
+    # @return A response in a list form.
+    pull_releases_from_org = function(repos_names, org) {
+      release_responses <- purrr::map(repos_names, function(repository) {
+        releases_from_repo_query <- self$gql_query$releases_from_repo()
+        response <- self$gql_response(
+          gql_query = releases_from_repo_query,
+          vars = list(
+            "org" = org,
+            "repo" = repository
+          )
+        )
+        return(response)
+      }) %>%
+        purrr::discard(~ length(.$data$repository$releases$nodes) == 0)
+      return(release_responses)
+    },
+
+    # @description Prepare releases table.
+    # @param releases_response A list.
+    # @param org An organization.
+    # @return A table with information on releases.
+    prepare_releases_table = function(releases_response, org, date_from, date_until) {
+      if (!is.null(releases_response)) {
+        releases_table <-
+          purrr::map(releases_response, function(release) {
+            release_table <- purrr::map(release$data$repository$releases$nodes, function(node) {
+              data.frame(
+                release_name = node$name,
+                release_tag = node$tagName,
+                published_at = gts_to_posixt(node$publishedAt),
+                release_url = node$url,
+                release_log = node$description
+              )
+            }) %>%
+              purrr::list_rbind() %>%
+              dplyr::mutate(
+                repo_name = release$data$repository$name,
+                repo_url = release$data$repository$url
+              ) %>%
+              dplyr::relocate(
+                repo_name, repo_url,
+                .before = release_name
+              )
+            return(release_table)
+          }) %>%
+            purrr::list_rbind() %>%
+          dplyr::filter(
+            published_at <= as.POSIXct(date_until)
+          )
+        if (!is.null(date_from)) {
+          releases_table <- releases_table %>%
+            dplyr::filter(
+              published_at >= as.POSIXct(date_from)
+            )
+        }
+      } else {
+        releases_table <- NULL
+      }
+      return(releases_table)
     }
   )
 )

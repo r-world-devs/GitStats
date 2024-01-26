@@ -62,7 +62,7 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
                   opened
                 }
                 group {
-                  name
+                  path
                 }
                 repo_url: webUrl
               }
@@ -158,6 +158,28 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
                       rawBlob
                       size
                     }
+                  }
+                }
+              }
+          }'
+    },
+
+    #' @description Prepare query to get releases from GitHub repositories.
+    #' @return A query.
+    releases_from_repo = function() {
+      'query GetReleasesFromRepo($project_path: ID!) {
+              project(fullPath: $project_path) {
+                name
+                webUrl
+    						releases {
+                  nodes{
+                    name
+                    tagName
+                    releasedAt
+                    links {
+                      selfUrl
+                    }
+                    description
                   }
                 }
               }

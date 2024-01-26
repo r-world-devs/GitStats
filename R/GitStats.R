@@ -137,6 +137,24 @@ GitStats <- R6::R6Class("GitStats",
       cli::cli_alert_success("{member_name} successfully added to team.")
     },
 
+    #' @description A method to list release logs of repositories.
+    #' @param date_from A starting date for release logs.
+    #' @param date_until An end date for release logs.
+    #' @return Nothing, passes information on release logs to `GitStats`.
+    pull_release_logs = function(date_from,
+                                 date_until) {
+      release_logs_table <- purrr::map(private$hosts, ~ .$pull_release_logs(
+        date_from = date_from,
+        date_until = date_until,
+        settings = private$settings,
+        .storage = private$storage
+      )) %>%
+        purrr::list_rbind()
+
+      private[["storage"]][["release_logs"]] <- release_logs_table
+      return(invisible(self))
+    },
+
     #' @description Wrapper over pulling repositories by phrase.
     #' @param package_name A character, name of the package.
     #' @param only_loading A boolean, if `TRUE` function will check only if package
@@ -300,13 +318,16 @@ GitStats <- R6::R6Class("GitStats",
     get_table = function(table) {
       table <- match.arg(
         arg = table,
-        choices = c("repos", "repositories", "commits", "files", "users", "R_package_usage", "package_usage")
+        choices = c("repos", "repositories", "commits", "files", "users", "R_package_usage", "package_usage", "releases", "release_logs")
       )
       if (table == "repos") {
         table <- "repositories"
       }
       if (table == "package_usage") {
         table <- "R_package_usage"
+      }
+      if (table == "releases") {
+        table <- "release_logs"
       }
       return(private$storage[[table]])
 
@@ -348,7 +369,8 @@ GitStats <- R6::R6Class("GitStats",
       commits = NULL,
       users = NULL,
       files = NULL,
-      R_package_usage = NULL
+      R_package_usage = NULL,
+      release_logs = NULL
     ),
 
     # @description Search repositories with `library(package_name)` in code blobs.

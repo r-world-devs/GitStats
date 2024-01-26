@@ -49,3 +49,11 @@ test_that("file query is built properly", {
     gh_files_query
   )
 })
+
+test_that("releases query is built properly", {
+  gh_releases_query <-
+    test_gqlquery_gh$releases_from_repo()
+  expect_snapshot(
+    gh_releases_query
+  )
+})

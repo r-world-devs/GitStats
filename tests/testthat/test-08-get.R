@@ -35,3 +35,11 @@ test_that("get_table() returns files table", {
   files_table <- get_table(test_gitstats, "files")
   expect_files_table(files_table)
 })
+
+test_that("get_table() returns release_log table", {
+  test_gitstats$.__enclos_env__$private$storage$release_logs <- test_mocker$use("releases_table")
+  releases <- get_table(test_gitstats, "releases")
+  expect_releases_table(releases)
+  releases_logs <- get_table(test_gitstats, "release_logs")
+  expect_releases_table(releases_logs)
+})

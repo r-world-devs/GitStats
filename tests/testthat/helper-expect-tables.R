@@ -64,6 +64,17 @@ expect_files_table <- function(files_object) {
   expect_gt(nrow(files_object), 0)
 }
 
+expect_releases_table <- function(releases_object) {
+  expect_s3_class(releases_object, "data.frame")
+  expect_named(
+    releases_object,
+    c("repo_name", "repo_url",
+      "release_name", "release_tag", "published_at", "release_url",
+      "release_log")
+  )
+  expect_gt(nrow(releases_object), 0)
+}
+
 expect_empty_table <- function(object) {
   expect_s3_class(object, "data.frame")
   expect_equal(nrow(object), 0)

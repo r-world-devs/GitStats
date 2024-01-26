@@ -64,3 +64,18 @@ test_that("pull_files works as expected", {
     files_table
   )
 })
+
+test_that("pull_release_logs works as expected", {
+  test_gitstats <- create_test_gitstats(hosts = 1)
+  expect_snapshot(
+    pull_release_logs(
+      test_gitstats,
+      date_from = "2023-05-01",
+      date_until = "2023-09-30"
+    )
+  )
+  releases_table <- test_gitstats$.__enclos_env__$private$storage$release_logs
+  expect_releases_table(
+    releases_table
+  )
+})
