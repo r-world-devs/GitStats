@@ -12,7 +12,7 @@ test_that("`gql_response()` work as expected for GitHub", {
     test_mocker$use("gh_commits_by_repo_query")
   )
   expect_gh_commit_gql_response(
-    gh_commits_by_repo_gql_response
+    gh_commits_by_repo_gql_response$data$repository$defaultBranchRef$target$history$edges[[1]]
   )
   test_mocker$cache(gh_commits_by_repo_gql_response)
 

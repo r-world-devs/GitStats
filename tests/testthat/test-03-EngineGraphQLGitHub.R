@@ -26,7 +26,7 @@ test_that("`pull_commits_page_from_repo()` pulls commits page from repository", 
     date_until = "2023-02-28"
   )
   expect_gh_commit_gql_response(
-    commits_page
+    commits_page$data$repository$defaultBranchRef$target$history$edges[[1]]
   )
   test_mocker$cache(commits_page)
 })
@@ -162,10 +162,32 @@ test_that("`pull_commits_from_repos()` pulls commits from repos", {
     date_from = "2023-01-01",
     date_until = "2023-02-28"
   )
-  expect_snapshot(
-    commits_from_repos
+  expect_gh_commit_gql_response(
+    commits_from_repos[[1]][[1]]
   )
   test_mocker$cache(commits_from_repos)
+})
+
+test_that("`pull_releases_from_org()` pulls releases from the repositories", {
+  releases_from_repos <- test_gql_gh$pull_releases_from_org(
+    repos_names = c("GitStats", "shinyCohortBuilder"),
+    org = "r-world-devs"
+  )
+  expect_github_releases_response(releases_from_repos)
+  test_mocker$cache(releases_from_repos)
+})
+
+test_that("`prepare_releases_table()` prepares releases table", {
+  releases_table <- test_gql_gh$prepare_releases_table(
+    releases_response = test_mocker$use("releases_from_repos"),
+    org = "r-world-devs",
+    date_from = "2023-05-01",
+    date_until = "2023-09-30"
+  )
+  expect_releases_table(releases_table)
+  expect_gt(min(releases_table$published_at), as.POSIXct("2023-05-01"))
+  expect_lt(max(releases_table$published_at), as.POSIXct("2023-09-30"))
+  test_mocker$cache(releases_table)
 })
 
 test_that("`prepare_repos_table()` prepares repos table", {
@@ -336,4 +358,17 @@ test_that("`pull_files()` pulls files in the table format", {
   )
   expect_files_table(gh_files_table)
   test_mocker$cache(gh_files_table)
+})
+
+test_that("`pull_release_logs()` pulls release logs in the table format", {
+  expect_snapshot(
+    releases_table <- test_gql_gh$pull_release_logs(
+      org = "r-world-devs",
+      date_from = "2023-05-01",
+      date_until = "2023-09-30"
+    )
+  )
+  expect_releases_table(releases_table)
+  expect_gt(min(releases_table$published_at), as.POSIXct("2023-05-01"))
+  expect_lt(max(releases_table$published_at), as.POSIXct("2023-09-30"))
 })

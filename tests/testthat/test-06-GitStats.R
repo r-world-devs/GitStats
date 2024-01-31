@@ -218,6 +218,18 @@ test_that("pull_R_package_usage works as expected", {
   test_mocker$cache(R_package_usage)
 })
 
+test_that("pull_release_logs works as expected", {
+  test_gitstats <- create_test_gitstats(hosts = 1)
+  expect_snapshot(
+    test_gitstats$pull_release_logs(
+      date_from = "2023-05-01",
+      date_until = "2023-09-30"
+    )
+  )
+  release_logs <- test_gitstats$.__enclos_env__$private$storage$release_logs
+  expect_releases_table(release_logs)
+})
+
 test_that("GitStats prints with storage", {
   test_gitstats <- create_test_gitstats(
     hosts = 2,

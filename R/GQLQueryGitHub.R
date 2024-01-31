@@ -180,6 +180,26 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
           }
       }'
       )
+    },
+
+    #' @description Prepare query to get releases from GitHub repositories.
+    #' @return A query.
+    releases_from_repo = function() {
+      'query GetReleasesFromRepo ($org: String!, $repo: String!) {
+          repository(owner:$org, name:$repo){
+            name
+            url
+            releases (last: 100) {
+              nodes {
+                name
+                tagName
+                publishedAt
+                url
+                description
+              }
+            }
+          }
+        }'
     }
   ),
   private = list(

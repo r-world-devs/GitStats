@@ -342,6 +342,36 @@ pull_R_package_usage <- function(
   return(invisible(gitstats_obj))
 }
 
+#' @title Pull release logs
+#' @name pull_release_logs
+#' @description Pull release logs from repositories.
+#' @param gitstats_obj A GitStats object.
+#' @param date_from A starting date for release logs.
+#' @param date_until An end date for release logs.
+#' @return A table with release logs.
+#' @examples
+#' \dontrun{
+#'  my_gitstats <- create_gitstats() %>%
+#'   set_host(
+#'     api_url = "https://api.github.com",
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs", "openpharma")
+#'   ) %>%
+#'   pull_release_logs(date_from = "2024-01-01")
+#' }
+#' @export
+pull_release_logs <- function(
+    gitstats_obj,
+    date_from,
+    date_until = Sys.Date()
+) {
+  gitstats_obj$pull_release_logs(
+    date_from = date_from,
+    date_until = date_until
+  )
+  return(invisible(gitstats_obj))
+}
+
 #' @title Get organizations
 #' @name get_orgs
 #' @description Retrieves organizations set or pulled by `GitStats`. Especially
@@ -359,7 +389,7 @@ get_orgs <- function(gitstats_obj){
 #' @description Retrieves data pulled by `GitStats`.
 #' @param gitstats_obj A GitStats object.
 #' @param table Type of table (`repositories`, `commits`, `files`, `users`,
-#'   `R_package_usage`).
+#'   `R_package_usage`, `release_logs`).
 #' @return A table.
 #' @export
 get_table <- function(gitstats_obj,

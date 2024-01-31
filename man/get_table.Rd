@@ -10,7 +10,7 @@ get_table(gitstats_obj, table)
 \item{gitstats_obj}{A GitStats object.}
 
 \item{table}{Type of table (\code{repositories}, \code{commits}, \code{files}, \code{users},
-\code{R_package_usage}).}
+\code{R_package_usage}, \code{release_logs}).}
 }
 \value{
 A table.

@@ -84,7 +84,7 @@
       test_gitstats$pull_repos_contributors()
     Message
       i [GitHub][Engine:REST][org:r-world-devs] Pulling contributors...
-      i [GitLab][Engine:REST][org:MB Tests] Pulling contributors...
+      i [GitLab][Engine:REST][org:mbtests] Pulling contributors...
 
 # subgroups are cleanly printed in GitStats
 
@@ -103,6 +103,16 @@
        Language: All
        Team: <not defined>
       Storage: <no tables in storage>
+
+# pull_release_logs works as expected
+
+    Code
+      test_gitstats$pull_release_logs(date_from = "2023-05-01", date_until = "2023-09-30")
+    Message
+      i [Engine:GraphQL][org:r-world-devs] Pulling releases...
+      i [GitHub][Engine:GraphQL][org:r-world-devs] Pulling repositories...
+      i [Engine:GraphQL][org:openpharma] Pulling releases...
+      i [GitHub][Engine:GraphQL][org:openpharma] Pulling repositories...
 
 # GitStats prints with storage
 
@@ -123,5 +133,5 @@
       Storage: 
        Repositories: 17 rows x 13 cols
        Commits: 73 rows x 8 cols
-       R_package_usage: 12 rows x 4 cols
+       R_package_usage: 11 rows x 4 cols
 

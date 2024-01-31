@@ -88,7 +88,7 @@
     Code
       repos_table_2 <- test_gl_host$pull_repos_contributors(repos_table_1)
     Message
-      i [GitLab][Engine:REST][org:MB Tests] Pulling contributors...
+      i [GitLab][Engine:REST][org:mbtests] Pulling contributors...
 
 # pull_commits throws error when search param is set to `phrase`
 

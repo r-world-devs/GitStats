@@ -493,3 +493,16 @@ test_that("pull_files for GitHub works", {
     gh_files_table
   )
 })
+
+test_that("pull_release logs for GitHub works", {
+  suppressMessages(
+    gh_releases_table <- test_host$pull_release_logs(
+      date_from = "2023-05-01",
+      date_until = "2023-09-30",
+      settings = test_settings
+    )
+  )
+  expect_releases_table(
+    gh_releases_table
+  )
+})
