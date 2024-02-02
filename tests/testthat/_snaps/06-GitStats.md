@@ -133,5 +133,5 @@
       Storage: 
        Repositories: 17 rows x 13 cols
        Commits: 73 rows x 8 cols
-       R_package_usage: 11 rows x 4 cols
+       R_package_usage: 12 rows x 4 cols
 

@@ -78,14 +78,13 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         user_name <- rlang::expr(.$name)
         repos_table$contributors <- purrr::map_chr(repo_iterator, function(repos_id) {
           id <- gsub("gid://gitlab/Project/", "", repos_id)
-          contributors_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/repository/contributors")
-          tryCatch(
-            {
-              self$response(
-                endpoint = contributors_endpoint
-              ) %>%
-                purrr::map_chr(~ eval(user_name)) %>%
-                paste0(collapse = ", ")
+          tryCatch({
+            contributors_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/repository/contributors")
+            contributors_vec <- private$pull_contributors_from_repo(
+              contributors_endpoint = contributors_endpoint,
+              user_name = user_name
+            )
+            return(contributors_vec)
             },
             error = function(e) {
               NA
@@ -184,21 +183,11 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     # @param org A character, a group of projects.
     # @return A list of repositories from organization.
     pull_repos_from_org = function(org) {
-      full_repos_list <- list()
-      page <- 1
-      repeat {
-        repo_endpoint <- paste0(self$rest_api_url, "/groups/", org, "/projects?per_page=100&page=", page)
-        repos_page <- self$response(
-          endpoint = repo_endpoint
-        )
-        if (length(repos_page) > 0) {
-          full_repos_list <- append(full_repos_list, repos_page)
-          page <- page + 1
-        } else {
-          break
-        }
-      }
-      full_repos_list <- full_repos_list %>%
+      repo_endpoint <- paste0(self$rest_api_url, "/groups/", org, "/projects")
+      repos_response <- private$paginate_results(
+        endpoint = repo_endpoint
+      )
+      full_repos_list <- repos_response %>%
         private$pull_repos_languages()
       return(full_repos_list)
     },
@@ -369,36 +358,20 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     pull_commits_from_one_repo = function(repo_path,
                                           date_from,
                                           date_until) {
-      all_commits_in_repo <- list()
-      page <- 1
-      repeat {
-        withCallingHandlers({
-          commits_page <- self$response(
-            endpoint = paste0(
-              self$rest_api_url,
-              "/projects/",
-              repo_path,
-              "/repository/commits?since='",
-              date_to_gts(date_from),
-              "'&until='",
-              date_to_gts(date_until),
-              "'&with_stats=true",
-              "&page=", page
-            )
-          )
-        },
-        message = function(m) {
-          if (grepl("404", m)) {
-            cli::cli_abort(m$message)
-          }
-        })
-        if (length(commits_page) > 0) {
-          all_commits_in_repo <- append(all_commits_in_repo, commits_page)
-          page <- page + 1
-        } else {
-          break
-        }
-      }
+      commits_endpoint <- paste0(
+        self$rest_api_url,
+        "/projects/",
+        repo_path,
+        "/repository/commits?since='",
+        date_to_gts(date_from),
+        "'&until='",
+        date_to_gts(date_until),
+        "'&with_stats=true"
+      )
+      all_commits_in_repo <- private$paginate_results(
+        endpoint = commits_endpoint,
+        joining_sign = "&"
+      )
       return(all_commits_in_repo)
     },
 

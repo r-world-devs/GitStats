@@ -135,11 +135,15 @@ test_that("`pull_repos_issues()` adds issues to repos table", {
   test_mocker$cache(gh_repos_by_phrase_table)
 })
 
-test_that("`pull_commits_from_repo()` pulls all commits from repository", {
-  commits_from_repo <- test_rest_priv$pull_commits_from_repo(
-    repo_fullname = "r-world-devs/GitStats",
-    date_from = "2023-01-01",
-    date_until = "2023-06-01"
+test_that("`paginate_results()` pulls all commits from repository", {
+  commits_endpoint <- paste0(
+    "https://api.github.com/repos/r-world-devs/GitStats/commits?since=",
+    date_to_gts("2023-01-01"),
+    "&until=",
+    date_to_gts("2023-06-01")
+  )
+  commits_from_repo <- test_rest_priv$paginate_results(
+    endpoint = commits_endpoint
   )
   expect_gh_commit_rest_response(
     commits_from_repo
