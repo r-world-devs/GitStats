@@ -128,6 +128,34 @@ EngineRest <- R6::R6Class("EngineRest",
       return(object)
     },
 
+    # Paginate contributors and parse response into character vector
+    pull_contributors_from_repo = function(contributors_endpoint, user_name) {
+      contributors_response <- private$paginate_results(contributors_endpoint)
+      contributors_vec <- contributors_response %>%
+        purrr::map_chr(~ eval(user_name)) %>%
+        paste0(collapse = ", ")
+      return(contributors_vec)
+    },
+
+    # Helper
+    paginate_results = function(endpoint, joining_sign = "?") {
+      full_response <- list()
+      page <- 1
+      repeat {
+        endpoint_with_pagination <- paste0(endpoint, joining_sign, "per_page=100&page=", page)
+        response_page <- self$response(
+          endpoint = endpoint_with_pagination
+        )
+        if (length(response_page) > 0) {
+          full_response <- append(full_response, response_page)
+          page <- page + 1
+        } else {
+          break
+        }
+      }
+      return(full_response)
+    },
+
     # @description A helper to prepare table for repositories content
     # @param repos_list A repository list.
     # @return A data.frame.

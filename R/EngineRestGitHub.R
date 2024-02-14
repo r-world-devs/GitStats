@@ -42,8 +42,9 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         if (!private$scan_all) {
           cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
         }
-        repos_table <- private$pull_repos_from_org(
-          org = org
+        repos_endpoint <- paste0(self$rest_api_url, "/orgs/", org, "/repos")
+        repos_table <- private$paginate_results(
+          repos_endpoint = repos_endpoint
         ) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
@@ -123,14 +124,13 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         repo_iterator <- paste0(repos_table$organization, "/", repos_table$repo_name)
         user_name <- rlang::expr(.$login)
         repos_table$contributors <- purrr::map_chr(repo_iterator, function(repos_id) {
-          contributors_endpoint <- paste0(self$rest_api_url, "/repos/", repos_id, "/contributors")
-          tryCatch(
-            {
-              self$response(
-                endpoint = contributors_endpoint
-              ) %>%
-                purrr::map_chr(~ eval(user_name)) %>%
-                paste0(collapse = ", ")
+          tryCatch({
+              contributors_endpoint <- paste0(self$rest_api_url, "/repos/", repos_id, "/contributors")
+              contributors_vec <- private$pull_contributors_from_repo(
+                contributors_endpoint = contributors_endpoint,
+                user_name = user_name
+              )
+              return(contributors_vec)
             },
             error = function(e) {
               NA
@@ -162,27 +162,6 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         })
       }
       return(invisible(token))
-    },
-
-    # @description Iterator over pulling pages of repositories.
-    # @param org A character, an owner of repositories.
-    # @return A list of repositories from organization.
-    pull_repos_from_org = function(org) {
-      full_repos_list <- list()
-      page <- 1
-      repeat {
-        repo_endpoint <- paste0(self$rest_api_url, "/orgs/", org, "/repos?per_page=100&page=", page)
-        repos_page <- self$response(
-          endpoint = repo_endpoint
-        )
-        if (length(repos_page) > 0) {
-          full_repos_list <- append(full_repos_list, repos_page)
-          page <- page + 1
-        } else {
-          break
-        }
-      }
-      return(full_repos_list)
     },
 
     # @description Search code by phrase
@@ -368,48 +347,23 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       repo_fullnames <- paste0(repos_table$organization, "/", repos_table$repo_name)
 
       repos_list_with_commits <- purrr::map(repo_fullnames, function(repo_fullname) {
-        commits_from_repo <- private$pull_commits_from_repo(
-          repo_fullname = repo_fullname,
-          date_from = date_from,
-          date_until = date_until
+        commits_endpoint <- paste0(
+          self$rest_api_url,
+          "/repos/",
+          repo_fullname,
+          "/commits?since=",
+          date_to_gts(date_from),
+          "&until=",
+          date_to_gts(date_until)
+        )
+        commits_from_repo <- private$paginate_results(
+          endpoint = commits_endpoint,
+          joining_sign = "&"
         )
         return(commits_from_repo)
       }, .progress = TRUE)
       names(repos_list_with_commits) <- repos_names
       return(repos_list_with_commits)
-    },
-
-    # @description Iterator over pages of commits response.
-    # @param repo_fullname Id of a project.
-    # @param date_from A starting date to look commits for.
-    # @param date_until An end date to look commits for.
-    # @return A list of commits.
-    pull_commits_from_repo = function(repo_fullname,
-                                      date_from,
-                                      date_until) {
-      all_commits_in_repo <- list()
-      page <- 1
-      repeat {
-        commits_page <- self$response(
-          endpoint = paste0(
-            self$rest_api_url,
-            "/repos/",
-            repo_fullname,
-            "/commits?since=",
-            date_to_gts(date_from),
-            "&until=",
-            date_to_gts(date_until),
-            "&page=", page
-          )
-        )
-        if (length(commits_page) > 0) {
-          all_commits_in_repo <- append(all_commits_in_repo, commits_page)
-          page <- page + 1
-        } else {
-          break
-        }
-      }
-      return(all_commits_in_repo)
     },
 
     # @description A helper to retrieve only important info on commits.
