@@ -144,8 +144,8 @@ test_that("`pull_commits_from_one_repo()` prepares formatted list", {
     date_from = "2023-01-01",
     date_until = "2023-02-28"
   )
-  expect_snapshot(
-    commits_from_repo
+  expect_gh_commit_gql_response(
+    commits_from_repo[[1]]
   )
   test_mocker$cache(commits_from_repo)
 })

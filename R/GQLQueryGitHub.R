@@ -147,6 +147,10 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
                           committed_date: committedDate
                           author {
                             name
+                            user {
+                              name
+                              login
+                            }
                           }
                           additions
                           deletions

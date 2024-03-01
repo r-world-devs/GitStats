@@ -19,11 +19,18 @@ expect_repos_table <- function(pull_repos_object, add_col = NULL) {
   expect_gt(nrow(pull_repos_object), 0)
 }
 
-expect_commits_table <- function(pull_commits_object, with_stats = TRUE) {
-  commit_cols <- c(
-    "id", "committed_date", "author", "additions", "deletions",
-    "repository", "organization", "api_url"
-  )
+expect_commits_table <- function(pull_commits_object, with_stats = TRUE, exp_author = TRUE) {
+  commit_cols <- if (exp_author) {
+    c(
+      "id", "committed_date", "author", "author_login", "author_name", "additions", "deletions",
+      "repository", "organization", "api_url"
+    )
+  } else {
+    c(
+      "id", "committed_date", "author", "additions", "deletions",
+      "repository", "organization", "api_url"
+    )
+  }
   expect_s3_class(pull_commits_object, "data.frame")
   expect_named(pull_commits_object, commit_cols)
   expect_gt(nrow(pull_commits_object), 0)

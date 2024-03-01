@@ -149,7 +149,8 @@ test_that("`prepare_commits_table()` prepares table of commits properly", {
     commits_list = test_mocker$use("gl_commits_list_cut")
   )
   expect_commits_table(
-    gl_commits_table
+    gl_commits_table,
+    exp_auth = FALSE
   )
   test_mocker$cache(gl_commits_table)
 })
@@ -159,7 +160,20 @@ test_that("`prepare_commits_table()` prepares table of commits by team properly"
     commits_list = test_mocker$use("gl_commits_team_list_cut")
   )
   expect_commits_table(
-    gl_commits_table
+    gl_commits_table,
+    exp_auth = FALSE
+  )
+})
+
+test_that("`get_commits_authors_handles_and_names()` adds author logis and names to commits table", {
+  expect_snapshot(
+    gl_commits_table <- test_rest_priv$get_commits_authors_handles_and_names(
+      commits_table = test_mocker$use("gl_commits_table")
+    )
+  )
+  expect_commits_table(
+    gl_commits_table,
+    exp_auth = TRUE
   )
 })
 

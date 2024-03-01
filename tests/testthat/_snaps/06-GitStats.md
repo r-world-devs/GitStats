@@ -24,7 +24,7 @@
       A GitStats object for 2 hosts: 
       Hosts: https://api.github.com, https://gitlab.com/api/v4
       Scanning scope: 
-       Organizations: [3] r-world-devs, openpharma, mbtests
+       Organizations: [2] r-world-devs, mbtests
        Repositories: [0] 
        Files: <not defined>
       Search settings: 
@@ -60,7 +60,7 @@
       A GitStats object for 2 hosts: 
       Hosts: https://api.github.com, https://gitlab.com/api/v4
       Scanning scope: 
-       Organizations: [3] r-world-devs, openpharma, mbtests
+       Organizations: [2] r-world-devs, mbtests
        Repositories: [0] 
        Files: <not defined>
       Search settings: 
@@ -122,7 +122,7 @@
       A GitStats object for 2 hosts: 
       Hosts: https://api.github.com, https://gitlab.com/api/v4
       Scanning scope: 
-       Organizations: [3] r-world-devs, openpharma, mbtests
+       Organizations: [2] r-world-devs, mbtests
        Repositories: [0] 
        Files: <not defined>
       Search settings: 
@@ -132,6 +132,6 @@
        Team: <not defined>
       Storage: 
        Repositories: 17 rows x 13 cols
-       Commits: 73 rows x 8 cols
-       R_package_usage: 11 rows x 4 cols
+       Commits: 24 rows x 10 cols
+       R_package_usage: 2 rows x 4 cols
 

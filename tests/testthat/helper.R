@@ -23,7 +23,7 @@ create_test_gitstats <- function(
       test_gitstats$set_host(
         api_url = "https://api.github.com",
         token = Sys.getenv("GITHUB_PAT"),
-        orgs = c("r-world-devs", "openpharma")
+        orgs = c("r-world-devs")
       )
       test_gitstats$set_host(
         api_url = "https://gitlab.com/api/v4",
