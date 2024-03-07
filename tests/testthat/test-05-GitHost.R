@@ -424,6 +424,7 @@ test_that("pull_commits for GitLab works", {
 })
 
 test_that("pull_commits for GitLab works with repos implied", {
+  skip_if(!interactive())
   test_host <- create_testhost(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
