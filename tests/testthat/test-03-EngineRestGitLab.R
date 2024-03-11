@@ -230,6 +230,7 @@ test_that("`pull_repos_by_phrase()` works", {
 })
 
 test_that("`pull_commits()` works as expected", {
+  skip_if(!interactive())
   mockery::stub(
     test_rest$pull_commits,
     "private$pull_commits_from_repos",
@@ -247,6 +248,7 @@ test_that("`pull_commits()` works as expected", {
 })
 
 test_that("`pull_commits()` works with repositories implied", {
+  skip_if(!interactive())
   expect_snapshot(
     result <- test_rest$pull_commits(
       org = "mbtests",
