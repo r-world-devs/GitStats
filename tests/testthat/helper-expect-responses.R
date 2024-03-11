@@ -91,21 +91,6 @@ expect_gl_commit_rest_response <- function(object) {
   )
 }
 
-expect_gh_commit_rest_response <- function(object) {
-  expect_type(
-    object,
-    "list"
-  )
-  expect_gt(
-    length(object),
-    0
-  )
-  expect_list_contains(object[[1]],
-                       c("sha", "node_id", "commit", "url",
-                         "html_url", "comments_url", "author",
-                         "committer", "parents"))
-}
-
 expect_gh_commit_gql_response <- function(object) {
   expect_type(
     object,

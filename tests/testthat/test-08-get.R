@@ -7,7 +7,7 @@ test_gitstats <- create_test_gitstats(
 test_that("get_orgs() returns orgs", {
   expect_equal(
     get_orgs(test_gitstats),
-    c("r-world-devs", "openpharma", "mbtests")
+    c("r-world-devs", "mbtests")
   )
 })
 

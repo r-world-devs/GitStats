@@ -2,6 +2,14 @@
 
     x HTTP 401 Unauthorized.
 
+# `get_commits_authors_handles_and_names()` adds author logis and names to commits table
+
+    Code
+      gl_commits_table <- test_rest_priv$get_commits_authors_handles_and_names(
+        commits_table = test_mocker$use("gl_commits_table"))
+    Message
+      i Looking up for authors' names and logins...
+
 # `pull_repos_contributors()` adds contributors to repos table
 
     Code
@@ -25,6 +33,7 @@
     Message
       i [GitLab][Engine:REST][org:mbtests] Pulling repositories...
       i [GitLab][Engine:REST][org:mbtests] Pulling commits...
+      i Looking up for authors' names and logins...
 
 # `pull_commits()` works with repositories implied
 
@@ -34,4 +43,5 @@
       settings = test_settings_repo)
     Message
       i [GitLab][Engine:REST][org:mbtests][custom repositories] Pulling commits...
+      i Looking up for authors' names and logins...
 

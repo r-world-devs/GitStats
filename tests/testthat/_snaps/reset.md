@@ -8,7 +8,7 @@
       A GitStats object for 2 hosts: 
       Hosts: https://api.github.com, https://gitlab.com/api/v4
       Scanning scope: 
-       Organizations: [3] r-world-devs, openpharma, mbtests
+       Organizations: [2] r-world-devs, mbtests
        Repositories: [0] 
        Files: <not defined>
       Search settings: 
@@ -28,7 +28,7 @@
       A GitStats object for 2 hosts: 
       Hosts: https://api.github.com, https://gitlab.com/api/v4
       Scanning scope: 
-       Organizations: [3] r-world-devs, openpharma, mbtests
+       Organizations: [2] r-world-devs, mbtests
        Repositories: [0] 
        Files: <not defined>
       Search settings: 
@@ -48,7 +48,7 @@
       A GitStats object for 2 hosts: 
       Hosts: https://api.github.com, https://gitlab.com/api/v4
       Scanning scope: 
-       Organizations: [3] r-world-devs, openpharma, mbtests
+       Organizations: [2] r-world-devs, mbtests
        Repositories: [0] 
        Files: <not defined>
       Search settings: 

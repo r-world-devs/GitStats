@@ -411,6 +411,7 @@ test_that("pull_commits throws error when search param is set to `phrase`", {
 })
 
 test_that("pull_commits for GitLab works", {
+  skip_if(!interactive())
   suppressMessages(
     gl_commits_table <- test_gl_host$pull_commits(
       date_from = "2023-03-01",
@@ -424,6 +425,7 @@ test_that("pull_commits for GitLab works", {
 })
 
 test_that("pull_commits for GitLab works with repos implied", {
+  skip_if(!interactive())
   test_host <- create_testhost(
     api_url = "https://gitlab.com/api/v4",
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),

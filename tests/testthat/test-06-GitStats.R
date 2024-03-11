@@ -142,8 +142,8 @@ test_that("pull_commits works properly", {
   test_gitstats <- create_test_gitstats(hosts = 2)
   suppressMessages(
     test_gitstats$pull_commits(
-      date_from = "2023-06-01",
-      date_until = "2023-06-15"
+      date_from = "2023-06-15",
+      date_until = "2023-06-30"
     )
   )
   commits_table <- test_gitstats$.__enclos_env__$private$storage$commits
@@ -170,7 +170,7 @@ test_that("pull_files works properly", {
 test_that("get_orgs print orgs properly", {
   expect_equal(
     test_gitstats$get_orgs(),
-    c("r-world-devs", "openpharma", "mbtests")
+    c("r-world-devs", "mbtests")
   )
 })
 

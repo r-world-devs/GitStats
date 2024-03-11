@@ -129,12 +129,13 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         repos_names <- paste0(org, "%2f", repos)
       }
       if (!private$scan_all) {
+        org_disp <- stringr::str_replace_all(org, "%2f", "/")
         if (settings$search_param == "org") {
-          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}] Pulling commits...")
+          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org_disp}] Pulling commits...")
         } else if (settings$search_param == "repo") {
-          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}][custom repositories] Pulling commits...")
+          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org_disp}][custom repositories] Pulling commits...")
         } else if (settings$search_param == "team") {
-          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org}][team:{settings$team_name}] Pulling commits...")
+          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org_disp}][team:{settings$team_name}] Pulling commits...")
         }
       }
       repos_list_with_commits <- private$pull_commits_from_repos(
@@ -151,7 +152,8 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       }
       commits_table <- repos_list_with_commits %>%
         private$tailor_commits_info(org = org) %>%
-        private$prepare_commits_table()
+        private$prepare_commits_table() %>%
+        private$get_commits_authors_handles_and_names()
 
       return(commits_table)
     }
@@ -437,6 +439,77 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         )
       }
       return(commits_dt)
+    },
+
+    # @description A method to get separately GL logins and display names
+    # @param commits_table A table
+    # @return A data.frame
+    get_commits_authors_handles_and_names = function(commits_table) {
+      if (nrow(commits_table) > 0) {
+        cli::cli_alert_info("Looking up for authors' names and logins...")
+        authors_dict <- purrr::map(unique(commits_table$author), function(author) {
+          if (self$rest_api_url != "https://gitlab.com/api/v4") {
+            author <- stringr::str_replace_all(author, " ", "%20")
+          }
+          search_endpoint <- paste0(
+            self$rest_api_url,
+            "/search?scope=users&search=%22", author, "%22"
+          )
+          user_response <- list()
+          try({
+            user_response <- self$response(endpoint = search_endpoint)
+          }, silent = TRUE)
+          if (length(user_response) == 0) {
+            author <- stringi::stri_trans_general(author, "Latin-ASCII")
+            search_endpoint <- paste0(
+              self$rest_api_url,
+              "/search?scope=users&search=%22", author, "%22"
+            )
+            try({
+              user_response <- self$response(endpoint = search_endpoint)
+            }, silent = TRUE)
+          }
+          if (!is.null(user_response) && length(user_response) > 1) {
+            user_response <- purrr::keep(user_response, ~ grepl(author, .$name))
+          }
+          if (is.null(user_response) || length(user_response) == 0) {
+            user_tbl <- tibble::tibble(
+              author = stringr::str_replace_all(author, "%20", " "),
+              author_login = NA,
+              author_name = NA
+            )
+          } else {
+            user_tbl <- tibble::tibble(
+              author = stringr::str_replace_all(author, "%20", " "),
+              author_login = user_response[[1]]$username,
+              author_name = user_response[[1]]$name
+            )
+          }
+          return(user_tbl)
+        }, .progress = TRUE) %>%
+          purrr::list_rbind()
+
+        commits_table <- commits_table %>%
+          dplyr::mutate(
+            author_login = NA,
+            author_name = NA
+          ) %>%
+          dplyr::relocate(
+            any_of(c("author_login", "author_name")),
+            .after = author
+          )
+
+        empty_dict <- all(is.na(authors_dict[, c("author_login", "author_name")] %>%
+                                  unlist()))
+        if (!empty_dict) {
+          commits_table <- dplyr::mutate(
+            commits_table,
+            author_login = purrr::map_vec(author, ~ authors_dict$author_login[. == authors_dict$author]),
+            author_name = purrr::map_vec(author, ~ authors_dict$author_name[. == authors_dict$author])
+          )
+        }
+        return(commits_table)
+      }
     },
 
     # @description A helper to get group's id
