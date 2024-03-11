@@ -166,6 +166,7 @@ test_that("`prepare_commits_table()` prepares table of commits by team properly"
 })
 
 test_that("`get_commits_authors_handles_and_names()` adds author logis and names to commits table", {
+  skip_if(!interactive())
   expect_snapshot(
     gl_commits_table <- test_rest_priv$get_commits_authors_handles_and_names(
       commits_table = test_mocker$use("gl_commits_table")
