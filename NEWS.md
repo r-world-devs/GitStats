@@ -1,12 +1,9 @@
-# GitStats (development version)
+# GitStats 1.2.0
 
 ## New features:
 
-- Add `pull_release_log()` ([#356](https://github.com/r-world-devs/GitStats/issues/356)).
+- Add `pull_release_logs()` ([#356](https://github.com/r-world-devs/GitStats/issues/356)).
 - Replace all `get_*()` functions with one `get_table()`, where user passes the name of the object he wants to retrieve (e.g. `repos`, `commits`, `package_usage`) to the `table` parameter.
-
-## Minor features:
-
 - Commits response consists now of two new columns: `author_login` and `author_name` ([#332](https://github.com/r-world-devs/GitStats/issues/332)). This is due to the mix of github/gitlab handles and display names in the `author` column (the original author `name` field in commits API response).
 - Use stored repositories when pulling commits or files ([#159](https://github.com/r-world-devs/GitStats/issues/159)).
 - Improve printing `GitStats` object - now when you return `GitStats` object in console, it prints `GitStats` data divided into sections to give more readable information to user: `scanning scope` (organizations, repositories and files), `search settings` (searched phrase, language, team name) and `storage` (the output tables stored in `GitStats` with basic information on dimensions) ([#329](https://github.com/r-world-devs/GitStats/issues/329)).
