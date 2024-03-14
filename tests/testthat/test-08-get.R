@@ -26,3 +26,9 @@ test_that("get_users() returns users table", {
   users_table <- get_users(test_gitstats)
   expect_users_table(users_table)
 })
+
+test_that("get_files() returns users table", {
+  test_gitstats$.__enclos_env__$private$files <- test_mocker$use("files_table")
+  files_table <- get_files(test_gitstats)
+  expect_files_table(files_table)
+})

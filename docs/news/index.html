@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,7 +24,8 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/gitstats_workflow.html">GitStats workflow</a>
+    <a class="dropdown-item" href="../articles/get_repository_stats.html">Get repository stats</a>
+    <a class="dropdown-item" href="../articles/get_commits_stats.html">Get commits stats</a>
   </div>
 </li>
 <li class="active nav-item">
@@ -44,6 +45,28 @@
       
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.1.0" id="gitstats-110">GitStats 1.1.0<a class="anchor" aria-label="anchor" href="#gitstats-110"></a></h2>
+<div class="section level3">
+<h3 id="new-features-1-1-0">New features:<a class="anchor" aria-label="anchor" href="#new-features-1-1-0"></a></h3>
+<ul><li>
+<code><a href="../reference/pull_R_package_usage.html">pull_R_package_usage()</a></code> with <code><a href="../reference/get_R_package_usage.html">get_R_package_usage()</a></code> functions to pull repositories where package name is found in DESCRIPTION or NAMESPACE files or code blobs with phrases related to using an R package (<code><a href="https://rdrr.io/r/base/library.html" class="external-link">library(package)</a></code>, <code><a href="https://rdrr.io/r/base/library.html" class="external-link">require(package)</a></code>) (<a href="https://github.com/r-world-devs/GitStats/issues/326" class="external-link">#326</a>, <a href="https://github.com/r-world-devs/GitStats/issues/341" class="external-link">#341</a>),</li>
+<li>
+<code><a href="../reference/pull_files.html">pull_files()</a></code> with <code><a href="../reference/get_files.html">get_files()</a></code> to pull content of text files (<a href="https://github.com/r-world-devs/GitStats/issues/200" class="external-link">#200</a>).</li>
+<li>possibility to pass specific repositories to <code>GitStats</code> with <code><a href="../reference/set_host.html">set_host()</a></code> function by using <code>repos</code> parameter instead of <code>orgs</code> (<a href="https://github.com/r-world-devs/GitStats/issues/330" class="external-link">#330</a>).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-1-1-0">Bug fixes:<a class="anchor" aria-label="anchor" href="#bug-fixes-1-1-0"></a></h3>
+<ul><li>fixed pulling responses when GitLab groups have private or empty content (<a href="https://github.com/r-world-devs/GitStats/issues/314" class="external-link">#314</a>),</li>
+<li>fixed pulling users when pulling from multiple hosts (<a href="https://github.com/r-world-devs/GitStats/issues/312" class="external-link">#312</a>),</li>
+<li>improved search API error handling.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="minor-changes-and-features-1-1-0">Minor changes and features:<a class="anchor" aria-label="anchor" href="#minor-changes-and-features-1-1-0"></a></h3>
+<ul><li>rename column names for repository output - <code>id</code> to <code>repo_id</code> and <code>name</code> to <code>repo_name</code>,</li>
+<li>added a <code>default_branch</code> column to repositories output as a consequence of <a href="https://github.com/r-world-devs/GitStats/issues/200" class="external-link">#200</a>.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.0" id="gitstats-100">GitStats 1.0.0<a class="anchor" aria-label="anchor" href="#gitstats-100"></a></h2>
 <div class="section level3">

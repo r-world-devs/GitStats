@@ -51,7 +51,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param settings A list of  `GitStats` settings.
     #' @return A table.
     pull_repos = function(org,
-                         settings) {
+                          settings) {
       if (settings$search_param %in% c("org", "team")) {
         if (settings$search_param == "org") {
           if (!private$scan_all) {
@@ -89,30 +89,41 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param settings A list of  `GitStats` settings.
     #' @return Nothing.
     pull_repos_supportive = function(org,
-                                    settings) {
+                                     settings) {
       NULL
     },
 
     #' @description Method to pull all commits from organization, optionally
     #'   filtered by team members.
     #' @param org An organization.
+    #' @param repos_names A vector of names of repositories.
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
     #' @param settings A list of  `GitStats` settings.
     #' @return A table of commits.
     pull_commits = function(org,
-                           date_from,
-                           date_until,
-                           settings) {
-      repos_table <- self$pull_repos(
-        org = org,
-        settings = list(search_param = "org")
-      )
-      repos_names <- repos_table$name
-
-      if (settings$search_param == "org") {
+                            repos = NULL,
+                            date_from,
+                            date_until,
+                            settings) {
+      if (is.null(repos)) {
+        repos_table <- self$pull_repos(
+          org = org,
+          settings = list(search_param = "org")
+        )
+        repos_names <- repos_table$repo_name
+      }
+      if (!is.null(repos)) {
+        repos_names <- repos
+      }
+      if (settings$search_param %in% c("org", "repo")) {
         if (!private$scan_all) {
-          cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling commits...")
+          if (settings$search_param == "org") {
+            cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling commits...")
+          }
+          if (settings$search_param == "repo") {
+            cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][custom repositories] Pulling commits...")
+          }
         }
         repos_list_with_commits <- private$pull_commits_from_repos(
           org = org,
@@ -156,6 +167,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
                                       settings) {
       NULL
     }
+
   ),
   private = list(
 
@@ -249,16 +261,29 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     # @param repos_list A list of repositories.
     # @return Table of repositories.
     prepare_repos_table = function(repos_list) {
-      repos_table <- purrr::map_dfr(repos_list, function(repo) {
-        repo$languages <- purrr::map_chr(repo$languages$nodes, ~ .$name) %>%
-          paste0(collapse = ", ")
-        repo$created_at <- gts_to_posixt(repo$created_at)
-        repo$issues_open <- repo$issues_open$totalCount
-        repo$issues_closed <- repo$issues_closed$totalCount
-        repo$last_activity_at <- as.POSIXct(repo$last_activity_at)
-        repo$organization <- repo$organization$login
-        data.frame(repo)
-      })
+      if (length(repos_list) > 0) {
+        repos_table <- purrr::map_dfr(repos_list, function(repo) {
+          repo$default_branch <- if(!is.null(repo$default_branch)) {
+            repo$default_branch$name
+          } else {
+            ""
+          }
+          repo$languages <- purrr::map_chr(repo$languages$nodes, ~ .$name) %>%
+            paste0(collapse = ", ")
+          repo$created_at <- gts_to_posixt(repo$created_at)
+          repo$issues_open <- repo$issues_open$totalCount
+          repo$issues_closed <- repo$issues_closed$totalCount
+          repo$last_activity_at <- as.POSIXct(repo$last_activity_at)
+          repo$organization <- repo$organization$login
+          repo <- data.frame(repo) %>%
+            dplyr::relocate(
+              default_branch,
+              .after = repo_name
+            )
+        })
+      } else {
+        repos_table <- NULL
+      }
       return(repos_table)
     },
 
@@ -446,6 +471,76 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         user_table <- NULL
       }
       return(user_table)
+    },
+
+    # @description Pull all given files from all repositories of an
+    #   organization.
+    # @param org An organization.
+    # @param file_path Path to a file.
+    # @param pulled_repos Optional, if not empty, function will make use of the
+    #   argument to iterate over it when pulling files.
+    # @return A response in a list form.
+    pull_file_from_org = function(org, file_path, pulled_repos = NULL) {
+      if (is.null(pulled_repos)) {
+        repos_list <- private$pull_repos_from_org(
+          from = "org",
+          org = org
+        )
+        repositories <- purrr::map(repos_list, ~ .$repo_name)
+        def_branches <- purrr::map(repos_list, ~ .$default_branch$name)
+      } else {
+        repos_table <- pulled_repos %>%
+          dplyr::filter(organization == org)
+        repositories <- repos_table$repo_name
+        def_branches <- repos_table$default_branch
+      }
+      files_list <- purrr::map(file_path, function(file_path) {
+        files_list <- purrr::map2(repositories, def_branches, function(repository, def_branch) {
+          files_query <- self$gql_query$files_by_repo()
+          files_response <- self$gql_response(
+            gql_query = files_query,
+            vars = list(
+              "org" = org,
+              "repo" = repository,
+              "file_path" = paste0(def_branch, ":", file_path)
+            )
+          )
+        }) %>%
+          purrr::map(~ .$data$repository)
+        names(files_list) <- repositories
+        files_list <- purrr::discard(files_list, ~ length(.$object) == 0)
+        return(files_list)
+      })
+      names(files_list) <- file_path
+      return(files_list)
+    },
+
+    # @description Prepare files table.
+    # @param files_response A list.
+    # @param org An organization.
+    # @return A table with information on files.
+    prepare_files_table = function(files_response, org, file_path) {
+      if (!is.null(files_response)) {
+        files_table <- purrr::map(file_path, function(file) {
+          purrr::imap(files_response[[file]], function(repository, name) {
+            data.frame(
+              "repo_name" = repository$name,
+              "repo_id" = repository$id,
+              "organization" = org,
+              "file_path" = file,
+              "file_content" = repository$object$text,
+              "file_size" = repository$object$byteSize,
+              "repo_url" = repository$url,
+              "api_url" = self$gql_api_url
+            )
+          }) %>%
+            purrr::list_rbind()
+        }) %>%
+          purrr::list_rbind()
+      } else {
+        files_table <- NULL
+      }
+      return(files_table)
     }
   )
 )

@@ -159,6 +159,27 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
             }
           }
         }")
+    },
+
+    #' @description Prepare query to get files in a standard filepath from
+    #'   GitHub repositories.
+    #' @return A query.
+    files_by_repo = function(){
+      paste0(
+      'query GetFilesByRepo($org: String!, $repo: String!, $file_path: String!) {
+          repository(owner: $org, name: $repo) {
+            id
+            name
+            url
+            object(expression: $file_path) {
+              ... on Blob {
+                text
+                byteSize
+              }
+            }
+          }
+      }'
+      )
     }
   ),
   private = list(
@@ -183,8 +204,11 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
           hasNextPage
         }
         nodes {
-          id
-          name
+          repo_id: id
+          repo_name: name
+          default_branch: defaultBranchRef {
+            name
+          }
           stars: stargazerCount
           forks: forkCount
           created_at: createdAt

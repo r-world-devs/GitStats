@@ -2,7 +2,7 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{reset}
 \alias{reset}
-\title{Reset GitStats settings}
+\title{Reset all settings}
 \usage{
 reset(gitstats_obj)
 }

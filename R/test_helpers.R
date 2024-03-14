@@ -26,30 +26,38 @@ TestHost <- R6::R6Class("TestHost",
   inherit = GitHost,
   public = list(
     initialize = function(orgs = NA,
+                          repos = NA,
                           token = NA,
                           api_url = NA) {
       private$api_url <- api_url
-      private$host <- private$set_host()
-      if (grepl("https://", api_url) && grepl("github", api_url)) {
+      private$host <- private$set_host_name()
+      private$token <- token
+      private$setup_test_engines()
+      private$orgs <- orgs
+      private$repos <- repos
+    }
+  ),
+  private = list(
+    setup_test_engines = function() {
+      if (grepl("https://", private$api_url) && grepl("github", private$api_url)) {
         private$engines$rest <- TestEngineRestGitHub$new(
-          token = token,
-          rest_api_url = api_url
+          token = private$token,
+          rest_api_url = private$api_url
         )
         private$engines$graphql <- EngineGraphQLGitHub$new(
-          token = token,
-          gql_api_url = private$set_gql_url(api_url)
+          token = private$token,
+          gql_api_url = private$set_gql_url(private$api_url)
         )
-      } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
+      } else if (grepl("https://", private$api_url) && grepl("gitlab|code", private$api_url)) {
         private$engines$rest <- TestEngineRestGitLab$new(
-          token = token,
-          rest_api_url = api_url
+          token = private$token,
+          rest_api_url = private$api_url
         )
         private$engines$graphql <- EngineGraphQLGitLab$new(
-          token = token,
-          gql_api_url = private$set_gql_url(api_url)
+          token = private$token,
+          gql_api_url = private$set_gql_url(private$api_url)
         )
       }
-      private$orgs <- orgs
     }
   )
 )
@@ -59,11 +67,13 @@ TestHost <- R6::R6Class("TestHost",
 create_testhost <- function(api_url = NULL,
                             token = NULL,
                             orgs = NULL,
+                            repos = NULL,
                             mode = "") {
   test_host <- TestHost$new(
     api_url = api_url,
     token = token,
-    orgs = orgs
+    orgs = orgs,
+    repos = repos
   )
   if (mode == "private") {
     test_host <- environment(test_host$initialize)$private

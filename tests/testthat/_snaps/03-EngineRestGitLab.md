@@ -13,16 +13,25 @@
 # `pull_repos_by_phrase()` works
 
     Code
-      result <- test_rest$pull_repos(org = "erasmusmc-public-health", settings = settings)
+      result <- test_rest$pull_repos(org = "gitlab-org", settings = test_settings)
     Message
-      i [GitLab][Engine:REST][phrase:covid][org:erasmusmc-public-health] Searching repositories...
+      i [GitLab][Engine:REST][phrase:covid][org:gitlab-org] Searching repositories...
 
 # `pull_commits()` works as expected
 
     Code
       result <- test_rest$pull_commits(org = "mbtests", date_from = "2023-01-01",
-        date_until = "2023-04-20", settings = settings)
+        date_until = "2023-04-20", settings = test_settings)
     Message
       i [GitLab][Engine:REST][org:mbtests] Pulling repositories...
       i [GitLab][Engine:REST][org:mbtests] Pulling commits...
+
+# `pull_commits()` works with repositories implied
+
+    Code
+      result <- test_rest$pull_commits(org = "mbtests", repos = c("gitstatstesting",
+        "gitstats-testing-2"), date_from = "2023-01-01", date_until = "2023-04-20",
+      settings = test_settings_repo)
+    Message
+      i [GitLab][Engine:REST][org:mbtests][custom repositories] Pulling commits...
 

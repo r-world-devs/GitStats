@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -95,7 +95,9 @@ plausible, that you will use your internal git platforms.</p>
 <span>    token <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"GITLAB_PAT_PUBLIC"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Set connection to GitHub.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Set connection to GitLab.</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Your search parameter set to [org].</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Set connection to GitLab.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Your search parameter set to [org].</span></span></span></code></pre></div>
 <p>If you have your token environment variables stored in
 <code>GITHUB_PAT</code> or <code>GITHUB_PAT_*</code> and
 <code>GITLAB_PAT</code> or <code>GITLAB_PAT_*</code> you do not need to
@@ -123,17 +125,18 @@ you specified in <code><a href="../reference/set_host.html">set_host()</a></code
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [GitHub][Engine:<span style="color: #BBBB00;">GraphQL</span>][org:r-world-devs] Pulling repositories...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [GitHub][Engine:<span style="color: #BBBB00;">GraphQL</span>][org:openpharma] Pulling repositories...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [GitLab][Engine:<span style="color: #BBBB00;">GraphQL</span>][org:mbtests] Pulling repositories...</span></span>
-<span><span class="co">#&gt; Rows: 65</span></span>
-<span><span class="co">#&gt; Columns: 12</span></span>
-<span><span class="co">#&gt; $ id               <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R_kgDOHNMr2w", "R_kgDOHYNOFQ", "R_kgDOHYNrJw", "R_kg…</span></span>
-<span><span class="co">#&gt; $ name             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "shinyGizmo", "cohortBuilder", "shinyCohortBuilder", …</span></span>
-<span><span class="co">#&gt; $ stars            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 18, 3, 5, 0, 1, 3, 0, 2, 7, 178, 4, 10, 1, 19, 0, 1, …</span></span>
-<span><span class="co">#&gt; $ forks            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0, 2, 0, 0, 0, 0, 0, 0, 4, 31, 1, 1, 0, 4, 1, 1, 0, 0…</span></span>
+<span><span class="co">#&gt; Rows: 69</span></span>
+<span><span class="co">#&gt; Columns: 13</span></span>
+<span><span class="co">#&gt; $ repo_id          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R_kgDOHNMr2w", "R_kgDOHYNOFQ", "R_kgDOHYNrJw", "R_kg…</span></span>
+<span><span class="co">#&gt; $ repo_name        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "shinyGizmo", "cohortBuilder", "shinyCohortBuilder", …</span></span>
+<span><span class="co">#&gt; $ default_branch   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "dev", "dev", "dev", "master", "master", "master", "m…</span></span>
+<span><span class="co">#&gt; $ stars            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 18, 4, 6, 0, 1, 3, 0, 2, 8, 179, 4, 10, 1, 21, 0, 1, …</span></span>
+<span><span class="co">#&gt; $ forks            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0, 2, 1, 0, 1, 0, 0, 1, 5, 31, 1, 1, 0, 5, 1, 1, 0, 0…</span></span>
 <span><span class="co">#&gt; $ created_at       <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2022-04-20 10:04:32, 2022-05-22 18:31:55, 2022-05-22…</span></span>
-<span><span class="co">#&gt; $ last_activity_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2023-05-08, 2023-05-05, 2023-09-29, 2022-07-29, 2023…</span></span>
+<span><span class="co">#&gt; $ last_activity_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2023-05-08, 2023-05-05, 2023-12-21, 2022-07-29, 2024…</span></span>
 <span><span class="co">#&gt; $ languages        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R, CSS, JavaScript", "R", "R, CSS, JavaScript, SCSS"…</span></span>
-<span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 6, 22, 32, 3, 73, 0, 0, 3, 6, 16, 0, 0, 0, 4, 0, 0, 0…</span></span>
-<span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 12, 1, 4, 0, 131, 0, 0, 0, 1, 167, 0, 0, 0, 16, 0, 0,…</span></span>
+<span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 6, 22, 33, 3, 80, 0, 0, 3, 6, 17, 0, 0, 0, 4, 0, 0, 0…</span></span>
+<span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 12, 1, 4, 0, 154, 0, 0, 0, 1, 168, 0, 0, 0, 16, 0, 0,…</span></span>
 <span><span class="co">#&gt; $ organization     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "r-world-devs", "r-world-devs", "r-world-devs", "r-wo…</span></span>
 <span><span class="co">#&gt; $ repo_url         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/shinyGizmo", "https:…</span></span>
 <span><span class="co">#&gt; $ api_url          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://api.github.com/repos/r-world-devs/shinyGizmo…</span></span></code></pre></div>
@@ -148,18 +151,18 @@ from it.</p>
 <code class="sourceCode R"><span><span class="va">repos_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_repos_stats.html">get_repos_stats</a></span><span class="op">(</span><span class="va">git_stats</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">repos_stats</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                        repository platform          created_at last_activity</span></span>
-<span><span class="co">#&gt; 1         r-world-devs/shinyGizmo   github 2022-04-20 10:04:32   147.58 days</span></span>
-<span><span class="co">#&gt; 2      r-world-devs/cohortBuilder   github 2022-05-22 18:31:55   150.58 days</span></span>
-<span><span class="co">#&gt; 3 r-world-devs/shinyCohortBuilder   github 2022-05-22 19:04:12     3.58 days</span></span>
-<span><span class="co">#&gt; 4   r-world-devs/cohortBuilder.db   github 2022-05-22 19:11:32   430.58 days</span></span>
-<span><span class="co">#&gt; 5           r-world-devs/GitStats   github 2023-01-09 14:02:20     0.58 days</span></span>
-<span><span class="co">#&gt; 6     r-world-devs/shinyTimelines   github 2023-02-21 16:41:59     3.58 days</span></span>
+<span><span class="co">#&gt; 1         r-world-devs/shinyGizmo   github 2022-04-20 10:04:32   241.48 days</span></span>
+<span><span class="co">#&gt; 2      r-world-devs/cohortBuilder   github 2022-05-22 18:31:55   244.48 days</span></span>
+<span><span class="co">#&gt; 3 r-world-devs/shinyCohortBuilder   github 2022-05-22 19:04:12    14.48 days</span></span>
+<span><span class="co">#&gt; 4   r-world-devs/cohortBuilder.db   github 2022-05-22 19:11:32   524.48 days</span></span>
+<span><span class="co">#&gt; 5           r-world-devs/GitStats   github 2023-01-09 14:02:20     0.48 days</span></span>
+<span><span class="co">#&gt; 6     r-world-devs/shinyTimelines   github 2023-02-21 16:41:59    97.48 days</span></span>
 <span><span class="co">#&gt;   stars forks                languages issues_open issues_closed contributors_n</span></span>
 <span><span class="co">#&gt; 1    18     0       R, CSS, JavaScript           6            12              4</span></span>
-<span><span class="co">#&gt; 2     3     2                        R          22             1              2</span></span>
-<span><span class="co">#&gt; 3     5     0 R, CSS, JavaScript, SCSS          32             4              2</span></span>
+<span><span class="co">#&gt; 2     4     2                        R          22             1              2</span></span>
+<span><span class="co">#&gt; 3     6     1 R, CSS, JavaScript, SCSS          33             4              2</span></span>
 <span><span class="co">#&gt; 4     0     0                        R           3             0              1</span></span>
-<span><span class="co">#&gt; 5     1     0                        R          73           131              2</span></span>
+<span><span class="co">#&gt; 5     1     1                        R          80           154              2</span></span>
 <span><span class="co">#&gt; 6     3     0                   R, CSS           0             0              1</span></span></code></pre></div>
 <p>Or just retrieve the output.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -183,8 +186,8 @@ repositories.</p>
 <code>plotly_mode</code>.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gitstats_plot.html">gitstats_plot</a></span><span class="op">(</span><span class="va">repos_stats</span>, plotly_mode <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<div id="htmlwidget-6808cfaecda930225dc1" style="width:672px;height:384px;" class="plotly html-widget"></div>
-<script type="application/json" data-for="htmlwidget-6808cfaecda930225dc1">{"x":{"data":[{"orientation":"h","width":[0.899999999999999,0.899999999999999,0.899999999999999,0.9,0.9,0.9,0.9,0.9,0.9,0.9],"base":[0,0,0,0,0,0,0,0,0,0],"x":[0.58,0.58,1.58,3.58,3.58,4.58,6.58,7.58,25.58,29.58],"y":[9,10,8,6,7,5,4,3,2,1],"text":["repository: r-world-devs/GitStats<br />as.double(last_activity):  0.58<br />platform: github","repository: openpharma/openpharma.github.io<br />as.double(last_activity):  0.58<br />platform: github","repository: openpharma/brms.mmrm<br />as.double(last_activity):  1.58<br />platform: github","repository: r-world-devs/shinyCohortBuilder<br />as.double(last_activity):  3.58<br />platform: github","repository: r-world-devs/shinyTimelines<br />as.double(last_activity):  3.58<br />platform: github","repository: openpharma/mmrm<br />as.double(last_activity):  4.58<br />platform: github","repository: openpharma/workshop-r-swe-md<br />as.double(last_activity):  6.58<br />platform: github","repository: openpharma/workshop-r-swe<br />as.double(last_activity):  7.58<br />platform: github","repository: openpharma/covadj<br />as.double(last_activity): 25.58<br />platform: github","repository: openpharma/workshop-r-swe-mtl<br />as.double(last_activity): 29.58<br />platform: github"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"github","legendgroup":"github","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":28.7853881278539,"r":7.30593607305936,"b":42.7397260273973,"l":192.146118721461},"font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-1.479,31.059],"tickmode":"array","ticktext":["0","10","20","30"],"tickvals":[0,10,20,30],"categoryorder":"array","categoryarray":["0","10","20","30"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.65296803652968,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":{"text":"last activity","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.4,10.6],"tickmode":"array","ticktext":["openpharma/workshop-r-swe-mtl","openpharma/covadj","openpharma/workshop-r-swe","openpharma/workshop-r-swe-md","openpharma/mmrm","r-world-devs/shinyCohortBuilder","r-world-devs/shinyTimelines","openpharma/brms.mmrm","r-world-devs/GitStats","openpharma/openpharma.github.io"],"tickvals":[1,2,3,4,5,6,7,8,9,10],"categoryorder":"array","categoryarray":["openpharma/workshop-r-swe-mtl","openpharma/covadj","openpharma/workshop-r-swe","openpharma/workshop-r-swe-md","openpharma/mmrm","r-world-devs/shinyCohortBuilder","r-world-devs/shinyTimelines","openpharma/brms.mmrm","r-world-devs/GitStats","openpharma/openpharma.github.io"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.65296803652968,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"x","title":{"text":"","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895},"title":"","orientation":"h"},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"7beb7d05e119":{"x":{},"y":{},"fill":{},"type":"bar"}},"cur_data":"7beb7d05e119","visdat":{"7beb7d05e119":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-10cb294cfa4980502e70" style="width:672px;height:384px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-10cb294cfa4980502e70">{"x":{"data":[{"orientation":"h","width":[0.89999999999999947,0.89999999999999858,0.89999999999999858,0.90000000000000036,0.90000000000000036,0.90000000000000036,0.90000000000000036,0.90000000000000036,0.90000000000000013,0.89999999999999991],"base":[0,0,0,0,0,0,0,0,0,0],"x":[0.47999999999999998,0.47999999999999998,0.47999999999999998,14.48,14.48,16.48,21.48,41.479999999999997,42.479999999999997,44.479999999999997],"y":[8,9,10,6,7,5,4,3,2,1],"text":["repository: r-world-devs/GitStats<br />as.double(last_activity):  0.48<br />platform: github","repository: openpharma/openpharma.github.io<br />as.double(last_activity):  0.48<br />platform: github","repository: openpharma/mmrm<br />as.double(last_activity):  0.48<br />platform: github","repository: r-world-devs/shinyCohortBuilder<br />as.double(last_activity): 14.48<br />platform: github","repository: r-world-devs/hypothesis<br />as.double(last_activity): 14.48<br />platform: github","repository: openpharma/savvyr<br />as.double(last_activity): 16.48<br />platform: github","repository: openpharma/brms.mmrm<br />as.double(last_activity): 21.48<br />platform: github","repository: openpharma/os-metadata<br />as.double(last_activity): 41.48<br />platform: github","repository: openpharma/GithubMetrics<br />as.double(last_activity): 42.48<br />platform: github","repository: openpharma/simaerep<br />as.double(last_activity): 44.48<br />platform: github"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"name":"github","legendgroup":"github","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":28.785388127853885,"r":7.3059360730593621,"b":42.739726027397268,"l":192.14611872146122},"font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-2.2239999999999998,46.703999999999994],"tickmode":"array","ticktext":["0","10","20","30","40"],"tickvals":[0,10,20,29.999999999999996,40],"categoryorder":"array","categoryarray":["0","10","20","30","40"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.6529680365296811,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716894984},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"y","title":{"text":"last activity","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.40000000000000002,10.6],"tickmode":"array","ticktext":["openpharma/simaerep","openpharma/GithubMetrics","openpharma/os-metadata","openpharma/brms.mmrm","openpharma/savvyr","r-world-devs/shinyCohortBuilder","r-world-devs/hypothesis","r-world-devs/GitStats","openpharma/openpharma.github.io","openpharma/mmrm"],"tickvals":[1,2,3,4,5,6.0000000000000009,7,8,9,10],"categoryorder":"array","categoryarray":["openpharma/simaerep","openpharma/GithubMetrics","openpharma/os-metadata","openpharma/brms.mmrm","openpharma/savvyr","r-world-devs/shinyCohortBuilder","r-world-devs/hypothesis","r-world-devs/GitStats","openpharma/openpharma.github.io","openpharma/mmrm"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.6529680365296811,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"x","title":{"text":"","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716894984},"title":"","orientation":"h"},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"140c24ca52b8f":{"x":{},"y":{},"fill":{},"type":"bar"}},"cur_data":"140c24ca52b8f","visdat":{"140c24ca52b8f":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 </div>
 <div class="section level2">
 <h2 id="commits-workflow">Commits workflow<a class="anchor" aria-label="anchor" href="#commits-workflow"></a>
@@ -199,7 +202,7 @@ specify additionally at least <code>date_from</code> parameter.</p>
 <span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/get_commits_stats.html">get_commits_stats</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/gitstats_plot.html">gitstats_plot</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Rows: 2,532</span></span>
+<span><span class="co">#&gt; Rows: 3,079</span></span>
 <span><span class="co">#&gt; Columns: 8</span></span>
 <span><span class="co">#&gt; $ id             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "C_kwDOHNMr29oAKDczNWVjNmVhMzY3ZTZmOTg1NmViMGZlNjUwZDNj…</span></span>
 <span><span class="co">#&gt; $ committed_date <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2023-05-08 09:43:31, 2023-04-28 12:30:40, 2023-03-01 1…</span></span>
@@ -259,12 +262,14 @@ output.</p>
 <span><span class="co">#&gt; A &lt;GitStats&gt; object for 2 hosts:</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Hosts: </span>https://api.github.com, https://gitlab.com/api/v4</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Organisations: </span>[<span style="color: #00BB00;">3</span>] r-world-devs, openpharma, mbtests</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">Search preference: </span>org</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">Repositories: </span>[<span style="color: #00BB00;">0</span>] </span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">Search parameter: </span>org</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Team: </span><span style="color: #555555;">&lt;not defined&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Phrase: </span><span style="color: #555555;">&lt;not defined&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">Files: </span><span style="color: #555555;">&lt;not defined&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Language: </span>All</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">Repositories output: </span>Rows number: 65</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">Commits output: </span>Since: 2022-01-02 19:01:33; Until: 2023-08-30 20:01:23; Rows number: 2532</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #0000BB;">Repositories output: </span>Rows number: 69</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">Commits output: </span>Since: 2022-01-02 19:01:33; Until: 2023-08-30 20:01:23; Rows number: 3079</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="team">Team<a class="anchor" aria-label="anchor" href="#team"></a>
 </h3>
@@ -295,16 +300,18 @@ e.g. <code>set_team_member("Maciej Banas", "maciekbanas", "banasm")</code>.</p>
 <span>  team_name <span class="op">=</span> <span class="st">"RWD"</span>,</span>
 <span>  print_out <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span> </span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Your search preferences set to <span style="color: #00BB00;">team: RWD</span>.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Your search parameter set to <span style="color: #00BB00;">team: RWD</span>.</span></span>
 <span><span class="co">#&gt; A &lt;GitStats&gt; object for 2 hosts:</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Hosts: </span>https://api.github.com, https://gitlab.com/api/v4</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Organisations: </span>[<span style="color: #00BB00;">3</span>] r-world-devs, openpharma, mbtests</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">Search preference: </span>team</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">Repositories: </span>[<span style="color: #00BB00;">0</span>] </span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">Search parameter: </span>team</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Team: </span>RWD (5 members)</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Phrase: </span><span style="color: #555555;">&lt;not defined&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">Files: </span><span style="color: #555555;">&lt;not defined&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Language: </span>All</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">Repositories output: </span>Rows number: 65</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">Commits output: </span>Since: 2022-01-02 19:01:33; Until: 2023-08-30 20:01:23; Rows number: 2532</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #0000BB;">Repositories output: </span>Rows number: 69</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">Commits output: </span>Since: 2022-01-02 19:01:33; Until: 2023-08-30 20:01:23; Rows number: 3079</span></span></code></pre></div>
 <p>Pull repositories or commits finally.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pull_repos.html">pull_repos</a></span><span class="op">(</span><span class="va">git_stats</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
@@ -332,30 +339,40 @@ e.g. <code>set_team_member("Maciej Banas", "maciekbanas", "banasm")</code>.</p>
 <p>With <code>GitStats</code> you can look for the repos with a certain
 phrase in code blobs (you can not do it for the commits!).</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">repos_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_params.html">set_params</a></span><span class="op">(</span></span>
-<span>  gitstats_obj <span class="op">=</span> <span class="va">git_stats</span>,</span>
-<span>  search_param <span class="op">=</span> <span class="st">"phrase"</span>,</span>
-<span>  phrase <span class="op">=</span> <span class="st">"shiny"</span>,</span>
-<span>  print_out <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<code class="sourceCode R"><span><span class="va">repos_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_gitstats.html">create_gitstats</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/set_host.html">set_host</a></span><span class="op">(</span></span>
+<span>    api_url <span class="op">=</span> <span class="st">"https://api.github.com"</span>,</span>
+<span>    orgs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"r-world-devs"</span>, <span class="st">"openpharma"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="../reference/set_params.html">set_params</a></span><span class="op">(</span></span>
+<span>    search_param <span class="op">=</span> <span class="st">"phrase"</span>,</span>
+<span>    phrase <span class="op">=</span> <span class="st">"Shiny"</span>,</span>
+<span>    print_out <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/pull_repos.html">pull_repos</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../reference/get_repos_stats.html">get_repos_stats</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Your search preferences set to <span style="color: #00BB00;">phrase: shiny</span>.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [GitHub][Engine:<span style="color: #00BB00;">REST</span>][phrase:shiny][org:r-world-devs] Searching repositories...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [GitHub][Engine:<span style="color: #00BB00;">REST</span>][phrase:shiny][org:openpharma] Searching repositories...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [GitLab][Engine:<span style="color: #00BB00;">REST</span>][phrase:shiny][org:mbtests] Searching repositories...</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Using PAT from GITHUB_PAT envar.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Set connection to GitHub.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Your search parameter set to [org].</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Your search preferences set to <span style="color: #00BB00;">phrase: Shiny</span>.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [GitHub][Engine:<span style="color: #00BB00;">REST</span>][phrase:Shiny][org:r-world-devs] Searching repositories...</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [GitHub][Engine:<span style="color: #00BB00;">REST</span>][phrase:Shiny][org:openpharma] Searching repositories...</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">repos_stats</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                         repository platform          created_at last_activity</span></span>
-<span><span class="co">#&gt; 1: r-world-devs/shinyCohortBuilder   github 2022-05-22 19:04:12     3.18 days</span></span>
-<span><span class="co">#&gt; 2:           r-world-devs/GitStats   github 2023-01-09 14:02:20     0.05 days</span></span>
-<span><span class="co">#&gt; 3:           openpharma/elaborator   github 2021-11-24 06:53:27   598.03 days</span></span>
-<span><span class="co">#&gt; 4:        openpharma/openpharma_ml   github 2022-07-11 13:19:59   143.03 days</span></span>
-<span><span class="co">#&gt;    stars forks languages issues_open issues_closed contributors_n</span></span>
-<span><span class="co">#&gt; 1:     5     0         R          30             0             NA</span></span>
-<span><span class="co">#&gt; 2:     1     0         R          30             0             NA</span></span>
-<span><span class="co">#&gt; 3:     2     0         R           0             0             NA</span></span>
-<span><span class="co">#&gt; 4:     0     0    Python           0             0             NA</span></span></code></pre></div>
+<span><span class="co">#&gt;                            repository platform          created_at</span></span>
+<span><span class="co">#&gt; 1:            r-world-devs/hypothesis   github 2023-04-13 13:52:24</span></span>
+<span><span class="co">#&gt; 2:    r-world-devs/shinyCohortBuilder   github 2022-05-22 19:04:12</span></span>
+<span><span class="co">#&gt; 3:        r-world-devs/shinyTimelines   github 2023-02-21 16:41:59</span></span>
+<span><span class="co">#&gt; 4:         r-world-devs/cohortBuilder   github 2022-05-22 18:31:55</span></span>
+<span><span class="co">#&gt; 5:              r-world-devs/GitStats   github 2023-01-09 14:02:20</span></span>
+<span><span class="co">#&gt; 6: openpharma/rinpharma_workshop_2021   github 2021-10-19 09:07:18</span></span>
+<span><span class="co">#&gt;    last_activity stars forks languages issues_open issues_closed contributors_n</span></span>
+<span><span class="co">#&gt; 1:    13.62 days     2     1         R           4             0             NA</span></span>
+<span><span class="co">#&gt; 2:    13.62 days     6     1         R          30             0             NA</span></span>
+<span><span class="co">#&gt; 3:    96.95 days     3     0         R           1             0             NA</span></span>
+<span><span class="co">#&gt; 4:   244.15 days     4     2         R          22             0             NA</span></span>
+<span><span class="co">#&gt; 5:     0.01 days     1     1         R          30             0             NA</span></span>
+<span><span class="co">#&gt; 6:   800.81 days    10     7         R          30             0             NA</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="language">Language<a class="anchor" aria-label="anchor" href="#language"></a>
@@ -378,16 +395,16 @@ phrase in code blobs (you can not do it for the commits!).</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Filtering by language.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">repos_stats</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                        repository platform          created_at last_activity</span></span>
-<span><span class="co">#&gt; 1         r-world-devs/shinyGizmo   github 2022-04-20 10:04:32   147.58 days</span></span>
-<span><span class="co">#&gt; 2 r-world-devs/shinyCohortBuilder   github 2022-05-22 19:04:12     3.58 days</span></span>
-<span><span class="co">#&gt; 3         r-world-devs/hypothesis   github 2023-04-13 13:52:24    75.58 days</span></span>
-<span><span class="co">#&gt; 4              openpharma/facetsr   github 2020-11-26 13:56:52  1036.58 days</span></span>
-<span><span class="co">#&gt; 5        openpharma/phuse-scripts   github 2022-06-09 14:27:07   466.58 days</span></span>
-<span><span class="co">#&gt; 6           openpharma/autoquarto   github 2023-02-02 14:59:57   102.58 days</span></span>
+<span><span class="co">#&gt; 1         r-world-devs/shinyGizmo   github 2022-04-20 10:04:32   241.48 days</span></span>
+<span><span class="co">#&gt; 2 r-world-devs/shinyCohortBuilder   github 2022-05-22 19:04:12    14.48 days</span></span>
+<span><span class="co">#&gt; 3         r-world-devs/hypothesis   github 2023-04-13 13:52:24    14.48 days</span></span>
+<span><span class="co">#&gt; 4              openpharma/facetsr   github 2020-11-26 13:56:52  1130.48 days</span></span>
+<span><span class="co">#&gt; 5        openpharma/phuse-scripts   github 2022-06-09 14:27:07   560.48 days</span></span>
+<span><span class="co">#&gt; 6           openpharma/autoquarto   github 2023-02-02 14:59:57   196.48 days</span></span>
 <span><span class="co">#&gt;   stars forks                        languages issues_open issues_closed</span></span>
 <span><span class="co">#&gt; 1    18     0               R, CSS, JavaScript           6            12</span></span>
-<span><span class="co">#&gt; 2     5     0         R, CSS, JavaScript, SCSS          32             4</span></span>
-<span><span class="co">#&gt; 3     2     0                    R, JavaScript           3             0</span></span>
+<span><span class="co">#&gt; 2     6     1         R, CSS, JavaScript, SCSS          33             4</span></span>
+<span><span class="co">#&gt; 3     2     1                    R, JavaScript           3             0</span></span>
 <span><span class="co">#&gt; 4     4     0               R, JavaScript, CSS           1             0</span></span>
 <span><span class="co">#&gt; 5     0     0 JavaScript, Perl, R, Julia, XSLT           0             0</span></span>
 <span><span class="co">#&gt; 6     3     0              R, HTML, JavaScript           2             2</span></span>
@@ -405,12 +422,14 @@ phrase in code blobs (you can not do it for the commits!).</p>
 <span><span class="co">#&gt; A &lt;GitStats&gt; object for 2 hosts:</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Hosts: </span>https://api.github.com, https://gitlab.com/api/v4</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Organisations: </span>[<span style="color: #00BB00;">3</span>] r-world-devs, openpharma, mbtests</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">Search preference: </span>org</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">Repositories: </span>[<span style="color: #00BB00;">0</span>] </span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">Search parameter: </span>org</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Team: </span>RWD (5 members)</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">Phrase: </span>shiny</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">Phrase: </span><span style="color: #555555;">&lt;not defined&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">Files: </span><span style="color: #555555;">&lt;not defined&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Language: </span>All</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Repositories output: </span>Rows number: 6</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">Commits output: </span>Since: 2022-01-20 14:57:56; Until: 2023-08-28 08:12:15; Rows number: 727</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #0000BB;">Commits output: </span>Since: 2022-01-20 14:57:56; Until: 2023-08-28 08:12:15; Rows number: 801</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -423,12 +442,14 @@ phrase in code blobs (you can not do it for the commits!).</p>
 <span><span class="co">#&gt; A &lt;GitStats&gt; object for 2 hosts:</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Hosts: </span>https://api.github.com, https://gitlab.com/api/v4</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Organisations: </span>[<span style="color: #00BB00;">3</span>] r-world-devs, openpharma, mbtests</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">Search preference: </span>org</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">Repositories: </span>[<span style="color: #00BB00;">0</span>] </span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">Search parameter: </span>org</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Team: </span><span style="color: #555555;">&lt;not defined&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Phrase: </span><span style="color: #555555;">&lt;not defined&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">Files: </span><span style="color: #555555;">&lt;not defined&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Language: </span>All</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Repositories output: </span>Rows number: 6</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">Commits output: </span>Since: 2022-01-20 14:57:56; Until: 2023-08-28 08:12:15; Rows number: 727</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #0000BB;">Commits output: </span>Since: 2022-01-20 14:57:56; Until: 2023-08-28 08:12:15; Rows number: 801</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
