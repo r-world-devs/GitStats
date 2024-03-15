@@ -89,87 +89,71 @@ test_that("check_R_package does not pull files if NAMESPACE and DESCRIPTION are 
 
 test_that("GitStats get users info", {
   test_gitstats <- create_test_gitstats(hosts = 2)
-  test_gitstats$pull_users(
+  users_result <- test_gitstats$get_users(
     c("maciekbanas", "kalimu", "marcinkowskak")
   )
-  users_result <- test_gitstats$.__enclos_env__$private$storage$users
   expect_users_table(
     users_result
   )
 })
 
-test_that("pull_repos works properly", {
+test_that("get_repos works properly", {
   test_gitstats <- create_test_gitstats(
     hosts = 2
   )
   suppressMessages(
-    test_gitstats$pull_repos()
+    repos_table <- test_gitstats$get_repos()
   )
   expect_repos_table(
-    test_gitstats$.__enclos_env__$private$storage$repositories,
-    add_col = "api_url"
+    repos_table,
+    repo_cols = repo_gitstats_colnames
   )
+  test_mocker$cache(repos_table)
 })
 
-test_that("GitStats throws error when pull_repos_contributors is run with empty repos field", {
-  test_gitstats_empty <- create_test_gitstats(hosts = 2)
-  expect_snapshot_error(
-    test_gitstats_empty$pull_repos_contributors()
+test_that("get_repos pulls repositories without contributors", {
+  suppressMessages(
+    set_params(test_gitstats,
+               search_param = "org",
+               verbose = FALSE)
   )
+  suppressMessages(
+    repos_table <- test_gitstats$get_repos(add_contributors = FALSE)
+  )
+  expect_repos_table(repos_table, repo_cols = repo_gitstats_colnames)
+  expect_false("contributors" %in% names(repos_table))
 })
 
-test_that("Add_repos_contributors adds repos contributors to repos table", {
-  repos_table_without_contributors <- data.table::rbindlist(
-    list(
-      test_mocker$use("gh_repos_table_with_api_url"),
-      test_mocker$use("gl_repos_table_with_api_url")
-    )
-  )
-  test_mocker$cache(repos_table_without_contributors)
-  test_gitstats <- create_test_gitstats(
-    hosts = 2,
-    inject_repos = "repos_table_without_contributors"
-  )
-  expect_snapshot(
-    test_gitstats$pull_repos_contributors()
-  )
-  repos_table_with_contributors <- test_gitstats$.__enclos_env__$private$storage$repositories
-  expect_true("contributors" %in% names(repos_table_with_contributors))
-  expect_equal(nrow(repos_table_without_contributors), nrow(repos_table_with_contributors))
-})
-
-test_that("pull_commits works properly", {
+test_that("get_commits works properly", {
   test_gitstats <- create_test_gitstats(hosts = 2)
   suppressMessages(
-    test_gitstats$pull_commits(
+    commits_table <- test_gitstats$get_commits(
       date_from = "2023-06-15",
       date_until = "2023-06-30"
     )
   )
-  commits_table <- test_gitstats$.__enclos_env__$private$storage$commits
   expect_commits_table(
     commits_table
   )
   test_mocker$cache(commits_table)
 })
 
-test_that("pull_files works properly", {
+test_that("get_files works properly", {
   test_gitstats <- create_test_gitstats(hosts = 2)
   suppressMessages(
-    test_gitstats$pull_files(
+    files_table <- test_gitstats$get_files(
       file_path = "meta_data.yaml"
     )
   )
-  files_table <- test_gitstats$.__enclos_env__$private$storage$files
   expect_files_table(
     files_table
   )
   test_mocker$cache(files_table)
 })
 
-test_that("get_orgs print orgs properly", {
+test_that("show_orgs print orgs properly", {
   expect_equal(
-    test_gitstats$get_orgs(),
+    test_gitstats$show_orgs(),
     c("r-world-devs", "mbtests")
   )
 })
@@ -183,9 +167,9 @@ suppressMessages(
     )
 )
 
-test_that("get_orgs print subgroups properly", {
+test_that("show_orgs print subgroups properly", {
   expect_equal(
-    test_gitstats$get_orgs(),
+    test_gitstats$show_orgs(),
     "mbtests/subgroup"
   )
 })
@@ -196,44 +180,42 @@ test_that("subgroups are cleanly printed in GitStats", {
   )
 })
 
-test_that("pull_R_package_usage works as expected", {
+test_that("get_R_package_usage works as expected", {
   test_gitstats <- create_test_gitstats(hosts = 1)
   mockery::stub(
-    test_gitstats$pull_R_package_usage,
+    test_gitstats$get_R_package_usage,
     "private$check_R_package_as_dependency",
     test_mocker$use("R_package_as_dependency")
   )
   mockery::stub(
-    test_gitstats$pull_R_package_usage,
+    test_gitstats$get_R_package_usage,
     "private$check_R_package_loading",
     test_mocker$use("R_package_loading")
   )
   suppressMessages(
-    test_gitstats$pull_R_package_usage(
+    R_package_usage <- test_gitstats$get_R_package_usage(
       "purrr"
     )
   )
-  R_package_usage <- test_gitstats$.__enclos_env__$private$storage$R_package_usage
   expect_package_usage_table(R_package_usage)
   test_mocker$cache(R_package_usage)
 })
 
-test_that("pull_release_logs works as expected", {
+test_that("get_release_logs works as expected", {
   test_gitstats <- create_test_gitstats(hosts = 1)
   expect_snapshot(
-    test_gitstats$pull_release_logs(
+    release_logs <- test_gitstats$get_release_logs(
       date_from = "2023-05-01",
       date_until = "2023-09-30"
     )
   )
-  release_logs <- test_gitstats$.__enclos_env__$private$storage$release_logs
   expect_releases_table(release_logs)
 })
 
 test_that("GitStats prints with storage", {
   test_gitstats <- create_test_gitstats(
     hosts = 2,
-    inject_repos = "repos_table_without_contributors",
+    inject_repos = "repos_table",
     inject_commits = "commits_table",
     inject_package_usage = "R_package_usage"
   )

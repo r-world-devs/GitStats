@@ -11,7 +11,7 @@ set_params(
   phrase = NULL,
   files = NULL,
   language = "All",
-  print_out = TRUE
+  verbose = TRUE
 )
 }
 \arguments{
@@ -27,7 +27,7 @@ set_params(
 
 \item{language}{Code programming language.}
 
-\item{print_out}{A boolean to decide whether to print output.}
+\item{verbose}{A boolean to decide whether to print output.}
 }
 \value{
 A \code{GitStats} object.

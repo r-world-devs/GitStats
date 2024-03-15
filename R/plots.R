@@ -5,33 +5,24 @@
 #' @importFrom stringr str_remove_all
 #' @importFrom data.table setorder as.data.table
 
-#' @title Plot Git statistics
-#' @name gitstats_plot
-#' @description A generic to plot statistics from repositories or commits.
-#' @param stats_table A table with repository or commits statistics.
+#' @title Plot repositories statistics
+#' @name plot_repos
+#' @description A function to plot statistics from repositories.
+#' @param repos_data A table with repositories data.
 #' @param value_to_plot Value to be plotted.
 #' @param value_decreasing A boolean to set ordering of a value on the plot.
 #' @param plotly_mode A boolean, if TRUE, turns plot into interactive plotly.
 #' @param n An integer, a maximum number of repos/organizations to show on the plot.
 #' @return A plot.
 #' @export
-gitstats_plot <- function(stats_table = NULL,
-                          value_to_plot = NULL,
-                          plotly_mode = FALSE,
-                          value_decreasing = TRUE,
-                          n = NULL) {
-  if (is.null(stats_table)) {
-    cli::cli_abort("Prepare your stats first with `get_*_stats()` function.")
+plot_repos <- function(repos_data = NULL,
+                       value_to_plot = "last_activity",
+                       value_decreasing = TRUE,
+                       plotly_mode = FALSE,
+                       n = 10) {
+  if (is.null(repos_data)) {
+    cli::cli_abort("No repositories to plot.")
   }
-  UseMethod("gitstats_plot")
-}
-
-#' @exportS3Method
-gitstats_plot.repos_stats <- function(stats_table = NULL,
-                                      value_to_plot = "last_activity",
-                                      plotly_mode = FALSE,
-                                      value_decreasing = TRUE,
-                                      n = 10) {
   if (value_decreasing) {
     arrange_expression <- rlang::expr(
       eval(parse(text = value_to_plot))
@@ -41,13 +32,13 @@ gitstats_plot.repos_stats <- function(stats_table = NULL,
       dplyr::desc(eval(parse(text = value_to_plot)))
     )
   }
-  repos_stats <- dplyr::as_tibble(stats_table) %>%
+  repos_stats <- dplyr::as_tibble(repos_data) %>%
     dplyr::arrange(
       eval(arrange_expression)
     )
   repos_to_plot <- head(repos_stats, n) %>%
     dplyr::mutate(
-      repository = factor(repository, levels = unique(repository)[
+      repository = factor(fullname, levels = unique(fullname)[
         order(.data[[value_to_plot]], decreasing = value_decreasing)])
     )
   plt <- ggplot2::ggplot(
@@ -75,12 +66,20 @@ gitstats_plot.repos_stats <- function(stats_table = NULL,
   })
 }
 
-#' @exportS3Method
-gitstats_plot.commits_stats <- function(stats_table = NULL,
-                                       value_to_plot = "commits_n",
-                                       plotly_mode = FALSE,
-                                       value_decreasing = TRUE,
-                                       n = NULL) {
+#' @title Plot commits statistics
+#' @name plot_commits_stats
+#' @description A function to plot statistics from commits.
+#' @param stats_table A table with commits statistics.
+#' @param value_to_plot Value to be plotted.
+#' @param plotly_mode A boolean, if TRUE, turns plot into interactive plotly.
+#' @return A plot.
+#' @export
+plot_commits_stats <- function(stats_table = NULL,
+                               value_to_plot = "commits_n",
+                               plotly_mode = FALSE) {
+  if (is.null(stats_table)) {
+    cli::cli_abort("No commits stats, please prepare them first with `get_commits_stats()`.")
+  }
   date_breaks_value <- switch(attr(stats_table, "time_interval"),
     "day" = "1 week",
     "month" = "1 month",

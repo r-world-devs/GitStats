@@ -1,4 +1,8 @@
 # plots show error message when no input
 
-    Prepare your stats first with `get_*_stats()` function.
+    No repositories to plot.
+
+---
+
+    No commits stats, please prepare them first with `get_commits_stats()`.
 

@@ -8,7 +8,7 @@ create_test_gitstats <- function(
     inject_package_usage = NULL
   ) {
   test_gitstats <- create_gitstats() %>%
-    set_params(print_out = FALSE)
+    set_params(verbose = FALSE)
 
   if (hosts == 1) {
     suppressMessages({
@@ -48,8 +48,8 @@ create_test_gitstats <- function(
     test_gitstats$.__enclos_env__$private$storage$R_package_usage <- test_mocker$use(inject_package_usage)
   }
   if (priv_mode) {
-    test_gitstats <- environment(test_gitstats$set_params)$private  }
-
+    test_gitstats <- environment(test_gitstats$set_params)$private
+  }
   return(test_gitstats)
 }
 

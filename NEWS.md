@@ -1,9 +1,19 @@
 # GitStats (development version)
 
+## Breaking changes:
+
+- GitStats workflow is now simplified. To pull data on `repositories`, `commits`, `R_package_usage` you should use directly corresponding `get_*()` functions instead of `pull_*()` which are deprecated. These `get_*()` functions pull data from API, parse it into table, add some goodies (additional columns) if needed and return table instead of `GitStats` object, which in our opinion is more intuitive and user-friendly ([#345]((https://github.com/r-world-devs/GitStats/issues/345))). That means you do not need to run in pipe two or three additional function calls as before, e.g. `pull_repos(gitstats_object)` %>% `get_repos()` %>% get_repos_stats()`, but you just run
+`get_repos(gitstats_object)` to get data you need.
+- Along with that change `get_repos_stats()` function was deprecated as its role was unclear - unlike `get_commit_stats()` it did not aggregate repositories data into new stats table, but added only some new numeric columns, like number of contributors (`contributors_n`) or last activity in `difftime` format, which is now done within `get_repos()` function.
+- Meanwhile `get_commits_stats()` is preserved as it brings additional value with aggregating commits data into new statistical form.
+- `pull_repos_contributors()` as a separate function is deprecated. The parameter `add_contributors` is now set by  default to `TRUE` in `get_repos()` which seems more reasonable as user gets all the data.
+- Plot functions are now `plot_repos()` (takes `repositories` table as an input) and `plot_commits_stats()` (takes `commits stats` as an input) - `gitstats_plot()` is deprecated.
+
 ## New features:
 
-- Add `pull_release_log()` ([#356](https://github.com/r-world-devs/GitStats/issues/356)).
-- Replace all `get_*()` functions with one `get_table()`, where user passes the name of the object he wants to retrieve (e.g. `repos`, `commits`, `package_usage`) to the `table` parameter.
+- Added `get_release_logs()` ([#356](https://github.com/r-world-devs/GitStats/issues/356)).
+- Added `show_data()` function, where user passes the name of the object he wants to retrieve (e.g. `repos`, `commits`, `package_usage`) to the `storage` parameter.
+- `get_orgs()` is renamed to `show_orgs()` to reflect that it does not pull data from API, but only shows what is in `GitStats` object.
 
 ## Minor features:
 
