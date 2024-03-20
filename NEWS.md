@@ -26,6 +26,7 @@
 ## Bug fixes:
 
 - Pagination was introduced to `contributors` response ([#331](https://github.com/r-world-devs/GitStats/issues/331)).
+- Fixed handler of dates parameters when pulling commits. Wrong and complex construction of `gts_to_posixt()` helper which took dependencies on `stringr` was a cause for some users of passing empty value to `since` parameter to commits endpoint which ended in Bad Request Error (400) and infinite loop of retrying the response ([#360](https://github.com/r-world-devs/GitStats/issues/360)).
 
 # GitStats 1.1.0
 
