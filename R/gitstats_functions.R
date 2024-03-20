@@ -62,7 +62,11 @@ set_host <- function(gitstats_obj,
 #' @param phrase A phrase to look for.
 #' @param files Define files to scan.
 #' @param language Code programming language.
-#' @param print_out A boolean to decide whether to print output.
+#' @param verbose A boolean to decide whether to print output.
+#' @param use_storage A boolean. If set to `TRUE` it will pull data from the
+#'   storage when it is there, e.g. `repositories`, when user runs
+#'   `get_repos()`. If set to `FALSE` `get_repos()` will always pull data from
+#'   the API.
 #' @return A `GitStats` object.
 #' @examples
 #' \dontrun{
@@ -80,14 +84,16 @@ set_params <- function(gitstats_obj,
                        phrase = NULL,
                        files = NULL,
                        language = "All",
-                       print_out = TRUE) {
+                       verbose = TRUE,
+                       use_storage = TRUE) {
   gitstats_obj$set_params(
     search_param = search_param,
     team_name = team_name,
     phrase = phrase,
     files = files,
     language = language,
-    print_out = print_out
+    verbose = verbose,
+    use_storage = use_storage
   )
 
   return(gitstats_obj)
@@ -108,7 +114,7 @@ reset <- function(gitstats_obj){
     team_name = NULL,
     team = list(),
     language = "All",
-    print_out = TRUE,
+    verbose = TRUE,
     storage = "On"
   )
   cli::cli_alert_info("Reset settings to default.")
@@ -154,26 +160,22 @@ set_team_member <- function(gitstats_obj,
   return(invisible(gitstats_obj))
 }
 
-#' @title Pull information on repositories
-#' @name pull_repos
+#' @title Get information on repositories
+#' @name get_repos
 #' @description  List all repositories for an organization, a team or by a
 #'   keyword.
 #' @param gitstats_obj A GitStats object.
 #' @param add_contributors A logical parameter to decide whether to add
 #'   information about repositories' contributors to the repositories output
-#'   (table) when pulling them by organizations (`orgs`) or `phrase`. By default
-#'   it is set to `FALSE` which makes function run faster as, in the case of
-#'   `orgs` search parameter, it reaches only `GraphQL` endpoint with a query on
-#'   repositories, and in the case of `phrase` search parameter it reaches only
-#'   `repositories REST API` endpoint. However, the pitfall is that the result
-#'   does not convey information on contributors. \cr\cr When set to `TRUE`,
+#'   (table) when pulling them by organizations (`orgs`) or `phrase`. If set to
+#'   `FALSE` it makes function run faster as, in the case of `orgs` search
+#'   parameter, it reaches only `GraphQL` endpoint with a query on repositories,
+#'   and in the case of `phrase` search parameter it reaches only `repositories
+#'   REST API` endpoint. However, the pitfall is that the result does not convey
+#'   information on contributors. \cr\cr When set to `TRUE` (by default),
 #'   `GitStats` iterates additionally over pulled repositories and reaches to
 #'   the `contributors APIs`, which makes it slower, but gives additional
-#'   information. The same may be achieved with running separately function
-#'   `pull_repos_contributors()` on the `GitStats` object with the `repositories`
-#'   output. \cr\cr When pulling repositories by \bold{`team`} the parameter
-#'   always turns to `TRUE` and pulls information on `contributors`.
-#' @return A `GitStats` class object with repositories table.
+#'   information.
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
@@ -186,30 +188,16 @@ set_team_member <- function(gitstats_obj,
 #'     api_url = "https://gitlab.com/api/v4",
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
-#'   ) %>%
-#'   pull_repos()
+#'   )
+#'   get_repos(my_gitstats)
 #' }
 #' @export
-pull_repos <- function(gitstats_obj, add_contributors = FALSE) {
-  gitstats_obj$pull_repos(add_contributors = add_contributors)
-  return(invisible(gitstats_obj))
+get_repos <- function(gitstats_obj, add_contributors = TRUE) {
+  gitstats_obj$get_repos(add_contributors = add_contributors)
 }
 
-#' @title Pull information on contributors
-#' @name pull_repos_contributors
-#' @param gitstats_obj A GitStats object.
-#' @description Adds information on contributors to already pulled repositories
-#'   table.
-#' @return  A `GitStats` class object with repositories table with added
-#'   information on contributors.
-#' @export
-pull_repos_contributors <- function(gitstats_obj) {
-  gitstats_obj$pull_repos_contributors()
-  return(invisible(gitstats_obj))
-}
-
-#' @title Pull information on commits
-#' @name pull_commits
+#' @title Get information on commits
+#' @name get_commits
 #' @description List all commits from all repositories for an organization or a
 #'   team.
 #' @param gitstats_obj  A GitStats object.
@@ -233,26 +221,38 @@ pull_repos_contributors <- function(gitstats_obj) {
 #'     search_param = "team",
 #'     team_name = "rwdevs"
 #'   ) %>%
-#'   set_team_member("Maciej Banaś", "maciekbanas") %>%
-#'   pull_commits(date_from = "2018-01-01")
+#'   set_team_member("Maciej Banaś", "maciekbanas")
+#'   get_commits(my_gitstats, date_from = "2018-01-01")
 #' }
 #' @export
-pull_commits <- function(gitstats_obj,
-                         date_from = NULL,
-                         date_until = Sys.time()) {
-  gitstats_obj$pull_commits(
+get_commits <- function(gitstats_obj,
+                        date_from = NULL,
+                        date_until = Sys.time()) {
+  gitstats_obj$get_commits(
     date_from = date_from,
     date_until = date_until
   )
-
-  return(invisible(gitstats_obj))
 }
 
-#' @title Pull users data
-#' @name pull_users
+#' @title Get statistics on commits
+#' @name get_commits_stats
+#' @description Prepare statistics from the pulled commits data.
+#' @param gitstats_obj A GitStats class object.
+#' @param time_interval A character, specifying time interval to show statistics.
+#' @return A table of `commits_stats` class.
+#' @export
+get_commits_stats = function(gitstats_obj,
+                             time_interval = c("month", "day", "week")) {
+  gitstats_obj$get_commits_stats(
+    time_interval = time_interval
+  )
+}
+
+#' @title Get users data
+#' @name get_users
 #' @description Pull users data from Git Host.
 #' @param gitstats_obj A GitStats object.
-#' @param users A character vector of users.
+#' @param logins A character vector of logins.
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
@@ -265,21 +265,18 @@ pull_commits <- function(gitstats_obj,
 #'     api_url = "https://gitlab.com/api/v4",
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
-#'   ) %>%
-#'   pull_users(c("maciekabanas", "marcinkowskak"))
+#'   )
+#'   get_users(my_gitstats, c("maciekabanas", "marcinkowskak"))
 #' }
 #' @return A `GitStats` object with table of users.
 #' @export
-pull_users <- function(gitstats_obj,
-                       users){
-  gitstats_obj$pull_users(
-    users = users
-  )
-  return(invisible(gitstats_obj))
+get_users <- function(gitstats_obj,
+                      logins){
+  gitstats_obj$get_users(logins = logins)
 }
 
-#' @title Pull files content
-#' @name pull_files
+#' @title Get files content
+#' @name get_files
 #' @description Pull files content from Git Hosts.
 #' @param gitstats_obj A GitStats object.
 #' @param file_path A standardized path to file(s) in repositories. May be a
@@ -296,24 +293,21 @@ pull_users <- function(gitstats_obj,
 #'     api_url = "https://gitlab.com/api/v4",
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
-#'   ) %>%
-#'   pull_files("meta_data.yaml")
+#'   )
+#'   get_files(my_gitstats, "meta_data.yaml")
 #' }
 #' @return A `GitStats` object with table of files.
 #' @export
-pull_files <- function(gitstats_obj,
-                       file_path){
-  gitstats_obj$pull_files(
-    file_path = file_path
-  )
-  return(invisible(gitstats_obj))
+get_files <- function(gitstats_obj,
+                      file_path){
+  gitstats_obj$get_files(file_path = file_path)
 }
 
-#' @title Check package usage across repositories
-#' @name pull_R_package_usage
+#' @title Get information on package usage across repositories
+#' @name get_R_package_usage
 #' @description Wrapper over searching repositories by code blobs related to
 #'   loading package (`library(package)` and `require(package)` in all files) or
-#'   using it as a depndency (`package` in `DESCRIPTION` and `NAMESPACE` files).
+#'   using it as a dependency (`package` in `DESCRIPTION` and `NAMESPACE` files).
 #' @param gitstats_obj A GitStats object.
 #' @param package_name A character, name of the package.
 #' @param only_loading A boolean, if `TRUE` function will check only if package
@@ -327,23 +321,22 @@ pull_files <- function(gitstats_obj,
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma")
 #'   ) %>%
-#'   pull_R_package_usage("Shiny")
+#'   get_R_package_usage("Shiny")
 #' }
 #' @export
-pull_R_package_usage <- function(
+get_R_package_usage <- function(
     gitstats_obj,
     package_name,
     only_loading = FALSE
   ) {
-  gitstats_obj$pull_R_package_usage(
+  gitstats_obj$get_R_package_usage(
     package_name = package_name,
     only_loading = only_loading
   )
-  return(invisible(gitstats_obj))
 }
 
-#' @title Pull release logs
-#' @name pull_release_logs
+#' @title Get release logs
+#' @name get_release_logs
 #' @description Pull release logs from repositories.
 #' @param gitstats_obj A GitStats object.
 #' @param date_from A starting date for release logs.
@@ -356,45 +349,54 @@ pull_R_package_usage <- function(
 #'     api_url = "https://api.github.com",
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma")
-#'   ) %>%
-#'   pull_release_logs(date_from = "2024-01-01")
+#'   )
+#'   get_release_logs(my_gistats, date_from = "2024-01-01")
 #' }
 #' @export
-pull_release_logs <- function(
+get_release_logs <- function(
     gitstats_obj,
     date_from,
     date_until = Sys.Date()
 ) {
-  gitstats_obj$pull_release_logs(
+  gitstats_obj$get_release_logs(
     date_from = date_from,
     date_until = date_until
   )
-  return(invisible(gitstats_obj))
 }
 
-#' @title Get organizations
-#' @name get_orgs
+#' @title Show organizations set in `GitStats`
+#' @name show_orgs
 #' @description Retrieves organizations set or pulled by `GitStats`. Especially
 #'   helpful when user is scanning whole git platform and wants to have a
 #'   glimpse at organizations.
 #' @param gitstats_obj A GitStats object.
 #' @return A vector of organizations.
 #' @export
-get_orgs <- function(gitstats_obj){
-  return(gitstats_obj$get_orgs())
+show_orgs <- function(gitstats_obj){
+  gitstats_obj$show_orgs()
 }
 
-#' @title Get data
-#' @name get_table
-#' @description Retrieves data pulled by `GitStats`.
+#' @title Show data stored in GitStats
+#' @name show_data
+#' @description Retrieves table stored in `GitStats` object.
 #' @param gitstats_obj A GitStats object.
-#' @param table Type of table (`repositories`, `commits`, `files`, `users`,
-#'   `R_package_usage`, `release_logs`).
+#' @param storage Table of `repositories`, `commits`, `users`, `files`,
+#'   `release_logs` or `R_package_usage`.
+#' @examples
+#' \dontrun{
+#'  my_gitstats <- create_gitstats() %>%
+#'   set_host(
+#'     api_url = "https://api.github.com",
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs")
+#'   ) %>%
+#'   get_repos()
+#'   show_data(my_gistats, "repositories")
+#' }
 #' @return A table.
 #' @export
-get_table <- function(gitstats_obj,
-                      table){
-  return(gitstats_obj$get_table(
-    table = table
-  ))
+show_data <- function(gitstats_obj, storage) {
+  gitstats_obj$show_data(
+    storage = storage
+  )
 }

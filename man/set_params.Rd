@@ -11,7 +11,8 @@ set_params(
   phrase = NULL,
   files = NULL,
   language = "All",
-  print_out = TRUE
+  verbose = TRUE,
+  use_storage = TRUE
 )
 }
 \arguments{
@@ -27,7 +28,12 @@ set_params(
 
 \item{language}{Code programming language.}
 
-\item{print_out}{A boolean to decide whether to print output.}
+\item{verbose}{A boolean to decide whether to print output.}
+
+\item{use_storage}{A boolean. If set to \code{TRUE} it will pull data from the
+storage when it is there, e.g. \code{repositories}, when user runs
+\code{get_repos()}. If set to \code{FALSE} \code{get_repos()} will always pull data from
+the API.}
 }
 \value{
 A \code{GitStats} object.

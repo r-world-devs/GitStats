@@ -53,49 +53,26 @@ git_stats <- create_gitstats() %>%
 By default your search preferences are set to `organizations` (`org`), which means that `GitStats` will pull all repositories from the organizations you specified in `set_host()`.
 
 ```{r}
-pull_repos(git_stats)
+repos <- get_repos(git_stats)
+repos
 ```
 
-You can add to your repositories information on contributors.
+You can plot the statistics. By default `last_activity` is plotted for 10 repositories.
 
 ```{r}
-pull_repos_contributors(git_stats)
-```
-
-After you pulled the data you can retrieve the `stats` from it.
-
-```{r}
-repos_stats <- get_repos_stats(git_stats)
-head(repos_stats)
-```
-
-Or just retrieve the output.
-
-```{r}
-repos <- get_table(git_stats, "repos")
-```
-
-Finally, you can plot the statistics. By default `last_activity` is plotted for 10 repositories.
-
-```{r}
-gitstats_plot(repos_stats)
+plot_repos(repos)
 ```
 
 But, you can change it to other column, also you can choose number of repositories.
 
 ```{r, fig.height = 9}
-gitstats_plot(
-  stats_table = repos_stats,
+plot_repos(
+  repos_data = repos,
   value_to_plot = "contributors_n",
   value_decreasing = FALSE,
-  n = 60
+  n = 60,
+  plotly_mode = TRUE
 )
-```
-
-If you work with interactive app, you can use a `plotly_mode`.
-
-```{r}
-gitstats_plot(repos_stats, plotly_mode = TRUE)
 ```
 
 ## Set
@@ -107,7 +84,7 @@ With settings you can also set your language and silence the output.
 ```{r}
 set_params(
   gitstats_obj = git_stats,
-  print_out = FALSE
+  verbose = FALSE
 )
 ```
 
@@ -133,16 +110,15 @@ set_params(
   gitstats_obj = git_stats,
   search_param = "team",
   team_name = "RWD",
-  print_out = FALSE
+  verbose = FALSE
 ) 
 ```
 
 Pull repositories.
 
 ```{r}
-pull_repos(git_stats) %>% 
-  get_repos_stats() %>% 
-  gitstats_plot()
+get_repos(git_stats) %>% 
+  plot_repos()
 ```
 
 ### Phrase
@@ -158,10 +134,9 @@ repos_stats <- create_gitstats() %>%
   set_params(
     search_param = "phrase",
     phrase = "Shiny",
-    print_out = FALSE
+    verbose = FALSE
   ) %>% 
-  pull_repos() %>% 
-  get_repos_stats()
+  get_repos()
 
 head(repos_stats)
 ```
@@ -175,10 +150,9 @@ repos_stats <- set_params(
   gitstats_obj = git_stats,
   search_param = "org",
   language = "JavaScript",
-  print_out = FALSE
+  verbose = FALSE
 ) %>% 
-  pull_repos() %>% 
-  get_repos_stats()
+  get_repos() 
 head(repos_stats)
 ```
 

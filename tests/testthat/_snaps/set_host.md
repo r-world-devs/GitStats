@@ -89,8 +89,8 @@
       i Your search parameter set to [org].
     Condition
       Error:
-      ! You can not provide two hosts of the same API urls.
-                     If you wish to change/add more organizations you can do it with `set_organizations()` function.
+      x You can not provide two hosts of the same API urls.
+      i If you wish to change/add more organizations you can do it with `set_organizations()` function.
 
 # `Org` name is not passed to the object if it does not exist
 

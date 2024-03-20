@@ -19,7 +19,7 @@ test_settings <- list(
   team = list(),
   files = NULL,
   language = "All",
-  print_out = TRUE,
+  verbose = TRUE,
   storage = TRUE
 )
 
@@ -30,7 +30,7 @@ test_settings_repo <- list(
   team = list(),
   files = NULL,
   language = "All",
-  print_out = TRUE,
+  verbose = TRUE,
   storage = TRUE
 )
 

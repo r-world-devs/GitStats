@@ -55,13 +55,14 @@ git_stats <- create_gitstats() %>%
 It is basically very similar to the repositories one, but you should specify additionally at least `date_from` parameter.
 
 ```{r, message = FALSE}
-pull_commits(
+commits <- get_commits(
   gitstats_obj = git_stats,
   date_from = "2022-01-01",
   date_until = "2023-08-31"
-) %>% 
-  get_commits_stats() %>% 
-  gitstats_plot()
+)
+
+get_commits_stats(git_stats) %>% 
+  plot_commits_stats()
 ```
 
 You can pull stats by `week` or `day`.
@@ -71,13 +72,13 @@ get_commits_stats(
   gitstats_obj = git_stats,
   time_interval = "week"
 ) %>% 
-  gitstats_plot()
+  plot_commits_stats()
 ```
 
 You can also retrieve just the pulled output.
 
 ```{r}
-commits <- get_table(git_stats, "commits")
+commits <- show_data(git_stats, "commits")
 head(commits)
 ```
 

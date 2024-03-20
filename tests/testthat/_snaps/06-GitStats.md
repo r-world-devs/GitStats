@@ -74,18 +74,6 @@
 
     Add first your hosts with `set_host()`.
 
-# GitStats throws error when pull_repos_contributors is run with empty repos field
-
-    You need to pull repos first with `pull_repos()`.
-
-# Add_repos_contributors adds repos contributors to repos table
-
-    Code
-      test_gitstats$pull_repos_contributors()
-    Message
-      i [GitHub][Engine:REST][org:r-world-devs] Pulling contributors...
-      i [GitLab][Engine:REST][org:mbtests] Pulling contributors...
-
 # subgroups are cleanly printed in GitStats
 
     Code
@@ -104,10 +92,11 @@
        Team: <not defined>
       Storage: <no tables in storage>
 
-# pull_release_logs works as expected
+# get_release_logs works as expected
 
     Code
-      test_gitstats$pull_release_logs(date_from = "2023-05-01", date_until = "2023-09-30")
+      release_logs <- test_gitstats$get_release_logs(date_from = "2023-05-01",
+        date_until = "2023-09-30")
     Message
       i [Engine:GraphQL][org:r-world-devs] Pulling releases...
       i [GitHub][Engine:GraphQL][org:r-world-devs] Pulling repositories...
@@ -131,7 +120,7 @@
        Language: All
        Team: <not defined>
       Storage: 
-       Repositories: 17 rows x 13 cols
+       Repositories: 17 rows x 16 cols
        Commits: 24 rows x 10 cols
        R_package_usage: 11 rows x 4 cols
 

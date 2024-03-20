@@ -1,6 +1,6 @@
 Package: GitStats
 Title: Get Statistics from GitHub and GitLab
-Version: 1.1.0.9002
+Version: 1.1.0.9003
 Authors@R: c(
     person(given = "Maciej", family = "Banas", email = "banasmaciek@gmail.com", role = c("aut", "cre")),
     person(given = "Kamil", family = "Koziej", email = "koziej.k@gmail.com", role = "aut"),

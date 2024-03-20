@@ -115,6 +115,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
             settings = list(search_param = "org")
           )
         } else {
+          cli::cli_alert_info("Using repositories stored in `GitStats` object.")
           repos_table <- .storage$repositories %>%
             dplyr::filter(
               organization == org

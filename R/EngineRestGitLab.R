@@ -117,6 +117,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
             settings = list(search_param = "org")
           )
         } else {
+          cli::cli_alert_info("Using repositories stored in `GitStats` object.")
           repos_table <- .storage$repositories %>%
             dplyr::filter(
               organization == org
@@ -365,9 +366,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         "/projects/",
         repo_path,
         "/repository/commits?since='",
-        date_to_gts(date_from),
+        as.Date(date_from),
         "'&until='",
-        date_to_gts(date_until),
+        as.Date(date_until),
         "'&with_stats=true"
       )
       all_commits_in_repo <- private$paginate_results(
