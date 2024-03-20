@@ -20,13 +20,18 @@ GitStats <- R6::R6Class("GitStats",
     #' @param language A language of programming code.
     #' @param verbose A boolean stating if you want to print output after
     #'   pulling.
+    #' @param use_storage A boolean. If set to `TRUE` it will pull data from the
+    #'   storage when it is there, e.g. `repositories`, when user runs
+    #'   `get_repos()`. If set to `FALSE` `get_repos()` will always pull data from
+    #'   the API.
     #' @return Nothing.
     set_params = function(search_param,
                           team_name = NULL,
                           phrase = NULL,
                           files = NULL,
                           language = "All",
-                          verbose = TRUE) {
+                          verbose = TRUE,
+                          use_storage = TRUE) {
       search_param <- match.arg(
         search_param,
         c("org", "repo", "team", "phrase")
@@ -79,6 +84,7 @@ GitStats <- R6::R6Class("GitStats",
         private$settings$language <- "All"
       }
       private$settings$verbose <- verbose
+      private$settings$use_storage <- use_storage
     },
 
     #' @description Method to set connections to Git platforms.
@@ -177,11 +183,16 @@ GitStats <- R6::R6Class("GitStats",
     get_repos = function(add_contributors = FALSE) {
       private$check_for_host()
       private$check_search_param_for_repos()
-      repositories <- private$pull_repos(
-        add_contributors = add_contributors,
-        settings = private$settings
-      )
-      private$save_to_storage(repositories)
+      if (private$tigger_pulling_repos()) {
+        repositories <- private$pull_repos(
+          add_contributors = add_contributors,
+          settings = private$settings
+        )
+        private$save_to_storage(repositories)
+      } else {
+        cli::cli_alert_info("Retrieving repositories from the GitStats storage.")
+        repositories <- private$get_from_storage("repositories")
+      }
       if (private$settings$verbose) dplyr::glimpse(repositories)
       return(invisible(repositories))
     },
@@ -309,7 +320,8 @@ GitStats <- R6::R6Class("GitStats",
       team_name = NULL,
       team = list(),
       language = "All",
-      verbose = TRUE
+      verbose = TRUE,
+      use_storage = TRUE
     ),
 
     # temporary settings used when calling some methods for custom purposes
@@ -320,7 +332,8 @@ GitStats <- R6::R6Class("GitStats",
       team_name = NULL,
       team = list(),
       language = "All",
-      verbose = TRUE
+      verbose = TRUE,
+      use_storage = TRUE
     ),
 
     # @field storage for results
@@ -347,6 +360,16 @@ GitStats <- R6::R6Class("GitStats",
     # Retrieve table form storage
     get_from_storage = function(table) {
       private$storage[[table]]
+    },
+
+    # Boolean
+    do_not_use_storage = function() {
+      private$settings[["use_storage"]] == FALSE
+    },
+
+    # Decide if repositories need to be pulled from API
+    tigger_pulling_repos = function() {
+      private$storage_is_empty("repositories") || private$do_not_use_storage()
     },
 
     # Handle search parameter when pulling repositories

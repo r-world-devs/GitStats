@@ -63,6 +63,10 @@ set_host <- function(gitstats_obj,
 #' @param files Define files to scan.
 #' @param language Code programming language.
 #' @param verbose A boolean to decide whether to print output.
+#' @param use_storage A boolean. If set to `TRUE` it will pull data from the
+#'   storage when it is there, e.g. `repositories`, when user runs
+#'   `get_repos()`. If set to `FALSE` `get_repos()` will always pull data from
+#'   the API.
 #' @return A `GitStats` object.
 #' @examples
 #' \dontrun{
@@ -80,14 +84,16 @@ set_params <- function(gitstats_obj,
                        phrase = NULL,
                        files = NULL,
                        language = "All",
-                       verbose = TRUE) {
+                       verbose = TRUE,
+                       use_storage = TRUE) {
   gitstats_obj$set_params(
     search_param = search_param,
     team_name = team_name,
     phrase = phrase,
     files = files,
     language = language,
-    verbose = verbose
+    verbose = verbose,
+    use_storage = use_storage
   )
 
   return(gitstats_obj)
