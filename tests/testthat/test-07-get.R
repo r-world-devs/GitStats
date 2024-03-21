@@ -13,8 +13,8 @@ test_that("get_commits works", {
   suppressMessages(
     commits_table <- get_commits(
       gitstats_obj = test_gitstats,
-      date_from = "2023-06-01",
-      date_until = "2023-06-15"
+      since = "2023-06-01",
+      until = "2023-06-15"
     )
   )
   expect_commits_table(commits_table)
@@ -55,8 +55,8 @@ test_that("pull_release_logs works as expected", {
   expect_snapshot(
     releases_table <- get_release_logs(
       test_gitstats,
-      date_from = "2023-05-01",
-      date_until = "2023-09-30"
+      since = "2023-05-01",
+      until = "2023-09-30"
     )
   )
   expect_releases_table(

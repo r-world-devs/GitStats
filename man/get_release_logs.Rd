@@ -4,14 +4,14 @@
 \alias{get_release_logs}
 \title{Get release logs}
 \usage{
-get_release_logs(gitstats_obj, date_from, date_until = Sys.Date())
+get_release_logs(gitstats_obj, since = NULL, until = NULL)
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
 
-\item{date_from}{A starting date for release logs.}
+\item{since}{A starting date for release logs.}
 
-\item{date_until}{An end date for release logs.}
+\item{until}{An end date for release logs.}
 }
 \value{
 A table with release logs.
@@ -27,6 +27,6 @@ Pull release logs from repositories.
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma")
   )
-  get_release_logs(my_gistats, date_from = "2024-01-01")
+  get_release_logs(my_gistats, since = "2024-01-01")
 }
 }

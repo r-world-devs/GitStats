@@ -23,8 +23,7 @@
 # pull_release_logs works as expected
 
     Code
-      releases_table <- get_release_logs(test_gitstats, date_from = "2023-05-01",
-        date_until = "2023-09-30")
+      releases_table <- get_release_logs(test_gitstats, since = "2023-05-01", until = "2023-09-30")
     Message
       i [Engine:GraphQL][org:r-world-devs] Pulling releases...
       i [GitHub][Engine:GraphQL][org:r-world-devs] Pulling repositories...

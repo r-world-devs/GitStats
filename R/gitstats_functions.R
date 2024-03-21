@@ -201,8 +201,8 @@ get_repos <- function(gitstats_obj, add_contributors = TRUE) {
 #' @description List all commits from all repositories for an organization or a
 #'   team.
 #' @param gitstats_obj  A GitStats object.
-#' @param date_from A starting date of commits.
-#' @param date_until An end date of commits.
+#' @param since A starting date of commits.
+#' @param until An end date of commits.
 #' @return A `GitStats` class object with commits table.
 #' @examples
 #' \dontrun{
@@ -217,20 +217,18 @@ get_repos <- function(gitstats_obj, add_contributors = TRUE) {
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
 #'   ) %>%
-#'   set_params(
-#'     search_param = "team",
-#'     team_name = "rwdevs"
-#'   ) %>%
-#'   set_team_member("Maciej Banaś", "maciekbanas")
-#'   get_commits(my_gitstats, date_from = "2018-01-01")
+#'   get_commits(since = "2018-01-01")
 #' }
 #' @export
 get_commits <- function(gitstats_obj,
-                        date_from = NULL,
-                        date_until = Sys.time()) {
+                        since = NULL,
+                        until = NULL) {
+  if (is.null(since)) {
+    cli::cli_abort(cli::col_red("You need to pass date to `since` parameter."), call = NULL)
+  }
   gitstats_obj$get_commits(
-    date_from = date_from,
-    date_until = date_until
+    since = since,
+    until = until
   )
 }
 
@@ -321,7 +319,7 @@ get_files <- function(gitstats_obj,
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma")
 #'   ) %>%
-#'   get_R_package_usage("Shiny")
+#'   get_R_package_usage("shiny")
 #' }
 #' @export
 get_R_package_usage <- function(
@@ -339,8 +337,8 @@ get_R_package_usage <- function(
 #' @name get_release_logs
 #' @description Pull release logs from repositories.
 #' @param gitstats_obj A GitStats object.
-#' @param date_from A starting date for release logs.
-#' @param date_until An end date for release logs.
+#' @param since A starting date for release logs.
+#' @param until An end date for release logs.
 #' @return A table with release logs.
 #' @examples
 #' \dontrun{
@@ -350,17 +348,20 @@ get_R_package_usage <- function(
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma")
 #'   )
-#'   get_release_logs(my_gistats, date_from = "2024-01-01")
+#'   get_release_logs(my_gistats, since = "2024-01-01")
 #' }
 #' @export
 get_release_logs <- function(
     gitstats_obj,
-    date_from,
-    date_until = Sys.Date()
+    since = NULL,
+    until = NULL
 ) {
+  if (is.null(since)) {
+    cli::cli_abort(cli::col_red("You need to pass date to `since` parameter."), call = NULL)
+  }
   gitstats_obj$get_release_logs(
-    date_from = date_from,
-    date_until = date_until
+    since = since,
+    until = until
   )
 }
 

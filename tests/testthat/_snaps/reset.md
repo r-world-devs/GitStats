@@ -16,6 +16,8 @@
        Phrase: <not defined>
        Language: All
        Team: <not defined>
+      Verbose: TRUE
+      Use storage: <not defined>
       Storage: <no tables in storage>
 
 ---
@@ -36,6 +38,8 @@
        Phrase: <not defined>
        Language: All
        Team: <not defined>
+      Verbose: TRUE
+      Use storage: <not defined>
       Storage: <no tables in storage>
 
 # `reset_language()` resets language settings to 'All'
@@ -56,5 +60,7 @@
        Phrase: test-phrase
        Language: All
        Team: <not defined>
+      Verbose: TRUE
+      Use storage: TRUE
       Storage: <no tables in storage>
 

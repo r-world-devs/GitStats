@@ -65,6 +65,9 @@ GitHost <- R6::R6Class("GitHost",
       } else {
         orgs <- private$orgs
       }
+      if (is.null(date_until)) {
+        date_until <- Sys.time()
+      }
       release_logs_table <- purrr::map(orgs, function(org) {
         release_logs_table_org <- NULL
         if (settings$search_param == "repo") {
@@ -152,6 +155,9 @@ GitHost <- R6::R6Class("GitHost",
       }
       if (private$scan_all) {
         cli::cli_alert_info("[Host:{private$host}] {cli::col_yellow('Pulling commits from all organizations...')}")
+      }
+      if (is.null(date_until)) {
+        date_until <- Sys.time()
       }
       if (settings$search_param == "repo") {
         orgs_repos <- private$extract_repos_and_orgs(private$repos)
