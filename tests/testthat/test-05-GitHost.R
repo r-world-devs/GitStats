@@ -372,7 +372,8 @@ test_that("pull_repos returns table of repositories", {
 test_that("pull_repos_contributors returns table with contributors for GitHub", {
   repos_table_1 <- test_mocker$use("gh_repos_table_with_api_url")
   expect_snapshot(
-    repos_table_2 <- test_host$pull_repos_contributors(repos_table_1)
+    repos_table_2 <- test_host$pull_repos_contributors(repos_table_1,
+                                                       test_settings)
   )
   expect_gt(
     length(repos_table_2$contributors),
@@ -390,7 +391,8 @@ test_gl_host <- create_testhost(
 test_that("pull_repos_contributors returns table with contributors for GitLab", {
   repos_table_1 <- test_mocker$use("gl_repos_table_with_api_url")
   expect_snapshot(
-    repos_table_2 <- test_gl_host$pull_repos_contributors(repos_table_1)
+    repos_table_2 <- test_gl_host$pull_repos_contributors(repos_table_1,
+                                                          test_settings)
   )
   expect_gt(
     length(repos_table_2$contributors),
@@ -477,7 +479,8 @@ test_that("pull_commits for GitHub works with repos implied", {
 test_that("pull_files for GitLab works", {
   suppressMessages(
     gl_files_table <- test_gl_host$pull_files(
-      file_path = "meta_data.yaml"
+      file_path = "meta_data.yaml",
+      settings = test_settings
     )
   )
   expect_files_table(
@@ -488,7 +491,8 @@ test_that("pull_files for GitLab works", {
 test_that("pull_files for GitHub works", {
   suppressMessages(
     gh_files_table <- test_host$pull_files(
-      file_path = "DESCRIPTION"
+      file_path = "DESCRIPTION",
+      settings = test_settings
     )
   )
   expect_files_table(

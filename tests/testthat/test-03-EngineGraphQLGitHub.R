@@ -353,7 +353,8 @@ test_that("`pull_files()` pulls files in the table format", {
   expect_snapshot(
     gh_files_table <- test_gql_gh$pull_files(
       org = "r-world-devs",
-      file_path = "LICENSE"
+      file_path = "LICENSE",
+      settings = test_settings
     )
   )
   expect_files_table(gh_files_table)
@@ -365,7 +366,8 @@ test_that("`pull_release_logs()` pulls release logs in the table format", {
     releases_table <- test_gql_gh$pull_release_logs(
       org = "r-world-devs",
       date_from = "2023-05-01",
-      date_until = "2023-09-30"
+      date_until = "2023-09-30",
+      settings = test_settings
     )
   )
   expect_releases_table(releases_table)

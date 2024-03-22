@@ -6,7 +6,7 @@
 
     Code
       gh_repos_by_phrase_table <- test_rest$pull_repos_contributors(test_mocker$use(
-        "gh_repos_by_phrase_table"))
+        "gh_repos_by_phrase_table"), settings = test_settings)
     Message
       i [GitHub][Engine:REST][org:openpharma] Pulling contributors...
 

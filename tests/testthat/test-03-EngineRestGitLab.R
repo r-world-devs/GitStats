@@ -169,7 +169,8 @@ test_that("`get_commits_authors_handles_and_names()` adds author logis and names
   skip_if(!interactive())
   expect_snapshot(
     gl_commits_table <- test_rest_priv$get_commits_authors_handles_and_names(
-      commits_table = test_mocker$use("gl_commits_table")
+      commits_table = test_mocker$use("gl_commits_table"),
+      settings = test_settings
     )
   )
   expect_commits_table(
@@ -199,7 +200,8 @@ test_that("`pull_repos_issues()` adds issues to repos table", {
 test_that("`pull_repos_contributors()` adds contributors to repos table", {
   expect_snapshot(
     gl_repos_table_with_contributors <- test_rest$pull_repos_contributors(
-      test_mocker$use("gl_repos_table")
+      test_mocker$use("gl_repos_table"),
+      settings = test_settings
     )
   )
   expect_repos_table(

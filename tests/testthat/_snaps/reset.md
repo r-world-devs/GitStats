@@ -60,7 +60,7 @@
        Phrase: test-phrase
        Language: All
        Team: <not defined>
-      Verbose: TRUE
+      Verbose: FALSE
       Use storage: TRUE
       Storage: <no tables in storage>
 

@@ -106,11 +106,6 @@
 
     Code
       release_logs <- test_gitstats$get_release_logs(since = "2023-05-01", until = "2023-09-30")
-    Message
-      i [Engine:GraphQL][org:r-world-devs] Pulling releases...
-      i [GitHub][Engine:GraphQL][org:r-world-devs] Pulling repositories...
-      i [Engine:GraphQL][org:openpharma] Pulling releases...
-      i [GitHub][Engine:GraphQL][org:openpharma] Pulling repositories...
 
 # GitStats prints with storage
 
@@ -133,5 +128,5 @@
       Storage: 
        Repositories: 17 
        Commits: 24 [date range: 2023-06-15 - 2023-06-30]
-       R_package_usage: 11 [package: purrr]
+       R_package_usage: 12 [package: purrr]
 
