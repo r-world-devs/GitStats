@@ -11,8 +11,8 @@ set_params(
   phrase = NULL,
   files = NULL,
   language = "All",
-  verbose = TRUE,
-  use_storage = TRUE
+  verbose = NULL,
+  use_storage = NULL
 )
 }
 \arguments{

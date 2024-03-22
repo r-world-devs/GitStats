@@ -30,6 +30,6 @@ using it as a dependency (\code{package} in \code{DESCRIPTION} and \code{NAMESPA
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma")
   ) \%>\%
-  get_R_package_usage("Shiny")
+  get_R_package_usage("shiny")
 }
 }

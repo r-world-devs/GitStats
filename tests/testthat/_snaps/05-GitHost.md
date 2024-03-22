@@ -79,14 +79,15 @@
 # pull_repos_contributors returns table with contributors for GitHub
 
     Code
-      repos_table_2 <- test_host$pull_repos_contributors(repos_table_1)
+      repos_table_2 <- test_host$pull_repos_contributors(repos_table_1, test_settings)
     Message
       i [GitHub][Engine:REST][org:r-world-devs] Pulling contributors...
 
 # pull_repos_contributors returns table with contributors for GitLab
 
     Code
-      repos_table_2 <- test_gl_host$pull_repos_contributors(repos_table_1)
+      repos_table_2 <- test_gl_host$pull_repos_contributors(repos_table_1,
+        test_settings)
     Message
       i [GitLab][Engine:REST][org:mbtests] Pulling contributors...
 

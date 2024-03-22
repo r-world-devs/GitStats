@@ -4,14 +4,14 @@
 \alias{get_commits}
 \title{Get information on commits}
 \usage{
-get_commits(gitstats_obj, date_from = NULL, date_until = Sys.time())
+get_commits(gitstats_obj, since = NULL, until = NULL)
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
 
-\item{date_from}{A starting date of commits.}
+\item{since}{A starting date of commits.}
 
-\item{date_until}{An end date of commits.}
+\item{until}{An end date of commits.}
 }
 \value{
 A \code{GitStats} class object with commits table.
@@ -33,11 +33,6 @@ my_gitstats <- create_gitstats() \%>\%
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "mbtests"
   ) \%>\%
-  set_params(
-    search_param = "team",
-    team_name = "rwdevs"
-  ) \%>\%
-  set_team_member("Maciej Banaś", "maciekbanas")
-  get_commits(my_gitstats, date_from = "2018-01-01")
+  get_commits(since = "2018-01-01")
 }
 }

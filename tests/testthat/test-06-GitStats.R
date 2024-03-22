@@ -37,7 +37,8 @@ suppressMessages({
   set_params(
     test_gitstats,
     search_param = "team",
-    team_name = "RWD-IE"
+    team_name = "RWD-IE",
+    verbose = TRUE
   )
 })
 
@@ -62,7 +63,7 @@ test_that("check_for_host returns error when no hosts are passed", {
 
 test_gitstats_priv <- create_test_gitstats(hosts = 1, priv_mode = TRUE)
 
-test_that("check_R_package_loading", {
+test_that("check_R_package_loading works", {
   suppressMessages(
     R_package_loading <- test_gitstats_priv$check_R_package_loading("purrr")
   )
@@ -70,19 +71,12 @@ test_that("check_R_package_loading", {
   test_mocker$cache(R_package_loading)
 })
 
-test_that("check_R_package_as_dependency", {
+test_that("check_R_package_as_dependency works", {
   suppressMessages(
     R_package_as_dependency <- test_gitstats_priv$check_R_package_as_dependency("purrr")
   )
   expect_package_usage_table(R_package_as_dependency)
   test_mocker$cache(R_package_as_dependency)
-})
-
-test_that("check_R_package does not pull files if NAMESPACE and DESCRIPTION are already loaded", {
-  suppressMessages(
-    R_package_as_dependency <- test_gitstats_priv$check_R_package_as_dependency("dplyr")
-  )
-  expect_package_usage_table(R_package_as_dependency)
 })
 
 # public methods
@@ -128,8 +122,8 @@ test_that("get_commits works properly", {
   test_gitstats <- create_test_gitstats(hosts = 2)
   suppressMessages(
     commits_table <- test_gitstats$get_commits(
-      date_from = "2023-06-15",
-      date_until = "2023-06-30"
+      since = "2023-06-15",
+      until = "2023-06-30"
     )
   )
   expect_commits_table(
@@ -184,18 +178,16 @@ test_that("get_R_package_usage works as expected", {
   test_gitstats <- create_test_gitstats(hosts = 1)
   mockery::stub(
     test_gitstats$get_R_package_usage,
-    "private$check_R_package_as_dependency",
-    test_mocker$use("R_package_as_dependency")
-  )
-  mockery::stub(
-    test_gitstats$get_R_package_usage,
-    "private$check_R_package_loading",
-    test_mocker$use("R_package_loading")
-  )
-  suppressMessages(
-    R_package_usage <- test_gitstats$get_R_package_usage(
-      "purrr"
+    "private$pull_R_package_usage",
+    purrr::list_rbind(
+      list(
+        test_mocker$use("R_package_loading"),
+        test_mocker$use("R_package_as_dependency")
+      )
     )
+  )
+  R_package_usage <- test_gitstats$get_R_package_usage(
+    "purrr"
   )
   expect_package_usage_table(R_package_usage)
   test_mocker$cache(R_package_usage)
@@ -205,8 +197,8 @@ test_that("get_release_logs works as expected", {
   test_gitstats <- create_test_gitstats(hosts = 1)
   expect_snapshot(
     release_logs <- test_gitstats$get_release_logs(
-      date_from = "2023-05-01",
-      date_until = "2023-09-30"
+      since = "2023-05-01",
+      until = "2023-09-30"
     )
   )
   expect_releases_table(release_logs)

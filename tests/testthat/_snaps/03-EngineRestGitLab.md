@@ -6,7 +6,7 @@
 
     Code
       gl_commits_table <- test_rest_priv$get_commits_authors_handles_and_names(
-        commits_table = test_mocker$use("gl_commits_table"))
+        commits_table = test_mocker$use("gl_commits_table"), settings = test_settings)
     Message
       i Looking up for authors' names and logins...
 
@@ -14,7 +14,7 @@
 
     Code
       gl_repos_table_with_contributors <- test_rest$pull_repos_contributors(
-        test_mocker$use("gl_repos_table"))
+        test_mocker$use("gl_repos_table"), settings = test_settings)
     Message
       i [GitLab][Engine:REST][org:mbtests] Pulling contributors...
 

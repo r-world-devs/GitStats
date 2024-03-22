@@ -13,7 +13,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     pull_repos = function(org,
                           settings) {
       if (settings$search_param == "phrase") {
-        if (!private$scan_all) {
+        if (!private$scan_all && settings$verbose) {
           cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{gsub('%2f', '/', org)}] Searching repositories...")
         }
         repos_table <- private$search_repos_by_phrase(
@@ -26,8 +26,10 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           private$prepare_repos_table() %>%
           private$pull_repos_issues()
       } else if (settings$search_param == "team") {
-        if (!private$scan_all) {
-          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{gsub('%2f', '/', org)}][team:{settings$team_name}] Pulling repositories...")
+        if (!private$scan_all && settings$verbose) {
+          cli::cli_alert_info(
+            "[GitLab][Engine:{cli::col_green('REST')}][org:{gsub('%2f', '/', org)}][team:{settings$team_name}] Pulling repositories..."
+          )
         }
         org <- private$get_group_id(org)
         repos_table <- private$pull_repos_from_org(org) %>%
@@ -36,7 +38,8 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           private$pull_repos_issues()
         suppressMessages({
         repos_table <- self$pull_repos_contributors(
-          repos_table = repos_table
+          repos_table = repos_table,
+          settings = settings
           ) %>%
           private$filter_repos_by_team(team = settings$team)
         })
@@ -54,8 +57,10 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
                                      settings) {
       repos_table <- NULL
       if (settings$search_param == "org") {
-        if (!private$scan_all) {
-          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{gsub('%2f', '/', org)}] Pulling repositories...")
+        if (!private$scan_all && settings$verbose) {
+          cli::cli_alert_info(
+            "[GitLab][Engine:{cli::col_green('REST')}][org:{gsub('%2f', '/', org)}] Pulling repositories..."
+          )
         }
         org <- private$get_group_id(org)
         repos_table <- private$pull_repos_from_org(org) %>%
@@ -68,11 +73,16 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
 
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
+    #' @param settings GitStats settings.
     #' @return A table of repositories with added information on contributors.
-    pull_repos_contributors = function(repos_table) {
+    pull_repos_contributors = function(repos_table, settings) {
       if (nrow(repos_table) > 0) {
         if (!private$scan_all) {
-          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{unique(repos_table$organization)}] Pulling contributors...")
+          if (settings$verbose) {
+            cli::cli_alert_info(
+              "[GitLab][Engine:{cli::col_green('REST')}][org:{unique(repos_table$organization)}] Pulling contributors..."
+            )
+          }
         }
         repo_iterator <- repos_table$repo_id
         user_name <- rlang::expr(.$name)
@@ -114,10 +124,12 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         if (is.null(.storage$repositories)) {
           repos_table <- self$pull_repos_supportive(
             org = org,
-            settings = list(search_param = "org")
+            settings = settings
           )
         } else {
-          cli::cli_alert_info("Using repositories stored in `GitStats` object.")
+          if (settings$verbose) {
+            cli::cli_alert_info("Using repositories stored in `GitStats` object.")
+          }
           repos_table <- .storage$repositories %>%
             dplyr::filter(
               organization == org
@@ -131,12 +143,14 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       }
       if (!private$scan_all) {
         org_disp <- stringr::str_replace_all(org, "%2f", "/")
-        if (settings$search_param == "org") {
-          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org_disp}] Pulling commits...")
-        } else if (settings$search_param == "repo") {
-          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org_disp}][custom repositories] Pulling commits...")
-        } else if (settings$search_param == "team") {
-          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org_disp}][team:{settings$team_name}] Pulling commits...")
+        if (settings$verbose) {
+          if (settings$search_param == "org") {
+            cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org_disp}] Pulling commits...")
+          } else if (settings$search_param == "repo") {
+            cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org_disp}][custom repositories] Pulling commits...")
+          } else if (settings$search_param == "team") {
+            cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org_disp}][team:{settings$team_name}] Pulling commits...")
+          }
         }
       }
       repos_list_with_commits <- private$pull_commits_from_repos(
@@ -154,7 +168,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       commits_table <- repos_list_with_commits %>%
         private$tailor_commits_info(org = org) %>%
         private$prepare_commits_table() %>%
-        private$get_commits_authors_handles_and_names()
+        private$get_commits_authors_handles_and_names(settings)
 
       return(commits_table)
     }
@@ -445,9 +459,11 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     # @description A method to get separately GL logins and display names
     # @param commits_table A table
     # @return A data.frame
-    get_commits_authors_handles_and_names = function(commits_table) {
+    get_commits_authors_handles_and_names = function(commits_table, settings) {
       if (nrow(commits_table) > 0) {
-        cli::cli_alert_info("Looking up for authors' names and logins...")
+        if (settings$verbose) {
+          cli::cli_alert_info("Looking up for authors' names and logins...")
+        }
         authors_dict <- purrr::map(unique(commits_table$author), function(author) {
           if (self$rest_api_url != "https://gitlab.com/api/v4") {
             author <- stringr::str_replace_all(author, " ", "%20")

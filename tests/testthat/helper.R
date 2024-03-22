@@ -8,7 +8,7 @@ create_test_gitstats <- function(
     inject_package_usage = NULL
   ) {
   test_gitstats <- create_gitstats() %>%
-    set_params(verbose = FALSE)
+    verbose_off()
 
   if (hosts == 1) {
     suppressMessages({

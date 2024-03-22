@@ -55,8 +55,8 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
      #' @param pulled_repos Optional parameter to pass repository output object.
      #' @param settings A list of  `GitStats` settings.
      #' @return A table.
-     pull_files = function(org, file_path, pulled_repos = NULL) {
-       if (!private$scan_all) {
+     pull_files = function(org, file_path, pulled_repos = NULL, settings) {
+       if (!private$scan_all && settings$verbose) {
          cli::cli_alert_info("[Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling {file_path} files...")
        }
        files_table <- private$pull_file_from_org(
@@ -85,14 +85,14 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
                                   date_until = Sys.date(),
                                   settings,
                                   .storage = NULL) {
-       if (!private$scan_all) {
+       if (!private$scan_all && settings$verbose) {
          cli::cli_alert_info("[Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling releases...")
        }
        if (is.null(repos)) {
          if (is.null(.storage$repositories)) {
            repos_table <- self$pull_repos(
              org = org,
-             settings = list(search_param = "org")
+             settings = settings
            )
          } else {
            repos_table <- .storage$repositories %>%

@@ -54,7 +54,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
                           settings) {
       if (settings$search_param %in% c("org", "team")) {
         if (settings$search_param == "org") {
-          if (!private$scan_all) {
+          if (!private$scan_all && settings$verbose) {
             cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
           }
           repos_table <- private$pull_repos_from_org(
@@ -63,8 +63,10 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           ) %>%
             private$prepare_repos_table()
         } else {
-          if (!private$scan_all) {
-            cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][team:{settings$team_name}] Pulling repositories...")
+          if (!private$scan_all && settings$verbose) {
+            cli::cli_alert_info(
+              "[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][team:{settings$team_name}] Pulling repositories..."
+            )
           }
           repos_table <- private$pull_repos_from_team(
             team = settings$team
@@ -112,10 +114,12 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         if (is.null(.storage$repositories)) {
           repos_table <- self$pull_repos(
             org = org,
-            settings = list(search_param = "org")
+            settings = settings
           )
         } else {
-          cli::cli_alert_info("Using repositories stored in `GitStats` object.")
+          if (settings$verbose) {
+            cli::cli_alert_info("Using repositories stored in `GitStats` object.")
+          }
           repos_table <- .storage$repositories %>%
             dplyr::filter(
               organization == org
@@ -128,11 +132,13 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       }
       if (settings$search_param %in% c("org", "repo")) {
         if (!private$scan_all) {
-          if (settings$search_param == "org") {
-            cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling commits...")
-          }
-          if (settings$search_param == "repo") {
-            cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][custom repositories] Pulling commits...")
+          if (settings$verbose) {
+            if (settings$search_param == "org") {
+              cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling commits...")
+            }
+            if (settings$search_param == "repo") {
+              cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][custom repositories] Pulling commits...")
+            }
           }
         }
         repos_list_with_commits <- private$pull_commits_from_repos(
@@ -143,7 +149,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         )
       }
       if (settings$search_param == "team") {
-        if (!private$scan_all) {
+        if (!private$scan_all && settings$verbose) {
           cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][team:{settings$team_name}] Pulling commits...")
         }
         repos_list_with_commits <- private$pull_commits_from_repos(

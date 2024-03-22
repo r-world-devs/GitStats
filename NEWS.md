@@ -4,12 +4,13 @@
 
 - GitStats workflow is now simplified. To pull data on `repositories`, `commits`, `R_package_usage` you should use directly corresponding `get_*()` functions instead of `pull_*()` which are deprecated. These `get_*()` functions pull data from API, parse it into table, add some goodies (additional columns) if needed and return table instead of `GitStats` object, which in our opinion is more intuitive and user-friendly ([#345]((https://github.com/r-world-devs/GitStats/issues/345))). That means you do not need to run in pipe two or three additional function calls as before, e.g. `pull_repos(gitstats_object)` %>% `get_repos()` %>% get_repos_stats()`, but you just run
 `get_repos(gitstats_object)` to get data you need.
-- Moreover, if you run for the second time `get_repos()`, GitStats will pull the data from its storage and not from API as for the first time, unless you set parameters for not using storage (`set_params(use_storage = FALSE)`).
+- Moreover, if you run for the second time `get_*()` function without changing any parameters, GitStats will pull the data from its storage and not from API as for the first time, unless you change parameters for the function (e.g. starting date with `since` in `get_commits()`) or change settings for not using storage (`set_params(use_storage = FALSE)`).
 - Along with that changes `get_repos_stats()` function was deprecated as its role was unclear - unlike `get_commit_stats()` it did not aggregate repositories data into new stats table, but added only some new numeric columns, like number of contributors (`contributors_n`) or last activity in `difftime` format, which is now done within `get_repos()` function.
 - Meanwhile `get_commits_stats()` is preserved as it brings additional value with aggregating commits data into new statistical form.
 - `pull_repos_contributors()` as a separate function is deprecated. The parameter `add_contributors` is now set by  default to `TRUE` in `get_repos()` which seems more reasonable as user gets all the data.
 - Plot functions are now `plot_repos()` (takes `repositories` table as an input) and `plot_commits_stats()` (takes `commits stats` as an input) - `gitstats_plot()` is deprecated.
-- A new parameter (`verbose`) in settings has been introduced for limiting messages to user when pulling data - you can turn it on/off with `set_params(verbose = TRUE/FALSE)`.
+- In `get_commits()` old parameters (`date_from` and `date_until`) were replaced with new more concise (`since` and `until`).
+- A new parameter (`verbose`) in settings has been introduced for limiting messages to user when pulling data - you can turn it on/off with  `verbose_on()`/`verbose_off()` functions.
 
 ## New features:
 

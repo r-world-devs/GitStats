@@ -14,6 +14,8 @@
        Phrase: <not defined>
        Language: All
        Team: <not defined>
+      Verbose: TRUE
+      Use storage: TRUE
       Storage: <no tables in storage>
 
 # GitStats prints the proper info when connections are added.
@@ -32,6 +34,8 @@
        Phrase: <not defined>
        Language: All
        Team: <not defined>
+      Verbose: FALSE
+      Use storage: TRUE
       Storage: <no tables in storage>
 
 # GitStats prints the proper info when repos are passed instead of orgs.
@@ -50,6 +54,8 @@
        Phrase: <not defined>
        Language: All
        Team: <not defined>
+      Verbose: TRUE
+      Use storage: TRUE
       Storage: <no tables in storage>
 
 # GitStats prints team name when team is added.
@@ -68,6 +74,8 @@
        Phrase: <not defined>
        Language: All
        Team: RWD-IE (0 members)
+      Verbose: TRUE
+      Use storage: TRUE
       Storage: <no tables in storage>
 
 # check_for_host returns error when no hosts are passed
@@ -90,18 +98,14 @@
        Phrase: <not defined>
        Language: All
        Team: <not defined>
+      Verbose: TRUE
+      Use storage: TRUE
       Storage: <no tables in storage>
 
 # get_release_logs works as expected
 
     Code
-      release_logs <- test_gitstats$get_release_logs(date_from = "2023-05-01",
-        date_until = "2023-09-30")
-    Message
-      i [Engine:GraphQL][org:r-world-devs] Pulling releases...
-      i [GitHub][Engine:GraphQL][org:r-world-devs] Pulling repositories...
-      i [Engine:GraphQL][org:openpharma] Pulling releases...
-      i [GitHub][Engine:GraphQL][org:openpharma] Pulling repositories...
+      release_logs <- test_gitstats$get_release_logs(since = "2023-05-01", until = "2023-09-30")
 
 # GitStats prints with storage
 
@@ -119,8 +123,10 @@
        Phrase: <not defined>
        Language: All
        Team: <not defined>
+      Verbose: FALSE
+      Use storage: TRUE
       Storage: 
-       Repositories: 17 rows x 16 cols
-       Commits: 24 rows x 10 cols
-       R_package_usage: 11 rows x 4 cols
+       Repositories: 17 
+       Commits: 24 [date range: 2023-06-15 - 2023-06-30]
+       R_package_usage: 12 [package: purrr]
 

@@ -20,6 +20,8 @@
        Phrase: covid
        Language: All
        Team: RWD-IE (0 members)
+      Verbose: TRUE
+      Use storage: TRUE
       Storage: <no tables in storage>
 
 # Setting up `files` works correctly
@@ -40,6 +42,8 @@
        Phrase: covid
        Language: All
        Team: RWD-IE (0 members)
+      Verbose: TRUE
+      Use storage: TRUE
       Storage: <no tables in storage>
 
 # Setting language works correctly
@@ -60,6 +64,8 @@
        Phrase: covid
        Language: Python
        Team: RWD-IE (0 members)
+      Verbose: TRUE
+      Use storage: TRUE
       Storage: <no tables in storage>
 
 # Setting language to 'All' resets language settings
@@ -78,5 +84,7 @@
        Phrase: covid
        Language: All
        Team: RWD-IE (0 members)
+      Verbose: TRUE
+      Use storage: TRUE
       Storage: <no tables in storage>
 

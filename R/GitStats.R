@@ -30,61 +30,21 @@ GitStats <- R6::R6Class("GitStats",
                           phrase = NULL,
                           files = NULL,
                           language = "All",
-                          verbose = TRUE,
-                          use_storage = TRUE) {
+                          verbose = NULL,
+                          use_storage = NULL) {
       search_param <- match.arg(
         search_param,
         c("org", "repo", "team", "phrase")
       )
 
-      if (search_param == "team") {
-        if (is.null(team_name)) {
-          cli::cli_abort(
-            "You need to define your `team_name`."
-          )
-        } else {
-          private$settings$team_name <- team_name
-          cli::cli_alert_success(
-            paste0("Your search parameter set to {cli::col_green('team: ", team_name, "')}.")
-          )
-          if (length(private$settings$team) == 0) {
-            cli::cli_alert_warning(
-              cli::col_yellow(
-                "No team members in the team. Add them with `set_team_member()`."
-              )
-            )
-          }
-        }
-      }
-      if (search_param == "phrase") {
-        if (is.null(phrase)) {
-          cli::cli_abort(
-            "You need to define your phrase."
-          )
-        } else {
-          private$settings$phrase <- phrase
-          cli::cli_alert_success(
-            paste0("Your search preferences set to {cli::col_green('phrase: ", phrase, "')}.")
-          )
-        }
-      }
-      if (!is.null(files)) {
-        private$settings$files <- files
-        cli::cli_alert_info("Set files {files} to scan.")
-      } else {
-        private$settings$files <- NULL
-      }
+      private$set_team_param(search_param, team_name)
+      private$set_phrase_param(search_param, phrase)
       private$settings$search_param <- search_param
-      if (language != "All") {
-        private$settings$language <- private$language_handler(language)
-        cli::cli_alert_success(
-          "Your programming language is set to {cli::col_green({language})}."
-        )
-      } else {
-        private$settings$language <- "All"
-      }
-      private$settings$verbose <- verbose
-      private$settings$use_storage <- use_storage
+
+      private$set_files_param(files)
+      private$set_language_param(language)
+      private$set_verbose_param(verbose)
+      private$set_storage_param(use_storage)
     },
 
     #' @description Method to set connections to Git platforms.
@@ -140,20 +100,26 @@ GitStats <- R6::R6Class("GitStats",
         "logins" = unlist(list(...))
       )
       private$settings$team[[paste0(member_name)]] <- team_member
-      cli::cli_alert_success("{member_name} successfully added to team.")
+      if (private$settings$verbose) {
+        cli::cli_alert_success("{member_name} successfully added to team.")
+      }
     },
 
     #' @description Get release logs of repositories.
-    #' @param date_from A starting date for release logs.
-    #' @param date_until An end date for release logs.
-    get_release_logs = function(date_from,
-                                date_until) {
+    #' @param since A starting date for release logs.
+    #' @param until An end date for release logs.
+    get_release_logs = function(since, until) {
       private$check_for_host()
-      release_logs <- private$pull_release_logs(
-        date_from = date_from,
-        date_until = date_until
-      )
-      private$save_to_storage(release_logs)
+      if (private$trigger_pulling("release_logs", dates = list(since, until))) {
+        release_logs <- private$pull_release_logs(
+          date_from = since,
+          date_until = until
+        ) %>%
+          private$set_dates_as_attr(since, until)
+        private$save_to_storage(release_logs)
+      } else {
+        release_logs <- private$get_from_storage("release_logs")
+      }
       if (private$settings$verbose) dplyr::glimpse(release_logs)
       return(invisible(release_logs))
     },
@@ -167,11 +133,16 @@ GitStats <- R6::R6Class("GitStats",
       if (is.null(package_name)) {
         cli::cli_abort("You need to define `package_name`.", call = NULL)
       }
-      R_package_usage <- private$pull_R_package_usage(
-        package_name = package_name,
-        only_loading = only_loading
-      )
-      private$save_to_storage(R_package_usage)
+      if (private$trigger_pulling_package(package_name)) {
+        R_package_usage <- private$pull_R_package_usage(
+          package_name = package_name,
+          only_loading = only_loading
+        ) %>%
+          private$set_as_attr("package_name", package_name)
+        private$save_to_storage(R_package_usage)
+      } else {
+        R_package_usage <- private$get_from_storage("R_package_usage")
+      }
       if (private$settings$verbose) dplyr::glimpse(R_package_usage)
       return(invisible(R_package_usage))
     },
@@ -183,14 +154,13 @@ GitStats <- R6::R6Class("GitStats",
     get_repos = function(add_contributors = FALSE) {
       private$check_for_host()
       private$check_search_param_for_repos()
-      if (private$tigger_pulling_repos()) {
+      if (private$trigger_pulling("repositories")) {
         repositories <- private$pull_repos(
           add_contributors = add_contributors,
           settings = private$settings
         )
         private$save_to_storage(repositories)
       } else {
-        cli::cli_alert_info("Retrieving repositories from the GitStats storage.")
         repositories <- private$get_from_storage("repositories")
       }
       if (private$settings$verbose) dplyr::glimpse(repositories)
@@ -198,20 +168,21 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     #' @description A method to get information on commits.
-    #' @param date_from A starting date for commits.
-    #' @param date_until An end date for commits.
-    get_commits = function(date_from,
-                           date_until) {
+    #' @param since A starting date for commits.
+    #' @param until An end date for commits.
+    get_commits = function(since, until) {
       private$check_for_host()
-      if (is.null(date_from)) {
-        cli::cli_abort("You need to define `date_from`.", call = NULL)
-      }
       private$check_search_param_for_commits()
-      commits <- private$pull_commits(
-        date_from = date_from,
-        date_until = date_until
-      )
-      private$save_to_storage(commits)
+      if (private$trigger_pulling("commits", dates = list(since, until))) {
+        commits <- private$pull_commits(
+          date_from = since,
+          date_until = until
+        ) %>%
+          private$set_dates_as_attr(since, until)
+        private$save_to_storage(commits)
+      } else {
+        commits <- private$get_from_storage('commits')
+      }
       if (private$settings$verbose) {
         private$commits_success_info(commits = commits)
         dplyr::glimpse(commits)
@@ -225,7 +196,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @param time_interval A character, specifying time interval to show statistics.
     #' @return A table of `commits_stats` class.
     get_commits_stats = function(time_interval = c("month", "day", "week")){
-      commits <- private$get_from_storage("commits")
+      commits <- private$storage[["commits"]]
       if (is.null(commits)) {
         cli::cli_abort(c(
           "x" = "No commits found in GitStats storage.",
@@ -246,8 +217,13 @@ GitStats <- R6::R6Class("GitStats",
     #' @param logins Character vector of logins.
     get_users = function(logins) {
       private$check_for_host()
-      users <- private$pull_users(logins)
-      private$save_to_storage(users)
+      if (private$trigger_pulling_users(logins)) {
+        users <- private$pull_users(logins) %>%
+          private$set_as_attr("logins", logins)
+        private$save_to_storage(users)
+      } else {
+        users <- private$get_from_storage("users")
+      }
       if (private$settings$verbose) dplyr::glimpse(users)
       return(invisible(users))
     },
@@ -256,8 +232,13 @@ GitStats <- R6::R6Class("GitStats",
     #' @param file_path A file path, may be a character vector.
     get_files = function(file_path) {
       private$check_for_host()
-      files <- private$pull_files(file_path)
-      private$save_to_storage(files)
+      if (private$trigger_pulling_files(file_path)) {
+        files <- private$pull_files(file_path) %>%
+          private$set_as_attr("file_path", file_path)
+        private$save_to_storage(files)
+      } else {
+        files <- private$get_from_storage("files")
+      }
       if (private$settings$verbose) dplyr::glimpse(files)
       return(invisible(files))
     },
@@ -289,22 +270,33 @@ GitStats <- R6::R6Class("GitStats",
       if (storage == "releases") {
         storage <- "release_logs"
       }
-      storage <- private$get_from_storage(storage)
+      storage <- private$storage[[storage]]
       return(storage)
+    },
+
+    #' @description switch on verbose mode
+    verbose_on = function() {
+      private$settings$verbose <- TRUE
+    },
+
+    #' @description switch off verbose mode
+    verbose_off = function() {
+      private$settings$verbose <- FALSE
     },
 
     #' @description A print method for a GitStats object.
     print = function() {
-      settings <- private$settings
       cat(paste0("A ", cli::col_blue('GitStats'), " object for ", length(private$hosts)," hosts: \n"))
       private$print_hosts()
       cat(cli::col_blue("Scanning scope: \n"))
       private$print_orgs_and_repos()
-      private$print_files(settings)
+      private$print_files()
       cat(cli::col_blue("Search settings: \n"))
-      private$print_search_parameters(settings)
-      private$print_team(settings)
-      private$print_storage(settings)
+      private$print_search_parameters()
+      private$print_team()
+      private$print_verbose()
+      private$print_use_storage()
+      private$print_storage()
     }
   ),
   private = list(
@@ -332,7 +324,7 @@ GitStats <- R6::R6Class("GitStats",
       team_name = NULL,
       team = list(),
       language = "All",
-      verbose = TRUE,
+      verbose = FALSE,
       use_storage = TRUE
     ),
 
@@ -345,6 +337,95 @@ GitStats <- R6::R6Class("GitStats",
       R_package_usage = NULL,
       release_logs = NULL
     ),
+
+    # Handler for setting team parameter
+    set_team_param = function(search_param, team_name) {
+      if (search_param == "team") {
+        if (is.null(team_name)) {
+          cli::cli_abort(
+            "You need to define your `team_name`."
+          )
+        } else {
+          private$settings$team_name <- team_name
+          if (private$settings$verbose) {
+            cli::cli_alert_success(
+              paste0("Your search parameter set to {cli::col_green('team: ", team_name, "')}.")
+            )
+            if (length(private$settings$team) == 0) {
+              cli::cli_alert_warning(
+                cli::col_yellow(
+                  "No team members in the team. Add them with `set_team_member()`."
+                )
+              )
+            }
+          }
+        }
+      }
+    },
+
+    # Handler for setting phrase parameter
+    set_phrase_param = function(search_param, phrase) {
+      if (search_param == "phrase") {
+        if (is.null(phrase)) {
+          cli::cli_abort(
+            "You need to define your phrase."
+          )
+        } else {
+          private$settings$phrase <- phrase
+          if (private$settings$verbose) {
+            cli::cli_alert_success(
+              paste0("Your search preferences set to {cli::col_green('phrase: ", phrase, "')}.")
+            )
+          }
+        }
+      }
+    },
+
+    # Handler for setting files parameter
+    set_files_param = function(files) {
+      if (!is.null(files)) {
+        private$settings$files <- files
+        if (private$settings$verbose) {
+          cli::cli_alert_info("Set files {files} to scan.")
+        }
+      } else {
+        private$settings$files <- NULL
+      }
+    },
+
+    # Handler for setting language parameter
+    set_language_param = function(language) {
+      if (language != "All") {
+        private$settings$language <- private$language_handler(language)
+        if (private$settings$verbose) {
+          cli::cli_alert_success(
+            "Your programming language is set to {cli::col_green({language})}."
+          )
+        }
+      } else {
+        private$settings$language <- "All"
+      }
+    },
+
+    # Handler for setting verbose parameter
+    set_verbose_param = function(verbose) {
+      if (!is.null(verbose)) {
+        if (!is.logical(verbose)) {
+          cli::cli_abort("verbose parameter accepts only TRUE/FALSE values")
+        }
+        private$settings$verbose <- verbose
+      }
+    },
+
+    # Handler for setting storage parameter
+    set_storage_param = function(use_storage) {
+      if (!is.null(use_storage)) {
+        if (!is.logical(use_storage)) {
+          cli::cli_abort("use_storage parameter accepts only TRUE/FALSE values")
+        }
+        private$settings$use_storage <- use_storage
+      }
+    },
 
     # Check if table exists in storage
     storage_is_empty = function(table) {
@@ -359,6 +440,10 @@ GitStats <- R6::R6Class("GitStats",
 
     # Retrieve table form storage
     get_from_storage = function(table) {
+      if (private$settings$verbose) {
+        cli::cli_alert_warning(cli::col_yellow(glue::glue("Retrieving {table} from the GitStats storage.")))
+        cli::cli_alert_info(cli::col_cyan("If you wish to pull the data from API once more, set `use_storage` to `FALSE` in `set_params()` function."))
+      }
       private$storage[[table]]
     },
 
@@ -367,9 +452,84 @@ GitStats <- R6::R6Class("GitStats",
       private$settings[["use_storage"]] == FALSE
     },
 
-    # Decide if repositories need to be pulled from API
-    tigger_pulling_repos = function() {
-      private$storage_is_empty("repositories") || private$do_not_use_storage()
+    # Decide if data needs to be pulled from API
+    trigger_pulling = function(storage, dates = NULL) {
+      private$storage_is_empty(storage) || private$do_not_use_storage() ||
+        private$dates_do_not_comply(storage, dates)
+    },
+
+    # Decide if data needs to be pulled from API
+    trigger_pulling_package = function(package_name) {
+      !private$is_package_usage_in_storage(package_name)
+    },
+
+    # Check if package is already in GitStats storage
+    is_package_usage_in_storage = function(package_name) {
+      package_usage_in_storage <- private$storage[["R_package_usage"]]
+      if (!is.null(package_usage_in_storage)) {
+        package_name == attr(package_usage_in_storage, "package_name")
+      } else {
+        FALSE
+      }
+    },
+
+    # Decide if data needs to be pulled from API
+    trigger_pulling_files = function(file_path) {
+      !private$are_files_in_storage(file_path)
+    },
+
+    # Check if data on files is already in GitStats storage
+    are_files_in_storage = function(file_path) {
+      files_in_storage <- private$storage[["files"]]
+      if (!is.null(files_in_storage)) {
+        setequal(file_path, attr(files_in_storage, "file_path"))
+      } else {
+        FALSE
+      }
+    },
+
+    # Decide if data needs to be pulled from API
+    trigger_pulling_users = function(logins) {
+      !private$are_users_in_storage(logins)
+    },
+
+    # Check if data on users is already in GitStats storage
+    are_users_in_storage = function(logins) {
+      users_in_storage <- private$storage[["users"]]
+      if (!is.null(users_in_storage)) {
+        setequal(logins, attr(users_in_storage, "logins"))
+      } else {
+        FALSE
+      }
+    },
+
+    # Check if dates in function call are the same as in storage
+    dates_do_not_comply = function(storage, dates) {
+      do_not_comply <- FALSE
+      if (!is.null(dates)) {
+        dates <- standardize_dates(dates)
+        dates_storage <- private$get_dates_from_storage(storage)
+        do_not_comply <- !dplyr::setequal(dates, dates_storage)
+      }
+      return(do_not_comply)
+    },
+
+    # Get date from and date until from storage
+    get_dates_from_storage = function(storage) {
+      attr(private$storage[[storage]], "dates_range")
+    },
+
+    # Save dates parameters as attributes of the object
+    set_dates_as_attr = function(object, date_from, date_until) {
+      attr(object, "dates_range") <- list(date_from, date_until) %>%
+        standardize_dates()
+      return(object)
+    },
+
+    # Save meta data as an attribute of the object
+    set_as_attr = function(object, attribute_name, attribute) {
+      attr(object, attribute_name) <- attribute
+      return(object)
     },
 
     # Handle search parameter when pulling repositories
@@ -419,14 +579,16 @@ GitStats <- R6::R6Class("GitStats",
 
     # Pull commits tables from hosts and bind them into one
     pull_commits = function(date_from, date_until) {
-      purrr::map(private$hosts, function(host) {
+      commits_table <- purrr::map(private$hosts, function(host) {
         host$pull_commits(
           date_from = date_from,
           date_until = date_until,
           settings = private$settings,
           .storage = private$storage
         )
-      }) %>% purrr::list_rbind()
+      }) %>%
+        purrr::list_rbind()
+      return(commits_table)
     },
 
     # Pull information on unique users in a table form
@@ -443,7 +605,8 @@ GitStats <- R6::R6Class("GitStats",
       purrr::map(private$hosts, function(host) {
         host$pull_files(
           file_path = file_path,
-          pulled_repos = private$get_from_storage("repositories")
+          pulled_repos = private$storage[["repositories"]],
+          settings = private$settings
         )
       }) %>%
         purrr::list_rbind()
@@ -486,7 +649,9 @@ GitStats <- R6::R6Class("GitStats",
 
     # Search repositories with `library(package_name)` in code blobs.
     check_R_package_loading = function(package_name) {
-      cli::cli_alert_info("Checking where [{package_name}] is loaded from library...")
+      if (private$settings$verbose) {
+        cli::cli_alert_info("Checking where [{package_name}] is loaded from library...")
+      }
       package_usage_phrases <- c(
         paste0("library(", package_name, ")"),
         paste0("require(", package_name, ")")
@@ -513,7 +678,9 @@ GitStats <- R6::R6Class("GitStats",
     # @description Search repositories with `package_name` in DESCRIPTION and NAMESPACE files.
     # @param package_name Name of a package.
     check_R_package_as_dependency = function(package_name) {
-      cli::cli_alert_info("Checking where [{package_name}] is used as a dependency...")
+      if (private$settings$verbose) {
+        cli::cli_alert_info("Checking where [{package_name}] is used as a dependency...")
+      }
       private$temp_settings$search_param <- "phrase"
       private$temp_settings$phrase <- package_name
       private$temp_settings$files <- c("DESCRIPTION", "NAMESPACE")
@@ -677,6 +844,7 @@ GitStats <- R6::R6Class("GitStats",
       ))
     },
 
+    # print hosts passed to GitStats
     print_hosts = function() {
       hosts <- purrr::map_chr(private$hosts, function(host) {
         host_priv <- environment(host$initialize)$private
@@ -685,6 +853,7 @@ GitStats <- R6::R6Class("GitStats",
       private$print_item("Hosts", hosts, paste0(hosts, collapse = ", "))
     },
 
+    # print organizations and repositories set in GitStats
     print_orgs_and_repos = function() {
       orgs <- purrr::map(private$hosts, function(host) {
         host_priv <- environment(host$initialize)$private
@@ -698,40 +867,54 @@ GitStats <- R6::R6Class("GitStats",
       private$print_item(" Repositories", repos)
     },
 
-    print_files = function(settings) {
+    # print files set to be scanned to GitStats
+    print_files = function() {
       private$print_item(
         " Files",
-        settings$files
+        private$settings$files
       )
     },
 
-    print_team = function(settings) {
+    # print team name and number of team members
+    print_team = function() {
+      members_n <- length(private$settings$team)
       private$print_item(
         " Team",
-        item_to_check = settings$team_name,
-        item_to_print = paste0(settings$team_name, " (", length(settings$team), " members)")
+        item_to_check = private$settings$team_name,
+        item_to_print = glue::glue("{private$settings$team_name} ({members_n} members)")
       )
     },
 
-    print_search_parameters = function(settings) {
+    # print search parameters: organization, team, phrase, language
+    print_search_parameters = function() {
       item_names <- list(
         " Search parameter", " Phrase", " Language"
       )
       items <- list(
-        settings$search_param,
-        settings$phrase,
-        settings$language
+        private$settings$search_param,
+        private$settings$phrase,
+        private$settings$language
       )
       purrr::walk2(item_names, items, ~ private$print_item(.x, .y))
     },
 
-    print_storage = function(settings) {
+    # print verbose mode
+    print_verbose = function() {
+      private$print_item("Verbose", private$settings$verbose)
+    },
+
+    # print if storage is used
+    print_use_storage = function() {
+      private$print_item("Use storage", private$settings$use_storage)
+    },
+
+    # print storage
+    print_storage = function() {
       gitstats_storage <- purrr::imap(private$storage, function(storage_table, storage_name) {
         if (!is.null(storage_table)) {
-          paste0(
-            stringr::str_to_title(storage_name),
-            ": ", nrow(storage_table),
-            " rows x ", length(storage_table), " cols")
+          glue::glue(
+            "{stringr::str_to_title(storage_name)}: {nrow(storage_table)} {private$print_storage_attribute(storage_table, storage_name)}"
+          )
         }
       }) %>%
         purrr::discard(~is.null(.))
@@ -745,6 +928,35 @@ GitStats <- R6::R6Class("GitStats",
           cli::col_blue("Storage: \n"),
           paste0(" ", gitstats_storage, collapse = "\n")
         ))
+      }
+    },
+
+    # print storage attribute
+    print_storage_attribute = function(storage_table, storage_name) {
+       if (storage_name != "repositories") {
+        storage_attr <- switch(storage_name,
+                               "files" = "file_path",
+                               "commits" = "dates_range",
+                               "release_logs" = "dates_range",
+                               "users" = "logins",
+                               "R_package_usage" = "package_name")
+        attr_data <- attr(storage_table, storage_attr)
+        attr_name <- switch(storage_attr,
+                            "file_path" = "files",
+                            "dates_range" = "date range",
+                            "package_name" = "package",
+                            "logins" = "logins")
+        if (length(attr_data) > 1) {
+          separator <- if (storage_attr == "dates_range") {
+            " - "
+          } else {
+            ", "
+          }
+          attr_data <- attr_data %>% paste0(collapse = separator)
+        }
+        return(cli::col_grey(glue::glue("[{attr_name}: {attr_data}]")))
+      } else {
+        return("")
       }
     }
   )
