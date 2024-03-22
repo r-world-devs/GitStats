@@ -84,8 +84,8 @@ set_params <- function(gitstats_obj,
                        phrase = NULL,
                        files = NULL,
                        language = "All",
-                       verbose = TRUE,
-                       use_storage = TRUE) {
+                       verbose = NULL,
+                       use_storage = NULL) {
   gitstats_obj$set_params(
     search_param = search_param,
     team_name = team_name,
@@ -400,4 +400,23 @@ show_data <- function(gitstats_obj, storage) {
   gitstats_obj$show_data(
     storage = storage
   )
+}
+
+#' @title switch on verbose mode
+#' @name verbose_on
+#' @param gitstats_obj A GitStats object.
+#' @return A GitStats object.
+#' @export
+verbose_on <- function(gitstats_obj) {
+  gitstats_obj$verbose_on()
+}
+
+#' @title switch off verbose mode
+#' @name verbose_off
+#' @param gitstats_obj A GitStats object.
+#' @return A GitStats object.
+#' @export
+verbose_off <- function(gitstats_obj) {
+  gitstats_obj$verbose_off()
+  return(invisible(gitstats_obj))
 }

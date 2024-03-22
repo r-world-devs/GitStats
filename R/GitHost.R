@@ -56,7 +56,7 @@ GitHost <- R6::R6Class("GitHost",
           "i" = "Please change your `search_param` either to 'org' or 'team' with `set_params()`."
         ))
       }
-      if (private$scan_all) {
+      if (private$scan_all && settings$verbose) {
         cli::cli_alert_info("[Host:{private$host}] {cli::col_yellow('Pulling release logs from all organizations...')}")
       }
       if (settings$search_param == "repo") {
@@ -106,7 +106,7 @@ GitHost <- R6::R6Class("GitHost",
       }
       repos_table <- private$add_repo_api_url(repos_table)
       if (add_contributors) {
-        repos_table <- self$pull_repos_contributors(repos_table)
+        repos_table <- self$pull_repos_contributors(repos_table, settings)
       }
       if (nrow(repos_table) > 0 && settings$language != "All") {
         repos_table <- private$filter_repos_by_language(
@@ -119,15 +119,17 @@ GitHost <- R6::R6Class("GitHost",
 
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
+    #' @param settings A list of `GitStats` settings.
     #' @return A table of repositories with added information on contributors.
-    pull_repos_contributors = function(repos_table) {
+    pull_repos_contributors = function(repos_table, settings) {
       if (!is.null(repos_table) && nrow(repos_table) > 0) {
         repos_table <- repos_table %>%
           dplyr::filter(grepl(gsub("/v+.*", "", private$api_url), api_url))
         repos_table <- purrr::map_dfr(private$engines, function (engine) {
           if (inherits(engine, "EngineRest")) {
             engine$pull_repos_contributors(
-              repos_table
+              repos_table,
+              settings
             )
           } else {
             NULL
@@ -206,8 +208,9 @@ GitHost <- R6::R6Class("GitHost",
     #'   a host in a table format.
     #' @param file_path A file path.
     #' @param pulled_repos Optional parameter to pass repository output object.
+    #' @param settings A list of `GitStats` settings.
     #' @return A table.
-    pull_files = function(file_path, pulled_repos = NULL) {
+    pull_files = function(file_path, pulled_repos = NULL, settings) {
       if (!is.null(pulled_repos)) {
         orgs <- pulled_repos %>%
           dplyr::filter(grepl(private$api_url, api_url)) %>%
@@ -224,7 +227,8 @@ GitHost <- R6::R6Class("GitHost",
             files_table <- engine$pull_files(
               org = org,
               file_path = file_path,
-              pulled_repos = pulled_repos
+              pulled_repos = pulled_repos,
+              settings = settings
             )
             return(files_table)
           } else {
@@ -411,7 +415,9 @@ GitHost <- R6::R6Class("GitHost",
         if (settings$search_param == "phrase") {
           orgs <- "no_orgs"
         } else {
-          cli::cli_alert_info("[Host:{private$host}] {cli::col_yellow('Pulling repositories from all organizations...')}")
+          if (settings$verbose) {
+            cli::cli_alert_info("[Host:{private$host}] {cli::col_yellow('Pulling repositories from all organizations...')}")
+          }
         }
       }
       repos_table <- purrr::map(orgs, function(org) {

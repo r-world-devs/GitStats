@@ -30,61 +30,21 @@ GitStats <- R6::R6Class("GitStats",
                           phrase = NULL,
                           files = NULL,
                           language = "All",
-                          verbose = TRUE,
-                          use_storage = TRUE) {
+                          verbose = NULL,
+                          use_storage = NULL) {
       search_param <- match.arg(
         search_param,
         c("org", "repo", "team", "phrase")
       )
 
-      if (search_param == "team") {
-        if (is.null(team_name)) {
-          cli::cli_abort(
-            "You need to define your `team_name`."
-          )
-        } else {
-          private$settings$team_name <- team_name
-          cli::cli_alert_success(
-            paste0("Your search parameter set to {cli::col_green('team: ", team_name, "')}.")
-          )
-          if (length(private$settings$team) == 0) {
-            cli::cli_alert_warning(
-              cli::col_yellow(
-                "No team members in the team. Add them with `set_team_member()`."
-              )
-            )
-          }
-        }
-      }
-      if (search_param == "phrase") {
-        if (is.null(phrase)) {
-          cli::cli_abort(
-            "You need to define your phrase."
-          )
-        } else {
-          private$settings$phrase <- phrase
-          cli::cli_alert_success(
-            paste0("Your search preferences set to {cli::col_green('phrase: ", phrase, "')}.")
-          )
-        }
-      }
-      if (!is.null(files)) {
-        private$settings$files <- files
-        cli::cli_alert_info("Set files {files} to scan.")
-      } else {
-        private$settings$files <- NULL
-      }
+      private$set_team_param(search_param, team_name)
+      private$set_phrase_param(search_param, phrase)
       private$settings$search_param <- search_param
-      if (language != "All") {
-        private$settings$language <- private$language_handler(language)
-        cli::cli_alert_success(
-          "Your programming language is set to {cli::col_green({language})}."
-        )
-      } else {
-        private$settings$language <- "All"
-      }
-      private$settings$verbose <- verbose
-      private$settings$use_storage <- use_storage
+
+      private$set_files_param(files)
+      private$set_language_param(language)
+      private$set_verbose_param(verbose)
+      private$set_storage_param(use_storage)
     },
 
     #' @description Method to set connections to Git platforms.
@@ -140,7 +100,9 @@ GitStats <- R6::R6Class("GitStats",
         "logins" = unlist(list(...))
       )
       private$settings$team[[paste0(member_name)]] <- team_member
-      cli::cli_alert_success("{member_name} successfully added to team.")
+      if (private$settings$verbose) {
+        cli::cli_alert_success("{member_name} successfully added to team.")
+      }
     },
 
     #' @description Get release logs of repositories.
@@ -308,8 +270,18 @@ GitStats <- R6::R6Class("GitStats",
       if (storage == "releases") {
         storage <- "release_logs"
       }
-      storage <- private$get_from_storage(storage)
+      storage <- private$storage[[storage]]
       return(storage)
+    },
+
+    #' @description switch on verbose mode
+    verbose_on = function() {
+      private$settings$verbose <- TRUE
+    },
+
+    #' @description switch off verbose mode
+    verbose_off = function() {
+      private$settings$verbose <- FALSE
     },
 
     #' @description A print method for a GitStats object.
@@ -352,7 +324,7 @@ GitStats <- R6::R6Class("GitStats",
       team_name = NULL,
       team = list(),
       language = "All",
-      verbose = TRUE,
+      verbose = FALSE,
       use_storage = TRUE
     ),
 
@@ -365,6 +337,95 @@ GitStats <- R6::R6Class("GitStats",
       R_package_usage = NULL,
       release_logs = NULL
     ),
+
+    # Handler for setting team parameter
+    set_team_param = function(search_param, team_name) {
+      if (search_param == "team") {
+        if (is.null(team_name)) {
+          cli::cli_abort(
+            "You need to define your `team_name`."
+          )
+        } else {
+          private$settings$team_name <- team_name
+          if (private$settings$verbose) {
+            cli::cli_alert_success(
+              paste0("Your search parameter set to {cli::col_green('team: ", team_name, "')}.")
+            )
+            if (length(private$settings$team) == 0) {
+              cli::cli_alert_warning(
+                cli::col_yellow(
+                  "No team members in the team. Add them with `set_team_member()`."
+                )
+              )
+            }
+          }
+        }
+      }
+    },
+
+    # Handler for setting phrase parameter
+    set_phrase_param = function(search_param, phrase) {
+      if (search_param == "phrase") {
+        if (is.null(phrase)) {
+          cli::cli_abort(
+            "You need to define your phrase."
+          )
+        } else {
+          private$settings$phrase <- phrase
+          if (private$settings$verbose) {
+            cli::cli_alert_success(
+              paste0("Your search preferences set to {cli::col_green('phrase: ", phrase, "')}.")
+            )
+          }
+        }
+      }
+    },
+
+    # Handler for setting files parameter
+    set_files_param = function(files) {
+      if (!is.null(files)) {
+        private$settings$files <- files
+        if (private$settings$verbose) {
+          cli::cli_alert_info("Set files {files} to scan.")
+        }
+      } else {
+        private$settings$files <- NULL
+      }
+    },
+
+    # Handler for setting language parameter
+    set_language_param = function(language) {
+      if (language != "All") {
+        private$settings$language <- private$language_handler(language)
+        if (private$settings$verbose) {
+          cli::cli_alert_success(
+            "Your programming language is set to {cli::col_green({language})}."
+          )
+        }
+      } else {
+        private$settings$language <- "All"
+      }
+    },
+
+    # Handler for setting verbose parameter
+    set_verbose_param = function(verbose) {
+      if (!is.null(verbose)) {
+        if (!is.logical(verbose)) {
+          cli::cli_abort("verbose parameter accepts only TRUE/FALSE values")
+        }
+        private$settings$verbose <- verbose
+      }
+    },
+
+    # Handler for setting storage parameter
+    set_storage_param = function(use_storage) {
+      if (!is.null(use_storage)) {
+        if (!is.logical(use_storage)) {
+          cli::cli_abort("use_storage parameter accepts only TRUE/FALSE values")
+        }
+        private$settings$use_storage <- use_storage
+      }
+    },
 
     # Check if table exists in storage
     storage_is_empty = function(table) {
@@ -379,8 +440,10 @@ GitStats <- R6::R6Class("GitStats",
 
     # Retrieve table form storage
     get_from_storage = function(table) {
-      cli::cli_alert_warning(cli::col_yellow(glue::glue("Retrieving {table} from the GitStats storage.")))
-      cli::cli_alert_info(cli::col_cyan("If you wish to pull the data from API once more, set `use_storage` to `FALSE` in `set_params()` function."))
+      if (private$settings$verbose) {
+        cli::cli_alert_warning(cli::col_yellow(glue::glue("Retrieving {table} from the GitStats storage.")))
+        cli::cli_alert_info(cli::col_cyan("If you wish to pull the data from API once more, set `use_storage` to `FALSE` in `set_params()` function."))
+      }
       private$storage[[table]]
     },
 
@@ -542,7 +605,8 @@ GitStats <- R6::R6Class("GitStats",
       purrr::map(private$hosts, function(host) {
         host$pull_files(
           file_path = file_path,
-          pulled_repos = private$storage[["repositories"]]
+          pulled_repos = private$storage[["repositories"]],
+          settings = private$settings
         )
       }) %>%
         purrr::list_rbind()
@@ -585,7 +649,9 @@ GitStats <- R6::R6Class("GitStats",
 
     # Search repositories with `library(package_name)` in code blobs.
     check_R_package_loading = function(package_name) {
-      cli::cli_alert_info("Checking where [{package_name}] is loaded from library...")
+      if (private$settings$verbose) {
+        cli::cli_alert_info("Checking where [{package_name}] is loaded from library...")
+      }
       package_usage_phrases <- c(
         paste0("library(", package_name, ")"),
         paste0("require(", package_name, ")")
@@ -612,7 +678,9 @@ GitStats <- R6::R6Class("GitStats",
     # @description Search repositories with `package_name` in DESCRIPTION and NAMESPACE files.
     # @param package_name Name of a package.
     check_R_package_as_dependency = function(package_name) {
-      cli::cli_alert_info("Checking where [{package_name}] is used as a dependency...")
+      if (private$settings$verbose) {
+        cli::cli_alert_info("Checking where [{package_name}] is used as a dependency...")
+      }
       private$temp_settings$search_param <- "phrase"
       private$temp_settings$phrase <- package_name
       private$temp_settings$files <- c("DESCRIPTION", "NAMESPACE")

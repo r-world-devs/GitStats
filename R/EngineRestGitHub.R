@@ -12,7 +12,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     pull_repos = function(org,
                           settings) {
       if (settings$search_param == "phrase") {
-        if (!private$scan_all) {
+        if (!private$scan_all && settings$verbose) {
           cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{org}] Searching repositories...")
         }
         repos_table <- private$search_repos_by_phrase(
@@ -40,7 +40,9 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       repos_table <- NULL
       if (settings$search_param %in% c("org")) {
         if (!private$scan_all) {
-          cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
+          if (settigs$verbose) {
+            cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
+          }
         }
         repos_endpoint <- paste0(self$rest_api_url, "/orgs/", org, "/repos")
         repos_table <- private$paginate_results(
@@ -74,11 +76,14 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
 
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
+    #' @param settings GitStats settings.
     #' @return A table of repositories with added information on contributors.
-    pull_repos_contributors = function(repos_table) {
+    pull_repos_contributors = function(repos_table, settings) {
       if (nrow(repos_table) > 0) {
-        if (!private$scan_all) {
-          cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{unique(repos_table$organization)}] Pulling contributors...")
+        if (!private$scan_all && settings$verbose) {
+          cli::cli_alert_info(
+            "[GitHub][Engine:{cli::col_green('REST')}][org:{unique(repos_table$organization)}] Pulling contributors..."
+          )
         }
         repo_iterator <- paste0(repos_table$organization, "/", repos_table$repo_name)
         user_name <- rlang::expr(.$login)

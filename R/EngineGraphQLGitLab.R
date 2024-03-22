@@ -58,7 +58,11 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
        org <- gsub("%2f", "/", org)
        if (settings$search_param == "org") {
          if (!private$scan_all) {
-           cli::cli_alert_info("[GitLab][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
+           if (settings$verbose) {
+             cli::cli_alert_info(
+               "[GitLab][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories..."
+              )
+           }
          }
          repos_table <- private$pull_repos_from_org(
            from = "org",

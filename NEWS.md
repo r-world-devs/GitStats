@@ -10,7 +10,7 @@
 - `pull_repos_contributors()` as a separate function is deprecated. The parameter `add_contributors` is now set by  default to `TRUE` in `get_repos()` which seems more reasonable as user gets all the data.
 - Plot functions are now `plot_repos()` (takes `repositories` table as an input) and `plot_commits_stats()` (takes `commits stats` as an input) - `gitstats_plot()` is deprecated.
 - In `get_commits()` old parameters (`date_from` and `date_until`) were replaced with new more concise (`since` and `until`).
-- A new parameter (`verbose`) in settings has been introduced for limiting messages to user when pulling data - you can turn it on/off with `set_params(verbose = TRUE/FALSE)`.
+- A new parameter (`verbose`) in settings has been introduced for limiting messages to user when pulling data - you can turn it on/off with  `verbose_on()`/`verbose_off()` functions.
 
 ## New features:
 
