@@ -423,8 +423,8 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     prepare_commits_table = function(commits_list) {
       commits_dt <- purrr::map(commits_list, function(x) {
         purrr::map(x, ~ data.frame(.)) %>%
-          rbindlist()
-      }) %>% rbindlist()
+          purrr::list_rbind()
+      }) %>% purrr::list_rbind()
 
       if (length(commits_dt) > 0) {
         commits_dt <- dplyr::mutate(
