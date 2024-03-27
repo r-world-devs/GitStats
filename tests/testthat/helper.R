@@ -1,3 +1,4 @@
+#' Create GitStats object for tests
 create_test_gitstats <- function(
     hosts = 0,
     priv_mode = FALSE,
@@ -6,27 +7,27 @@ create_test_gitstats <- function(
     inject_files = NULL,
     inject_users = NULL,
     inject_package_usage = NULL
-  ) {
+) {
   test_gitstats <- create_gitstats() %>%
     verbose_off()
 
   if (hosts == 1) {
     suppressMessages({
-      test_gitstats$set_host(
-        api_url = "https://api.github.com",
+      test_gitstats$set_github_host(
+        host = NULL,
         token = Sys.getenv("GITHUB_PAT"),
         orgs = c("r-world-devs", "openpharma")
       )
     })
   } else if (hosts == 2) {
     suppressMessages({
-      test_gitstats$set_host(
-        api_url = "https://api.github.com",
+      test_gitstats$set_github_host(
+        host = NULL,
         token = Sys.getenv("GITHUB_PAT"),
         orgs = c("r-world-devs")
       )
-      test_gitstats$set_host(
-        api_url = "https://gitlab.com/api/v4",
+      test_gitstats$set_gitlab_host(
+        host = NULL,
         token = Sys.getenv("GITLAB_PAT_PUBLIC"),
         orgs = "mbtests"
       )

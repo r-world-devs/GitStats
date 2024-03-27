@@ -86,15 +86,6 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       return(repos_table)
     },
 
-    #' @description An empty method to satisfy engine iterator.
-    #' @param org An organization.
-    #' @param settings A list of  `GitStats` settings.
-    #' @return Nothing.
-    pull_repos_supportive = function(org,
-                                     settings) {
-      NULL
-    },
-
     #' @description Method to pull all commits from organization, optionally
     #'   filtered by team members.
     #' @param org An organization.
@@ -102,16 +93,16 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
     #' @param settings A list of  `GitStats` settings.
-    #' @param .storage A storage of `GitStats` object.
+    #' @param storage A storage of `GitStats` object.
     #' @return A table of commits.
     pull_commits = function(org,
                             repos = NULL,
                             date_from,
                             date_until,
                             settings,
-                            .storage = NULL) {
+                            storage = NULL) {
       if (is.null(repos)) {
-        if (is.null(.storage$repositories)) {
+        if (is.null(storage$repositories)) {
           repos_table <- self$pull_repos(
             org = org,
             settings = settings
@@ -120,7 +111,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           if (settings$verbose) {
             cli::cli_alert_info("Using repositories stored in `GitStats` object.")
           }
-          repos_table <- .storage$repositories %>%
+          repos_table <- storage$repositories %>%
             dplyr::filter(
               organization == org
             )
@@ -167,24 +158,8 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         purrr::discard(~ length(.) == 0) %>%
         private$prepare_commits_table(org)
       return(commits_table)
-    },
-
-    #' @description Method to get commits.
-    #' @details This method must exist as it is called from the GitHost wrapper
-    #'   above.
-    #' @param org An organization.
-    #' @param date_from A starting date to look commits for.
-    #' @param date_until An end date to look commits for.
-    #' @param settings A list of  `GitStats` settings.
-    #' @return A table of commits.
-    pull_commits_supportive = function(org,
-                                       date_from,
-                                       date_until = Sys.date(),
-                                       settings) {
-      NULL
     }
-
-    ),
+  ),
     private = list(
 
       # @description Iterator over pulling pages of repositories.

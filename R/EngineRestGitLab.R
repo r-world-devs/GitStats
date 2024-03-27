@@ -14,7 +14,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
                           settings) {
       if (settings$search_param == "phrase") {
         if (!private$scan_all && settings$verbose) {
-          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{gsub('%2f', '/', org)}] Searching repositories...")
+          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{URLdecode(org)}] Searching repositories...")
         }
         repos_table <- private$search_repos_by_phrase(
           org = org,
@@ -28,7 +28,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       } else if (settings$search_param == "team") {
         if (!private$scan_all && settings$verbose) {
           cli::cli_alert_info(
-            "[GitLab][Engine:{cli::col_green('REST')}][org:{gsub('%2f', '/', org)}][team:{settings$team_name}] Pulling repositories..."
+            "[GitLab][Engine:{cli::col_green('REST')}][org:{URLdecode(org)}][team:{settings$team_name}] Pulling repositories..."
           )
         }
         org <- private$get_group_id(org)
@@ -59,7 +59,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       if (settings$search_param == "org") {
         if (!private$scan_all && settings$verbose) {
           cli::cli_alert_info(
-            "[GitLab][Engine:{cli::col_green('REST')}][org:{gsub('%2f', '/', org)}] Pulling repositories..."
+            "[GitLab][Engine:{cli::col_green('REST')}][org:{URLdecode(org)}] Pulling repositories..."
           )
         }
         org <- private$get_group_id(org)
@@ -112,16 +112,16 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @param date_from A starting date to look commits for.
     #' @param date_until An end date to look commits for.
     #' @param settings A list of  `GitStats` settings.
-    #' @param .storage A storage of `GitStats` object.
+    #' @param storage A storage of `GitStats` object.
     #' @return A table of commits.
     pull_commits = function(org = NULL,
                             repos = NULL,
                             date_from,
                             date_until = Sys.date(),
                             settings,
-                            .storage = NULL) {
+                            storage = NULL) {
       if (is.null(repos)) {
-        if (is.null(.storage$repositories)) {
+        if (is.null(storage$repositories)) {
           repos_table <- self$pull_repos_supportive(
             org = org,
             settings = settings
@@ -130,7 +130,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           if (settings$verbose) {
             cli::cli_alert_info("Using repositories stored in `GitStats` object.")
           }
-          repos_table <- .storage$repositories %>%
+          repos_table <- storage$repositories %>%
             dplyr::filter(
               organization == org
             )
@@ -174,27 +174,6 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     }
   ),
   private = list(
-
-    # @description Check if the token gives access to API.
-    # @param token A token.
-    # @return A token.
-    check_token = function(token) {
-      super$check_token(token)
-      if (nchar(token) > 0) {
-        withCallingHandlers({
-          self$response(endpoint = paste0(self$rest_api_url, "/projects"),
-                        token = token)
-        },
-        message = function(m) {
-          if (grepl("401", m$message)) {
-            cli::cli_abort(c(
-              "x" = m$message
-            ))
-          }
-        })
-      }
-      return(invisible(token))
-    },
 
     # @description Iterator over pulling pages of repositories.
     # @param org A character, a group of projects.

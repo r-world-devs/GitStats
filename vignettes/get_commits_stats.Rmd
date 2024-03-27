@@ -16,43 +16,27 @@ knitr::opts_chunk$set(
 )
 ```
 
-When pulling commits you can choose to scan only specific repositories (not whole organizations). If that is your wish, pass your repositories (fullnames, i.e. `org/repository` path) to the `repos` parameter instead of `orgs` parameter.
+When pulling commits you can choose to scan only specific repositories (not whole organizations). If that is your wish, pass your repositories (full names, i.e. `org/repository` path) to the `repos` parameter instead of `orgs` parameter.
 
-> Example workflow makes use of public GitLab, but is rather more plausible, that you will use your internal git platforms.
+> Example workflow makes use of public GitLab, but is rather more plausible, that you will use your internal git platforms, where you need to define `host` parameter.
 
 ```{r}
 library(GitStats)
 
 git_stats <- create_gitstats() %>%
-  set_host(
-    api_url = "https://api.github.com",
+  set_github_host(
     repos = c("r-world-devs/GitStats", "r-world-devs/shinyCohortBuilder", "openpharma/DataFakeR"),
     token = Sys.getenv("GITHUB_PAT")
   ) %>%
-  set_host(
-    api_url = "https://gitlab.com/api/v4",
+  set_gitlab_host(
     repos = c("mbtests/gitstatstesting"),
     token = Sys.getenv("GITLAB_PAT_PUBLIC")
   )
 ```
 
-If you have your token environment variables stored in `GITHUB_PAT` or `GITHUB_PAT_*` and `GITLAB_PAT` or `GITLAB_PAT_*` you do not need to specify them in `set_host()` function, `GitStats` will automatically find them.
-
-```{r, eval = FALSE}
-git_stats <- create_gitstats() %>%
-  set_host(
-    api_url = "https://api.github.com",
-    repos = c("r-world-devs/GitStats", "r-world-devs/shinyCohortBuilder", "openpharma/DataFakeR", "openpharma/GitHubMetrics")
-  ) %>%
-  set_host(
-    api_url = "https://gitlab.com/api/v4",
-    repos = c("mbtests/gitstatstesting")
-  )
-```
-
 ## Commits workflow
 
-It is basically very similar to the repositories one, but you should specify additionally at least `date_from` parameter.
+It is basically very similar to the repositories one, but you should specify additionally at least `since` parameter.
 
 ```{r, message = FALSE}
 commits <- get_commits(
@@ -61,8 +45,7 @@ commits <- get_commits(
   until = "2023-08-31"
 )
 
-get_commits_stats(git_stats) %>% 
-  plot_commits_stats()
+get_commits_stats(git_stats)
 ```
 
 You can pull stats by `week` or `day`.
@@ -71,8 +54,7 @@ You can pull stats by `week` or `day`.
 get_commits_stats(
   gitstats_obj = git_stats,
   time_interval = "week"
-) %>% 
-  plot_commits_stats()
+)
 ```
 
 You can also retrieve just the pulled output.

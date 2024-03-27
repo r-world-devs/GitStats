@@ -7,13 +7,6 @@ test_rest <- EngineRestGitLab$new(
 
 test_rest_priv <- environment(test_rest$initialize)$private
 
-test_that("`check_token()` prints error when token exists but does not grant access", {
-  token <- "does_not_grant_access"
-  expect_snapshot_error(
-    test_rest_priv$check_token(token)
-  )
-})
-
 test_that("`get_group_id()` gets group's id", {
   gl_group_id <- test_rest_priv$get_group_id("mbtests")
   expect_equal(gl_group_id, 63684059)

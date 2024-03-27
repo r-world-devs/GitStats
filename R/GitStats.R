@@ -36,11 +36,9 @@ GitStats <- R6::R6Class("GitStats",
         search_param,
         c("org", "repo", "team", "phrase")
       )
-
       private$set_team_param(search_param, team_name)
       private$set_phrase_param(search_param, phrase)
       private$settings$search_param <- search_param
-
       private$set_files_param(files)
       private$set_language_param(language)
       private$set_verbose_param(verbose)
@@ -48,7 +46,34 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     #' @description Method to set connections to Git platforms.
-    #' @param api_url A character, url address of API.
+    #' @param host A character, optional, url name of the host. If not passed,
+    #'   a public host will be used (api.github.com).
+    #' @param token A token.
+    #' @param orgs An optional character vector of organisations (owners of
+    #'   repositories in case of GitHub and groups of projects in case of
+    #'   GitLab). If you pass it, `repos` parameter should stay `NULL`.
+    #' @param repos An optional character vector of repositories full names
+    #'   (organization and repository name, e.g. "r-world-devs/GitStats"). If
+    #'   you pass it, `orgs` parameter should stay `NULL`.
+    #' @return Nothing, puts connection information into `$hosts` slot.
+    set_github_host = function(host,
+                               token = NULL,
+                               orgs = NULL,
+                               repos = NULL) {
+      new_host <- NULL
+      new_host <- GitHostGitHub$new(
+        orgs = orgs,
+        repos = repos,
+        token = token,
+        host = host
+      )
+      private$set_searching_scope(orgs, repos)
+      private$add_new_host(new_host)
+    },
+
+    #' @description Method to set connections to Git platforms.
+    #' @param host A character, optional, url name of the host. If not passed,
+    #'   a public host will be used (gitlab.com/api/v4).
     #' @param token A token.
     #' @param orgs An optional character vector of organisations (owners of
     #'   repositories in case of GitHub and groups of projects in case of GitLab).
@@ -57,36 +82,19 @@ GitStats <- R6::R6Class("GitStats",
     #'   (organization and repository name, e.g. "r-world-devs/GitStats"). If you
     #'   pass it, `orgs` parameter should stay `NULL`.
     #' @return Nothing, puts connection information into `$hosts` slot.
-    set_host = function(api_url,
-                        token = NULL,
-                        orgs = NULL,
-                        repos = NULL) {
+    set_gitlab_host = function(host,
+                               token = NULL,
+                               orgs = NULL,
+                               repos = NULL) {
       new_host <- NULL
-
-      new_host <- GitHost$new(
+      new_host <- GitHostGitLab$new(
         orgs = orgs,
         repos = repos,
         token = token,
-        api_url = api_url
+        host = host
       )
-      if (grepl("https://", api_url) && grepl("github", api_url)) {
-        cli::cli_alert_success("Set connection to GitHub.")
-      } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
-        cli::cli_alert_success("Set connection to GitLab.")
-      }
-      if (!is.null(repos)) {
-        private$settings$search_param <- "repo"
-        cli::cli_alert_info(cli::col_grey("Your search parameter set to [repo]."))
-      }
-      if (!is.null(orgs)) {
-        private$settings$search_param <- "org"
-        cli::cli_alert_info(cli::col_grey("Your search parameter set to [org]."))
-      }
-      if (!is.null(new_host)) {
-        private$hosts <- new_host %>%
-          private$check_for_duplicate_hosts() %>%
-          append(private$hosts, .)
-      }
+      private$set_searching_scope(orgs, repos)
+      private$add_new_host(new_host)
     },
 
     #' @description A method to add a team member.
@@ -175,8 +183,8 @@ GitStats <- R6::R6Class("GitStats",
       private$check_search_param_for_commits()
       if (private$trigger_pulling("commits", dates = list(since, until))) {
         commits <- private$pull_commits(
-          date_from = since,
-          date_until = until
+          since = since,
+          until = until
         ) %>%
           private$set_dates_as_attr(since, until)
         private$save_to_storage(commits)
@@ -247,7 +255,7 @@ GitStats <- R6::R6Class("GitStats",
     show_orgs = function() {
       purrr::map(private$hosts, function(host) {
         orgs <- host$.__enclos_env__$private$orgs
-        purrr::map_vec(orgs, ~ gsub("%2f", "/", .))
+        purrr::map_vec(orgs, ~ URLdecode(.))
         }) %>% unlist()
     },
 
@@ -337,6 +345,25 @@ GitStats <- R6::R6Class("GitStats",
       R_package_usage = NULL,
       release_logs = NULL
     ),
+
+    # Add new host
+    add_new_host = function(new_host) {
+      if (!is.null(new_host)) {
+        private$hosts <- new_host %>%
+          private$check_for_duplicate_hosts() %>%
+          append(private$hosts, .)
+      }
+    },
+
+    # Set searching scope
+    set_searching_scope = function(orgs, repos) {
+      if (!is.null(repos)) {
+        private$settings$search_param <- "repo"
+      }
+      if (!is.null(orgs)) {
+        private$settings$search_param <- "org"
+      }
+    },
 
     # Handler for setting team parameter
     set_team_param = function(search_param, team_name) {
@@ -578,13 +605,13 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Pull commits tables from hosts and bind them into one
-    pull_commits = function(date_from, date_until) {
+    pull_commits = function(since, until) {
       commits_table <- purrr::map(private$hosts, function(host) {
         host$pull_commits(
-          date_from = date_from,
-          date_until = date_until,
+          since = since,
+          until = until,
           settings = private$settings,
-          .storage = private$storage
+          storage = private$storage
         )
       }) %>%
         purrr::list_rbind()
@@ -618,7 +645,7 @@ GitStats <- R6::R6Class("GitStats",
         date_from = date_from,
         date_until = date_until,
         settings = private$settings,
-        .storage = private$storage
+        storage = private$storage
       )) %>%
         purrr::list_rbind()
     },
@@ -824,7 +851,7 @@ GitStats <- R6::R6Class("GitStats",
       if (item_name %in% c(" Organizations", " Repositories", " Files")) {
         item_to_print <- unlist(item_to_print)
         item_to_print <- purrr::map_vec(item_to_print, function(element) {
-          gsub("%2f", "/", element)
+          URLdecode(element)
         })
         if (length(item_to_print) < 10) {
           list_items <- paste0(item_to_print, collapse = ", ")

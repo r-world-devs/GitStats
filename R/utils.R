@@ -57,3 +57,9 @@ commits_stats <- function(object, time_interval) {
 standardize_dates <- function(dates) {
   purrr::discard(dates, is.null) %>% purrr::map_vec(as.POSIXct)
 }
+
+#' @noRd
+#' Apply url encoding to string
+url_encode <- function(url) {
+  URLencode(url, reserved = TRUE)
+}

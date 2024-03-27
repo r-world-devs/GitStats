@@ -18,5 +18,5 @@ articles:
 - title: Articles
   navbar: ~
   contents:
-  - get_repository_stats
+  - get_repositories
   - get_commits_stats
