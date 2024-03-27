@@ -86,7 +86,7 @@ EngineRest <- R6::R6Class("EngineRest",
         })
         data.frame(repo)
       }) %>%
-        data.table::rbindlist()
+        purrr::list_rbind()
 
       if (length(repos_dt) > 0) {
         repos_dt <- dplyr::mutate(repos_dt,

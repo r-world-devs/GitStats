@@ -417,7 +417,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           commits_row
         }) %>%
           purrr::discard(~ length(.) == 1) %>%
-          data.table::rbindlist(use.names = TRUE)
+          purrr::list_rbind()
 
         if (nrow(commits_table) > 0) {
           commits_table <- commits_table %>%

@@ -1,7 +1,6 @@
 #' @noRd
 #' @importFrom R6 R6Class
 #' @importFrom cli cli_alert_info cli_alert_success cli_alert_warning col_yellow
-#' @importFrom data.table rbindlist
 #' @importFrom dplyr glimpse
 #' @importFrom magrittr %>%
 #' @importFrom purrr map map_chr
