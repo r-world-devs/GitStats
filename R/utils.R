@@ -59,7 +59,7 @@ standardize_dates <- function(dates) {
 }
 
 #' @noRd
-#' Apply url encoding to string
+#' @description Apply url encoding to string
 url_encode <- function(url) {
   URLencode(url, reserved = TRUE)
 }
