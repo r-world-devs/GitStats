@@ -159,7 +159,6 @@ test_that("`prepare_commits_table()` prepares table of commits by team properly"
 })
 
 test_that("`get_commits_authors_handles_and_names()` adds author logis and names to commits table", {
-  skip_if(!interactive())
   expect_snapshot(
     gl_commits_table <- test_rest_priv$get_commits_authors_handles_and_names(
       commits_table = test_mocker$use("gl_commits_table"),
@@ -170,6 +169,7 @@ test_that("`get_commits_authors_handles_and_names()` adds author logis and names
     gl_commits_table,
     exp_auth = TRUE
   )
+  test_mocker$cache(gl_commits_table)
 })
 
 test_that("`pull_repos_issues()` adds issues to repos table", {
@@ -226,7 +226,6 @@ test_that("`pull_repos_by_phrase()` works", {
 })
 
 test_that("`pull_commits()` works as expected", {
-  skip_if(!interactive())
   mockery::stub(
     test_rest$pull_commits,
     "private$pull_commits_from_repos",
@@ -244,7 +243,6 @@ test_that("`pull_commits()` works as expected", {
 })
 
 test_that("`pull_commits()` works with repositories implied", {
-  skip_if(!interactive())
   expect_snapshot(
     result <- test_rest$pull_commits(
       org = "mbtests",

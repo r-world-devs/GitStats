@@ -444,9 +444,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           cli::cli_alert_info("Looking up for authors' names and logins...")
         }
         authors_dict <- purrr::map(unique(commits_table$author), function(author) {
-          if (self$rest_api_url != "https://gitlab.com/api/v4") {
-            author <- stringr::str_replace_all(author, " ", "%20")
-          }
+          author <- url_encode(author)
           search_endpoint <- paste0(
             self$rest_api_url,
             "/search?scope=users&search=%22", author, "%22"
@@ -470,13 +468,13 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           }
           if (is.null(user_response) || length(user_response) == 0) {
             user_tbl <- tibble::tibble(
-              author = stringr::str_replace_all(author, "%20", " "),
+              author = URLdecode(author),
               author_login = NA,
               author_name = NA
             )
           } else {
             user_tbl <- tibble::tibble(
-              author = stringr::str_replace_all(author, "%20", " "),
+              author = URLdecode(author),
               author_login = user_response[[1]]$username,
               author_name = user_response[[1]]$name
             )
