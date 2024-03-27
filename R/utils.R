@@ -7,7 +7,7 @@
 date_to_gts <- function(date) {
   date_format <- as.Date(date)
   posixt_format <- as.POSIXct(date)
-  if (date_format == posixt_format) {
+  if (as.POSIXct(date_format) == as.POSIXct(posixt_format)) {
     paste0(date, "T00:00:00Z")
   } else {
     stringr::str_replace(
