@@ -84,18 +84,18 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
                                   date_from,
                                   date_until = Sys.date(),
                                   settings,
-                                  .storage = NULL) {
+                                  storage = NULL) {
        if (!private$scan_all && settings$verbose) {
          cli::cli_alert_info("[Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling releases...")
        }
        if (is.null(repos)) {
-         if (is.null(.storage$repositories)) {
+         if (is.null(storage$repositories)) {
            repos_table <- self$pull_repos(
              org = org,
              settings = settings
            )
          } else {
-           repos_table <- .storage$repositories %>%
+           repos_table <- storage$repositories %>%
              dplyr::filter(
                organization == org
              )

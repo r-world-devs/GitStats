@@ -1,8 +1,8 @@
 ---
-title: "Get repository stats"
+title: "Get repositories"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Get repository stats}
+  %\VignetteIndexEntry{Get repositories data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,63 +16,29 @@ knitr::opts_chunk$set(
 )
 ```
 
-Start by creating your `GitStats` object, where you will hold information on your connections.
+Set connections to hosts.
 
-> Example workflow makes use of public GitLab, but is rather more plausible, that you will use your internal git platforms.
+> Example workflow makes use of public GitLab, but is rather more plausible, that you will use your internal git platforms, where you need to define `host` parameter.
 
 ```{r}
 library(GitStats)
 
 git_stats <- create_gitstats() %>%
-  set_host(
-    api_url = "https://api.github.com",
+  set_github_host(
     orgs = c("r-world-devs", "openpharma"),
     token = Sys.getenv("GITHUB_PAT")
   ) %>%
-  set_host(
-    api_url = "https://gitlab.com/api/v4",
+  set_gitlab_host(
     orgs = c("mbtests"),
     token = Sys.getenv("GITLAB_PAT_PUBLIC")
   )
 ```
 
-If you have your token environment variables stored in `GITHUB_PAT` or `GITHUB_PAT_*` and `GITLAB_PAT` or `GITLAB_PAT_*` you do not need to specify them in `set_host()` function, `GitStats` will automatically find them.
-
-```{r, eval = FALSE}
-git_stats <- create_gitstats() %>%
-  set_host(
-    api_url = "https://api.github.com",
-    orgs = c("r-world-devs", "openpharma")
-  ) %>%
-  set_host(
-    api_url = "https://gitlab.com/api/v4",
-    orgs = c("mbtests")
-  )
-```
-
-By default your search preferences are set to `organizations` (`org`), which means that `GitStats` will pull all repositories from the organizations you specified in `set_host()`.
+By default your search preferences are set to `organizations` (`org`), which means that `GitStats` will pull all repositories from the organizations you specified in `set_*_host()`.
 
 ```{r}
 repos <- get_repos(git_stats)
 repos
-```
-
-You can plot the statistics. By default `last_activity` is plotted for 10 repositories.
-
-```{r}
-plot_repos(repos)
-```
-
-But, you can change it to other column, also you can choose number of repositories.
-
-```{r, fig.height = 9}
-plot_repos(
-  repos_data = repos,
-  value_to_plot = "contributors_n",
-  value_decreasing = FALSE,
-  n = 60,
-  plotly_mode = TRUE
-)
 ```
 
 ## Set
@@ -117,8 +83,7 @@ set_params(
 Pull repositories.
 
 ```{r}
-get_repos(git_stats) %>% 
-  plot_repos()
+get_repos(git_stats)
 ```
 
 ### Phrase
@@ -127,8 +92,7 @@ With `GitStats` you can look for the repos with a certain phrase in code blobs (
 
 ```{r}
 repos_stats <- create_gitstats() %>%
-  set_host(
-    api_url = "https://api.github.com",
+  set_github_host(
     orgs = c("r-world-devs", "openpharma")
   ) %>% 
   set_params(

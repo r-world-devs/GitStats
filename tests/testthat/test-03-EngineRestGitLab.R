@@ -7,13 +7,6 @@ test_rest <- EngineRestGitLab$new(
 
 test_rest_priv <- environment(test_rest$initialize)$private
 
-test_that("`check_token()` prints error when token exists but does not grant access", {
-  token <- "does_not_grant_access"
-  expect_snapshot_error(
-    test_rest_priv$check_token(token)
-  )
-})
-
 test_that("`get_group_id()` gets group's id", {
   gl_group_id <- test_rest_priv$get_group_id("mbtests")
   expect_equal(gl_group_id, 63684059)
@@ -166,7 +159,6 @@ test_that("`prepare_commits_table()` prepares table of commits by team properly"
 })
 
 test_that("`get_commits_authors_handles_and_names()` adds author logis and names to commits table", {
-  skip_if(!interactive())
   expect_snapshot(
     gl_commits_table <- test_rest_priv$get_commits_authors_handles_and_names(
       commits_table = test_mocker$use("gl_commits_table"),
@@ -177,6 +169,7 @@ test_that("`get_commits_authors_handles_and_names()` adds author logis and names
     gl_commits_table,
     exp_auth = TRUE
   )
+  test_mocker$cache(gl_commits_table)
 })
 
 test_that("`pull_repos_issues()` adds issues to repos table", {
@@ -233,7 +226,6 @@ test_that("`pull_repos_by_phrase()` works", {
 })
 
 test_that("`pull_commits()` works as expected", {
-  skip_if(!interactive())
   mockery::stub(
     test_rest$pull_commits,
     "private$pull_commits_from_repos",
@@ -251,7 +243,6 @@ test_that("`pull_commits()` works as expected", {
 })
 
 test_that("`pull_commits()` works with repositories implied", {
-  skip_if(!interactive())
   expect_snapshot(
     result <- test_rest$pull_commits(
       org = "mbtests",

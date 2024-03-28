@@ -55,25 +55,6 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       return(repos_table)
     },
 
-    #' @description Method to get commits.
-    #' @details This method is empty as this class does not support pulling
-    #'   commits - it is done for GitHub via GraphQL. Still the method must
-    #'   exist as it is called from the GitHost wrapper above.
-    #' @param org An organization.
-    #' @param date_from A starting date to look commits for.
-    #' @param date_until An end date to look commits for.
-    #' @param settings A list of  `GitStats` settings.
-    #' @param .storage A storage of `GitStats` object.
-    #' @return A table of commits.
-    pull_commits = function(org = NULL,
-                            repos = NULL,
-                            date_from,
-                            date_until = Sys.date(),
-                            settings,
-                            .storage = NULL) {
-      NULL
-    },
-
     #' @description A method to add information on repository contributors.
     #' @param repos_table A table of repositories.
     #' @param settings GitStats settings.
@@ -106,27 +87,6 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     }
   ),
   private = list(
-
-    # @description Check if the token gives access to API.
-    # @param token A token.
-    # @return A token.
-    check_token = function(token) {
-      super$check_token(token)
-      if (nchar(token) > 0) {
-        withCallingHandlers({
-          self$response(endpoint = self$rest_api_url,
-                        token = token)
-        },
-        message = function(m) {
-          if (grepl("401", m$message)) {
-            cli::cli_abort(c(
-              "x" = m$message
-            ))
-          }
-        })
-      }
-      return(invisible(token))
-    },
 
     # @description Search code by phrase
     # @param phrase A phrase to look for in

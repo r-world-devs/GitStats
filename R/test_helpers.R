@@ -22,16 +22,17 @@ Mocker <- R6::R6Class("Mocker",
 #' @noRd
 #' @description A helper class for use in tests - it does not throw superfluous
 #'   messages and does exactly what is needed for in tests.
-TestHost <- R6::R6Class("TestHost",
-  inherit = GitHost,
+GitHostGitHubTest <- R6::R6Class("GitHostGitHubTest",
+  inherit = GitHostGitHub,
   public = list(
     initialize = function(orgs = NA,
                           repos = NA,
                           token = NA,
-                          api_url = NA) {
-      private$api_url <- api_url
-      private$host <- private$set_host_name()
-      private$token <- token
+                          host = NA) {
+      private$set_api_url(host)
+      private$set_endpoints()
+      private$check_if_public(host)
+      private$set_graphql_url()
       private$setup_test_engines()
       private$orgs <- orgs
       private$repos <- repos
@@ -39,7 +40,6 @@ TestHost <- R6::R6Class("TestHost",
   ),
   private = list(
     setup_test_engines = function() {
-      if (grepl("https://", private$api_url) && grepl("github", private$api_url)) {
         private$engines$rest <- TestEngineRestGitHub$new(
           token = private$token,
           rest_api_url = private$api_url
@@ -48,32 +48,74 @@ TestHost <- R6::R6Class("TestHost",
           token = private$token,
           gql_api_url = private$set_gql_url(private$api_url)
         )
-      } else if (grepl("https://", private$api_url) && grepl("gitlab|code", private$api_url)) {
-        private$engines$rest <- TestEngineRestGitLab$new(
-          token = private$token,
-          rest_api_url = private$api_url
-        )
-        private$engines$graphql <- EngineGraphQLGitLab$new(
-          token = private$token,
-          gql_api_url = private$set_gql_url(private$api_url)
-        )
-      }
     }
   )
 )
 
 #' @noRd
-#' @description A wrapper over creating `TestHost`.
-create_testhost <- function(api_url = NULL,
-                            token = NULL,
-                            orgs = NULL,
-                            repos = NULL,
-                            mode = "") {
-  test_host <- TestHost$new(
-    api_url = api_url,
-    token = token,
-    orgs = orgs,
-    repos = repos
+#' @description A helper class for use in tests - it does not throw superfluous
+#'   messages and does exactly what is needed for in tests.
+GitHostGitLabTest <- R6::R6Class("GitHostGitLabTest",
+   inherit = GitHostGitLab,
+   public = list(
+     initialize = function(orgs = NA,
+                           repos = NA,
+                           token = NA,
+                           host = NA) {
+       private$set_api_url(host)
+       private$set_endpoints()
+       private$check_if_public(host)
+       private$set_graphql_url()
+       private$setup_test_engines()
+       private$orgs <- orgs
+       private$repos <- repos
+     }
+   ),
+   private = list(
+     setup_test_engines = function() {
+       private$engines$rest <- TestEngineRestGitLab$new(
+         token = private$token,
+         rest_api_url = private$api_url
+       )
+       private$engines$graphql <- EngineGraphQLGitLab$new(
+         token = private$token,
+         gql_api_url = private$set_gql_url(private$api_url)
+       )
+     }
+   )
+)
+
+#' @noRd
+create_github_testhost <- function(host = NULL,
+                                   orgs = NULL,
+                                   repos = NULL,
+                                   mode = "") {
+  suppressMessages(
+    test_host <- GitHostGitHub$new(
+      host = NULL,
+      token = Sys.getenv("GITHUB_PAT"),
+      orgs = orgs,
+      repos = repos
+    )
+  )
+  if (mode == "private") {
+    test_host <- environment(test_host$initialize)$private
+  }
+  return(test_host)
+}
+
+#' @noRd
+create_gitlab_testhost <- function(host = NULL,
+                                   orgs = NULL,
+                                   repos = NULL,
+                                   mode = "") {
+  suppressMessages(
+    test_host <- GitHostGitLab$new(
+      host = NULL,
+      token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+      orgs = orgs,
+      repos = repos
+    )
   )
   if (mode == "private") {
     test_host <- environment(test_host$initialize)$private
@@ -97,27 +139,27 @@ TestEngineRest <- R6::R6Class("TestEngineRest",
 #' @noRd
 #' @description A helper class to use in tests.
 TestEngineRestGitHub <- R6::R6Class("TestEngineRestGitHub",
-                              inherit = EngineRestGitHub,
-                              public = list(
-                                initialize = function(token,
-                                                      rest_api_url) {
-                                  private$token <- token
-                                  self$rest_api_url <- rest_api_url
-                                }
-                              )
+  inherit = EngineRestGitHub,
+  public = list(
+    initialize = function(token,
+                          rest_api_url) {
+      private$token <- token
+      self$rest_api_url <- rest_api_url
+    }
+  )
 )
 
 #' @noRd
 #' @description A helper class to use in tests.
 TestEngineRestGitLab <- R6::R6Class("TestEngineRestGitLab",
-                                    inherit = EngineRestGitLab,
-                                    public = list(
-                                      initialize = function(token,
-                                                            rest_api_url) {
-                                        private$token <- token
-                                        self$rest_api_url <- rest_api_url
-                                      }
-                                    )
+  inherit = EngineRestGitLab,
+  public = list(
+    initialize = function(token,
+                          rest_api_url) {
+      private$token <- token
+      self$rest_api_url <- rest_api_url
+    }
+  )
 )
 
 #' @noRd

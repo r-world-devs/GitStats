@@ -1,6 +1,7 @@
 Acknowledgement
 CMD
 Codecov
+devs
 EngineGraphQL
 EngineGraphQLGitHub
 EngineGraphQLGitLab
@@ -14,6 +15,7 @@ GitHost
 GitLab
 GitLab's
 GithubMetrics
+gitstats
 GraphQL
 Igras
 Krystian
@@ -29,6 +31,7 @@ magrittr
 organisations
 orgs
 param
+POSIXct
 plotly
 repo
 repos

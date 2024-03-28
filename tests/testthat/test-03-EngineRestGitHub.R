@@ -7,20 +7,6 @@ test_rest <- EngineRestGitHub$new(
 
 test_rest_priv <- environment(test_rest$initialize)$private
 
-test_that("`check_token()` prints error when token exists but does not grant access", {
-  token <- "does_not_grant_access"
-  expect_snapshot_error(
-    test_rest_priv$check_token(token)
-  )
-})
-
-test_that("when token is proper token is passed", {
-  expect_equal(
-    test_rest_priv$check_token(Sys.getenv("GITHUB_PAT")),
-    Sys.getenv("GITHUB_PAT")
-  )
-})
-
 test_that("`search_response()` performs search with limit under 100", {
   total_n <- test_mocker$use("gh_search_response")[["total_count"]]
 

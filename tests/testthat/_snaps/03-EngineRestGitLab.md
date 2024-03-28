@@ -1,7 +1,3 @@
-# `check_token()` prints error when token exists but does not grant access
-
-    x HTTP 401 Unauthorized.
-
 # `get_commits_authors_handles_and_names()` adds author logis and names to commits table
 
     Code
