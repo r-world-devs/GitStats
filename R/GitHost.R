@@ -25,6 +25,7 @@ GitHost <- R6::R6Class("GitHost",
       private$check_if_public(host)
       private$set_token(token)
       private$set_graphql_url()
+      private$check_orgs_and_repos(orgs, repos)
       private$setup_engines()
       private$set_scanning_scope(orgs, repos)
     },
@@ -273,9 +274,8 @@ GitHost <- R6::R6Class("GitHost",
 
     # Set organization or repositories
     set_scanning_scope = function(orgs, repos) {
-      private$check_orgs_and_repos(orgs, repos)
       if (private$scan_all) {
-        cli::cli_alert_info("[{private$host}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
+        cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
         private$orgs <- private$engines$graphql$pull_orgs()
       } else {
         if (!is.null(orgs)) {
