@@ -58,6 +58,8 @@ standardize_dates <- function(dates) {
   purrr::discard(dates, is.null) %>% purrr::map_vec(as.POSIXct)
 }
 
+#' @importFrom utils URLencode URLdecode
+
 #' @noRd
 #' @description Apply url encoding to string
 url_encode <- function(url) {
