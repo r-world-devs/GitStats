@@ -429,8 +429,9 @@ show_data <- function(gitstats_obj, storage) {
   )
 }
 
-#' @title switch on verbose mode
+#' @title Switch on verbose mode
 #' @name verbose_on
+#' @description Print all messages and output.
 #' @param gitstats_obj A GitStats object.
 #' @return A GitStats object.
 #' @export
@@ -438,8 +439,9 @@ verbose_on <- function(gitstats_obj) {
   gitstats_obj$verbose_on()
 }
 
-#' @title switch off verbose mode
+#' @title Switch off verbose mode
 #' @name verbose_off
+#' @description Stop printing messages and output.
 #' @param gitstats_obj A GitStats object.
 #' @return A GitStats object.
 #' @export

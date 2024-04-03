@@ -7,6 +7,7 @@ reference:
   - matches("create_gitstats")
   - starts_with("set_")
   - starts_with("reset")
+  - starts_with("verbose")
 - title: Pull data
 - contents:
   - starts_with("get_")

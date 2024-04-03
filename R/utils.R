@@ -51,9 +51,7 @@ commits_stats <- function(object, time_interval) {
   object
 }
 
-#' standardize dates to POSIXct format
-#' @param dates list of dates
-#' @return list of POSIXct dates
+#' @noRd
 standardize_dates <- function(dates) {
   purrr::discard(dates, is.null) %>% purrr::map_vec(as.POSIXct)
 }

@@ -1,5 +1,5 @@
 ---
-title: "Get repositories"
+title: "Get repositories data"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Get repositories data}
