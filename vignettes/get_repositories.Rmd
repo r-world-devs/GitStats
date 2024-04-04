@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 Set connections to hosts.
 
-> Example workflow makes use of public GitLab, but is rather more plausible, that you will use your internal git platforms, where you need to define `host` parameter.
+> Example workflow makes use of public GitLab, but it is rather more plausible, that you will use your internal git platforms, where you need to define `host` parameter.
 
 ```{r}
 library(GitStats)
@@ -37,8 +37,7 @@ git_stats <- create_gitstats() %>%
 By default your search preferences are set to `organizations` (`org`), which means that `GitStats` will pull all repositories from the organizations you specified in `set_*_host()`.
 
 ```{r}
-repos <- get_repos(git_stats)
-repos
+get_repos(git_stats)
 ```
 
 ## Set
@@ -46,13 +45,6 @@ repos
 You can setup your search preferences, either to `org`, `team` or `phrase`. 
 
 With settings you can also set your language and silence the output.
-
-```{r}
-set_params(
-  gitstats_obj = git_stats,
-  verbose = FALSE
-)
-```
 
 ### Team
 
@@ -76,7 +68,7 @@ set_params(
   gitstats_obj = git_stats,
   search_param = "team",
   team_name = "RWD",
-  verbose = FALSE
+  use_storage = FALSE
 ) 
 ```
 
@@ -91,18 +83,15 @@ get_repos(git_stats)
 With `GitStats` you can look for the repos with a certain phrase in code blobs (you can not do it for the commits!).
 
 ```{r}
-repos_stats <- create_gitstats() %>%
+create_gitstats() %>%
   set_github_host(
     orgs = c("r-world-devs", "openpharma")
   ) %>% 
   set_params(
     search_param = "phrase",
-    phrase = "Shiny",
-    verbose = FALSE
+    phrase = "Shiny"
   ) %>% 
   get_repos()
-
-head(repos_stats)
 ```
 
 ### Language
@@ -110,14 +99,13 @@ head(repos_stats)
 You can define a programming language in your settings.
 
 ```{r}
-repos_stats <- set_params(
+set_params(
   gitstats_obj = git_stats,
   search_param = "org",
   language = "JavaScript",
-  verbose = FALSE
+  use_storage = FALSE
 ) %>% 
-  get_repos() 
-head(repos_stats)
+  get_repos()
 ```
 
 You can always get back to All languages.

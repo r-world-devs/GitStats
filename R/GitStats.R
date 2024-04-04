@@ -20,10 +20,10 @@ GitStats <- R6::R6Class("GitStats",
     #' @param language A language of programming code.
     #' @param verbose A boolean stating if you want to print output after
     #'   pulling.
-    #' @param use_storage A boolean. If set to `TRUE` it will pull data from the
-    #'   storage when it is there, e.g. `repositories`, when user runs
-    #'   `get_repos()`. If set to `FALSE` `get_repos()` will always pull data from
-    #'   the API.
+    #' @param use_storage A boolean.  A boolean. If set to `TRUE` it will pull
+    #'   the latest data from the storage when it is there, e.g. `repositories`,
+    #'   when user runs `get_repos()`. If set to `FALSE` `get_repos()` will
+    #'   always pull data from the API.
     #' @return Nothing.
     set_params = function(search_param,
                           team_name = NULL,
@@ -46,12 +46,12 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     #' @description Method to set connections to Git platforms.
-    #' @param host A character, optional, url name of the host. If not passed,
-    #'   a public host will be used (api.github.com).
+    #' @param host A character, optional, URL name of the host. If not passed, a
+    #'   public host will be used (api.github.com).
     #' @param token A token.
     #' @param orgs An optional character vector of organisations (owners of
-    #'   repositories in case of GitHub and groups of projects in case of
-    #'   GitLab). If you pass it, `repos` parameter should stay `NULL`.
+    #'   repositories in case of GitHub). If you pass it, `repos` parameter
+    #'   should stay `NULL`.
     #' @param repos An optional character vector of repositories full names
     #'   (organization and repository name, e.g. "r-world-devs/GitStats"). If
     #'   you pass it, `orgs` parameter should stay `NULL`.
@@ -72,15 +72,15 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     #' @description Method to set connections to Git platforms.
-    #' @param host A character, optional, url name of the host. If not passed,
-    #'   a public host will be used (gitlab.com/api/v4).
+    #' @param host A character, optional, URL name of the host. If not passed, a
+    #'   public host will be used (gitlab.com/api/v4).
     #' @param token A token.
-    #' @param orgs An optional character vector of organisations (owners of
-    #'   repositories in case of GitHub and groups of projects in case of GitLab).
-    #'   If you pass it, `repos` parameter should stay `NULL`.
+    #' @param orgs An optional character vector of organisations (groups of
+    #'   projects in case of GitLab). If you pass it, `repos` parameter should
+    #'   stay `NULL`.
     #' @param repos An optional character vector of repositories full names
-    #'   (organization and repository name, e.g. "r-world-devs/GitStats"). If you
-    #'   pass it, `orgs` parameter should stay `NULL`.
+    #'   (organization and repository name, e.g. "r-world-devs/GitStats"). If
+    #'   you pass it, `orgs` parameter should stay `NULL`.
     #' @return Nothing, puts connection information into `$hosts` slot.
     set_gitlab_host = function(host,
                                token = NULL,

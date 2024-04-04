@@ -15,13 +15,13 @@ set_gitlab_host(
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
 
-\item{host}{A character, url name of the host.}
+\item{host}{A character, optional, URL name of the host. If not passed, a
+public host will be used.}
 
 \item{token}{A token.}
 
-\item{orgs}{An optional character vector of organisations (owners of
-repositories in case of GitHub and groups of projects in case of GitLab).
-If you pass it, \code{repos} parameter should stay \code{NULL}.}
+\item{orgs}{An optional character vector of organisations. If you pass it,
+\code{repos} parameter should stay \code{NULL}.}
 
 \item{repos}{An optional character vector of repositories full names
 (organization and repository name, e.g. "r-world-devs/GitStats"). If you

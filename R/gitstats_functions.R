@@ -11,11 +11,11 @@ create_gitstats <- function() {
 #' @title Set GitHub host
 #' @name set_github_host
 #' @param gitstats_obj A GitStats object.
-#' @param host A character, url name of the host.
+#' @param host A character, optional, URL name of the host. If not passed, a
+#'   public host will be used.
 #' @param token A token.
-#' @param orgs An optional character vector of organisations (owners of
-#'   repositories in case of GitHub and groups of projects in case of GitLab).
-#'   If you pass it, `repos` parameter should stay `NULL`.
+#' @param orgs An optional character vector of organisations. If you pass it,
+#'   `repos` parameter should stay `NULL`.
 #' @param repos An optional character vector of repositories full names
 #'   (organization and repository name, e.g. "r-world-devs/GitStats"). If you
 #'   pass it, `orgs` parameter should stay `NULL`.
@@ -150,8 +150,8 @@ reset <- function(gitstats_obj){
 
 #' @title Reset language settings
 #' @name reset_language
-#' @description Sets language parameter to \code{NULL} (switches of filtering by
-#'   language.).
+#' @description Sets language parameter to \code{NULL} (switches off filtering
+#'   by language.).
 #' @param gitstats_obj A GitStats object.
 #' @return A `GitStats` object.
 #' @export

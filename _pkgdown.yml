@@ -11,7 +11,7 @@ reference:
 - title: Pull data
 - contents:
   - starts_with("get_")
-- title: Show and visualise results
+- title: Show results
 - contents:
   - starts_with("show_")
   - starts_with("plot_")
