@@ -13,6 +13,6 @@ reset_language(gitstats_obj)
 A \code{GitStats} object.
 }
 \description{
-Sets language parameter to \code{NULL} (switches of filtering by
-language.).
+Sets language parameter to \code{NULL} (switches off filtering
+by language.).
 }

@@ -7,7 +7,7 @@
 date_to_gts <- function(date) {
   date_format <- as.Date(date)
   posixt_format <- as.POSIXct(date)
-  if (date_format == posixt_format) {
+  if (as.POSIXct(date_format) == as.POSIXct(posixt_format)) {
     paste0(date, "T00:00:00Z")
   } else {
     stringr::str_replace(
@@ -51,9 +51,15 @@ commits_stats <- function(object, time_interval) {
   object
 }
 
-#' standardize dates to POSIXct format
-#' @param dates list of dates
-#' @return list of POSIXct dates
+#' @noRd
 standardize_dates <- function(dates) {
   purrr::discard(dates, is.null) %>% purrr::map_vec(as.POSIXct)
+}
+
+#' @importFrom utils URLencode URLdecode
+
+#' @noRd
+#' @description Apply url encoding to string
+url_encode <- function(url) {
+  URLencode(url, reserved = TRUE)
 }

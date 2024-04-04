@@ -2,7 +2,7 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{verbose_off}
 \alias{verbose_off}
-\title{switch off verbose mode}
+\title{Switch off verbose mode}
 \usage{
 verbose_off(gitstats_obj)
 }
@@ -13,5 +13,5 @@ verbose_off(gitstats_obj)
 A GitStats object.
 }
 \description{
-switch off verbose mode
+Stop printing messages and output.
 }

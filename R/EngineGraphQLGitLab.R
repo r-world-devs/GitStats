@@ -55,7 +55,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      #' @return A table.
      pull_repos = function(org,
                            settings) {
-       org <- gsub("%2f", "/", org)
+       org <- URLdecode(org)
        if (settings$search_param == "org") {
          if (!private$scan_all) {
            if (settings$verbose) {
@@ -73,34 +73,6 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
          repos_table <- NULL
        }
        return(repos_table)
-     },
-
-     #' @description An empty method to satisfy engine iterator.
-     #' @param org An organization.
-     #' @param settings A list of  `GitStats` settings.
-     #' @return Nothing.
-     pull_repos_supportive = function(org,
-                                      settings) {
-       NULL
-     },
-
-     #' @description Method to get commits.
-     #' @details This method is empty as this class does not support pulling
-     #'   commits - it is done for GitLab via REST. Still the method must
-     #'   exist as it is called from the GitHost wrapper above.
-     #' @param org An organization.
-     #' @param date_from A starting date to look commits for.
-     #' @param date_until An end date to look commits for.
-     #' @param settings A list of  `GitStats` settings.
-     #' @param .storage A storage of `GitStats` object.
-     #' @return A table of commits.
-     pull_commits = function(org,
-                             repos = NULL,
-                             date_from,
-                             date_until = Sys.date(),
-                             settings,
-                             .storage = NULL) {
-       NULL
      }
 
    ),
@@ -237,7 +209,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      #   argument to iterate over it when pulling files.
      # @return A response in a list form.
      pull_file_from_org = function(org, file_path, pulled_repos = NULL) {
-       org <- gsub("%2f", "/", org)
+       org <- URLdecode(org)
        if (!is.null(pulled_repos)) {
          repos_table <- pulled_repos %>%
            dplyr::filter(organization == org)

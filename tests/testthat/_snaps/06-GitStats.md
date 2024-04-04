@@ -46,8 +46,8 @@
       A GitStats object for 2 hosts: 
       Hosts: https://api.github.com, https://gitlab.com/api/v4
       Scanning scope: 
-       Organizations: [0] 
-       Repositories: [4] r-world-devs/GitStats, openpharma/GithubMetrics, mbtests/gitstatstesting, mbtests/gitstats-testing-2
+       Organizations: [3] r-world-devs, openpharma, mbtests
+       Repositories: [4] GitStats, GithubMetrics, gitstatstesting, gitstats-testing-2
        Files: <not defined>
       Search settings: 
        Search parameter: repo

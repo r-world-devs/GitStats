@@ -8,14 +8,14 @@ create_gitstats <- function() {
   GitStats$new()
 }
 
-#' @title Set Git host
-#' @name set_host
+#' @title Set GitHub host
+#' @name set_github_host
 #' @param gitstats_obj A GitStats object.
-#' @param api_url A character, URL address of API.
+#' @param host A character, optional, URL name of the host. If not passed, a
+#'   public host will be used.
 #' @param token A token.
-#' @param orgs An optional character vector of organisations (owners of
-#'   repositories in case of GitHub and groups of projects in case of GitLab).
-#'   If you pass it, `repos` parameter should stay `NULL`.
+#' @param orgs An optional character vector of organisations. If you pass it,
+#'   `repos` parameter should stay `NULL`.
 #' @param repos An optional character vector of repositories full names
 #'   (organization and repository name, e.g. "r-world-devs/GitStats"). If you
 #'   pass it, `orgs` parameter should stay `NULL`.
@@ -28,24 +28,51 @@ create_gitstats <- function() {
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
-#'   set_host(
-#'     api_url = "https://api.github.com",
+#'   set_github_host(
 #'     orgs = c("r-world-devs", "openpharma", "pharmaverse")
-#'   ) %>%
-#'   set_host(
-#'     api_url = "https://gitlab.com/api/v4",
-#'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-#'     orgs = "erasmusmc-public-health"
 #'   )
 #' }
 #' @export
-set_host <- function(gitstats_obj,
-                     api_url,
-                     token = NULL,
-                     orgs = NULL,
-                     repos = NULL) {
-  gitstats_obj$set_host(
-    api_url = api_url,
+set_github_host <- function(gitstats_obj,
+                            host = NULL,
+                            token = NULL,
+                            orgs = NULL,
+                            repos = NULL) {
+  gitstats_obj$set_github_host(
+    host = host,
+    token = token,
+    orgs = orgs,
+    repos = repos
+  )
+
+  return(invisible(gitstats_obj))
+}
+
+#' @title Set GitLab host
+#' @name set_gitlab_host
+#' @inheritParams set_github_host
+#' @details If you do not define `orgs` and `repos`, `GitStats` will be set to
+#'   scan whole Git platform (such as enterprise version of GitHub or GitLab),
+#'   unless it is a public platform. In case of a public one (like GitHub) you
+#'   need to define `orgs` or `repos` as scanning through all organizations may
+#'   take large amount of time.
+#' @return A `GitStats` object with added information on host.
+#' @examples
+#' \dontrun{
+#' my_gitstats <- create_gitstats() %>%
+#'   set_gitlab_host(
+#'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+#'     orgs = "mbtests"
+#'   )
+#' }
+#' @export
+set_gitlab_host <- function(gitstats_obj,
+                            host = NULL,
+                            token = NULL,
+                            orgs = NULL,
+                            repos = NULL) {
+  gitstats_obj$set_gitlab_host(
+    host = host,
     token = token,
     orgs = orgs,
     repos = repos
@@ -111,11 +138,12 @@ reset <- function(gitstats_obj){
   priv$settings <- list(
     search_param = "org",
     phrase = NULL,
+    files = NULL,
     team_name = NULL,
     team = list(),
     language = "All",
     verbose = TRUE,
-    storage = "On"
+    use_storage = TRUE
   )
   cli::cli_alert_info("Reset settings to default.")
   return(gitstats_obj)
@@ -123,8 +151,8 @@ reset <- function(gitstats_obj){
 
 #' @title Reset language settings
 #' @name reset_language
-#' @description Sets language parameter to \code{NULL} (switches of filtering by
-#'   language.).
+#' @description Sets language parameter to \code{NULL} (switches off filtering
+#'   by language.).
 #' @param gitstats_obj A GitStats object.
 #' @return A `GitStats` object.
 #' @export
@@ -402,8 +430,9 @@ show_data <- function(gitstats_obj, storage) {
   )
 }
 
-#' @title switch on verbose mode
+#' @title Switch on verbose mode
 #' @name verbose_on
+#' @description Print all messages and output.
 #' @param gitstats_obj A GitStats object.
 #' @return A GitStats object.
 #' @export
@@ -411,8 +440,9 @@ verbose_on <- function(gitstats_obj) {
   gitstats_obj$verbose_on()
 }
 
-#' @title switch off verbose mode
+#' @title Switch off verbose mode
 #' @name verbose_off
+#' @description Stop printing messages and output.
 #' @param gitstats_obj A GitStats object.
 #' @return A GitStats object.
 #' @export
