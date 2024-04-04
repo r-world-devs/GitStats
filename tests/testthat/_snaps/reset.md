@@ -17,7 +17,7 @@
        Language: All
        Team: <not defined>
       Verbose: TRUE
-      Use storage: <not defined>
+      Use storage: TRUE
       Storage: <no tables in storage>
 
 ---
@@ -39,7 +39,7 @@
        Language: All
        Team: <not defined>
       Verbose: TRUE
-      Use storage: <not defined>
+      Use storage: TRUE
       Storage: <no tables in storage>
 
 # `reset_language()` resets language settings to 'All'

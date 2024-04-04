@@ -138,11 +138,12 @@ reset <- function(gitstats_obj){
   priv$settings <- list(
     search_param = "org",
     phrase = NULL,
+    files = NULL,
     team_name = NULL,
     team = list(),
     language = "All",
     verbose = TRUE,
-    storage = "On"
+    use_storage = TRUE
   )
   cli::cli_alert_info("Reset settings to default.")
   return(gitstats_obj)
