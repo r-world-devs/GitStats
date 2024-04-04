@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 When pulling commits you can choose to scan only specific repositories (not whole organizations). If that is your wish, pass your repositories (full names, i.e. `org/repository` path) to the `repos` parameter instead of `orgs` parameter.
 
-> Example workflow makes use of public GitLab, but is rather more plausible, that you will use your internal git platforms, where you need to define `host` parameter.
+> Example workflow makes use of public GitLab, but it is rather more plausible, that you will use your internal git platforms, where you need to define `host` parameter.
 
 ```{r}
 library(GitStats)
