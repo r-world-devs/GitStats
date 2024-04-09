@@ -57,29 +57,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
         }')
     },
 
-    #' @description Prepare query to get repositories from GitHub.
-    #' @param repo_cursor An end cursor for repositories page.
-    #' @return A query.
-    repos_by_user = function(repo_cursor = "") {
-      if (nchar(repo_cursor) == 0) {
-        after_cursor <- repo_cursor
-      } else {
-        after_cursor <- paste0('after: "', repo_cursor, '" ')
-      }
-
-      paste0('
-        query GetReposByUser($user: String!) {
-          user(login: $user) {
-            repositories(
-              first: 100
-              ownerAffiliations: COLLABORATOR
-              ', after_cursor, ') {
-              ', private$repository_field(),'
-            }
-          }
-        }')
-    },
-
     #' @description Prepare query to get info on a GitHub user.
     #' @param login A login of a user.
     #' @return A query.

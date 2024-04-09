@@ -35,7 +35,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
         "release_logs"
       ),
       "rest" = list(
-        "phrase",
+        "code",
         "contributors"
       )
     ),
@@ -112,7 +112,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
       commits_table <- purrr::map(private$orgs, function(org) {
         commits_table_org <- NULL
         repos <- private$set_repos(settings, org)
-        api_engine <- private$run_engine("commits")
+        api_engine <- private$set_engine("commits")
         commits_table_org <- api_engine$pull_commits(
           org = org,
           repos = repos,

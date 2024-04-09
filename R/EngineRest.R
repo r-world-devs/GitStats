@@ -22,6 +22,7 @@ EngineRest <- R6::R6Class("EngineRest",
       private$token <- token
       self$rest_api_url <- rest_api_url
       private$scan_all <- scan_all
+      private$set_endpoints()
     },
 
     #' @description A wrapper for httr2 functions to perform get request to REST API endpoints.
@@ -55,6 +56,16 @@ EngineRest <- R6::R6Class("EngineRest",
         purrr::map_chr(~ eval(user_name)) %>%
         paste0(collapse = ", ")
       return(contributors_vec)
+    },
+
+    # Filtering handler if files are set for scanning scope
+    limit_search_to_files = function(repos_list, files) {
+      if (!is.null(files)) {
+        repos_list <- purrr::keep(repos_list, function(repository) {
+          any(repository$path %in% files)
+        })
+      }
+      return(repos_list)
     },
 
     # Helper

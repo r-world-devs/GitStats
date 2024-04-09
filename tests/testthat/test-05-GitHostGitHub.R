@@ -115,7 +115,9 @@ test_that("`extract_repos_and_orgs` extracts fullnames vector into a list of Git
 
 test_that("GitHost pulls repos from orgs", {
   expect_snapshot(
-    gh_repos_table <- test_host$pull_repos_from_host(test_settings)
+    gh_repos_table <- test_host$pull_repos_from_host(
+      settings = test_settings
+    )
   )
   expect_repos_table(
     gh_repos_table
@@ -128,69 +130,6 @@ test_that("GitHost adds `repo_api_url` column to GitHub repos table", {
   gh_repos_table_with_api_url <- test_host$add_repo_api_url(repos_table)
   expect_true(all(grepl("api.github.com", gh_repos_table_with_api_url$api_url)))
   test_mocker$cache(gh_repos_table_with_api_url)
-})
-
-test_that("GitHost filters GitHub repositories' (pulled by org) table by languages", {
-  repos_table <- test_mocker$use("gh_repos_table")
-  expect_snapshot(
-    result <- test_host$filter_repos_by_language(
-      repos_table,
-      language = "JavaScript"
-    )
-  )
-  expect_length(
-    result,
-    length(repos_table)
-  )
-  expect_gt(
-    nrow(result),
-    0
-  )
-  expect_true(
-    all(grepl("JavaScript", result$languages))
-  )
-})
-
-test_that("GitHost filters GitHub repositories' (pulled by team) table by languages", {
-  repos_table <- test_mocker$use("gh_repos_table_team")
-  expect_snapshot(
-    result <- test_host$filter_repos_by_language(
-      repos_table,
-      language = "CSS"
-    )
-  )
-  expect_length(
-    result,
-    length(repos_table)
-  )
-  expect_gt(
-    nrow(result),
-    0
-  )
-  expect_true(
-    all(grepl("CSS", result$languages))
-  )
-})
-
-test_that("GitHost filters GitHub repositories' (pulled by phrase) table by languages", {
-  gh_repos_table <- test_mocker$use("gh_repos_by_phrase_table")
-  expect_snapshot(
-    result <- test_host$filter_repos_by_language(
-      gh_repos_table,
-      language = "R"
-    )
-  )
-  expect_length(
-    result,
-    length(gh_repos_table)
-  )
-  expect_gt(
-    nrow(result),
-    0
-  )
-  expect_true(
-    all(grepl("R", result$languages))
-  )
 })
 
 # public methods

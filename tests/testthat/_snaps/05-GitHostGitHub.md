@@ -32,31 +32,10 @@
 # GitHost pulls repos from orgs
 
     Code
-      gh_repos_table <- test_host$pull_repos_from_host(test_settings)
+      gh_repos_table <- test_host$pull_repos_from_host(settings = test_settings)
     Message
       i [GitHub][Engine:GraphQL][org:openpharma] Pulling repositories...
       i [GitHub][Engine:GraphQL][org:r-world-devs] Pulling repositories...
-
-# GitHost filters GitHub repositories' (pulled by org) table by languages
-
-    Code
-      result <- test_host$filter_repos_by_language(repos_table, language = "JavaScript")
-    Message
-      i Filtering by language.
-
-# GitHost filters GitHub repositories' (pulled by team) table by languages
-
-    Code
-      result <- test_host$filter_repos_by_language(repos_table, language = "CSS")
-    Message
-      i Filtering by language.
-
-# GitHost filters GitHub repositories' (pulled by phrase) table by languages
-
-    Code
-      result <- test_host$filter_repos_by_language(gh_repos_table, language = "R")
-    Message
-      i Filtering by language.
 
 # pull_repos returns table of repositories
 

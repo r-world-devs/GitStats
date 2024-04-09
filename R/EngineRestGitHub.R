@@ -5,28 +5,25 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
   inherit = EngineRest,
   public = list(
 
-    #' @description Method to get repositories with phrase in code blobs.
+    #' @description Method to get repositories with a specific code blob.
     #' @param org An organization
+    #' @param code A character, code to search for.
     #' @param settings A list of  `GitStats` settings.
     #' @return Table of repositories.
     pull_repos = function(org,
+                          code = NULL,
                           settings) {
-      if (settings$search_param == "phrase") {
-        if (!private$scan_all && settings$verbose) {
-          cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{org}] Searching repositories...")
-        }
-        repos_table <- private$search_repos_by_phrase(
-          org = org,
-          phrase = settings$phrase,
-          files = settings$files,
-          language = settings$language
-        ) %>%
-          private$tailor_repos_info() %>%
-          private$prepare_repos_table() %>%
-          private$pull_repos_issues()
-      } else {
-        repos_table <- NULL
+      if (!private$scan_all && settings$verbose) {
+        cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][code:{code}][org:{org}] Pulling repositories...")
       }
+      repos_table <- private$pull_repos_by_code(
+        org = org,
+        code = code,
+        files = settings$files
+      ) %>%
+        private$tailor_repos_info() %>%
+        private$prepare_repos_table() %>%
+        private$pull_repos_issues()
       return(repos_table)
     },
 
@@ -38,7 +35,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     pull_repos_supportive = function(org,
                                      settings) {
       repos_table <- NULL
-      if (settings$search_param %in% c("org")) {
+      if (settings$search_mode %in% c("org")) {
         if (!private$scan_all) {
           if (settigs$verbose) {
             cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
@@ -88,31 +85,38 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
   ),
   private = list(
 
-    # @description Search code by phrase
-    # @param phrase A phrase to look for in
-    #   codelines.
+    # List of endpoints
+    endpoints = list(
+      search = NULL
+    ),
+
+    # Set endpoints for the API
+    set_endpoints = function() {
+      private$endpoints[["search"]] <- paste0(
+        self$rest_api_url,
+        '/search/code?q='
+      )
+    },
+
+    # @description Pulling repositories where code appears
+    # @param code A code blob to look for in codelines.
     # @param org A character, an organization of repositories.
-    # @param language A character specifying language used in repositories.
-    # @param byte_max According to GitHub
-    #   documentation only files smaller than 384 KB are searchable. See
+    # @param byte_max According to GitHub documentation only files smaller than
+    #   384 KB are searchable. See
     #   \link{https://docs.github.com/en/rest/search?apiVersion=2022-11-28#search-code}
     #
     # @return A list of repositories.
-    search_repos_by_phrase = function(phrase,
-                                      org,
-                                      files,
-                                      language,
-                                      byte_max = "384000") {
+    pull_repos_by_code = function(org,
+                                  code,
+                                  files,
+                                  byte_max = "384000") {
       user_query <- if (!private$scan_all) {
         paste0('+user:', org)
       } else {
         ''
       }
-      query <- paste0('"', phrase, '"', user_query)
-      if (language != "All") {
-        query <- paste0(query, '+language:', language)
-      }
-      search_endpoint <- paste0(self$rest_api_url, '/search/code?q=', query)
+      query <- paste0('"', code, '"', user_query)
+      search_endpoint <- paste0(private$endpoints[["search"]], query)
       total_n <- self$response(search_endpoint)[["total_count"]]
       if (length(total_n) > 0) {
         repos_list <- private$search_response(
@@ -120,11 +124,10 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
           total_n = total_n,
           byte_max = byte_max
         )
-        if (!is.null(files)) {
-          repos_list <- purrr::keep(repos_list, function(repository) {
-            any(repository$path %in% files)
-          })
-        }
+        repos_list <- private$limit_search_to_files(
+          repos_list = repos_list,
+          files = files
+        )
         repos_list <- private$find_repos_by_id(repos_list)
       } else {
         repos_list <- list()

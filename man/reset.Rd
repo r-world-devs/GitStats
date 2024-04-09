@@ -13,6 +13,5 @@ reset(gitstats_obj)
 A \code{GitStats} object.
 }
 \description{
-Sets all settings to default: search_param to \code{org}, language to
-\code{All} and other to \code{NULL}s.
+Sets all settings to default.
 }

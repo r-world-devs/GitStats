@@ -88,28 +88,21 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
        if (!private$scan_all && settings$verbose) {
          cli::cli_alert_info("[Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling releases...")
        }
-       if (is.null(repos)) {
-         if (is.null(storage$repositories)) {
-           repos_table <- self$pull_repos(
-             org = org,
-             settings = settings
-           )
-         } else {
-           repos_table <- storage$repositories %>%
-             dplyr::filter(
-               organization == org
-             )
-         }
-         repos_names <- repos_table$repo_name
+       repos_names <- private$set_repositories(
+         repos = repos,
+         org = org,
+         settings = settings,
+         storage = storage
+       )
+       if (length(repos_names) > 0) {
+         releases_table <- private$pull_releases_from_org(
+           repos_names = repos_names,
+           org = org
+         ) %>%
+           private$prepare_releases_table(org, date_from, date_until)
        } else {
-         repos_names <- repos
+         releases_table <- NULL
        }
-       releases_table <- private$pull_releases_from_org(
-         repos_names = repos_names,
-         org = org
-       ) %>%
-         private$prepare_releases_table(org, date_from, date_until)
-
        return(releases_table)
      }
 
@@ -145,6 +138,33 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
          )
        )
        return(response)
+     },
+
+     # Set repositories for pulling commits or release logs
+     set_repositories = function(repos, org, settings, storage) {
+       if (is.null(repos)) {
+         if (is.null(storage$repositories)) {
+           repos_table <- self$pull_repos(
+             org = org,
+             settings = settings
+           )
+         } else {
+           if (settings$verbose) {
+             cli::cli_alert_warning(
+               cli::col_yellow("Using repositories stored in `GitStats` object.")
+             )
+           }
+           repos_table <- storage$repositories %>%
+             dplyr::filter(
+               organization == org
+             )
+         }
+         repos_names <- repos_table$repo_name
+       }
+       if (!is.null(repos)) {
+         repos_names <- repos
+       }
+       return(repos_names)
      }
    )
 )

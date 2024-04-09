@@ -18,7 +18,7 @@ A \code{GitStats} class object with commits table.
 }
 \description{
 List all commits from all repositories for an organization or a
-team.
+vector of repositories.
 }
 \examples{
 \dontrun{

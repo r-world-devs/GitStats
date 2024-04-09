@@ -84,11 +84,8 @@ set_gitlab_host <- function(gitstats_obj,
 #' @title Set up your search settings
 #' @name set_params
 #' @param gitstats_obj A GitStats object.
-#' @param search_param One of three: team, orgs or phrase.
-#' @param team_name Name of a team.
-#' @param phrase A phrase to look for.
+#' @param search_mode One of four: `org`, `repo` or `code`.
 #' @param files Define files to scan.
-#' @param language Code programming language.
 #' @param verbose A boolean to decide whether to print output.
 #' @param use_storage A boolean. If set to `TRUE` it will pull data from the
 #'   storage when it is there, e.g. `repositories`, when user runs
@@ -99,26 +96,19 @@ set_gitlab_host <- function(gitstats_obj,
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
 #'   set_params(
-#'     search_param = "team",
-#'     team_name = "Avengers",
-#'     language = "R"
+#'     search_mode = "code",
+#'     files = "DESCRIPTION"
 #'   )
 #' }
 #' @export
 set_params <- function(gitstats_obj,
-                       search_param = NULL,
-                       team_name = NULL,
-                       phrase = NULL,
+                       search_mode = NULL,
                        files = NULL,
-                       language = "All",
                        verbose = NULL,
                        use_storage = NULL) {
   gitstats_obj$set_params(
-    search_param = search_param,
-    team_name = team_name,
-    phrase = phrase,
+    search_mode = search_mode,
     files = files,
-    language = language,
     verbose = verbose,
     use_storage = use_storage
   )
@@ -128,20 +118,15 @@ set_params <- function(gitstats_obj,
 
 #' @title Reset GitStats settings
 #' @name reset
-#' @description Sets all settings to default: search_param to `org`, language to
-#'   `All` and other to `NULL`s.
+#' @description Sets all settings to default.
 #' @param gitstats_obj A GitStats object.
 #' @return A `GitStats` object.
 #' @export
 reset <- function(gitstats_obj){
   priv <- environment(gitstats_obj$set_params)$private
   priv$settings <- list(
-    search_param = "org",
-    phrase = NULL,
+    search_mode = "org",
     files = NULL,
-    team_name = NULL,
-    team = list(),
-    language = "All",
     verbose = TRUE,
     use_storage = TRUE
   )
@@ -149,61 +134,22 @@ reset <- function(gitstats_obj){
   return(gitstats_obj)
 }
 
-#' @title Reset language settings
-#' @name reset_language
-#' @description Sets language parameter to \code{NULL} (switches off filtering
-#'   by language.).
-#' @param gitstats_obj A GitStats object.
-#' @return A `GitStats` object.
-#' @export
-reset_language <- function(gitstats_obj){
-  priv <- environment(gitstats_obj$set_params)$private
-  priv$settings$language <- "All"
-  cli::cli_alert_info("Setting language parameter to 'All'.")
-  return(gitstats_obj)
-}
-
-#' @title Set your team member
-#' @name set_team_member
-#' @description Passes information on team member to your `team` field.
-#' @param gitstats_obj A GitStats object.
-#' @param member_name Name of a member.
-#' @param ... All user logins.
-#' @return `GitStats` object with new information on team member.
-#' @examples
-#' \dontrun{
-#' my_gitstats <- create_gitstats() %>%
-#'   set_team_member("Peter Parker", "spider_man", "spidey") %>%
-#'   set_team_member("Tony Stark", "ironMan", "tony_s")
-#' }
-#' @export
-set_team_member <- function(gitstats_obj,
-                            member_name,
-                            ...) {
-  gitstats_obj$set_team_member(
-    member_name = member_name,
-    ... = ...
-  )
-
-  return(invisible(gitstats_obj))
-}
-
 #' @title Get information on repositories
 #' @name get_repos
-#' @description  List all repositories for an organization, a team or by a
-#'   keyword.
+#' @description  List all repositories for an organization or by a keyword.
 #' @param gitstats_obj A GitStats object.
 #' @param add_contributors A logical parameter to decide whether to add
 #'   information about repositories' contributors to the repositories output
-#'   (table) when pulling them by organizations (`orgs`) or `phrase`. If set to
-#'   `FALSE` it makes function run faster as, in the case of `orgs` search
-#'   parameter, it reaches only `GraphQL` endpoint with a query on repositories,
-#'   and in the case of `phrase` search parameter it reaches only `repositories
-#'   REST API` endpoint. However, the pitfall is that the result does not convey
-#'   information on contributors. \cr\cr When set to `TRUE` (by default),
-#'   `GitStats` iterates additionally over pulled repositories and reaches to
-#'   the `contributors APIs`, which makes it slower, but gives additional
-#'   information.
+#'   (table). If set to `FALSE` it makes function run faster as, in the case of
+#'   `org` search mode, it reaches only `GraphQL` endpoint with a query on
+#'   repositories, and in the case of `code` search mode it reaches only
+#'   `repositories REST API` endpoint. However, the pitfall is that the result
+#'   does not convey information on contributors. \cr\cr When set to `TRUE` (by
+#'   default), `GitStats` iterates additionally over pulled repositories and
+#'   reaches to the `contributors APIs`, which makes it slower, but gives
+#'   additional information.
+#' @param code A character, should be defined is GitStats is set to get repos by
+#'   code with `set_params()` function.
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
@@ -220,14 +166,17 @@ set_team_member <- function(gitstats_obj,
 #'   get_repos(my_gitstats)
 #' }
 #' @export
-get_repos <- function(gitstats_obj, add_contributors = TRUE) {
-  gitstats_obj$get_repos(add_contributors = add_contributors)
+get_repos <- function(gitstats_obj, add_contributors = TRUE, code = NULL) {
+  gitstats_obj$get_repos(
+    add_contributors = add_contributors,
+    code = code
+  )
 }
 
 #' @title Get information on commits
 #' @name get_commits
 #' @description List all commits from all repositories for an organization or a
-#'   team.
+#'   vector of repositories.
 #' @param gitstats_obj  A GitStats object.
 #' @param since A starting date of commits.
 #' @param until An end date of commits.
@@ -438,6 +387,7 @@ show_data <- function(gitstats_obj, storage) {
 #' @export
 verbose_on <- function(gitstats_obj) {
   gitstats_obj$verbose_on()
+  return(invisible(gitstats_obj))
 }
 
 #' @title Switch off verbose mode

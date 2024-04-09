@@ -11,56 +11,8 @@
        Organizations: [2] r-world-devs, mbtests
        Repositories: [0] 
        Files: <not defined>
-      Search settings: 
-       Search parameter: org
-       Phrase: <not defined>
-       Language: All
-       Team: <not defined>
+      Search mode: org
       Verbose: TRUE
-      Use storage: TRUE
-      Storage: <no tables in storage>
-
----
-
-    Code
-      reset(test_gitstats)
-    Message
-      i Reset settings to default.
-    Output
-      A GitStats object for 2 hosts: 
-      Hosts: https://api.github.com, https://gitlab.com/api/v4
-      Scanning scope: 
-       Organizations: [2] r-world-devs, mbtests
-       Repositories: [0] 
-       Files: <not defined>
-      Search settings: 
-       Search parameter: org
-       Phrase: <not defined>
-       Language: All
-       Team: <not defined>
-      Verbose: TRUE
-      Use storage: TRUE
-      Storage: <no tables in storage>
-
-# `reset_language()` resets language settings to 'All'
-
-    Code
-      reset_language(test_gitstats)
-    Message
-      i Setting language parameter to 'All'.
-    Output
-      A GitStats object for 2 hosts: 
-      Hosts: https://api.github.com, https://gitlab.com/api/v4
-      Scanning scope: 
-       Organizations: [2] r-world-devs, mbtests
-       Repositories: [0] 
-       Files: <not defined>
-      Search settings: 
-       Search parameter: phrase
-       Phrase: test-phrase
-       Language: All
-       Team: <not defined>
-      Verbose: FALSE
       Use storage: TRUE
       Storage: <no tables in storage>
 

@@ -57,25 +57,6 @@ expect_gh_repos_gql_response <- function(object) {
   )
 }
 
-expect_gh_user_repos_gql_response <- function(object) {
-  expect_type(
-    object,
-    "list"
-  )
-  expect_list_contains(
-    object,
-    "data"
-  )
-  expect_list_contains(
-    object$data$user$repositories$nodes[[1]],
-    c(
-      "id", "name", "stars", "forks", "created_at",
-      "last_activity_at", "languages", "issues_open", "issues_closed",
-      "repo_url"
-    )
-  )
-}
-
 expect_gl_commit_rest_response <- function(object) {
   expect_type(
     object,

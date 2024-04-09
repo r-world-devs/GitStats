@@ -13,23 +13,15 @@ test_team <- list(
 )
 
 test_settings <- list(
-  search_param = "org",
-  phrase = NULL,
-  team_name = NULL,
-  team = list(),
+  search_mode = "org",
   files = NULL,
-  language = "All",
   verbose = TRUE,
   storage = TRUE
 )
 
 test_settings_repo <- list(
-  search_param = "repo",
-  phrase = NULL,
-  team_name = NULL,
-  team = list(),
+  search_mode = "repo",
   files = NULL,
-  language = "All",
   verbose = TRUE,
   storage = TRUE
 )

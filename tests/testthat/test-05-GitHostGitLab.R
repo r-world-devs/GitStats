@@ -36,48 +36,6 @@ test_that("GitHost adds `repo_api_url` column to GitLab repos table", {
   test_mocker$cache(gl_repos_table_with_api_url)
 })
 
-test_that("GitHost filters GitLab repositories' (pulled by org) table by languages", {
-  gl_repos_table <- test_mocker$use("gl_repos_table")
-  expect_snapshot(
-    result <- test_host$filter_repos_by_language(
-      gl_repos_table,
-      language = "Python"
-    )
-  )
-  expect_length(
-    result,
-    length(gl_repos_table)
-  )
-  expect_gt(
-    nrow(result),
-    0
-  )
-  expect_true(
-    all(grepl("Python", result$languages))
-  )
-})
-
-test_that("GitHost filters GitLab repositories' (pulled by team) table by languages", {
-  repos_table <- test_mocker$use("gl_repos_table_team")
-  expect_snapshot(
-    result <- test_host$filter_repos_by_language(
-      repos_table,
-      language = "Python"
-    )
-  )
-  expect_length(
-    result,
-    length(repos_table)
-  )
-  expect_gt(
-    nrow(result),
-    0
-  )
-  expect_true(
-    all(grepl("Python", result$languages))
-  )
-})
-
 test_host <- create_gitlab_testhost(
   orgs = c("mbtests")
 )
@@ -95,8 +53,8 @@ test_that("pull_repos_contributors returns table with contributors for GitLab", 
   expect_equal(nrow(repos_table_1), nrow(repos_table_2))
 })
 
-test_that("pull_commits throws error when search param is set to `phrase`", {
-  test_settings[["search_param"]] <- "phrase"
+test_that("pull_commits throws error when search mode is set to `code`", {
+  test_settings[["search_mode"]] <- "code"
   expect_snapshot_error(
     test_host$pull_commits(
       date_from = "2023-03-01",
