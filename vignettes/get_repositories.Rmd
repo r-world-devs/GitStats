@@ -40,47 +40,9 @@ By default your search preferences are set to `organizations` (`org`), which mea
 get_repos(git_stats)
 ```
 
-## Set
+### Code
 
-You can setup your search preferences, either to `org`, `team` or `phrase`. 
-
-With settings you can also set your language and silence the output.
-
-### Team
-
-If you wish to setup your search parameter to `team`, add your team members first:
-
-```{r}
-git_stats %>%
-  set_team_member("Kamil Wais", "kalimu") %>%
-  set_team_member("Krystian Igras", "krystian8207") %>%
-  set_team_member("Karolina Marcinkowska", "marcinkowskak") %>%
-  set_team_member("Kamil Koziej", "Cotau") %>%
-  set_team_member("Maciej Banaś", "maciekbanas")
-```
-
-> If you have another logins on other git platform, you should pass them separately, e.g. `set_team_member("Maciej Banas", "maciekbanas", "banasm")`.
-
-Then set the parameters accordingly.
-
-```{r}
-set_params(
-  gitstats_obj = git_stats,
-  search_param = "team",
-  team_name = "RWD",
-  use_storage = FALSE
-) 
-```
-
-Pull repositories.
-
-```{r}
-get_repos(git_stats)
-```
-
-### Phrase
-
-With `GitStats` you can look for the repos with a certain phrase in code blobs (you can not do it for the commits!).
+With `GitStats` you can pull the repositories with a certain code blob. First set your `search_mode` accordingly, then pass `code` string to `get_repos()` function.
 
 ```{r}
 create_gitstats() %>%
@@ -88,30 +50,9 @@ create_gitstats() %>%
     orgs = c("r-world-devs", "openpharma")
   ) %>% 
   set_params(
-    search_param = "phrase",
-    phrase = "Shiny"
+    search_mode = "code"
   ) %>% 
-  get_repos()
-```
-
-### Language
-
-You can define a programming language in your settings.
-
-```{r}
-set_params(
-  gitstats_obj = git_stats,
-  search_param = "org",
-  language = "JavaScript",
-  use_storage = FALSE
-) %>% 
-  get_repos()
-```
-
-You can always get back to All languages.
-
-```{r}
-reset_language(git_stats)
+  get_repos(code = "Shiny")
 ```
 
 ## Reset your settings

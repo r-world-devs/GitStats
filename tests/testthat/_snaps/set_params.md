@@ -1,13 +1,9 @@
-# Setting up settings to `team` throws error when team_name is not defined
-
-    You need to define your `team_name`.
-
-# Setting up settings to `phrase` works correctly
+# Setting up settings to `orgs` works correctly
 
     Code
-      set_params(test_gitstats, search_param = "phrase", phrase = "covid")
+      set_params(test_gitstats, search_mode = "org")
     Message
-      v Your search preferences set to phrase: covid.
+      v Your search mode set to org.
     Output
       A GitStats object for 0 hosts: 
       Hosts: 
@@ -15,11 +11,25 @@
        Organizations: [0] 
        Repositories: [0] 
        Files: <not defined>
-      Search settings: 
-       Search parameter: phrase
-       Phrase: covid
-       Language: All
-       Team: RWD-IE (0 members)
+      Search mode: org
+      Verbose: TRUE
+      Use storage: TRUE
+      Storage: <no tables in storage>
+
+# Setting up settings to `code` works correctly
+
+    Code
+      set_params(test_gitstats, search_mode = "code")
+    Message
+      v Your search mode set to code.
+    Output
+      A GitStats object for 0 hosts: 
+      Hosts: 
+      Scanning scope: 
+       Organizations: [0] 
+       Repositories: [0] 
+       Files: <not defined>
+      Search mode: code
       Verbose: TRUE
       Use storage: TRUE
       Storage: <no tables in storage>
@@ -37,53 +47,7 @@
        Organizations: [0] 
        Repositories: [0] 
        Files: [2] DESCRIPTION, NAMESPACE
-      Search settings: 
-       Search parameter: org
-       Phrase: covid
-       Language: All
-       Team: RWD-IE (0 members)
-      Verbose: TRUE
-      Use storage: TRUE
-      Storage: <no tables in storage>
-
-# Setting language works correctly
-
-    Code
-      set_params(test_gitstats, language = "Python")
-    Message
-      v Your programming language is set to Python.
-    Output
-      A GitStats object for 0 hosts: 
-      Hosts: 
-      Scanning scope: 
-       Organizations: [0] 
-       Repositories: [0] 
-       Files: <not defined>
-      Search settings: 
-       Search parameter: org
-       Phrase: covid
-       Language: Python
-       Team: RWD-IE (0 members)
-      Verbose: TRUE
-      Use storage: TRUE
-      Storage: <no tables in storage>
-
-# Setting language to 'All' resets language settings
-
-    Code
-      set_params(test_gitstats, language = "All")
-    Output
-      A GitStats object for 0 hosts: 
-      Hosts: 
-      Scanning scope: 
-       Organizations: [0] 
-       Repositories: [0] 
-       Files: <not defined>
-      Search settings: 
-       Search parameter: org
-       Phrase: covid
-       Language: All
-       Team: RWD-IE (0 members)
+      Search mode: code
       Verbose: TRUE
       Use storage: TRUE
       Storage: <no tables in storage>

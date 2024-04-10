@@ -9,11 +9,7 @@
        Organizations: [0] 
        Repositories: [0] 
        Files: <not defined>
-      Search settings: 
-       Search parameter: <not defined>
-       Phrase: <not defined>
-       Language: All
-       Team: <not defined>
+      Search mode: <not defined>
       Verbose: TRUE
       Use storage: TRUE
       Storage: <no tables in storage>
@@ -29,11 +25,7 @@
        Organizations: [2] r-world-devs, mbtests
        Repositories: [0] 
        Files: <not defined>
-      Search settings: 
-       Search parameter: org
-       Phrase: <not defined>
-       Language: All
-       Team: <not defined>
+      Search mode: org
       Verbose: FALSE
       Use storage: TRUE
       Storage: <no tables in storage>
@@ -49,31 +41,7 @@
        Organizations: [3] r-world-devs, openpharma, mbtests
        Repositories: [4] GitStats, GithubMetrics, gitstatstesting, gitstats-testing-2
        Files: <not defined>
-      Search settings: 
-       Search parameter: repo
-       Phrase: <not defined>
-       Language: All
-       Team: <not defined>
-      Verbose: TRUE
-      Use storage: TRUE
-      Storage: <no tables in storage>
-
-# GitStats prints team name when team is added.
-
-    Code
-      test_gitstats
-    Output
-      A GitStats object for 2 hosts: 
-      Hosts: https://api.github.com, https://gitlab.com/api/v4
-      Scanning scope: 
-       Organizations: [2] r-world-devs, mbtests
-       Repositories: [0] 
-       Files: <not defined>
-      Search settings: 
-       Search parameter: team
-       Phrase: <not defined>
-       Language: All
-       Team: RWD-IE (0 members)
+      Search mode: repo
       Verbose: TRUE
       Use storage: TRUE
       Storage: <no tables in storage>
@@ -93,11 +61,7 @@
        Organizations: [1] mbtests/subgroup
        Repositories: [0] 
        Files: <not defined>
-      Search settings: 
-       Search parameter: org
-       Phrase: <not defined>
-       Language: All
-       Team: <not defined>
+      Search mode: org
       Verbose: TRUE
       Use storage: TRUE
       Storage: <no tables in storage>
@@ -118,11 +82,7 @@
        Organizations: [2] r-world-devs, mbtests
        Repositories: [0] 
        Files: <not defined>
-      Search settings: 
-       Search parameter: org
-       Phrase: <not defined>
-       Language: All
-       Team: <not defined>
+      Search mode: org
       Verbose: FALSE
       Use storage: TRUE
       Storage: 

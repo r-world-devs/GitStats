@@ -13,20 +13,6 @@
     x Host will not be added.
     i Specify `orgs` or `repos`.
 
-# GitHost filters GitLab repositories' (pulled by org) table by languages
-
-    Code
-      result <- test_host$filter_repos_by_language(gl_repos_table, language = "Python")
-    Message
-      i Filtering by language.
-
-# GitHost filters GitLab repositories' (pulled by team) table by languages
-
-    Code
-      result <- test_host$filter_repos_by_language(repos_table, language = "Python")
-    Message
-      i Filtering by language.
-
 # pull_repos_contributors returns table with contributors for GitLab
 
     Code
@@ -34,7 +20,7 @@
     Message
       i [GitLab][Engine:REST][org:mbtests] Pulling contributors...
 
-# pull_commits throws error when search param is set to `phrase`
+# pull_commits throws error when search mode is set to `code`
 
     unused arguments (date_from = "2023-03-01", date_until = "2023-04-01")
 

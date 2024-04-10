@@ -31,27 +31,8 @@ test_that("GitStats prints the proper info when repos are passed instead of orgs
   expect_snapshot(test_gitstats)
 })
 
-suppressMessages({
-  set_params(
-    test_gitstats,
-    search_param = "team",
-    team_name = "RWD-IE",
-    verbose = TRUE
-  )
-})
-
-test_that("GitStats prints team name when team is added.", {
-  expect_snapshot(test_gitstats)
-})
-
 # private methods
 test_gitstats_priv <- create_test_gitstats(hosts = 0, priv_mode = TRUE)
-
-test_that("Language handler works properly", {
-  expect_equal(test_gitstats_priv$language_handler("r"), "R")
-  expect_equal(test_gitstats_priv$language_handler("python"), "Python")
-  expect_equal(test_gitstats_priv$language_handler("javascript"), "Javascript")
-})
 
 test_that("check_for_host returns error when no hosts are passed", {
   expect_snapshot_error(
@@ -106,7 +87,7 @@ test_that("get_repos works properly", {
 test_that("get_repos pulls repositories without contributors", {
   suppressMessages(
     set_params(test_gitstats,
-               search_param = "org",
+               search_mode = "org",
                verbose = FALSE)
   )
   suppressMessages(

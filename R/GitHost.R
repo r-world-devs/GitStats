@@ -32,11 +32,12 @@ GitHost <- R6::R6Class("GitHost",
 
     #' Iterator over pulling release logs from engines
     pull_release_logs = function(date_from, date_until, settings, storage = NULL) {
-      if (settings$search_param == "phrase") {
+      if (settings$search_mode == "code") {
         cli::cli_abort(c(
-          "x" = "Pulling release logs by phrase is not supported.",
-          "i" = "Please change your `search_param` either to 'org' or 'team' with `set_params()`."
-        ))
+          "x" = "Pulling release logs by code blobs is not supported.",
+          "i" = "Please change your `search_mode` to 'org' or 'repo' with `set_params()`."
+        ),
+        call = NULL)
       }
       if (private$scan_all && settings$verbose) {
         cli::cli_alert_info("[Host:{private$host}] {cli::col_yellow('Pulling release logs from all organizations...')}")
@@ -54,27 +55,21 @@ GitHost <- R6::R6Class("GitHost",
     },
 
 
-    #' @description  A method to list all repositories for an organization, a
-    #'   team or by a keyword.
+    #' @description  A method to list all repositories for an organization or by
+    #'   a keyword.
     #' @param settings A list of `GitStats` settings.
     #' @param add_contributors A boolean to decide whether to add contributors
     #'   column to repositories table.
     #' @return A data.frame of repositories.
-    pull_repos = function(settings, add_contributors = FALSE) {
+    pull_repos = function(add_contributors = FALSE, code = NULL, settings) {
       repos_table <- private$pull_repos_from_host(
+        code = code,
         settings = settings
       )
-      if (settings$search_param == "team") {
-        add_contributors <- TRUE
-      }
       repos_table <- private$add_repo_api_url(repos_table)
       if (add_contributors) {
         repos_table <- self$pull_repos_contributors(repos_table, settings)
       }
-      repos_table <- private$filter_repos_by_language(
-        repos_table = repos_table,
-        language = settings$language
-      )
       return(repos_table)
     },
 
@@ -86,7 +81,7 @@ GitHost <- R6::R6Class("GitHost",
       if (!is.null(repos_table) && nrow(repos_table) > 0) {
         repos_table <- repos_table %>%
           dplyr::filter(grepl(gsub("/v+.*", "", private$api_url), api_url))
-        api_engine <- private$run_engine("contributors")
+        api_engine <- private$set_engine("contributors")
         repos_table <- api_engine$pull_repos_contributors(
           repos_table,
           settings
@@ -105,11 +100,12 @@ GitHost <- R6::R6Class("GitHost",
                             until = Sys.Date(),
                             settings,
                             storage = NULL) {
-      if (settings$search_param == "phrase") {
+      if (settings$search_mode == "code") {
         cli::cli_abort(c(
-          "x" = "Pulling commits by phrase in code blobs is not supported.",
-          "i" = "Please change your `search_param` either to 'org' or 'team' with `set_params()`."
-        ))
+          "x" = "Pulling commits by code blobs is not supported.",
+          "i" = "Please change your `search_mode` to 'org' with `set_params()`."
+        ),
+        call = NULL)
       }
       if (private$scan_all) {
         cli::cli_alert_info("[Host:{private$host}] {cli::col_yellow('Pulling commits from all organizations...')}")
@@ -453,7 +449,7 @@ GitHost <- R6::R6Class("GitHost",
 
     # Set repositories
     set_repos = function(settings, org) {
-      if (settings$search_param == "repo") {
+      if (settings$search_mode == "repo") {
         repos <- private$orgs_repos[[org]]
       } else {
         repos <- NULL
@@ -482,10 +478,10 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Pull repositories from organizations.
-    pull_repos_from_host = function(settings) {
+    pull_repos_from_host = function(code = NULL, settings) {
       orgs <- private$orgs
       if (private$scan_all) {
-        if (settings$search_param == "phrase") {
+        if (settings$search_mode == "code") {
           orgs <- "no_orgs"
         } else {
           if (settings$verbose) {
@@ -493,14 +489,15 @@ GitHost <- R6::R6Class("GitHost",
           }
         }
       }
-      api_engine <- if (settings$search_param == "phrase") {
-        private$run_engine("phrase")
+      api_engine <- if (settings$search_mode == "code") {
+        private$set_engine("code")
       } else {
-        private$run_engine("repos")
+        private$set_engine("repos")
       }
       repos_table <- purrr::map(orgs, function(org) {
         repos_from_org <- api_engine$pull_repos(
           org = org,
+          code = code,
           settings = settings
         )
         return(repos_from_org)
@@ -510,30 +507,11 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Decide which engine should run
-    run_engine = function(object) {
+    set_engine = function(object) {
       engine_name <- purrr::keep(private$engine_methods, ~ any(grepl(object, .))) %>%
         names()
       engine <- private$engines[[engine_name]]
       return(engine)
-    },
-
-    # @description Filter repositories by contributors.
-    # @details If at least one member of a team is a contributor than a project
-    #   passes through the filter.
-    # @param repos_table A repository table to be filtered.
-    # @param language A language used in repository.
-    # @return A repos table.
-    filter_repos_by_language = function(repos_table,
-                                        language) {
-      if (nrow(repos_table) > 0 && language != "All") {
-        cli::cli_alert_info("Filtering by language.")
-        filtered_langs <- purrr::keep(repos_table$languages, function(row) {
-          grepl(language, row)
-        })
-        repos_table <- repos_table %>%
-          dplyr::filter(languages %in% filtered_langs)
-      }
-      return(repos_table)
     }
   )
 )

@@ -13,6 +13,14 @@
 - In `get_commits()` old parameters (`date_from` and `date_until`) were replaced with new, more concise (`since` and `until`).
 - A new parameter (`verbose`) in settings has been introduced for limiting messages to user when pulling data - you can turn it on/off with  `verbose_on()`/`verbose_off()` functions.
 
+## Searching for code blobs in repositories:
+
+- There is no longer `phrase` parameter to set in `set_params()`. If you choose to pull repositories by `code` (previously `phrase`), you then have to specify the `code` parameter directly in `get_repos()`. This seems to be more intuitive than setting whole GitStats for one `code` to search, especially when user wants to look for more than one code blob. ([#333](https://github.com/r-world-devs/GitStats/issues/333))
+
+## Deprecate:
+
+- Pulling by `team` and filtering by `language` is no longer supported - these features where quite heavy for the package performance and did not bring much added value. If user needs, he can always filter the output (formatted responses pulled from API) by contributors or language. ([#384](https://github.com/r-world-devs/GitStats/issues/384))
+
 ## New features:
 
 - Added `get_release_logs()` ([#356](https://github.com/r-world-devs/GitStats/issues/356)).

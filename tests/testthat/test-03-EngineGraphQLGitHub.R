@@ -7,12 +7,6 @@ test_gql_gh <- EngineGraphQLGitHub$new(
 
 test_gql_gh <- environment(test_gql_gh$initialize)$private
 
-test_that("`get_authors_ids()` works as expected", {
-  expect_snapshot(
-    test_gql_gh$get_authors_ids(test_team)
-  )
-})
-
 test_that("`pull_commits_page_from_repo()` pulls commits page from repository", {
   mockery::stub(
     test_gql_gh$pull_commits_page_from_repo,
@@ -38,7 +32,6 @@ test_that("`pull_repos_page_from_org()` pulls repos page from GitHub organizatio
     test_mocker$use("gh_repos_by_org_gql_response")
   )
   gh_repos_page <- test_gql_gh$pull_repos_page(
-    from = "org",
     org = "r-world-devs"
   )
   expect_gh_repos_gql_response(
@@ -54,7 +47,6 @@ test_that("`pull_repos_from_org()` prepares formatted list", {
     test_mocker$use("gh_repos_page")
   )
   gh_repos_from_org <- test_gql_gh$pull_repos_from_org(
-    from = "org",
     org = "r-world-devs"
   )
   expect_list_contains(
@@ -66,66 +58,6 @@ test_that("`pull_repos_from_org()` prepares formatted list", {
     )
   )
   test_mocker$cache(gh_repos_from_org)
-})
-
-test_that("`pull_repos_page()` pulls repos page from GitHub user", {
-  mockery::stub(
-    test_gql_gh$pull_repos_page,
-    "self$gql_response",
-    test_mocker$use("gh_repos_by_user_gql_response")
-  )
-  gh_repos_user_page <- test_gql_gh$pull_repos_page(
-    from = "user",
-    user = "maciekbanas"
-  )
-  expect_gh_user_repos_gql_response(
-    gh_repos_user_page
-  )
-  test_mocker$cache(gh_repos_user_page)
-})
-
-test_that("`pull_repos_from_org()` from user prepares formatted list", {
-  mockery::stub(
-    test_gql_gh$pull_repos_from_org,
-    "private$pull_repos_page",
-    test_mocker$use("gh_repos_user_page")
-  )
-  gh_repos_from_user <- test_gql_gh$pull_repos_from_org(
-    from = "user",
-    user = "maciekbanas"
-  )
-  expect_list_contains(
-    gh_repos_from_user[[1]],
-    c(
-      "id", "name", "stars", "forks", "created_at",
-      "last_activity_at", "languages", "issues_open", "issues_closed",
-      "repo_url"
-    )
-  )
-  expect_gt(
-    length(gh_repos_from_user[[1]][["languages"]]$nodes),
-    0
-  )
-  test_mocker$cache(gh_repos_from_user)
-})
-
-test_that("`pull_repos_from_team()` works smoothly", {
-  gh_repos_from_team <- test_gql_gh$pull_repos_from_team(
-    team = test_team
-  )
-  expect_list_contains(
-    gh_repos_from_team[[1]],
-    c(
-      "id", "name", "stars", "forks", "created_at",
-      "last_activity_at", "languages", "issues_open", "issues_closed",
-      "contributors", "repo_url"
-    )
-  )
-  expect_gt(
-    length(gh_repos_from_team[[1]][["languages"]]$nodes),
-    0
-  )
-  test_mocker$cache(gh_repos_from_team)
 })
 
 test_that("`pull_commits_from_one_repo()` prepares formatted list", {
@@ -151,11 +83,7 @@ test_that("`pull_commits_from_one_repo()` prepares formatted list", {
 })
 
 test_that("`pull_commits_from_repos()` pulls commits from repos", {
-  mockery::stub(
-    test_gql_gh$pull_commits_from_repos,
-    "private$pull_commits_from_one_repo",
-    test_mocker$use("commits_from_repo")
-  )
+
   commits_from_repos <- test_gql_gh$pull_commits_from_repos(
     org = "r-world-devs",
     repo = "GitStats",
@@ -198,13 +126,6 @@ test_that("`prepare_repos_table()` prepares repos table", {
     gh_repos_table
   )
   test_mocker$cache(gh_repos_table)
-  gh_repos_table_team <- test_gql_gh$prepare_repos_table(
-    repos_list = test_mocker$use("gh_repos_from_team")
-  )
-  expect_repos_table(
-    gh_repos_table_team
-  )
-  test_mocker$cache(gh_repos_table_team)
 })
 
 test_that("`prepare_commits_table()` prepares commits table", {
@@ -277,53 +198,24 @@ test_that("`pull_repos()` works as expected", {
     test_mocker$use("gh_repos_from_org")
   )
   expect_snapshot(
-    gh_repos_org <- test_gql_gh$pull_repos(
+    gh_repos_table <- test_gql_gh$pull_repos(
       org = "r-world-devs",
       settings = test_settings
     )
   )
   expect_repos_table(
-    gh_repos_org
+    gh_repos_table
   )
-
-  mockery::stub(
-    test_gql_gh$pull_repos,
-    "private$pull_repos_from_team",
-    test_mocker$use("gh_repos_from_team")
-  )
-  test_settings[["search_param"]] <- "team"
-  test_settings[["team"]] <- test_team
-
-  expect_snapshot(
-    gh_repos_team <- test_gql_gh$pull_repos(
-      org = "r-world-devs",
-      settings = test_settings
-    )
-  )
-  expect_repos_table(
-    gh_repos_team
-  )
+  test_mocker$cache(gh_repos_table)
 })
 
 test_that("`pull_commits()` retrieves commits in the table format", {
   mockery::stub(
     test_gql_gh$pull_commits,
-    "private$pull_commits_from_repos",
-    test_mocker$use("commits_from_repos")
+    "private$set_repositories",
+    test_mocker$use("gh_repos_table")$repo_name
   )
-  mockery::stub(
-    test_gql_gh$pull_commits,
-    "private$prepare_commits_table",
-    test_mocker$use("commits_table")
-  )
-  repos_table <- test_mocker$use("gh_repos_table") %>%
-    dplyr::filter(repo_name == "GitStats")
-  mockery::stub(
-    test_gql_gh$pull_commits,
-    "self$pull_repos",
-    repos_table
-  )
-  expect_snapshot(
+  suppressMessages(
     commits_table <- test_gql_gh$pull_commits(
       org = "r-world-devs",
       date_from = "2023-01-01",

@@ -13,11 +13,8 @@ GitStats <- R6::R6Class("GitStats",
   public = list(
 
     #' @description Set up your search settings.
-    #' @param search_param One of four: `team`, `org`, `repo` or `phrase`.
-    #' @param team_name A name of a team.
-    #' @param phrase A phrase to look for.
+    #' @param search_mode One of four: `org`, `repo` or `code`.
     #' @param files Define files to scan.
-    #' @param language A language of programming code.
     #' @param verbose A boolean stating if you want to print output after
     #'   pulling.
     #' @param use_storage A boolean.  A boolean. If set to `TRUE` it will pull
@@ -25,22 +22,12 @@ GitStats <- R6::R6Class("GitStats",
     #'   when user runs `get_repos()`. If set to `FALSE` `get_repos()` will
     #'   always pull data from the API.
     #' @return Nothing.
-    set_params = function(search_param,
-                          team_name = NULL,
-                          phrase = NULL,
+    set_params = function(search_mode = NULL,
                           files = NULL,
-                          language = "All",
                           verbose = NULL,
                           use_storage = NULL) {
-      search_param <- match.arg(
-        search_param,
-        c("org", "repo", "team", "phrase")
-      )
-      private$set_team_param(search_param, team_name)
-      private$set_phrase_param(search_param, phrase)
-      private$settings$search_param <- search_param
+      private$set_search_mode(search_mode)
       private$set_files_param(files)
-      private$set_language_param(language)
       private$set_verbose_param(verbose)
       private$set_storage_param(use_storage)
     },
@@ -97,22 +84,6 @@ GitStats <- R6::R6Class("GitStats",
       private$add_new_host(new_host)
     },
 
-    #' @description A method to add a team member.
-    #' @param member_name Name of a member.
-    #' @param ... User names on Git platforms.
-    #' @return Nothing, passes information on team member to `GitStats`.
-    set_team_member = function(member_name,
-                               ...) {
-      team_member <- list(
-        "name" = member_name,
-        "logins" = unlist(list(...))
-      )
-      private$settings$team[[paste0(member_name)]] <- team_member
-      if (private$settings$verbose) {
-        cli::cli_alert_success("{member_name} successfully added to team.")
-      }
-    },
-
     #' @description Get release logs of repositories.
     #' @param since A starting date for release logs.
     #' @param until An end date for release logs.
@@ -132,7 +103,7 @@ GitStats <- R6::R6Class("GitStats",
       return(invisible(release_logs))
     },
 
-    #' @description Wrapper over pulling repositories by phrase.
+    #' @description Wrapper over pulling repositories by code.
     #' @param package_name A character, name of the package.
     #' @param only_loading A boolean, if `TRUE` function will check only if
     #'   package is loaded in repositories, not used as dependencies.
@@ -155,16 +126,19 @@ GitStats <- R6::R6Class("GitStats",
       return(invisible(R_package_usage))
     },
 
-    #' @description  A method to list all repositories for an organization, a
-    #'   team or by a keyword.
+    #' @description  A method to list all repositories for an organization or by
+    #'   a keyword.
     #' @param add_contributors A boolean to decide whether to add contributors
     #'   information to repositories.
-    get_repos = function(add_contributors = FALSE) {
+    #' @param code A character, should be defined is GitStats is set to get
+    #'   repos by code with `set_params()` function.
+    get_repos = function(add_contributors = FALSE, code = NULL) {
       private$check_for_host()
-      private$check_search_param_for_repos()
+      private$check_search_mode_for_repos(code = code)
       if (private$trigger_pulling("repositories")) {
         repositories <- private$pull_repos(
           add_contributors = add_contributors,
+          code = code,
           settings = private$settings
         )
         private$save_to_storage(repositories)
@@ -180,7 +154,6 @@ GitStats <- R6::R6Class("GitStats",
     #' @param until An end date for commits.
     get_commits = function(since, until) {
       private$check_for_host()
-      private$check_search_param_for_commits()
       if (private$trigger_pulling("commits", dates = list(since, until))) {
         commits <- private$pull_commits(
           since = since,
@@ -192,7 +165,6 @@ GitStats <- R6::R6Class("GitStats",
         commits <- private$get_from_storage('commits')
       }
       if (private$settings$verbose) {
-        private$commits_success_info(commits = commits)
         dplyr::glimpse(commits)
       }
       return(invisible(commits))
@@ -299,9 +271,7 @@ GitStats <- R6::R6Class("GitStats",
       cat(cli::col_blue("Scanning scope: \n"))
       private$print_orgs_and_repos()
       private$print_files()
-      cat(cli::col_blue("Search settings: \n"))
-      private$print_search_parameters()
-      private$print_team()
+      private$print_search_mode()
       private$print_verbose()
       private$print_use_storage()
       private$print_storage()
@@ -314,24 +284,16 @@ GitStats <- R6::R6Class("GitStats",
 
     # @field settings List of search preferences.
     settings = list(
-      search_param = NULL,
-      phrase = NULL,
+      search_mode = NULL,
       files = NULL,
-      team_name = NULL,
-      team = list(),
-      language = "All",
       verbose = TRUE,
       use_storage = TRUE
     ),
 
     # temporary settings used when calling some methods for custom purposes
     temp_settings = list(
-      search_param = NULL,
-      phrase = NULL,
+      search_mode = NULL,
       files = NULL,
-      team_name = NULL,
-      team = list(),
-      language = "All",
       verbose = FALSE,
       use_storage = TRUE
     ),
@@ -358,52 +320,25 @@ GitStats <- R6::R6Class("GitStats",
     # Set searching scope
     set_searching_scope = function(orgs, repos) {
       if (!is.null(repos)) {
-        private$settings$search_param <- "repo"
+        private$settings$search_mode <- "repo"
       }
       if (!is.null(orgs)) {
-        private$settings$search_param <- "org"
+        private$settings$search_mode <- "org"
       }
     },
 
-    # Handler for setting team parameter
-    set_team_param = function(search_param, team_name) {
-      if (search_param == "team") {
-        if (is.null(team_name)) {
-          cli::cli_abort(
-            "You need to define your `team_name`."
+    # Handler for setting code parameter
+    set_search_mode = function(search_mode) {
+      if (!is.null(search_mode)) {
+        search_mode <- match.arg(
+          search_mode,
+          c("org", "repo", "code")
+        )
+        private$settings$search_mode <- search_mode
+        if (private$settings$verbose) {
+          cli::cli_alert_success(
+            "Your search mode set to {cli::col_green(search_mode)}."
           )
-        } else {
-          private$settings$team_name <- team_name
-          if (private$settings$verbose) {
-            cli::cli_alert_success(
-              paste0("Your search parameter set to {cli::col_green('team: ", team_name, "')}.")
-            )
-            if (length(private$settings$team) == 0) {
-              cli::cli_alert_warning(
-                cli::col_yellow(
-                  "No team members in the team. Add them with `set_team_member()`."
-                )
-              )
-            }
-          }
-        }
-      }
-    },
-
-    # Handler for setting phrase parameter
-    set_phrase_param = function(search_param, phrase) {
-      if (search_param == "phrase") {
-        if (is.null(phrase)) {
-          cli::cli_abort(
-            "You need to define your phrase."
-          )
-        } else {
-          private$settings$phrase <- phrase
-          if (private$settings$verbose) {
-            cli::cli_alert_success(
-              paste0("Your search preferences set to {cli::col_green('phrase: ", phrase, "')}.")
-            )
-          }
         }
       }
     },
@@ -417,20 +352,6 @@ GitStats <- R6::R6Class("GitStats",
         }
       } else {
         private$settings$files <- NULL
-      }
-    },
-
-    # Handler for setting language parameter
-    set_language_param = function(language) {
-      if (language != "All") {
-        private$settings$language <- private$language_handler(language)
-        if (private$settings$verbose) {
-          cli::cli_alert_success(
-            "Your programming language is set to {cli::col_green({language})}."
-          )
-        }
-      } else {
-        private$settings$language <- "All"
       }
     },
 
@@ -560,44 +481,31 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Handle search parameter when pulling repositories
-    check_search_param_for_repos = function() {
-      search_param <- private$settings$search_param
-      if (search_param == "repo") {
+    check_search_mode_for_repos = function(code) {
+      search_mode <- private$settings$search_mode
+      if (search_mode == "repo") {
         cli::cli_abort(
           c(
             "Can not pull repos when search parameter is set to `repo`",
-            "i" = "Pass `orgs` to `GitStats` with `set_host()` function.",
-            "i" = "Set your search parameter to `org`, `phrase` or `team` with `set_params()` function."
+            "i" = "Pass `orgs` to `GitStats` with `set_*_host()` function.",
+            "i" = "Set your `search_mode` to `org` or `code` with `set_params()` function."
           ),
           call = NULL
         )
       }
-      if (search_param == "team") {
-        if (length(private$settings$team) == 0) {
-          cli::cli_abort("You have to specify a team first with 'set_team_member()'.", call = NULL)
-        }
-      } else if (search_param == "phrase") {
-        if (is.null(private$settings$phrase)) {
-          cli::cli_abort("You have to provide a phrase to look for.", call = NULL)
-        }
-      }
-    },
-
-    # Handle search parameter when pulling commits
-    check_search_param_for_commits = function() {
-      search_param <- private$settings$search_param
-      if (search_param == "team") {
-        if (length(private$settings$team) == 0) {
-          cli::cli_abort("You have to specify a team first with 'set_team_member()'.", call = NULL)
+      if (search_mode == "code") {
+        if (is.null(code)) {
+          cli::cli_abort("You have to provide a code to look for.", call = NULL)
         }
       }
     },
 
     # Pull repositories tables from hosts and bind them into one
-    pull_repos = function(add_contributors = FALSE, settings) {
+    pull_repos = function(add_contributors = FALSE, code, settings) {
       repos_table <- purrr::map(private$hosts, ~ .$pull_repos(
-        settings = settings,
-        add_contributors = add_contributors
+        add_contributors = add_contributors,
+        code = code,
+        settings = settings
       )) %>%
         purrr::list_rbind() %>%
         private$add_stats_to_repos()
@@ -683,11 +591,11 @@ GitStats <- R6::R6Class("GitStats",
         paste0("library(", package_name, ")"),
         paste0("require(", package_name, ")")
       )
-      private$temp_settings$search_param <- "phrase"
+      private$temp_settings$search_mode <- "code"
       private$temp_settings$files <- NULL
       repos_using_package <- purrr::map(package_usage_phrases, ~ {
-        private$temp_settings$phrase <- .
         repos_using_package <- private$pull_repos(
+          code = .,
           settings = private$temp_settings
         )
         if (!is.null(repos_using_package)) {
@@ -708,10 +616,10 @@ GitStats <- R6::R6Class("GitStats",
       if (private$settings$verbose) {
         cli::cli_alert_info("Checking where [{package_name}] is used as a dependency...")
       }
-      private$temp_settings$search_param <- "phrase"
-      private$temp_settings$phrase <- package_name
+      private$temp_settings$search_mode <- "code"
       private$temp_settings$files <- c("DESCRIPTION", "NAMESPACE")
       repos_with_package <- private$pull_repos(
+        code = package_name,
         settings = private$temp_settings
       )
       if (nrow(repos_with_package) > 0) {
@@ -755,19 +663,6 @@ GitStats <- R6::R6Class("GitStats",
         repos_table <- NULL
       }
       return(repos_table)
-    },
-
-    # Handler for message when team is set
-    commits_success_info = function(commits) {
-      if (private$settings$search_param == "team" && !is.null(private$settings$team)) {
-        cli::cli_alert_success(
-          paste0(
-            "For '", private$settings$team_name, "' team: pulled ",
-            nrow(commits), " commits from ",
-            length(unique(commits$repository)), " repositories."
-          )
-        )
-      }
     },
 
     # Prepare stats out of commits table
@@ -823,21 +718,6 @@ GitStats <- R6::R6Class("GitStats",
       if (length(private$hosts) == 0) {
         cli::cli_abort("Add first your hosts with `set_host()`.", call = NULL)
       }
-    },
-
-    # @description Switcher to manage language names.
-    # @details E.g. GitLab API will not filter
-    #   properly if you provide 'python' language
-    #   with small letter.
-    # @param language Code programming language.
-    # @return A character.
-    language_handler = function(language) {
-      if (language != "All") {
-        substr(language, 1, 1) <- toupper(substr(language, 1, 1))
-      } else if (language %in% c("javascript", "Javascript", "js", "JS", "Js")) {
-        language <- "JavaScript"
-      }
-      language
     },
 
     # @description A helper to manage printing `GitStats` object.
@@ -902,27 +782,9 @@ GitStats <- R6::R6Class("GitStats",
       )
     },
 
-    # print team name and number of team members
-    print_team = function() {
-      members_n <- length(private$settings$team)
-      private$print_item(
-        " Team",
-        item_to_check = private$settings$team_name,
-        item_to_print = glue::glue("{private$settings$team_name} ({members_n} members)")
-      )
-    },
-
-    # print search parameters: organization, team, phrase, language
-    print_search_parameters = function() {
-      item_names <- list(
-        " Search parameter", " Phrase", " Language"
-      )
-      items <- list(
-        private$settings$search_param,
-        private$settings$phrase,
-        private$settings$language
-      )
-      purrr::walk2(item_names, items, ~ private$print_item(.x, .y))
+    # print search mode
+    print_search_mode = function() {
+      private$print_item("Search mode", private$settings$search_mode)
     },
 
     # print verbose mode

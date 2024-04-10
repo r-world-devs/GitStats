@@ -14,7 +14,6 @@ reference:
 - title: Show results
 - contents:
   - starts_with("show_")
-  - starts_with("plot_")
 articles:
 - title: Articles
   navbar: ~

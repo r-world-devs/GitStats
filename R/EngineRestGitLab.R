@@ -8,41 +8,24 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @description A method to retrieve all repositories for an organization in
     #'   a table format.
     #' @param org A character, a group of projects.
+    #' @param code A character, code to search for.
     #' @param settings A list of  `GitStats` settings.
     #' @return A table.
     pull_repos = function(org,
+                          code = NULL,
                           settings) {
-      if (settings$search_param == "phrase") {
+      if (settings$search_mode == "code") {
         if (!private$scan_all && settings$verbose) {
-          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][phrase:{settings$phrase}][org:{URLdecode(org)}] Searching repositories...")
+          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][code:{code}][org:{URLdecode(org)}] Searching repositories...")
         }
-        repos_table <- private$search_repos_by_phrase(
+        repos_table <- private$pull_repos_by_code(
           org = org,
-          phrase = settings$phrase,
-          files = settings$files,
-          language = settings$language
+          code = code,
+          files = settings$files
         ) %>%
           private$tailor_repos_info() %>%
           private$prepare_repos_table() %>%
           private$pull_repos_issues()
-      } else if (settings$search_param == "team") {
-        if (!private$scan_all && settings$verbose) {
-          cli::cli_alert_info(
-            "[GitLab][Engine:{cli::col_green('REST')}][org:{URLdecode(org)}][team:{settings$team_name}] Pulling repositories..."
-          )
-        }
-        org <- private$get_group_id(org)
-        repos_table <- private$pull_repos_from_org(org) %>%
-          private$tailor_repos_info() %>%
-          private$prepare_repos_table() %>%
-          private$pull_repos_issues()
-        suppressMessages({
-        repos_table <- self$pull_repos_contributors(
-          repos_table = repos_table,
-          settings = settings
-          ) %>%
-          private$filter_repos_by_team(team = settings$team)
-        })
       } else {
         repos_table <- NULL
       }
@@ -56,7 +39,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     pull_repos_supportive = function(org,
                                      settings) {
       repos_table <- NULL
-      if (settings$search_param == "org") {
+      if (settings$search_mode == "org") {
         if (!private$scan_all && settings$verbose) {
           cli::cli_alert_info(
             "[GitLab][Engine:{cli::col_green('REST')}][org:{URLdecode(org)}] Pulling repositories..."
@@ -89,7 +72,11 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         repos_table$contributors <- purrr::map_chr(repo_iterator, function(repos_id) {
           id <- gsub("gid://gitlab/Project/", "", repos_id)
           tryCatch({
-            contributors_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/repository/contributors")
+            contributors_endpoint <- paste0(
+              private$endpoints[["projects"]],
+              "/", id,
+              "/repository/contributors"
+            )
             contributors_vec <- private$pull_contributors_from_repo(
               contributors_endpoint = contributors_endpoint,
               user_name = user_name
@@ -120,6 +107,77 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
                             date_until = Sys.date(),
                             settings,
                             storage = NULL) {
+      repos_names <- private$set_repositories(
+        repos = repos,
+        org = org,
+        settings = settings,
+        storage = storage
+      )
+      if (!private$scan_all) {
+        org_disp <- stringr::str_replace_all(org, "%2f", "/")
+        if (settings$verbose) {
+          if (settings$search_mode == "org") {
+            cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org_disp}] Pulling commits...")
+          } else if (settings$search_mode == "repo") {
+            cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org_disp}][custom repositories] Pulling commits...")
+          }
+        }
+      }
+      commits_table <- private$pull_commits_from_repos(
+        repos_names = repos_names,
+        date_from = date_from,
+        date_until = date_until
+      ) %>%
+        purrr::discard(~ length(.) == 0) %>%
+        private$tailor_commits_info(org = org) %>%
+        private$prepare_commits_table() %>%
+        private$get_commits_authors_handles_and_names(settings)
+
+      return(commits_table)
+    }
+  ),
+  private = list(
+
+    # Endpoints list
+    endpoints = list(
+      projects = NULL,
+      search = NULL
+    ),
+
+    # Set endpoints for the API
+    set_endpoints = function() {
+      private$set_projects_endpoint()
+    },
+
+    # Set projects endpoint
+    set_projects_endpoint = function() {
+      private$endpoints[["projects"]] <- paste0(
+        self$rest_api_url,
+        "/projects"
+      )
+    },
+
+    # Set search endpoint
+    set_search_endpoint = function(org) {
+      groups_search <- if (!private$scan_all) {
+        private$set_groups_search_endpoint(org)
+      } else {
+        ""
+      }
+      private$endpoints[["search"]] <- paste0(
+        self$rest_api_url,
+        groups_search,
+        "/search?scope=blobs&search="
+      )
+    },
+
+    # set groups search endpoint
+    set_groups_search_endpoint = function(org) {
+      paste0("/groups/", private$get_group_id(org))
+    },
+
+    # Set repositories for pulling commits
+    set_repositories = function(repos, org, settings, storage) {
       if (is.null(repos)) {
         if (is.null(storage$repositories)) {
           repos_table <- self$pull_repos_supportive(
@@ -141,39 +199,8 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       } else {
         repos_names <- paste0(org, "%2f", repos)
       }
-      if (!private$scan_all) {
-        org_disp <- stringr::str_replace_all(org, "%2f", "/")
-        if (settings$verbose) {
-          if (settings$search_param == "org") {
-            cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org_disp}] Pulling commits...")
-          } else if (settings$search_param == "repo") {
-            cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org_disp}][custom repositories] Pulling commits...")
-          } else if (settings$search_param == "team") {
-            cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org_disp}][team:{settings$team_name}] Pulling commits...")
-          }
-        }
-      }
-      repos_list_with_commits <- private$pull_commits_from_repos(
-        repos_names = repos_names,
-        date_from = date_from,
-        date_until = date_until
-      ) %>%
-        purrr::discard(~ length(.) == 0)
-      if (settings$search_param == "team") {
-        repos_list_with_commits <- private$filter_commits_by_team(
-          repos_list_with_commits = repos_list_with_commits,
-          team = settings$team
-        )
-      }
-      commits_table <- repos_list_with_commits %>%
-        private$tailor_commits_info(org = org) %>%
-        private$prepare_commits_table() %>%
-        private$get_commits_authors_handles_and_names(settings)
-
-      return(commits_table)
-    }
-  ),
-  private = list(
+      return(repos_names)
+    },
 
     # @description Iterator over pulling pages of repositories.
     # @param org A character, a group of projects.
@@ -192,40 +219,36 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     # @details For the time being there is no possibility to search GitLab with
     #   filtering by language. For more information look here:
     #   https://gitlab.com/gitlab-org/gitlab/-/issues/340333
-    # @param phrase A phrase to look for in codelines.
+    # @param code A code to look for in codelines.
     # @param org A character, a group of projects.
-    # @param language A character, programming language.
     # @param page_max An integer, maximum number of pages.
     # @return A list of repositories.
-    search_repos_by_phrase = function(phrase,
-                                      org,
-                                      files,
-                                      language = "All",
-                                      page_max = 1e6) {
+    pull_repos_by_code = function(code,
+                                  org,
+                                  files,
+                                  page_max = 1e6) {
       page <- 1
       still_more_hits <- TRUE
       full_repos_list <- list()
-      groups_url <- if (!private$scan_all) {
-        paste0("/groups/", private$get_group_id(org))
-      } else {
-        ""
-      }
+      private$set_search_endpoint(org)
       while (still_more_hits | page < page_max) {
         repos_list <- self$response(
           paste0(
-            self$rest_api_url, groups_url,
-            "/search?scope=blobs&search=%22", phrase, "%22&per_page=100&page=", page
+            private$endpoints[["search"]],
+            "%22",
+            code,
+            "%22&per_page=100&page=",
+            page
           )
         )
         if (length(repos_list) == 0) {
           still_more_hits <- FALSE
           break()
         } else {
-          if (!is.null(files)) {
-            repos_list <- purrr::keep(repos_list, function(repository) {
-              any(repository$path %in% files)
-            })
-          }
+          repos_list <- private$limit_search_to_files(
+            repos_list = repos_list,
+            files = files
+          )
           full_repos_list <- append(full_repos_list, repos_list)
           page <- page + 1
         }
@@ -305,27 +328,6 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(repos_table)
     },
 
-    # @description Filter repositories by contributors.
-    # @details If at least one member of a team is a contributor than a project
-    #   passes through the filter.
-    # @param repos_table A repository table to be filtered.
-    # @param team A list with team members.
-    # @return A repos table.
-    filter_repos_by_team = function(repos_table,
-                                    team) {
-      team_logins <- unlist(team)
-      if (nrow(repos_table) > 0) {
-        filtered_contributors <- purrr::keep(repos_table$contributors, function(row) {
-          any(purrr::map_lgl(team_logins, ~ grepl(., row)))
-        })
-        repos_table <- repos_table %>%
-          dplyr::filter(contributors %in% filtered_contributors)
-      } else {
-        repos_table
-      }
-      return(repos_table)
-    },
-
     # @description Method to pull all commits from organization.
     # @param repos_names Character vector of repositories names.
     # @param date_from A starting date to look commits for.
@@ -395,26 +397,6 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         })
       })
       return(repos_list_with_commits_cut)
-    },
-
-    # @description Filter by contributors.
-    # @param repos_list_with_commits A list of repositories with commits.
-    # @param team A list of team members.
-    # @return A list.
-    filter_commits_by_team = function(repos_list_with_commits,
-                                      team) {
-      team_names <- purrr::map_chr(team, ~ .$name)
-      filtered_repos_list_with_commits <- purrr::map(repos_list_with_commits, function(repo) {
-        purrr::keep(repo, function(commit) {
-          if (length(commit$author_name > 0)) {
-            commit$author_name %in% team_names
-          } else {
-            FALSE
-          }
-        })
-      }) %>% purrr::discard(~ length(.) == 0)
-
-      return(filtered_repos_list_with_commits)
     },
 
     # @description A helper to turn list of data.frames into one data.frame

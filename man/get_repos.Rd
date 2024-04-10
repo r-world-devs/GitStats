@@ -4,25 +4,27 @@
 \alias{get_repos}
 \title{Get information on repositories}
 \usage{
-get_repos(gitstats_obj, add_contributors = TRUE)
+get_repos(gitstats_obj, add_contributors = TRUE, code = NULL)
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
 
 \item{add_contributors}{A logical parameter to decide whether to add
 information about repositories' contributors to the repositories output
-(table) when pulling them by organizations (\code{orgs}) or \code{phrase}. If set to
-\code{FALSE} it makes function run faster as, in the case of \code{orgs} search
-parameter, it reaches only \code{GraphQL} endpoint with a query on repositories,
-and in the case of \code{phrase} search parameter it reaches only \verb{repositories REST API} endpoint. However, the pitfall is that the result does not convey
-information on contributors. \cr\cr When set to \code{TRUE} (by default),
-\code{GitStats} iterates additionally over pulled repositories and reaches to
-the \verb{contributors APIs}, which makes it slower, but gives additional
-information.}
+(table). If set to \code{FALSE} it makes function run faster as, in the case of
+\code{org} search mode, it reaches only \code{GraphQL} endpoint with a query on
+repositories, and in the case of \code{code} search mode it reaches only
+\verb{repositories REST API} endpoint. However, the pitfall is that the result
+does not convey information on contributors. \cr\cr When set to \code{TRUE} (by
+default), \code{GitStats} iterates additionally over pulled repositories and
+reaches to the \verb{contributors APIs}, which makes it slower, but gives
+additional information.}
+
+\item{code}{A character, should be defined is GitStats is set to get repos by
+code with \code{set_params()} function.}
 }
 \description{
-List all repositories for an organization, a team or by a
-keyword.
+List all repositories for an organization or by a keyword.
 }
 \examples{
 \dontrun{

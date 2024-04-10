@@ -48,46 +48,25 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @description A method to retrieve all repositories for an organization in
     #'   a table format.
     #' @param org An organization.
+    #' @param code A character, code to search for.
     #' @param settings A list of  `GitStats` settings.
     #' @return A table.
     pull_repos = function(org,
+                          code = NULL,
                           settings) {
-      if (settings$search_param %in% c("org", "team")) {
-        if (settings$search_param == "org") {
-          if (!private$scan_all && settings$verbose) {
-            cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
-          }
-          repos_table <- private$pull_repos_from_org(
-            from = "org",
-            org = org
-          ) %>%
-            private$prepare_repos_table()
-        } else {
-          if (!private$scan_all && settings$verbose) {
-            cli::cli_alert_info(
-              "[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][team:{settings$team_name}] Pulling repositories..."
-            )
-          }
-          repos_table <- private$pull_repos_from_team(
-            team = settings$team
-          ) %>%
-            private$prepare_repos_table()
-          if (nrow(repos_table) > 0) {
-            repos_table <- dplyr::filter(
-              repos_table,
-              organization == org
-            ) %>%
-              dplyr::distinct()
-          }
+      if (settings$search_mode == "org") {
+        if (!private$scan_all && settings$verbose) {
+          cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
         }
-      } else {
-        repos_table <- NULL
+        repos_table <- private$pull_repos_from_org(
+          org = org
+        ) %>%
+          private$prepare_repos_table()
       }
       return(repos_table)
     },
 
-    #' @description Method to pull all commits from organization, optionally
-    #'   filtered by team members.
+    #' @description Method to pull all commits from repositories.
     #' @param org An organization.
     #' @param repos A vector of repositories.
     #' @param date_from A starting date to look commits for.
@@ -101,33 +80,19 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
                             date_until,
                             settings,
                             storage = NULL) {
-      if (is.null(repos)) {
-        if (is.null(storage$repositories)) {
-          repos_table <- self$pull_repos(
-            org = org,
-            settings = settings
-          )
-        } else {
-          if (settings$verbose) {
-            cli::cli_alert_info("Using repositories stored in `GitStats` object.")
-          }
-          repos_table <- storage$repositories %>%
-            dplyr::filter(
-              organization == org
-            )
-        }
-        repos_names <- repos_table$repo_name
-      }
-      if (!is.null(repos)) {
-        repos_names <- repos
-      }
-      if (settings$search_param %in% c("org", "repo")) {
+      repos_names <- private$set_repositories(
+        repos = repos,
+        org = org,
+        settings = settings,
+        storage = storage
+      )
+      if (settings$search_mode %in% c("org", "repo")) {
         if (!private$scan_all) {
           if (settings$verbose) {
-            if (settings$search_param == "org") {
+            if (settings$search_mode == "org") {
               cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling commits...")
             }
-            if (settings$search_param == "repo") {
+            if (settings$search_mode == "repo") {
               cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][custom repositories] Pulling commits...")
             }
           }
@@ -137,19 +102,6 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           repos = repos_names,
           date_from = date_from,
           date_until = date_until
-        )
-      }
-      if (settings$search_param == "team") {
-        if (!private$scan_all && settings$verbose) {
-          cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][team:{settings$team_name}] Pulling commits...")
-        }
-        repos_list_with_commits <- private$pull_commits_from_repos(
-          org = org,
-          repos = repos_names,
-          date_from = date_from,
-          date_until = date_until,
-          team_filter = TRUE,
-          team = settings$team
         )
       }
       names(repos_list_with_commits) <- repos_names
@@ -167,24 +119,16 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       # @param org An organization.
       # @param user A user.
       # @return A list of repositories from organization.
-      pull_repos_from_org = function(from,
-                                     org = NULL,
-                                     user = NULL) {
+      pull_repos_from_org = function(org = NULL) {
         full_repos_list <- list()
         next_page <- TRUE
         repo_cursor <- ""
         while (next_page) {
           repos_response <- private$pull_repos_page(
-            from = from,
             org = org,
-            user = user,
             repo_cursor = repo_cursor
           )
-          repositories <- if (from == "org") {
-            repos_response$data$repositoryOwner$repositories
-          } else if (from == "user") {
-            repos_response$data$user$repositories
-          }
+          repositories <- repos_response$data$repositoryOwner$repositories
           repos_list <- repositories$nodes
           next_page <- repositories$pageInfo$hasNextPage
           if (is.null(next_page)) next_page <- FALSE
@@ -199,52 +143,19 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         return(full_repos_list)
       },
 
-      # @description Iterator over pulling pages of repositories.
-      # @param team A list of team members.
-      # @return A list of repositories from organization.
-      pull_repos_from_team = function(team) {
-        repos_from_team <- list()
-        for (member in team) {
-          for (login in member$logins) {
-            user_repos <-
-              private$pull_repos_from_org(
-                from = "user",
-                user = login
-              )
-            repos_from_team <-
-              append(repos_from_team, user_repos)
-          }
-        }
-        return(repos_from_team)
-      },
-
       # @description Wrapper over building GraphQL query and response.
-      # @param from A character specifying if organization or user
       # @param org An organization.
-      # @param user A user.
       # @param repo_cursor An end cursor for repos page.
       # @return A list of repositories.
-      pull_repos_page = function(from,
-                                 org = NULL,
-                                 user = NULL,
+      pull_repos_page = function(org = NULL,
                                  repo_cursor = "") {
-        if (from == "org") {
-          repos_query <- self$gql_query$repos_by_org(
-            repo_cursor = repo_cursor
-          )
-          response <- self$gql_response(
-            gql_query = repos_query,
-            vars = list("org" = org)
-          )
-        } else if (from == "user") {
-          repos_query <- self$gql_query$repos_by_user(
-            repo_cursor = repo_cursor
-          )
-          response <- self$gql_response(
-            gql_query = repos_query,
-            vars = list("user" = user)
-          )
-        }
+        repos_query <- self$gql_query$repos_by_org(
+          repo_cursor = repo_cursor
+        )
+        response <- self$gql_response(
+          gql_query = repos_query,
+          vars = list("org" = org)
+        )
         return(response)
       },
 
@@ -283,43 +194,18 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       # @param repos A character vector of repository names.
       # @param date_from A starting date to look commits for.
       # @param date_until An end date to look commits for.
-      # @param team_filter A boolean.
-      # @param team A list of team members.
       # @return A list of repositories with commits.
       pull_commits_from_repos = function(org,
                                          repos,
                                          date_from,
-                                         date_until,
-                                         team_filter = FALSE,
-                                         team = NULL) {
-        if (team_filter) {
-          authors_ids <- private$get_authors_ids(team) %>%
-            purrr::discard(~ . == "")
-        }
+                                         date_until) {
         repos_list_with_commits <- purrr::map(repos, function(repo) {
-          if (!team_filter) {
-            private$pull_commits_from_one_repo(
-              org,
-              repo,
-              date_from,
-              date_until
-            )
-          } else {
-            full_commits_list <- list()
-            for (author_id in authors_ids) {
-              commits_by_author <-
-                private$pull_commits_from_one_repo(
-                  org,
-                  repo,
-                  date_from,
-                  date_until,
-                  author_id
-                )
-              full_commits_list <-
-                append(full_commits_list, commits_by_author)
-            }
-            return(full_commits_list)
-          }
+          private$pull_commits_from_one_repo(
+            org,
+            repo,
+            date_from,
+            date_until
+          )
         }, .progress = !private$scan_all)
         return(repos_list_with_commits)
       },
@@ -334,8 +220,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       pull_commits_from_one_repo = function(org,
                                             repo,
                                             date_from,
-                                            date_until,
-                                            author_id = "") {
+                                            date_until) {
         next_page <- TRUE
         full_commits_list <- list()
         commits_cursor <- ""
@@ -345,8 +230,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
             repo = repo,
             date_from = date_from,
             date_until = date_until,
-            commits_cursor = commits_cursor,
-            author_id = author_id
+            commits_cursor = commits_cursor
           )
           commits_list <- commits_response$data$repository$defaultBranchRef$target$history$edges
           next_page <- commits_response$data$repository$defaultBranchRef$target$history$pageInfo$hasNextPage
@@ -433,27 +317,6 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         return(commits_table)
       },
 
-      # @description Wrapper over GraphQL response.
-      # @param team A character vector of team members.
-      # @return A character vector of GitHub's author's IDs.
-      get_authors_ids = function(team) {
-        logins <- purrr::map(team, ~ .$logins) %>%
-          unlist()
-        ids <- purrr::map_chr(logins, ~ {
-          authors_id_query <- self$gql_query$user()
-          authors_id_response <- self$gql_response(
-            gql_query = authors_id_query,
-            vars = list("user" = .)
-          )
-          result <- authors_id_response$data$user$id
-          if (is.null(result)) {
-            result <- ""
-          }
-          return(result)
-        })
-        return(unname(ids))
-      },
-
       # @description Prepare user table.
       # @param user_response A list.
       # @return A table with information on user.
@@ -489,7 +352,6 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       pull_file_from_org = function(org, file_path, pulled_repos = NULL) {
         if (is.null(pulled_repos)) {
           repos_list <- private$pull_repos_from_org(
-            from = "org",
             org = org
           )
           repositories <- purrr::map(repos_list, ~ .$repo_name)
