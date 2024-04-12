@@ -1,36 +1,7 @@
 #' @noRd
-#' @importFrom R6 R6Class
-#' @importFrom cli cli_alert_info cli_alert_success cli_alert_warning col_yellow
-#' @importFrom dplyr glimpse
-#' @importFrom magrittr %>%
-#' @importFrom lubridate floor_date
-#' @importFrom purrr map map_chr
-#'
-#' @title A statistics platform for Git hosts
-#' @description An R6 class object with methods to derive information from multiple Git platforms.
-#'
+#' @description A highest-level class to manage data pulled from different hosts.
 GitStats <- R6::R6Class("GitStats",
   public = list(
-
-    #' @description Set up your search settings.
-    #' @param search_mode One of four: `org`, `repo` or `code`.
-    #' @param files Define files to scan.
-    #' @param verbose A boolean stating if you want to print output after
-    #'   pulling.
-    #' @param use_storage A boolean.  A boolean. If set to `TRUE` it will pull
-    #'   the latest data from the storage when it is there, e.g. `repositories`,
-    #'   when user runs `get_repos()`. If set to `FALSE` `get_repos()` will
-    #'   always pull data from the API.
-    #' @return Nothing.
-    set_params = function(search_mode = NULL,
-                          files = NULL,
-                          verbose = NULL,
-                          use_storage = NULL) {
-      private$set_search_mode(search_mode)
-      private$set_files_param(files)
-      private$set_verbose_param(verbose)
-      private$set_storage_param(use_storage)
-    },
 
     #' @description Method to set connections to Git platforms.
     #' @param host A character, optional, URL name of the host. If not passed, a
@@ -84,89 +55,77 @@ GitStats <- R6::R6Class("GitStats",
       private$add_new_host(new_host)
     },
 
-    #' @description Get release logs of repositories.
-    #' @param since A starting date for release logs.
-    #' @param until An end date for release logs.
-    get_release_logs = function(since, until) {
-      private$check_for_host()
-      if (private$trigger_pulling("release_logs", dates = list(since, until))) {
-        release_logs <- private$pull_release_logs(
-          date_from = since,
-          date_until = until
-        ) %>%
-          private$set_dates_as_attr(since, until)
-        private$save_to_storage(release_logs)
-      } else {
-        release_logs <- private$get_from_storage("release_logs")
-      }
-      if (private$settings$verbose) dplyr::glimpse(release_logs)
-      return(invisible(release_logs))
-    },
-
-    #' @description Wrapper over pulling repositories by code.
-    #' @param package_name A character, name of the package.
-    #' @param only_loading A boolean, if `TRUE` function will check only if
-    #'   package is loaded in repositories, not used as dependencies.
-    get_R_package_usage = function(package_name, only_loading = FALSE) {
-      private$check_for_host()
-      if (is.null(package_name)) {
-        cli::cli_abort("You need to define `package_name`.", call = NULL)
-      }
-      if (private$trigger_pulling_package(package_name)) {
-        R_package_usage <- private$pull_R_package_usage(
-          package_name = package_name,
-          only_loading = only_loading
-        ) %>%
-          private$set_as_attr("package_name", package_name)
-        private$save_to_storage(R_package_usage)
-      } else {
-        R_package_usage <- private$get_from_storage("R_package_usage")
-      }
-      if (private$settings$verbose) dplyr::glimpse(R_package_usage)
-      return(invisible(R_package_usage))
-    },
-
     #' @description  A method to list all repositories for an organization or by
     #'   a keyword.
     #' @param add_contributors A boolean to decide whether to add contributors
     #'   information to repositories.
-    #' @param code A character, should be defined is GitStats is set to get
-    #'   repos by code with `set_params()` function.
-    get_repos = function(add_contributors = FALSE, code = NULL) {
-      private$check_for_host()
-      private$check_search_mode_for_repos(code = code)
-      if (private$trigger_pulling("repositories")) {
-        repositories <- private$pull_repos(
+    #' @param with_code A character, if  defined, GitStats will pull repositories
+    #'   with specified text in code blobs.
+    #' @param use_storage A logical, should storage be used.
+    #' @param verbose A logical, shoud verbose mode be used.
+    get_repos = function(add_contributors = FALSE,
+                         with_code = NULL,
+                         use_storage = TRUE,
+                         verbose = TRUE) {
+      private$setup_for_pulling(
+        use_storage = use_storage,
+        verbose = verbose
+      )
+      trigger <- private$trigger_pulling(
+        storage = "repositories"
+      )
+      if (trigger) {
+        repositories <- private$get_repos_table(
           add_contributors = add_contributors,
-          code = code,
+          with_code = with_code,
           settings = private$settings
         )
-        private$save_to_storage(repositories)
+        private$save_to_storage(
+          table = repositories
+        )
       } else {
-        repositories <- private$get_from_storage("repositories")
+        repositories <- private$get_from_storage(
+          table = "repositories"
+        )
       }
-      if (private$settings$verbose) dplyr::glimpse(repositories)
+      if (verbose) dplyr::glimpse(repositories)
       return(invisible(repositories))
     },
 
     #' @description A method to get information on commits.
     #' @param since A starting date for commits.
     #' @param until An end date for commits.
-    get_commits = function(since, until) {
-      private$check_for_host()
-      if (private$trigger_pulling("commits", dates = list(since, until))) {
-        commits <- private$pull_commits(
+    #' @param use_storage A logical, should storage be used.
+    #' @param verbose A logical, shoud verbose mode be used.
+    get_commits = function(since,
+                           until,
+                           use_storage = TRUE,
+                           verbose = TRUE) {
+      private$setup_for_pulling(
+        use_storage = use_storage,
+        verbose = verbose
+      )
+      trigger <- private$trigger_pulling(
+        storage = "commits",
+        since = since,
+        until = until
+      )
+      if (trigger) {
+        commits <- private$get_commits_table(
           since = since,
           until = until
         ) %>%
-          private$set_dates_as_attr(since, until)
+          private$set_dates_as_attr(
+            since = since,
+            until = until
+          )
         private$save_to_storage(commits)
       } else {
-        commits <- private$get_from_storage('commits')
+        commits <- private$get_from_storage(
+          table = "commits"
+        )
       }
-      if (private$settings$verbose) {
-        dplyr::glimpse(commits)
-      }
+      if (verbose) dplyr::glimpse(commits)
       return(invisible(commits))
     },
 
@@ -195,10 +154,13 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description Get information on users.
     #' @param logins Character vector of logins.
-    get_users = function(logins) {
-      private$check_for_host()
+    get_users = function(logins, use_storage = TRUE, verbose = TRUE) {
+      private$setup_for_pulling(
+        use_storage = use_storage,
+        verbose = verbose
+      )
       if (private$trigger_pulling_users(logins)) {
-        users <- private$pull_users(logins) %>%
+        users <- private$get_users_table(logins) %>%
           private$set_as_attr("logins", logins)
         private$save_to_storage(users)
       } else {
@@ -210,10 +172,13 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description Pull text content of a file from all repositories.
     #' @param file_path A file path, may be a character vector.
-    get_files = function(file_path) {
-      private$check_for_host()
+    get_files = function(file_path, use_storage = TRUE, verbose = TRUE) {
+      private$setup_for_pulling(
+        use_storage = use_storage,
+        verbose = verbose
+      )
       if (private$trigger_pulling_files(file_path)) {
-        files <- private$pull_files(file_path) %>%
+        files <- private$get_files_table(file_path) %>%
           private$set_as_attr("file_path", file_path)
         private$save_to_storage(files)
       } else {
@@ -221,6 +186,68 @@ GitStats <- R6::R6Class("GitStats",
       }
       if (private$settings$verbose) dplyr::glimpse(files)
       return(invisible(files))
+    },
+
+    #' @description Get release logs of repositories.
+    #' @param since A starting date for release logs.
+    #' @param until An end date for release logs.
+    get_release_logs = function(since,
+                                until,
+                                use_storage = TRUE,
+                                verbose = TRUE) {
+      private$setup_for_pulling(
+        use_storage = use_storage,
+        verbose = verbose
+      )
+      trigger <- private$trigger_pulling(
+        storage = "release_logs",
+        since = since,
+        until = until
+      )
+      if (trigger) {
+        release_logs <- private$get_release_logs_table(
+          since = since,
+          until = until
+        ) %>%
+          private$set_dates_as_attr(since, until)
+        private$save_to_storage(release_logs)
+      } else {
+        release_logs <- private$get_from_storage("release_logs")
+      }
+      if (private$settings$verbose) dplyr::glimpse(release_logs)
+      return(invisible(release_logs))
+    },
+
+    #' @description Wrapper over pulling repositories by code.
+    #' @param package_name A character, name of the package.
+    #' @param only_loading A boolean, if `TRUE` function will check only if
+    #'   package is loaded in repositories, not used as dependencies.
+    get_R_package_usage = function(package_name,
+                                   only_loading = FALSE,
+                                   use_storage = TRUE,
+                                   verbose = TRUE) {
+      private$setup_for_pulling(
+        use_storage = use_storage,
+        verbose = verbose
+      )
+      trigger <- private$trigger_pulling_package(
+        package_name = package_name
+      )
+      if (is.null(package_name)) {
+        cli::cli_abort("You need to define `package_name`.", call = NULL)
+      }
+      if (trigger) {
+        R_package_usage <- private$get_R_package_usage_table(
+          package_name = package_name,
+          only_loading = only_loading
+        ) %>%
+          private$set_as_attr("package_name", package_name)
+        private$save_to_storage(R_package_usage)
+      } else {
+        R_package_usage <- private$get_from_storage("R_package_usage")
+      }
+      if (private$settings$verbose) dplyr::glimpse(R_package_usage)
+      return(invisible(R_package_usage))
     },
 
     #' @description Return organizations vector from GitStats.
@@ -254,26 +281,12 @@ GitStats <- R6::R6Class("GitStats",
       return(storage)
     },
 
-    #' @description switch on verbose mode
-    verbose_on = function() {
-      private$settings$verbose <- TRUE
-    },
-
-    #' @description switch off verbose mode
-    verbose_off = function() {
-      private$settings$verbose <- FALSE
-    },
-
     #' @description A print method for a GitStats object.
     print = function() {
       cat(paste0("A ", cli::col_blue('GitStats'), " object for ", length(private$hosts)," hosts: \n"))
       private$print_hosts()
       cat(cli::col_blue("Scanning scope: \n"))
       private$print_orgs_and_repos()
-      private$print_files()
-      private$print_search_mode()
-      private$print_verbose()
-      private$print_use_storage()
       private$print_storage()
     }
   ),
@@ -284,7 +297,7 @@ GitStats <- R6::R6Class("GitStats",
 
     # @field settings List of search preferences.
     settings = list(
-      search_mode = NULL,
+      searching_scope = NULL,
       files = NULL,
       verbose = TRUE,
       use_storage = TRUE
@@ -292,7 +305,7 @@ GitStats <- R6::R6Class("GitStats",
 
     # temporary settings used when calling some methods for custom purposes
     temp_settings = list(
-      search_mode = NULL,
+      searching_scope = NULL,
       files = NULL,
       verbose = FALSE,
       use_storage = TRUE
@@ -320,38 +333,28 @@ GitStats <- R6::R6Class("GitStats",
     # Set searching scope
     set_searching_scope = function(orgs, repos) {
       if (!is.null(repos)) {
-        private$settings$search_mode <- "repo"
+        private$settings$searching_scope <- "repo"
       }
       if (!is.null(orgs)) {
-        private$settings$search_mode <- "org"
+        private$settings$searching_scope <- "org"
+      }
+      if (is.null(orgs) && is.null(repos)) {
+        private$settings$searching_scope <- "all"
       }
     },
 
-    # Handler for setting code parameter
-    set_search_mode = function(search_mode) {
-      if (!is.null(search_mode)) {
-        search_mode <- match.arg(
-          search_mode,
-          c("org", "repo", "code")
-        )
-        private$settings$search_mode <- search_mode
-        if (private$settings$verbose) {
-          cli::cli_alert_success(
-            "Your search mode set to {cli::col_green(search_mode)}."
-          )
-        }
-      }
+    # Basic functions to run before pulling
+    setup_for_pulling = function(use_storage,
+                                 verbose) {
+      private$check_for_host()
+      private$set_verbose_param(verbose)
+      private$set_storage_param(use_storage)
     },
 
-    # Handler for setting files parameter
-    set_files_param = function(files) {
-      if (!is.null(files)) {
-        private$settings$files <- files
-        if (private$settings$verbose) {
-          cli::cli_alert_info("Set files {files} to scan.")
-        }
-      } else {
-        private$settings$files <- NULL
+    # @description Helper to check if there are any hosts.
+    check_for_host = function() {
+      if (length(private$hosts) == 0) {
+        cli::cli_abort("Add first your hosts with `set_host()`.", call = NULL)
       }
     },
 
@@ -390,7 +393,7 @@ GitStats <- R6::R6Class("GitStats",
     get_from_storage = function(table) {
       if (private$settings$verbose) {
         cli::cli_alert_warning(cli::col_yellow(glue::glue("Retrieving {table} from the GitStats storage.")))
-        cli::cli_alert_info(cli::col_cyan("If you wish to pull the data from API once more, set `use_storage` to `FALSE` in `set_params()` function."))
+        cli::cli_alert_info(cli::col_cyan("If you wish to pull the data from API once more, set `use_storage` to `FALSE`."))
       }
       private$storage[[table]]
     },
@@ -401,9 +404,16 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Decide if data needs to be pulled from API
-    trigger_pulling = function(storage, dates = NULL) {
-      private$storage_is_empty(storage) || private$do_not_use_storage() ||
+    trigger_pulling = function(storage, since = NULL, until = NULL) {
+      if (!is.null(since) || !is.null(until)) {
+        dates <- list(since, until)
+      } else {
+        dates <- NULL
+      }
+      trigger <- private$storage_is_empty(storage) ||
+        private$do_not_use_storage() ||
         private$dates_do_not_comply(storage, dates)
+      return(trigger)
     },
 
     # Decide if data needs to be pulled from API
@@ -452,7 +462,7 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Check if dates in function call are the same as in storage
-    dates_do_not_comply = function(storage, dates) {
+    dates_do_not_comply = function(storage, dates = NULL) {
       do_not_comply <- FALSE
       if (!is.null(dates)) {
         dates <- standardize_dates(dates)
@@ -468,8 +478,8 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Save dates parameters as attributes of the object
-    set_dates_as_attr = function(object, date_from, date_until) {
-      attr(object, "dates_range") <- list(date_from, date_until) %>%
+    set_dates_as_attr = function(object, since, until) {
+      attr(object, "dates_range") <- list(since, until) %>%
         standardize_dates()
       return(object)
     },
@@ -480,31 +490,11 @@ GitStats <- R6::R6Class("GitStats",
       return(object)
     },
 
-    # Handle search parameter when pulling repositories
-    check_search_mode_for_repos = function(code) {
-      search_mode <- private$settings$search_mode
-      if (search_mode == "repo") {
-        cli::cli_abort(
-          c(
-            "Can not pull repos when search parameter is set to `repo`",
-            "i" = "Pass `orgs` to `GitStats` with `set_*_host()` function.",
-            "i" = "Set your `search_mode` to `org` or `code` with `set_params()` function."
-          ),
-          call = NULL
-        )
-      }
-      if (search_mode == "code") {
-        if (is.null(code)) {
-          cli::cli_abort("You have to provide a code to look for.", call = NULL)
-        }
-      }
-    },
-
     # Pull repositories tables from hosts and bind them into one
-    pull_repos = function(add_contributors = FALSE, code, settings) {
+    get_repos_table = function(add_contributors = FALSE, with_code, settings) {
       repos_table <- purrr::map(private$hosts, ~ .$pull_repos(
         add_contributors = add_contributors,
-        code = code,
+        with_code = with_code,
         settings = settings
       )) %>%
         purrr::list_rbind() %>%
@@ -513,7 +503,7 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Pull commits tables from hosts and bind them into one
-    pull_commits = function(since, until) {
+    get_commits_table = function(since, until) {
       commits_table <- purrr::map(private$hosts, function(host) {
         host$pull_commits(
           since = since,
@@ -527,7 +517,7 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Pull information on unique users in a table form
-    pull_users = function(logins) {
+    get_users_table = function(logins) {
       purrr::map(private$hosts, function(host) {
         host$pull_users(logins)
       }) %>%
@@ -536,7 +526,7 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Pull content of a text file in a table form
-    pull_files = function(file_path) {
+    get_files_table = function(file_path) {
       purrr::map(private$hosts, function(host) {
         host$pull_files(
           file_path = file_path,
@@ -548,10 +538,10 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Pull release logs tables from hosts and bind them into one
-    pull_release_logs = function(date_from, date_until) {
+    get_release_logs_table = function(since, until) {
       purrr::map(private$hosts, ~ .$pull_release_logs(
-        date_from = date_from,
-        date_until = date_until,
+        date_from = since,
+        date_until = until,
         settings = private$settings,
         storage = private$storage
       )) %>%
@@ -559,7 +549,7 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Pull information on package usage in a table form
-    pull_R_package_usage = function(package_name, only_loading) {
+    get_R_package_usage_table = function(package_name, only_loading) {
       if (!only_loading) {
         repos_with_package_as_dependency <- private$check_R_package_as_dependency(package_name)
       } else {
@@ -591,11 +581,10 @@ GitStats <- R6::R6Class("GitStats",
         paste0("library(", package_name, ")"),
         paste0("require(", package_name, ")")
       )
-      private$temp_settings$search_mode <- "code"
       private$temp_settings$files <- NULL
       repos_using_package <- purrr::map(package_usage_phrases, ~ {
-        repos_using_package <- private$pull_repos(
-          code = .,
+        repos_using_package <- private$get_repos_table(
+          with_code = .,
           settings = private$temp_settings
         )
         if (!is.null(repos_using_package)) {
@@ -616,10 +605,9 @@ GitStats <- R6::R6Class("GitStats",
       if (private$settings$verbose) {
         cli::cli_alert_info("Checking where [{package_name}] is used as a dependency...")
       }
-      private$temp_settings$search_mode <- "code"
       private$temp_settings$files <- c("DESCRIPTION", "NAMESPACE")
-      repos_with_package <- private$pull_repos(
-        code = package_name,
+      repos_with_package <- private$get_repos_table(
+        with_code = package_name,
         settings = private$temp_settings
       )
       if (nrow(repos_with_package) > 0) {
@@ -713,13 +701,6 @@ GitStats <- R6::R6Class("GitStats",
       host
     },
 
-    # @description Helper to check if there are any hosts.
-    check_for_host = function() {
-      if (length(private$hosts) == 0) {
-        cli::cli_abort("Add first your hosts with `set_host()`.", call = NULL)
-      }
-    },
-
     # @description A helper to manage printing `GitStats` object.
     # @param name Name of item to print.
     # @param item_to_check Item to check for emptiness.
@@ -728,7 +709,7 @@ GitStats <- R6::R6Class("GitStats",
     print_item = function(item_name,
                           item_to_check,
                           item_to_print = item_to_check) {
-      if (item_name %in% c(" Organizations", " Repositories", " Files")) {
+      if (item_name %in% c(" Organizations", " Repositories")) {
         item_to_print <- unlist(item_to_print)
         item_to_print <- purrr::map_vec(item_to_print, function(element) {
           URLdecode(element)
@@ -772,29 +753,6 @@ GitStats <- R6::R6Class("GitStats",
       })
       private$print_item(" Organizations", orgs)
       private$print_item(" Repositories", repos)
-    },
-
-    # print files set to be scanned to GitStats
-    print_files = function() {
-      private$print_item(
-        " Files",
-        private$settings$files
-      )
-    },
-
-    # print search mode
-    print_search_mode = function() {
-      private$print_item("Search mode", private$settings$search_mode)
-    },
-
-    # print verbose mode
-    print_verbose = function() {
-      private$print_item("Verbose", private$settings$verbose)
-    },
-
-    # print if storage is used
-    print_use_storage = function() {
-      private$print_item("Use storage", private$settings$use_storage)
     },
 
     # print storage

@@ -4,15 +4,25 @@
 \alias{get_R_package_usage}
 \title{Get information on package usage across repositories}
 \usage{
-get_R_package_usage(gitstats_obj, package_name, only_loading = FALSE)
+get_R_package_usage(
+  gitstats_object,
+  package_name,
+  only_loading = FALSE,
+  use_storage = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
-\item{gitstats_obj}{A GitStats object.}
+\item{gitstats_object}{A GitStats object.}
 
 \item{package_name}{A character, name of the package.}
 
 \item{only_loading}{A boolean, if \code{TRUE} function will check only if package
 is loaded in repositories, not used as dependencies.}
+
+\item{use_storage}{A logical, should storage be used.}
+
+\item{verbose}{A logical, shoud verbose mode be used.}
 }
 \value{
 A table of repositories content.

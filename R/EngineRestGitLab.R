@@ -8,27 +8,24 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #' @description A method to retrieve all repositories for an organization in
     #'   a table format.
     #' @param org A character, a group of projects.
-    #' @param code A character, code to search for.
+    #' @param with_code A character, code to search for.
     #' @param settings A list of  `GitStats` settings.
     #' @return A table.
     pull_repos = function(org,
-                          code = NULL,
+                          with_code = NULL,
                           settings) {
-      if (settings$search_mode == "code") {
-        if (!private$scan_all && settings$verbose) {
-          cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][code:{code}][org:{URLdecode(org)}] Searching repositories...")
-        }
-        repos_table <- private$pull_repos_by_code(
-          org = org,
-          code = code,
-          files = settings$files
-        ) %>%
-          private$tailor_repos_info() %>%
-          private$prepare_repos_table() %>%
-          private$pull_repos_issues()
-      } else {
-        repos_table <- NULL
+
+      if (!private$scan_all && settings$verbose) {
+        cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][code:{with_code}][org:{URLdecode(org)}] Searching repositories...")
       }
+      repos_table <- private$pull_repos_by_code(
+        org = org,
+        code = with_code,
+        files = settings$files
+      ) %>%
+        private$tailor_repos_info() %>%
+        private$prepare_repos_table() %>%
+        private$pull_repos_issues()
       return(repos_table)
     },
 
@@ -39,18 +36,16 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     pull_repos_supportive = function(org,
                                      settings) {
       repos_table <- NULL
-      if (settings$search_mode == "org") {
-        if (!private$scan_all && settings$verbose) {
-          cli::cli_alert_info(
-            "[GitLab][Engine:{cli::col_green('REST')}][org:{URLdecode(org)}] Pulling repositories..."
-          )
-        }
-        org <- private$get_group_id(org)
-        repos_table <- private$pull_repos_from_org(org) %>%
-          private$tailor_repos_info() %>%
-          private$prepare_repos_table() %>%
-          private$pull_repos_issues()
+      if (!private$scan_all && settings$verbose) {
+        cli::cli_alert_info(
+          "[GitLab][Engine:{cli::col_green('REST')}][org:{URLdecode(org)}] Pulling repositories..."
+        )
       }
+      org <- private$get_group_id(org)
+      repos_table <- private$pull_repos_from_org(org) %>%
+        private$tailor_repos_info() %>%
+        private$prepare_repos_table() %>%
+        private$pull_repos_issues()
       return(repos_table)
     },
 
@@ -116,9 +111,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       if (!private$scan_all) {
         org_disp <- stringr::str_replace_all(org, "%2f", "/")
         if (settings$verbose) {
-          if (settings$search_mode == "org") {
+          if (settings$searching_scope == "org") {
             cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org_disp}] Pulling commits...")
-          } else if (settings$search_mode == "repo") {
+          } else if (settings$searching_scope == "repo") {
             cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org_disp}][custom repositories] Pulling commits...")
           }
         }

@@ -4,14 +4,24 @@
 \alias{get_release_logs}
 \title{Get release logs}
 \usage{
-get_release_logs(gitstats_obj, since = NULL, until = NULL)
+get_release_logs(
+  gitstats_object,
+  since = NULL,
+  until = NULL,
+  use_storage = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
-\item{gitstats_obj}{A GitStats object.}
+\item{gitstats_object}{A GitStats object.}
 
-\item{since}{A starting date for release logs.}
+\item{since}{A starting date.}
 
-\item{until}{An end date for release logs.}
+\item{until}{An end date.}
+
+\item{use_storage}{A logical, should storage be used.}
+
+\item{verbose}{A logical, shoud verbose mode be used.}
 }
 \value{
 A table with release logs.

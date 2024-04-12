@@ -7,18 +7,18 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
 
     #' @description Method to get repositories with a specific code blob.
     #' @param org An organization
-    #' @param code A character, code to search for.
+    #' @param with_code A character, code to search for.
     #' @param settings A list of  `GitStats` settings.
     #' @return Table of repositories.
     pull_repos = function(org,
-                          code = NULL,
+                          with_code = NULL,
                           settings) {
       if (!private$scan_all && settings$verbose) {
-        cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][code:{code}][org:{org}] Pulling repositories...")
+        cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][code:{with_code}][org:{org}] Pulling repositories...")
       }
       repos_table <- private$pull_repos_by_code(
         org = org,
-        code = code,
+        code = with_code,
         files = settings$files
       ) %>%
         private$tailor_repos_info() %>%
@@ -35,20 +35,16 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     pull_repos_supportive = function(org,
                                      settings) {
       repos_table <- NULL
-      if (settings$search_mode %in% c("org")) {
-        if (!private$scan_all) {
-          if (settigs$verbose) {
-            cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
-          }
-        }
-        repos_endpoint <- paste0(self$rest_api_url, "/orgs/", org, "/repos")
-        repos_table <- private$paginate_results(
-          repos_endpoint = repos_endpoint
-        ) %>%
-          private$tailor_repos_info() %>%
-          private$prepare_repos_table() %>%
-          private$pull_repos_issues()
+      if (!private$scan_all && settigs$verbose) {
+        cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
       }
+      repos_endpoint <- paste0(private$endpoints[["organizations"]], org, "/repos")
+      repos_table <- private$paginate_results(
+        repos_endpoint = repos_endpoint
+      ) %>%
+        private$tailor_repos_info() %>%
+        private$prepare_repos_table() %>%
+        private$pull_repos_issues()
       return(repos_table)
     },
 
@@ -67,7 +63,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         user_name <- rlang::expr(.$login)
         repos_table$contributors <- purrr::map_chr(repo_iterator, function(repos_id) {
           tryCatch({
-              contributors_endpoint <- paste0(self$rest_api_url, "/repos/", repos_id, "/contributors")
+              contributors_endpoint <- paste0(private$endpoints[["repositories"]], repos_id, "/contributors")
               contributors_vec <- private$pull_contributors_from_repo(
                 contributors_endpoint = contributors_endpoint,
                 user_name = user_name
@@ -87,7 +83,9 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
 
     # List of endpoints
     endpoints = list(
-      search = NULL
+      search = NULL,
+      organizations = NULL,
+      repositories = NULL
     ),
 
     # Set endpoints for the API
@@ -95,6 +93,14 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       private$endpoints[["search"]] <- paste0(
         self$rest_api_url,
         '/search/code?q='
+      )
+      private$endpoints[["organization"]] <- paste0(
+        self$rest_api_url,
+        "/orgs/"
+      )
+      private$endpoints[["repositories"]] <- paste0(
+        self$rest_api_url,
+        "/repos/"
       )
     },
 

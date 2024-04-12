@@ -4,12 +4,16 @@
 \alias{get_users}
 \title{Get users data}
 \usage{
-get_users(gitstats_obj, logins)
+get_users(gitstats_object, logins, use_storage = TRUE, verbose = TRUE)
 }
 \arguments{
-\item{gitstats_obj}{A GitStats object.}
+\item{gitstats_object}{A GitStats object.}
 
 \item{logins}{A character vector of logins.}
+
+\item{use_storage}{A logical, should storage be used.}
+
+\item{verbose}{A logical, shoud verbose mode be used.}
 }
 \value{
 A \code{GitStats} object with table of users.

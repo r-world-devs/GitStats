@@ -4,10 +4,16 @@
 \alias{get_repos}
 \title{Get information on repositories}
 \usage{
-get_repos(gitstats_obj, add_contributors = TRUE, code = NULL)
+get_repos(
+  gitstats_object,
+  add_contributors = TRUE,
+  with_code = NULL,
+  use_storage = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
-\item{gitstats_obj}{A GitStats object.}
+\item{gitstats_object}{A GitStats object.}
 
 \item{add_contributors}{A logical parameter to decide whether to add
 information about repositories' contributors to the repositories output
@@ -20,8 +26,12 @@ default), \code{GitStats} iterates additionally over pulled repositories and
 reaches to the \verb{contributors APIs}, which makes it slower, but gives
 additional information.}
 
-\item{code}{A character, should be defined is GitStats is set to get repos by
-code with \code{set_params()} function.}
+\item{with_code}{A character, if  defined, GitStats will pull repositories
+with specified text in code blobs.}
+
+\item{use_storage}{A logical, should storage be used.}
+
+\item{verbose}{A logical, shoud verbose mode be used.}
 }
 \description{
 List all repositories for an organization or by a keyword.

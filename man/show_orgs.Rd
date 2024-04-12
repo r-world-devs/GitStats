@@ -4,10 +4,10 @@
 \alias{show_orgs}
 \title{Show organizations set in \code{GitStats}}
 \usage{
-show_orgs(gitstats_obj)
+show_orgs(gitstats_object)
 }
 \arguments{
-\item{gitstats_obj}{A GitStats object.}
+\item{gitstats_object}{A GitStats object.}
 }
 \value{
 A vector of organizations.
