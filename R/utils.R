@@ -7,10 +7,9 @@
 date_to_gts <- function(date) {
   date_format <- as.Date(date)
   posixt_format <- as.POSIXct(date)
-
-  if (stringr::str_length(date) == 10 && !is.null(date_format)) {
+  if (as.POSIXct(date_format) == as.POSIXct(posixt_format)) {
     paste0(date, "T00:00:00Z")
-  } else if (stringr::str_length(date) == 19 && !is.null(posixt_format)) {
+  } else {
     stringr::str_replace(
       date,
       "^(.{10})(.*)$",
@@ -40,4 +39,27 @@ retrieve_platform <- function(api_url) {
     string = api_url,
     pattern = "(?<=com).*|(https://)|(api.)|(.com)"
   )
+}
+
+#' @noRd
+#' @description A constructor for `commits_stats` class.
+commits_stats <- function(object, time_interval) {
+  stopifnot(inherits(object, "grouped_df"))
+  object <- dplyr::ungroup(object)
+  class(object) = append(class(object), "commits_stats")
+  attr(object, "time_interval") <- time_interval
+  object
+}
+
+#' @noRd
+standardize_dates <- function(dates) {
+  purrr::discard(dates, is.null) %>% purrr::map_vec(as.POSIXct)
+}
+
+#' @importFrom utils URLencode URLdecode
+
+#' @noRd
+#' @description Apply url encoding to string
+url_encode <- function(url) {
+  URLencode(url, reserved = TRUE)
 }

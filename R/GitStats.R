@@ -1,9 +1,9 @@
 #' @noRd
 #' @importFrom R6 R6Class
 #' @importFrom cli cli_alert_info cli_alert_success cli_alert_warning col_yellow
-#' @importFrom data.table rbindlist
 #' @importFrom dplyr glimpse
 #' @importFrom magrittr %>%
+#' @importFrom lubridate floor_date
 #' @importFrom purrr map map_chr
 #'
 #' @title A statistics platform for Git hosts
@@ -13,109 +13,303 @@ GitStats <- R6::R6Class("GitStats",
   public = list(
 
     #' @description Set up your search settings.
-    #' @param search_param One of four: `team`, `org`, `repo` or `phrase`.
-    #' @param team_name A name of a team.
-    #' @param phrase A phrase to look for.
+    #' @param search_mode One of four: `org`, `repo` or `code`.
     #' @param files Define files to scan.
-    #' @param language A language of programming code.
-    #' @param print_out A boolean stating if you want to print output after
+    #' @param verbose A boolean stating if you want to print output after
     #'   pulling.
+    #' @param use_storage A boolean.  A boolean. If set to `TRUE` it will pull
+    #'   the latest data from the storage when it is there, e.g. `repositories`,
+    #'   when user runs `get_repos()`. If set to `FALSE` `get_repos()` will
+    #'   always pull data from the API.
     #' @return Nothing.
-    set_params = function(search_param,
-                          team_name = NULL,
-                          phrase = NULL,
+    set_params = function(search_mode = NULL,
                           files = NULL,
-                          language = "All",
-                          print_out = TRUE) {
-      search_param <- match.arg(
-        search_param,
-        c("org", "repo", "team", "phrase")
-      )
-
-      if (search_param == "team") {
-        if (is.null(team_name)) {
-          cli::cli_abort(
-            "You need to define your `team_name`."
-          )
-        } else {
-          private$settings$team_name <- team_name
-          cli::cli_alert_success(
-            paste0("Your search parameter set to {cli::col_green('team: ", team_name, "')}.")
-          )
-          if (length(private$settings$team) == 0) {
-            cli::cli_alert_warning(
-              cli::col_yellow(
-                "No team members in the team. Add them with `set_team_member()`."
-              )
-            )
-          }
-        }
-      }
-      if (search_param == "phrase") {
-        if (is.null(phrase)) {
-          cli::cli_abort(
-            "You need to define your phrase."
-          )
-        } else {
-          private$settings$phrase <- phrase
-          cli::cli_alert_success(
-            paste0("Your search preferences set to {cli::col_green('phrase: ", phrase, "')}.")
-          )
-        }
-      }
-      if (!is.null(files)) {
-        private$settings$files <- files
-        cli::cli_alert_info("Set files {files} to scan.")
-      } else {
-        private$settings$files <- NULL
-      }
-      private$settings$search_param <- search_param
-      if (language != "All") {
-        private$settings$language <- private$language_handler(language)
-        cli::cli_alert_success(
-          "Your programming language is set to {cli::col_green({language})}."
-        )
-      } else {
-        private$settings$language <- "All"
-      }
-      private$settings$print_out <- print_out
+                          verbose = NULL,
+                          use_storage = NULL) {
+      private$set_search_mode(search_mode)
+      private$set_files_param(files)
+      private$set_verbose_param(verbose)
+      private$set_storage_param(use_storage)
     },
 
     #' @description Method to set connections to Git platforms.
-    #' @param api_url A character, url address of API.
+    #' @param host A character, optional, URL name of the host. If not passed, a
+    #'   public host will be used (api.github.com).
     #' @param token A token.
     #' @param orgs An optional character vector of organisations (owners of
-    #'   repositories in case of GitHub and groups of projects in case of GitLab).
-    #'   If you pass it, `repos` parameter should stay `NULL`.
+    #'   repositories in case of GitHub). If you pass it, `repos` parameter
+    #'   should stay `NULL`.
     #' @param repos An optional character vector of repositories full names
-    #'   (organization and repository name, e.g. "r-world-devs/GitStats"). If you
-    #'   pass it, `orgs` parameter should stay `NULL`.
+    #'   (organization and repository name, e.g. "r-world-devs/GitStats"). If
+    #'   you pass it, `orgs` parameter should stay `NULL`.
     #' @return Nothing, puts connection information into `$hosts` slot.
-    set_host = function(api_url,
-                        token = NULL,
-                        orgs = NULL,
-                        repos = NULL) {
+    set_github_host = function(host,
+                               token = NULL,
+                               orgs = NULL,
+                               repos = NULL) {
       new_host <- NULL
-
-      new_host <- GitHost$new(
+      new_host <- GitHostGitHub$new(
         orgs = orgs,
         repos = repos,
         token = token,
-        api_url = api_url
+        host = host
       )
-      if (grepl("https://", api_url) && grepl("github", api_url)) {
-        cli::cli_alert_success("Set connection to GitHub.")
-      } else if (grepl("https://", api_url) && grepl("gitlab|code", api_url)) {
-        cli::cli_alert_success("Set connection to GitLab.")
+      private$set_searching_scope(orgs, repos)
+      private$add_new_host(new_host)
+    },
+
+    #' @description Method to set connections to Git platforms.
+    #' @param host A character, optional, URL name of the host. If not passed, a
+    #'   public host will be used (gitlab.com/api/v4).
+    #' @param token A token.
+    #' @param orgs An optional character vector of organisations (groups of
+    #'   projects in case of GitLab). If you pass it, `repos` parameter should
+    #'   stay `NULL`.
+    #' @param repos An optional character vector of repositories full names
+    #'   (organization and repository name, e.g. "r-world-devs/GitStats"). If
+    #'   you pass it, `orgs` parameter should stay `NULL`.
+    #' @return Nothing, puts connection information into `$hosts` slot.
+    set_gitlab_host = function(host,
+                               token = NULL,
+                               orgs = NULL,
+                               repos = NULL) {
+      new_host <- NULL
+      new_host <- GitHostGitLab$new(
+        orgs = orgs,
+        repos = repos,
+        token = token,
+        host = host
+      )
+      private$set_searching_scope(orgs, repos)
+      private$add_new_host(new_host)
+    },
+
+    #' @description Get release logs of repositories.
+    #' @param since A starting date for release logs.
+    #' @param until An end date for release logs.
+    get_release_logs = function(since, until) {
+      private$check_for_host()
+      if (private$trigger_pulling("release_logs", dates = list(since, until))) {
+        release_logs <- private$pull_release_logs(
+          date_from = since,
+          date_until = until
+        ) %>%
+          private$set_dates_as_attr(since, until)
+        private$save_to_storage(release_logs)
+      } else {
+        release_logs <- private$get_from_storage("release_logs")
       }
-      if (!is.null(repos)) {
-        private$settings$search_param <- "repo"
-        cli::cli_alert_info(cli::col_grey("Your search parameter set to [repo]."))
+      if (private$settings$verbose) dplyr::glimpse(release_logs)
+      return(invisible(release_logs))
+    },
+
+    #' @description Wrapper over pulling repositories by code.
+    #' @param package_name A character, name of the package.
+    #' @param only_loading A boolean, if `TRUE` function will check only if
+    #'   package is loaded in repositories, not used as dependencies.
+    get_R_package_usage = function(package_name, only_loading = FALSE) {
+      private$check_for_host()
+      if (is.null(package_name)) {
+        cli::cli_abort("You need to define `package_name`.", call = NULL)
       }
-      if (!is.null(orgs)) {
-        private$settings$search_param <- "org"
-        cli::cli_alert_info(cli::col_grey("Your search parameter set to [org]."))
+      if (private$trigger_pulling_package(package_name)) {
+        R_package_usage <- private$pull_R_package_usage(
+          package_name = package_name,
+          only_loading = only_loading
+        ) %>%
+          private$set_as_attr("package_name", package_name)
+        private$save_to_storage(R_package_usage)
+      } else {
+        R_package_usage <- private$get_from_storage("R_package_usage")
       }
+      if (private$settings$verbose) dplyr::glimpse(R_package_usage)
+      return(invisible(R_package_usage))
+    },
+
+    #' @description  A method to list all repositories for an organization or by
+    #'   a keyword.
+    #' @param add_contributors A boolean to decide whether to add contributors
+    #'   information to repositories.
+    #' @param code A character, should be defined is GitStats is set to get
+    #'   repos by code with `set_params()` function.
+    get_repos = function(add_contributors = FALSE, code = NULL) {
+      private$check_for_host()
+      private$check_search_mode_for_repos(code = code)
+      if (private$trigger_pulling("repositories")) {
+        repositories <- private$pull_repos(
+          add_contributors = add_contributors,
+          code = code,
+          settings = private$settings
+        )
+        private$save_to_storage(repositories)
+      } else {
+        repositories <- private$get_from_storage("repositories")
+      }
+      if (private$settings$verbose) dplyr::glimpse(repositories)
+      return(invisible(repositories))
+    },
+
+    #' @description A method to get information on commits.
+    #' @param since A starting date for commits.
+    #' @param until An end date for commits.
+    get_commits = function(since, until) {
+      private$check_for_host()
+      if (private$trigger_pulling("commits", dates = list(since, until))) {
+        commits <- private$pull_commits(
+          since = since,
+          until = until
+        ) %>%
+          private$set_dates_as_attr(since, until)
+        private$save_to_storage(commits)
+      } else {
+        commits <- private$get_from_storage('commits')
+      }
+      if (private$settings$verbose) {
+        dplyr::glimpse(commits)
+      }
+      return(invisible(commits))
+    },
+
+    #' @title Get statistics on commits
+    #' @name get_commits_stats
+    #' @description Prepare statistics from the pulled commits data.
+    #' @param time_interval A character, specifying time interval to show statistics.
+    #' @return A table of `commits_stats` class.
+    get_commits_stats = function(time_interval = c("month", "day", "week")){
+      commits <- private$storage[["commits"]]
+      if (is.null(commits)) {
+        cli::cli_abort(c(
+          "x" = "No commits found in GitStats storage.",
+          "i" = "Run first `get_commits()`."
+        ),
+        call = NULL)
+      }
+      time_interval <- match.arg(time_interval)
+
+      commits_stats <- private$prepare_commits_stats(
+        commits = commits,
+        time_interval = time_interval
+      )
+      return(commits_stats)
+    },
+
+    #' @description Get information on users.
+    #' @param logins Character vector of logins.
+    get_users = function(logins) {
+      private$check_for_host()
+      if (private$trigger_pulling_users(logins)) {
+        users <- private$pull_users(logins) %>%
+          private$set_as_attr("logins", logins)
+        private$save_to_storage(users)
+      } else {
+        users <- private$get_from_storage("users")
+      }
+      if (private$settings$verbose) dplyr::glimpse(users)
+      return(invisible(users))
+    },
+
+    #' @description Pull text content of a file from all repositories.
+    #' @param file_path A file path, may be a character vector.
+    get_files = function(file_path) {
+      private$check_for_host()
+      if (private$trigger_pulling_files(file_path)) {
+        files <- private$pull_files(file_path) %>%
+          private$set_as_attr("file_path", file_path)
+        private$save_to_storage(files)
+      } else {
+        files <- private$get_from_storage("files")
+      }
+      if (private$settings$verbose) dplyr::glimpse(files)
+      return(invisible(files))
+    },
+
+    #' @description Return organizations vector from GitStats.
+    show_orgs = function() {
+      purrr::map(private$hosts, function(host) {
+        orgs <- host$.__enclos_env__$private$orgs
+        purrr::map_vec(orgs, ~ URLdecode(.))
+        }) %>% unlist()
+    },
+
+    #' @description Retrieves table stored in `GitStats` object.
+    #' @param storage Table of `repositories`, `commits`, `users`, `files` or
+    #'   `R_package_usage`.
+    #' @return A table.
+    show_data = function(storage) {
+      storage <- match.arg(
+        arg = storage,
+        choices = c("repos", "repositories", "commits", "files", "users",
+                    "R_package_usage", "package_usage", "releases", "release_logs")
+      )
+      if (storage == "repos") {
+        storage <- "repositories"
+      }
+      if (storage == "package_usage") {
+        storage <- "R_package_usage"
+      }
+      if (storage == "releases") {
+        storage <- "release_logs"
+      }
+      storage <- private$storage[[storage]]
+      return(storage)
+    },
+
+    #' @description switch on verbose mode
+    verbose_on = function() {
+      private$settings$verbose <- TRUE
+    },
+
+    #' @description switch off verbose mode
+    verbose_off = function() {
+      private$settings$verbose <- FALSE
+    },
+
+    #' @description A print method for a GitStats object.
+    print = function() {
+      cat(paste0("A ", cli::col_blue('GitStats'), " object for ", length(private$hosts)," hosts: \n"))
+      private$print_hosts()
+      cat(cli::col_blue("Scanning scope: \n"))
+      private$print_orgs_and_repos()
+      private$print_files()
+      private$print_search_mode()
+      private$print_verbose()
+      private$print_use_storage()
+      private$print_storage()
+    }
+  ),
+  private = list(
+
+    # @field hosts A list of API connections information.
+    hosts = list(),
+
+    # @field settings List of search preferences.
+    settings = list(
+      search_mode = NULL,
+      files = NULL,
+      verbose = TRUE,
+      use_storage = TRUE
+    ),
+
+    # temporary settings used when calling some methods for custom purposes
+    temp_settings = list(
+      search_mode = NULL,
+      files = NULL,
+      verbose = FALSE,
+      use_storage = TRUE
+    ),
+
+    # @field storage for results
+    storage = list(
+      repositories = NULL,
+      commits = NULL,
+      users = NULL,
+      files = NULL,
+      R_package_usage = NULL,
+      release_logs = NULL
+    ),
+
+    # Add new host
+    add_new_host = function(new_host) {
       if (!is.null(new_host)) {
         private$hosts <- new_host %>%
           private$check_for_duplicate_hosts() %>%
@@ -123,25 +317,249 @@ GitStats <- R6::R6Class("GitStats",
       }
     },
 
-    #' @description A method to add a team member.
-    #' @param member_name Name of a member.
-    #' @param ... User names on Git platforms.
-    #' @return Nothing, passes information on team member to `GitStats`.
-    set_team_member = function(member_name,
-                               ...) {
-      team_member <- list(
-        "name" = member_name,
-        "logins" = unlist(list(...))
-      )
-      private$settings$team[[paste0(member_name)]] <- team_member
-      cli::cli_alert_success("{member_name} successfully added to team.")
+    # Set searching scope
+    set_searching_scope = function(orgs, repos) {
+      if (!is.null(repos)) {
+        private$settings$search_mode <- "repo"
+      }
+      if (!is.null(orgs)) {
+        private$settings$search_mode <- "org"
+      }
     },
 
-    #' @description Wrapper over pulling repositories by phrase.
-    #' @param package_name A character, name of the package.
-    #' @param only_loading A boolean, if `TRUE` function will check only if package
-    #'   is loaded in repositories, not used as dependencies.
-    pull_R_package_usage = function(package_name, only_loading = FALSE) {
+    # Handler for setting code parameter
+    set_search_mode = function(search_mode) {
+      if (!is.null(search_mode)) {
+        search_mode <- match.arg(
+          search_mode,
+          c("org", "repo", "code")
+        )
+        private$settings$search_mode <- search_mode
+        if (private$settings$verbose) {
+          cli::cli_alert_success(
+            "Your search mode set to {cli::col_green(search_mode)}."
+          )
+        }
+      }
+    },
+
+    # Handler for setting files parameter
+    set_files_param = function(files) {
+      if (!is.null(files)) {
+        private$settings$files <- files
+        if (private$settings$verbose) {
+          cli::cli_alert_info("Set files {files} to scan.")
+        }
+      } else {
+        private$settings$files <- NULL
+      }
+    },
+
+    # Handler for setting verbose parameter
+    set_verbose_param = function(verbose) {
+      if (!is.null(verbose)) {
+        if (!is.logical(verbose)) {
+          cli::cli_abort("verbose parameter accepts only TRUE/FALSE values")
+        }
+        private$settings$verbose <- verbose
+      }
+    },
+
+    # Handler for setting storage parameter
+    set_storage_param = function(use_storage) {
+      if (!is.null(use_storage)) {
+        if (!is.logical(use_storage)) {
+          cli::cli_abort("use_storage parameter accepts only TRUE/FALSE values")
+        }
+        private$settings$use_storage <- use_storage
+      }
+    },
+
+    # Check if table exists in storage
+    storage_is_empty = function(table) {
+      is.null(private$storage[[table]])
+    },
+
+    # Save table to storage
+    save_to_storage = function(table) {
+      table_name <- deparse(substitute(table))
+      private$storage[[paste0(table_name)]] <- table
+    },
+
+    # Retrieve table form storage
+    get_from_storage = function(table) {
+      if (private$settings$verbose) {
+        cli::cli_alert_warning(cli::col_yellow(glue::glue("Retrieving {table} from the GitStats storage.")))
+        cli::cli_alert_info(cli::col_cyan("If you wish to pull the data from API once more, set `use_storage` to `FALSE` in `set_params()` function."))
+      }
+      private$storage[[table]]
+    },
+
+    # Boolean
+    do_not_use_storage = function() {
+      private$settings[["use_storage"]] == FALSE
+    },
+
+    # Decide if data needs to be pulled from API
+    trigger_pulling = function(storage, dates = NULL) {
+      private$storage_is_empty(storage) || private$do_not_use_storage() ||
+        private$dates_do_not_comply(storage, dates)
+    },
+
+    # Decide if data needs to be pulled from API
+    trigger_pulling_package = function(package_name) {
+      !private$is_package_usage_in_storage(package_name)
+    },
+
+    # Check if package is already in GitStats storage
+    is_package_usage_in_storage = function(package_name) {
+      package_usage_in_storage <- private$storage[["R_package_usage"]]
+      if (!is.null(package_usage_in_storage)) {
+        package_name == attr(package_usage_in_storage, "package_name")
+      } else {
+        FALSE
+      }
+    },
+
+    # Decide if data needs to be pulled from API
+    trigger_pulling_files = function(file_path) {
+      !private$are_files_in_storage(file_path)
+    },
+
+    # Check if data on files is already in GitStats storage
+    are_files_in_storage = function(file_path) {
+      files_in_storage <- private$storage[["files"]]
+      if (!is.null(files_in_storage)) {
+        setequal(file_path, attr(files_in_storage, "file_path"))
+      } else {
+        FALSE
+      }
+    },
+
+    # Decide if data needs to be pulled from API
+    trigger_pulling_users = function(logins) {
+      !private$are_users_in_storage(logins)
+    },
+
+    # Check if data on users is already in GitStats storage
+    are_users_in_storage = function(logins) {
+      users_in_storage <- private$storage[["users"]]
+      if (!is.null(users_in_storage)) {
+        setequal(logins, attr(users_in_storage, "logins"))
+      } else {
+        FALSE
+      }
+    },
+
+    # Check if dates in function call are the same as in storage
+    dates_do_not_comply = function(storage, dates) {
+      do_not_comply <- FALSE
+      if (!is.null(dates)) {
+        dates <- standardize_dates(dates)
+        dates_storage <- private$get_dates_from_storage(storage)
+        do_not_comply <- !dplyr::setequal(dates, dates_storage)
+      }
+      return(do_not_comply)
+    },
+
+    # Get date from and date until from storage
+    get_dates_from_storage = function(storage) {
+      attr(private$storage[[storage]], "dates_range")
+    },
+
+    # Save dates parameters as attributes of the object
+    set_dates_as_attr = function(object, date_from, date_until) {
+      attr(object, "dates_range") <- list(date_from, date_until) %>%
+        standardize_dates()
+      return(object)
+    },
+
+    # Save meta data as an attribute of the object
+    set_as_attr = function(object, attribute_name, attribute) {
+      attr(object, attribute_name) <- attribute
+      return(object)
+    },
+
+    # Handle search parameter when pulling repositories
+    check_search_mode_for_repos = function(code) {
+      search_mode <- private$settings$search_mode
+      if (search_mode == "repo") {
+        cli::cli_abort(
+          c(
+            "Can not pull repos when search parameter is set to `repo`",
+            "i" = "Pass `orgs` to `GitStats` with `set_*_host()` function.",
+            "i" = "Set your `search_mode` to `org` or `code` with `set_params()` function."
+          ),
+          call = NULL
+        )
+      }
+      if (search_mode == "code") {
+        if (is.null(code)) {
+          cli::cli_abort("You have to provide a code to look for.", call = NULL)
+        }
+      }
+    },
+
+    # Pull repositories tables from hosts and bind them into one
+    pull_repos = function(add_contributors = FALSE, code, settings) {
+      repos_table <- purrr::map(private$hosts, ~ .$pull_repos(
+        add_contributors = add_contributors,
+        code = code,
+        settings = settings
+      )) %>%
+        purrr::list_rbind() %>%
+        private$add_stats_to_repos()
+      return(repos_table)
+    },
+
+    # Pull commits tables from hosts and bind them into one
+    pull_commits = function(since, until) {
+      commits_table <- purrr::map(private$hosts, function(host) {
+        host$pull_commits(
+          since = since,
+          until = until,
+          settings = private$settings,
+          storage = private$storage
+        )
+      }) %>%
+        purrr::list_rbind()
+      return(commits_table)
+    },
+
+    # Pull information on unique users in a table form
+    pull_users = function(logins) {
+      purrr::map(private$hosts, function(host) {
+        host$pull_users(logins)
+      }) %>%
+        unique() %>%
+        purrr::list_rbind()
+    },
+
+    # Pull content of a text file in a table form
+    pull_files = function(file_path) {
+      purrr::map(private$hosts, function(host) {
+        host$pull_files(
+          file_path = file_path,
+          pulled_repos = private$storage[["repositories"]],
+          settings = private$settings
+        )
+      }) %>%
+        purrr::list_rbind()
+    },
+
+    # Pull release logs tables from hosts and bind them into one
+    pull_release_logs = function(date_from, date_until) {
+      purrr::map(private$hosts, ~ .$pull_release_logs(
+        date_from = date_from,
+        date_until = date_until,
+        settings = private$settings,
+        storage = private$storage
+      )) %>%
+        purrr::list_rbind()
+    },
+
+    # Pull information on package usage in a table form
+    pull_R_package_usage = function(package_name, only_loading) {
       if (!only_loading) {
         repos_with_package_as_dependency <- private$check_R_package_as_dependency(package_name)
       } else {
@@ -161,245 +579,25 @@ GitStats <- R6::R6Class("GitStats",
           package_usage = ifelse(api_url %in% duplicated_repos, "import, library", package_usage)
         )
       rownames(package_usage_table) <- c(1:nrow(package_usage_table))
-      private$R_package_usage <- package_usage_table
-      return(invisible(self))
+      return(package_usage_table)
     },
 
-    #' @description  A method to list all repositories for an organization,
-    #'   a team or by a keyword.
-    #' @param add_contributors A boolean to decide whether to add contributors
-    #'   information to repositories.
-    pull_repos = function(add_contributors = FALSE) {
-      if (private$settings$search_param == "repo") {
-        cli::cli_abort(
-          c(
-            "Can not pull repos when search parameter is set to `repo`",
-            "i" = "Pass `orgs` to `GitStats` with `set_host()` function.",
-            "i" = "Set your search parameter to `org`, `phrase` or `team` with `set_params()` function."
-          ),
-          call = NULL
-        )
-      }
-      if (private$settings$search_param == "team") {
-        if (length(private$settings$team) == 0) {
-          cli::cli_abort("You have to specify a team first with 'set_team_member()'.")
-        }
-      } else if (private$settings$search_param == "phrase") {
-        if (is.null(private$settings$phrase)) {
-          cli::cli_abort("You have to provide a phrase to look for.")
-        }
-      }
-      repos_table <- purrr::map(private$hosts, ~ .$pull_repos(
-        settings = private$settings,
-        add_contributors = add_contributors
-      )) %>%
-        purrr::list_rbind()
-
-      if (nrow(repos_table) == 0) {
-        message("Empty object - will not be saved.")
-      } else {
-        if (private$settings$print_out) dplyr::glimpse(repos_table)
-        private$repos <- repos_table
-      }
-      return(invisible(self))
-    },
-
-    #' @description A method to add information on repository contributors.
-    #' @return A table of repositories with added information on contributors.
-    pull_repos_contributors = function() {
-      if (length(private$repos) == 0) {
-        cli::cli_abort("You need to pull repos first with `pull_repos()`.")
-      } else {
-        private$repos <- purrr::map_dfr(private$hosts, ~ .$pull_repos_contributors(
-          repos_table = private$repos
-        ))
-      }
-    },
-
-    #' @description A method to get information on commits.
-    #' @param date_from A starting date for commits.
-    #' @param date_until An end date for commits.
-    pull_commits = function(date_from,
-                            date_until) {
-      if (is.null(date_from)) {
-        stop("You need to define `date_from`.", call. = FALSE)
-      }
-      if (private$settings$search_param == "team") {
-        if (length(private$settings$team) == 0) {
-          cli::cli_abort("You have to specify a team first with 'set_team_member()'.")
-        }
-      }
-      commits_table <- purrr::map(private$hosts, function(host) {
-        commits_table_host <- host$pull_commits(
-          date_from = date_from,
-          date_until = date_until,
-          settings = private$settings
-        )
-        return(commits_table_host)
-      }) %>% purrr::list_rbind()
-
-      private$commits <- commits_table
-
-      if (private$settings$search_param == "team" && !is.null(private$settings$team)) {
-        cli::cli_alert_success(
-          paste0(
-            "For '", private$settings$team_name, "' team: pulled ",
-            nrow(commits_table), " commits from ",
-            length(unique(commits_table$repository)), " repositories."
-          )
-        )
-      }
-      if (private$settings$print_out) dplyr::glimpse(commits_table)
-      return(invisible(self))
-    },
-
-    #' @description Get information on users.
-    #' @param users Character vector of users.
-    #' @return A data.frame of users.
-    pull_users = function(users) {
-      private$check_for_host()
-      users_table <- purrr::map(private$hosts, function(host) {
-        host$pull_users(users)
-      }) %>%
-        unique() %>%
-        purrr::list_rbind()
-      private$users <- users_table
-      if (private$settings$print_out) dplyr::glimpse(users_table)
-      return(invisible(self))
-    },
-
-    #' @description Pull text content of a file from all repositories.
-    #' @param file_path A file path, may be a character vector.
-    #' @param .use_pulled_repos A boolean if TRUE `GitStats` will pull files only
-    #'   from stored in the output repositories.
-    pull_files = function(file_path, .use_pulled_repos = FALSE) {
-      private$check_for_host()
-      files_table <- purrr::map(private$hosts, function(host) {
-        host$pull_files(
-          file_path = file_path,
-          pulled_repos = if (.use_pulled_repos) {
-            self$get_repos()
-          } else {
-            NULL
-          }
-        )
-      }) %>%
-        purrr::list_rbind()
-      private$files <- files_table
-      if (private$settings$print_out) dplyr::glimpse(files_table)
-      return(invisible(self))
-    },
-
-    #' @description Return organizations vector from GitStats.
-    get_orgs = function() {
-      purrr::map(private$hosts, function(host) {
-        orgs <- host$.__enclos_env__$private$orgs
-        purrr::map_vec(orgs, ~ gsub("%2f", "/", .))
-        }) %>% unlist()
-    },
-
-    #' @description Return repositories table from GitStats.
-    get_repos = function() {
-      private$repos
-    },
-
-    #' @description Return commits table from GitStats.
-    get_commits = function() {
-      private$commits
-    },
-
-    #' @description Return users table from GitStats.
-    get_users = function() {
-      private$users
-    },
-
-    #' @description Return files table from GitStats.
-    get_files = function() {
-      private$files
-    },
-
-    #' @description Return R_package_usage table from GitStats.
-    get_R_package_usage = function() {
-      private$R_package_usage
-    },
-
-    #' @description A print method for a GitStats object.
-    print = function() {
-      cat(paste0("A <GitStats> object for ", length(private$hosts), " hosts:"), sep = "\n")
-      hosts <- purrr::map_chr(private$hosts, function(host) {
-        host_priv <- environment(host$initialize)$private
-        host_priv$engines$rest$rest_api_url
-      })
-      private$print_item("Hosts", hosts, paste0(hosts, collapse = ", "))
-      orgs <- purrr::map(private$hosts, function(host) {
-        host_priv <- environment(host$initialize)$private
-        orgs <- host_priv$orgs
-      })
-      repos <- purrr::map(private$hosts, function(host) {
-        host_priv <- environment(host$initialize)$private
-        repos <- host_priv$repos
-      })
-      private$print_item("Organisations", orgs)
-      private$print_item("Repositories", repos)
-      private$print_item("Search parameter", private$settings$search_param)
-      private$print_item("Team", private$settings$team_name, paste0(private$settings$team_name, " (", length(private$settings$team), " members)"))
-      private$print_item("Phrase", private$settings$phrase)
-      private$print_item("Files", private$settings$files)
-      private$print_item("Language", private$settings$language)
-      private$print_item("Repositories output", private$repos, paste0("Rows number: ", nrow(private$repos)))
-      private$print_item("Commits output", private$commits, paste0("Since: ", min(private$commits$committed_date), "; Until: ", max(private$commits$committed_date), "; Rows number: ", nrow(private$commits)))
-    }
-  ),
-  private = list(
-
-    # @field hosts A list of API connections information.
-    hosts = list(),
-
-    # @field settings List of search preferences.
-    settings = list(
-      search_param = NULL,
-      phrase = NULL,
-      files = NULL,
-      team_name = NULL,
-      team = list(),
-      language = "All",
-      print_out = TRUE
-    ),
-
-    # @field repos An output table of repositories.
-    repos = NULL,
-
-    # @field commits An output table of commits.
-    commits = NULL,
-
-    # @field users An output table of users.
-    users = NULL,
-
-    # @field files An output table of files.
-    files = NULL,
-
-    # @field R_package_usage.
-    R_package_usage = NULL,
-
-    # @description Search repositories with `library(package_name)` in code blobs.
-    # @param package_name Name of a package.
+    # Search repositories with `library(package_name)` in code blobs.
     check_R_package_loading = function(package_name) {
-      cli::cli_alert_info("Checking where [{package_name}] is loaded from library...")
+      if (private$settings$verbose) {
+        cli::cli_alert_info("Checking where [{package_name}] is loaded from library...")
+      }
       package_usage_phrases <- c(
         paste0("library(", package_name, ")"),
         paste0("require(", package_name, ")")
       )
+      private$temp_settings$search_mode <- "code"
+      private$temp_settings$files <- NULL
       repos_using_package <- purrr::map(package_usage_phrases, ~ {
-        suppressMessages({
-          self$set_params(
-            search_param = "phrase",
-            phrase = .,
-            files = NULL,
-            print_out = FALSE
-          )
-          self$pull_repos()
-        })
-        repos_using_package <- self$get_repos()
+        repos_using_package <- private$pull_repos(
+          code = .,
+          settings = private$temp_settings
+        )
         if (!is.null(repos_using_package)) {
           repos_using_package$package_usage <- "library"
           repos_using_package <- repos_using_package %>%
@@ -415,17 +613,15 @@ GitStats <- R6::R6Class("GitStats",
     # @description Search repositories with `package_name` in DESCRIPTION and NAMESPACE files.
     # @param package_name Name of a package.
     check_R_package_as_dependency = function(package_name) {
-      cli::cli_alert_info("Checking where [{package_name}] is used as a dependency...")
-      suppressMessages({
-        self$set_params(
-          search_param = "phrase",
-          phrase = package_name,
-          files = c("DESCRIPTION", "NAMESPACE"),
-          print_out = FALSE
-        )
-        self$pull_repos()
-      })
-      repos_with_package <- self$get_repos()
+      if (private$settings$verbose) {
+        cli::cli_alert_info("Checking where [{package_name}] is used as a dependency...")
+      }
+      private$temp_settings$search_mode <- "code"
+      private$temp_settings$files <- c("DESCRIPTION", "NAMESPACE")
+      repos_with_package <- private$pull_repos(
+        code = package_name,
+        settings = private$temp_settings
+      )
       if (nrow(repos_with_package) > 0) {
         repos_with_package <- repos_with_package[!duplicated(repos_with_package$api_url),]
         repos_with_package$package_usage <- "import"
@@ -433,6 +629,64 @@ GitStats <- R6::R6Class("GitStats",
       repos_with_package <- repos_with_package %>%
         dplyr::select(repo_name, repo_url, api_url, package_usage)
       return(repos_with_package)
+    },
+
+    # Add some user-friendly columns to repositories table
+    add_stats_to_repos = function(repos_table) {
+      if (nrow(repos_table > 0)) {
+        repos_table <- repos_table %>%
+          dplyr::mutate(
+            fullname = paste0(organization, "/", repo_name)
+          ) %>%
+          dplyr::mutate(
+            last_activity = difftime(
+              Sys.time(),
+              last_activity_at,
+              units = "days"
+            ) %>% round(2),
+            platform = retrieve_platform(api_url)
+          ) %>%
+          dplyr::relocate(
+            organization, fullname, platform, repo_url, api_url, created_at,
+            last_activity_at, last_activity,
+            .after = repo_name
+          )
+        if ("contributors" %in% colnames(repos_table)) {
+          repos_table <- dplyr::mutate(
+            repos_table,
+            contributors_n = purrr::map_vec(contributors, function(contributors_string) {
+              length(stringr::str_split(contributors_string[1], ", ")[[1]])
+            })
+          )
+        }
+      } else {
+        repos_table <- NULL
+      }
+      return(repos_table)
+    },
+
+    # Prepare stats out of commits table
+    prepare_commits_stats = function(commits, time_interval) {
+      commits_stats <- commits %>%
+        dplyr::mutate(
+          stats_date = lubridate::floor_date(
+            committed_date,
+            unit = time_interval
+          ),
+          platform = retrieve_platform(api_url)
+        ) %>%
+        dplyr::group_by(stats_date, platform, organization) %>%
+        dplyr::summarise(
+          commits_n = dplyr::n()
+        ) %>%
+        dplyr::arrange(
+          stats_date
+        )
+      commits_stats <- commits_stats(
+        object = commits_stats,
+        time_interval = time_interval
+      )
+      return(commits_stats)
     },
 
     # @description Check whether the urls do not repeat in input.
@@ -447,9 +701,11 @@ GitStats <- R6::R6Class("GitStats",
         })
 
         if (length(urls) != length(unique(urls))) {
-          stop("You can not provide two hosts of the same API urls.
-               If you wish to change/add more organizations you can do it with `set_organizations()` function.",
-            call. = FALSE
+          cli::cli_abort(c(
+            "x" = "You can not provide two hosts of the same API urls.",
+            "i" = "If you wish to change/add more organizations you can do it with `set_organizations()` function."
+          ),
+          call = NULL
           )
         }
       }
@@ -460,23 +716,8 @@ GitStats <- R6::R6Class("GitStats",
     # @description Helper to check if there are any hosts.
     check_for_host = function() {
       if (length(private$hosts) == 0) {
-        cli::cli_abort("Add first your hosts with `set_host()`.")
+        cli::cli_abort("Add first your hosts with `set_host()`.", call = NULL)
       }
-    },
-
-    # @description Switcher to manage language names.
-    # @details E.g. GitLab API will not filter
-    #   properly if you provide 'python' language
-    #   with small letter.
-    # @param language Code programming language.
-    # @return A character.
-    language_handler = function(language) {
-      if (language != "All") {
-        substr(language, 1, 1) <- toupper(substr(language, 1, 1))
-      } else if (language %in% c("javascript", "Javascript", "js", "JS", "Js")) {
-        language <- "JavaScript"
-      }
-      language
     },
 
     # @description A helper to manage printing `GitStats` object.
@@ -487,10 +728,10 @@ GitStats <- R6::R6Class("GitStats",
     print_item = function(item_name,
                           item_to_check,
                           item_to_print = item_to_check) {
-      if (item_name %in% c("Organisations", "Repositories", "Files")) {
+      if (item_name %in% c(" Organizations", " Repositories", " Files")) {
         item_to_print <- unlist(item_to_print)
         item_to_print <- purrr::map_vec(item_to_print, function(element) {
-          gsub("%2f", "/", element)
+          URLdecode(element)
         })
         if (length(item_to_print) < 10) {
           list_items <- paste0(item_to_print, collapse = ", ")
@@ -508,6 +749,104 @@ GitStats <- R6::R6Class("GitStats",
           item_to_print
         ), "\n"
       ))
+    },
+
+    # print hosts passed to GitStats
+    print_hosts = function() {
+      hosts <- purrr::map_chr(private$hosts, function(host) {
+        host_priv <- environment(host$initialize)$private
+        host_priv$engines$rest$rest_api_url
+      })
+      private$print_item("Hosts", hosts, paste0(hosts, collapse = ", "))
+    },
+
+    # print organizations and repositories set in GitStats
+    print_orgs_and_repos = function() {
+      orgs <- purrr::map(private$hosts, function(host) {
+        host_priv <- environment(host$initialize)$private
+        orgs <- host_priv$orgs
+      })
+      repos <- purrr::map(private$hosts, function(host) {
+        host_priv <- environment(host$initialize)$private
+        repos <- host_priv$repos
+      })
+      private$print_item(" Organizations", orgs)
+      private$print_item(" Repositories", repos)
+    },
+
+    # print files set to be scanned to GitStats
+    print_files = function() {
+      private$print_item(
+        " Files",
+        private$settings$files
+      )
+    },
+
+    # print search mode
+    print_search_mode = function() {
+      private$print_item("Search mode", private$settings$search_mode)
+    },
+
+    # print verbose mode
+    print_verbose = function() {
+      private$print_item("Verbose", private$settings$verbose)
+    },
+
+    # print if storage is used
+    print_use_storage = function() {
+      private$print_item("Use storage", private$settings$use_storage)
+    },
+
+    # print storage
+    print_storage = function() {
+      gitstats_storage <- purrr::imap(private$storage, function(storage_table, storage_name) {
+        if (!is.null(storage_table)) {
+          glue::glue(
+            "{stringr::str_to_title(storage_name)}: {nrow(storage_table)} {private$print_storage_attribute(storage_table, storage_name)}"
+          )
+        }
+      }) %>%
+        purrr::discard(~is.null(.))
+      if (length(gitstats_storage) == 0) {
+        private$print_item(
+          "Storage",
+          cli::col_grey("<no tables in storage>")
+        )
+      } else {
+        cat(paste0(
+          cli::col_blue("Storage: \n"),
+          paste0(" ", gitstats_storage, collapse = "\n")
+        ))
+      }
+    },
+
+    # print storage attribute
+    print_storage_attribute = function(storage_table, storage_name) {
+       if (storage_name != "repositories") {
+        storage_attr <- switch(storage_name,
+                               "files" = "file_path",
+                               "commits" = "dates_range",
+                               "release_logs" = "dates_range",
+                               "users" = "logins",
+                               "R_package_usage" = "package_name")
+        attr_data <- attr(storage_table, storage_attr)
+        attr_name <- switch(storage_attr,
+                            "file_path" = "files",
+                            "dates_range" = "date range",
+                            "package_name" = "package",
+                            "logins" = "logins")
+        if (length(attr_data) > 1) {
+          separator <- if (storage_attr == "dates_range") {
+            " - "
+          } else {
+            ", "
+          }
+          attr_data <- attr_data %>% paste0(collapse = separator)
+        }
+        return(cli::col_grey(glue::glue("[{attr_name}: {attr_data}]")))
+      } else {
+        return("")
+      }
     }
   )
 )

@@ -1,39 +1,52 @@
+#' Create GitStats object for tests
 create_test_gitstats <- function(
     hosts = 0,
     priv_mode = FALSE,
     inject_repos = NULL,
-    inject_commits = NULL
-  ) {
+    inject_commits = NULL,
+    inject_files = NULL,
+    inject_users = NULL,
+    inject_package_usage = NULL
+) {
   test_gitstats <- create_gitstats() %>%
-    set_params(print_out = FALSE)
+    verbose_off()
 
   if (hosts == 1) {
     suppressMessages({
-      test_gitstats$set_host(
-        api_url = "https://api.github.com",
+      test_gitstats$set_github_host(
+        host = NULL,
         token = Sys.getenv("GITHUB_PAT"),
         orgs = c("r-world-devs", "openpharma")
       )
     })
   } else if (hosts == 2) {
     suppressMessages({
-      test_gitstats$set_host(
-        api_url = "https://api.github.com",
+      test_gitstats$set_github_host(
+        host = NULL,
         token = Sys.getenv("GITHUB_PAT"),
-        orgs = c("r-world-devs", "openpharma")
+        orgs = c("r-world-devs")
       )
-      test_gitstats$set_host(
-        api_url = "https://gitlab.com/api/v4",
+      test_gitstats$set_gitlab_host(
+        host = NULL,
         token = Sys.getenv("GITLAB_PAT_PUBLIC"),
         orgs = "mbtests"
       )
     })
   }
   if (!is.null(inject_repos)) {
-    test_gitstats$.__enclos_env__$private$repos <- test_mocker$use(inject_repos)
+    test_gitstats$.__enclos_env__$private$storage$repositories <- test_mocker$use(inject_repos)
   }
   if (!is.null(inject_commits)) {
-    test_gitstats$.__enclos_env__$private$commits <- test_mocker$use(inject_commits)
+    test_gitstats$.__enclos_env__$private$storage$commits <- test_mocker$use(inject_commits)
+  }
+  if (!is.null(inject_files)) {
+    test_gitstats$.__enclos_env__$private$storage$files <- test_mocker$use(inject_files)
+  }
+  if (!is.null(inject_users)) {
+    test_gitstats$.__enclos_env__$private$storage$users <- test_mocker$use(inject_users)
+  }
+  if (!is.null(inject_package_usage)) {
+    test_gitstats$.__enclos_env__$private$storage$R_package_usage <- test_mocker$use(inject_package_usage)
   }
   if (priv_mode) {
     test_gitstats <- environment(test_gitstats$set_params)$private

@@ -7,13 +7,6 @@ test_rest <- TestEngineRest$new(
 
 test_rest_priv <- environment(test_rest$response)$private
 
-test_that("When token is empty throw error", {
-  expect_snapshot(
-    error = TRUE,
-    test_rest_priv$check_token("")
-  )
-})
-
 test_that("`perform_request()` returns proper status when token is empty or invalid", {
   wrong_tokens <- c("", "bad_token")
   purrr::walk(
@@ -49,32 +42,6 @@ test_that("`perform_request()` returns proper status", {
       token = Sys.getenv("GITHUB_PAT")
     ),
     "HTTP 404 No such address"
-  )
-})
-
-test_that("check_endpoint returns repo or org if they are correct", {
-  expect_equal(
-    test_rest_priv$check_endpoint(
-      repo = "r-world-devs/GitStats"
-    ),
-    "r-world-devs/GitStats"
-  )
-  expect_equal(
-    test_rest_priv$check_endpoint(
-      org = "openpharma"
-    ),
-    "openpharma"
-  )
-})
-
-test_that("check_endpoint returns warning and NULL if they are not correct", {
-  expect_snapshot(
-    object <- test_rest_priv$check_endpoint(
-      repo = "r-worlddevs/GitStats"
-    )
-  )
-  expect_null(
-    object
   )
 })
 
@@ -117,46 +84,4 @@ test_that("`response()` returns commits response from GitLab's REST API", {
     gl_commits_rest_response_repo_2
   )
   test_mocker$cache(gl_commits_rest_response_repo_2)
-})
-
-test_that("check_organizations returns orgs if they are correct", {
-  expect_equal(
-    test_rest$check_organizations("mbtests"),
-    "mbtests"
-  )
-})
-
-test_that("check_organizations returns orgs if GitLab subroups are passed", {
-  expect_equal(
-    test_rest$check_organizations("mbtests%2fsubgroup"),
-    "mbtests%2fsubgroup"
-  )
-})
-
-test_that("check_organizations returns NULL if orgs are wrong", {
-  expect_snapshot(
-    org <- test_rest$check_organizations("does_not_exist")
-  )
-  expect_null(org)
-})
-
-test_that("check_repositories returns repos names if they are correct", {
-  expect_equal(
-    test_rest$check_repositories(
-      c("mbtests%2fgitstatstesting", "mbtests%2fsubgroup%2ftest-project-in-subgroup")
-    ),
-    c("mbtests%2fgitstatstesting", "mbtests%2fsubgroup%2ftest-project-in-subgroup")
-  )
-})
-
-test_rest <- TestEngineRest$new(
-  rest_api_url = "https://api.github.com",
-  token = Sys.getenv("GITHUB_PAT")
-)
-
-test_that("check_repositories returns repos if they are correct", {
-  expect_equal(
-    test_rest$check_repositories("r-world-devs/GitStats"),
-    "r-world-devs/GitStats"
-  )
 })

@@ -8,7 +8,8 @@
 # `pull_files()` pulls files in the table format
 
     Code
-      gl_files_table <- test_gql_gl$pull_files(org = "mbtests", file_path = "README.md")
+      gl_files_table <- test_gql_gl$pull_files(org = "mbtests", file_path = "README.md",
+        settings = test_settings)
     Message
       i [Engine:GraphQL][org:mbtests] Pulling README.md files...
 
@@ -16,7 +17,7 @@
 
     Code
       gl_files_table <- test_gql_gl$pull_files(org = "mbtests", file_path = c(
-        "meta_data.yaml", "README.md"))
+        "meta_data.yaml", "README.md"), settings = test_settings)
     Message
       i [Engine:GraphQL][org:mbtests] Pulling meta_data.yaml and README.md files...
 

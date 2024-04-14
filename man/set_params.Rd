@@ -6,28 +6,25 @@
 \usage{
 set_params(
   gitstats_obj,
-  search_param = NULL,
-  team_name = NULL,
-  phrase = NULL,
+  search_mode = NULL,
   files = NULL,
-  language = "All",
-  print_out = TRUE
+  verbose = NULL,
+  use_storage = NULL
 )
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
 
-\item{search_param}{One of three: team, orgs or phrase.}
-
-\item{team_name}{Name of a team.}
-
-\item{phrase}{A phrase to look for.}
+\item{search_mode}{One of four: \code{org}, \code{repo} or \code{code}.}
 
 \item{files}{Define files to scan.}
 
-\item{language}{Code programming language.}
+\item{verbose}{A boolean to decide whether to print output.}
 
-\item{print_out}{A boolean to decide whether to print output.}
+\item{use_storage}{A boolean. If set to \code{TRUE} it will pull data from the
+storage when it is there, e.g. \code{repositories}, when user runs
+\code{get_repos()}. If set to \code{FALSE} \code{get_repos()} will always pull data from
+the API.}
 }
 \value{
 A \code{GitStats} object.
@@ -39,9 +36,8 @@ Set up your search settings
 \dontrun{
 my_gitstats <- create_gitstats() \%>\%
   set_params(
-    search_param = "team",
-    team_name = "Avengers",
-    language = "R"
+    search_mode = "code",
+    files = "DESCRIPTION"
   )
 }
 }

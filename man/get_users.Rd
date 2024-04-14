@@ -2,16 +2,34 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{get_users}
 \alias{get_users}
-\title{Get users}
+\title{Get users data}
 \usage{
-get_users(gitstats_obj)
+get_users(gitstats_obj, logins)
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
+
+\item{logins}{A character vector of logins.}
 }
 \value{
-A table of users.
+A \code{GitStats} object with table of users.
 }
 \description{
-Retrieves users table pulled by \code{GitStats}.
+Pull users data from Git Host.
+}
+\examples{
+\dontrun{
+ my_gitstats <- create_gitstats() \%>\%
+  set_host(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("r-world-devs")
+  ) \%>\%
+  set_host(
+    api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    orgs = "mbtests"
+  )
+  get_users(my_gitstats, c("maciekabanas", "marcinkowskak"))
+}
 }

@@ -170,7 +170,8 @@ test_that("`pull_files()` pulls files in the table format", {
   expect_snapshot(
     gl_files_table <- test_gql_gl$pull_files(
       org = "mbtests",
-      file_path = "README.md"
+      file_path = "README.md",
+      settings = test_settings
     )
   )
   expect_files_table(gl_files_table)
@@ -181,7 +182,8 @@ test_that("`pull_files()` pulls two files in the table format", {
   expect_snapshot(
     gl_files_table <- test_gql_gl$pull_files(
       org = "mbtests",
-      file_path = c("meta_data.yaml", "README.md")
+      file_path = c("meta_data.yaml", "README.md"),
+      settings = test_settings
     )
   )
   expect_files_table(gl_files_table)

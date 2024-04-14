@@ -1,0 +1,64 @@
+---
+title: "Get repositories data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Get repositories data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 4
+)
+```
+
+Set connections to hosts.
+
+> Example workflow makes use of public GitLab, but it is rather more plausible, that you will use your internal git platforms, where you need to define `host` parameter.
+
+```{r}
+library(GitStats)
+
+git_stats <- create_gitstats() %>%
+  set_github_host(
+    orgs = c("r-world-devs", "openpharma"),
+    token = Sys.getenv("GITHUB_PAT")
+  ) %>%
+  set_gitlab_host(
+    orgs = c("mbtests"),
+    token = Sys.getenv("GITLAB_PAT_PUBLIC")
+  )
+```
+
+By default your search preferences are set to `organizations` (`org`), which means that `GitStats` will pull all repositories from the organizations you specified in `set_*_host()`.
+
+```{r}
+get_repos(git_stats)
+```
+
+### Code
+
+With `GitStats` you can pull the repositories with a certain code blob. First set your `search_mode` accordingly, then pass `code` string to `get_repos()` function.
+
+```{r}
+create_gitstats() %>%
+  set_github_host(
+    orgs = c("r-world-devs", "openpharma")
+  ) %>% 
+  set_params(
+    search_mode = "code"
+  ) %>% 
+  get_repos(code = "Shiny")
+```
+
+## Reset your settings
+
+If you wish to get back to default settings, run:
+
+```{r}
+reset(git_stats)
+```

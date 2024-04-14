@@ -2,16 +2,34 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{get_R_package_usage}
 \alias{get_R_package_usage}
-\title{Get R package usage}
+\title{Get information on package usage across repositories}
 \usage{
-get_R_package_usage(gitstats_obj)
+get_R_package_usage(gitstats_obj, package_name, only_loading = FALSE)
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
+
+\item{package_name}{A character, name of the package.}
+
+\item{only_loading}{A boolean, if \code{TRUE} function will check only if package
+is loaded in repositories, not used as dependencies.}
 }
 \value{
-A table with repo urls.
+A table of repositories content.
 }
 \description{
-Retrieves list of repositories that make use of a package.
+Wrapper over searching repositories by code blobs related to
+loading package (\code{library(package)} and \code{require(package)} in all files) or
+using it as a dependency (\code{package} in \code{DESCRIPTION} and \code{NAMESPACE} files).
+}
+\examples{
+\dontrun{
+ my_gitstats <- create_gitstats() \%>\%
+  set_host(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("r-world-devs", "openpharma")
+  ) \%>\%
+  get_R_package_usage("shiny")
+}
 }

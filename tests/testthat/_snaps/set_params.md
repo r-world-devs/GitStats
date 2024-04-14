@@ -1,25 +1,38 @@
-# Setting up settings to `team` throws error when team_name is not defined
-
-    You need to define your `team_name`.
-
-# Setting up settings to `phrase` works correctly
+# Setting up settings to `orgs` works correctly
 
     Code
-      set_params(test_gitstats, search_param = "phrase", phrase = "covid")
+      set_params(test_gitstats, search_mode = "org")
     Message
-      v Your search preferences set to phrase: covid.
+      v Your search mode set to org.
     Output
-      A <GitStats> object for 0 hosts:
+      A GitStats object for 0 hosts: 
       Hosts: 
-      Organisations: [0] 
-      Repositories: [0] 
-      Search parameter: phrase
-      Team: RWD-IE (0 members)
-      Phrase: covid
-      Files: <not defined>
-      Language: All
-      Repositories output: <not defined>
-      Commits output: <not defined>
+      Scanning scope: 
+       Organizations: [0] 
+       Repositories: [0] 
+       Files: <not defined>
+      Search mode: org
+      Verbose: TRUE
+      Use storage: TRUE
+      Storage: <no tables in storage>
+
+# Setting up settings to `code` works correctly
+
+    Code
+      set_params(test_gitstats, search_mode = "code")
+    Message
+      v Your search mode set to code.
+    Output
+      A GitStats object for 0 hosts: 
+      Hosts: 
+      Scanning scope: 
+       Organizations: [0] 
+       Repositories: [0] 
+       Files: <not defined>
+      Search mode: code
+      Verbose: TRUE
+      Use storage: TRUE
+      Storage: <no tables in storage>
 
 # Setting up `files` works correctly
 
@@ -28,51 +41,14 @@
     Message
       i Set files DESCRIPTION and NAMESPACE to scan.
     Output
-      A <GitStats> object for 0 hosts:
+      A GitStats object for 0 hosts: 
       Hosts: 
-      Organisations: [0] 
-      Repositories: [0] 
-      Search parameter: org
-      Team: RWD-IE (0 members)
-      Phrase: covid
-      Files: [2] DESCRIPTION, NAMESPACE
-      Language: All
-      Repositories output: <not defined>
-      Commits output: <not defined>
-
-# Setting language works correctly
-
-    Code
-      set_params(test_gitstats, language = "Python")
-    Message
-      v Your programming language is set to Python.
-    Output
-      A <GitStats> object for 0 hosts:
-      Hosts: 
-      Organisations: [0] 
-      Repositories: [0] 
-      Search parameter: org
-      Team: RWD-IE (0 members)
-      Phrase: covid
-      Files: <not defined>
-      Language: Python
-      Repositories output: <not defined>
-      Commits output: <not defined>
-
-# Setting language to 'All' resets language settings
-
-    Code
-      set_params(test_gitstats, language = "All")
-    Output
-      A <GitStats> object for 0 hosts:
-      Hosts: 
-      Organisations: [0] 
-      Repositories: [0] 
-      Search parameter: org
-      Team: RWD-IE (0 members)
-      Phrase: covid
-      Files: <not defined>
-      Language: All
-      Repositories output: <not defined>
-      Commits output: <not defined>
+      Scanning scope: 
+       Organizations: [0] 
+       Repositories: [0] 
+       Files: [2] DESCRIPTION, NAMESPACE
+      Search mode: code
+      Verbose: TRUE
+      Use storage: TRUE
+      Storage: <no tables in storage>
 

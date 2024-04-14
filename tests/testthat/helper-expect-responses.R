@@ -57,25 +57,6 @@ expect_gh_repos_gql_response <- function(object) {
   )
 }
 
-expect_gh_user_repos_gql_response <- function(object) {
-  expect_type(
-    object,
-    "list"
-  )
-  expect_list_contains(
-    object,
-    "data"
-  )
-  expect_list_contains(
-    object$data$user$repositories$nodes[[1]],
-    c(
-      "id", "name", "stars", "forks", "created_at",
-      "last_activity_at", "languages", "issues_open", "issues_closed",
-      "repo_url"
-    )
-  )
-}
-
 expect_gl_commit_rest_response <- function(object) {
   expect_type(
     object,
@@ -91,32 +72,13 @@ expect_gl_commit_rest_response <- function(object) {
   )
 }
 
-expect_gh_commit_rest_response <- function(object) {
-  expect_type(
-    object,
-    "list"
-  )
-  expect_gt(
-    length(object),
-    0
-  )
-  expect_list_contains(object[[1]],
-                       c("sha", "node_id", "commit", "url",
-                         "html_url", "comments_url", "author",
-                         "committer", "parents"))
-}
-
 expect_gh_commit_gql_response <- function(object) {
   expect_type(
     object,
     "list"
   )
   expect_list_contains(
-    object,
-    "data"
-  )
-  expect_list_contains(
-    object$data$repository$defaultBranchRef$target$history$edges[[1]]$node,
+    object$node,
     c("id", "committed_date", "author", "additions", "deletions")
   )
 }
@@ -181,5 +143,25 @@ expect_gitlab_files_response <- function(object) {
         "name", "rawBlob", "size"
       )
     )
+  })
+}
+
+expect_github_releases_response <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  purrr::walk(object, function(response) {
+    expect_gt(length(response), 0)
+    expect_list_contains(
+      response$data$repository,
+      c("releases")
+    )
+    purrr::walk(response$data$repository$releases$nodes, function(node) {
+      expect_list_contains(
+        node,
+        c("name", "tagName", "publishedAt", "url", "description")
+      )
+    })
   })
 }

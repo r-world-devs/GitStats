@@ -51,14 +51,20 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      #' @description A method to retrieve all repositories for an organization in
      #'   a table format.
      #' @param org An organization.
+     #' @param code A character, code to search for.
      #' @param settings A list of  `GitStats` settings.
      #' @return A table.
      pull_repos = function(org,
+                           code = NULL,
                            settings) {
-       org <- gsub("%2f", "/", org)
-       if (settings$search_param == "org") {
+       org <- URLdecode(org)
+       if (settings$search_mode == "org") {
          if (!private$scan_all) {
-           cli::cli_alert_info("[GitLab][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
+           if (settings$verbose) {
+             cli::cli_alert_info(
+               "[GitLab][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories..."
+              )
+           }
          }
          repos_table <- private$pull_repos_from_org(
            from = "org",
@@ -69,32 +75,6 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
          repos_table <- NULL
        }
        return(repos_table)
-     },
-
-     #' @description An empty method to satisfy engine iterator.
-     #' @param org An organization.
-     #' @param settings A list of  `GitStats` settings.
-     #' @return Nothing.
-     pull_repos_supportive = function(org,
-                                      settings) {
-       NULL
-     },
-
-     #' @description Method to get commits.
-     #' @details This method is empty as this class does not support pulling
-     #'   commits - it is done for GitLab via REST. Still the method must
-     #'   exist as it is called from the GitHost wrapper above.
-     #' @param org An organization.
-     #' @param date_from A starting date to look commits for.
-     #' @param date_until An end date to look commits for.
-     #' @param settings A list of  `GitStats` settings.
-     #' @return A table of commits.
-     pull_commits = function(org,
-                             repos = NULL,
-                             date_from,
-                             date_until = Sys.date(),
-                             settings) {
-       NULL
      }
 
    ),
@@ -182,7 +162,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
            repo$issues_closed <- repo$issues$closed
            repo$issues <- NULL
            repo$last_activity_at <- as.POSIXct(repo$last_activity_at)
-           repo$organization <- repo$group$name
+           repo$organization <- repo$group$path
            repo$group <- NULL
            data.frame(repo)
          }) %>%
@@ -231,7 +211,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      #   argument to iterate over it when pulling files.
      # @return A response in a list form.
      pull_file_from_org = function(org, file_path, pulled_repos = NULL) {
-       org <- gsub("%2f", "/", org)
+       org <- URLdecode(org)
        if (!is.null(pulled_repos)) {
          repos_table <- pulled_repos %>%
            dplyr::filter(organization == org)
@@ -327,6 +307,70 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
          files_table <- NULL
        }
        return(files_table)
+     },
+
+     # @description Pull all releases from all repositories of an
+     #   organization.
+     # @param repos_names
+     # @param org An organization.
+     # @return A response in a list form.
+     pull_releases_from_org = function(repos_names, org) {
+       release_responses <- purrr::map(repos_names, function(repository) {
+         releases_from_repo_query <- self$gql_query$releases_from_repo()
+         response <- self$gql_response(
+           gql_query = releases_from_repo_query,
+           vars = list(
+             "project_path" = paste0(org, "/", repository)
+           )
+         )
+         return(response)
+       }) %>%
+         purrr::discard(~ length(.$data$project$releases$nodes) == 0)
+       return(release_responses)
+     },
+
+     # @description Prepare releases table.
+     # @param releases_response A list.
+     # @param org An organization.
+     # @return A table with information on releases.
+     prepare_releases_table = function(releases_response, org, date_from, date_until) {
+       if (length(releases_response) > 0) {
+         releases_table <-
+           purrr::map(releases_response, function(release) {
+             release_table <- purrr::map(release$data$project$releases$nodes, function(node) {
+               data.frame(
+                 release_name = node$name,
+                 release_tag = node$tagName,
+                 published_at = gts_to_posixt(node$releasedAt),
+                 release_url = node$links$selfUrl,
+                 release_log = node$description
+               )
+             }) %>%
+               purrr::list_rbind() %>%
+               dplyr::mutate(
+                 repo_name = release$data$project$name,
+                 repo_url = release$data$project$webUrl
+               ) %>%
+               dplyr::relocate(
+                 repo_name, repo_url,
+                 .before = release_name
+               )
+             return(release_table)
+           }) %>%
+           purrr::list_rbind() %>%
+           dplyr::filter(
+             published_at <= as.POSIXct(date_until)
+           )
+         if (!is.null(date_from)) {
+           releases_table <- releases_table %>%
+             dplyr::filter(
+               published_at >= as.POSIXct(date_from)
+             )
+         }
+       } else {
+         releases_table <- NULL
+       }
+       return(releases_table)
      }
    )
 )

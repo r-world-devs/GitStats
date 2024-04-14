@@ -2,16 +2,35 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{get_files}
 \alias{get_files}
-\title{Get files}
+\title{Get files content}
 \usage{
-get_files(gitstats_obj)
+get_files(gitstats_obj, file_path)
 }
 \arguments{
 \item{gitstats_obj}{A GitStats object.}
+
+\item{file_path}{A standardized path to file(s) in repositories. May be a
+character vector if multiple files are to be pulled.}
 }
 \value{
-A table of files content.
+A \code{GitStats} object with table of files.
 }
 \description{
-Retrieves files table pulled by \code{GitStats}.
+Pull files content from Git Hosts.
+}
+\examples{
+\dontrun{
+ my_gitstats <- create_gitstats() \%>\%
+  set_host(
+    api_url = "https://api.github.com",
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("r-world-devs")
+  ) \%>\%
+  set_host(
+    api_url = "https://gitlab.com/api/v4",
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    orgs = "mbtests"
+  )
+  get_files(my_gitstats, "meta_data.yaml")
+}
 }

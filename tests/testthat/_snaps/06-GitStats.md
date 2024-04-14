@@ -3,99 +3,90 @@
     Code
       test_gitstats
     Output
-      A <GitStats> object for 0 hosts:
+      A GitStats object for 0 hosts: 
       Hosts: 
-      Organisations: [0] 
-      Repositories: [0] 
-      Search parameter: <not defined>
-      Team: <not defined>
-      Phrase: <not defined>
-      Files: <not defined>
-      Language: All
-      Repositories output: <not defined>
-      Commits output: <not defined>
+      Scanning scope: 
+       Organizations: [0] 
+       Repositories: [0] 
+       Files: <not defined>
+      Search mode: <not defined>
+      Verbose: TRUE
+      Use storage: TRUE
+      Storage: <no tables in storage>
 
 # GitStats prints the proper info when connections are added.
 
     Code
       test_gitstats
     Output
-      A <GitStats> object for 2 hosts:
+      A GitStats object for 2 hosts: 
       Hosts: https://api.github.com, https://gitlab.com/api/v4
-      Organisations: [3] r-world-devs, openpharma, mbtests
-      Repositories: [0] 
-      Search parameter: org
-      Team: <not defined>
-      Phrase: <not defined>
-      Files: <not defined>
-      Language: All
-      Repositories output: <not defined>
-      Commits output: <not defined>
+      Scanning scope: 
+       Organizations: [2] r-world-devs, mbtests
+       Repositories: [0] 
+       Files: <not defined>
+      Search mode: org
+      Verbose: FALSE
+      Use storage: TRUE
+      Storage: <no tables in storage>
 
 # GitStats prints the proper info when repos are passed instead of orgs.
 
     Code
       test_gitstats
     Output
-      A <GitStats> object for 2 hosts:
+      A GitStats object for 2 hosts: 
       Hosts: https://api.github.com, https://gitlab.com/api/v4
-      Organisations: [0] 
-      Repositories: [4] r-world-devs/GitStats, openpharma/GithubMetrics, mbtests/gitstatstesting, mbtests/gitstats-testing-2
-      Search parameter: repo
-      Team: <not defined>
-      Phrase: <not defined>
-      Files: <not defined>
-      Language: All
-      Repositories output: <not defined>
-      Commits output: <not defined>
-
-# GitStats prints team name when team is added.
-
-    Code
-      test_gitstats
-    Output
-      A <GitStats> object for 2 hosts:
-      Hosts: https://api.github.com, https://gitlab.com/api/v4
-      Organisations: [3] r-world-devs, openpharma, mbtests
-      Repositories: [0] 
-      Search parameter: team
-      Team: RWD-IE (0 members)
-      Phrase: <not defined>
-      Files: <not defined>
-      Language: All
-      Repositories output: <not defined>
-      Commits output: <not defined>
+      Scanning scope: 
+       Organizations: [3] r-world-devs, openpharma, mbtests
+       Repositories: [4] GitStats, GithubMetrics, gitstatstesting, gitstats-testing-2
+       Files: <not defined>
+      Search mode: repo
+      Verbose: TRUE
+      Use storage: TRUE
+      Storage: <no tables in storage>
 
 # check_for_host returns error when no hosts are passed
 
     Add first your hosts with `set_host()`.
-
-# GitStats throws error when pull_repos_contributors is run with empty repos field
-
-    You need to pull repos first with `pull_repos()`.
-
-# Add_repos_contributors adds repos contributors to repos table
-
-    Code
-      test_gitstats$pull_repos_contributors()
-    Message
-      i [GitHub][Engine:REST][org:r-world-devs] Pulling contributors...
-      i [GitLab][Engine:REST][org:MB Tests] Pulling contributors...
 
 # subgroups are cleanly printed in GitStats
 
     Code
       test_gitstats
     Output
-      A <GitStats> object for 1 hosts:
+      A GitStats object for 1 hosts: 
       Hosts: https://gitlab.com/api/v4
-      Organisations: [1] mbtests/subgroup
-      Repositories: [0] 
-      Search parameter: org
-      Team: <not defined>
-      Phrase: <not defined>
-      Files: <not defined>
-      Language: All
-      Repositories output: <not defined>
-      Commits output: <not defined>
+      Scanning scope: 
+       Organizations: [1] mbtests/subgroup
+       Repositories: [0] 
+       Files: <not defined>
+      Search mode: org
+      Verbose: TRUE
+      Use storage: TRUE
+      Storage: <no tables in storage>
+
+# get_release_logs works as expected
+
+    Code
+      release_logs <- test_gitstats$get_release_logs(since = "2023-05-01", until = "2023-09-30")
+
+# GitStats prints with storage
+
+    Code
+      test_gitstats
+    Output
+      A GitStats object for 2 hosts: 
+      Hosts: https://api.github.com, https://gitlab.com/api/v4
+      Scanning scope: 
+       Organizations: [2] r-world-devs, mbtests
+       Repositories: [0] 
+       Files: <not defined>
+      Search mode: org
+      Verbose: FALSE
+      Use storage: TRUE
+      Storage: 
+       Repositories: 17 
+       Commits: 24 [date range: 2023-06-15 - 2023-06-30]
+       R_package_usage: 12 [package: purrr]
 

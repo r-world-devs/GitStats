@@ -1,21 +1,25 @@
-# `check_token()` prints error when token exists but does not grant access
+# `get_commits_authors_handles_and_names()` adds author logis and names to commits table
 
-    x HTTP 401 Unauthorized.
+    Code
+      gl_commits_table <- test_rest_priv$get_commits_authors_handles_and_names(
+        commits_table = test_mocker$use("gl_commits_table"), settings = test_settings)
+    Message
+      i Looking up for authors' names and logins...
 
 # `pull_repos_contributors()` adds contributors to repos table
 
     Code
       gl_repos_table_with_contributors <- test_rest$pull_repos_contributors(
-        test_mocker$use("gl_repos_table"))
+        test_mocker$use("gl_repos_table"), settings = test_settings)
     Message
-      i [GitLab][Engine:REST][org:MB Tests] Pulling contributors...
+      i [GitLab][Engine:REST][org:mbtests] Pulling contributors...
 
-# `pull_repos_by_phrase()` works
+# `pull_repos_by_code()` works
 
     Code
-      result <- test_rest$pull_repos(org = "gitlab-org", settings = test_settings)
+      result <- test_rest$pull_repos(org = "gitlab-org", code = "covid", settings = test_settings)
     Message
-      i [GitLab][Engine:REST][phrase:covid][org:gitlab-org] Searching repositories...
+      i [GitLab][Engine:REST][code:covid][org:gitlab-org] Searching repositories...
 
 # `pull_commits()` works as expected
 
@@ -25,6 +29,7 @@
     Message
       i [GitLab][Engine:REST][org:mbtests] Pulling repositories...
       i [GitLab][Engine:REST][org:mbtests] Pulling commits...
+      i Looking up for authors' names and logins...
 
 # `pull_commits()` works with repositories implied
 
@@ -34,4 +39,5 @@
       settings = test_settings_repo)
     Message
       i [GitLab][Engine:REST][org:mbtests][custom repositories] Pulling commits...
+      i Looking up for authors' names and logins...
 

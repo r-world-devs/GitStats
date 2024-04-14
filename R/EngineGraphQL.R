@@ -55,8 +55,8 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
      #' @param pulled_repos Optional parameter to pass repository output object.
      #' @param settings A list of  `GitStats` settings.
      #' @return A table.
-     pull_files = function(org, file_path, pulled_repos = NULL) {
-       if (!private$scan_all) {
+     pull_files = function(org, file_path, pulled_repos = NULL, settings) {
+       if (!private$scan_all && settings$verbose) {
          cli::cli_alert_info("[Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling {file_path} files...")
        }
        files_table <- private$pull_file_from_org(
@@ -69,6 +69,41 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
            file_path = file_path
          )
        return(files_table)
+     },
+
+     #' @description Method to get releases.
+     #' @param org An organization.
+     #' @param repos A vector of repositories.
+     #' @param date_from A starting date of releases.
+     #' @param date_until An end date for releases.
+     #' @param settings A list of  `GitStats` settings.
+     #' @param storage A storage of `GitStats` object.
+     #' @return A table of commits.
+     pull_release_logs = function(org,
+                                  repos = NULL,
+                                  date_from,
+                                  date_until = Sys.date(),
+                                  settings,
+                                  storage = NULL) {
+       if (!private$scan_all && settings$verbose) {
+         cli::cli_alert_info("[Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling releases...")
+       }
+       repos_names <- private$set_repositories(
+         repos = repos,
+         org = org,
+         settings = settings,
+         storage = storage
+       )
+       if (length(repos_names) > 0) {
+         releases_table <- private$pull_releases_from_org(
+           repos_names = repos_names,
+           org = org
+         ) %>%
+           private$prepare_releases_table(org, date_from, date_until)
+       } else {
+         releases_table <- NULL
+       }
+       return(releases_table)
      }
 
    ),
@@ -103,6 +138,33 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
          )
        )
        return(response)
+     },
+
+     # Set repositories for pulling commits or release logs
+     set_repositories = function(repos, org, settings, storage) {
+       if (is.null(repos)) {
+         if (is.null(storage$repositories)) {
+           repos_table <- self$pull_repos(
+             org = org,
+             settings = settings
+           )
+         } else {
+           if (settings$verbose) {
+             cli::cli_alert_warning(
+               cli::col_yellow("Using repositories stored in `GitStats` object.")
+             )
+           }
+           repos_table <- storage$repositories %>%
+             dplyr::filter(
+               organization == org
+             )
+         }
+         repos_names <- repos_table$repo_name
+       }
+       if (!is.null(repos)) {
+         repos_names <- repos
+       }
+       return(repos_names)
      }
    )
 )

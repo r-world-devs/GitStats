@@ -19,9 +19,10 @@ EngineRest <- R6::R6Class("EngineRest",
     initialize = function(rest_api_url = NA,
                           token = NA,
                           scan_all = FALSE) {
+      private$token <- token
       self$rest_api_url <- rest_api_url
-      private$token <- private$check_token(token)
       private$scan_all <- scan_all
+      private$set_endpoints()
     },
 
     #' @description A wrapper for httr2 functions to perform get request to REST API endpoints.
@@ -36,46 +37,9 @@ EngineRest <- R6::R6Class("EngineRest",
       } else {
         result <- list()
       }
-
       return(result)
-    },
-
-    #' @description Check if repositories exist
-    #' @param repos A character vector of repositories
-    #' @return repos or NULL.
-    check_repositories = function(repos) {
-      repos <- purrr::map(repos, function(repo) {
-        private$check_endpoint(
-          repo = repo
-        )
-        return(repo)
-      }) %>%
-        purrr::keep(~ length(.) > 0) %>%
-        unlist()
-
-      if (length(repos) == 0) {
-        return(NULL)
-      }
-      repos
-    },
-
-    #' @description Check if organizations exist
-    #' @param orgs A character vector of organizations
-    #' @return orgs or NULL.
-    check_organizations = function(orgs) {
-      orgs <- purrr::map(orgs, function(org) {
-        org <- private$check_endpoint(
-          org = org
-        )
-        return(org)
-      }) %>%
-        purrr::keep(~ length(.) > 0) %>%
-        unlist()
-      if (length(orgs) == 0) {
-        return(NULL)
-      }
-      orgs
     }
+
   ),
   private = list(
 
@@ -85,47 +49,42 @@ EngineRest <- R6::R6Class("EngineRest",
     # @field A boolean.
     scan_all = FALSE,
 
-    # @description Check whether the token exists.
-    # @param token A token.
-    # @return A token.
-    check_token = function(token) {
-      if (nchar(token) == 0) {
-        cli::cli_abort(c(
-          "i" = "No token provided."
-        ))
-      }
+    # Paginate contributors and parse response into character vector
+    pull_contributors_from_repo = function(contributors_endpoint, user_name) {
+      contributors_response <- private$paginate_results(contributors_endpoint)
+      contributors_vec <- contributors_response %>%
+        purrr::map_chr(~ eval(user_name)) %>%
+        paste0(collapse = ", ")
+      return(contributors_vec)
     },
 
-    # @description Check whether the endpoint exists.
-    # @param repo Repository path.
-    # @param org Organization path.
-    check_endpoint = function(repo = NULL, org = NULL) {
-      if (!is.null(repo)) {
-        type <- "Repository"
-        repo_endpoint <- if(grepl("github", self$rest_api_url)) "/repos/" else "/projects/"
-        endpoint <- paste0(self$rest_api_url, repo_endpoint, repo)
-        object <- repo
+    # Filtering handler if files are set for scanning scope
+    limit_search_to_files = function(repos_list, files) {
+      if (!is.null(files)) {
+        repos_list <- purrr::keep(repos_list, function(repository) {
+          any(repository$path %in% files)
+        })
       }
-      if (!is.null(org)) {
-        type <- "Organization"
-        org_endpoint <- if(grepl("github", self$rest_api_url)) "/orgs/" else "/groups/"
-        endpoint <- paste0(self$rest_api_url, org_endpoint, org)
-        object <- org
-      }
-      withCallingHandlers(
-        {
-          self$response(endpoint = endpoint)
-        },
-        message = function(m) {
-          if (grepl("404", m)) {
-            cli::cli_alert_danger("{type} you provided does not exist or its name was passed in a wrong way: {endpoint}")
-            cli::cli_alert_warning("Please type your {tolower(type)} name as you see it in `url`.")
-            cli::cli_alert_info("E.g. do not use spaces. {type} names as you see on the page may differ from their 'address' name.")
-            object <<- NULL
-          }
+      return(repos_list)
+    },
+
+    # Helper
+    paginate_results = function(endpoint, joining_sign = "?") {
+      full_response <- list()
+      page <- 1
+      repeat {
+        endpoint_with_pagination <- paste0(endpoint, joining_sign, "per_page=100&page=", page)
+        response_page <- self$response(
+          endpoint = endpoint_with_pagination
+        )
+        if (length(response_page) > 0) {
+          full_response <- append(full_response, response_page)
+          page <- page + 1
+        } else {
+          break
         }
-      )
-      return(object)
+      }
+      return(full_response)
     },
 
     # @description A helper to prepare table for repositories content
@@ -138,7 +97,7 @@ EngineRest <- R6::R6Class("EngineRest",
         })
         data.frame(repo)
       }) %>%
-        data.table::rbindlist()
+        purrr::list_rbind()
 
       if (length(repos_dt) > 0) {
         repos_dt <- dplyr::mutate(repos_dt,

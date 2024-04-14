@@ -1,3 +1,43 @@
+# GitStats (development version)
+
+## Breaking changes:
+
+- `set_host()` function is replaced with more explicit `set_github_host()` and `set_gitlab_host()`([#373](https://github.com/r-world-devs/GitStats/issues/373)). If you wish to connect to public host (e.g. `api.github.com`), you do not need to pass argument to `host` parameter. 
+- GitStats workflow is now simplified. To pull data on `repositories`, `commits`, `R_package_usage` you should use directly corresponding `get_*()` functions instead of `pull_*()` which are deprecated. These `get_*()` functions pull data from API, parse it into table, add some goodies (additional columns) if needed and return table instead of `GitStats` object, which in our opinion is more intuitive and user-friendly ([#345]((https://github.com/r-world-devs/GitStats/issues/345))). That means you do not need to run in pipe two or three additional function calls as before, e.g. `pull_repos(gitstats_object) %>% get_repos() %>% get_repos_stats()`, but you just run
+`get_repos(gitstats_object)` to get data you need.
+- Moreover, if you run for the second time `get_*()` function GitStats will pull the data from its storage and not from API as for the first time, unless you change parameters for the function (e.g. starting date with `since` in `get_commits()`) or change settings for not using storage (`set_params(use_storage = FALSE)`).
+- Along with that changes `get_repos_stats()` function was deprecated as its role was unclear - unlike `get_commit_stats()` it did not aggregate repositories data into new stats table, but added only some new numeric columns, like number of contributors (`contributors_n`) or last activity in `difftime` format, which is now done within `get_repos()` function.
+- Meanwhile `get_commits_stats()` is preserved as it brings additional value with aggregating commits data into new statistical form.
+- `pull_repos_contributors()` as a separate function is deprecated. The parameter `add_contributors` is now set by  default to `TRUE` in `get_repos()` which seems more reasonable as user gets all the data.
+- Plot functions are no longer feature of `GitStats`, they have been deprecated as the package is meant to be basically for back end purposes and this is the field where developer's effort should now go ([#381](https://github.com/r-world-devs/GitStats/issues/381)). If needed and requested, plot functions may be brought up once more in next releases.
+- In `get_commits()` old parameters (`date_from` and `date_until`) were replaced with new, more concise (`since` and `until`).
+- A new parameter (`verbose`) in settings has been introduced for limiting messages to user when pulling data - you can turn it on/off with  `verbose_on()`/`verbose_off()` functions.
+
+## Searching for code blobs in repositories:
+
+- There is no longer `phrase` parameter to set in `set_params()`. If you choose to pull repositories by `code` (previously `phrase`), you then have to specify the `code` parameter directly in `get_repos()`. This seems to be more intuitive than setting whole GitStats for one `code` to search, especially when user wants to look for more than one code blob. ([#333](https://github.com/r-world-devs/GitStats/issues/333))
+
+## Deprecate:
+
+- Pulling by `team` and filtering by `language` is no longer supported - these features where quite heavy for the package performance and did not bring much added value. If user needs, he can always filter the output (formatted responses pulled from API) by contributors or language. ([#384](https://github.com/r-world-devs/GitStats/issues/384))
+
+## New features:
+
+- Added `get_release_logs()` ([#356](https://github.com/r-world-devs/GitStats/issues/356)).
+- Added `show_data()` function, where user passes the name of the object he wants to retrieve (e.g. `repos`, `commits`, `package_usage`) to the `storage` parameter.
+- `get_orgs()` is renamed to `show_orgs()` to reflect that it does not pull data from API, but only shows what is in `GitStats` object.
+
+## Minor features:
+
+- Commits response consists now of two new columns: `author_login` and `author_name` ([#332](https://github.com/r-world-devs/GitStats/issues/332)). This is due to the mix of GitHub/GitLab handles and display names in the `author` column (the original author `name` field in commits API response).
+- Use stored repositories when pulling commits or files ([#159](https://github.com/r-world-devs/GitStats/issues/159)).
+- Improve printing `GitStats` object - now when you return `GitStats` object in console, it prints `GitStats` data divided into sections to give more readable information to user: `scanning scope` (organizations, repositories and files), `search settings` (searched phrase, language, team name) and `storage` (the output tables stored in `GitStats` with basic information on dimensions) ([#329](https://github.com/r-world-devs/GitStats/issues/329)).
+
+## Bug fixes:
+
+- Pagination was introduced to `contributors` response ([#331](https://github.com/r-world-devs/GitStats/issues/331)).
+- Fixed handler of dates parameters when pulling commits. Wrong and complex construction of `gts_to_posixt()` helper which took dependencies on `stringr` was a cause for some users of passing empty value to `since` parameter to commits endpoint which ended in Bad Request Error (400) and infinite loop of retrying the response ([#360](https://github.com/r-world-devs/GitStats/issues/360)).
+
 # GitStats 1.1.0
 
 ## New features:
