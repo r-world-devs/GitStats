@@ -53,17 +53,6 @@ test_that("pull_repos_contributors returns table with contributors for GitLab", 
   expect_equal(nrow(repos_table_1), nrow(repos_table_2))
 })
 
-test_that("pull_commits throws error when search mode is set to `code`", {
-  test_settings[["search_mode"]] <- "code"
-  expect_snapshot_error(
-    test_host$pull_commits(
-      date_from = "2023-03-01",
-      date_until = "2023-04-01",
-      settings = test_settings
-    )
-  )
-})
-
 test_that("pull_commits for GitLab works", {
   suppressMessages(
     gl_commits_table <- test_host$pull_commits(

@@ -25,7 +25,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       end_cursor <- NULL
       has_next_page <- TRUE
       full_orgs_list <- list()
-      while(has_next_page) {
+      while (has_next_page) {
         response <- self$gql_response(
           gql_query = self$gql_query$orgs(
             end_cursor = end_cursor
@@ -48,10 +48,12 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @description A method to retrieve all repositories for an organization in
     #'   a table format.
     #' @param org An organization.
+    #' @param repos Optional, a vector of repositories.
     #' @param with_code A character, code to search for.
     #' @param settings A list of  `GitStats` settings.
     #' @return A table.
     pull_repos = function(org,
+                          repos = NULL,
                           with_code = NULL,
                           settings) {
       if (!private$scan_all && settings$verbose) {
@@ -61,6 +63,10 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         org = org
       ) %>%
         private$prepare_repos_table()
+      if (!is.null(repos)) {
+        repos_table <- repos_table %>%
+          dplyr::filter(repo_name %in% repos)
+      }
       return(repos_table)
     },
 
@@ -84,14 +90,12 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         settings = settings,
         storage = storage
       )
-      if (!private$scan_all) {
-        if (settings$verbose) {
-          if (settings$searching_scope == "org") {
-            cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling commits...")
-          }
-          if (settings$searching_scope == "repo") {
-            cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][custom repositories] Pulling commits...")
-          }
+      if (!private$scan_all && settings$verbose) {
+        if (settings$searching_scope == "org") {
+          cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling commits...")
+        }
+        if (settings$searching_scope == "repo") {
+          cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][custom repositories] Pulling commits...")
         }
       }
       repos_list_with_commits <- private$pull_commits_from_repos(

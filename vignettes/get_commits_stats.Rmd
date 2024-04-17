@@ -63,5 +63,3 @@ You can also retrieve just the pulled output.
 commits <- show_data(git_stats, "commits")
 head(commits)
 ```
-
-You can pull commits also by `org` or `team`. You can not pull commits by `phrase` found in code blobs.

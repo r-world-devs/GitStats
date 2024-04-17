@@ -62,7 +62,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @param with_code A character, if  defined, GitStats will pull repositories
     #'   with specified text in code blobs.
     #' @param use_storage A logical, should storage be used.
-    #' @param verbose A logical, shoud verbose mode be used.
+    #' @param verbose A logical, should verbose mode be used.
     get_repos = function(add_contributors = FALSE,
                          with_code = NULL,
                          use_storage = TRUE,
@@ -96,7 +96,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @param since A starting date for commits.
     #' @param until An end date for commits.
     #' @param use_storage A logical, should storage be used.
-    #' @param verbose A logical, shoud verbose mode be used.
+    #' @param verbose A logical, should verbose mode be used.
     get_commits = function(since,
                            until,
                            use_storage = TRUE,
@@ -281,6 +281,20 @@ GitStats <- R6::R6Class("GitStats",
       return(storage)
     },
 
+    #' @description switch on verbose mode
+    verbose_on = function() {
+      private$settings$verbose <- TRUE
+    },
+
+    #' @description switch off verbose mode
+    verbose_off = function() {
+      private$settings$verbose <- FALSE
+    },
+
+    is_verbose = function() {
+      private$settings$verbose
+    },
+
     #' @description A print method for a GitStats object.
     print = function() {
       cat(paste0("A ", cli::col_blue('GitStats'), " object for ", length(private$hosts)," hosts: \n"))
@@ -305,7 +319,7 @@ GitStats <- R6::R6Class("GitStats",
 
     # temporary settings used when calling some methods for custom purposes
     temp_settings = list(
-      searching_scope = NULL,
+      searching_scope = "org",
       files = NULL,
       verbose = FALSE,
       use_storage = TRUE
@@ -354,7 +368,7 @@ GitStats <- R6::R6Class("GitStats",
     # @description Helper to check if there are any hosts.
     check_for_host = function() {
       if (length(private$hosts) == 0) {
-        cli::cli_abort("Add first your hosts with `set_host()`.", call = NULL)
+        cli::cli_abort("Add first your hosts with `set_github_host()` or `set_gitlab_host()`.", call = NULL)
       }
     },
 

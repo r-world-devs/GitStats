@@ -12,10 +12,11 @@ test_that("`get_group_id()` gets group's id", {
   expect_equal(gl_group_id, 63684059)
 })
 
-test_that("`find_repos_by_id()` works", {
+test_that("`map_search_into_repos()` works", {
   gl_search_response <- test_mocker$use("gl_search_response")
-  gl_search_repos_by_code <- test_rest_priv$find_repos_by_id(
-    gl_search_response
+  gl_search_repos_by_code <- test_rest_priv$map_search_into_repos(
+    gl_search_response,
+    verbose = FALSE
   )
   expect_gl_repos_rest_response(
     gl_search_repos_by_code
@@ -27,7 +28,8 @@ test_that("`pull_repos_languages` works", {
   repos_list <- test_mocker$use("gl_search_repos_by_code")
   repos_list[[1]]$id <- "45300912"
   repos_list_with_languages <- test_rest_priv$pull_repos_languages(
-    repos_list = repos_list
+    repos_list = repos_list,
+    verbose = FALSE
   )
   expect_list_contains(
     repos_list_with_languages[[1]],
@@ -62,7 +64,8 @@ test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
 
 test_that("`prepare_repos_table()` prepares repos table", {
   gl_repos_by_code_table <- test_rest_priv$prepare_repos_table(
-    repos_list = test_mocker$use("gl_repos_by_code_tailored")
+    repos_list = test_mocker$use("gl_repos_by_code_tailored"),
+    settings = test_settings_silence
   )
 
   expect_repos_table(
@@ -134,7 +137,8 @@ test_that("`get_commits_authors_handles_and_names()` adds author logis and names
 test_that("`pull_repos_issues()` adds issues to repos table", {
   gl_repos_by_code_table <- test_mocker$use("gl_repos_by_code_table")
   gl_repos_by_code_table <- test_rest_priv$pull_repos_issues(
-    gl_repos_by_code_table
+    gl_repos_by_code_table,
+    settings = test_settings_silence
   )
   expect_gt(
     length(gl_repos_by_code_table$issues_open),
@@ -167,19 +171,16 @@ test_that("`pull_repos_contributors()` adds contributors to repos table", {
   test_mocker$cache(gl_repos_table_with_contributors)
 })
 
-test_that("`pull_repos_by_code()` works", {
+test_that("`pull_repos()` with code works", {
   mockery::stub(
     test_rest$pull_repos,
     "private$pull_repos_by_code",
     test_mocker$use("gl_search_repos_by_code")
   )
-  test_settings[["search_mode"]] <- "code"
-  expect_snapshot(
-    result <- test_rest$pull_repos(
-      org = "gitlab-org",
-      code = "covid",
-      settings = test_settings
-    )
+  result <- test_rest$pull_repos(
+    org = "gitlab-org",
+    with_code = "covid",
+    settings = test_settings_silence
   )
   expect_repos_table(result)
 })
@@ -190,13 +191,11 @@ test_that("`pull_commits()` works as expected", {
     "private$pull_commits_from_repos",
     test_mocker$use("gl_commits_org")
   )
-  expect_snapshot(
-    result <- test_rest$pull_commits(
-      org = "mbtests",
-      date_from = "2023-01-01",
-      date_until = "2023-04-20",
-      settings = test_settings
-    )
+  result <- test_rest$pull_commits(
+    org = "mbtests",
+    date_from = "2023-01-01",
+    date_until = "2023-04-20",
+    settings = test_settings_silence
   )
   expect_commits_table(result)
 })

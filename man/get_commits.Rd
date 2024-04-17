@@ -9,7 +9,7 @@ get_commits(
   since = NULL,
   until = NULL,
   use_storage = TRUE,
-  verbose = TRUE
+  verbose = is_verbose(gitstats_object)
 )
 }
 \arguments{
@@ -21,7 +21,7 @@ get_commits(
 
 \item{use_storage}{A logical, should storage be used.}
 
-\item{verbose}{A logical, shoud verbose mode be used.}
+\item{verbose}{A logical, should verbose mode be used.}
 }
 \value{
 A \code{GitStats} class object with commits table.

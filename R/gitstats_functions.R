@@ -98,7 +98,7 @@ set_gitlab_host <- function(gitstats_object,
 #' @param with_code A character, if  defined, GitStats will pull repositories
 #'   with specified text in code blobs.
 #' @param use_storage A logical, should storage be used.
-#' @param verbose A logical, shoud verbose mode be used.
+#' @param verbose A logical, should verbose mode be used.
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
@@ -119,7 +119,7 @@ get_repos <- function(gitstats_object,
                       add_contributors = TRUE,
                       with_code = NULL,
                       use_storage = TRUE,
-                      verbose = TRUE) {
+                      verbose = is_verbose(gitstats_object)) {
   gitstats_object$get_repos(
     add_contributors = add_contributors,
     with_code = with_code,
@@ -136,7 +136,7 @@ get_repos <- function(gitstats_object,
 #' @param since A starting date.
 #' @param until An end date.
 #' @param use_storage A logical, should storage be used.
-#' @param verbose A logical, shoud verbose mode be used.
+#' @param verbose A logical, should verbose mode be used.
 #' @return A `GitStats` class object with commits table.
 #' @examples
 #' \dontrun{
@@ -158,7 +158,7 @@ get_commits <- function(gitstats_object,
                         since = NULL,
                         until = NULL,
                         use_storage = TRUE,
-                        verbose = TRUE) {
+                        verbose = is_verbose(gitstats_object)) {
   if (is.null(since)) {
     cli::cli_abort(cli::col_red("You need to pass date to `since` parameter."), call = NULL)
   }
@@ -190,7 +190,7 @@ get_commits_stats = function(gitstats_object,
 #' @param gitstats_object A GitStats object.
 #' @param logins A character vector of logins.
 #' @param use_storage A logical, should storage be used.
-#' @param verbose A logical, shoud verbose mode be used.
+#' @param verbose A logical, should verbose mode be used.
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
@@ -211,7 +211,7 @@ get_commits_stats = function(gitstats_object,
 get_users <- function(gitstats_object,
                       logins,
                       use_storage = TRUE,
-                      verbose = TRUE){
+                      verbose = is_verbose(gitstats_object)){
   gitstats_object$get_users(
     logins = logins,
     use_storage = use_storage,
@@ -226,7 +226,7 @@ get_users <- function(gitstats_object,
 #' @param file_path A standardized path to file(s) in repositories. May be a
 #'   character vector if multiple files are to be pulled.
 #' @param use_storage A logical, should storage be used.
-#' @param verbose A logical, shoud verbose mode be used.
+#' @param verbose A logical, should verbose mode be used.
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
@@ -247,7 +247,7 @@ get_users <- function(gitstats_object,
 get_files <- function(gitstats_object,
                       file_path,
                       use_storage = TRUE,
-                      verbose = TRUE){
+                      verbose = is_verbose(gitstats_object)){
   gitstats_object$get_files(
     file_path = file_path,
     use_storage = use_storage,
@@ -265,7 +265,7 @@ get_files <- function(gitstats_object,
 #' @param only_loading A boolean, if `TRUE` function will check only if package
 #'   is loaded in repositories, not used as dependencies.
 #' @param use_storage A logical, should storage be used.
-#' @param verbose A logical, shoud verbose mode be used.
+#' @param verbose A logical, should verbose mode be used.
 #' @return A table of repositories content.
 #' @examples
 #' \dontrun{
@@ -275,7 +275,7 @@ get_files <- function(gitstats_object,
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma")
 #'   ) %>%
-#'   get_R_package_usage("shiny")
+#'   get_R_package_usage("Shiny")
 #' }
 #' @export
 get_R_package_usage <- function(
@@ -283,7 +283,7 @@ get_R_package_usage <- function(
     package_name,
     only_loading = FALSE,
     use_storage = TRUE,
-    verbose = TRUE
+    verbose = is_verbose(gitstats_object)
   ) {
   gitstats_object$get_R_package_usage(
     package_name = package_name,
@@ -314,7 +314,7 @@ get_release_logs <- function(
     since = NULL,
     until = NULL,
     use_storage = TRUE,
-    verbose = TRUE
+    verbose = is_verbose(gitstats_object)
 ) {
   if (is.null(since)) {
     cli::cli_abort(cli::col_red("You need to pass date to `since` parameter."), call = NULL)
@@ -362,4 +362,33 @@ show_data <- function(gitstats_object, storage) {
   gitstats_object$show_data(
     storage = storage
   )
+}
+
+#' @title Switch on verbose mode
+#' @name verbose_on
+#' @description Print all messages and output.
+#' @param gitstats_object A GitStats object.
+#' @return A GitStats object.
+#' @export
+verbose_on <- function(gitstats_object) {
+  gitstats_object$verbose_on()
+  return(invisible(gitstats_object))
+}
+
+#' @title Switch off verbose mode
+#' @name verbose_off
+#' @description Stop printing messages and output.
+#' @param gitstats_object A GitStats object.
+#' @return A GitStats object.
+#' @export
+verbose_off <- function(gitstats_object) {
+  gitstats_object$verbose_off()
+  return(invisible(gitstats_object))
+}
+
+#' @title Is verbose mode switched on
+#' @name is_verbose
+#' @param gitstats_object A GitStats object.
+is_verbose <- function(gitstats_object) {
+  gitstats_object$is_verbose()
 }

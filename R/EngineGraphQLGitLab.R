@@ -51,10 +51,12 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      #' @description A method to retrieve all repositories for an organization in
      #'   a table format.
      #' @param org An organization.
+     #' @param repos Optional, a vector of repositories.
      #' @param with_code A character, code to search for.
      #' @param settings A list of  `GitStats` settings.
      #' @return A table.
      pull_repos = function(org,
+                           repos = NULL,
                            with_code = NULL,
                            settings) {
        org <- URLdecode(org)
@@ -67,6 +69,10 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
          org = org
        ) %>%
          private$prepare_repos_table()
+       if (!is.null(repos)) {
+         repos_table <- repos_table %>%
+           dplyr::filter(repo_name %in% repos)
+       }
        return(repos_table)
      }
 

@@ -90,7 +90,7 @@ EngineRest <- R6::R6Class("EngineRest",
     # @description A helper to prepare table for repositories content
     # @param repos_list A repository list.
     # @return A data.frame.
-    prepare_repos_table = function(repos_list) {
+    prepare_repos_table = function(repos_list, settings) {
       repos_dt <- purrr::map(repos_list, function(repo) {
         repo <- purrr::map(repo, function(attr) {
           attr <- attr %||% ""
@@ -98,7 +98,9 @@ EngineRest <- R6::R6Class("EngineRest",
         data.frame(repo)
       }) %>%
         purrr::list_rbind()
-
+      if (settings$verbose) {
+        cli::cli_alert_info("Preparing repositories table...")
+      }
       if (length(repos_dt) > 0) {
         repos_dt <- dplyr::mutate(repos_dt,
           repo_id = as.character(repo_id),

@@ -353,15 +353,15 @@ GitHost <- R6::R6Class("GitHost",
           cli::cli_alert_warning(cli::col_yellow(
             "No `orgs` specified. I will pull all organizations from the Git Host."
           ))
-          cli::cli_alert_info(cli::col_grey("Your searching scope set to [all]."))
+          cli::cli_alert_info(cli::col_grey("Searching scope set to [all]."))
           private$scan_all <- TRUE
         }
       }
       if (!is.null(repos) && is.null(orgs)) {
-        cli::cli_alert_info(cli::col_grey("Your searching scope set to [repo]."))
+        cli::cli_alert_info(cli::col_grey("Searching scope set to [repo]."))
       }
       if (is.null(repos) && !is.null(orgs)) {
-        cli::cli_alert_info(cli::col_grey("Your searching scope set to [org]."))
+        cli::cli_alert_info(cli::col_grey("Searching scope set to [org]."))
       }
       if (!is.null(repos) && !is.null(orgs)) {
         cli::cli_abort(c(
@@ -475,8 +475,10 @@ GitHost <- R6::R6Class("GitHost",
         private$set_engine("repos")
       }
       repos_table <- purrr::map(orgs, function(org) {
+        repos <- private$set_repos(settings, org)
         repos_from_org <- api_engine$pull_repos(
           org = org,
+          repos = repos,
           with_code = with_code,
           settings = settings
         )

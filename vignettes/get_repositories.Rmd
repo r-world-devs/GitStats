@@ -42,23 +42,12 @@ get_repos(git_stats)
 
 ### Code
 
-With `GitStats` you can pull the repositories with a certain code blob. First set your `search_mode` accordingly, then pass `code` string to `get_repos()` function.
+With `GitStats` you can pull the repositories with a certain code blob. Just pass a string of your interest to `with_code` parameter in `get_repos()` function.
 
 ```{r}
 create_gitstats() %>%
   set_github_host(
     orgs = c("r-world-devs", "openpharma")
   ) %>% 
-  set_params(
-    search_mode = "code"
-  ) %>% 
-  get_repos(code = "Shiny")
-```
-
-## Reset your settings
-
-If you wish to get back to default settings, run:
-
-```{r}
-reset(git_stats)
+  get_repos(with_code = "Shiny")
 ```

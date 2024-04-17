@@ -13,14 +13,21 @@ test_team <- list(
 )
 
 test_settings <- list(
-  search_mode = "org",
+  searching_scope = "org",
   files = NULL,
   verbose = TRUE,
   storage = TRUE
 )
 
+test_settings_silence <- list(
+  searching_scope = "org",
+  files = NULL,
+  verbose = FALSE,
+  storage = TRUE
+)
+
 test_settings_repo <- list(
-  search_mode = "repo",
+  searching_scope = "repo",
   files = NULL,
   verbose = TRUE,
   storage = TRUE

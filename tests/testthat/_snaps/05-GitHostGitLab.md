@@ -20,10 +20,6 @@
     Message
       i [GitLab][Engine:REST][org:mbtests] Pulling contributors...
 
-# pull_commits throws error when search mode is set to `code`
-
-    unused arguments (date_from = "2023-03-01", date_until = "2023-04-01")
-
 # pull_commits for GitLab works with repos implied
 
     Code

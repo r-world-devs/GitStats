@@ -4,7 +4,12 @@
 \alias{get_files}
 \title{Get files content}
 \usage{
-get_files(gitstats_object, file_path, use_storage = TRUE, verbose = TRUE)
+get_files(
+  gitstats_object,
+  file_path,
+  use_storage = TRUE,
+  verbose = is_verbose(gitstats_object)
+)
 }
 \arguments{
 \item{gitstats_object}{A GitStats object.}
@@ -14,7 +19,7 @@ character vector if multiple files are to be pulled.}
 
 \item{use_storage}{A logical, should storage be used.}
 
-\item{verbose}{A logical, shoud verbose mode be used.}
+\item{verbose}{A logical, should verbose mode be used.}
 }
 \value{
 A \code{GitStats} object with table of files.

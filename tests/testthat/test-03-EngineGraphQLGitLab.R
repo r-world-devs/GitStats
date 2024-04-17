@@ -14,7 +14,6 @@ test_that("`pull_repos_page()` pulls repos page from GitLab group", {
     test_mocker$use("gl_repos_by_org_gql_response")
   )
   gl_repos_page <- test_gql_gl$pull_repos_page(
-    from = "org",
     org = "mbtests"
   )
   expect_gl_repos_gql_response(
@@ -30,7 +29,6 @@ test_that("`pull_repos_from_org()` prepares formatted list", {
     test_mocker$use("gl_repos_page")
   )
   gl_repos_from_org <- test_gql_gl$pull_repos_from_org(
-    from = "org",
     org = "mbtests"
   )
   expect_list_contains(
@@ -51,7 +49,6 @@ test_that("`pull_repos_from_org()` does not fail when GraphQL response is not co
     test_fixtures$empty_gql_response
   )
   gl_repos_from_org <- test_gql_gl$pull_repos_from_org(
-    from = "org",
     org = "mbtests"
   )
   expect_type(
@@ -68,7 +65,6 @@ test_that("`pull_repos_from_org()` does not fail when GraphQL response is not co
     test_fixtures$half_empty_gql_response
   )
   gl_repos_from_org <- test_gql_gl$pull_repos_from_org(
-    from = "org",
     org = "mbtests"
   )
   expect_type(

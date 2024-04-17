@@ -9,7 +9,7 @@ get_R_package_usage(
   package_name,
   only_loading = FALSE,
   use_storage = TRUE,
-  verbose = TRUE
+  verbose = is_verbose(gitstats_object)
 )
 }
 \arguments{
@@ -22,7 +22,7 @@ is loaded in repositories, not used as dependencies.}
 
 \item{use_storage}{A logical, should storage be used.}
 
-\item{verbose}{A logical, shoud verbose mode be used.}
+\item{verbose}{A logical, should verbose mode be used.}
 }
 \value{
 A table of repositories content.
@@ -40,6 +40,6 @@ using it as a dependency (\code{package} in \code{DESCRIPTION} and \code{NAMESPA
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma")
   ) \%>\%
-  get_R_package_usage("shiny")
+  get_R_package_usage("Shiny")
 }
 }
