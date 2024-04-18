@@ -4,14 +4,24 @@
 \alias{get_commits}
 \title{Get information on commits}
 \usage{
-get_commits(gitstats_obj, since = NULL, until = NULL)
+get_commits(
+  gitstats_object,
+  since = NULL,
+  until = NULL,
+  use_storage = TRUE,
+  verbose = is_verbose(gitstats_object)
+)
 }
 \arguments{
-\item{gitstats_obj}{A GitStats object.}
+\item{gitstats_object}{A GitStats object.}
 
-\item{since}{A starting date of commits.}
+\item{since}{A starting date.}
 
-\item{until}{An end date of commits.}
+\item{until}{An end date.}
+
+\item{use_storage}{A logical, should storage be used.}
+
+\item{verbose}{A logical, should verbose mode be used.}
 }
 \value{
 A \code{GitStats} class object with commits table.

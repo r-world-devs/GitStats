@@ -3,14 +3,14 @@
     Code
       test_host$check_orgs_and_repos(orgs = "mbtests", repos = NULL)
     Message
-      i Your search parameter set to [org].
+      i Searching scope set to [org].
 
 ---
 
     Code
       test_host$check_orgs_and_repos(orgs = NULL, repos = "mbtests/GitStatsTesting")
     Message
-      i Your search parameter set to [repo].
+      i Searching scope set to [repo].
 
 # `check_orgs_and_repos` throws error when host is public one
 

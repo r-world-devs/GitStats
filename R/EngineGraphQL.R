@@ -1,7 +1,4 @@
 #' @noRd
-#' @importFrom dplyr distinct mutate relocate filter
-#'
-#' @title A EngineGraphQL class
 #' @description A class for methods wrapping GitHub's GraphQL API responses.
 EngineGraphQL <- R6::R6Class("EngineGraphQL",
    public = list(

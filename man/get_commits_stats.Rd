@@ -4,10 +4,10 @@
 \alias{get_commits_stats}
 \title{Get statistics on commits}
 \usage{
-get_commits_stats(gitstats_obj, time_interval = c("month", "day", "week"))
+get_commits_stats(gitstats_object, time_interval = c("month", "day", "week"))
 }
 \arguments{
-\item{gitstats_obj}{A GitStats class object.}
+\item{gitstats_object}{A GitStats class object.}
 
 \item{time_interval}{A character, specifying time interval to show statistics.}
 }

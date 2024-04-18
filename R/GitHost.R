@@ -1,11 +1,5 @@
 #' @noRd
-#' @importFrom R6 R6Class
-#' @importFrom rlang expr
-#' @importFrom cli cli_alert_danger cli_alert_success
-#' @importFrom purrr keep
-
-#' @title A GitHost superclass
-
+#' @description A class to manage which engine to use for pulling data
 GitHost <- R6::R6Class("GitHost",
   public = list(
 
@@ -30,45 +24,20 @@ GitHost <- R6::R6Class("GitHost",
       private$set_scanning_scope(orgs, repos)
     },
 
-    #' Iterator over pulling release logs from engines
-    pull_release_logs = function(date_from, date_until, settings, storage = NULL) {
-      if (settings$search_mode == "code") {
-        cli::cli_abort(c(
-          "x" = "Pulling release logs by code blobs is not supported.",
-          "i" = "Please change your `search_mode` to 'org' or 'repo' with `set_params()`."
-        ),
-        call = NULL)
-      }
-      if (private$scan_all && settings$verbose) {
-        cli::cli_alert_info("[Host:{private$host}] {cli::col_yellow('Pulling release logs from all organizations...')}")
-      }
-      if (is.null(date_until)) {
-        date_until <- Sys.time()
-      }
-      release_logs_table <- private$pull_release_logs_from_host(
-        date_from = date_from,
-        date_until = date_until,
-        settings = settings,
-        storage = storage
-      )
-      return(release_logs_table)
-    },
-
-
-    #' @description  A method to list all repositories for an organization or by
-    #'   a keyword.
-    #' @param settings A list of `GitStats` settings.
-    #' @param add_contributors A boolean to decide whether to add contributors
-    #'   column to repositories table.
-    #' @return A data.frame of repositories.
-    pull_repos = function(add_contributors = FALSE, code = NULL, settings) {
+    # Pull repos and add contributors to the table if needed
+    pull_repos = function(add_contributors = FALSE,
+                          with_code = NULL,
+                          settings) {
       repos_table <- private$pull_repos_from_host(
-        code = code,
+        with_code = with_code,
         settings = settings
       )
       repos_table <- private$add_repo_api_url(repos_table)
       if (add_contributors) {
-        repos_table <- self$pull_repos_contributors(repos_table, settings)
+        repos_table <- self$pull_repos_contributors(
+          repos_table = repos_table,
+          settings = settings
+        )
       }
       return(repos_table)
     },
@@ -100,13 +69,6 @@ GitHost <- R6::R6Class("GitHost",
                             until = Sys.Date(),
                             settings,
                             storage = NULL) {
-      if (settings$search_mode == "code") {
-        cli::cli_abort(c(
-          "x" = "Pulling commits by code blobs is not supported.",
-          "i" = "Please change your `search_mode` to 'org' with `set_params()`."
-        ),
-        call = NULL)
-      }
       if (private$scan_all) {
         cli::cli_alert_info("[Host:{private$host}] {cli::col_yellow('Pulling commits from all organizations...')}")
       }
@@ -178,6 +140,23 @@ GitHost <- R6::R6Class("GitHost",
         purrr::list_rbind() %>%
         private$add_repo_api_url()
       return(files_table)
+    },
+
+    #' Iterator over pulling release logs from engines
+    pull_release_logs = function(date_from, date_until, settings, storage = NULL) {
+      if (private$scan_all && settings$verbose) {
+        cli::cli_alert_info("[Host:{private$host}] {cli::col_yellow('Pulling release logs from all organizations...')}")
+      }
+      if (is.null(date_until)) {
+        date_until <- Sys.time()
+      }
+      release_logs_table <- private$pull_release_logs_from_host(
+        date_from = date_from,
+        date_until = date_until,
+        settings = settings,
+        storage = storage
+      )
+      return(release_logs_table)
     }
   ),
   private = list(
@@ -374,14 +353,15 @@ GitHost <- R6::R6Class("GitHost",
           cli::cli_alert_warning(cli::col_yellow(
             "No `orgs` specified. I will pull all organizations from the Git Host."
           ))
+          cli::cli_alert_info(cli::col_grey("Searching scope set to [all]."))
           private$scan_all <- TRUE
         }
       }
       if (!is.null(repos) && is.null(orgs)) {
-        cli::cli_alert_info(cli::col_grey("Your search parameter set to [repo]."))
+        cli::cli_alert_info(cli::col_grey("Searching scope set to [repo]."))
       }
       if (is.null(repos) && !is.null(orgs)) {
-        cli::cli_alert_info(cli::col_grey("Your search parameter set to [org]."))
+        cli::cli_alert_info(cli::col_grey("Searching scope set to [org]."))
       }
       if (!is.null(repos) && !is.null(orgs)) {
         cli::cli_abort(c(
@@ -449,7 +429,7 @@ GitHost <- R6::R6Class("GitHost",
 
     # Set repositories
     set_repos = function(settings, org) {
-      if (settings$search_mode == "repo") {
+      if (settings$searching_scope == "repo") {
         repos <- private$orgs_repos[[org]]
       } else {
         repos <- NULL
@@ -478,10 +458,10 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Pull repositories from organizations.
-    pull_repos_from_host = function(code = NULL, settings) {
+    pull_repos_from_host = function(with_code = NULL, settings) {
       orgs <- private$orgs
       if (private$scan_all) {
-        if (settings$search_mode == "code") {
+        if (!is.null(with_code)) {
           orgs <- "no_orgs"
         } else {
           if (settings$verbose) {
@@ -489,15 +469,17 @@ GitHost <- R6::R6Class("GitHost",
           }
         }
       }
-      api_engine <- if (settings$search_mode == "code") {
+      api_engine <- if (!is.null(with_code)) {
         private$set_engine("code")
       } else {
         private$set_engine("repos")
       }
       repos_table <- purrr::map(orgs, function(org) {
+        repos <- private$set_repos(settings, org)
         repos_from_org <- api_engine$pull_repos(
           org = org,
-          code = code,
+          repos = repos,
+          with_code = with_code,
           settings = settings
         )
         return(repos_from_org)

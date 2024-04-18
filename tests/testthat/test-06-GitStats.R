@@ -63,7 +63,8 @@ test_that("check_R_package_as_dependency works", {
 test_that("GitStats get users info", {
   test_gitstats <- create_test_gitstats(hosts = 2)
   users_result <- test_gitstats$get_users(
-    c("maciekbanas", "kalimu", "marcinkowskak")
+    c("maciekbanas", "kalimu", "marcinkowskak"),
+    verbose = FALSE
   )
   expect_users_table(
     users_result
@@ -74,9 +75,7 @@ test_that("get_repos works properly", {
   test_gitstats <- create_test_gitstats(
     hosts = 2
   )
-  suppressMessages(
-    repos_table <- test_gitstats$get_repos()
-  )
+  repos_table <- test_gitstats$get_repos(verbose = FALSE)
   expect_repos_table(
     repos_table,
     repo_cols = repo_gitstats_colnames
@@ -85,25 +84,17 @@ test_that("get_repos works properly", {
 })
 
 test_that("get_repos pulls repositories without contributors", {
-  suppressMessages(
-    set_params(test_gitstats,
-               search_mode = "org",
-               verbose = FALSE)
-  )
-  suppressMessages(
-    repos_table <- test_gitstats$get_repos(add_contributors = FALSE)
-  )
+  repos_table <- test_gitstats$get_repos(add_contributors = FALSE, verbose = FALSE)
   expect_repos_table(repos_table, repo_cols = repo_gitstats_colnames)
   expect_false("contributors" %in% names(repos_table))
 })
 
 test_that("get_commits works properly", {
   test_gitstats <- create_test_gitstats(hosts = 2)
-  suppressMessages(
-    commits_table <- test_gitstats$get_commits(
-      since = "2023-06-15",
-      until = "2023-06-30"
-    )
+  commits_table <- test_gitstats$get_commits(
+    since = "2023-06-15",
+    until = "2023-06-30",
+    verbose = FALSE
   )
   expect_commits_table(
     commits_table
@@ -113,10 +104,9 @@ test_that("get_commits works properly", {
 
 test_that("get_files works properly", {
   test_gitstats <- create_test_gitstats(hosts = 2)
-  suppressMessages(
-    files_table <- test_gitstats$get_files(
-      file_path = "meta_data.yaml"
-    )
+  files_table <- test_gitstats$get_files(
+    file_path = "meta_data.yaml",
+    verbose = FALSE
   )
   expect_files_table(
     files_table
@@ -165,7 +155,7 @@ test_that("get_R_package_usage works as expected", {
     )
   )
   R_package_usage <- test_gitstats$get_R_package_usage(
-    "purrr"
+    package_name = "purrr", verbose = FALSE
   )
   expect_package_usage_table(R_package_usage)
   test_mocker$cache(R_package_usage)

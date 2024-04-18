@@ -101,6 +101,7 @@ test_that("Error shows, when wrong input is passed when setting connection and h
 
   expect_snapshot_error(
     set_gitlab_host(
+      gitstats_object = test_gitstats,
       host = "https://avengers.com",
       token = Sys.getenv("GITLAB_PAT_PUBLIC")
     )

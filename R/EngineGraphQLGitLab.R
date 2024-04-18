@@ -1,7 +1,4 @@
 #' @noRd
-#' @importFrom dplyr relocate
-#'
-#' @title A EngineGraphQLGitLab class
 #' @description A class for methods wrapping GitLab's GraphQL API responses.
 EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
    inherit = EngineGraphQL,
@@ -51,28 +48,27 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      #' @description A method to retrieve all repositories for an organization in
      #'   a table format.
      #' @param org An organization.
-     #' @param code A character, code to search for.
+     #' @param repos Optional, a vector of repositories.
+     #' @param with_code A character, code to search for.
      #' @param settings A list of  `GitStats` settings.
      #' @return A table.
      pull_repos = function(org,
-                           code = NULL,
+                           repos = NULL,
+                           with_code = NULL,
                            settings) {
        org <- URLdecode(org)
-       if (settings$search_mode == "org") {
-         if (!private$scan_all) {
-           if (settings$verbose) {
-             cli::cli_alert_info(
-               "[GitLab][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories..."
-              )
-           }
-         }
-         repos_table <- private$pull_repos_from_org(
-           from = "org",
-           org = org
-         ) %>%
-           private$prepare_repos_table()
-       } else {
-         repos_table <- NULL
+       if (!private$scan_all && settings$verbose) {
+         cli::cli_alert_info(
+           "[GitLab][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories..."
+         )
+       }
+       repos_table <- private$pull_repos_from_org(
+         org = org
+       ) %>%
+         private$prepare_repos_table()
+       if (!is.null(repos)) {
+         repos_table <- repos_table %>%
+           dplyr::filter(repo_name %in% repos)
        }
        return(repos_table)
      }
@@ -82,19 +78,16 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
    private = list(
 
      # @description Iterator over pulling pages of repositories.
-     # @param from A character specifying if organization or user.
      # @param org An organization.
      # @param user A user.
      # @return A list of repositories from organization.
-     pull_repos_from_org = function(from,
-                                    org = NULL,
+     pull_repos_from_org = function(org = NULL,
                                     users = NULL) {
        full_repos_list <- list()
        next_page <- TRUE
        repo_cursor <- ""
        while (next_page) {
          repos_response <- private$pull_repos_page(
-           from = from,
            org = org,
            users = users,
            repo_cursor = repo_cursor
@@ -102,10 +95,8 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
          if (length(repos_response$data$group) == 0) {
            cli::cli_abort("Empty")
          }
-         if (from == "org") {
-           core_response <- repos_response$data$group$projects
-           repos_list <- core_response$edges
-         }
+         core_response <- repos_response$data$group$projects
+         repos_list <- core_response$edges
          next_page <- core_response$pageInfo$hasNextPage
          if (is.null(next_page)) next_page <- FALSE
          if (is.null(repos_list)) repos_list <- list()
@@ -121,24 +112,20 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      },
 
      # @description Wrapper over building GraphQL query and response.
-     # @param from A character specifying if organization or user
      # @param org An organization.
      # @param user A user.
      # @param repo_cursor An end cursor for repos page.
      # @return A list of repositories.
-     pull_repos_page = function(from,
-                                org = NULL,
+     pull_repos_page = function(org = NULL,
                                 users = NULL,
                                 repo_cursor = "") {
-       if (from == "org") {
-         repos_query <- self$gql_query$repos_by_org(
-           repo_cursor = repo_cursor
-         )
-         response <- self$gql_response(
-           gql_query = repos_query,
-           vars = list("org" = org)
-         )
-       }
+       repos_query <- self$gql_query$repos_by_org(
+         repo_cursor = repo_cursor
+       )
+       response <- self$gql_response(
+         gql_query = repos_query,
+         vars = list("org" = org)
+       )
        return(response)
      },
 

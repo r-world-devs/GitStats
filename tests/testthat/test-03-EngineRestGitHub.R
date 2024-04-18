@@ -27,9 +27,10 @@ test_that("`search_response()` performs search with limit under 100", {
   test_mocker$cache(gh_search_repos_response)
 })
 
-test_that("Private `find_by_id()` works", {
-  result <- test_rest_priv$find_repos_by_id(
-    repos_list = test_mocker$use("gh_search_repos_response")
+test_that("Mapping search result to repositories works", {
+  result <- test_rest_priv$map_search_into_repos(
+    search_response = test_mocker$use("gh_search_repos_response"),
+    verbose = FALSE
   )
   expect_list_contains(
     result[[1]],
@@ -46,7 +47,7 @@ test_that("`pull_repos_by_code()` for GitHub prepares a list of repositories", {
   gh_repos_by_code <- test_rest_priv$pull_repos_by_code(
     code = "shiny",
     org = "openpharma",
-    files = NULL
+    settings = test_settings_silence
   )
   expect_gh_search_response(
     gh_repos_by_code[[1]]
@@ -55,10 +56,12 @@ test_that("`pull_repos_by_code()` for GitHub prepares a list of repositories", {
 })
 
 test_that("`pull_repos_by_code()` filters responses for specific files in GitHub", {
+  settings_with_file <- test_settings_silence
+  settings_with_file$files <- "DESCRIPTION"
   gh_repos_by_code <- test_rest_priv$pull_repos_by_code(
     code = "shiny",
     org = "openpharma",
-    files = "DESCRIPTION"
+    settings = settings_with_file
   )
   purrr::walk(gh_repos_by_code, function(repo) {
     expect_gh_search_response(repo)
@@ -94,7 +97,8 @@ test_that("`tailor_repos_info()` tailors precisely `repos_list`", {
 
 test_that("`prepare_repos_table()` prepares repos table", {
   gh_repos_by_code_table <- test_rest_priv$prepare_repos_table(
-    repos_list = test_mocker$use("gh_repos_by_code_tailored")
+    repos_list = test_mocker$use("gh_repos_by_code_tailored"),
+    settings = test_settings_silence
   )
   expect_repos_table(
     gh_repos_by_code_table
@@ -106,7 +110,8 @@ test_that("`pull_repos_issues()` adds issues to repos table", {
   gh_repos_by_code_table <- test_mocker$use("gh_repos_by_code_table")
 
   gh_repos_by_code_table <- test_rest_priv$pull_repos_issues(
-    gh_repos_by_code_table
+    gh_repos_by_code_table,
+    settings = test_settings_silence
   )
   expect_gt(
     length(gh_repos_by_code_table$issues_open),
@@ -146,12 +151,10 @@ test_that("`pull_repos()` works", {
     test_mocker$use("gh_repos_by_code")
   )
 
-  test_settings[["search_mode"]] <- "code"
-
-  expect_snapshot(
+  suppressMessages(
     result <- test_rest$pull_repos(
       org = "r-world-devs",
-      code = "shiny",
+      with_code = "Shiny",
       settings = test_settings
     )
   )

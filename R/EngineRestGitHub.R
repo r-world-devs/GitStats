@@ -1,29 +1,34 @@
 #' @noRd
-#' @title A EngineRestGitHub class
 #' @description A class for methods wrapping GitHub's REST API responses.
 EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
   inherit = EngineRest,
   public = list(
 
     #' @description Method to get repositories with a specific code blob.
-    #' @param org An organization
-    #' @param code A character, code to search for.
+    #' @param org An organization.
+    #' @param repos Optional, a vector of repositories.
+    #' @param with_code A character, code to search for.
     #' @param settings A list of  `GitStats` settings.
     #' @return Table of repositories.
     pull_repos = function(org,
-                          code = NULL,
+                          repos = NULL,
+                          with_code = NULL,
                           settings) {
       if (!private$scan_all && settings$verbose) {
-        cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][code:{code}][org:{org}] Pulling repositories...")
+        cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][code:{with_code}][org:{org}] Pulling repositories...")
       }
       repos_table <- private$pull_repos_by_code(
         org = org,
-        code = code,
-        files = settings$files
+        code = with_code,
+        settings = settings
       ) %>%
         private$tailor_repos_info() %>%
-        private$prepare_repos_table() %>%
-        private$pull_repos_issues()
+        private$prepare_repos_table(
+          settings = settings
+        ) %>%
+        private$pull_repos_issues(
+          settings = settings
+        )
       return(repos_table)
     },
 
@@ -35,20 +40,20 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     pull_repos_supportive = function(org,
                                      settings) {
       repos_table <- NULL
-      if (settings$search_mode %in% c("org")) {
-        if (!private$scan_all) {
-          if (settigs$verbose) {
-            cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
-          }
-        }
-        repos_endpoint <- paste0(self$rest_api_url, "/orgs/", org, "/repos")
-        repos_table <- private$paginate_results(
-          repos_endpoint = repos_endpoint
-        ) %>%
-          private$tailor_repos_info() %>%
-          private$prepare_repos_table() %>%
-          private$pull_repos_issues()
+      if (!private$scan_all && settigs$verbose) {
+        cli::cli_alert_info("[GitHub][Engine:{cli::col_green('REST')}][org:{org}] Pulling repositories...")
       }
+      repos_endpoint <- paste0(private$endpoints[["organizations"]], org, "/repos")
+      repos_table <- private$paginate_results(
+        repos_endpoint = repos_endpoint
+      ) %>%
+        private$tailor_repos_info() %>%
+        private$prepare_repos_table(
+          settings = settings
+        ) %>%
+        private$pull_repos_issues(
+          settings = settings
+        )
       return(repos_table)
     },
 
@@ -67,7 +72,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         user_name <- rlang::expr(.$login)
         repos_table$contributors <- purrr::map_chr(repo_iterator, function(repos_id) {
           tryCatch({
-              contributors_endpoint <- paste0(self$rest_api_url, "/repos/", repos_id, "/contributors")
+              contributors_endpoint <- paste0(private$endpoints[["repositories"]], repos_id, "/contributors")
               contributors_vec <- private$pull_contributors_from_repo(
                 contributors_endpoint = contributors_endpoint,
                 user_name = user_name
@@ -78,6 +83,10 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
               NA
             }
           )
+        }, .progress = if (private$scan_all && settings$verbose) {
+          "[GitHub] Pulling contributors..."
+        } else {
+          FALSE
         })
       }
       return(repos_table)
@@ -87,7 +96,9 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
 
     # List of endpoints
     endpoints = list(
-      search = NULL
+      search = NULL,
+      organizations = NULL,
+      repositories = NULL
     ),
 
     # Set endpoints for the API
@@ -95,6 +106,14 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       private$endpoints[["search"]] <- paste0(
         self$rest_api_url,
         '/search/code?q='
+      )
+      private$endpoints[["organization"]] <- paste0(
+        self$rest_api_url,
+        "/orgs/"
+      )
+      private$endpoints[["repositories"]] <- paste0(
+        self$rest_api_url,
+        "/repos/"
       )
     },
 
@@ -108,7 +127,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     # @return A list of repositories.
     pull_repos_by_code = function(org,
                                   code,
-                                  files,
+                                  settings,
                                   byte_max = "384000") {
       user_query <- if (!private$scan_all) {
         paste0('+user:', org)
@@ -118,6 +137,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       query <- paste0('"', code, '"', user_query)
       search_endpoint <- paste0(private$endpoints[["search"]], query)
       total_n <- self$response(search_endpoint)[["total_count"]]
+      if (settings$verbose) cli::cli_alert_info("[GitHub] Searching for code...")
       if (length(total_n) > 0) {
         repos_list <- private$search_response(
           search_endpoint = search_endpoint,
@@ -126,9 +146,12 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         )
         repos_list <- private$limit_search_to_files(
           repos_list = repos_list,
-          files = files
+          files = settings$files
         )
-        repos_list <- private$find_repos_by_id(repos_list)
+        repos_list <- private$map_search_into_repos(
+          search_response = repos_list,
+          verbose = settings$verbose
+        )
       } else {
         repos_list <- list()
       }
@@ -227,11 +250,11 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     # @description A method to add information on open and closed issues of a repository.
     # @param repos_table A table of repositories.
     # @return A table of repositories with added information on issues.
-    pull_repos_issues = function(repos_table) {
+    pull_repos_issues = function(repos_table, settings) {
       if (nrow(repos_table) > 0) {
         repos_iterator <- paste0(repos_table$organization, "/", repos_table$repo_name)
         issues <- purrr::map_dfr(repos_iterator, function(repo_path) {
-          issues_endpoint <- paste0(self$rest_api_url, "/repos/", repo_path, "/issues")
+          issues_endpoint <- paste0(private$endpoints[["repositories"]], repo_path, "/issues")
 
           issues <- self$response(
             endpoint = issues_endpoint
@@ -241,6 +264,10 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
             "open" = length(purrr::keep(issues, ~ .$state == "open")),
             "closed" = length(purrr::keep(issues, ~ .$state == "closed"))
           )
+        }, .progress = if (settings$verbose) {
+          "Pulling repositories issues..."
+        } else {
+          FALSE
         })
         repos_table$issues_open <- issues$open
         repos_table$issues_closed <- issues$closed
@@ -248,17 +275,19 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       return(repos_table)
     },
 
-    # @description Perform get request to find projects by ids.
-    # @param repos_list A list of repositories - search response.
-    # @return A list of repositories.
-    find_repos_by_id = function(repos_list) {
-      ids <- purrr::map_chr(repos_list, ~ as.character(.$repository$id)) %>%
+    # Parse search response into repositories output
+    map_search_into_repos = function(search_response, verbose) {
+      repos_ids <- purrr::map_chr(search_response, ~ as.character(.$repository$id)) %>%
         unique()
-      repos_list <- purrr::map(ids, function(x) {
+      repos_list <- purrr::map(repos_ids, function(repo_id) {
         content <- self$response(
-          endpoint = paste0(self$rest_api_url, "/repositories/", x)
+          endpoint = paste0(self$rest_api_url, "/repositories/", repo_id)
         )
-      })
+      }, .progress = if (verbose) {
+        "Parsing search response into respositories output..."
+        } else {
+          FALSE
+        })
       repos_list
     }
   )

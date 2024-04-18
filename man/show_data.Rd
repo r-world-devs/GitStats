@@ -4,10 +4,10 @@
 \alias{show_data}
 \title{Show data stored in GitStats}
 \usage{
-show_data(gitstats_obj, storage)
+show_data(gitstats_object, storage)
 }
 \arguments{
-\item{gitstats_obj}{A GitStats object.}
+\item{gitstats_object}{A GitStats object.}
 
 \item{storage}{Table of \code{repositories}, \code{commits}, \code{users}, \code{files},
 \code{release_logs} or \code{R_package_usage}.}

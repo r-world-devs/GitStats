@@ -1,7 +1,4 @@
 #' @noRd
-#' @importFrom dplyr distinct mutate filter
-#'
-#' @title A EngineGraphQLGitHub class
 #' @description A class for methods wrapping GitHub's GraphQL API responses.
 EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     inherit = EngineGraphQL,
@@ -25,7 +22,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       end_cursor <- NULL
       has_next_page <- TRUE
       full_orgs_list <- list()
-      while(has_next_page) {
+      while (has_next_page) {
         response <- self$gql_response(
           gql_query = self$gql_query$orgs(
             end_cursor = end_cursor
@@ -48,20 +45,24 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     #' @description A method to retrieve all repositories for an organization in
     #'   a table format.
     #' @param org An organization.
-    #' @param code A character, code to search for.
+    #' @param repos Optional, a vector of repositories.
+    #' @param with_code A character, code to search for.
     #' @param settings A list of  `GitStats` settings.
     #' @return A table.
     pull_repos = function(org,
-                          code = NULL,
+                          repos = NULL,
+                          with_code = NULL,
                           settings) {
-      if (settings$search_mode == "org") {
-        if (!private$scan_all && settings$verbose) {
-          cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
-        }
-        repos_table <- private$pull_repos_from_org(
-          org = org
-        ) %>%
-          private$prepare_repos_table()
+      if (!private$scan_all && settings$verbose) {
+        cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling repositories...")
+      }
+      repos_table <- private$pull_repos_from_org(
+        org = org
+      ) %>%
+        private$prepare_repos_table()
+      if (!is.null(repos)) {
+        repos_table <- repos_table %>%
+          dplyr::filter(repo_name %in% repos)
       }
       return(repos_table)
     },
@@ -86,24 +87,20 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         settings = settings,
         storage = storage
       )
-      if (settings$search_mode %in% c("org", "repo")) {
-        if (!private$scan_all) {
-          if (settings$verbose) {
-            if (settings$search_mode == "org") {
-              cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling commits...")
-            }
-            if (settings$search_mode == "repo") {
-              cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][custom repositories] Pulling commits...")
-            }
-          }
+      if (!private$scan_all && settings$verbose) {
+        if (settings$searching_scope == "org") {
+          cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}] Pulling commits...")
         }
-        repos_list_with_commits <- private$pull_commits_from_repos(
-          org = org,
-          repos = repos_names,
-          date_from = date_from,
-          date_until = date_until
-        )
+        if (settings$searching_scope == "repo") {
+          cli::cli_alert_info("[GitHub][Engine:{cli::col_yellow('GraphQL')}][org:{org}][custom repositories] Pulling commits...")
+        }
       }
+      repos_list_with_commits <- private$pull_commits_from_repos(
+        org = org,
+        repos = repos_names,
+        date_from = date_from,
+        date_until = date_until
+      )
       names(repos_list_with_commits) <- repos_names
 
       commits_table <- repos_list_with_commits %>%
