@@ -1,7 +1,4 @@
 #' @noRd
-#' @importFrom dplyr relocate
-#'
-#' @title A EngineGraphQLGitLab class
 #' @description A class for methods wrapping GitLab's GraphQL API responses.
 EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
    inherit = EngineGraphQL,

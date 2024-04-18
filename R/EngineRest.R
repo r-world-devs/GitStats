@@ -1,9 +1,4 @@
 #' @noRd
-#' @importFrom httr2 request req_headers req_perform resp_body_json
-#' @importFrom cli cli_abort col_green
-#' @importFrom rlang %||%
-#'
-#' @title A EngineRest class
 #' @description A superclass for methods wrapping Rest API responses.
 EngineRest <- R6::R6Class("EngineRest",
   public = list(
