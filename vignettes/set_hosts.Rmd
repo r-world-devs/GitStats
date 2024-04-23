@@ -1,0 +1,95 @@
+---
+title: "Setting hosts"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Setting hosts}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 4
+)
+```
+
+## Connect to GitHub and/or GitLab
+
+To run `GitStats` you need first to set hosts.
+
+To set connections try:
+
+```{r}
+library(GitStats)
+
+git_stats <- create_gitstats() %>%
+  set_github_host(
+    orgs = c("r-world-devs", "openpharma"),
+    token = Sys.getenv("GITHUB_PAT")
+  ) %>%
+  set_gitlab_host(
+    orgs = c("mbtests"),
+    token = Sys.getenv("GITLAB_PAT_PUBLIC")
+  )
+```
+
+If you have your access tokens stored in environment variables with such names as `GITHUB_PAT` or `GITHUB_PAT_*` and `GITLAB_PAT` or `GITLAB_PAT_*` you do not need to specify them in `set_*_host()` functions, `GitStats` will automatically find them.
+
+```{r, eval = FALSE}
+git_stats <- create_gitstats() %>%
+  set_github_host(
+    orgs = c("r-world-devs", "openpharma")
+  ) %>%
+  set_gitlab_host(
+    orgs = c("mbtests")
+  )
+```
+
+If you wish to connect to internal GitHub or GitLab, you need to pass argument to `host` parameter. 
+
+```r
+git_stats <- create_gitstats() %>%
+  set_github_host(
+    host = "github.internal.com",
+    orgs = c("org_1", "org_2", "org_3"),
+    token = Sys.getenv("YOUR_GITHUB_PAT")
+  ) %>%
+  set_gitlab_host(
+    host = "internal.host.com",
+    orgs = c("internal_org"),
+    token = Sys.getenv("YOUR_GITLAB_PAT")
+  )
+```
+
+### Set repositories for searching scope
+
+Instead of scanning whole organizations, you might be interested in scanning particular repositories. In that case pass a vector of full names of repositories to `repos` parameter while skipping `orgs`.
+
+```{r, eval = FALSE}
+git_stats <- create_gitstats() %>%
+  set_github_host(
+    repos = c("r-world-devs/GitStats", "r-world-devs/shinyCohortBuilder", "openpharma/DataFakeR")
+  ) %>%
+  set_gitlab_host(
+    orgs = c("mbtests")
+  )
+```
+
+### Set whole GitStats platforms to scan
+
+This is possible in case of private hosts, as public ones are deemed to be too large. To set whole Git platform to be scanned just set hosts withour specifying `orgs` or `repos`.
+
+```r
+git_stats <- create_gitstats() %>%
+  set_github_host(
+    host = "github.internal.com",
+    token = Sys.getenv("YOUR_GITHUB_PAT")
+  ) %>%
+  set_gitlab_host(
+    host = "internal.host.com",
+    token = Sys.getenv("YOUR_GITLAB_PAT")
+  )
+```

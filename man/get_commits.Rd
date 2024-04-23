@@ -8,7 +8,7 @@ get_commits(
   gitstats_object,
   since = NULL,
   until = NULL,
-  use_storage = TRUE,
+  cache = TRUE,
   verbose = is_verbose(gitstats_object)
 )
 }
@@ -19,9 +19,10 @@ get_commits(
 
 \item{until}{An end date.}
 
-\item{use_storage}{A logical, should storage be used.}
+\item{cache}{A logical, if \code{TRUE}, cached results will be used.}
 
-\item{verbose}{A logical, should verbose mode be used.}
+\item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and
+printing output is switched off.}
 }
 \value{
 A \code{GitStats} class object with commits table.

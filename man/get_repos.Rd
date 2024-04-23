@@ -8,7 +8,7 @@ get_repos(
   gitstats_object,
   add_contributors = TRUE,
   with_code = NULL,
-  use_storage = TRUE,
+  cache = TRUE,
   verbose = is_verbose(gitstats_object)
 )
 }
@@ -29,9 +29,10 @@ additional information.}
 \item{with_code}{A character, if  defined, GitStats will pull repositories
 with specified text in code blobs.}
 
-\item{use_storage}{A logical, should storage be used.}
+\item{cache}{A logical, if \code{TRUE}, cached results will be used.}
 
-\item{verbose}{A logical, should verbose mode be used.}
+\item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and
+printing output is switched off.}
 }
 \description{
 List all repositories for an organization or by a keyword.

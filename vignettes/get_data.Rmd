@@ -1,0 +1,81 @@
+---
+title: "Get data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Get data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 4
+)
+```
+
+Set connections to hosts.
+
+> Example workflow makes use of public GitHub and GitLab, but it is plausible, that you will use your internal git platforms, where you need to define `host` parameter. See vignette("set_hosts") article on that.
+
+```{r}
+library(GitStats)
+
+git_stats <- create_gitstats() %>%
+  set_github_host(
+    orgs = c("r-world-devs", "openpharma"),
+    token = Sys.getenv("GITHUB_PAT")
+  ) %>%
+  set_gitlab_host(
+    orgs = c("mbtests"),
+    token = Sys.getenv("GITLAB_PAT_PUBLIC")
+  )
+```
+
+By default your search preferences are set to `organizations` (`org`), which means that `GitStats` will pull all repositories from the organizations you specified in `set_*_host()`.
+
+```{r}
+get_repos(git_stats)
+```
+
+## Storage
+
+After pulling, the data is saved to `GitStats`. Caching feature is by default turned on. If you run the `get_*()` function once more, data will be retrieved from `GitStats` object.
+
+```{r}
+get_repos(git_stats)
+```
+
+Unless, you switch off the cache.
+
+```{r}
+get_repos(git_stats, cache = FALSE)
+```
+
+## Verbose mode
+
+If messages overwhelm you, you can switch them off.
+
+```{r}
+get_commits(git_stats, since = "2024-01-01", verbose = FALSE)
+```
+
+## Pull repositories with code
+
+Apart from pulling all repositories from organizations, you can look for those that have a particular text in a `code blob`:
+
+```{r}
+git_stats <- create_gitstats() %>%
+  set_github_host(
+    orgs = c("r-world-devs", "openpharma"),
+    token = Sys.getenv("GITHUB_PAT")
+  ) %>%
+  set_gitlab_host(
+    orgs = c("mbtests"),
+    token = Sys.getenv("GITLAB_PAT_PUBLIC")
+  )
+
+get_repos(git_stats, with_code = "Shiny")
+```

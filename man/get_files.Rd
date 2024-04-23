@@ -7,7 +7,7 @@
 get_files(
   gitstats_object,
   file_path,
-  use_storage = TRUE,
+  cache = TRUE,
   verbose = is_verbose(gitstats_object)
 )
 }
@@ -17,9 +17,10 @@ get_files(
 \item{file_path}{A standardized path to file(s) in repositories. May be a
 character vector if multiple files are to be pulled.}
 
-\item{use_storage}{A logical, should storage be used.}
+\item{cache}{A logical, if \code{TRUE}, cached results will be used.}
 
-\item{verbose}{A logical, should verbose mode be used.}
+\item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and
+printing output is switched off.}
 }
 \value{
 A \code{GitStats} object with table of files.

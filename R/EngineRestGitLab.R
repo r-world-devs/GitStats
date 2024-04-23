@@ -4,93 +4,94 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
   inherit = EngineRest,
   public = list(
 
-    #' @description A method to retrieve all repositories for an organization in
-    #'   a table format.
-    #' @param org A character, a group of projects.
-    #' @param repos Optional, a vector of repositories.
-    #' @param with_code A character, code to search for.
-    #' @param settings A list of  `GitStats` settings.
-    #' @return A table.
-    pull_repos = function(org,
-                          repos = NULL,
-                          with_code = NULL,
-                          settings) {
-
-      if (!private$scan_all && settings$verbose) {
-        cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][code:{with_code}][org:{URLdecode(org)}] Pulling repositories...")
+    # Wrapper for iteration over GitLab search API response
+    # @details For the time being there is no possibility to search GitLab with
+    #   filtering by language. For more information look here:
+    #   https://gitlab.com/gitlab-org/gitlab/-/issues/340333
+    pull_repos_by_code = function(org = NULL,
+                                  code,
+                                  verbose,
+                                  settings,
+                                  page_max = 1e6) {
+      private$set_verbose(verbose)
+      page <- 1
+      still_more_hits <- TRUE
+      full_repos_list <- list()
+      private$set_search_endpoint(org)
+      if (private$verbose) {
+        cli::cli_alert_info("[GitLab] Searching for code...")
       }
-      repos_table <- private$pull_repos_by_code(
-        org = org,
-        code = with_code,
-        settings = settings
-      ) %>%
-        private$tailor_repos_info() %>%
-        private$prepare_repos_table(
-          settings = settings
-        ) %>%
-        private$pull_repos_issues(
-          settings = settings
+      while (still_more_hits | page < page_max) {
+        repos_list <- self$response(
+          paste0(
+            private$endpoints[["search"]],
+            "%22",
+            code,
+            "%22&per_page=100&page=",
+            page
+          )
         )
+        if (length(repos_list) == 0) {
+          still_more_hits <- FALSE
+          break()
+        } else {
+          repos_list <- private$limit_search_to_files(
+            repos_list = repos_list,
+            files = settings$files
+          )
+          full_repos_list <- append(full_repos_list, repos_list)
+          page <- page + 1
+        }
+      }
+      full_repos_list <- full_repos_list %>%
+        private$map_search_into_repos() %>%
+        private$pull_repos_languages()
+      return(full_repos_list)
+    },
+
+    # Add information on open and closed issues of a repository.
+    pull_repos_issues = function(repos_table) {
+      if (nrow(repos_table) > 0) {
+        issues <- purrr::map(repos_table$repo_id, function(repos_id) {
+          id <- gsub("gid://gitlab/Project/", "", repos_id)
+          issues_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/issues_statistics")
+
+          self$response(
+            endpoint = issues_endpoint
+          )[["statistics"]][["counts"]]
+        }, .progress = if (private$verbose) {
+          "Pulling repositories issues..."
+        } else {
+          FALSE
+        })
+        repos_table$issues_open <- purrr::map_dbl(issues, ~ .$opened)
+        repos_table$issues_closed <- purrr::map_dbl(issues, ~ .$closed)
+      }
       return(repos_table)
     },
 
-    #' @description An empty method to satisfy engine iterator.
-    #' @param org An organization.
-    #' @param settings A list of  `GitStats` settings.
-    #' @return Nothing.
-    pull_repos_supportive = function(org,
-                                     settings) {
-      repos_table <- NULL
-      if (!private$scan_all && settings$verbose) {
-        cli::cli_alert_info(
-          "[GitLab][Engine:{cli::col_green('REST')}][org:{URLdecode(org)}] Pulling repositories..."
-        )
-      }
-      org <- private$get_group_id(org)
-      repos_table <- private$pull_repos_from_org(org, settings) %>%
-        private$tailor_repos_info() %>%
-        private$prepare_repos_table(
-          settings = settings
-        ) %>%
-        private$pull_repos_issues(
-          settings = settings
-        )
-      return(repos_table)
-    },
-
-    #' @description A method to add information on repository contributors.
-    #' @param repos_table A table of repositories.
-    #' @param settings GitStats settings.
-    #' @return A table of repositories with added information on contributors.
+    #' Add information on repository contributors.
     pull_repos_contributors = function(repos_table, settings) {
       if (nrow(repos_table) > 0) {
-        if (!private$scan_all && settings$verbose) {
-          cli::cli_alert_info(
-            "[GitLab][Engine:{cli::col_green('REST')}][org:{unique(repos_table$organization)}] Pulling contributors..."
-          )
-        }
-        repo_iterator <- repos_table$repo_id
+        repo_urls <- repos_table$api_url
         user_name <- rlang::expr(.$name)
-        repos_table$contributors <- purrr::map_chr(repo_iterator, function(repos_id) {
-          id <- gsub("gid://gitlab/Project/", "", repos_id)
-          tryCatch({
-            contributors_endpoint <- paste0(
-              private$endpoints[["projects"]],
-              id,
-              "/repository/contributors"
-            )
-            contributors_vec <- private$pull_contributors_from_repo(
+        repos_table$contributors <- purrr::map_chr(repo_urls, function(repo_url) {
+          contributors_endpoint <- paste0(
+            repo_url,
+            "/repository/contributors"
+          )
+          contributors_vec <- tryCatch({
+            private$pull_contributors_from_repo(
               contributors_endpoint = contributors_endpoint,
               user_name = user_name
             )
-            return(contributors_vec)
             },
             error = function(e) {
               NA
-            }
-          )
-        }, .progress = if (private$scan_all && settings$verbose) {
-          "[GitLab] Pulling contributors..."
+          })
+          return(contributors_vec)
+        }, .progress = if (private$scan_all && private$verbose) {
+          "[GitHost:GitLab] Pulling contributors..."
         } else {
           FALSE
         })
@@ -98,37 +99,14 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(repos_table)
     },
 
-    #' @description GitLab private method to derive
-    #'   commits from repo with REST API.
-    #' @param org A character, a group of projects.
-    #' @param repos A character vector of repositories.
-    #' @param date_from A starting date to look commits for.
-    #' @param date_until An end date to look commits for.
-    #' @param settings A list of  `GitStats` settings.
-    #' @param storage A storage of `GitStats` object.
-    #' @return A table of commits.
+    #' Pull commits from repo with REST API.
     pull_commits = function(org = NULL,
-                            repos = NULL,
+                            repos_names = NULL,
                             date_from,
                             date_until = Sys.date(),
-                            settings,
-                            storage = NULL) {
-      repos_names <- private$set_repositories(
-        repos = repos,
-        org = org,
-        settings = settings,
-        storage = storage
-      )
-      if (!private$scan_all) {
-        org_disp <- stringr::str_replace_all(org, "%2f", "/")
-        if (settings$verbose) {
-          if (settings$searching_scope == "org") {
-            cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org_disp}] Pulling commits...")
-          } else if (settings$searching_scope == "repo") {
-            cli::cli_alert_info("[GitLab][Engine:{cli::col_green('REST')}][org:{org_disp}][custom repositories] Pulling commits...")
-          }
-        }
-      }
+                            verbose,
+                            settings) {
+      private$set_verbose(verbose)
       commits_table <- private$pull_commits_from_repos(
         repos_names = repos_names,
         date_from = date_from,
@@ -182,35 +160,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       paste0("/groups/", private$get_group_id(org))
     },
 
-    # Set repositories for pulling commits
-    set_repositories = function(repos, org, settings, storage) {
-      if (is.null(repos)) {
-        if (is.null(storage$repositories)) {
-          repos_table <- self$pull_repos_supportive(
-            org = org,
-            settings = settings
-          )
-        } else {
-          if (settings$verbose) {
-            cli::cli_alert_info("Using repositories stored in `GitStats` object.")
-          }
-          repos_table <- storage$repositories %>%
-            dplyr::filter(
-              organization == org
-            )
-        }
-        gitlab_web_url <- stringr::str_extract(self$rest_api_url, "^.*?(?=api)")
-        repos <- stringr::str_remove(repos_table$repo_url, gitlab_web_url)
-        repos_names <- stringr::str_replace_all(repos, "/", "%2f")
-      } else {
-        repos_names <- paste0(org, "%2f", repos)
-      }
-      return(repos_names)
-    },
-
-    # @description Iterator over pulling pages of repositories.
-    # @param org A character, a group of projects.
-    # @return A list of repositories from organization.
+    # Iterator over pulling pages of repositories.
     pull_repos_from_org = function(org, settings) {
       repo_endpoint <- paste0(self$rest_api_url, "/groups/", org, "/projects")
       repos_response <- private$paginate_results(
@@ -223,55 +173,8 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(full_repos_list)
     },
 
-    # @description Perform get request to search API.
-    # @details For the time being there is no possibility to search GitLab with
-    #   filtering by language. For more information look here:
-    #   https://gitlab.com/gitlab-org/gitlab/-/issues/340333
-    # @param code A code to look for in codelines.
-    # @param org A character, a group of projects.
-    # @param page_max An integer, maximum number of pages.
-    # @return A list of repositories.
-    pull_repos_by_code = function(code,
-                                  org,
-                                  settings,
-                                  page_max = 1e6) {
-      page <- 1
-      still_more_hits <- TRUE
-      full_repos_list <- list()
-      private$set_search_endpoint(org)
-      if (settings$verbose) {
-        if (settings$verbose) cli::cli_alert_info("[GitLab] Searching for code...")
-      }
-      while (still_more_hits | page < page_max) {
-        repos_list <- self$response(
-          paste0(
-            private$endpoints[["search"]],
-            "%22",
-            code,
-            "%22&per_page=100&page=",
-            page
-          )
-        )
-        if (length(repos_list) == 0) {
-          still_more_hits <- FALSE
-          break()
-        } else {
-          repos_list <- private$limit_search_to_files(
-            repos_list = repos_list,
-            files = settings$files
-          )
-          full_repos_list <- append(full_repos_list, repos_list)
-          page <- page + 1
-        }
-      }
-      full_repos_list <- full_repos_list %>%
-        private$map_search_into_repos(verbose = settings$verbose) %>%
-        private$pull_repos_languages(verbose = settings$verbose)
-      return(full_repos_list)
-    },
-
     # Parse search response into repositories output
-    map_search_into_repos = function(search_response, verbose) {
+    map_search_into_repos = function(search_response) {
       repos_ids <- purrr::map_chr(search_response, ~ as.character(.$project_id)) %>%
         unique()
 
@@ -279,7 +182,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         content <- self$response(
           endpoint = paste0(private$endpoints[["projects"]], repo_id)
         )
-      }, .progress = if (verbose) {
+      }, .progress = if (private$verbose) {
         "Parsing search response into repositories output..."
       } else {
         FALSE
@@ -287,15 +190,13 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(repos_list)
     },
 
-    # @description Pull languages of repositories.
-    # @param repos_list A list of repositories.
-    # @return A list of repositories with 'languages' slot.
-    pull_repos_languages = function(repos_list, verbose) {
+    # Pull languages of repositories.
+    pull_repos_languages = function(repos_list) {
       repos_list_with_languages <- purrr::map(repos_list, function(repo) {
         id <- repo$id
         repo$languages <- names(self$response(paste0(private$endpoints[["projects"]], id, "/languages")))
         repo
-      }, .progress = if (verbose) {
+      }, .progress = if (private$verbose) {
         "Pulling reposiotories languages..."
       } else {
         FALSE
@@ -303,57 +204,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(repos_list_with_languages)
     },
 
-    # @description A helper to retrieve only important info on repos
-    # @param projects_list A list, a formatted content of response returned by GET API request
-    # @return A list of repos with selected information
-    tailor_repos_info = function(projects_list) {
-      projects_list <- purrr::map(projects_list, function(project) {
-        list(
-          "repo_id" = project$id,
-          "repo_name" = project$name,
-          "default_branch" = project$default_branch,
-          "stars" = project$star_count,
-          "forks" = project$fork_count,
-          "created_at" = project$created_at,
-          "last_activity_at" = project$last_activity_at,
-          "languages" = paste0(project$languages, collapse = ", "),
-          "issues_open" = project$issues_open,
-          "issues_closed" = project$issues_closed,
-          "organization" = project$namespace$path,
-          "repo_url" = project$web_url
-        )
-      })
-      projects_list
-    },
-
-    # @description A method to add information on open and closed issues of a repository.
-    # @param repos_table A table of repositories.
-    # @return A table of repositories with added information on issues.
-    pull_repos_issues = function(repos_table, settings) {
-      if (nrow(repos_table) > 0) {
-        issues <- purrr::map(repos_table$repo_id, function(repos_id) {
-          id <- gsub("gid://gitlab/Project/", "", repos_id)
-          issues_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/issues_statistics")
-
-          self$response(
-            endpoint = issues_endpoint
-          )[["statistics"]][["counts"]]
-        }, .progress = if (settings$verbose) {
-          "Pulling repositories issues..."
-          } else {
-            FALSE
-          })
-        repos_table$issues_open <- purrr::map_dbl(issues, ~ .$opened)
-        repos_table$issues_closed <- purrr::map_dbl(issues, ~ .$closed)
-      }
-      return(repos_table)
-    },
-
-    # @description Method to pull all commits from organization.
-    # @param repos_names Character vector of repositories names.
-    # @param date_from A starting date to look commits for.
-    # @param date_until An end date to look commits for.
-    # @return A list of repositories with commits.
+    # Pull all commits from give repositories.
     pull_commits_from_repos = function(repos_names,
                                        date_from,
                                        date_until) {
@@ -369,17 +220,12 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(repos_list_with_commits)
     },
 
-    # @description Iterator over pages of commits response.
-    # @param repo_path A repo url path.
-    # @param date_from A starting date to look commits for.
-    # @param date_until An end date to look commits for.
-    # @return A list of commits.
+    # Iterator over pages of commits response.
     pull_commits_from_one_repo = function(repo_path,
                                           date_from,
                                           date_until) {
       commits_endpoint <- paste0(
-        self$rest_api_url,
-        "/projects/",
+        private$endpoints$projects,
         repo_path,
         "/repository/commits?since='",
         as.Date(date_from),
@@ -387,17 +233,18 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         as.Date(date_until),
         "'&with_stats=true"
       )
-      all_commits_in_repo <- private$paginate_results(
-        endpoint = commits_endpoint,
-        joining_sign = "&"
-      )
+      all_commits_in_repo <- tryCatch({
+        private$paginate_results(
+          endpoint = commits_endpoint,
+          joining_sign = "&"
+        )
+      }, error = function (e) {
+        list()
+      })
       return(all_commits_in_repo)
     },
 
-    # @description A helper to retrieve only important info on commits.
-    # @param repos_list_with_commits A list of repositories with commits.
-    # @param org A character, name of a group.
-    # @return A list of commits with selected information.
+    # Get only important info on commits.
     tailor_commits_info = function(repos_list_with_commits,
                                    org) {
       repos_list_with_commits_cut <- purrr::map(repos_list_with_commits, function(repo) {
