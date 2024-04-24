@@ -17,6 +17,7 @@ RoxygenNote: 7.3.1
 Imports:
     cli,
     dplyr,
+    glue,
     httr2,
     lubridate,
     magrittr,

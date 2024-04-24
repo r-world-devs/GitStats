@@ -344,31 +344,6 @@ show_orgs <- function(gitstats_object){
   gitstats_object$show_orgs()
 }
 
-#' @title Show data stored in GitStats
-#' @name show_data
-#' @description Retrieves table stored in `GitStats` object.
-#' @param gitstats_object A GitStats object.
-#' @param storage Table of `repositories`, `commits`, `users`, `files`,
-#'   `release_logs` or `R_package_usage`.
-#' @examples
-#' \dontrun{
-#'  my_gitstats <- create_gitstats() %>%
-#'   set_host(
-#'     api_url = "https://api.github.com",
-#'     token = Sys.getenv("GITHUB_PAT"),
-#'     orgs = c("r-world-devs")
-#'   ) %>%
-#'   get_repos()
-#'   show_data(my_gistats, "repositories")
-#' }
-#' @return A table.
-#' @export
-show_data <- function(gitstats_object, storage) {
-  gitstats_object$show_data(
-    storage = storage
-  )
-}
-
 #' @title Switch on verbose mode
 #' @name verbose_on
 #' @description Print all messages and output.

@@ -80,7 +80,7 @@ git_stats <- create_gitstats() %>%
 
 ### Set whole GitStats platforms to scan
 
-This is possible in case of private hosts, as public ones are deemed to be too large. To set whole Git platform to be scanned just set hosts withour specifying `orgs` or `repos`.
+This is possible in case of private hosts, as public ones are deemed to be too large. To set whole Git platform to be scanned just set hosts without specifying `orgs` or `repos`.
 
 ```r
 git_stats <- create_gitstats() %>%

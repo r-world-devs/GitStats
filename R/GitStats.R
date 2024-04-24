@@ -134,7 +134,8 @@ GitStats <- R6::R6Class("GitStats",
     #' @title Get statistics on commits
     #' @name get_commits_stats
     #' @description Prepare statistics from the pulled commits data.
-    #' @param time_interval A character, specifying time interval to show statistics.
+    #' @param time_interval A character, specifying time interval to show
+    #'   statistics.
     #' @return A table of `commits_stats` class.
     get_commits_stats = function(time_interval = c("month", "day", "week")){
       commits <- private$storage[["commits"]]
@@ -285,29 +286,6 @@ GitStats <- R6::R6Class("GitStats",
         orgs <- host$.__enclos_env__$private$orgs
         purrr::map_vec(orgs, ~ URLdecode(.))
         }) %>% unlist()
-    },
-
-    #' @description Retrieves table stored in `GitStats` object.
-    #' @param storage Table of `repositories`, `commits`, `users`, `files` or
-    #'   `R_package_usage`.
-    #' @return A table.
-    show_data = function(storage) {
-      storage <- match.arg(
-        arg = storage,
-        choices = c("repos", "repositories", "commits", "files", "users",
-                    "R_package_usage", "package_usage", "releases", "release_logs")
-      )
-      if (storage == "repos") {
-        storage <- "repositories"
-      }
-      if (storage == "package_usage") {
-        storage <- "R_package_usage"
-      }
-      if (storage == "releases") {
-        storage <- "release_logs"
-      }
-      storage <- private$storage[[storage]]
-      return(storage)
     },
 
     #' @description switch on verbose mode

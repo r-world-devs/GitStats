@@ -6,7 +6,7 @@
 
 ## Simplifying workflow:
 
-- GitStats workflow is now simplified. To pull data on `repositories`, `commits`, `R_package_usage` you should use directly corresponding `get_*()` functions instead of `pull_*()` which are deprecated. These `get_*()` functions pull data from API, parse it into table, add some goodies (additional columns) if needed and return table instead of `GitStats` object, which in our opinion is more intuitive and user-friendly ([#345]((https://github.com/r-world-devs/GitStats/issues/345))). That means you do not need to run in pipe two or three additional function calls as before, e.g. `pull_repos(gitstats_object) %>% get_repos() %>% get_repos_stats()`, but you just run
+- GitStats workflow is now simplified. To pull data on `repositories`, `commits`, `R_package_usage` or other you should use directly corresponding `get_*()` functions instead of `pull_*()` which are deprecated. These `get_*()` functions pull data from API, parse it into table, add some goodies (additional columns) if needed and return table instead of `GitStats` object, which in our opinion is more intuitive and user-friendly ([#345]((https://github.com/r-world-devs/GitStats/issues/345))). That means you do not need to run in pipe two or three additional function calls as before, e.g. `pull_repos(gitstats_object) %>% get_repos() %>% get_repos_stats()`, but you just run
 `get_repos(gitstats_object)` to get data you need.
 - Moreover, if you run for the second time `get_*()` function GitStats will pull the data from its storage and not from API as for the first time, unless you change parameters for the function (e.g. starting date with `since` in `get_commits()`) or change directly the `use_storage` parameter in the function. ([#333](https://github.com/r-world-devs/GitStats/issues/333))
 - `pull_repos_contributors()` as a separate function is deprecated. The parameter `add_contributors` is now set by  default to `TRUE` in `get_repos()` which seems more reasonable as user gets all the data.
@@ -15,7 +15,7 @@
 ## Changes to setting parameters and pulling repositories by code:
 
 - `set_params()` function is removed. ([#386](https://github.com/r-world-devs/GitStats/issues/386)) Now the logic is moved straight to `get_*` functions. For example, if you want to pull repositories with specific `code blob`, you do not need to define anything with `set_params()` (as previously with `search_mode` and `phrase` parameter) but you just simply run `get_repos(with_code = 'your_code')`. ([#333](https://github.com/r-world-devs/GitStats/issues/333))
-- New logical parameters have been introduced for limiting messages to user when pulling data (`verbose`) - you can turn it on/off with  `verbose_on()`/`verbose_off()` functions.
+- New logical parameters have been introduced for limiting messages to user when pulling data (`verbose`) - these parameters can be set in all `get_*()` functions. You can also turn the verbose mode on/off globally with `verbose_on()`/`verbose_off()` functions.
 
 ## Deprecate:
 
@@ -27,7 +27,6 @@
 ## New features:
 
 - Added `get_release_logs()` ([#356](https://github.com/r-world-devs/GitStats/issues/356)).
-- Added `show_data()` function, where user passes the name of the object he wants to retrieve (e.g. `repos`, `commits`, `package_usage`) to the `storage` parameter.
 - `get_orgs()` is renamed to `show_orgs()` to reflect that it does not pull data from API, but only shows what is in `GitStats` object.
 
 ## Minor features:

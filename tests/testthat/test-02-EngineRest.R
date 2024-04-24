@@ -62,7 +62,7 @@ test_rest <- create_testrest(
   token = Sys.getenv("GITLAB_PAT_PUBLIC")
 )
 
-test_that("`response()` returns commits response from GitLab's REST API", {
+test_that("`response()` returns responses from GitLab's REST API", {
   gl_search_response <- test_rest$response(
     "https://gitlab.com/api/v4/groups/9970/search?scope=blobs&search=git"
   )
