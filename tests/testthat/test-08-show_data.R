@@ -16,8 +16,7 @@ test_that("show_data() returns repos table", {
     test_gitstats,
     storage = "repos"
   )
-  expect_repos_table(repos_table, repo_cols = repo_gitstats_colnames,
-                     add_col = c("contributors", "contributors_n"))
+  expect_repos_table(repos_table, repo_cols = repo_gitstats_colnames)
 })
 
 test_that("show_data() returns commits table", {

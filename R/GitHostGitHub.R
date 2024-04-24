@@ -174,12 +174,11 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
           org = org,
           settings = settings
         )
-        commits_table_org <- graphql_engine$pull_commits_from_org(
+        commits_table_org <- graphql_engine$pull_commits_from_repos(
           org = org,
           repos_names = repos_names,
           date_from = since,
-          date_until = until,
-          settings = settings
+          date_until = until
         ) %>%
           private$prepare_commits_table(org)
         return(commits_table_org)
@@ -249,16 +248,16 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
     prepare_user_table = function(user_response) {
       if (!is.null(user_response$data$user)) {
         user_data <- user_response$data$user
-        user_data$name <- user_data$name %||% ""
-        user_data$starred_repos <- user_data$starred_repos$totalCount
-        user_data$commits <- user_data$contributions$totalCommitContributions
-        user_data$issues <- user_data$contributions$totalIssueContributions
-        user_data$pull_requests <- user_data$contributions$totalPullRequestContributions
-        user_data$reviews <- user_data$contributions$totalPullRequestReviewContributions
-        user_data$contributions <- NULL
-        user_data$email <- user_data$email %||% ""
-        user_data$location <- user_data$location %||% ""
-        user_data$web_url <- user_data$web_url %||% ""
+        user_data[["name"]] <- user_data$name %||% ""
+        user_data[["starred_repos"]] <- user_data$starred_repos$totalCount
+        user_data[["commits"]] <- user_data$contributions$totalCommitContributions
+        user_data[["issues"]] <- user_data$contributions$totalIssueContributions
+        user_data[["pull_requests"]] <- user_data$contributions$totalPullRequestContributions
+        user_data[["reviews"]] <- user_data$contributions$totalPullRequestReviewContributions
+        user_data[["contributions"]] <- NULL
+        user_data[["email"]] <- user_data$email %||% ""
+        user_data[["location"]] <- user_data$location %||% ""
+        user_data[["web_url"]] <- user_data$web_url %||% ""
         user_table <- tibble::as_tibble(user_data) %>%
           dplyr::relocate(c(commits, issues, pull_requests, reviews),
                           .after = starred_repos)

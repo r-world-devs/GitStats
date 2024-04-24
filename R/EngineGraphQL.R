@@ -11,10 +11,7 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
      #' @field gql_query An environment for GraphQL queries.
      gql_query = NULL,
 
-     #' @description Create `EngineGraphQL` object.
-     #' @param gql_api_url GraphQL API url.
-     #' @param token A token.
-     #' @param scan_all A boolean.
+     #' Create `EngineGraphQL` object.
      initialize = function(gql_api_url = NA,
                            token = NA,
                            scan_all = FALSE) {
@@ -24,10 +21,7 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
        private$scan_all <- scan_all
      },
 
-     #' @description Wrapper of GraphQL API request and response.
-     #' @param gql_query A string with GraphQL query.
-     #' @param vars A list of named variables.
-     #' @return A list.
+     #' Wrapper of GraphQL API request and response.
      gql_response = function(gql_query, vars = "null") {
        response <- private$perform_request(
          gql_query = gql_query,

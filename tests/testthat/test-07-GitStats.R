@@ -40,24 +40,6 @@ test_that("check_for_host returns error when no hosts are passed", {
   )
 })
 
-test_gitstats_priv <- create_test_gitstats(hosts = 1, priv_mode = TRUE)
-
-test_that("check_R_package_loading works", {
-  suppressMessages(
-    R_package_loading <- test_gitstats_priv$check_R_package_loading("purrr")
-  )
-  expect_package_usage_table(R_package_loading)
-  test_mocker$cache(R_package_loading)
-})
-
-test_that("check_R_package_as_dependency works", {
-  suppressMessages(
-    R_package_as_dependency <- test_gitstats_priv$check_R_package_as_dependency("purrr")
-  )
-  expect_package_usage_table(R_package_as_dependency)
-  test_mocker$cache(R_package_as_dependency)
-})
-
 # public methods
 
 test_that("GitStats get users info", {
@@ -91,10 +73,12 @@ test_that("get_repos pulls repositories without contributors", {
 
 test_that("get_commits works properly", {
   test_gitstats <- create_test_gitstats(hosts = 2)
-  commits_table <- test_gitstats$get_commits(
-    since = "2023-06-15",
-    until = "2023-06-30",
-    verbose = FALSE
+  suppressMessages(
+    commits_table <- test_gitstats$get_commits(
+      since = "2023-06-15",
+      until = "2023-06-30",
+      verbose = FALSE
+    )
   )
   expect_commits_table(
     commits_table
@@ -144,18 +128,10 @@ test_that("subgroups are cleanly printed in GitStats", {
 
 test_that("get_R_package_usage works as expected", {
   test_gitstats <- create_test_gitstats(hosts = 1)
-  mockery::stub(
-    test_gitstats$get_R_package_usage,
-    "private$pull_R_package_usage",
-    purrr::list_rbind(
-      list(
-        test_mocker$use("R_package_loading"),
-        test_mocker$use("R_package_as_dependency")
-      )
+  suppressMessages(
+    R_package_usage <- test_gitstats$get_R_package_usage(
+      package_name = "purrr", verbose = FALSE
     )
-  )
-  R_package_usage <- test_gitstats$get_R_package_usage(
-    package_name = "purrr", verbose = FALSE
   )
   expect_package_usage_table(R_package_usage)
   test_mocker$cache(R_package_usage)
@@ -163,11 +139,10 @@ test_that("get_R_package_usage works as expected", {
 
 test_that("get_release_logs works as expected", {
   test_gitstats <- create_test_gitstats(hosts = 1)
-  expect_snapshot(
-    release_logs <- test_gitstats$get_release_logs(
-      since = "2023-05-01",
-      until = "2023-09-30"
-    )
+  release_logs <- test_gitstats$get_release_logs(
+    since = "2023-05-01",
+    until = "2023-09-30",
+    verbose = FALSE
   )
   expect_releases_table(release_logs)
 })

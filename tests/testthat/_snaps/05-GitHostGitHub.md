@@ -20,7 +20,6 @@
       x Repository you provided does not exist or its name was passed in a wrong way: https://api.github.com/repos/r-worlddevs/GitStats
       ! Please type your repository name as you see it in `url`.
       i E.g. do not use spaces. Repository names as you see on the page may differ from their 'address' name.
-      HTTP 404 No such address
 
 # `set_default_token` sets default token for public GitHub
 
@@ -29,23 +28,11 @@
     Message
       i Using PAT from GITHUB_PAT envar.
 
-# GitHost pulls repos from orgs
-
-    Code
-      gh_repos_table <- test_host$pull_repos_from_host(settings = test_settings)
-    Message
-      i [GitHub][Engine:GraphQL][org:openpharma] Pulling repositories...
-      i [GitHub][Engine:GraphQL][org:r-world-devs] Pulling repositories...
-
-# pull_repos returns table of repositories
-
-    Code
-      repos_table <- test_host$pull_repos(settings = test_settings)
-
 # pull_repos_contributors returns table with contributors for GitHub
 
     Code
-      repos_table_2 <- test_host$pull_repos_contributors(repos_table_1, test_settings)
+      repos_table_2 <- test_host$pull_repos_contributors(repos_table = repos_table_1,
+        settings = test_settings)
     Message
-      i [GitHub][Engine:REST][org:openpharma and r-world-devs] Pulling contributors...
+      i [Host:GitHub][Engine:REST] Pulling contributors...
 

@@ -99,25 +99,91 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(repos_table)
     },
 
-    #' Pull commits from repo with REST API.
-    pull_commits = function(org = NULL,
-                            repos_names = NULL,
-                            date_from,
-                            date_until = Sys.date(),
-                            verbose,
-                            settings) {
-      private$set_verbose(verbose)
-      commits_table <- private$pull_commits_from_repos(
-        repos_names = repos_names,
-        date_from = date_from,
-        date_until = date_until
-      ) %>%
-        purrr::discard(~ length(.) == 0) %>%
-        private$tailor_commits_info(org = org) %>%
-        private$prepare_commits_table() %>%
-        private$get_commits_authors_handles_and_names(settings)
+    # Pull all commits from give repositories.
+    pull_commits_from_repos = function(repos_names,
+                                       since,
+                                       until) {
+      repos_list_with_commits <- purrr::map(repos_names, function(repo_path) {
+        commits_from_repo <- private$pull_commits_from_one_repo(
+          repo_path = repo_path,
+          since = since,
+          until = until
+        )
+        return(commits_from_repo)
+      }, .progress = !private$scan_all)
+      names(repos_list_with_commits) <- repos_names
+      repos_list_with_commits <- repos_list_with_commits %>%
+        purrr::discard(~ length(.) == 0)
+      return(repos_list_with_commits)
+    },
 
-      return(commits_table)
+    # A method to get separately GL logins and display names
+    get_commits_authors_handles_and_names = function(commits_table, verbose) {
+      if (nrow(commits_table) > 0) {
+        if (verbose) {
+          cli::cli_alert_info("Looking up for authors' names and logins...")
+        }
+        authors_dict <- purrr::map(unique(commits_table$author), function(author) {
+          author <- url_encode(author)
+          search_endpoint <- paste0(
+            self$rest_api_url,
+            "/search?scope=users&search=%22", author, "%22"
+          )
+          user_response <- list()
+          try({
+            user_response <- self$response(endpoint = search_endpoint)
+          }, silent = TRUE)
+          if (length(user_response) == 0) {
+            author <- stringi::stri_trans_general(author, "Latin-ASCII")
+            search_endpoint <- paste0(
+              self$rest_api_url,
+              "/search?scope=users&search=%22", author, "%22"
+            )
+            try({
+              user_response <- self$response(endpoint = search_endpoint)
+            }, silent = TRUE)
+          }
+          if (!is.null(user_response) && length(user_response) > 1) {
+            user_response <- purrr::keep(user_response, ~ grepl(author, .$name))
+          }
+          if (is.null(user_response) || length(user_response) == 0) {
+            user_tbl <- tibble::tibble(
+              author = URLdecode(author),
+              author_login = NA,
+              author_name = NA
+            )
+          } else {
+            user_tbl <- tibble::tibble(
+              author = URLdecode(author),
+              author_login = user_response[[1]]$username,
+              author_name = user_response[[1]]$name
+            )
+          }
+          return(user_tbl)
+        }, .progress = TRUE) %>%
+          purrr::list_rbind()
+
+        commits_table <- commits_table %>%
+          dplyr::mutate(
+            author_login = NA,
+            author_name = NA
+          ) %>%
+          dplyr::relocate(
+            any_of(c("author_login", "author_name")),
+            .after = author
+          )
+
+        empty_dict <- all(is.na(authors_dict[, c("author_login", "author_name")] %>%
+                                  unlist()))
+        if (!empty_dict) {
+          commits_table <- dplyr::mutate(
+            commits_table,
+            author_login = purrr::map_vec(author, ~ authors_dict$author_login[. == authors_dict$author]),
+            author_name = purrr::map_vec(author, ~ authors_dict$author_name[. == authors_dict$author])
+          )
+        }
+        return(commits_table)
+      }
     }
   ),
   private = list(
@@ -204,33 +270,17 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(repos_list_with_languages)
     },
 
-    # Pull all commits from give repositories.
-    pull_commits_from_repos = function(repos_names,
-                                       date_from,
-                                       date_until) {
-      repos_list_with_commits <- purrr::map(repos_names, function(repo_path) {
-        commits_from_repo <- private$pull_commits_from_one_repo(
-          repo_path = repo_path,
-          date_from = date_from,
-          date_until = date_until
-        )
-        return(commits_from_repo)
-      }, .progress = !private$scan_all)
-      names(repos_list_with_commits) <- repos_names
-      return(repos_list_with_commits)
-    },
-
     # Iterator over pages of commits response.
     pull_commits_from_one_repo = function(repo_path,
-                                          date_from,
-                                          date_until) {
+                                          since,
+                                          until) {
       commits_endpoint <- paste0(
         private$endpoints$projects,
         repo_path,
         "/repository/commits?since='",
-        as.Date(date_from),
+        as.Date(since),
         "'&until='",
-        as.Date(date_until),
+        as.Date(until),
         "'&with_stats=true"
       )
       all_commits_in_repo <- tryCatch({
@@ -244,121 +294,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(all_commits_in_repo)
     },
 
-    # Get only important info on commits.
-    tailor_commits_info = function(repos_list_with_commits,
-                                   org) {
-      repos_list_with_commits_cut <- purrr::map(repos_list_with_commits, function(repo) {
-        purrr::map(repo, function(commit) {
-          list(
-            "id" = commit$id,
-            "committed_date" = gts_to_posixt(commit$committed_date),
-            "author" = commit$author_name,
-            "additions" = commit$stats$additions,
-            "deletions" = commit$stats$deletions,
-            "repository" = gsub(
-              pattern = paste0("/-/commit/", commit$id),
-              replacement = "",
-              x = gsub(paste0("(.*)", org, "/"), "", commit$web_url)
-            ),
-            "organization" = org
-          )
-        })
-      })
-      return(repos_list_with_commits_cut)
-    },
-
-    # @description A helper to turn list of data.frames into one data.frame
-    # @param commits_list A list
-    # @return A data.frame
-    prepare_commits_table = function(commits_list) {
-      commits_dt <- purrr::map(commits_list, function(x) {
-        purrr::map(x, ~ data.frame(.)) %>%
-          purrr::list_rbind()
-      }) %>% purrr::list_rbind()
-
-      if (length(commits_dt) > 0) {
-        commits_dt <- dplyr::mutate(
-          commits_dt,
-          api_url = self$rest_api_url
-        )
-      }
-      return(commits_dt)
-    },
-
-    # @description A method to get separately GL logins and display names
-    # @param commits_table A table
-    # @return A data.frame
-    get_commits_authors_handles_and_names = function(commits_table, settings) {
-      if (nrow(commits_table) > 0) {
-        if (settings$verbose) {
-          cli::cli_alert_info("Looking up for authors' names and logins...")
-        }
-        authors_dict <- purrr::map(unique(commits_table$author), function(author) {
-          author <- url_encode(author)
-          search_endpoint <- paste0(
-            self$rest_api_url,
-            "/search?scope=users&search=%22", author, "%22"
-          )
-          user_response <- list()
-          try({
-            user_response <- self$response(endpoint = search_endpoint)
-          }, silent = TRUE)
-          if (length(user_response) == 0) {
-            author <- stringi::stri_trans_general(author, "Latin-ASCII")
-            search_endpoint <- paste0(
-              self$rest_api_url,
-              "/search?scope=users&search=%22", author, "%22"
-            )
-            try({
-              user_response <- self$response(endpoint = search_endpoint)
-            }, silent = TRUE)
-          }
-          if (!is.null(user_response) && length(user_response) > 1) {
-            user_response <- purrr::keep(user_response, ~ grepl(author, .$name))
-          }
-          if (is.null(user_response) || length(user_response) == 0) {
-            user_tbl <- tibble::tibble(
-              author = URLdecode(author),
-              author_login = NA,
-              author_name = NA
-            )
-          } else {
-            user_tbl <- tibble::tibble(
-              author = URLdecode(author),
-              author_login = user_response[[1]]$username,
-              author_name = user_response[[1]]$name
-            )
-          }
-          return(user_tbl)
-        }, .progress = TRUE) %>%
-          purrr::list_rbind()
-
-        commits_table <- commits_table %>%
-          dplyr::mutate(
-            author_login = NA,
-            author_name = NA
-          ) %>%
-          dplyr::relocate(
-            any_of(c("author_login", "author_name")),
-            .after = author
-          )
-
-        empty_dict <- all(is.na(authors_dict[, c("author_login", "author_name")] %>%
-                                  unlist()))
-        if (!empty_dict) {
-          commits_table <- dplyr::mutate(
-            commits_table,
-            author_login = purrr::map_vec(author, ~ authors_dict$author_login[. == authors_dict$author]),
-            author_name = purrr::map_vec(author, ~ authors_dict$author_name[. == authors_dict$author])
-          )
-        }
-        return(commits_table)
-      }
-    },
-
-    # @description A helper to get group's id
-    # @param project_group A character, a group of projects.
-    # @return An integer, id of group.
+    # A helper to get group's id
     get_group_id = function(project_group) {
       self$response(paste0(self$rest_api_url, "/groups/", project_group))[["id"]]
     }

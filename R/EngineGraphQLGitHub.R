@@ -64,23 +64,23 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       return(full_repos_list)
     },
 
-    #' Pull all commits from repositories.
-    pull_commits_from_org = function(org,
-                                     repos_names = NULL,
-                                     date_from,
-                                     date_until,
-                                     settings) {
-      repos_list_with_commits <- private$pull_commits_from_repos(
-        org = org,
-        repos = repos_names,
-        date_from = date_from,
-        date_until = date_until
-      )
+    # Iterator over pulling commits from all repositories.
+    pull_commits_from_repos = function(org,
+                                       repos_names,
+                                       date_from,
+                                       date_until) {
+      repos_list_with_commits <- purrr::map(repos_names, function(repo) {
+        private$pull_commits_from_one_repo(
+          org,
+          repo,
+          date_from,
+          date_until
+        )
+      }, .progress = !private$scan_all)
       names(repos_list_with_commits) <- repos_names
-
-      commits_list <- repos_list_with_commits %>%
+      repos_list_with_commits <- repos_list_with_commits %>%
         purrr::discard(~ length(.) == 0)
-      return(commits_list)
+      return(repos_list_with_commits)
     },
 
     # Pull all given files from all repositories of an organization.
@@ -137,10 +137,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
   ),
     private = list(
 
-      # @description Wrapper over building GraphQL query and response.
-      # @param org An organization.
-      # @param repo_cursor An end cursor for repos page.
-      # @return A list of repositories.
+      # Wrapper over building GraphQL query and response.
       pull_repos_page = function(org = NULL,
                                  repo_cursor = "") {
         repos_query <- self$gql_query$repos_by_org(
@@ -153,34 +150,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         return(response)
       },
 
-      # @description Iterator over pulling commits from all repositories.
-      # @param org An organization.
-      # @param repos A character vector of repository names.
-      # @param date_from A starting date to look commits for.
-      # @param date_until An end date to look commits for.
-      # @return A list of repositories with commits.
-      pull_commits_from_repos = function(org,
-                                         repos,
-                                         date_from,
-                                         date_until) {
-        repos_list_with_commits <- purrr::map(repos, function(repo) {
-          private$pull_commits_from_one_repo(
-            org,
-            repo,
-            date_from,
-            date_until
-          )
-        }, .progress = !private$scan_all)
-        return(repos_list_with_commits)
-      },
-
-      # @description An iterator over pulling commit pages from one repository.
-      # @param org An organization.
-      # @param repo A repository name.
-      # @param date_from A starting date to look commits for.
-      # @param date_until An end date to look commits for.
-      # @param author_id Id of an author.
-      # @return A list of commits.
+      # An iterator over pulling commit pages from one repository.
       pull_commits_from_one_repo = function(org,
                                             repo,
                                             date_from,
@@ -210,14 +180,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         return(full_commits_list)
       },
 
-      # @description Wrapper over building GraphQL query and response.
-      # @param org An organization
-      # @param repo A repository.
-      # @param date_from A starting date to look commits for.
-      # @param date_until An end date to look commits for.
-      # @param commits_cursor An end cursor for commits page.
-      # @param author_id Id of an author.
-      # @return A list.
+      # Wrapper over building GraphQL query and response.
       pull_commits_page_from_repo = function(org,
                                              repo,
                                              date_from,

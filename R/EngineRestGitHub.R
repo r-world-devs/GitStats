@@ -42,9 +42,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       return(repos_list)
     },
 
-    # @description A method to add information on open and closed issues of a repository.
-    # @param repos_table A table of repositories.
-    # @return A table of repositories with added information on issues.
+    #' A method to add information on open and closed issues of a repository.
     pull_repos_issues = function(repos_table) {
       if (nrow(repos_table) > 0) {
         repos_iterator <- paste0(repos_table$organization, "/", repos_table$repo_name)
@@ -122,11 +120,10 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       )
     },
 
-    # @description A wrapper for proper pagination of GitHub search REST API
+    # A wrapper for proper pagination of GitHub search REST API
     # @param search_endpoint A character, a search endpoint
     # @param total_n Number of results
     # @param byte_max Max byte size
-    # @return A list
     search_response = function(search_endpoint,
                                total_n,
                                byte_max) {

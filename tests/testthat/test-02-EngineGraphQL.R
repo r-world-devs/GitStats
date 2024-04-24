@@ -35,16 +35,13 @@ test_that("`gql_response()` work as expected for GitHub", {
   test_mocker$cache(gh_user_gql_response)
 })
 
-# private methods
-test_gql_priv <- environment(test_gql$initialize)$private
-
 test_that("pull_user pulls GitHub user response", {
   mockery::stub(
-    test_gql_priv$pull_user,
+    test_gql$pull_user,
     "self$gql_response",
     test_mocker$use("gh_user_gql_response")
   )
-  gh_user_response <- test_gql_priv$pull_user(username = "maciekbanas")
+  gh_user_response <- test_gql$pull_user(username = "maciekbanas")
   expect_user_gql_response(
     gh_user_response
   )
@@ -80,16 +77,14 @@ test_that("`gql_response()` work as expected for GitLab", {
   test_mocker$cache(gl_user_gql_response)
 })
 
-# private methods
-test_gql_priv <- environment(test_gql$initialize)$private
 
 test_that("pull_user pulls GitLab user response", {
   mockery::stub(
-    test_gql_priv$pull_user,
+    test_gql$pull_user,
     "self$gql_response",
     test_mocker$use("gl_user_gql_response")
   )
-  gl_user_response <- test_gql_priv$pull_user(username = "maciekbanas")
+  gl_user_response <- test_gql$pull_user(username = "maciekbanas")
   expect_user_gql_response(
     gl_user_response
   )

@@ -203,14 +203,16 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           org = org,
           settings = settings
         )
-        commits_table_org <- rest_engine$pull_commits(
-          org = org,
+        commits_table_org <- rest_engine$pull_commits_from_repos(
           repos_names = repos_names,
-          date_from = since,
-          date_until = until,
-          verbose = private$verbose,
-          settings = settings
-        )
+          since = since,
+          until = until
+        ) %>%
+          private$tailor_commits_info(org = org) %>%
+          private$prepare_commits_table() %>%
+          rest_engine$get_commits_authors_handles_and_names(
+            verbose = private$verbose
+          )
         return(commits_table_org)
       }, .progress = if (private$scan_all && private$verbose) {
         "[GitHost:GitLab] Pulling commits..."
@@ -236,6 +238,45 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         repos_names <- utils::URLencode(repos, reserved = TRUE)
       }
       return(repos_names)
+    },
+
+    # Get only important info on commits.
+    tailor_commits_info = function(repos_list_with_commits,
+                                   org) {
+      repos_list_with_commits_cut <- purrr::map(repos_list_with_commits, function(repo) {
+        purrr::map(repo, function(commit) {
+          list(
+            "id" = commit$id,
+            "committed_date" = gts_to_posixt(commit$committed_date),
+            "author" = commit$author_name,
+            "additions" = commit$stats$additions,
+            "deletions" = commit$stats$deletions,
+            "repository" = gsub(
+              pattern = paste0("/-/commit/", commit$id),
+              replacement = "",
+              x = gsub(paste0("(.*)", org, "/"), "", commit$web_url)
+            ),
+            "organization" = org
+          )
+        })
+      })
+      return(repos_list_with_commits_cut)
+    },
+
+    # A helper to turn list of data.frames into one data.frame
+    prepare_commits_table = function(commits_list) {
+      commits_dt <- purrr::map(commits_list, function(x) {
+        purrr::map(x, ~ data.frame(.)) %>%
+          purrr::list_rbind()
+      }) %>% purrr::list_rbind()
+
+      if (length(commits_dt) > 0) {
+        commits_dt <- dplyr::mutate(
+          commits_dt,
+          api_url = private$api_url
+        )
+      }
+      return(commits_dt)
     },
 
     # Prepare user table.

@@ -22,6 +22,13 @@ test_that("`pull_repos_page()` pulls repos page from GitLab group", {
   test_mocker$cache(gl_repos_page)
 })
 
+# public methods
+
+test_gql_gl <- EngineGraphQLGitLab$new(
+  gql_api_url = "https://gitlab.com/api/graphql",
+  token = Sys.getenv("GITLAB_PAT_PUBLIC")
+)
+
 test_that("`pull_repos_from_org()` prepares formatted list", {
   mockery::stub(
     test_gql_gl$pull_repos_from_org,
@@ -77,29 +84,8 @@ test_that("`pull_repos_from_org()` does not fail when GraphQL response is not co
   )
 })
 
-test_that("`prepare_repos_table()` prepares repos table", {
-  gl_repos_table <- test_gql_gl$prepare_repos_table(
-    repos_list = test_mocker$use("gl_repos_from_org")
-  )
-  expect_repos_table(
-    gl_repos_table
-  )
-  test_mocker$cache(gl_repos_table)
-})
-
-test_that("GitLab prepares user table", {
-  gl_user_table <- test_gql_gl$prepare_user_table(
-    user_response = test_mocker$use("gl_user_response")
-  )
-  expect_users_table(
-    gl_user_table,
-    one_user = TRUE
-  )
-  test_mocker$cache(gl_user_table)
-})
-
 test_that("GitLab GraphQL Engine pulls files from a group", {
-  gitlab_files_response <- test_gql_gl$pull_file_from_org(
+  gitlab_files_response <- test_gql_gl$pull_files_from_org(
     "mbtests",
     "meta_data.yaml"
   )
@@ -108,7 +94,7 @@ test_that("GitLab GraphQL Engine pulls files from a group", {
 })
 
 test_that("GitLab GraphQL Engine pulls two files from a group", {
-  gitlab_files_response <- test_gql_gl$pull_file_from_org(
+  gitlab_files_response <- test_gql_gl$pull_files_from_org(
     "mbtests",
     c("meta_data.yaml", "README.md")
   )
@@ -118,72 +104,5 @@ test_that("GitLab GraphQL Engine pulls two files from a group", {
       c("meta_data.yaml", "README.md") %in%
         purrr::map_vec(gitlab_files_response, ~.$repository$blobs$nodes[[1]]$name)
     )
-  )
-})
-
-test_that("GitLab GraphQL Engine pulls files from a repository", {
-  gitlab_files_response <- test_gql_gl$pull_file_from_repos(
-    file_path = "meta_data.yaml",
-    repos_table = test_mocker$use("gl_repos_table")
-  )
-  expect_gitlab_files_response(gitlab_files_response)
-})
-
-test_that("GitLab GraphQL Engine prepares table from files response", {
-  files_table <- test_gql_gl$prepare_files_table(
-    files_response = test_mocker$use("gitlab_files_response"),
-    org = "mbtests",
-    file_path = "meta_data.yaml"
-  )
-  expect_files_table(files_table)
-})
-
-# public methods
-
-test_gql_gl <- EngineGraphQLGitLab$new(
-  gql_api_url = "https://gitlab.com/api/graphql",
-  token = Sys.getenv("GITLAB_PAT_PUBLIC")
-)
-
-test_that("`pull_repos()` works as expected", {
-  mockery::stub(
-    test_gql_gl$pull_repos,
-    "private$pull_repos",
-    test_mocker$use("gl_repos_from_org")
-  )
-  expect_snapshot(
-    gl_repos_org <- test_gql_gl$pull_repos(
-      org = "mbtests",
-      settings = test_settings
-    )
-  )
-  expect_repos_table(
-    gl_repos_org
-  )
-})
-
-test_that("`pull_files()` pulls files in the table format", {
-  expect_snapshot(
-    gl_files_table <- test_gql_gl$pull_files(
-      org = "mbtests",
-      file_path = "README.md",
-      settings = test_settings
-    )
-  )
-  expect_files_table(gl_files_table)
-  test_mocker$cache(gl_files_table)
-})
-
-test_that("`pull_files()` pulls two files in the table format", {
-  expect_snapshot(
-    gl_files_table <- test_gql_gl$pull_files(
-      org = "mbtests",
-      file_path = c("meta_data.yaml", "README.md"),
-      settings = test_settings
-    )
-  )
-  expect_files_table(gl_files_table)
-  expect_true(
-    all(c("meta_data.yaml", "README.md") %in% gl_files_table$file_path)
   )
 })
