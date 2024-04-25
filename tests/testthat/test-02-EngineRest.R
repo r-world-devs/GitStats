@@ -36,12 +36,12 @@ test_that("`perform_request()` throws error on bad host", {
 
 test_that("`perform_request()` returns proper status", {
   bad_endpoint <- "https://api.github.com/orgs/everybody_loves_somebody"
-  expect_message(
+  expect_error(
     test_rest_priv$perform_request(
       endpoint = bad_endpoint,
       token = Sys.getenv("GITHUB_PAT")
     ),
-    "HTTP 404 No such address"
+    "HTTP 404 Not Found"
   )
 })
 
@@ -62,7 +62,7 @@ test_rest <- create_testrest(
   token = Sys.getenv("GITLAB_PAT_PUBLIC")
 )
 
-test_that("`response()` returns commits response from GitLab's REST API", {
+test_that("`response()` returns responses from GitLab's REST API", {
   gl_search_response <- test_rest$response(
     "https://gitlab.com/api/v4/groups/9970/search?scope=blobs&search=git"
   )

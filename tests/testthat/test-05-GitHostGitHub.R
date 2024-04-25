@@ -1,4 +1,5 @@
 # public methods
+
 test_host <- create_github_testhost(
   orgs = c("openpharma", "r-world-devs")
 )
@@ -65,7 +66,6 @@ test_that("check_endpoint returns warning and FALSE if they are not correct", {
   )
 })
 
-
 test_that("`check_if_public` works correctly", {
   expect_true(
     test_host$check_if_public("api.github.com")
@@ -113,16 +113,23 @@ test_that("`extract_repos_and_orgs` extracts fullnames vector into a list of Git
   )
 })
 
-test_that("GitHost pulls repos from orgs", {
-  expect_snapshot(
-    gh_repos_table <- test_host$pull_repos_from_host(
-      settings = test_settings
-    )
+test_that("GitHub prepares repos table from repositories response", {
+  gh_repos_table <- test_host$prepare_repos_table_from_graphql(
+    repos_list = test_mocker$use("gh_repos_from_org")
   )
   expect_repos_table(
     gh_repos_table
   )
   test_mocker$cache(gh_repos_table)
+})
+
+test_that("GitHub prepares table from files response", {
+  files_table <- test_host$prepare_files_table(
+    files_response = test_mocker$use("github_files_response"),
+    org = "r-world-devs",
+    file_path = "meta_data.yaml"
+  )
+  expect_files_table(files_table)
 })
 
 test_that("GitHost adds `repo_api_url` column to GitHub repos table", {
@@ -132,34 +139,13 @@ test_that("GitHost adds `repo_api_url` column to GitHub repos table", {
   test_mocker$cache(gh_repos_table_with_api_url)
 })
 
-# public methods
-
-test_host <- create_github_testhost(
-  orgs = c("openpharma", "r-world-devs")
-)
-
-test_that("pull_repos returns table of repositories", {
-  mockery::stub(
-    test_host$pull_repos,
-    "private$pull_repos_from_host",
-    test_mocker$use("gh_repos_table")
-  )
-  expect_snapshot(
-    repos_table <- test_host$pull_repos(
-      settings = test_settings
-    )
-  )
-  expect_repos_table(
-    repos_table,
-    add_col = "api_url"
-  )
-})
-
 test_that("pull_repos_contributors returns table with contributors for GitHub", {
   repos_table_1 <- test_mocker$use("gh_repos_table_with_api_url")
   expect_snapshot(
-    repos_table_2 <- test_host$pull_repos_contributors(repos_table_1,
-                                                       test_settings)
+    repos_table_2 <- test_host$pull_repos_contributors(
+      repos_table = repos_table_1,
+      settings = test_settings
+    )
   )
   expect_gt(
     length(repos_table_2$contributors),
@@ -168,20 +154,13 @@ test_that("pull_repos_contributors returns table with contributors for GitHub", 
   expect_equal(nrow(repos_table_1), nrow(repos_table_2))
 })
 
-test_that("pull_commits for GitHub works", {
-  suppressMessages(
-    gh_commits_table <- test_host$pull_commits(
-      since = "2023-03-01",
-      until = "2023-04-01",
-      settings = test_settings
-    )
-  )
-  expect_commits_table(
-    gh_commits_table
-  )
-})
+# public methods
 
-test_that("pull_commits for GitHub works with repos implied", {
+test_host <- create_github_testhost(
+  orgs = c("openpharma", "r-world-devs")
+)
+
+test_that("pull_commits for GitHub works", {
   test_host <- create_github_testhost(
     repos = c("openpharma/DataFakeR", "r-world-devs/GitStats", "r-world-devs/cohortBuilder")
   )
@@ -210,12 +189,11 @@ test_that("pull_files for GitHub works", {
 })
 
 test_that("pull_release logs for GitHub works", {
-  suppressMessages(
-    gh_releases_table <- test_host$pull_release_logs(
-      date_from = "2023-05-01",
-      date_until = "2023-09-30",
-      settings = test_settings
-    )
+  gh_releases_table <- test_host$pull_release_logs(
+    since = "2023-05-01",
+    until = "2023-09-30",
+    verbose = FALSE,
+    settings = test_settings
   )
   expect_releases_table(
     gh_releases_table

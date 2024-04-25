@@ -18,7 +18,7 @@
     Code
       repos_table_2 <- test_host$pull_repos_contributors(repos_table_1, test_settings)
     Message
-      i [GitLab][Engine:REST][org:mbtests] Pulling contributors...
+      i [Host:GitLab][Engine:REST] Pulling contributors...
 
 # pull_commits for GitLab works with repos implied
 
@@ -26,6 +26,6 @@
       gl_commits_table <- test_host$pull_commits(since = "2023-01-01", until = "2023-06-01",
         settings = test_settings_repo)
     Message
-      i [GitLab][Engine:REST][org:mbtests][custom repositories] Pulling commits...
+      i [Host:GitLab][Engine:REST][Scope:mbtests] Pulling commits...
       i Looking up for authors' names and logins...
 

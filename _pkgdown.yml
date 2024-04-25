@@ -2,19 +2,18 @@ url: ~
 template:
   bootstrap: 5
 reference:
-- title: Create and setup
+- title: Create and set
 - contents:
   - matches("create_gitstats")
-  - starts_with("verbose")
+  - starts_with("set_")
+  - matches("verbose")
+  - matches("show_orgs")
 - title: Get data
 - contents:
   - starts_with("get_")
-- title: Show results
-- contents:
-  - starts_with("show_")
 articles:
 - title: Articles
   navbar: ~
   contents:
-  - get_repositories
-  - get_commits_stats
+  - set_hosts
+  - get_data

@@ -92,7 +92,6 @@
     Condition
       Error:
       x You can not provide two hosts of the same API urls.
-      i If you wish to change/add more organizations you can do it with `set_organizations()` function.
 
 # `Org` name is not passed to the object if it does not exist
 
@@ -105,7 +104,6 @@
       x Organization you provided does not exist or its name was passed in a wrong way: https://api.github.com/orgs/openparma
       ! Please type your organization name as you see it in `url`.
       i E.g. do not use spaces. Organization names as you see on the page may differ from their 'address' name.
-      HTTP 404 No such address
       v Set connection to GitHub.
 
 ---
@@ -119,7 +117,6 @@
       x Organization you provided does not exist or its name was passed in a wrong way: https://gitlab.com/api/v4/groups/openparma
       ! Please type your organization name as you see it in `url`.
       i E.g. do not use spaces. Organization names as you see on the page may differ from their 'address' name.
-      HTTP 404 No such address
       v Set connection to GitLab.
 
 ---
@@ -133,6 +130,5 @@
       x Organization you provided does not exist or its name was passed in a wrong way: https://api.github.com/orgs/r_world_devs
       ! Please type your organization name as you see it in `url`.
       i E.g. do not use spaces. Organization names as you see on the page may differ from their 'address' name.
-      HTTP 404 No such address
       v Set connection to GitHub.
 

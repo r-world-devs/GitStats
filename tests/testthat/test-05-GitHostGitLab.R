@@ -36,15 +36,11 @@ test_that("GitHost adds `repo_api_url` column to GitLab repos table", {
   test_mocker$cache(gl_repos_table_with_api_url)
 })
 
-test_host <- create_gitlab_testhost(
-  orgs = c("mbtests")
-)
-
 test_that("pull_repos_contributors returns table with contributors for GitLab", {
   repos_table_1 <- test_mocker$use("gl_repos_table_with_api_url")
   expect_snapshot(
     repos_table_2 <- test_host$pull_repos_contributors(repos_table_1,
-                                                          test_settings)
+                                                       test_settings)
   )
   expect_gt(
     length(repos_table_2$contributors),
@@ -52,6 +48,34 @@ test_that("pull_repos_contributors returns table with contributors for GitLab", 
   )
   expect_equal(nrow(repos_table_1), nrow(repos_table_2))
 })
+
+test_that("`tailor_commits_info()` retrieves only necessary info", {
+  gl_commits_list <- test_mocker$use("gl_commits_org")
+
+  gl_commits_list_cut <- test_host$tailor_commits_info(
+    gl_commits_list,
+    org = "mbtests"
+  )
+  expect_tailored_commits_list(
+    gl_commits_list_cut[[1]][[1]]
+  )
+  test_mocker$cache(gl_commits_list_cut)
+})
+
+test_that("`prepare_commits_table()` prepares table of commits properly", {
+  gl_commits_table <- test_host$prepare_commits_table(
+    commits_list = test_mocker$use("gl_commits_list_cut")
+  )
+  expect_commits_table(
+    gl_commits_table,
+    exp_auth = FALSE
+  )
+  test_mocker$cache(gl_commits_table)
+})
+
+test_host <- create_gitlab_testhost(
+  orgs = c("mbtests")
+)
 
 test_that("pull_commits for GitLab works", {
   suppressMessages(

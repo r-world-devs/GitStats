@@ -61,23 +61,23 @@ GitStats <- R6::R6Class("GitStats",
     #'   information to repositories.
     #' @param with_code A character, if  defined, GitStats will pull repositories
     #'   with specified text in code blobs.
-    #' @param use_storage A logical, should storage be used.
-    #' @param verbose A logical, should verbose mode be used.
+    #' @param cache A logical, if `TRUE`, cached results will be used.
+    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
+    #'   printing output is switched off.
     get_repos = function(add_contributors = FALSE,
                          with_code = NULL,
-                         use_storage = TRUE,
+                         cache = TRUE,
                          verbose = TRUE) {
-      private$setup_for_pulling(
-        use_storage = use_storage,
-        verbose = verbose
-      )
+      private$check_for_host()
       trigger <- private$trigger_pulling(
-        storage = "repositories"
+        storage = "repositories",
+        cache = cache
       )
       if (trigger) {
         repositories <- private$get_repos_table(
           add_contributors = add_contributors,
           with_code = with_code,
+          verbose = verbose,
           settings = private$settings
         )
         private$save_to_storage(
@@ -85,7 +85,8 @@ GitStats <- R6::R6Class("GitStats",
         )
       } else {
         repositories <- private$get_from_storage(
-          table = "repositories"
+          table = "repositories",
+          verbose = verbose
         )
       }
       if (verbose) dplyr::glimpse(repositories)
@@ -95,25 +96,25 @@ GitStats <- R6::R6Class("GitStats",
     #' @description A method to get information on commits.
     #' @param since A starting date for commits.
     #' @param until An end date for commits.
-    #' @param use_storage A logical, should storage be used.
-    #' @param verbose A logical, should verbose mode be used.
+    #' @param cache A logical, if `TRUE`, cached results will be used.
+    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
+    #'   printing output is switched off.
     get_commits = function(since,
                            until,
-                           use_storage = TRUE,
+                           cache = TRUE,
                            verbose = TRUE) {
-      private$setup_for_pulling(
-        use_storage = use_storage,
-        verbose = verbose
-      )
+      private$check_for_host()
       trigger <- private$trigger_pulling(
         storage = "commits",
+        cache = cache,
         since = since,
         until = until
       )
       if (trigger) {
         commits <- private$get_commits_table(
           since = since,
-          until = until
+          until = until,
+          verbose = verbose
         ) %>%
           private$set_dates_as_attr(
             since = since,
@@ -122,7 +123,8 @@ GitStats <- R6::R6Class("GitStats",
         private$save_to_storage(commits)
       } else {
         commits <- private$get_from_storage(
-          table = "commits"
+          table = "commits",
+          verbose = verbose
         )
       }
       if (verbose) dplyr::glimpse(commits)
@@ -132,7 +134,8 @@ GitStats <- R6::R6Class("GitStats",
     #' @title Get statistics on commits
     #' @name get_commits_stats
     #' @description Prepare statistics from the pulled commits data.
-    #' @param time_interval A character, specifying time interval to show statistics.
+    #' @param time_interval A character, specifying time interval to show
+    #'   statistics.
     #' @return A table of `commits_stats` class.
     get_commits_stats = function(time_interval = c("month", "day", "week")){
       commits <- private$storage[["commits"]]
@@ -154,67 +157,89 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description Get information on users.
     #' @param logins Character vector of logins.
-    get_users = function(logins, use_storage = TRUE, verbose = TRUE) {
-      private$setup_for_pulling(
-        use_storage = use_storage,
-        verbose = verbose
+    #' @param cache A logical, if `TRUE`, cached results will be used.
+    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
+    #'   printing output is switched off.
+    get_users = function(logins, cache = TRUE, verbose = TRUE) {
+      private$check_for_host()
+      trigger <- private$trigger_pulling_users(
+        logins = logins,
+        cache = cache
       )
-      if (private$trigger_pulling_users(logins)) {
+      if (trigger) {
         users <- private$get_users_table(logins) %>%
           private$set_as_attr("logins", logins)
         private$save_to_storage(users)
       } else {
-        users <- private$get_from_storage("users")
+        users <- private$get_from_storage(
+          table = "users",
+          verbose = verbose
+        )
       }
-      if (private$settings$verbose) dplyr::glimpse(users)
+      if (verbose) dplyr::glimpse(users)
       return(invisible(users))
     },
 
     #' @description Pull text content of a file from all repositories.
     #' @param file_path A file path, may be a character vector.
-    get_files = function(file_path, use_storage = TRUE, verbose = TRUE) {
-      private$setup_for_pulling(
-        use_storage = use_storage,
-        verbose = verbose
+    #' @param cache A logical, if `TRUE`, cached results will be used.
+    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
+    #'   printing output is switched off.
+    get_files = function(file_path, cache = TRUE, verbose = TRUE) {
+      private$check_for_host()
+      trigger <- private$trigger_pulling_files(
+        file_path = file_path,
+        cache = cache
       )
-      if (private$trigger_pulling_files(file_path)) {
-        files <- private$get_files_table(file_path) %>%
+      if (trigger) {
+        files <- private$get_files_table(
+          file_path = file_path,
+          verbose = verbose
+        ) %>%
           private$set_as_attr("file_path", file_path)
         private$save_to_storage(files)
       } else {
-        files <- private$get_from_storage("files")
+        files <- private$get_from_storage(
+          table = "files",
+          verbose = verbose
+        )
       }
-      if (private$settings$verbose) dplyr::glimpse(files)
+      if (verbose) dplyr::glimpse(files)
       return(invisible(files))
     },
 
     #' @description Get release logs of repositories.
     #' @param since A starting date for release logs.
     #' @param until An end date for release logs.
+    #' @param cache A logical, if `TRUE`, cached results will be used.
+    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
+    #'   printing output is switched off.
     get_release_logs = function(since,
                                 until,
-                                use_storage = TRUE,
+                                cache = TRUE,
                                 verbose = TRUE) {
-      private$setup_for_pulling(
-        use_storage = use_storage,
-        verbose = verbose
-      )
+      private$check_for_host()
       trigger <- private$trigger_pulling(
         storage = "release_logs",
+        cache = cache,
         since = since,
         until = until
       )
       if (trigger) {
         release_logs <- private$get_release_logs_table(
           since = since,
-          until = until
+          until = until,
+          verbose = verbose
         ) %>%
           private$set_dates_as_attr(since, until)
         private$save_to_storage(release_logs)
       } else {
-        release_logs <- private$get_from_storage("release_logs")
+        release_logs <- private$get_from_storage(
+          table = "release_logs",
+          verbose = verbose
+        )
       }
-      if (private$settings$verbose) dplyr::glimpse(release_logs)
+      if (verbose) dplyr::glimpse(release_logs)
       return(invisible(release_logs))
     },
 
@@ -222,16 +247,17 @@ GitStats <- R6::R6Class("GitStats",
     #' @param package_name A character, name of the package.
     #' @param only_loading A boolean, if `TRUE` function will check only if
     #'   package is loaded in repositories, not used as dependencies.
+    #' @param cache A logical, if `TRUE`, cached results will be used.
+    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
+    #'   printing output is switched off.
     get_R_package_usage = function(package_name,
                                    only_loading = FALSE,
-                                   use_storage = TRUE,
+                                   cache = TRUE,
                                    verbose = TRUE) {
-      private$setup_for_pulling(
-        use_storage = use_storage,
-        verbose = verbose
-      )
+      private$check_for_host()
       trigger <- private$trigger_pulling_package(
-        package_name = package_name
+        package_name = package_name,
+        cache = cache
       )
       if (is.null(package_name)) {
         cli::cli_abort("You need to define `package_name`.", call = NULL)
@@ -239,14 +265,18 @@ GitStats <- R6::R6Class("GitStats",
       if (trigger) {
         R_package_usage <- private$get_R_package_usage_table(
           package_name = package_name,
-          only_loading = only_loading
+          only_loading = only_loading,
+          verbose = verbose
         ) %>%
           private$set_as_attr("package_name", package_name)
         private$save_to_storage(R_package_usage)
       } else {
-        R_package_usage <- private$get_from_storage("R_package_usage")
+        R_package_usage <- private$get_from_storage(
+          table = "R_package_usage",
+          verbose = verbose
+        )
       }
-      if (private$settings$verbose) dplyr::glimpse(R_package_usage)
+      if (verbose) dplyr::glimpse(R_package_usage)
       return(invisible(R_package_usage))
     },
 
@@ -256,29 +286,6 @@ GitStats <- R6::R6Class("GitStats",
         orgs <- host$.__enclos_env__$private$orgs
         purrr::map_vec(orgs, ~ URLdecode(.))
         }) %>% unlist()
-    },
-
-    #' @description Retrieves table stored in `GitStats` object.
-    #' @param storage Table of `repositories`, `commits`, `users`, `files` or
-    #'   `R_package_usage`.
-    #' @return A table.
-    show_data = function(storage) {
-      storage <- match.arg(
-        arg = storage,
-        choices = c("repos", "repositories", "commits", "files", "users",
-                    "R_package_usage", "package_usage", "releases", "release_logs")
-      )
-      if (storage == "repos") {
-        storage <- "repositories"
-      }
-      if (storage == "package_usage") {
-        storage <- "R_package_usage"
-      }
-      if (storage == "releases") {
-        storage <- "release_logs"
-      }
-      storage <- private$storage[[storage]]
-      return(storage)
     },
 
     #' @description switch on verbose mode
@@ -314,7 +321,7 @@ GitStats <- R6::R6Class("GitStats",
       searching_scope = NULL,
       files = NULL,
       verbose = TRUE,
-      use_storage = TRUE
+      cache = TRUE
     ),
 
     # temporary settings used when calling some methods for custom purposes
@@ -322,7 +329,7 @@ GitStats <- R6::R6Class("GitStats",
       searching_scope = "org",
       files = NULL,
       verbose = FALSE,
-      use_storage = TRUE
+      cache = TRUE
     ),
 
     # @field storage for results
@@ -357,14 +364,6 @@ GitStats <- R6::R6Class("GitStats",
       }
     },
 
-    # Basic functions to run before pulling
-    setup_for_pulling = function(use_storage,
-                                 verbose) {
-      private$check_for_host()
-      private$set_verbose_param(verbose)
-      private$set_storage_param(use_storage)
-    },
-
     # @description Helper to check if there are any hosts.
     check_for_host = function() {
       if (length(private$hosts) == 0) {
@@ -382,16 +381,6 @@ GitStats <- R6::R6Class("GitStats",
       }
     },
 
-    # Handler for setting storage parameter
-    set_storage_param = function(use_storage) {
-      if (!is.null(use_storage)) {
-        if (!is.logical(use_storage)) {
-          cli::cli_abort("use_storage parameter accepts only TRUE/FALSE values")
-        }
-        private$settings$use_storage <- use_storage
-      }
-    },
-
     # Check if table exists in storage
     storage_is_empty = function(table) {
       is.null(private$storage[[table]])
@@ -404,35 +393,30 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Retrieve table form storage
-    get_from_storage = function(table) {
-      if (private$settings$verbose) {
+    get_from_storage = function(table, verbose) {
+      if (verbose) {
         cli::cli_alert_warning(cli::col_yellow(glue::glue("Retrieving {table} from the GitStats storage.")))
-        cli::cli_alert_info(cli::col_cyan("If you wish to pull the data from API once more, set `use_storage` to `FALSE`."))
+        cli::cli_alert_info(cli::col_cyan("If you wish to pull the data from API once more, set `cache` parameter to `FALSE`."))
       }
       private$storage[[table]]
     },
 
-    # Boolean
-    do_not_use_storage = function() {
-      private$settings[["use_storage"]] == FALSE
-    },
-
     # Decide if data needs to be pulled from API
-    trigger_pulling = function(storage, since = NULL, until = NULL) {
+    trigger_pulling = function(storage, cache, since = NULL, until = NULL) {
       if (!is.null(since) || !is.null(until)) {
         dates <- list(since, until)
       } else {
         dates <- NULL
       }
       trigger <- private$storage_is_empty(storage) ||
-        private$do_not_use_storage() ||
+        !cache ||
         private$dates_do_not_comply(storage, dates)
       return(trigger)
     },
 
     # Decide if data needs to be pulled from API
-    trigger_pulling_package = function(package_name) {
-      !private$is_package_usage_in_storage(package_name)
+    trigger_pulling_package = function(package_name, cache) {
+      !cache || !private$is_package_usage_in_storage(package_name)
     },
 
     # Check if package is already in GitStats storage
@@ -446,8 +430,8 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Decide if data needs to be pulled from API
-    trigger_pulling_files = function(file_path) {
-      !private$are_files_in_storage(file_path)
+    trigger_pulling_files = function(file_path, cache) {
+      !cache || !private$are_files_in_storage(file_path)
     },
 
     # Check if data on files is already in GitStats storage
@@ -461,8 +445,8 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Decide if data needs to be pulled from API
-    trigger_pulling_users = function(logins) {
-      !private$are_users_in_storage(logins)
+    trigger_pulling_users = function(logins, cache) {
+      !cache || !private$are_users_in_storage(logins)
     },
 
     # Check if data on users is already in GitStats storage
@@ -505,10 +489,11 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Pull repositories tables from hosts and bind them into one
-    get_repos_table = function(add_contributors = FALSE, with_code, settings) {
+    get_repos_table = function(add_contributors = FALSE, with_code, verbose, settings) {
       repos_table <- purrr::map(private$hosts, ~ .$pull_repos(
         add_contributors = add_contributors,
         with_code = with_code,
+        verbose = verbose,
         settings = settings
       )) %>%
         purrr::list_rbind() %>%
@@ -517,13 +502,13 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Pull commits tables from hosts and bind them into one
-    get_commits_table = function(since, until) {
+    get_commits_table = function(since, until, verbose) {
       commits_table <- purrr::map(private$hosts, function(host) {
         host$pull_commits(
           since = since,
           until = until,
-          settings = private$settings,
-          storage = private$storage
+          verbose = verbose,
+          settings = private$settings
         )
       }) %>%
         purrr::list_rbind()
@@ -540,11 +525,12 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Pull content of a text file in a table form
-    get_files_table = function(file_path) {
+    get_files_table = function(file_path, verbose) {
       purrr::map(private$hosts, function(host) {
         host$pull_files(
           file_path = file_path,
           pulled_repos = private$storage[["repositories"]],
+          verbose = verbose,
           settings = private$settings
         )
       }) %>%
@@ -552,24 +538,30 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Pull release logs tables from hosts and bind them into one
-    get_release_logs_table = function(since, until) {
+    get_release_logs_table = function(since, until, verbose) {
       purrr::map(private$hosts, ~ .$pull_release_logs(
-        date_from = since,
-        date_until = until,
-        settings = private$settings,
-        storage = private$storage
+        since = since,
+        until = until,
+        verbose = verbose,
+        settings = private$settings
       )) %>%
         purrr::list_rbind()
     },
 
     # Pull information on package usage in a table form
-    get_R_package_usage_table = function(package_name, only_loading) {
+    get_R_package_usage_table = function(package_name, only_loading, verbose) {
       if (!only_loading) {
-        repos_with_package_as_dependency <- private$check_R_package_as_dependency(package_name)
+        repos_with_package_as_dependency <- private$check_R_package_as_dependency(
+          package_name = package_name,
+          verbose = verbose
+        )
       } else {
         repos_with_package_as_dependency <- NULL
       }
-      repos_using_package <- private$check_R_package_loading(package_name)
+      repos_using_package <- private$check_R_package_loading(
+        package_name = package_name,
+        verbose = verbose
+      )
       package_usage_table <- purrr::list_rbind(
         list(
           repos_with_package_as_dependency,
@@ -587,8 +579,8 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Search repositories with `library(package_name)` in code blobs.
-    check_R_package_loading = function(package_name) {
-      if (private$settings$verbose) {
+    check_R_package_loading = function(package_name, verbose) {
+      if (verbose) {
         cli::cli_alert_info("Checking where [{package_name}] is loaded from library...")
       }
       package_usage_phrases <- c(
@@ -599,6 +591,7 @@ GitStats <- R6::R6Class("GitStats",
       repos_using_package <- purrr::map(package_usage_phrases, ~ {
         repos_using_package <- private$get_repos_table(
           with_code = .,
+          verbose = FALSE,
           settings = private$temp_settings
         )
         if (!is.null(repos_using_package)) {
@@ -615,13 +608,14 @@ GitStats <- R6::R6Class("GitStats",
 
     # @description Search repositories with `package_name` in DESCRIPTION and NAMESPACE files.
     # @param package_name Name of a package.
-    check_R_package_as_dependency = function(package_name) {
-      if (private$settings$verbose) {
+    check_R_package_as_dependency = function(package_name, verbose) {
+      if (verbose) {
         cli::cli_alert_info("Checking where [{package_name}] is used as a dependency...")
       }
       private$temp_settings$files <- c("DESCRIPTION", "NAMESPACE")
       repos_with_package <- private$get_repos_table(
         with_code = package_name,
+        verbose = FALSE,
         settings = private$temp_settings
       )
       if (nrow(repos_with_package) > 0) {
@@ -704,8 +698,7 @@ GitStats <- R6::R6Class("GitStats",
 
         if (length(urls) != length(unique(urls))) {
           cli::cli_abort(c(
-            "x" = "You can not provide two hosts of the same API urls.",
-            "i" = "If you wish to change/add more organizations you can do it with `set_organizations()` function."
+            "x" = "You can not provide two hosts of the same API urls."
           ),
           call = NULL
           )

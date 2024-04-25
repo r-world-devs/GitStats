@@ -8,7 +8,7 @@ get_R_package_usage(
   gitstats_object,
   package_name,
   only_loading = FALSE,
-  use_storage = TRUE,
+  cache = TRUE,
   verbose = is_verbose(gitstats_object)
 )
 }
@@ -20,9 +20,10 @@ get_R_package_usage(
 \item{only_loading}{A boolean, if \code{TRUE} function will check only if package
 is loaded in repositories, not used as dependencies.}
 
-\item{use_storage}{A logical, should storage be used.}
+\item{cache}{A logical, if \code{TRUE}, cached results will be used.}
 
-\item{verbose}{A logical, should verbose mode be used.}
+\item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and
+printing output is switched off.}
 }
 \value{
 A table of repositories content.
