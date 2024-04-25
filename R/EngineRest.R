@@ -87,18 +87,18 @@ EngineRest <- R6::R6Class("EngineRest",
       resp <- NULL
       resp <- httr2::request(endpoint) %>%
         httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
-        httr2::req_error(is_error = function(resp) httr2::resp_status(resp) %in% c(404, 500)) %>%
+        httr2::req_error(is_error = function(resp) httr2::resp_status(resp) == 404) %>%
         httr2::req_perform()
       if (!private$scan_all) {
         if (resp$status == 401) {
           message("HTTP 401 Unauthorized.")
         }
       }
-      if (resp$status %in% c(400, 403)) {
+      if (resp$status %in% c(400, 500, 403)) {
         resp <- httr2::request(endpoint) %>%
           httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
           httr2::req_retry(
-            is_transient = ~ httr2::resp_status(.x) %in% c(400, 403),
+            is_transient = ~ httr2::resp_status(.x) %in% c(400, 500, 403),
             max_seconds = 60
           ) %>%
           httr2::req_perform()
