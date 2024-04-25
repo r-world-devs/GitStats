@@ -7,7 +7,7 @@
     Message
       i Using PAT from GITLAB_PAT envar.
 
-# `check_orgs_and_repos` throws error when both `orgs` and `repos` are defined
+# `set_searching_scope` throws error when both `orgs` and `repos` are defined
 
     Do not specify `orgs` while specifing `repos`.
     x Host will not be added.
