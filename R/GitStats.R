@@ -25,7 +25,6 @@ GitStats <- R6::R6Class("GitStats",
         token = token,
         host = host
       )
-      private$set_searching_scope(orgs, repos)
       private$add_new_host(new_host)
     },
 
@@ -51,7 +50,6 @@ GitStats <- R6::R6Class("GitStats",
         token = token,
         host = host
       )
-      private$set_searching_scope(orgs, repos)
       private$add_new_host(new_host)
     },
 
@@ -318,7 +316,6 @@ GitStats <- R6::R6Class("GitStats",
 
     # @field settings List of search preferences.
     settings = list(
-      searching_scope = NULL,
       files = NULL,
       verbose = TRUE,
       cache = TRUE
@@ -326,7 +323,6 @@ GitStats <- R6::R6Class("GitStats",
 
     # temporary settings used when calling some methods for custom purposes
     temp_settings = list(
-      searching_scope = "org",
       files = NULL,
       verbose = FALSE,
       cache = TRUE
@@ -348,19 +344,6 @@ GitStats <- R6::R6Class("GitStats",
         private$hosts <- new_host %>%
           private$check_for_duplicate_hosts() %>%
           append(private$hosts, .)
-      }
-    },
-
-    # Set searching scope
-    set_searching_scope = function(orgs, repos) {
-      if (!is.null(repos)) {
-        private$settings$searching_scope <- "repo"
-      }
-      if (!is.null(orgs)) {
-        private$settings$searching_scope <- "org"
-      }
-      if (is.null(orgs) && is.null(repos)) {
-        private$settings$searching_scope <- "all"
       }
     },
 
@@ -752,11 +735,15 @@ GitStats <- R6::R6Class("GitStats",
     print_orgs_and_repos = function() {
       orgs <- purrr::map(private$hosts, function(host) {
         host_priv <- environment(host$initialize)$private
-        orgs <- host_priv$orgs
+        if (host_priv$searching_scope == "org") {
+          orgs <- host_priv$orgs
+        }
       })
       repos <- purrr::map(private$hosts, function(host) {
         host_priv <- environment(host$initialize)$private
-        repos <- host_priv$repos
+        if (host_priv$searching_scope == "repo") {
+          repos <- host_priv$repos_fullnames
+        }
       })
       private$print_item(" Organizations", orgs)
       private$print_item(" Repositories", repos)

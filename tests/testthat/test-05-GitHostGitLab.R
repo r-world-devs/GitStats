@@ -20,9 +20,9 @@ test_that("`set_default_token` sets default token for GitLab", {
   )
 })
 
-test_that("`check_orgs_and_repos` throws error when both `orgs` and `repos` are defined", {
+test_that("`set_searching_scope` throws error when both `orgs` and `repos` are defined", {
   expect_snapshot_error(
-    test_host$check_orgs_and_repos(
+    test_host$set_searching_scope(
       orgs = "mbtests",
       repos = "mbtests/GitStatsTesting"
     )

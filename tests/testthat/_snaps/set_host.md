@@ -49,6 +49,7 @@
         "openpharma/GithubMetrics", "openpharma/DataFakeR"))
     Message
       i Searching scope set to [repo].
+      i Checking passed repositories...
       v Set connection to GitHub.
 
 # Set GitLab host with particular repos vector instead of orgs
@@ -58,6 +59,7 @@
       repos = c("mbtests/gitstatstesting", "mbtests/gitstats-testing-2"))
     Message
       i Searching scope set to [repo].
+      i Checking passed repositories...
       v Set connection to GitLab.
 
 # Set host prints error when repos and orgs are defined and host is not passed to GitStats
