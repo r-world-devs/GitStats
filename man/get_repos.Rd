@@ -40,16 +40,16 @@ List all repositories for an organization or by a keyword.
 \examples{
 \dontrun{
 my_gitstats <- create_gitstats() \%>\%
-  set_host(
-    api_url = "https://api.github.com",
+  set_github_host(
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma")
   ) \%>\%
-  set_host(
-    api_url = "https://gitlab.com/api/v4",
+  set_gitlab_host(
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "mbtests"
   )
-  get_repos(my_gitstats)
+get_repos(my_gitstats)
+get_repos(my_gitstats, add_contributors = FALSE)
+get_repos(my_gitstats, with_code = "Shiny")
 }
 }

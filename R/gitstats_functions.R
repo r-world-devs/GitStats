@@ -103,17 +103,17 @@ set_gitlab_host <- function(gitstats_object,
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
-#'   set_host(
-#'     api_url = "https://api.github.com",
+#'   set_github_host(
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma")
 #'   ) %>%
-#'   set_host(
-#'     api_url = "https://gitlab.com/api/v4",
+#'   set_gitlab_host(
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
 #'   )
-#'   get_repos(my_gitstats)
+#' get_repos(my_gitstats)
+#' get_repos(my_gitstats, add_contributors = FALSE)
+#' get_repos(my_gitstats, with_code = "Shiny")
 #' }
 #' @export
 get_repos <- function(gitstats_object,
@@ -143,17 +143,15 @@ get_repos <- function(gitstats_object,
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
-#'   set_host(
-#'     api_url = "https://api.github.com",
+#'   set_github_host(
 #'     token = Sys.getenv("GITHUB_PAT"),
-#'     orgs = c("r-world-devs")
+#'     repos = c("openpharma/DataFakeR", "openpharma/visR")
 #'   ) %>%
-#'   set_host(
-#'     api_url = "https://gitlab.com/api/v4",
+#'   set_gitlab_host(
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
-#'   ) %>%
-#'   get_commits(since = "2018-01-01")
+#'   )
+#'  get_commits(my_gitstats, since = "2018-01-01")
 #' }
 #' @export
 get_commits <- function(gitstats_object,
@@ -175,9 +173,22 @@ get_commits <- function(gitstats_object,
 #' @title Get statistics on commits
 #' @name get_commits_stats
 #' @description Prepare statistics from the pulled commits data.
+#' @details To make function work, you need first to get commits data with
+#'   `GitStats`. See examples section.
 #' @param gitstats_object A GitStats class object.
-#' @param time_interval A character, specifying time interval to show statistics.
+#' @param time_interval A character, specifying time interval to show
+#'   statistics.
 #' @return A table of `commits_stats` class.
+#' @examples
+#' \dontrun{
+#'  my_gitstats <- create_gitstats() %>%
+#'    set_github_host(
+#'      token = Sys.getenv("GITHUB_PAT"),
+#'      repos = c("r-world-devs/GitStats", "openpharma/visR")
+#'    )
+#'  get_commits(my_gitstats, since = "2022-01-01")
+#'  get_commits_stats(my_gitstats, time_interval = "week")
+#' }
 #' @export
 get_commits_stats = function(gitstats_object,
                              time_interval = c("month", "day", "week")) {
@@ -197,17 +208,15 @@ get_commits_stats = function(gitstats_object,
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
-#'   set_host(
-#'     api_url = "https://api.github.com",
+#'   set_github_host(
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs")
 #'   ) %>%
-#'   set_host(
-#'     api_url = "https://gitlab.com/api/v4",
+#'   set_gitlab_host(
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
 #'   )
-#'   get_users(my_gitstats, c("maciekabanas", "marcinkowskak"))
+#'  get_users(my_gitstats, c("maciekabanas", "marcinkowskak"))
 #' }
 #' @return A `GitStats` object with table of users.
 #' @export
@@ -234,17 +243,15 @@ get_users <- function(gitstats_object,
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
-#'   set_host(
-#'     api_url = "https://api.github.com",
+#'   set_github_host(
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs")
 #'   ) %>%
-#'   set_host(
-#'     api_url = "https://gitlab.com/api/v4",
+#'   set_gitlab_host(
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
 #'   )
-#'   get_files(my_gitstats, "meta_data.yaml")
+#'  get_files(my_gitstats, c("LICENSE", "DESCRIPTION"))
 #' }
 #' @return A `GitStats` object with table of files.
 #' @export
@@ -275,12 +282,12 @@ get_files <- function(gitstats_object,
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
-#'   set_host(
-#'     api_url = "https://api.github.com",
+#'   set_github_host(
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma")
-#'   ) %>%
-#'   get_R_package_usage("Shiny")
+#'   )
+#'
+#'  get_R_package_usage(my_gitstats, "Shiny")
 #' }
 #' @export
 get_R_package_usage <- function(
@@ -306,8 +313,7 @@ get_R_package_usage <- function(
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
-#'   set_host(
-#'     api_url = "https://api.github.com",
+#'   set_github_host(
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma")
 #'   )

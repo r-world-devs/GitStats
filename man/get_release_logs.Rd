@@ -33,8 +33,7 @@ Pull release logs from repositories.
 \examples{
 \dontrun{
  my_gitstats <- create_gitstats() \%>\%
-  set_host(
-    api_url = "https://api.github.com",
+  set_github_host(
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma")
   )

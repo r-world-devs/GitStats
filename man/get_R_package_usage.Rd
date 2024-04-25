@@ -36,11 +36,11 @@ using it as a dependency (\code{package} in \code{DESCRIPTION} and \code{NAMESPA
 \examples{
 \dontrun{
  my_gitstats <- create_gitstats() \%>\%
-  set_host(
-    api_url = "https://api.github.com",
+  set_github_host(
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma")
-  ) \%>\%
-  get_R_package_usage("Shiny")
+  )
+
+ get_R_package_usage(my_gitstats, "Shiny")
 }
 }

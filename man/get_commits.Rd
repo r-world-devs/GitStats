@@ -34,16 +34,14 @@ vector of repositories.
 \examples{
 \dontrun{
 my_gitstats <- create_gitstats() \%>\%
-  set_host(
-    api_url = "https://api.github.com",
+  set_github_host(
     token = Sys.getenv("GITHUB_PAT"),
-    orgs = c("r-world-devs")
+    repos = c("openpharma/DataFakeR", "openpharma/visR")
   ) \%>\%
-  set_host(
-    api_url = "https://gitlab.com/api/v4",
+  set_gitlab_host(
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "mbtests"
-  ) \%>\%
-  get_commits(since = "2018-01-01")
+  )
+ get_commits(my_gitstats, since = "2018-01-01")
 }
 }

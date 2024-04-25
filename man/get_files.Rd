@@ -31,16 +31,14 @@ Pull files content from Git Hosts.
 \examples{
 \dontrun{
  my_gitstats <- create_gitstats() \%>\%
-  set_host(
-    api_url = "https://api.github.com",
+  set_github_host(
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs")
   ) \%>\%
-  set_host(
-    api_url = "https://gitlab.com/api/v4",
+  set_gitlab_host(
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "mbtests"
   )
-  get_files(my_gitstats, "meta_data.yaml")
+ get_files(my_gitstats, c("LICENSE", "DESCRIPTION"))
 }
 }

@@ -9,11 +9,27 @@ get_commits_stats(gitstats_object, time_interval = c("month", "day", "week"))
 \arguments{
 \item{gitstats_object}{A GitStats class object.}
 
-\item{time_interval}{A character, specifying time interval to show statistics.}
+\item{time_interval}{A character, specifying time interval to show
+statistics.}
 }
 \value{
 A table of \code{commits_stats} class.
 }
 \description{
 Prepare statistics from the pulled commits data.
+}
+\details{
+To make function work, you need first to get commits data with
+\code{GitStats}. See examples section.
+}
+\examples{
+\dontrun{
+ my_gitstats <- create_gitstats() \%>\%
+   set_github_host(
+     token = Sys.getenv("GITHUB_PAT"),
+     repos = c("r-world-devs/GitStats", "openpharma/visR")
+   )
+ get_commits(my_gitstats, since = "2022-01-01")
+ get_commits_stats(my_gitstats, time_interval = "week")
+}
 }
