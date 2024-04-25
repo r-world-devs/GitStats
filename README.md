@@ -46,11 +46,11 @@ On how to use GitStats, refer to the
 
 ## Acknowledgement
 
-Special thanks to [James Black](https://github.com/epijim), [Kamil
-Koziej](https://github.com/Cotau), [Karolina
-Marcinkowska](https://github.com/marcinkowskak), [Krystian
-Igras](https://github.com/krystian8207), [Matt
-Secrest](https://github.com/mattsecrest), [Kamil
+Special thanks to [James Black](https://github.com/epijim), [Karolina
+Marcinkowska](https://github.com/marcinkowskak), [Kamil
+Koziej](https://github.com/Cotau), [Matt
+Secrest](https://github.com/mattsecrest), [Krystian
+Igras](https://github.com/krystian8207), [Kamil
 Wais](https://github.com/kalimu), [Adam
 Forys](https://github.com/galachad) - for the support in the package
 development.
