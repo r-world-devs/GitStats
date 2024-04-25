@@ -19,9 +19,9 @@ GitHost <- R6::R6Class("GitHost",
       private$check_if_public(host)
       private$set_token(token)
       private$set_graphql_url()
-      private$check_orgs_and_repos(orgs, repos)
+      private$set_searching_scope(orgs, repos)
       private$setup_engines()
-      private$set_scanning_scope(orgs, repos)
+      private$set_orgs_and_repos(orgs, repos)
     },
 
     # Pull repositories method
@@ -160,6 +160,9 @@ GitHost <- R6::R6Class("GitHost",
     # A GraphQL API url.
     graphql_api_url = NULL,
 
+    # Either repos, orgs or whole platform
+    searching_scope = NULL,
+
     # An endpoint for basic checks.
     test_endpoint = NULL,
 
@@ -181,6 +184,9 @@ GitHost <- R6::R6Class("GitHost",
 
     # repos A character vector of repositories.
     repos = NULL,
+
+    # repos_fullnames A character vector of repositories with full names.
+    repos_fullnames = NULL,
 
     # orgs_repos A named list of organizations with repositories.
     orgs_repos = NULL,
@@ -248,8 +254,45 @@ GitHost <- R6::R6Class("GitHost",
       }
     },
 
+    # Check if both repos and orgs are defined or not.
+    set_searching_scope = function(orgs, repos) {
+      if (is.null(repos) && is.null(orgs)) {
+        if (private$is_public) {
+          cli::cli_abort(c(
+            "You need to specify `orgs` for public Git Host.",
+            "x" = "Host will not be added.",
+            "i" = "Add organizations to your `orgs` parameter."
+          ),
+          call = NULL)
+        } else {
+          cli::cli_alert_warning(cli::col_yellow(
+            "No `orgs` specified. I will pull all organizations from the Git Host."
+          ))
+          cli::cli_alert_info(cli::col_grey("Searching scope set to [all]."))
+          private$searching_scope <- "all"
+          private$scan_all <- TRUE
+        }
+      }
+      if (!is.null(repos) && is.null(orgs)) {
+        cli::cli_alert_info(cli::col_grey("Searching scope set to [repo]."))
+        private$searching_scope <- "repo"
+      }
+      if (is.null(repos) && !is.null(orgs)) {
+        cli::cli_alert_info(cli::col_grey("Searching scope set to [org]."))
+        private$searching_scope <- "org"
+      }
+      if (!is.null(repos) && !is.null(orgs)) {
+        cli::cli_abort(c(
+          "Do not specify `orgs` while specifing `repos`.",
+          "x" = "Host will not be added.",
+          "i" = "Specify `orgs` or `repos`."
+        ),
+        call = NULL)
+      }
+    },
+
     # Set organization or repositories
-    set_scanning_scope = function(orgs, repos) {
+    set_orgs_and_repos = function(orgs, repos) {
       if (private$scan_all) {
         cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
         private$orgs <- private$engines$graphql$pull_orgs()
@@ -259,6 +302,7 @@ GitHost <- R6::R6Class("GitHost",
         }
         if (!is.null(repos)) {
           repos <- private$check_repositories(repos)
+          private$repos_fullnames <- repos
           orgs_repos <- private$extract_repos_and_orgs(repos)
           private$orgs <- names(orgs_repos)
           private$repos <- unname(unlist(orgs_repos))
@@ -271,6 +315,7 @@ GitHost <- R6::R6Class("GitHost",
     #' @param repos A character vector of repositories
     #' @return repos or NULL.
     check_repositories = function(repos) {
+      cli::cli_alert_info(cli::col_grey("Checking passed repositories..."))
       repos <- purrr::map(repos, function(repo) {
         repo_endpoint = glue::glue("{private$endpoints$repositories}/{repo}")
         check <- private$check_endpoint(
@@ -314,8 +359,7 @@ GitHost <- R6::R6Class("GitHost",
       orgs
     },
 
-    # @description Check whether the endpoint exists.
-    # @param type Type of repository.
+    # Check whether the endpoint exists.
     check_endpoint = function(endpoint, type) {
       check <- TRUE
       tryCatch(
@@ -338,40 +382,6 @@ GitHost <- R6::R6Class("GitHost",
     set_graphql_url = function() {
       clean_api_url <- gsub("/v+.*", "", private$api_url)
       private$graphql_api_url <- glue::glue("{clean_api_url}/graphql")
-    },
-
-    # Check if both repos and orgs are defined or not.
-    check_orgs_and_repos = function(orgs, repos) {
-      if (is.null(repos) && is.null(orgs)) {
-        if (private$is_public) {
-          cli::cli_abort(c(
-            "You need to specify `orgs` for public Git Host.",
-            "x" = "Host will not be added.",
-            "i" = "Add organizations to your `orgs` parameter."
-          ),
-          call = NULL)
-        } else {
-          cli::cli_alert_warning(cli::col_yellow(
-            "No `orgs` specified. I will pull all organizations from the Git Host."
-          ))
-          cli::cli_alert_info(cli::col_grey("Searching scope set to [all]."))
-          private$scan_all <- TRUE
-        }
-      }
-      if (!is.null(repos) && is.null(orgs)) {
-        cli::cli_alert_info(cli::col_grey("Searching scope set to [repo]."))
-      }
-      if (is.null(repos) && !is.null(orgs)) {
-        cli::cli_alert_info(cli::col_grey("Searching scope set to [org]."))
-      }
-      if (!is.null(repos) && !is.null(orgs)) {
-        cli::cli_abort(c(
-          "Do not specify `orgs` while specifing `repos`.",
-          "x" = "Host will not be added.",
-          "i" = "Specify `orgs` or `repos`."
-        ),
-        call = NULL)
-      }
     },
 
     # Set default token if none exists.
@@ -430,7 +440,7 @@ GitHost <- R6::R6Class("GitHost",
 
     # Set repositories
     set_repos = function(settings, org) {
-      if (settings$searching_scope == "repo") {
+      if (private$searching_scope == "repo") {
         repos <- private$orgs_repos[[org]]
       } else {
         repos <- NULL
