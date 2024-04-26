@@ -20,7 +20,8 @@ get_R_package_usage(
 \item{only_loading}{A boolean, if \code{TRUE} function will check only if package
 is loaded in repositories, not used as dependencies.}
 
-\item{cache}{A logical, if \code{TRUE}, cached results will be used.}
+\item{cache}{A logical, if set to \code{TRUE} GitStats will retrieve the last
+result from its storage.}
 
 \item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and
 printing output is switched off.}
@@ -36,11 +37,11 @@ using it as a dependency (\code{package} in \code{DESCRIPTION} and \code{NAMESPA
 \examples{
 \dontrun{
  my_gitstats <- create_gitstats() \%>\%
-  set_host(
-    api_url = "https://api.github.com",
+  set_github_host(
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma")
-  ) \%>\%
-  get_R_package_usage("Shiny")
+  )
+
+ get_R_package_usage(my_gitstats, "Shiny")
 }
 }

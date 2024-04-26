@@ -17,7 +17,8 @@ get_files(
 \item{file_path}{A standardized path to file(s) in repositories. May be a
 character vector if multiple files are to be pulled.}
 
-\item{cache}{A logical, if \code{TRUE}, cached results will be used.}
+\item{cache}{A logical, if set to \code{TRUE} GitStats will retrieve the last
+result from its storage.}
 
 \item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and
 printing output is switched off.}
@@ -31,16 +32,14 @@ Pull files content from Git Hosts.
 \examples{
 \dontrun{
  my_gitstats <- create_gitstats() \%>\%
-  set_host(
-    api_url = "https://api.github.com",
+  set_github_host(
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs")
   ) \%>\%
-  set_host(
-    api_url = "https://gitlab.com/api/v4",
+  set_gitlab_host(
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "mbtests"
   )
-  get_files(my_gitstats, "meta_data.yaml")
+ get_files(my_gitstats, c("LICENSE", "DESCRIPTION"))
 }
 }

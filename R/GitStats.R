@@ -59,7 +59,8 @@ GitStats <- R6::R6Class("GitStats",
     #'   information to repositories.
     #' @param with_code A character, if  defined, GitStats will pull repositories
     #'   with specified text in code blobs.
-    #' @param cache A logical, if `TRUE`, cached results will be used.
+    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+    #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
     get_repos = function(add_contributors = FALSE,
@@ -94,7 +95,8 @@ GitStats <- R6::R6Class("GitStats",
     #' @description A method to get information on commits.
     #' @param since A starting date for commits.
     #' @param until An end date for commits.
-    #' @param cache A logical, if `TRUE`, cached results will be used.
+    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+    #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
     get_commits = function(since,
@@ -155,7 +157,8 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description Get information on users.
     #' @param logins Character vector of logins.
-    #' @param cache A logical, if `TRUE`, cached results will be used.
+    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+    #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
     get_users = function(logins, cache = TRUE, verbose = TRUE) {
@@ -180,7 +183,8 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description Pull text content of a file from all repositories.
     #' @param file_path A file path, may be a character vector.
-    #' @param cache A logical, if `TRUE`, cached results will be used.
+    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+    #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
     get_files = function(file_path, cache = TRUE, verbose = TRUE) {
@@ -209,7 +213,8 @@ GitStats <- R6::R6Class("GitStats",
     #' @description Get release logs of repositories.
     #' @param since A starting date for release logs.
     #' @param until An end date for release logs.
-    #' @param cache A logical, if `TRUE`, cached results will be used.
+    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+    #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
     get_release_logs = function(since,
@@ -245,7 +250,8 @@ GitStats <- R6::R6Class("GitStats",
     #' @param package_name A character, name of the package.
     #' @param only_loading A boolean, if `TRUE` function will check only if
     #'   package is loaded in repositories, not used as dependencies.
-    #' @param cache A logical, if `TRUE`, cached results will be used.
+    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+    #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
     get_R_package_usage = function(package_name,

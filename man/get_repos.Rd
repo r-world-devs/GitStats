@@ -29,10 +29,11 @@ additional information.}
 \item{with_code}{A character, if  defined, GitStats will pull repositories
 with specified text in code blobs.}
 
-\item{cache}{A logical, if \code{TRUE}, cached results will be used.}
+\item{cache}{A logical, if set to \code{TRUE} GitStats will retrieve the last
+result from its storage.}
 
-\item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and
-printing output is switched off.}
+\item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and printing
+output is switched off.}
 }
 \description{
 List all repositories for an organization or by a keyword.
@@ -40,16 +41,16 @@ List all repositories for an organization or by a keyword.
 \examples{
 \dontrun{
 my_gitstats <- create_gitstats() \%>\%
-  set_host(
-    api_url = "https://api.github.com",
+  set_github_host(
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma")
   ) \%>\%
-  set_host(
-    api_url = "https://gitlab.com/api/v4",
+  set_gitlab_host(
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "mbtests"
   )
-  get_repos(my_gitstats)
+get_repos(my_gitstats)
+get_repos(my_gitstats, add_contributors = FALSE)
+get_repos(my_gitstats, with_code = "Shiny")
 }
 }
