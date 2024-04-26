@@ -97,9 +97,10 @@ set_gitlab_host <- function(gitstats_object,
 #'   additional information.
 #' @param with_code A character, if  defined, GitStats will pull repositories
 #'   with specified text in code blobs.
-#' @param cache A logical, if `TRUE`, cached results will be used.
-#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
-#'   printing output is switched off.
+#' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+#'   result from its storage.
+#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
+#'   output is switched off.
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
@@ -136,7 +137,8 @@ get_repos <- function(gitstats_object,
 #' @param gitstats_object A GitStats object.
 #' @param since A starting date.
 #' @param until An end date.
-#' @param cache A logical, if `TRUE`, cached results will be used.
+#' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+#'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
 #'   printing output is switched off.
 #' @return A `GitStats` class object with commits table.
@@ -202,7 +204,8 @@ get_commits_stats = function(gitstats_object,
 #' @description Pull users data from Git Host.
 #' @param gitstats_object A GitStats object.
 #' @param logins A character vector of logins.
-#' @param cache A logical, if `TRUE`, cached results will be used.
+#' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+#'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
 #'   printing output is switched off.
 #' @examples
@@ -237,7 +240,8 @@ get_users <- function(gitstats_object,
 #' @param gitstats_object A GitStats object.
 #' @param file_path A standardized path to file(s) in repositories. May be a
 #'   character vector if multiple files are to be pulled.
-#' @param cache A logical, if `TRUE`, cached results will be used.
+#' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+#'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
 #'   printing output is switched off.
 #' @examples
@@ -275,7 +279,8 @@ get_files <- function(gitstats_object,
 #' @param package_name A character, name of the package.
 #' @param only_loading A boolean, if `TRUE` function will check only if package
 #'   is loaded in repositories, not used as dependencies.
-#' @param cache A logical, if `TRUE`, cached results will be used.
+#' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+#'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
 #'   printing output is switched off.
 #' @return A table of repositories content.

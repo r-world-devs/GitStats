@@ -29,10 +29,11 @@ additional information.}
 \item{with_code}{A character, if  defined, GitStats will pull repositories
 with specified text in code blobs.}
 
-\item{cache}{A logical, if \code{TRUE}, cached results will be used.}
+\item{cache}{A logical, if set to \code{TRUE} GitStats will retrieve the last
+result from its storage.}
 
-\item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and
-printing output is switched off.}
+\item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and printing
+output is switched off.}
 }
 \description{
 List all repositories for an organization or by a keyword.

@@ -16,7 +16,8 @@ get_users(
 
 \item{logins}{A character vector of logins.}
 
-\item{cache}{A logical, if \code{TRUE}, cached results will be used.}
+\item{cache}{A logical, if set to \code{TRUE} GitStats will retrieve the last
+result from its storage.}
 
 \item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and
 printing output is switched off.}

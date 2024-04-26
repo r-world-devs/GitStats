@@ -20,7 +20,8 @@ get_R_package_usage(
 \item{only_loading}{A boolean, if \code{TRUE} function will check only if package
 is loaded in repositories, not used as dependencies.}
 
-\item{cache}{A logical, if \code{TRUE}, cached results will be used.}
+\item{cache}{A logical, if set to \code{TRUE} GitStats will retrieve the last
+result from its storage.}
 
 \item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and
 printing output is switched off.}
