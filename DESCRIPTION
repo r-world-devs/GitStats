@@ -14,8 +14,6 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
 RoxygenNote: 7.3.1
-URL: https://r-world-devs.github.io/GitStats/, https://github.com/r-world-devs/GitStats
-BugReports: https://github.com/r-world-devs/GitStats/issues
 Imports:
     cli,
     dplyr,
