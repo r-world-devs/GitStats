@@ -1,8 +1,0 @@
-pandoc: 2.19.2
-pkgdown: 2.0.7
-pkgdown_sha: ~
-articles:
-  get_commits_stats: get_commits_stats.html
-  get_repository_stats: get_repository_stats.html
-last_built: 2024-01-04T12:32Z
-

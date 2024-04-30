@@ -2,16 +2,14 @@ test_gitstats <- create_gitstats()
 
 test_that("Set connection returns appropriate messages", {
   expect_snapshot(
-    set_host(
+    set_github_host(
       gitstats_obj = test_gitstats,
-      api_url = "https://api.github.com",
       token = Sys.getenv("GITHUB_PAT"),
       orgs = c("openpharma", "r-world-devs")
     )
   )
   expect_snapshot(
-    test_gitstats %>% set_host(
-      api_url = "https://gitlab.com/api/v4",
+    test_gitstats %>% set_gitlab_host(
       token = Sys.getenv("GITLAB_PAT_PUBLIC"),
       orgs = c("mbtests")
     )
@@ -21,8 +19,7 @@ test_that("Set connection returns appropriate messages", {
 test_that("When empty token for GitHub, GitStats pulls default token", {
   expect_snapshot(
     test_gitstats <- create_gitstats() %>%
-      set_host(
-        api_url = "https://api.github.com",
+      set_github_host(
         orgs = c("openpharma", "r-world-devs")
       )
   )
@@ -32,8 +29,7 @@ test_that("When empty token for GitLab, GitStats pulls default token", {
   expect_snapshot(
     withr::with_envvar(new = c("GITLAB_PAT" = Sys.getenv("GITLAB_PAT_PUBLIC")), {
       test_gitstats <- create_gitstats() %>%
-        set_host(
-          api_url = "https://gitlab.com/api/v4",
+        set_gitlab_host(
           orgs = "mbtests"
         )
     })
@@ -44,8 +40,7 @@ test_that("Set GitHub host with particular repos vector instead of orgs", {
   test_gitstats <- create_gitstats()
   expect_snapshot(
     test_gitstats %>%
-      set_host(
-        api_url = "https://api.github.com",
+      set_github_host(
         token = Sys.getenv("GITHUB_PAT"),
         repos = c("r-world-devs/GitStats", "r-world-devs/shinyCohortBuilder", "openpharma/GithubMetrics", "openpharma/DataFakeR")
       )
@@ -60,8 +55,7 @@ test_that("Set GitLab host with particular repos vector instead of orgs", {
   test_gitstats <- create_gitstats()
   expect_snapshot(
     test_gitstats %>%
-      set_host(
-        api_url = "https://gitlab.com/api/v4",
+      set_gitlab_host(
         token = Sys.getenv("GITLAB_PAT_PUBLIC"),
         repos = c("mbtests/gitstatstesting", "mbtests/gitstats-testing-2")
       )
@@ -76,8 +70,7 @@ test_that("Set host prints error when repos and orgs are defined and host is not
   test_gitstats <- create_gitstats()
   expect_snapshot_error(
     test_gitstats %>%
-      set_host(
-        api_url = "https://api.github.com",
+      set_github_host(
         token = Sys.getenv("GITHUB_PAT"),
         orgs = c('r-world-devs', "openpharma"),
         repos = c("r-world-devs/GitStats", "r-world-devs/shinyCohortBuilder", "openpharma/GithubMetrics", "openpharma/DataFakeR")
@@ -93,8 +86,7 @@ test_that("Error shows if organizations are not specified and host is not passed
   test_gitstats <- create_gitstats()
   expect_snapshot_error(
     test_gitstats %>%
-      set_host(
-        api_url = "https://api.github.com",
+      set_github_host(
         token = Sys.getenv("GITHUB_PAT")
       )
   )
@@ -108,9 +100,9 @@ test_that("Error shows, when wrong input is passed when setting connection and h
   test_gitstats <- create_gitstats()
 
   expect_snapshot_error(
-    set_host(
-      gitstats_obj = test_gitstats,
-      api_url = "https://avengers.com",
+    set_gitlab_host(
+      gitstats_object = test_gitstats,
+      host = "https://avengers.com",
       token = Sys.getenv("GITLAB_PAT_PUBLIC")
     )
   )
@@ -122,13 +114,11 @@ test_that("Error pops out, when two clients of the same url api are passed as in
   expect_snapshot(
     error = TRUE,
     test_gitstats %>%
-      set_host(
-        api_url = "https://api.github.com",
+      set_github_host(
         token = Sys.getenv("GITHUB_PAT"),
         orgs = "pharmaverse"
       ) %>%
-      set_host(
-        api_url = "https://api.github.com",
+      set_github_host(
         token = Sys.getenv("GITHUB_PAT"),
         orgs = "openpharma"
       )
@@ -138,8 +128,7 @@ test_that("Error pops out, when two clients of the same url api are passed as in
 test_that("`Org` name is not passed to the object if it does not exist", {
   expect_snapshot(
     test_gitstats <- create_gitstats() %>%
-      set_host(
-        api_url = "https://api.github.com",
+      set_github_host(
         token = Sys.getenv("GITHUB_PAT"),
         orgs = c("openparma")
       )
@@ -147,8 +136,7 @@ test_that("`Org` name is not passed to the object if it does not exist", {
 
   expect_snapshot(
     test_gitstats <- create_gitstats() %>%
-      set_host(
-        api_url = "https://gitlab.com/api/v4",
+      set_gitlab_host(
         token = Sys.getenv("GITLAB_PAT_PUBLIC"),
         orgs = c("openparma", "mbtests")
       )
@@ -156,8 +144,7 @@ test_that("`Org` name is not passed to the object if it does not exist", {
 
   expect_snapshot(
     test_gitstats <- create_gitstats() %>%
-      set_host(
-        api_url = "https://api.github.com",
+      set_github_host(
         token = Sys.getenv("GITHUB_PAT"),
         orgs = c("openpharma", "r_world_devs")
       )

@@ -1,6 +1,6 @@
 Package: GitStats
 Title: Get Statistics from GitHub and GitLab
-Version: 1.1.0
+Version: 2.0.0
 Authors@R: c(
     person(given = "Maciej", family = "Banas", email = "banasmaciek@gmail.com", role = c("aut", "cre")),
     person(given = "Kamil", family = "Koziej", email = "koziej.k@gmail.com", role = "aut"),
@@ -13,16 +13,16 @@ Description: Obtain statistics in a standardized way from multiple Git services:
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.3.1
+URL: https://r-world-devs.github.io/GitStats/, https://github.com/r-world-devs/GitStats
+BugReports: https://github.com/r-world-devs/GitStats/issues
 Imports:
     cli,
-    data.table,
     dplyr,
-    ggplot2,
+    glue,
     httr2,
     lubridate,
     magrittr,
-    plotly,
     rlang (>= 1.1.0),
     R6,
     purrr (>= 1.0.0),

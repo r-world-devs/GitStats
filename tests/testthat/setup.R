@@ -13,23 +13,22 @@ test_team <- list(
 )
 
 test_settings <- list(
-  search_param = "org",
-  phrase = NULL,
-  team_name = NULL,
-  team = list(),
   files = NULL,
-  language = "All",
-  print_out = TRUE
+  verbose = TRUE,
+  storage = TRUE
+)
+
+test_settings_silence <- list(
+  files = NULL,
+  verbose = FALSE,
+  storage = TRUE
 )
 
 test_settings_repo <- list(
-  search_param = "repo",
-  phrase = NULL,
-  team_name = NULL,
-  team = list(),
+  searching_scope = "repo",
   files = NULL,
-  language = "All",
-  print_out = TRUE
+  verbose = TRUE,
+  storage = TRUE
 )
 
 if (nchar(Sys.getenv("GITHUB_PAT")) == 0) {

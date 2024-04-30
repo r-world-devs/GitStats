@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 [![Codecov test coverage](https://codecov.io/gh/r-world-devs/GitStats/branch/devel/graph/badge.svg)](https://app.codecov.io/gh/r-world-devs/GitStats?branch=devel)
 <!-- badges: end -->
 
-The goal of GitStats is to pull git statistics in a uniform way from different Git platforms (GitHub and GitLab for the time-being). 
+The goal of GitStats is to pull git data (e.g. `repositories`, `commits`, `release logs`) in a uniform way from different Git platforms (GitHub and GitLab for the time-being). 
 
 ## Installation
 
@@ -31,14 +31,18 @@ devtools::install_github("r-world-devs/GitStats")
 
 ## Setting up your tokens
 
-Please remember to have your access tokens stored as environment variables: `GITHUB_PAT` for access to GitHub API and `GITLAB_PAT` for GitLab API.
+Please remember to have your access tokens stored as environment variables, e.g. `GITHUB_PAT` for access to GitHub API and `GITLAB_PAT` for GitLab API.
 
-### Scope of tokens
+### Access scopes of tokens
 
 For `GitStats` to work you need:
 
 - [GitHub] `public_repo`, `read:org` and `read:user` scopes,
 - [GitLab] `read_api` scope.
+
+### API versions
+
+GitStats is configured to connect to GitHub API (version 3) and GitLab API (version 4).
 
 ## GitStats workflow
 
@@ -46,12 +50,5 @@ On how to use GitStats, refer to the [documentation](https://r-world-devs.github
 
 ## Acknowledgement
 
-Special thanks to:
-
-- [Kamil Koziej](https://github.com/Cotau) - for reviewing permanently my pull requests and suggesting more efficient solutions,
-- [Karolina Marcinkowska](https://github.com/marcinkowskak) - for substantial improvements on plots,
-- [Krystian Igras](https://github.com/krystian8207) - for the major review of GitStats,
-- [Matt Secrest](https://github.com/mattsecrest) - for making use of your scripts to apply search feature,
-- [Kamil Wais](https://github.com/kalimu), [Adam Forys](https://github.com/galachad) - for your guidelines at the very beginning of the project,
-- [James Black](https://github.com/epijim) - for giving a kick-off for this project and an inspiration from [GithubMetrics](https://github.com/openpharma/GithubMetrics).
+Special thanks to [James Black](https://github.com/epijim), [Karolina Marcinkowska](https://github.com/marcinkowskak), [Kamil Koziej](https://github.com/Cotau), [Matt Secrest](https://github.com/mattsecrest), [Krystian Igras](https://github.com/krystian8207), [Kamil Wais](https://github.com/kalimu), [Adam Forys](https://github.com/galachad) - for the support in the package development.
 

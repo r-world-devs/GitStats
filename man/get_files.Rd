@@ -2,16 +2,44 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{get_files}
 \alias{get_files}
-\title{Get files}
+\title{Get files content}
 \usage{
-get_files(gitstats_obj)
+get_files(
+  gitstats_object,
+  file_path,
+  cache = TRUE,
+  verbose = is_verbose(gitstats_object)
+)
 }
 \arguments{
-\item{gitstats_obj}{A GitStats object.}
+\item{gitstats_object}{A GitStats object.}
+
+\item{file_path}{A standardized path to file(s) in repositories. May be a
+character vector if multiple files are to be pulled.}
+
+\item{cache}{A logical, if set to \code{TRUE} GitStats will retrieve the last
+result from its storage.}
+
+\item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and
+printing output is switched off.}
 }
 \value{
-A table of files content.
+A \code{GitStats} object with table of files.
 }
 \description{
-Retrieves files table pulled by \code{GitStats}.
+Pull files content from Git Hosts.
+}
+\examples{
+\dontrun{
+ my_gitstats <- create_gitstats() \%>\%
+  set_github_host(
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("r-world-devs")
+  ) \%>\%
+  set_gitlab_host(
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    orgs = "mbtests"
+  )
+ get_files(my_gitstats, c("LICENSE", "DESCRIPTION"))
+}
 }

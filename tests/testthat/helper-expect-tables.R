@@ -1,8 +1,12 @@
-repo_table_colnames <- c(
-  "repo_id", "repo_name", "default_branch", "stars", "forks", "created_at",
-  "last_activity_at", "languages", "issues_open", "issues_closed",
-  "organization", "repo_url"
+repo_gitstats_colnames <- c(
+  "repo_id", "repo_name", "organization", "fullname", "platform", "repo_url", "api_url",
+  "created_at", "last_activity_at", "last_activity", "default_branch", "stars", "forks",
+  "languages", "issues_open", "issues_closed"
 )
+
+repo_host_colnames <- c('repo_id', 'repo_name', 'default_branch', 'stars', 'forks',
+                       'created_at', 'last_activity_at', 'languages', 'issues_open',
+                       'issues_closed', 'organization', 'repo_url')
 
 expect_package_usage_table <- function(object, add_col = NULL) {
   expect_s3_class(object, "data.frame")
@@ -10,20 +14,27 @@ expect_package_usage_table <- function(object, add_col = NULL) {
   expect_gt(nrow(object), 0)
 }
 
-expect_repos_table <- function(pull_repos_object, add_col = NULL) {
+expect_repos_table <- function(pull_repos_object, repo_cols = repo_host_colnames, add_col = NULL) {
   repo_cols <- c(
-    repo_table_colnames, add_col
+    repo_cols, add_col
   )
   expect_s3_class(pull_repos_object, "data.frame")
   expect_named(pull_repos_object, repo_cols)
   expect_gt(nrow(pull_repos_object), 0)
 }
 
-expect_commits_table <- function(pull_commits_object, with_stats = TRUE) {
-  commit_cols <- c(
-    "id", "committed_date", "author", "additions", "deletions",
-    "repository", "organization", "api_url"
-  )
+expect_commits_table <- function(pull_commits_object, with_stats = TRUE, exp_author = TRUE) {
+  commit_cols <- if (exp_author) {
+    c(
+      "id", "committed_date", "author", "author_login", "author_name", "additions", "deletions",
+      "repository", "organization", "api_url"
+    )
+  } else {
+    c(
+      "id", "committed_date", "author", "additions", "deletions",
+      "repository", "organization", "api_url"
+    )
+  }
   expect_s3_class(pull_commits_object, "data.frame")
   expect_named(pull_commits_object, commit_cols)
   expect_gt(nrow(pull_commits_object), 0)
@@ -62,6 +73,17 @@ expect_files_table <- function(files_object) {
     all(purrr::map_lgl(files_object$api_url, ~ grepl("api", .)))
   )
   expect_gt(nrow(files_object), 0)
+}
+
+expect_releases_table <- function(releases_object) {
+  expect_s3_class(releases_object, "data.frame")
+  expect_named(
+    releases_object,
+    c("repo_name", "repo_url",
+      "release_name", "release_tag", "published_at", "release_url",
+      "release_log")
+  )
+  expect_gt(nrow(releases_object), 0)
 }
 
 expect_empty_table <- function(object) {

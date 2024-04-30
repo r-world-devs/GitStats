@@ -2,16 +2,47 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{get_commits}
 \alias{get_commits}
-\title{Get commits}
+\title{Get information on commits}
 \usage{
-get_commits(gitstats_obj)
+get_commits(
+  gitstats_object,
+  since = NULL,
+  until = NULL,
+  cache = TRUE,
+  verbose = is_verbose(gitstats_object)
+)
 }
 \arguments{
-\item{gitstats_obj}{A GitStats object.}
+\item{gitstats_object}{A GitStats object.}
+
+\item{since}{A starting date.}
+
+\item{until}{An end date.}
+
+\item{cache}{A logical, if set to \code{TRUE} GitStats will retrieve the last
+result from its storage.}
+
+\item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and
+printing output is switched off.}
 }
 \value{
-A table of commits.
+A \code{GitStats} class object with commits table.
 }
 \description{
-Retrieves commits table pulled by \code{GitStats}.
+List all commits from all repositories for an organization or a
+vector of repositories.
+}
+\examples{
+\dontrun{
+my_gitstats <- create_gitstats() \%>\%
+  set_github_host(
+    token = Sys.getenv("GITHUB_PAT"),
+    repos = c("openpharma/DataFakeR", "openpharma/visR")
+  ) \%>\%
+  set_gitlab_host(
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    orgs = "mbtests"
+  )
+ get_commits(my_gitstats, since = "2018-01-01")
+}
 }

@@ -8,14 +8,14 @@ create_gitstats <- function() {
   GitStats$new()
 }
 
-#' @title Set Git host
-#' @name set_host
-#' @param gitstats_obj A GitStats object.
-#' @param api_url A character, URL address of API.
+#' @title Set GitHub host
+#' @name set_github_host
+#' @param gitstats_object A GitStats object.
+#' @param host A character, optional, URL name of the host. If not passed, a
+#'   public host will be used.
 #' @param token A token.
-#' @param orgs An optional character vector of organisations (owners of
-#'   repositories in case of GitHub and groups of projects in case of GitLab).
-#'   If you pass it, `repos` parameter should stay `NULL`.
+#' @param orgs An optional character vector of organisations. If you pass it,
+#'   `repos` parameter should stay `NULL`.
 #' @param repos An optional character vector of repositories full names
 #'   (organization and repository name, e.g. "r-world-devs/GitStats"). If you
 #'   pass it, `orgs` parameter should stay `NULL`.
@@ -28,377 +28,358 @@ create_gitstats <- function() {
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
-#'   set_host(
-#'     api_url = "https://api.github.com",
+#'   set_github_host(
 #'     orgs = c("r-world-devs", "openpharma", "pharmaverse")
-#'   ) %>%
-#'   set_host(
-#'     api_url = "https://gitlab.com/api/v4",
-#'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-#'     orgs = "erasmusmc-public-health"
 #'   )
 #' }
 #' @export
-set_host <- function(gitstats_obj,
-                     api_url,
-                     token = NULL,
-                     orgs = NULL,
-                     repos = NULL) {
-  gitstats_obj$set_host(
-    api_url = api_url,
+set_github_host <- function(gitstats_object,
+                            host = NULL,
+                            token = NULL,
+                            orgs = NULL,
+                            repos = NULL) {
+  gitstats_object$set_github_host(
+    host = host,
     token = token,
     orgs = orgs,
     repos = repos
   )
 
-  return(invisible(gitstats_obj))
+  return(invisible(gitstats_object))
 }
 
-#' @title Set up your search settings
-#' @name set_params
-#' @param gitstats_obj A GitStats object.
-#' @param search_param One of three: team, orgs or phrase.
-#' @param team_name Name of a team.
-#' @param phrase A phrase to look for.
-#' @param files Define files to scan.
-#' @param language Code programming language.
-#' @param print_out A boolean to decide whether to print output.
-#' @return A `GitStats` object.
+#' @title Set GitLab host
+#' @name set_gitlab_host
+#' @inheritParams set_github_host
+#' @details If you do not define `orgs` and `repos`, `GitStats` will be set to
+#'   scan whole Git platform (such as enterprise version of GitHub or GitLab),
+#'   unless it is a public platform. In case of a public one (like GitHub) you
+#'   need to define `orgs` or `repos` as scanning through all organizations may
+#'   take large amount of time.
+#' @return A `GitStats` object with added information on host.
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
-#'   set_params(
-#'     search_param = "team",
-#'     team_name = "Avengers",
-#'     language = "R"
+#'   set_gitlab_host(
+#'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+#'     orgs = "mbtests"
 #'   )
 #' }
 #' @export
-set_params <- function(gitstats_obj,
-                       search_param = NULL,
-                       team_name = NULL,
-                       phrase = NULL,
-                       files = NULL,
-                       language = "All",
-                       print_out = TRUE) {
-  gitstats_obj$set_params(
-    search_param = search_param,
-    team_name = team_name,
-    phrase = phrase,
-    files = files,
-    language = language,
-    print_out = print_out
+set_gitlab_host <- function(gitstats_object,
+                            host = NULL,
+                            token = NULL,
+                            orgs = NULL,
+                            repos = NULL) {
+  gitstats_object$set_gitlab_host(
+    host = host,
+    token = token,
+    orgs = orgs,
+    repos = repos
   )
 
-  return(gitstats_obj)
+  return(invisible(gitstats_object))
 }
 
-#' @title Set your team member
-#' @name set_team_member
-#' @description Passes information on team member to your `team` field.
-#' @param gitstats_obj A GitStats object.
-#' @param member_name Name of a member.
-#' @param ... All user logins.
-#' @return `GitStats` object with new information on team member.
-#' @examples
-#' \dontrun{
-#' my_gitstats <- create_gitstats() %>%
-#'   set_team_member("Peter Parker", "spider_man", "spidey") %>%
-#'   set_team_member("Tony Stark", "ironMan", "tony_s")
-#' }
-#' @export
-set_team_member <- function(gitstats_obj,
-                            member_name,
-                            ...) {
-  gitstats_obj$set_team_member(
-    member_name = member_name,
-    ... = ...
-  )
-
-  return(invisible(gitstats_obj))
-}
-
-#' @title Pull information on repositories
-#' @name pull_repos
-#' @description  List all repositories for an organization, a team or by a
-#'   keyword.
-#' @param gitstats_obj A GitStats object.
+#' @title Get information on repositories
+#' @name get_repos
+#' @description  List all repositories for an organization or by a keyword.
+#' @param gitstats_object A GitStats object.
 #' @param add_contributors A logical parameter to decide whether to add
 #'   information about repositories' contributors to the repositories output
-#'   (table) when pulling them by organizations (`orgs`) or `phrase`. By default
-#'   it is set to `FALSE` which makes function run faster as, in the case of
-#'   `orgs` search parameter, it reaches only `GraphQL` endpoint with a query on
-#'   repositories, and in the case of `phrase` search parameter it reaches only
+#'   (table). If set to `FALSE` it makes function run faster as, in the case of
+#'   `org` search mode, it reaches only `GraphQL` endpoint with a query on
+#'   repositories, and in the case of `code` search mode it reaches only
 #'   `repositories REST API` endpoint. However, the pitfall is that the result
-#'   does not convey information on contributors. \cr\cr When set to `TRUE`,
-#'   `GitStats` iterates additionally over pulled repositories and reaches to
-#'   the `contributors APIs`, which makes it slower, but gives additional
-#'   information. The same may be achieved with running separately function
-#'   `pull_repos_contributors()` on the `GitStats` object with the `repositories`
-#'   output. \cr\cr When pulling repositories by \bold{`team`} the parameter
-#'   always turns to `TRUE` and pulls information on `contributors`.
-#' @return A `GitStats` class object with repositories table.
+#'   does not convey information on contributors. \cr\cr When set to `TRUE` (by
+#'   default), `GitStats` iterates additionally over pulled repositories and
+#'   reaches to the `contributors APIs`, which makes it slower, but gives
+#'   additional information.
+#' @param with_code A character, if  defined, GitStats will pull repositories
+#'   with specified text in code blobs.
+#' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+#'   result from its storage.
+#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
+#'   output is switched off.
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
-#'   set_host(
-#'     api_url = "https://api.github.com",
+#'   set_github_host(
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma")
 #'   ) %>%
-#'   set_host(
-#'     api_url = "https://gitlab.com/api/v4",
+#'   set_gitlab_host(
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
-#'   ) %>%
-#'   pull_repos()
+#'   )
+#' get_repos(my_gitstats)
+#' get_repos(my_gitstats, add_contributors = FALSE)
+#' get_repos(my_gitstats, with_code = "Shiny")
 #' }
 #' @export
-pull_repos <- function(gitstats_obj, add_contributors = FALSE) {
-  gitstats_obj$pull_repos(add_contributors = add_contributors)
-  return(invisible(gitstats_obj))
+get_repos <- function(gitstats_object,
+                      add_contributors = TRUE,
+                      with_code = NULL,
+                      cache = TRUE,
+                      verbose = is_verbose(gitstats_object)) {
+  gitstats_object$get_repos(
+    add_contributors = add_contributors,
+    with_code = with_code,
+    cache = cache,
+    verbose = verbose
+  )
 }
 
-#' @title Pull information on contributors
-#' @name pull_repos_contributors
-#' @param gitstats_obj A GitStats object.
-#' @description Adds information on contributors to already pulled repositories
-#'   table.
-#' @return  A `GitStats` class object with repositories table with added
-#'   information on contributors.
-#' @export
-pull_repos_contributors <- function(gitstats_obj) {
-  gitstats_obj$pull_repos_contributors()
-  return(invisible(gitstats_obj))
-}
-
-#' @title Pull information on commits
-#' @name pull_commits
+#' @title Get information on commits
+#' @name get_commits
 #' @description List all commits from all repositories for an organization or a
-#'   team.
-#' @param gitstats_obj  A GitStats object.
-#' @param date_from A starting date of commits.
-#' @param date_until An end date of commits.
+#'   vector of repositories.
+#' @param gitstats_object A GitStats object.
+#' @param since A starting date.
+#' @param until An end date.
+#' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+#'   result from its storage.
+#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
+#'   printing output is switched off.
 #' @return A `GitStats` class object with commits table.
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
-#'   set_host(
-#'     api_url = "https://api.github.com",
+#'   set_github_host(
 #'     token = Sys.getenv("GITHUB_PAT"),
-#'     orgs = c("r-world-devs")
+#'     repos = c("openpharma/DataFakeR", "openpharma/visR")
 #'   ) %>%
-#'   set_host(
-#'     api_url = "https://gitlab.com/api/v4",
+#'   set_gitlab_host(
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
-#'   ) %>%
-#'   set_params(
-#'     search_param = "team",
-#'     team_name = "rwdevs"
-#'   ) %>%
-#'   set_team_member("Maciej Banaś", "maciekbanas") %>%
-#'   pull_commits(date_from = "2018-01-01")
+#'   )
+#'  get_commits(my_gitstats, since = "2018-01-01")
 #' }
 #' @export
-pull_commits <- function(gitstats_obj,
-                         date_from = NULL,
-                         date_until = Sys.time()) {
-  gitstats_obj$pull_commits(
-    date_from = date_from,
-    date_until = date_until
+get_commits <- function(gitstats_object,
+                        since = NULL,
+                        until = NULL,
+                        cache = TRUE,
+                        verbose = is_verbose(gitstats_object)) {
+  if (is.null(since)) {
+    cli::cli_abort(cli::col_red("You need to pass date to `since` parameter."), call = NULL)
+  }
+  gitstats_object$get_commits(
+    since = since,
+    until = until,
+    cache = cache,
+    verbose = verbose
   )
-
-  return(invisible(gitstats_obj))
 }
 
-#' @title Pull users data
-#' @name pull_users
-#' @description Pull users data from Git Host.
-#' @param gitstats_obj A GitStats object.
-#' @param users A character vector of users.
+#' @title Get statistics on commits
+#' @name get_commits_stats
+#' @description Prepare statistics from the pulled commits data.
+#' @details To make function work, you need first to get commits data with
+#'   `GitStats`. See examples section.
+#' @param gitstats_object A GitStats class object.
+#' @param time_interval A character, specifying time interval to show
+#'   statistics.
+#' @return A table of `commits_stats` class.
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
-#'   set_host(
-#'     api_url = "https://api.github.com",
+#'    set_github_host(
+#'      token = Sys.getenv("GITHUB_PAT"),
+#'      repos = c("r-world-devs/GitStats", "openpharma/visR")
+#'    )
+#'  get_commits(my_gitstats, since = "2022-01-01")
+#'  get_commits_stats(my_gitstats, time_interval = "week")
+#' }
+#' @export
+get_commits_stats = function(gitstats_object,
+                             time_interval = c("month", "day", "week")) {
+  gitstats_object$get_commits_stats(
+    time_interval = time_interval
+  )
+}
+
+#' @title Get users data
+#' @name get_users
+#' @description Pull users data from Git Host.
+#' @param gitstats_object A GitStats object.
+#' @param logins A character vector of logins.
+#' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+#'   result from its storage.
+#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
+#'   printing output is switched off.
+#' @examples
+#' \dontrun{
+#'  my_gitstats <- create_gitstats() %>%
+#'   set_github_host(
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs")
 #'   ) %>%
-#'   set_host(
-#'     api_url = "https://gitlab.com/api/v4",
+#'   set_gitlab_host(
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
-#'   ) %>%
-#'   pull_users(c("maciekabanas", "marcinkowskak"))
+#'   )
+#'  get_users(my_gitstats, c("maciekabanas", "marcinkowskak"))
 #' }
 #' @return A `GitStats` object with table of users.
 #' @export
-pull_users <- function(gitstats_obj,
-                       users){
-  gitstats_obj$pull_users(
-    users = users
+get_users <- function(gitstats_object,
+                      logins,
+                      cache = TRUE,
+                      verbose = is_verbose(gitstats_object)){
+  gitstats_object$get_users(
+    logins = logins,
+    cache = cache,
+    verbose = verbose
   )
-  return(invisible(gitstats_obj))
 }
 
-#' @title Pull files content
-#' @name pull_files
+#' @title Get files content
+#' @name get_files
 #' @description Pull files content from Git Hosts.
-#' @param gitstats_obj A GitStats object.
+#' @param gitstats_object A GitStats object.
 #' @param file_path A standardized path to file(s) in repositories. May be a
 #'   character vector if multiple files are to be pulled.
+#' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+#'   result from its storage.
+#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
+#'   printing output is switched off.
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
-#'   set_host(
-#'     api_url = "https://api.github.com",
+#'   set_github_host(
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs")
 #'   ) %>%
-#'   set_host(
-#'     api_url = "https://gitlab.com/api/v4",
+#'   set_gitlab_host(
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
-#'   ) %>%
-#'   pull_files("meta_data.yaml")
+#'   )
+#'  get_files(my_gitstats, c("LICENSE", "DESCRIPTION"))
 #' }
 #' @return A `GitStats` object with table of files.
 #' @export
-pull_files <- function(gitstats_obj,
-                       file_path){
-  gitstats_obj$pull_files(
-    file_path = file_path
+get_files <- function(gitstats_object,
+                      file_path,
+                      cache = TRUE,
+                      verbose = is_verbose(gitstats_object)){
+  gitstats_object$get_files(
+    file_path = file_path,
+    cache = cache,
+    verbose = verbose
   )
-  return(invisible(gitstats_obj))
 }
 
-#' @title Reset all settings
-#' @name reset
-#' @description Sets all settings to default: search_param to `org`, language to
-#'   `All` and other to `NULL`s.
-#' @param gitstats_obj A GitStats object.
-#' @return A `GitStats` object.
-#' @export
-reset <- function(gitstats_obj){
-  priv <- environment(gitstats_obj$set_params)$private
-  priv$settings <- list(
-    search_param = "org",
-    phrase = NULL,
-    team_name = NULL,
-    team = list(),
-    language = "All",
-    print_out = TRUE
-  )
-  cli::cli_alert_info("Reset settings to default.")
-  return(gitstats_obj)
-}
-
-#' @title Reset language settings
-#' @name reset_language
-#' @description Sets language parameter to \code{NULL} (switches of filtering by
-#'   language.).
-#' @param gitstats_obj A GitStats object.
-#' @return A `GitStats` object.
-#' @export
-reset_language <- function(gitstats_obj){
-  priv <- environment(gitstats_obj$set_params)$private
-  priv$settings$language <- "All"
-  cli::cli_alert_info("Setting language parameter to 'All'.")
-  return(gitstats_obj)
-}
-
-#' @title Get organizations
-#' @name get_orgs
-#' @description Retrieves organizations set or pulled by `GitStats`. Especially
-#'   helpful when user is scanning whole git platform and wants to have a
-#'   glimpse at organizations.
-#' @param gitstats_obj A GitStats object.
-#' @return A vector of organizations.
-#' @export
-get_orgs <- function(gitstats_obj){
-  return(gitstats_obj$get_orgs())
-}
-
-#' @title Get repositories
-#' @name get_repos
-#' @description Retrieves repositories table pulled by `GitStats`.
-#' @param gitstats_obj A GitStats object.
-#' @return A table of repositories.
-#' @export
-get_repos <- function(gitstats_obj){
-  return(gitstats_obj$get_repos())
-}
-
-#' @title Get commits
-#' @name get_commits
-#' @description Retrieves commits table pulled by `GitStats`.
-#' @param gitstats_obj A GitStats object.
-#' @return A table of commits.
-#' @export
-get_commits <- function(gitstats_obj){
-  return(gitstats_obj$get_commits())
-}
-
-#' @title Get users
-#' @name get_users
-#' @description Retrieves users table pulled by `GitStats`.
-#' @param gitstats_obj A GitStats object.
-#' @return A table of users.
-#' @export
-get_users <- function(gitstats_obj){
-  return(gitstats_obj$get_users())
-}
-
-#' @title Get files
-#' @name get_files
-#' @description Retrieves files table pulled by `GitStats`.
-#' @param gitstats_obj A GitStats object.
-#' @return A table of files content.
-#' @export
-get_files <- function(gitstats_obj){
-  return(gitstats_obj$get_files())
-}
-
-#' @title Check package usage across repositories
-#' @name pull_R_package_usage
+#' @title Get information on package usage across repositories
+#' @name get_R_package_usage
 #' @description Wrapper over searching repositories by code blobs related to
 #'   loading package (`library(package)` and `require(package)` in all files) or
-#'   using it as a depndency (`package` in `DESCRIPTION` and `NAMESPACE` files).
-#' @param gitstats_obj A GitStats object.
+#'   using it as a dependency (`package` in `DESCRIPTION` and `NAMESPACE` files).
+#' @param gitstats_object A GitStats object.
 #' @param package_name A character, name of the package.
 #' @param only_loading A boolean, if `TRUE` function will check only if package
 #'   is loaded in repositories, not used as dependencies.
+#' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+#'   result from its storage.
+#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
+#'   printing output is switched off.
 #' @return A table of repositories content.
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
-#'   set_host(
-#'     api_url = "https://api.github.com",
+#'   set_github_host(
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma")
-#'   ) %>%
-#'   pull_R_package_usage("Shiny")
+#'   )
+#'
+#'  get_R_package_usage(my_gitstats, "Shiny")
 #' }
 #' @export
-pull_R_package_usage <- function(
-    gitstats_obj,
+get_R_package_usage <- function(
+    gitstats_object,
     package_name,
-    only_loading = FALSE
+    only_loading = FALSE,
+    cache = TRUE,
+    verbose = is_verbose(gitstats_object)
   ) {
-  gitstats_obj$pull_R_package_usage(
+  gitstats_object$get_R_package_usage(
     package_name = package_name,
-    only_loading = only_loading
+    only_loading = only_loading,
+    cache = cache,
+    verbose = verbose
   )
-  return(invisible(gitstats_obj))
 }
 
-#' @title Get R package usage
-#' @name get_R_package_usage
-#' @description Retrieves list of repositories that make use of a package.
-#' @param gitstats_obj A GitStats object.
-#' @return A table with repo urls.
+#' @title Get release logs
+#' @name get_release_logs
+#' @description Pull release logs from repositories.
+#' @inheritParams get_commits
+#' @return A table with release logs.
+#' @examples
+#' \dontrun{
+#'  my_gitstats <- create_gitstats() %>%
+#'   set_github_host(
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs", "openpharma")
+#'   )
+#'   get_release_logs(my_gistats, since = "2024-01-01")
+#' }
 #' @export
-get_R_package_usage <- function(gitstats_obj) {
-  return(gitstats_obj$get_R_package_usage())
+get_release_logs <- function(
+    gitstats_object,
+    since = NULL,
+    until = NULL,
+    cache = TRUE,
+    verbose = is_verbose(gitstats_object)
+) {
+  if (is.null(since)) {
+    cli::cli_abort(cli::col_red("You need to pass date to `since` parameter."), call = NULL)
+  }
+  gitstats_object$get_release_logs(
+    since = since,
+    until = until,
+    cache = cache,
+    verbose = verbose
+  )
+}
+
+#' @title Show organizations set in `GitStats`
+#' @name show_orgs
+#' @description Retrieves organizations set or pulled by `GitStats`. Especially
+#'   helpful when user is scanning whole git platform and wants to have a
+#'   glimpse at organizations.
+#' @param gitstats_object A GitStats object.
+#' @return A vector of organizations.
+#' @export
+show_orgs <- function(gitstats_object){
+  gitstats_object$show_orgs()
+}
+
+#' @title Switch on verbose mode
+#' @name verbose_on
+#' @description Print all messages and output.
+#' @param gitstats_object A GitStats object.
+#' @return A GitStats object.
+#' @export
+verbose_on <- function(gitstats_object) {
+  gitstats_object$verbose_on()
+  return(invisible(gitstats_object))
+}
+
+#' @title Switch off verbose mode
+#' @name verbose_off
+#' @description Stop printing messages and output.
+#' @param gitstats_object A GitStats object.
+#' @return A GitStats object.
+#' @export
+verbose_off <- function(gitstats_object) {
+  gitstats_object$verbose_off()
+  return(invisible(gitstats_object))
+}
+
+#' @title Is verbose mode switched on
+#' @name is_verbose
+#' @param gitstats_object A GitStats object.
+is_verbose <- function(gitstats_object) {
+  gitstats_object$is_verbose()
 }

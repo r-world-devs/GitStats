@@ -2,16 +2,43 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{get_users}
 \alias{get_users}
-\title{Get users}
+\title{Get users data}
 \usage{
-get_users(gitstats_obj)
+get_users(
+  gitstats_object,
+  logins,
+  cache = TRUE,
+  verbose = is_verbose(gitstats_object)
+)
 }
 \arguments{
-\item{gitstats_obj}{A GitStats object.}
+\item{gitstats_object}{A GitStats object.}
+
+\item{logins}{A character vector of logins.}
+
+\item{cache}{A logical, if set to \code{TRUE} GitStats will retrieve the last
+result from its storage.}
+
+\item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and
+printing output is switched off.}
 }
 \value{
-A table of users.
+A \code{GitStats} object with table of users.
 }
 \description{
-Retrieves users table pulled by \code{GitStats}.
+Pull users data from Git Host.
+}
+\examples{
+\dontrun{
+ my_gitstats <- create_gitstats() \%>\%
+  set_github_host(
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("r-world-devs")
+  ) \%>\%
+  set_gitlab_host(
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    orgs = "mbtests"
+  )
+ get_users(my_gitstats, c("maciekabanas", "marcinkowskak"))
+}
 }

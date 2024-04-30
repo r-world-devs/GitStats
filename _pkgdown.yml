@@ -1,22 +1,20 @@
-url: ~
+title: GitStats
+url: https://r-world-devs.github.io/GitStats/
 template:
   bootstrap: 5
 reference:
-- title: Create and setup
+- title: Create and set
 - contents:
   - matches("create_gitstats")
   - starts_with("set_")
-  - starts_with("reset")
-- title: Pull data
-- contents:
-  - starts_with("pull_")
-- title: Get results
+  - matches("verbose")
+  - matches("show_orgs")
+- title: Get data
 - contents:
   - starts_with("get_")
-  - matches("gitstats_plot")
 articles:
 - title: Articles
   navbar: ~
   contents:
-  - get_repository_stats
-  - get_commits_stats
+  - set_hosts
+  - get_data

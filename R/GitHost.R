@@ -1,11 +1,5 @@
 #' @noRd
-#' @importFrom R6 R6Class
-#' @importFrom rlang expr
-#' @importFrom cli cli_alert_danger cli_alert_success
-#' @importFrom purrr keep
-
-#' @title A GitHost superclass
-
+#' @description A class to manage which engine to use for pulling data
 GitHost <- R6::R6Class("GitHost",
   public = list(
 
@@ -14,222 +8,254 @@ GitHost <- R6::R6Class("GitHost",
     #'   in case of GitHub and groups of projects in case of GitLab).
     #' @param repos A character vector of repositories.
     #' @param token A token.
-    #' @param api_url An API URL.
+    #' @param host A host.
     #' @return A new `GitHost` object.
     initialize = function(orgs = NA,
                           repos = NA,
                           token = NA,
-                          api_url = NA) {
-      private$api_url <- api_url
-      private$is_public <- private$check_if_public()
-      private$host <- private$set_host_name()
-      if (is.null(token)){
-        private$token <- private$set_default_token()
-      } else {
-        private$token <- token
-      }
-      private$check_orgs_and_repos(orgs, repos)
-      if (private$host == "GitLab") {
-        repos <- gsub("/", "%2f", repos)
-        orgs <- gsub("/", "%2f", orgs)
-      }
-      rest_engine <- private$engines$rest <- private$setup_engine(type = "rest")
-      gql_engine <- private$engines$graphql <- private$setup_engine(type = "graphql")
-      if (private$scan_all) {
-        cli::cli_alert_info("[{private$host}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
-        private$orgs <- gql_engine$pull_orgs()
-      } else {
-        if (!is.null(orgs)) {
-          private$orgs <- rest_engine$check_organizations(orgs)
-        }
-        if (!is.null(repos)) {
-          private$repos <- rest_engine$check_repositories(repos)
-        }
-      }
+                          host = NA) {
+      private$set_api_url(host)
+      private$set_endpoints()
+      private$check_if_public(host)
+      private$set_token(token)
+      private$set_graphql_url()
+      private$set_searching_scope(orgs, repos)
+      private$setup_engines()
+      private$set_orgs_and_repos(orgs, repos)
     },
 
-    #' @description  A method to list all repositories for an organization, a
-    #'   team or by a keyword.
-    #' @param settings A list of `GitStats` settings.
-    #' @param add_contributors A boolean to decide whether to add contributors
-    #'   column to repositories table.
-    #' @return A data.frame of repositories.
-    pull_repos = function(settings, add_contributors = FALSE) {
-      repos_table <- private$pull_repos_from_orgs(
-        settings = settings
-      )
-      if (settings$search_param == "team") {
-        add_contributors <- TRUE
+    # Pull repositories method
+    pull_repos = function(add_contributors = TRUE,
+                          with_code = NULL,
+                          verbose = TRUE,
+                          settings) {
+      private$set_verbose(verbose)
+      if (is.null(with_code)) {
+        repos_table <- private$pull_all_repos(
+          settings = settings
+        )
+      }
+      if (!is.null(with_code)) {
+        repos_table <- private$pull_repos_with_code(
+          code = with_code,
+          settings = settings
+        )
       }
       repos_table <- private$add_repo_api_url(repos_table)
       if (add_contributors) {
-        repos_table <- self$pull_repos_contributors(repos_table)
-      }
-      if (nrow(repos_table) > 0 && settings$language != "All") {
-        repos_table <- private$filter_repos_by_language(
+        repos_table <- private$pull_repos_contributors(
           repos_table = repos_table,
-          language = settings$language
+          settings = settings
         )
       }
       return(repos_table)
     },
 
-    #' @description A method to add information on repository contributors.
-    #' @param repos_table A table of repositories.
-    #' @return A table of repositories with added information on contributors.
-    pull_repos_contributors = function(repos_table) {
-      if (!is.null(repos_table) && nrow(repos_table) > 0) {
-        repos_table <- repos_table %>%
-          dplyr::filter(grepl(gsub("/v+.*", "", private$api_url), api_url))
-        repos_table <- purrr::map_dfr(private$engines, function (engine) {
-          if (inherits(engine, "EngineRest")) {
-            engine$pull_repos_contributors(
-              repos_table
-            )
-          } else {
-            NULL
-          }
-        })
-      }
-    },
-
-    #' @description A method to get information on commits.
-    #' @param date_from A starting date to look commits for.
-    #' @param date_until An end date to look commits for.
-    #' @param settings A list of `GitStats` settings.
-    #' @return A data.frame of commits.
-    pull_commits = function(date_from,
-                            date_until = Sys.Date(),
+    #' Pull commits method
+    pull_commits = function(since,
+                            until = Sys.Date(),
+                            verbose = TRUE,
                             settings) {
-      if (settings$search_param == "phrase") {
-        cli::cli_abort(c(
-          "x" = "Pulling commits by phrase in code blobs is not supported.",
-          "i" = "Please change your `search_param` either to 'org' or 'team' with `set_params()`."
-        ))
+      private$set_verbose(verbose)
+      if (is.null(until)) {
+        until <- Sys.time()
       }
-      if (private$scan_all) {
-        cli::cli_alert_info("[Host:{private$host}] {cli::col_yellow('Pulling commits from all organizations...')}")
-      }
-      if (settings$search_param == "repo") {
-        orgs_repos <- private$extract_repos_and_orgs(private$repos)
-        orgs <- names(orgs_repos)
-      } else {
-        orgs <- private$orgs
-      }
-      commits_table <- purrr::map(orgs, function(org) {
-        commits_table_org <- NULL
-        if (settings$search_param == "repo") {
-          repos <- orgs_repos[[org]]
-        } else {
-          repos <- NULL
-        }
-        commits_table_org <- purrr::map(private$engines, ~ .$pull_commits(
-          org = org,
-          repos = repos,
-          date_from = date_from,
-          date_until = date_until,
-          settings = settings
-        )) %>%
-          purrr::list_rbind()
-        return(commits_table_org)
-      }, .progress = private$scan_all) %>%
-        purrr::list_rbind()
+      commits_table <- private$pull_commits_from_host(
+        since = since,
+        until = until,
+        settings = settings
+      )
       return(commits_table)
     },
 
-    #' @description Pull information about users.
-    #' @param users A character vector of users.
-    #' @return Table of users.
+    #' Pull information about users.
     pull_users = function(users) {
-      users_table <- purrr::map(private$engines, function(engine) {
-        if (inherits(engine, "EngineGraphQL")) {
-          engine$pull_users(users)
-        } else {
-          NULL
-        }
+      graphql_engine <- private$engines$graphql
+      users_table <-  purrr::map(users, function(user) {
+        graphql_engine$pull_user(user) %>%
+          private$prepare_user_table()
       }) %>%
         purrr::list_rbind()
       return(users_table)
     },
 
-    #' @description A method to retrieve given files from all repositories for
-    #'   a host in a table format.
-    #' @param file_path A file path.
-    #' @param pulled_repos Optional parameter to pass repository output object.
-    #' @return A table.
-    pull_files = function(file_path, pulled_repos = NULL) {
-      if (!is.null(pulled_repos)) {
-        orgs <- pulled_repos %>%
-          dplyr::filter(grepl(private$api_url, api_url)) %>%
-          dplyr::select(organization) %>%
-          unique() %>%
-          unlist() %>%
-          unname()
-      } else {
-        orgs <- private$orgs
-      }
+    #' Retrieve content of given text files from all repositories for a host in
+    #' a table format.
+    pull_files = function(file_path, pulled_repos = NULL, verbose = TRUE, settings) {
+      orgs <- private$set_organizations(
+        pulled_repos = pulled_repos
+      )
+      graphql_engine <- private$engines$graphql
       files_table <- purrr::map(orgs, function(org) {
-        repos_table <- purrr::map(private$engines, function(engine) {
-          if (inherits(engine, "EngineGraphQL")) {
-            files_table <- engine$pull_files(
-              org = org,
-              file_path = file_path,
-              pulled_repos = pulled_repos
-            )
-            return(files_table)
-          } else {
-            NULL
-          }
-        }) %>%
-          purrr::list_rbind()
-      }, .progress = if (private$scan_all) {
-            cli::cli_alert_info("[{private$host}][Engine:{cli::col_yellow('GraphQL')}] Pulling {file_path} files...")
-          } else {
-            FALSE
-          }
+        if (!private$scan_all && verbose) {
+          show_message(
+            host = private$host_name,
+            engine = "graphql",
+            scope = org,
+            information = glue::glue("Pulling files: [{paste0(file_path, collapse = ', ')}]")
+          )
+        }
+        graphql_engine$pull_files_from_org(
+          org = org,
+          file_path = file_path,
+          pulled_repos = pulled_repos
+        ) %>%
+          private$prepare_files_table(
+            org = org,
+            file_path = file_path
+          )
+      }, .progress = if (private$scan_all && verbose) {
+        glue::glue("[GitHost:GitHub] Pulling files: [{paste0(file_path, collapse = ', ')}]...")
+        } else {
+          FALSE
+        }
       ) %>%
         purrr::list_rbind() %>%
         private$add_repo_api_url()
       return(files_table)
+    },
+
+    #' Iterator over pulling release logs from engines
+    pull_release_logs = function(since, until, verbose, settings) {
+      until <- until %||% Sys.time()
+      release_logs_table <- purrr::map(private$orgs, function(org) {
+        release_logs_table_org <- NULL
+        if (!private$scan_all && verbose) {
+          show_message(
+            host = private$host_name,
+            engine = "graphql",
+            scope = org,
+            information = "Pulling release logs"
+          )
+        }
+        repos_names <- private$set_repositories(
+          org = org,
+          settings = settings
+        )
+        gql_engine <- private$engines$graphql
+        if (length(repos_names) > 0) {
+          release_logs_table_org <- gql_engine$pull_release_logs_from_org(
+            org = org,
+            repos_names = repos_names
+          ) %>%
+            private$prepare_releases_table(org, since, until)
+        } else {
+          releases_logs_table_org <- NULL
+        }
+        return(release_logs_table_org)
+      }, .progress = if (private$scan_all && verbose) {
+        glue::glue("[GitHost:{private$host_name}] Pulling release logs...")
+      } else {
+        FALSE
+      }) %>%
+        purrr::list_rbind()
+      return(release_logs_table)
     }
   ),
   private = list(
 
-    # @field A REST API URL.
+    # A REST API URL.
     api_url = NULL,
 
-    # @field A token.
+    # A GraphQL API url.
+    graphql_api_url = NULL,
+
+    # Either repos, orgs or whole platform
+    searching_scope = NULL,
+
+    # An endpoint for basic checks.
+    test_endpoint = NULL,
+
+    # List of endpoints
+    endpoints = list(
+      tokens = NULL,
+      orgs = NULL,
+      repositories = NULL
+    ),
+
+    # A token.
     token = NULL,
 
-    # @field public A boolean.
+    # public A boolean.
     is_public = NULL,
 
-    # @field Host name.
-    host = NULL,
-
-    # @field orgs A character vector of repo organizations.
+    # orgs A character vector of repo organizations.
     orgs = NULL,
 
-    # @field repos A character vector of repositories.
+    # repos A character vector of repositories.
     repos = NULL,
 
-    # @field A boolean.
+    # repos_fullnames A character vector of repositories with full names.
+    repos_fullnames = NULL,
+
+    # orgs_repos A named list of organizations with repositories.
+    orgs_repos = NULL,
+
+    # A boolean.
     scan_all = FALSE,
 
-    # @field engines A placeholder for REST and GraphQL Engine classes.
+    # Show messages or not.
+    verbose = TRUE,
+
+    # Set verbose mode
+    set_verbose = function(verbose) {
+      private$verbose <- verbose
+    },
+
+    # engines A placeholder for REST and GraphQL Engine classes.
     engines = list(),
 
-    # @description Check whether Git platform is public or internal.
-    check_if_public = function() {
-      if (grepl("api.github.com|gitlab.com/api", private$api_url)) {
-        TRUE
+    # Set API url
+    set_custom_api_url = function(host) {
+      private$api_url <- if (!grepl("https://", host)) {
+        glue::glue(
+          "https://{host}/api/v{private$api_version}"
+        )
       } else {
-        FALSE
+        glue::glue(
+          "{host}/api/v{private$api_version}"
+        )
       }
     },
 
-    # @description Check if both repos and orgs are defined or not.
-    check_orgs_and_repos = function(orgs, repos) {
+    # Set endpoints
+    set_endpoints = function() {
+      private$set_test_endpoint()
+      private$set_tokens_endpoint()
+      private$set_orgs_endpoint()
+      private$set_repositories_endpoint()
+    },
+
+    # Set authorizing token
+    set_token = function(token) {
+      if (is.null(token)){
+        token <- private$set_default_token()
+      } else {
+        token <- private$check_token(token)
+      }
+      private$token <- token
+    },
+
+    # Check whether the token exists.
+    check_token = function(token) {
+      if (nchar(token) == 0) {
+        cli::cli_abort(c(
+          "i" = "No token provided."
+        ))
+      } else {
+        if (!private$test_token(token)) {
+          cli::cli_abort(c(
+            "x" = "Token exists but does not grant access.",
+            "i" = "Check if you use correct token. Check scopes your token is using."
+          ))
+        } else {
+          return(token)
+        }
+      }
+    },
+
+    # Check if both repos and orgs are defined or not.
+    set_searching_scope = function(orgs, repos) {
       if (is.null(repos) && is.null(orgs)) {
         if (private$is_public) {
           cli::cli_abort(c(
@@ -242,8 +268,18 @@ GitHost <- R6::R6Class("GitHost",
           cli::cli_alert_warning(cli::col_yellow(
             "No `orgs` specified. I will pull all organizations from the Git Host."
           ))
+          cli::cli_alert_info(cli::col_grey("Searching scope set to [all]."))
+          private$searching_scope <- "all"
           private$scan_all <- TRUE
         }
+      }
+      if (!is.null(repos) && is.null(orgs)) {
+        cli::cli_alert_info(cli::col_grey("Searching scope set to [repo]."))
+        private$searching_scope <- "repo"
+      }
+      if (is.null(repos) && !is.null(orgs)) {
+        cli::cli_alert_info(cli::col_grey("Searching scope set to [org]."))
+        private$searching_scope <- "org"
       }
       if (!is.null(repos) && !is.null(orgs)) {
         cli::cli_abort(c(
@@ -255,29 +291,102 @@ GitHost <- R6::R6Class("GitHost",
       }
     },
 
-    # @description Set name of a Git Host.
-    set_host_name = function() {
-      if (grepl("https://", private$api_url) && grepl("github", private$api_url)) {
-        "GitHub"
-      } else if (grepl("https://", private$api_url) && grepl("gitlab|code", private$api_url)) {
-        "GitLab"
+    # Set organization or repositories
+    set_orgs_and_repos = function(orgs, repos) {
+      if (private$scan_all) {
+        cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
+        private$orgs <- private$engines$graphql$pull_orgs()
       } else {
-        cli::cli_abort(c(
-          "This connection is not supported by GitStats class object.",
-          "x" = "Host will not be added."
-          ),
-          call = NULL
-        )
+        if (!is.null(orgs)) {
+          private$orgs <- private$check_organizations(orgs)
+        }
+        if (!is.null(repos)) {
+          repos <- private$check_repositories(repos)
+          private$repos_fullnames <- repos
+          orgs_repos <- private$extract_repos_and_orgs(repos)
+          private$orgs <- names(orgs_repos)
+          private$repos <- unname(unlist(orgs_repos))
+          private$orgs_repos <- orgs_repos
+        }
       }
     },
 
-    # @description Set default token if none exists.
-    set_default_token = function() {
-      if (grepl("github", private$api_url)) {
-        primary_token_name <- "GITHUB_PAT"
-      } else {
-        primary_token_name <- "GITLAB_PAT"
+    #' @description Check if repositories exist
+    #' @param repos A character vector of repositories
+    #' @return repos or NULL.
+    check_repositories = function(repos) {
+      cli::cli_alert_info(cli::col_grey("Checking passed repositories..."))
+      repos <- purrr::map(repos, function(repo) {
+        repo_endpoint = glue::glue("{private$endpoints$repositories}/{repo}")
+        check <- private$check_endpoint(
+          endpoint = repo_endpoint,
+          type = "Repository"
+        )
+        if (!check) {
+          repo <- NULL
+        }
+        return(repo)
+      }) %>%
+        purrr::keep(~ length(.) > 0) %>%
+        unlist()
+      if (length(repos) == 0) {
+        return(NULL)
       }
+      repos
+    },
+
+    #' @description Check if organizations exist
+    #' @param orgs A character vector of organizations
+    #' @return orgs or NULL.
+    check_organizations = function(orgs) {
+      cli::cli_alert_info(cli::col_grey("Checking passed organizations..."))
+      orgs <- purrr::map(orgs, function(org) {
+        org_endpoint = glue::glue("{private$endpoints$orgs}/{org}")
+        check <- private$check_endpoint(
+          endpoint = org_endpoint,
+          type = "Organization"
+        )
+        if (!check) {
+          org <- NULL
+        }
+        return(org)
+      }) %>%
+        purrr::keep(~ length(.) > 0) %>%
+        unlist()
+      if (length(orgs) == 0) {
+        return(NULL)
+      }
+      orgs
+    },
+
+    # Check whether the endpoint exists.
+    check_endpoint = function(endpoint, type) {
+      check <- TRUE
+      tryCatch(
+        {
+          private$engines$rest$response(endpoint = endpoint)
+        },
+        error = function(e) {
+          if (grepl("404", e)) {
+            cli::cli_alert_danger("{type} you provided does not exist or its name was passed in a wrong way: {endpoint}")
+            cli::cli_alert_warning("Please type your {tolower(type)} name as you see it in `url`.")
+            cli::cli_alert_info("E.g. do not use spaces. {type} names as you see on the page may differ from their 'address' name.")
+          }
+          check <<- FALSE
+        }
+      )
+      return(check)
+    },
+
+    # Set url of GraphQL API
+    set_graphql_url = function() {
+      clean_api_url <- gsub("/v+.*", "", private$api_url)
+      private$graphql_api_url <- glue::glue("{clean_api_url}/graphql")
+    },
+
+    # Set default token if none exists.
+    set_default_token = function() {
+      primary_token_name <- private$token_name
       token <- Sys.getenv(primary_token_name)
       if (private$test_token(token)) {
         cli::cli_alert_info("Using PAT from {primary_token_name} envar.")
@@ -295,160 +404,25 @@ GitHost <- R6::R6Class("GitHost",
       return(token)
     },
 
-    # Setup REST and GraphQL engines
-    setup_engine = function(type) {
-      engine <- if (private$host == "GitHub") {
-        if (type == "rest") {
-          EngineRestGitHub$new(
-            rest_api_url = private$api_url,
-            token = private$token,
-            scan_all = private$scan_all
-          )
-        } else {
-          EngineGraphQLGitHub$new(
-            gql_api_url = private$set_gql_url(private$api_url),
-            token = private$token,
-            scan_all = private$scan_all
-          )
-        }
-      } else {
-        if (type == "rest") {
-          EngineRestGitLab$new(
-            rest_api_url = private$api_url,
-            token = private$token,
-            scan_all = private$scan_all
-          )
-        } else {
-          EngineGraphQLGitLab$new(
-            gql_api_url = private$set_gql_url(private$api_url),
-            token = private$token,
-            scan_all = private$scan_all
-          )
-        }
-      }
-      return(engine)
-    },
-
-    # @description Helper to test if a token works
+    # Helper to test if a token works
     test_token = function(token) {
       response <- NULL
-      test_endpoint <- if (grepl("github", private$api_url)) {
-        private$api_url
-      } else {
-        paste0(private$api_url, "/projects")
-      }
+      test_endpoint <- private$test_endpoint
       try(response <- httr2::request(test_endpoint) %>%
         httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
         httr2::req_perform(), silent = TRUE)
       if (!is.null(response)) {
+        private$check_token_scopes(response, token)
         TRUE
       } else {
         FALSE
       }
     },
 
-    # @description GraphQL url handler (if not provided).
-    # @param rest_api_url REST API url.
-    # @return GraphQL API url.
-    set_gql_url = function(rest_api_url) {
-      paste0(gsub("/v+.*", "", rest_api_url), "/graphql")
-    },
-
-    # @description Pull repositories from organisations.
-    pull_repos_from_orgs = function(settings) {
-      orgs <- private$orgs
-      if (private$scan_all) {
-        if (settings$search_param == "phrase") {
-          orgs <- "no_orgs"
-        } else {
-          cli::cli_alert_info("[Host:{private$host}] {cli::col_yellow('Pulling repositories from all organizations...')}")
-        }
-      }
-      repos_table <- purrr::map(orgs, function(org) {
-        repos_list <- list()
-        tryCatch({
-          repos_list <- purrr::map(private$engines, function (engine) {
-            engine$pull_repos(
-              org = org,
-              settings = settings
-            )
-          })
-        },
-        error = function(e) {
-          if (!private$scan_all) {
-            if (grepl("502|400", e)) {
-              if (grepl("502", e)) {
-                cli::cli_alert_warning(cli::col_yellow("HTTP 502 Bad Gateway Error."))
-              } else if (grepl("400", e)) {
-                cli::cli_alert_warning(cli::col_yellow("HTTP 400 Bad Request."))
-              }
-              cli::cli_alert_info("Switching to REST engine.")
-              repos_list <<- purrr::map(private$engines, function (engine) {
-                engine$pull_repos_supportive(
-                  org = org,
-                  settings = settings
-                )
-              })
-            } else if (grepl("Empty", e)) {
-              cli::cli_abort(
-                c(
-                  "x" = "Empty response.",
-                  "!" = "Your token probably does not cover scope to pull repositories.",
-                  "i" = "Set `read_api` scope when creating GitLab token."
-                )
-              )
-            }
-          } else {
-            e
-          }
-        })
-        repos_table_org <- purrr::list_rbind(repos_list)
-        return(repos_table_org)
-      }, .progress = private$scan_all) %>%
-        purrr::list_rbind()
-    },
-
-    # @description Add `api_url` column to table.
-    add_repo_api_url = function(repos_table){
-      if (!is.null(repos_table) && nrow(repos_table) > 0) {
-        repos_table <- if (private$host == "GitHub") {
-          dplyr::mutate(
-            repos_table,
-            api_url = paste0(private$api_url, "/repos/", organization, "/", repo_name),
-          )
-        } else if (private$host == "GitLab") {
-          dplyr::mutate(
-            repos_table,
-            api_url = paste0(private$api_url, "/projects/", stringr::str_match(repo_id, "[0-9].*"))
-          )
-        }
-      }
-      return(repos_table)
-    },
-
-    # @description Filter repositories by contributors.
-    # @details If at least one member of a team is a contributor than a project
-    #   passes through the filter.
-    # @param repos_table A repository table to be filtered.
-    # @param language A language used in repository.
-    # @return A repos table.
-    filter_repos_by_language = function(repos_table,
-                                        language) {
-      cli::cli_alert_info("Filtering by language.")
-      filtered_langs <- purrr::keep(repos_table$languages, function(row) {
-        grepl(language, row)
-      })
-      repos_table <- repos_table %>%
-        dplyr::filter(languages %in% filtered_langs)
-      return(repos_table)
-    },
-
     # Helper to extract organizations and repositories from vector of full names
     # of repositories
-    extract_repos_and_orgs = function(repos_fullnames) {
-      if (any(grepl("%2f", repos_fullnames))) {
-        repos_fullnames <- gsub("%2f", "/", repos_fullnames)
-      }
+    extract_repos_and_orgs = function(repos_fullnames = NULL) {
+      repos_fullnames <-URLdecode(repos_fullnames)
       repos_vec <- stringr::str_split(repos_fullnames, "/") %>%
         purrr::map(~ paste0(.[length(.)], collapse = "/")) %>%
         unlist()
@@ -462,6 +436,176 @@ GitHost <- R6::R6Class("GitHost",
       })
       names(orgs_repo_list) <- orgs_names
       return(orgs_repo_list)
+    },
+
+    # Set repositories
+    set_repos = function(settings, org) {
+      if (private$searching_scope == "repo") {
+        repos <- private$orgs_repos[[org]]
+      } else {
+        repos <- NULL
+      }
+      return(repos)
+    },
+
+    # Set organizations to scan
+    set_organizations = function(pulled_repos) {
+      if (!is.null(pulled_repos)) {
+        orgs <- pulled_repos %>%
+          dplyr::filter(grepl(private$api_url, api_url)) %>%
+          dplyr::select(organization) %>%
+          unique() %>%
+          unlist() %>%
+          unname()
+      } else {
+        orgs <- private$orgs
+      }
+      return(orgs)
+    },
+
+    # Filter repositories table by host
+    filter_repos_by_host = function(repos_table) {
+      dplyr::filter(
+        repos_table,
+        grepl(gsub("/v+.*", "", private$api_url), api_url)
+      )
+    },
+
+    #' Retrieve all repositories for an organization in a table format.
+    pull_all_repos = function(settings, verbose = private$verbose) {
+      graphql_engine <- private$engines$graphql
+      repos_table <- purrr::map(private$orgs, function(org) {
+        if (!private$scan_all && verbose) {
+          show_message(
+            host = private$host_name,
+            engine = "graphql",
+            scope = org,
+            information = "Pulling repositories"
+          )
+        }
+        repos <- private$set_repos(settings, org)
+        repos_table <- graphql_engine$pull_repos_from_org(
+          org = org
+        ) %>%
+          private$prepare_repos_table_from_graphql()
+        if (!is.null(repos)) {
+          repos_table <- repos_table %>%
+            dplyr::filter(repo_name %in% repos)
+        }
+        return(repos_table)
+      }, .progress = private$scan_all) %>%
+        purrr::list_rbind()
+      return(repos_table)
+    },
+
+    # Pull repositories with specific code
+    pull_repos_with_code = function(code, settings) {
+      if (private$scan_all) {
+        repos_table <- private$pull_repos_with_code_from_host(
+          code = code,
+          settings = settings
+        )
+      }
+      if (!private$scan_all) {
+        repos_table <- private$pull_repos_with_code_from_orgs(
+          code = code,
+          settings = settings
+        )
+      }
+      return(repos_table)
+    },
+
+    # Pull repositories with code from whole Git Host
+    pull_repos_with_code_from_host = function(code, settings) {
+      rest_engine <- private$engines$rest
+      if (private$verbose) {
+        show_message(
+          host = private$host_name,
+          engine = "rest",
+          information = "Pulling repositories"
+        )
+      }
+      repos_table <- rest_engine$pull_repos_by_code(
+        code = code,
+        verbose = private$verbose,
+        settings = settings
+      ) %>%
+        private$tailor_repos_response() %>%
+        private$prepare_repos_table_from_rest() %>%
+        rest_engine$pull_repos_issues()
+      return(repos_table)
+    },
+
+    # Pull repositories with code from given organizations
+    pull_repos_with_code_from_orgs = function(code, settings) {
+      rest_engine <- private$engines$rest
+      repos_table <- purrr::map(private$orgs, function(org) {
+        if (private$verbose) {
+          show_message(
+            host = private$host_name,
+            engine = "rest",
+            scope = org,
+            code = code,
+            information = "Pulling repositories"
+          )
+        }
+        rest_engine$pull_repos_by_code(
+          org = org,
+          code = code,
+          verbose = private$verbose,
+          settings = settings
+        ) %>%
+          private$tailor_repos_response() %>%
+          private$prepare_repos_table_from_rest() %>%
+          rest_engine$pull_repos_issues()
+      }, .progress = private$scan_all) %>%
+        purrr::list_rbind()
+      return(repos_table)
+    },
+
+    #' Add information on repository contributors.
+    pull_repos_contributors = function(repos_table, settings) {
+      if (!is.null(repos_table) && nrow(repos_table) > 0) {
+        if (!private$scan_all && private$verbose) {
+          show_message(
+            host = private$host_name,
+            engine = "rest",
+            information = "Pulling contributors"
+          )
+        }
+        repos_table <- private$filter_repos_by_host(repos_table)
+        rest_engine <- private$engines$rest
+        repos_table <- rest_engine$pull_repos_contributors(
+          repos_table = repos_table,
+          settings = settings
+        )
+        return(repos_table)
+      }
+    },
+
+    # Prepare table for repositories content
+    prepare_repos_table_from_rest = function(repos_list) {
+      repos_dt <- purrr::map(repos_list, function(repo) {
+        repo <- purrr::map(repo, function(attr) {
+          attr <- attr %||% ""
+        })
+        data.frame(repo)
+      }) %>%
+        purrr::list_rbind()
+      if (private$verbose) {
+        cli::cli_alert_info("Preparing repositories table...")
+      }
+      if (length(repos_dt) > 0) {
+        repos_dt <- dplyr::mutate(repos_dt,
+                                  repo_id = as.character(repo_id),
+                                  created_at = as.POSIXct(created_at),
+                                  last_activity_at = as.POSIXct(last_activity_at),
+                                  forks = as.integer(forks),
+                                  issues_open = as.integer(issues_open),
+                                  issues_closed = as.integer(issues_closed)
+        )
+      }
+      return(repos_dt)
     }
   )
 )
