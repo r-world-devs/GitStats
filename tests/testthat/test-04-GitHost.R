@@ -147,7 +147,7 @@ test_that("`pull_files()` pulls files in the table format", {
       file_path = "LICENSE"
     )
   )
-  expect_files_table(gh_files_table)
+  expect_files_table(gh_files_table, add_col = "api_url")
   test_mocker$cache(gh_files_table)
 })
 
@@ -245,7 +245,7 @@ test_that("`pull_files()` pulls files in the table format", {
       file_path = "README.md"
     )
   )
-  expect_files_table(gl_files_table)
+  expect_files_table(gl_files_table, add_col = "api_url")
   test_mocker$cache(gl_files_table)
 })
 
@@ -255,7 +255,7 @@ test_that("`pull_files()` pulls two files in the table format", {
       file_path = c("meta_data.yaml", "README.md")
     )
   )
-  expect_files_table(gl_files_table)
+  expect_files_table(gl_files_table, add_col = "api_url")
   expect_true(
     all(c("meta_data.yaml", "README.md") %in% gl_files_table$file_path)
   )

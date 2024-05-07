@@ -183,7 +183,8 @@ test_that("pull_files for GitHub works", {
     )
   )
   expect_files_table(
-    gh_files_table
+    gh_files_table,
+    add_col = "api_url"
   )
 })
 

@@ -113,6 +113,6 @@ test_that("pull_files for GitLab works", {
     )
   )
   expect_files_table(
-    gl_files_table
+    gl_files_table, add_col = "api_url"
   )
 })

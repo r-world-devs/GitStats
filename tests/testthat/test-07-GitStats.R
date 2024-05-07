@@ -93,7 +93,7 @@ test_that("get_files works properly", {
     verbose = FALSE
   )
   expect_files_table(
-    files_table
+    files_table, add_col = "api_url"
   )
   test_mocker$cache(files_table)
 })
