@@ -313,8 +313,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
               "file_path" = file$name,
               "file_content" = file$rawBlob,
               "file_size" = as.integer(file$size),
-              "repo_url" = project$webUrl,
-              "api_url" = private$graphql_api_url
+              "repo_url" = project$webUrl
             )
           }) %>%
             purrr::list_rbind()
@@ -340,8 +339,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             "file_path" = file_data$file_path,
             "file_content" = file_data$content,
             "file_size" = file_data$size,
-            "repo_url" = file_data$repo_url,
-            "api_url" = private$api_url
+            "repo_url" = file_data$repo_url
           )
         }) %>%
           purrr::list_rbind() %>%

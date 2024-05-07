@@ -279,8 +279,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
               "file_path" = file,
               "file_content" = repository$object$text,
               "file_size" = repository$object$byteSize,
-              "repo_url" = repository$url,
-              "api_url" = private$graphql_api_url
+              "repo_url" = repository$url
             )
           }) %>%
             purrr::list_rbind()
@@ -306,8 +305,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
             "file_path" = file_data$path,
             "file_content" = file_data$content,
             "file_size" = file_data$size,
-            "repo_url" = private$get_repo_url(file_data$url),
-            "api_url" = private$api_url
+            "repo_url" = private$get_repo_url(file_data$url)
           )
         }) %>%
           purrr::list_rbind()

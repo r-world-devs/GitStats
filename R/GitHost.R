@@ -618,7 +618,8 @@ GitHost <- R6::R6Class("GitHost",
       files_table <- rest_engine$pull_files(
         files = file_path
       ) %>%
-        private$prepare_files_table_from_rest()
+        private$prepare_files_table_from_rest() %>%
+        private$add_repo_api_url()
       return(files_table)
     }
   )
