@@ -65,13 +65,9 @@ expect_files_table <- function(files_object) {
     files_object,
     c("repo_name", "repo_id", "organization",
       "file_path", "file_content", "file_size",
-      "repo_url", "api_url")
+      "repo_url")
   )
   expect_type(files_object$file_size, "integer")
-  expect_type(files_object$api_url, "character")
-  expect_true(
-    all(purrr::map_lgl(files_object$api_url, ~ grepl("api", .)))
-  )
   expect_gt(nrow(files_object), 0)
 }
 
