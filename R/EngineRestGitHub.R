@@ -43,7 +43,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
           total_n = total_n
         )
         search_result <- private$limit_search_to_files(
-          repos_list = repos_list,
+          search_result = search_result,
           files = settings$files
         )
         repos_list <- private$map_search_into_repos(

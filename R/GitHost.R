@@ -61,6 +61,10 @@ GitHost <- R6::R6Class("GitHost",
                             verbose = TRUE,
                             settings) {
       private$set_verbose(verbose)
+      if (private$scan_all && is.null(private$orgs)) {
+        cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
+        private$orgs <- private$engines$graphql$pull_orgs()
+      }
       if (is.null(until)) {
         until <- Sys.time()
       }
@@ -102,6 +106,10 @@ GitHost <- R6::R6Class("GitHost",
 
     #' Iterator over pulling release logs from engines
     pull_release_logs = function(since, until, verbose, settings) {
+      if (private$scan_all && is.null(private$orgs)) {
+        cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
+        private$orgs <- private$engines$graphql$pull_orgs()
+      }
       until <- until %||% Sys.time()
       release_logs_table <- purrr::map(private$orgs, function(org) {
         release_logs_table_org <- NULL

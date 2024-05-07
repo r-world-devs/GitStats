@@ -19,13 +19,6 @@
     Output
       [1] "query GetFilesByOrg($org: ID!, $file_paths: [String!]!) {\n            group(fullPath: $org) {\n              projects(first: 100) {\n                count\n                pageInfo {\n                  hasNextPage\n                  endCursor\n                }\n                edges {\n                  node {\n                    name\n                    id\n                    webUrl\n                    repository {\n                      blobs(paths: $file_paths) {\n                        nodes {\n                          name\n                          rawBlob\n                          size\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          }"
 
----
-
-    Code
-      gl_repo_files_query
-    Output
-      [1] "query GetFilesFromRepo($file_paths: [String!]!, $project_path: ID!) {\n              project(fullPath: $project_path) {\n                name\n                id\n                webUrl\n                repository {\n                  blobs(paths: $file_paths) {\n                    nodes {\n                      name\n                      rawBlob\n                      size\n                    }\n                  }\n                }\n              }\n          }"
-
 # releases query is built properly
 
     Code

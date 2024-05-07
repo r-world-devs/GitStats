@@ -241,7 +241,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         code <- paste0("%22", code, "%22")
       }
       while (still_more_hits | page < page_max) {
-        repos_list <- self$response(
+        search_result <- self$response(
           paste0(
             private$endpoints[["search"]],
             code,
@@ -249,12 +249,12 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
             page
           )
         )
-        if (length(repos_list) == 0) {
+        if (length(search_result) == 0) {
           still_more_hits <- FALSE
           break()
         } else {
           repos_list <- private$limit_search_to_files(
-            repos_list = repos_list,
+            search_result = search_result,
             files = settings$files
           )
           full_repos_list <- append(full_repos_list, repos_list)
