@@ -1,3 +1,8 @@
+# GitStats (development version)
+
+- Getting files feature has been speeded up with switching to `Search API` instead of pulling files via `GraphQL` via iteration over organizations and repositories ([#411](https://github.com/r-world-devs/GitStats/issues/411)).
+- When setting hosts to be scanned in whole (without specifying `orgs` or `repos`) GitStats does not pull no more all organizations. Pulling all organizations from host is triggered only when user decides to pull repositories from organizations. If he decides, e.g. to pull repositories by code, there is no need to pull all organizations (which may be a time consuming process), as GitStats uses then `Search API` ([#393](https://github.com/r-world-devs/GitStats/issues/393)).
+
 # GitStats 2.0.0
 
 This is a major release with general changes in workflow (simplifying it), changes in setting `GitStats` hosts, deprecation of some not very useful features (like plots, setting parameters separately) and new `get_release_logs()` function.

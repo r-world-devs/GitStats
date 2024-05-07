@@ -326,6 +326,30 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       return(files_table)
     },
 
+    # Prepare files table from REST API.
+    prepare_files_table_from_rest = function(files_list) {
+      files_table <- NULL
+      if (!is.null(files_list)) {
+        files_table <- purrr::map(files_list, function(file_data) {
+          org_repo <- stringr::str_split_1(file_data$repo_fullname, "/")
+          org <- paste0(org_repo[1:(length(org_repo) - 1)], collapse = "/")
+          data.frame(
+            "repo_name" = file_data$repo_name,
+            "repo_id" = as.character(file_data$repo_id),
+            "organization" = org,
+            "file_path" = file_data$file_path,
+            "file_content" = file_data$content,
+            "file_size" = file_data$size,
+            "repo_url" = file_data$repo_url,
+            "api_url" = private$api_url
+          )
+        }) %>%
+          purrr::list_rbind() %>%
+          unique()
+      }
+      return(files_table)
+    },
+
     # Prepare releases table.
     prepare_releases_table = function(releases_response, org, date_from, date_until) {
       if (length(releases_response) > 0) {
