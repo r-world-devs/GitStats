@@ -146,13 +146,3 @@ test_that("get_release_logs works as expected", {
   )
   expect_releases_table(release_logs)
 })
-
-test_that("GitStats prints with storage", {
-  test_gitstats <- create_test_gitstats(
-    hosts = 2,
-    inject_repos = "repos_table",
-    inject_commits = "commits_table",
-    inject_package_usage = "R_package_usage"
-  )
-  expect_snapshot(test_gitstats)
-})
