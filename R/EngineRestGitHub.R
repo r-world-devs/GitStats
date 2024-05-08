@@ -14,8 +14,9 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
           search_result <- private$search_response(
             search_endpoint = search_file_endpoint,
             total_n = total_n
-          )
-          files_content <- private$get_files_content(search_result)
+          ) %>%
+            purrr::keep(~ .$path == filename)
+          files_content <- private$get_files_content(search_result, filename)
           files_list <- append(files_list, files_content)
         }
       }
@@ -217,8 +218,9 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     },
 
     # Get files content
-    get_files_content = function(search_result) {
-      purrr::map(search_result, ~ self$response(.$url)) %>%
+    get_files_content = function(search_result, filename) {
+      purrr::map(search_result, ~ self$response(.$url),
+                 .progress = glue::glue("Adding file [{filename}] info...")) %>%
         unique()
     }
   )
