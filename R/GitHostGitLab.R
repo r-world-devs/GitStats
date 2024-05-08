@@ -313,8 +313,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
               "file_path" = file$name,
               "file_content" = file$rawBlob,
               "file_size" = as.integer(file$size),
-              "repo_url" = project$webUrl,
-              "api_url" = private$graphql_api_url
+              "repo_url" = project$webUrl
             )
           }) %>%
             purrr::list_rbind()
@@ -322,6 +321,29 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           purrr::list_rbind()
       } else {
         files_table <- NULL
+      }
+      return(files_table)
+    },
+
+    # Prepare files table from REST API.
+    prepare_files_table_from_rest = function(files_list) {
+      files_table <- NULL
+      if (!is.null(files_list)) {
+        files_table <- purrr::map(files_list, function(file_data) {
+          org_repo <- stringr::str_split_1(file_data$repo_fullname, "/")
+          org <- paste0(org_repo[1:(length(org_repo) - 1)], collapse = "/")
+          data.frame(
+            "repo_name" = file_data$repo_name,
+            "repo_id" = as.character(file_data$repo_id),
+            "organization" = org,
+            "file_path" = file_data$file_path,
+            "file_content" = file_data$content,
+            "file_size" = file_data$size,
+            "repo_url" = file_data$repo_url
+          )
+        }) %>%
+          purrr::list_rbind() %>%
+          unique()
       }
       return(files_table)
     },

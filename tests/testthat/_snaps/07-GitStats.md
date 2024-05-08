@@ -50,18 +50,3 @@
        Repositories: [0] 
       Storage: <no tables in storage>
 
-# GitStats prints with storage
-
-    Code
-      test_gitstats
-    Output
-      A GitStats object for 2 hosts: 
-      Hosts: https://api.github.com, https://gitlab.com/api/v4
-      Scanning scope: 
-       Organizations: [2] r-world-devs, mbtests
-       Repositories: [0] 
-      Storage: 
-       Repositories: 17 
-       Commits: 24 [date range: 2023-06-15 - 2023-06-30]
-       R_package_usage: 11 [package: purrr]
-

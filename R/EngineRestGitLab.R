@@ -4,6 +4,24 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
   inherit = EngineRest,
   public = list(
 
+    # Pull repositories with files
+    pull_files = function(files) {
+      files_list <- list()
+      for (filename in files) {
+        files_search_result <- private$search_for_code(
+          code = paste0("path:", filename),
+          settings = list()
+        ) %>%
+          purrr::keep(~ .$path == filename)
+        files_content <- private$add_file_content(
+          files_search_result = files_search_result,
+          filename = filename
+        )
+        files_list <- append(files_list, files_content)
+      }
+      return(files_list)
+    },
+
     # Wrapper for iteration over GitLab search API response
     # @details For the time being there is no possibility to search GitLab with
     #   filtering by language. For more information look here:
@@ -11,39 +29,13 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     pull_repos_by_code = function(org = NULL,
                                   code,
                                   verbose,
-                                  settings,
-                                  page_max = 1e6) {
+                                  settings) {
       private$set_verbose(verbose)
-      page <- 1
-      still_more_hits <- TRUE
-      full_repos_list <- list()
-      private$set_search_endpoint(org)
-      if (private$verbose) {
-        cli::cli_alert_info("[GitLab] Searching for code...")
-      }
-      while (still_more_hits | page < page_max) {
-        repos_list <- self$response(
-          paste0(
-            private$endpoints[["search"]],
-            "%22",
-            code,
-            "%22&per_page=100&page=",
-            page
-          )
-        )
-        if (length(repos_list) == 0) {
-          still_more_hits <- FALSE
-          break()
-        } else {
-          repos_list <- private$limit_search_to_files(
-            repos_list = repos_list,
-            files = settings$files
-          )
-          full_repos_list <- append(full_repos_list, repos_list)
-          page <- page + 1
-        }
-      }
-      full_repos_list <- full_repos_list %>%
+      full_repos_list <- private$search_for_code(
+        code = code,
+        org = org,
+        settings = settings
+      ) %>%
         private$map_search_into_repos() %>%
         private$pull_repos_languages()
       return(full_repos_list)
@@ -208,7 +200,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     },
 
     # Set search endpoint
-    set_search_endpoint = function(org) {
+    set_search_endpoint = function(org = NULL) {
       groups_search <- if (!private$scan_all) {
         private$set_groups_search_endpoint(org)
       } else {
@@ -236,6 +228,39 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         private$pull_repos_languages(
           verbose = settings$verbose
         )
+      return(full_repos_list)
+    },
+
+    # Search for code
+    search_for_code = function(code, org = NULL, settings, page_max = 1e6) {
+      page <- 1
+      still_more_hits <- TRUE
+      full_repos_list <- list()
+      private$set_search_endpoint(org)
+      if (!grepl("path:", code)) {
+        code <- paste0("%22", code, "%22")
+      }
+      while (still_more_hits | page < page_max) {
+        search_result <- self$response(
+          paste0(
+            private$endpoints[["search"]],
+            code,
+            "&per_page=100&page=",
+            page
+          )
+        )
+        if (length(search_result) == 0) {
+          still_more_hits <- FALSE
+          break()
+        } else {
+          repos_list <- private$limit_search_to_files(
+            search_result = search_result,
+            files = settings$files
+          )
+          full_repos_list <- append(full_repos_list, repos_list)
+          page <- page + 1
+        }
+      }
       return(full_repos_list)
     },
 
@@ -297,6 +322,41 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     # A helper to get group's id
     get_group_id = function(project_group) {
       self$response(paste0(self$rest_api_url, "/groups/", project_group))[["id"]]
+    },
+
+    # Add file content to files search result
+    add_file_content = function(files_search_result, filename) {
+      purrr::map(files_search_result, function(file_data) {
+        repo_data <- self$response(
+          paste0(
+            private$endpoints$projects,
+            file_data$project_id
+          )
+        )
+        def_branch <- repo_data[["default_branch"]]
+        file_data <- tryCatch({
+          self$response(
+            paste0(
+              private$endpoints$projects,
+              file_data$project_id,
+              "/repository/files/",
+              filename,
+              "?ref=",
+              def_branch
+            )
+          )
+        }, error = function(e) {
+          NULL
+        })
+        if (!is.null(file_data)) {
+          file_data$repo_name <- repo_data$path
+          file_data$repo_fullname <- repo_data$path_with_namespace
+          file_data$repo_id <- repo_data$id
+          file_data$repo_url <- repo_data$web_url
+        }
+        return(file_data)
+      }, .progress = glue::glue("Adding file [{filename}] info...")) %>%
+        purrr::discard(is.null)
     }
   )
 )

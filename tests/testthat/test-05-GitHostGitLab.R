@@ -109,11 +109,10 @@ test_that("pull_commits for GitLab works with repos implied", {
 test_that("pull_files for GitLab works", {
   suppressMessages(
     gl_files_table <- test_host$pull_files(
-      file_path = "meta_data.yaml",
-      settings = test_settings
+      file_path = "meta_data.yaml"
     )
   )
   expect_files_table(
-    gl_files_table
+    gl_files_table, add_col = "api_url"
   )
 })

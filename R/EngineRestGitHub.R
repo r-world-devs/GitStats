@@ -4,15 +4,30 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
   inherit = EngineRest,
   public = list(
 
+    # Pull repositories with files
+    pull_files = function(files) {
+      files_list <- list()
+      for (filename in files) {
+        search_file_endpoint <- paste0(private$endpoints[["search"]], "filename:", filename)
+        total_n <- self$response(search_file_endpoint)[["total_count"]]
+        if (length(total_n) > 0) {
+          search_result <- private$search_response(
+            search_endpoint = search_file_endpoint,
+            total_n = total_n
+          ) %>%
+            purrr::keep(~ .$path == filename)
+          files_content <- private$get_files_content(search_result, filename)
+          files_list <- append(files_list, files_content)
+        }
+      }
+      return(files_list)
+    },
+
     # Pulling repositories where code appears
-    # @param byte_max According to GitHub documentation only files smaller than
-    #   384 KB are searchable. See
-    #   \link{https://docs.github.com/en/rest/search?apiVersion=2022-11-28#search-code}
     pull_repos_by_code = function(org = NULL,
                                   code,
                                   verbose,
-                                  settings,
-                                  byte_max = "384000") {
+                                  settings) {
       private$set_verbose(verbose)
       user_query <- if (!is.null(org)) {
         paste0('+user:', org)
@@ -24,17 +39,16 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       total_n <- self$response(search_endpoint)[["total_count"]]
       if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
       if (length(total_n) > 0) {
-        repos_list <- private$search_response(
+        search_result <- private$search_response(
           search_endpoint = search_endpoint,
-          total_n = total_n,
-          byte_max = byte_max
+          total_n = total_n
         )
-        repos_list <- private$limit_search_to_files(
-          repos_list = repos_list,
+        search_result <- private$limit_search_to_files(
+          search_result = search_result,
           files = settings$files
         )
         repos_list <- private$map_search_into_repos(
-          search_response = repos_list
+          search_response = search_result
         )
       } else {
         repos_list <- list()
@@ -123,10 +137,12 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     # A wrapper for proper pagination of GitHub search REST API
     # @param search_endpoint A character, a search endpoint
     # @param total_n Number of results
-    # @param byte_max Max byte size
+    # @param byte_max According to GitHub documentation only files smaller than
+    #   384 KB are searchable. See
+    #   \link{https://docs.github.com/en/rest/search?apiVersion=2022-11-28#search-code}
     search_response = function(search_endpoint,
                                total_n,
-                               byte_max) {
+                               byte_max = "384000") {
       if (total_n >= 0 & total_n < 1e3) {
         resp_list <- list()
         for (page in 1:(total_n %/% 100)) {
@@ -199,6 +215,13 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
           FALSE
         })
       repos_list
+    },
+
+    # Get files content
+    get_files_content = function(search_result, filename) {
+      purrr::map(search_result, ~ self$response(.$url),
+                 .progress = glue::glue("Adding file [{filename}] info...")) %>%
+        unique()
     }
   )
 )

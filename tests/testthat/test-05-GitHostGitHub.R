@@ -179,12 +179,12 @@ test_that("pull_commits for GitHub works", {
 test_that("pull_files for GitHub works", {
   suppressMessages(
     gh_files_table <- test_host$pull_files(
-      file_path = "DESCRIPTION",
-      settings = test_settings
+      file_path = "DESCRIPTION"
     )
   )
   expect_files_table(
-    gh_files_table
+    gh_files_table,
+    add_col = "api_url"
   )
 })
 

@@ -518,9 +518,7 @@ GitStats <- R6::R6Class("GitStats",
       purrr::map(private$hosts, function(host) {
         host$pull_files(
           file_path = file_path,
-          pulled_repos = private$storage[["repositories"]],
-          verbose = verbose,
-          settings = private$settings
+          verbose = verbose
         )
       }) %>%
         purrr::list_rbind()

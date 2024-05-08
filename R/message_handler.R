@@ -4,10 +4,14 @@ show_message <- function(host,
                          scope = NULL,
                          code = NULL,
                          information) {
+  msg_graphql <- cli::col_yellow('GraphQl')
+  msg_rest <- cli::col_green('REST')
   engine_msg <- if (engine == "graphql") {
-    cli::col_yellow('GraphQl')
+    msg_graphql
   } else if (engine == "rest") {
-    cli::col_green('REST')
+    msg_rest
+  } else if (engine == "both") {
+    paste0(msg_rest, "&",msg_graphql)
   }
   message <- if (is.null(scope)) {
     glue::glue("[Host:{host}][Engine:{engine_msg}] {information}...")
