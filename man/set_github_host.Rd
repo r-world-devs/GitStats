@@ -9,7 +9,8 @@ set_github_host(
   host = NULL,
   token = NULL,
   orgs = NULL,
-  repos = NULL
+  repos = NULL,
+  verbose = is_verbose(gitstats_object)
 )
 }
 \arguments{
@@ -26,6 +27,9 @@ public host will be used.}
 \item{repos}{An optional character vector of repositories full names
 (organization and repository name, e.g. "r-world-devs/GitStats"). If you
 pass it, \code{orgs} parameter should stay \code{NULL}.}
+
+\item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and printing
+output is switched off.}
 }
 \value{
 A \code{GitStats} object with added information on host.

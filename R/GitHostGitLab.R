@@ -5,7 +5,8 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     initialize = function(orgs = NA,
                           repos = NA,
                           token = NA,
-                          host = NA) {
+                          host = NA,
+                          verbose = NA) {
       repos <- if (!is.null(repos)) {
         url_encode(repos)
       }
@@ -15,8 +16,11 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       super$initialize(orgs = orgs,
                        repos = repos,
                        token = token,
-                       host = host)
-      cli::cli_alert_success("Set connection to GitLab.")
+                       host = host,
+                       verbose = verbose)
+      if (private$verbose) {
+        cli::cli_alert_success("Set connection to GitLab.")
+      }
     }
   ),
   private = list(
@@ -195,7 +199,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           show_message(
             host = private$host_name,
             engine = "rest",
-            scope = org,
+            scope = utils::URLdecode(org),
             information = "Pulling commits"
           )
         }

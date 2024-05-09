@@ -5,7 +5,7 @@
       orgs = c("openpharma", "r-world-devs"))
     Message
       i Searching scope set to [org].
-      i Checking passed organizations...
+      i Checking host data...
       v Set connection to GitHub.
 
 ---
@@ -15,7 +15,7 @@
       orgs = c("mbtests"))
     Message
       i Searching scope set to [org].
-      i Checking passed organizations...
+      i Checking host data...
       v Set connection to GitLab.
 
 # When empty token for GitHub, GitStats pulls default token
@@ -26,7 +26,7 @@
     Message
       i Using PAT from GITHUB_PAT envar.
       i Searching scope set to [org].
-      i Checking passed organizations...
+      i Checking host data...
       v Set connection to GitHub.
 
 # When empty token for GitLab, GitStats pulls default token
@@ -38,7 +38,7 @@
     Message
       i Using PAT from GITLAB_PAT envar.
       i Searching scope set to [org].
-      i Checking passed organizations...
+      i Checking host data...
       v Set connection to GitLab.
 
 # Set GitHub host with particular repos vector instead of orgs
@@ -49,7 +49,7 @@
         "openpharma/GithubMetrics", "openpharma/DataFakeR"))
     Message
       i Searching scope set to [repo].
-      i Checking passed repositories...
+      i Checking host data...
       v Set connection to GitHub.
 
 # Set GitLab host with particular repos vector instead of orgs
@@ -59,7 +59,7 @@
       repos = c("mbtests/gitstatstesting", "mbtests/gitstats-testing-2"))
     Message
       i Searching scope set to [repo].
-      i Checking passed repositories...
+      i Checking host data...
       v Set connection to GitLab.
 
 # Set host prints error when repos and orgs are defined and host is not passed to GitStats
@@ -79,6 +79,20 @@
     x Token exists but does not grant access.
     i Check if you use correct token. Check scopes your token is using.
 
+---
+
+    Code
+      create_gitstats() %>% set_github_host(host = "wrong.url", orgs = c("openpharma",
+        "r_world_devs"))
+    Message
+      i Searching scope set to [org].
+      i Checking host data...
+    Condition
+      Error in `purrr::map()`:
+      i In index: 1.
+      Caused by error:
+      ! Could not resolve host: wrong.url
+
 # Error pops out, when two clients of the same url api are passed as input
 
     Code
@@ -86,27 +100,30 @@
         set_github_host(token = Sys.getenv("GITHUB_PAT"), orgs = "openpharma")
     Message
       i Searching scope set to [org].
-      i Checking passed organizations...
+      i Checking host data...
       v Set connection to GitHub.
       i Searching scope set to [org].
-      i Checking passed organizations...
+      i Checking host data...
       v Set connection to GitHub.
     Condition
       Error:
       x You can not provide two hosts of the same API urls.
 
-# `Org` name is not passed to the object if it does not exist
+# Error pops out when `org` does not exist
 
     Code
       test_gitstats <- create_gitstats() %>% set_github_host(token = Sys.getenv(
         "GITHUB_PAT"), orgs = c("openparma"))
     Message
       i Searching scope set to [org].
-      i Checking passed organizations...
+      i Checking host data...
+    Condition
+      Error in `purrr::map()`:
+      i In index: 1.
+      Caused by error:
       x Organization you provided does not exist or its name was passed in a wrong way: https://api.github.com/orgs/openparma
-      ! Please type your organization name as you see it in `url`.
-      i E.g. do not use spaces. Organization names as you see on the page may differ from their 'address' name.
-      v Set connection to GitHub.
+      ! Please type your organization name as you see it in web URL.
+      i E.g. do not use spaces. Organization names as you see on the page may differ from their web 'address'.
 
 ---
 
@@ -115,11 +132,14 @@
         "GITLAB_PAT_PUBLIC"), orgs = c("openparma", "mbtests"))
     Message
       i Searching scope set to [org].
-      i Checking passed organizations...
+      i Checking host data...
+    Condition
+      Error in `purrr::map()`:
+      i In index: 1.
+      Caused by error:
       x Organization you provided does not exist or its name was passed in a wrong way: https://gitlab.com/api/v4/groups/openparma
-      ! Please type your organization name as you see it in `url`.
-      i E.g. do not use spaces. Organization names as you see on the page may differ from their 'address' name.
-      v Set connection to GitLab.
+      ! Please type your organization name as you see it in web URL.
+      i E.g. do not use spaces. Organization names as you see on the page may differ from their web 'address'.
 
 ---
 
@@ -128,9 +148,12 @@
         "GITHUB_PAT"), orgs = c("openpharma", "r_world_devs"))
     Message
       i Searching scope set to [org].
-      i Checking passed organizations...
+      i Checking host data...
+    Condition
+      Error in `purrr::map()`:
+      i In index: 2.
+      Caused by error:
       x Organization you provided does not exist or its name was passed in a wrong way: https://api.github.com/orgs/r_world_devs
-      ! Please type your organization name as you see it in `url`.
-      i E.g. do not use spaces. Organization names as you see on the page may differ from their 'address' name.
-      v Set connection to GitHub.
+      ! Please type your organization name as you see it in web URL.
+      i E.g. do not use spaces. Organization names as you see on the page may differ from their web 'address'.
 

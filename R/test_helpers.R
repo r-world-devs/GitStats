@@ -32,10 +32,11 @@ GitHostGitHubTest <- R6::R6Class("GitHostGitHubTest",
       private$set_api_url(host)
       private$set_endpoints()
       private$check_if_public(host)
+      private$set_token(token)
       private$set_graphql_url()
+      private$set_orgs_and_repos(orgs, repos)
       private$setup_test_engines()
-      private$orgs <- orgs
-      private$repos <- repos
+      private$set_searching_scope(orgs, repos)
     }
   ),
   private = list(
@@ -46,7 +47,7 @@ GitHostGitHubTest <- R6::R6Class("GitHostGitHubTest",
         )
         private$engines$graphql <- EngineGraphQLGitHub$new(
           token = private$token,
-          gql_api_url = private$set_gql_url(private$api_url)
+          gql_api_url = private$set_graphql_url()
         )
     }
   )
@@ -65,10 +66,11 @@ GitHostGitLabTest <- R6::R6Class("GitHostGitLabTest",
        private$set_api_url(host)
        private$set_endpoints()
        private$check_if_public(host)
+       private$set_token(token)
        private$set_graphql_url()
+       private$set_orgs_and_repos(orgs, repos)
        private$setup_test_engines()
-       private$orgs <- orgs
-       private$repos <- repos
+       private$set_searching_scope(orgs, repos)
      }
    ),
    private = list(
@@ -79,7 +81,7 @@ GitHostGitLabTest <- R6::R6Class("GitHostGitLabTest",
        )
        private$engines$graphql <- EngineGraphQLGitLab$new(
          token = private$token,
-         gql_api_url = private$set_gql_url(private$api_url)
+         gql_api_url = private$set_graphql_url()
        )
      }
    )
@@ -91,7 +93,7 @@ create_github_testhost <- function(host = NULL,
                                    repos = NULL,
                                    mode = "") {
   suppressMessages(
-    test_host <- GitHostGitHub$new(
+    test_host <- GitHostGitHubTest$new(
       host = NULL,
       token = Sys.getenv("GITHUB_PAT"),
       orgs = orgs,
@@ -110,7 +112,7 @@ create_gitlab_testhost <- function(host = NULL,
                                    repos = NULL,
                                    mode = "") {
   suppressMessages(
-    test_host <- GitHostGitLab$new(
+    test_host <- GitHostGitLabTest$new(
       host = NULL,
       token = Sys.getenv("GITLAB_PAT_PUBLIC"),
       orgs = orgs,
@@ -145,6 +147,7 @@ TestEngineRestGitHub <- R6::R6Class("TestEngineRestGitHub",
                           rest_api_url) {
       private$token <- token
       self$rest_api_url <- rest_api_url
+      private$set_endpoints()
     }
   )
 )
@@ -158,6 +161,7 @@ TestEngineRestGitLab <- R6::R6Class("TestEngineRestGitLab",
                           rest_api_url) {
       private$token <- token
       self$rest_api_url <- rest_api_url
+      private$set_endpoints()
     }
   )
 )
