@@ -54,15 +54,12 @@ test_that("check_endpoint returns TRUE if they are correct", {
   )
 })
 
-test_that("check_endpoint returns warning and FALSE if they are not correct", {
-  expect_snapshot(
+test_that("check_endpoint returns error if they are not correct", {
+  expect_snapshot_error(
     check <- test_host$check_endpoint(
       endpoint = "https://api.github.com/repos/r-worlddevs/GitStats",
       type = "Repository"
     )
-  )
-  expect_false(
-    check
   )
 })
 
