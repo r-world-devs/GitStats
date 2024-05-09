@@ -2,6 +2,11 @@
 
 - Getting files feature has been speeded up with switching to `Search API` instead of pulling files via `GraphQL` via iteration over organizations and repositories ([#411](https://github.com/r-world-devs/GitStats/issues/411)).
 - When setting hosts to be scanned in whole (without specifying `orgs` or `repos`) GitStats does not pull no more all organizations. Pulling all organizations from host is triggered only when user decides to pull repositories from organizations. If he decides, e.g. to pull repositories by code, there is no need to pull all organizations (which may be a time consuming process), as GitStats uses then `Search API` ([#393](https://github.com/r-world-devs/GitStats/issues/393)).
+- It is now possible to mute messages also from `set_*_host()` functions with `verbose_off()` or `verbose` parameter ([#413](https://github.com/r-world-devs/GitStats/issues/413)).
+
+## Fixes:
+
+- Pulling repositories from GitLab subgroups was fixed. It did not work, as the URL of a group (org) was passed to GraphQL API the same way as to REST API, i.e. with URL sign ("%2F", instead of "/").
 
 # GitStats 2.0.0
 
