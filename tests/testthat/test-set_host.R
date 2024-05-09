@@ -106,6 +106,16 @@ test_that("Error shows, when wrong input is passed when setting connection and h
       token = Sys.getenv("GITLAB_PAT_PUBLIC")
     )
   )
+
+  expect_snapshot({
+    create_gitstats() %>%
+      set_github_host(
+        host = "wrong.url",
+        orgs = c("openpharma", "r_world_devs")
+      )
+    },
+    error = TRUE
+  )
 })
 
 test_that("Error pops out, when two clients of the same url api are passed as input", {
@@ -125,28 +135,34 @@ test_that("Error pops out, when two clients of the same url api are passed as in
   )
 })
 
-test_that("`Org` name is not passed to the object if it does not exist", {
-  expect_snapshot(
+test_that("Error pops out when `org` does not exist", {
+  expect_snapshot({
     test_gitstats <- create_gitstats() %>%
       set_github_host(
         token = Sys.getenv("GITHUB_PAT"),
         orgs = c("openparma")
       )
+    },
+    error = TRUE
   )
 
-  expect_snapshot(
+  expect_snapshot({
     test_gitstats <- create_gitstats() %>%
       set_gitlab_host(
         token = Sys.getenv("GITLAB_PAT_PUBLIC"),
         orgs = c("openparma", "mbtests")
       )
+    },
+    error = TRUE
   )
 
-  expect_snapshot(
+  expect_snapshot({
     test_gitstats <- create_gitstats() %>%
       set_github_host(
         token = Sys.getenv("GITHUB_PAT"),
         orgs = c("openpharma", "r_world_devs")
       )
+    },
+    error = TRUE
   )
 })

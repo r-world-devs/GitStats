@@ -7,6 +7,7 @@
 ## Fixes:
 
 - Pulling repositories from GitLab subgroups was fixed. It did not work, as the URL of a group (org) was passed to GraphQL API the same way as to REST API, i.e. with URL sign ("%2F", instead of "/").
+- GitStats returns now proper error, when you pass wrong host URL to `set_*_host()` function ([#415](https://github.com/r-world-devs/GitStats/issues/415))
 
 # GitStats 2.0.0
 

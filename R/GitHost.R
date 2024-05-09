@@ -317,7 +317,7 @@ GitHost <- R6::R6Class("GitHost",
     # Check if repositories exist
     check_repositories = function(repos) {
       if (private$verbose) {
-        cli::cli_alert_info(cli::col_grey("Checking passed repositories..."))
+        cli::cli_alert_info(cli::col_grey("Checking host data..."))
       }
       repos <- purrr::map(repos, function(repo) {
         repo_endpoint = glue::glue("{private$endpoints$repositories}/{repo}")
@@ -341,7 +341,7 @@ GitHost <- R6::R6Class("GitHost",
     # Check if organizations exist
     check_organizations = function(orgs) {
       if (private$verbose) {
-        cli::cli_alert_info(cli::col_grey("Checking passed organizations..."))
+        cli::cli_alert_info(cli::col_grey("Checking host data..."))
       }
       orgs <- purrr::map(orgs, function(org) {
         org_endpoint = glue::glue("{private$endpoints$orgs}/{org}")
@@ -370,12 +370,22 @@ GitHost <- R6::R6Class("GitHost",
           private$engines$rest$response(endpoint = endpoint)
         },
         error = function(e) {
-          if (grepl("404", e)) {
-            cli::cli_alert_danger("{type} you provided does not exist or its name was passed in a wrong way: {endpoint}")
-            cli::cli_alert_warning("Please type your {tolower(type)} name as you see it in `url`.")
-            cli::cli_alert_info("E.g. do not use spaces. {type} names as you see on the page may differ from their 'address' name.")
+          if (!is.null(e$parent$message) && grepl("Could not resolve host", e$parent$message)) {
+            cli::cli_abort(
+              cli::col_red(e$parent$message),
+              call = NULL
+            )
           }
-          check <<- FALSE
+          if (grepl("404", e)) {
+            cli::cli_abort(
+              c(
+                "x" = "{type} you provided does not exist or its name was passed in a wrong way: {cli::col_red({endpoint})}",
+                "!" = "Please type your {tolower(type)} name as you see it in web URL.",
+                "i" = "E.g. do not use spaces. {type} names as you see on the page may differ from their web 'address'."
+              ),
+              call = NULL
+            )
+          }
         }
       )
       return(check)
