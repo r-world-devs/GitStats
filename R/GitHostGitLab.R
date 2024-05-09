@@ -199,7 +199,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           show_message(
             host = private$host_name,
             engine = "rest",
-            scope = org,
+            scope = utils::URLdecode(org),
             information = "Pulling commits"
           )
         }

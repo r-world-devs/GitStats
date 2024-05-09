@@ -116,6 +116,7 @@ GitHost <- R6::R6Class("GitHost",
       }
       until <- until %||% Sys.time()
       release_logs_table <- purrr::map(private$orgs, function(org) {
+        org <- utils::URLdecode(org)
         release_logs_table_org <- NULL
         if (!private$scan_all && verbose) {
           show_message(
