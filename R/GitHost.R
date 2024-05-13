@@ -34,10 +34,6 @@ GitHost <- R6::R6Class("GitHost",
                           verbose = TRUE,
                           settings) {
       private$set_verbose(verbose)
-      if (private$scan_all && is.null(private$orgs)) {
-        cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
-        private$orgs <- private$engines$graphql$pull_orgs()
-      }
       if (is.null(with_code)) {
         repos_table <- private$pull_all_repos(
           settings = settings
@@ -473,6 +469,16 @@ GitHost <- R6::R6Class("GitHost",
 
     #' Retrieve all repositories for an organization in a table format.
     pull_all_repos = function(settings, verbose = private$verbose) {
+      if (private$scan_all && is.null(private$orgs)) {
+        if (verbose) {
+          show_message(
+            host = private$host_name,
+            engine = "graphql",
+            information = "Pulling all organizations"
+          )
+        }
+        private$orgs <- private$engines$graphql$pull_orgs()
+      }
       graphql_engine <- private$engines$graphql
       repos_table <- purrr::map(private$orgs, function(org) {
         org <- utils::URLdecode(org)

@@ -130,12 +130,16 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
           } else {
             ""
           }
+          last_activity_at <- as.POSIXct(repo$last_activity_at)
+          if (length(last_activity_at) == 0) {
+            last_activity_at <- gts_to_posixt(repo$created_at)
+          }
           repo$languages <- purrr::map_chr(repo$languages$nodes, ~ .$name) %>%
             paste0(collapse = ", ")
           repo$created_at <- gts_to_posixt(repo$created_at)
           repo$issues_open <- repo$issues_open$totalCount
           repo$issues_closed <- repo$issues_closed$totalCount
-          repo$last_activity_at <- as.POSIXct(repo$last_activity_at)
+          repo$last_activity_at <- last_activity_at
           repo$organization <- repo$organization$login
           repo <- data.frame(repo) %>%
             dplyr::relocate(
