@@ -146,7 +146,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       if (length(repos_list) > 0) {
         repos_table <- purrr::map_dfr(repos_list, function(repo) {
           repo <- repo$node
-          repo$default_branch <- repo$repository$rootRef
+          repo$default_branch <- repo$repository$rootRef %||% ""
           repo$repository <- NULL
           repo$languages <- if (length(repo$languages) > 0) {
             purrr::map_chr(repo$languages, ~ .$name) %>%
