@@ -5,14 +5,17 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
     initialize = function(orgs = NA,
                           repos = NA,
                           token = NA,
-                          host = NA) {
+                          host = NA,
+                          verbose = NA) {
       super$initialize(orgs = orgs,
                        repos = repos,
                        token = token,
-                       host = host)
-      cli::cli_alert_success("Set connection to GitHub.")
+                       host = host,
+                       verbose = verbose)
+      if (private$verbose) {
+        cli::cli_alert_success("Set connection to GitHub.")
+      }
     }
-
   ),
   private = list(
 
@@ -127,12 +130,16 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
           } else {
             ""
           }
+          last_activity_at <- as.POSIXct(repo$last_activity_at)
+          if (length(last_activity_at) == 0) {
+            last_activity_at <- gts_to_posixt(repo$created_at)
+          }
           repo$languages <- purrr::map_chr(repo$languages$nodes, ~ .$name) %>%
             paste0(collapse = ", ")
           repo$created_at <- gts_to_posixt(repo$created_at)
           repo$issues_open <- repo$issues_open$totalCount
           repo$issues_closed <- repo$issues_closed$totalCount
-          repo$last_activity_at <- as.POSIXct(repo$last_activity_at)
+          repo$last_activity_at <- last_activity_at
           repo$organization <- repo$organization$login
           repo <- data.frame(repo) %>%
             dplyr::relocate(
@@ -279,8 +286,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
               "file_path" = file,
               "file_content" = repository$object$text,
               "file_size" = repository$object$byteSize,
-              "repo_url" = repository$url,
-              "api_url" = private$graphql_api_url
+              "repo_url" = repository$url
             )
           }) %>%
             purrr::list_rbind()
@@ -290,6 +296,40 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
         files_table <- NULL
       }
       return(files_table)
+    },
+
+    # Prepare files table from REST API.
+    prepare_files_table_from_rest = function(files_list) {
+      files_table <- NULL
+      if (!is.null(files_list)) {
+        files_table <- purrr::map(files_list, function(file_data) {
+          repo_fullname <- private$get_repo_fullname(file_data$url)
+          org_repo <- stringr::str_split_1(repo_fullname, "/")
+          data.frame(
+            "repo_name" = org_repo[2],
+            "repo_id" = NA_character_,
+            "organization" = org_repo[1],
+            "file_path" = file_data$path,
+            "file_content" = file_data$content,
+            "file_size" = file_data$size,
+            "repo_url" = private$get_repo_url(file_data$url)
+          )
+        }) %>%
+          purrr::list_rbind()
+      }
+      return(files_table)
+    },
+
+    # Get repository full name
+    get_repo_fullname = function(file_url) {
+      stringr::str_remove_all(file_url,
+                              paste0(private$endpoints$repositories, "/")) %>%
+        stringr::str_replace_all("/contents.*", "")
+    },
+
+    # Get repository url
+    get_repo_url = function(repo_fullname) {
+      paste0(private$endpoints$repositories, "/", repo_fullname)
     },
 
     # Prepare releases table.

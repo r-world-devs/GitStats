@@ -23,7 +23,7 @@ result from its storage.}
 printing output is switched off.}
 }
 \value{
-A \code{GitStats} object with table of users.
+A data.frame.
 }
 \description{
 Pull users data from Git Host.

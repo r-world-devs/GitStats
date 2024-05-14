@@ -19,6 +19,8 @@ create_gitstats <- function() {
 #' @param repos An optional character vector of repositories full names
 #'   (organization and repository name, e.g. "r-world-devs/GitStats"). If you
 #'   pass it, `orgs` parameter should stay `NULL`.
+#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
+#'   output is switched off.
 #' @details If you do not define `orgs` and `repos`, `GitStats` will be set to
 #'   scan whole Git platform (such as enterprise version of GitHub or GitLab),
 #'   unless it is a public platform. In case of a public one (like GitHub) you
@@ -37,12 +39,14 @@ set_github_host <- function(gitstats_object,
                             host = NULL,
                             token = NULL,
                             orgs = NULL,
-                            repos = NULL) {
+                            repos = NULL,
+                            verbose = is_verbose(gitstats_object)) {
   gitstats_object$set_github_host(
     host = host,
     token = token,
     orgs = orgs,
-    repos = repos
+    repos = repos,
+    verbose = verbose
   )
 
   return(invisible(gitstats_object))
@@ -70,12 +74,14 @@ set_gitlab_host <- function(gitstats_object,
                             host = NULL,
                             token = NULL,
                             orgs = NULL,
-                            repos = NULL) {
+                            repos = NULL,
+                            verbose = is_verbose(gitstats_object)) {
   gitstats_object$set_gitlab_host(
     host = host,
     token = token,
     orgs = orgs,
-    repos = repos
+    repos = repos,
+    verbose = verbose
   )
 
   return(invisible(gitstats_object))
@@ -101,6 +107,7 @@ set_gitlab_host <- function(gitstats_object,
 #'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
 #'   output is switched off.
+#' @return A data.frame.
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
@@ -141,7 +148,7 @@ get_repos <- function(gitstats_object,
 #'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
 #'   printing output is switched off.
-#' @return A `GitStats` class object with commits table.
+#' @return A data.frame.
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
@@ -221,7 +228,7 @@ get_commits_stats = function(gitstats_object,
 #'   )
 #'  get_users(my_gitstats, c("maciekabanas", "marcinkowskak"))
 #' }
-#' @return A `GitStats` object with table of users.
+#' @return A data.frame.
 #' @export
 get_users <- function(gitstats_object,
                       logins,
@@ -257,7 +264,7 @@ get_users <- function(gitstats_object,
 #'   )
 #'  get_files(my_gitstats, c("LICENSE", "DESCRIPTION"))
 #' }
-#' @return A `GitStats` object with table of files.
+#' @return A data.frame.
 #' @export
 get_files <- function(gitstats_object,
                       file_path,
@@ -283,7 +290,7 @@ get_files <- function(gitstats_object,
 #'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
 #'   printing output is switched off.
-#' @return A table of repositories content.
+#' @return A data.frame.
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
@@ -314,7 +321,7 @@ get_R_package_usage <- function(
 #' @name get_release_logs
 #' @description Pull release logs from repositories.
 #' @inheritParams get_commits
-#' @return A table with release logs.
+#' @return A data.frame.
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%

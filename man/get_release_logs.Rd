@@ -26,7 +26,7 @@ result from its storage.}
 printing output is switched off.}
 }
 \value{
-A table with release logs.
+A data.frame.
 }
 \description{
 Pull release logs from repositories.

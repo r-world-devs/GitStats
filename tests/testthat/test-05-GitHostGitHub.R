@@ -54,15 +54,12 @@ test_that("check_endpoint returns TRUE if they are correct", {
   )
 })
 
-test_that("check_endpoint returns warning and FALSE if they are not correct", {
-  expect_snapshot(
+test_that("check_endpoint returns error if they are not correct", {
+  expect_snapshot_error(
     check <- test_host$check_endpoint(
       endpoint = "https://api.github.com/repos/r-worlddevs/GitStats",
       type = "Repository"
     )
-  )
-  expect_false(
-    check
   )
 })
 
@@ -179,12 +176,12 @@ test_that("pull_commits for GitHub works", {
 test_that("pull_files for GitHub works", {
   suppressMessages(
     gh_files_table <- test_host$pull_files(
-      file_path = "DESCRIPTION",
-      settings = test_settings
+      file_path = "DESCRIPTION"
     )
   )
   expect_files_table(
-    gh_files_table
+    gh_files_table,
+    add_col = "api_url"
   )
 })
 

@@ -35,6 +35,9 @@ result from its storage.}
 \item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and printing
 output is switched off.}
 }
+\value{
+A data.frame.
+}
 \description{
 List all repositories for an organization or by a keyword.
 }

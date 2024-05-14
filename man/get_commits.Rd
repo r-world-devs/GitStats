@@ -26,7 +26,7 @@ result from its storage.}
 printing output is switched off.}
 }
 \value{
-A \code{GitStats} class object with commits table.
+A data.frame.
 }
 \description{
 List all commits from all repositories for an organization or a

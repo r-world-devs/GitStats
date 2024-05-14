@@ -142,28 +142,6 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
       )
     },
 
-    #' @description Prepare query to get files in a standard filepath from
-    #'   GitLab repositories.
-    #' @return A query.
-    files_from_repo = function(){
-      'query GetFilesFromRepo($file_paths: [String!]!, $project_path: ID!) {
-              project(fullPath: $project_path) {
-                name
-                id
-                webUrl
-                repository {
-                  blobs(paths: $file_paths) {
-                    nodes {
-                      name
-                      rawBlob
-                      size
-                    }
-                  }
-                }
-              }
-          }'
-    },
-
     #' @description Prepare query to get releases from GitHub repositories.
     #' @return A query.
     releases_from_repo = function() {

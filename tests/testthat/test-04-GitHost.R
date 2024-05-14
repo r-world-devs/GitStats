@@ -144,11 +144,10 @@ test_that("`pull_commits()` retrieves commits in the table format", {
 test_that("`pull_files()` pulls files in the table format", {
   expect_snapshot(
     gh_files_table <- test_host$pull_files(
-      file_path = "LICENSE",
-      settings = test_settings
+      file_path = "LICENSE"
     )
   )
-  expect_files_table(gh_files_table)
+  expect_files_table(gh_files_table, add_col = "api_url")
   test_mocker$cache(gh_files_table)
 })
 
@@ -243,22 +242,20 @@ test_host_gitlab <- create_gitlab_testhost(orgs = "mbtests")
 test_that("`pull_files()` pulls files in the table format", {
   expect_snapshot(
     gl_files_table <- test_host_gitlab$pull_files(
-      file_path = "README.md",
-      settings = test_settings
+      file_path = "README.md"
     )
   )
-  expect_files_table(gl_files_table)
+  expect_files_table(gl_files_table, add_col = "api_url")
   test_mocker$cache(gl_files_table)
 })
 
 test_that("`pull_files()` pulls two files in the table format", {
   expect_snapshot(
     gl_files_table <- test_host_gitlab$pull_files(
-      file_path = c("meta_data.yaml", "README.md"),
-      settings = test_settings
+      file_path = c("meta_data.yaml", "README.md")
     )
   )
-  expect_files_table(gl_files_table)
+  expect_files_table(gl_files_table, add_col = "api_url")
   expect_true(
     all(c("meta_data.yaml", "README.md") %in% gl_files_table$file_path)
   )

@@ -13,17 +13,21 @@ GitStats <- R6::R6Class("GitStats",
     #' @param repos An optional character vector of repositories full names
     #'   (organization and repository name, e.g. "r-world-devs/GitStats"). If
     #'   you pass it, `orgs` parameter should stay `NULL`.
+    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
+    #'   output is switched off.
     #' @return Nothing, puts connection information into `$hosts` slot.
     set_github_host = function(host,
                                token = NULL,
                                orgs = NULL,
-                               repos = NULL) {
+                               repos = NULL,
+                               verbose = TRUE) {
       new_host <- NULL
       new_host <- GitHostGitHub$new(
         orgs = orgs,
         repos = repos,
         token = token,
-        host = host
+        host = host,
+        verbose = verbose
       )
       private$add_new_host(new_host)
     },
@@ -38,17 +42,21 @@ GitStats <- R6::R6Class("GitStats",
     #' @param repos An optional character vector of repositories full names
     #'   (organization and repository name, e.g. "r-world-devs/GitStats"). If
     #'   you pass it, `orgs` parameter should stay `NULL`.
+    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
+    #'   output is switched off.
     #' @return Nothing, puts connection information into `$hosts` slot.
     set_gitlab_host = function(host,
                                token = NULL,
                                orgs = NULL,
-                               repos = NULL) {
+                               repos = NULL,
+                               verbose = TRUE) {
       new_host <- NULL
       new_host <- GitHostGitLab$new(
         orgs = orgs,
         repos = repos,
         token = token,
-        host = host
+        host = host,
+        verbose = verbose
       )
       private$add_new_host(new_host)
     },
@@ -88,7 +96,7 @@ GitStats <- R6::R6Class("GitStats",
           verbose = verbose
         )
       }
-      if (verbose) dplyr::glimpse(repositories)
+      dplyr::glimpse(repositories)
       return(invisible(repositories))
     },
 
@@ -127,7 +135,7 @@ GitStats <- R6::R6Class("GitStats",
           verbose = verbose
         )
       }
-      if (verbose) dplyr::glimpse(commits)
+      dplyr::glimpse(commits)
       return(invisible(commits))
     },
 
@@ -177,7 +185,7 @@ GitStats <- R6::R6Class("GitStats",
           verbose = verbose
         )
       }
-      if (verbose) dplyr::glimpse(users)
+      dplyr::glimpse(users)
       return(invisible(users))
     },
 
@@ -206,7 +214,7 @@ GitStats <- R6::R6Class("GitStats",
           verbose = verbose
         )
       }
-      if (verbose) dplyr::glimpse(files)
+      dplyr::glimpse(files)
       return(invisible(files))
     },
 
@@ -242,7 +250,7 @@ GitStats <- R6::R6Class("GitStats",
           verbose = verbose
         )
       }
-      if (verbose) dplyr::glimpse(release_logs)
+      dplyr::glimpse(release_logs)
       return(invisible(release_logs))
     },
 
@@ -280,7 +288,7 @@ GitStats <- R6::R6Class("GitStats",
           verbose = verbose
         )
       }
-      if (verbose) dplyr::glimpse(R_package_usage)
+      dplyr::glimpse(R_package_usage)
       return(invisible(R_package_usage))
     },
 
@@ -518,9 +526,7 @@ GitStats <- R6::R6Class("GitStats",
       purrr::map(private$hosts, function(host) {
         host$pull_files(
           file_path = file_path,
-          pulled_repos = private$storage[["repositories"]],
-          verbose = verbose,
-          settings = private$settings
+          verbose = verbose
         )
       }) %>%
         purrr::list_rbind()

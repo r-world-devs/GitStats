@@ -9,11 +9,15 @@ GitHost <- R6::R6Class("GitHost",
     #' @param repos A character vector of repositories.
     #' @param token A token.
     #' @param host A host.
+    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
+    #'   output is switched off.
     #' @return A new `GitHost` object.
     initialize = function(orgs = NA,
                           repos = NA,
                           token = NA,
-                          host = NA) {
+                          host = NA,
+                          verbose = NA) {
+      private$set_verbose(verbose)
       private$set_api_url(host)
       private$set_endpoints()
       private$check_if_public(host)
@@ -57,6 +61,10 @@ GitHost <- R6::R6Class("GitHost",
                             verbose = TRUE,
                             settings) {
       private$set_verbose(verbose)
+      if (private$scan_all && is.null(private$orgs)) {
+        cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
+        private$orgs <- private$engines$graphql$pull_orgs()
+      }
       if (is.null(until)) {
         until <- Sys.time()
       }
@@ -81,44 +89,30 @@ GitHost <- R6::R6Class("GitHost",
 
     #' Retrieve content of given text files from all repositories for a host in
     #' a table format.
-    pull_files = function(file_path, pulled_repos = NULL, verbose = TRUE, settings) {
-      orgs <- private$set_organizations(
-        pulled_repos = pulled_repos
-      )
-      graphql_engine <- private$engines$graphql
-      files_table <- purrr::map(orgs, function(org) {
-        if (!private$scan_all && verbose) {
-          show_message(
-            host = private$host_name,
-            engine = "graphql",
-            scope = org,
-            information = glue::glue("Pulling files: [{paste0(file_path, collapse = ', ')}]")
-          )
-        }
-        graphql_engine$pull_files_from_org(
-          org = org,
+    pull_files = function(file_path, verbose = TRUE) {
+      files_table <- if (!private$scan_all) {
+        private$pull_files_from_orgs(
           file_path = file_path,
-          pulled_repos = pulled_repos
-        ) %>%
-          private$prepare_files_table(
-            org = org,
-            file_path = file_path
-          )
-      }, .progress = if (private$scan_all && verbose) {
-        glue::glue("[GitHost:GitHub] Pulling files: [{paste0(file_path, collapse = ', ')}]...")
-        } else {
-          FALSE
-        }
-      ) %>%
-        purrr::list_rbind() %>%
-        private$add_repo_api_url()
+          verbose = verbose
+        )
+      } else {
+        private$pull_files_from_host(
+          file_path = file_path,
+          verbose = verbose
+        )
+      }
       return(files_table)
     },
 
     #' Iterator over pulling release logs from engines
     pull_release_logs = function(since, until, verbose, settings) {
+      if (private$scan_all && is.null(private$orgs)) {
+        cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
+        private$orgs <- private$engines$graphql$pull_orgs()
+      }
       until <- until %||% Sys.time()
       release_logs_table <- purrr::map(private$orgs, function(org) {
+        org <- utils::URLdecode(org)
         release_logs_table_org <- NULL
         if (!private$scan_all && verbose) {
           show_message(
@@ -265,20 +259,28 @@ GitHost <- R6::R6Class("GitHost",
           ),
           call = NULL)
         } else {
-          cli::cli_alert_warning(cli::col_yellow(
-            "No `orgs` specified. I will pull all organizations from the Git Host."
-          ))
-          cli::cli_alert_info(cli::col_grey("Searching scope set to [all]."))
+          if (private$verbose) {
+            cli::cli_alert_warning(cli::col_yellow(
+              "No `orgs` specified."
+            ))
+            cli::cli_alert_info(cli::col_grey(
+              "Searching scope set to [all]."
+            ))
+          }
           private$searching_scope <- "all"
           private$scan_all <- TRUE
         }
       }
       if (!is.null(repos) && is.null(orgs)) {
-        cli::cli_alert_info(cli::col_grey("Searching scope set to [repo]."))
+        if (private$verbose) {
+          cli::cli_alert_info(cli::col_grey("Searching scope set to [repo]."))
+        }
         private$searching_scope <- "repo"
       }
       if (is.null(repos) && !is.null(orgs)) {
-        cli::cli_alert_info(cli::col_grey("Searching scope set to [org]."))
+        if (private$verbose) {
+          cli::cli_alert_info(cli::col_grey("Searching scope set to [org]."))
+        }
         private$searching_scope <- "org"
       }
       if (!is.null(repos) && !is.null(orgs)) {
@@ -293,10 +295,7 @@ GitHost <- R6::R6Class("GitHost",
 
     # Set organization or repositories
     set_orgs_and_repos = function(orgs, repos) {
-      if (private$scan_all) {
-        cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
-        private$orgs <- private$engines$graphql$pull_orgs()
-      } else {
+      if (!private$scan_all) {
         if (!is.null(orgs)) {
           private$orgs <- private$check_organizations(orgs)
         }
@@ -311,11 +310,11 @@ GitHost <- R6::R6Class("GitHost",
       }
     },
 
-    #' @description Check if repositories exist
-    #' @param repos A character vector of repositories
-    #' @return repos or NULL.
+    # Check if repositories exist
     check_repositories = function(repos) {
-      cli::cli_alert_info(cli::col_grey("Checking passed repositories..."))
+      if (private$verbose) {
+        cli::cli_alert_info(cli::col_grey("Checking host data..."))
+      }
       repos <- purrr::map(repos, function(repo) {
         repo_endpoint = glue::glue("{private$endpoints$repositories}/{repo}")
         check <- private$check_endpoint(
@@ -335,11 +334,11 @@ GitHost <- R6::R6Class("GitHost",
       repos
     },
 
-    #' @description Check if organizations exist
-    #' @param orgs A character vector of organizations
-    #' @return orgs or NULL.
+    # Check if organizations exist
     check_organizations = function(orgs) {
-      cli::cli_alert_info(cli::col_grey("Checking passed organizations..."))
+      if (private$verbose) {
+        cli::cli_alert_info(cli::col_grey("Checking host data..."))
+      }
       orgs <- purrr::map(orgs, function(org) {
         org_endpoint = glue::glue("{private$endpoints$orgs}/{org}")
         check <- private$check_endpoint(
@@ -367,12 +366,22 @@ GitHost <- R6::R6Class("GitHost",
           private$engines$rest$response(endpoint = endpoint)
         },
         error = function(e) {
-          if (grepl("404", e)) {
-            cli::cli_alert_danger("{type} you provided does not exist or its name was passed in a wrong way: {endpoint}")
-            cli::cli_alert_warning("Please type your {tolower(type)} name as you see it in `url`.")
-            cli::cli_alert_info("E.g. do not use spaces. {type} names as you see on the page may differ from their 'address' name.")
+          if (!is.null(e$parent$message) && grepl("Could not resolve host", e$parent$message)) {
+            cli::cli_abort(
+              cli::col_red(e$parent$message),
+              call = NULL
+            )
           }
-          check <<- FALSE
+          if (grepl("404", e)) {
+            cli::cli_abort(
+              c(
+                "x" = "{type} you provided does not exist or its name was passed in a wrong way: {cli::col_red({endpoint})}",
+                "!" = "Please type your {tolower(type)} name as you see it in web URL.",
+                "i" = "E.g. do not use spaces. {type} names as you see on the page may differ from their web 'address'."
+              ),
+              call = NULL
+            )
+          }
         }
       )
       return(check)
@@ -388,7 +397,7 @@ GitHost <- R6::R6Class("GitHost",
     set_default_token = function() {
       primary_token_name <- private$token_name
       token <- Sys.getenv(primary_token_name)
-      if (private$test_token(token)) {
+      if (private$test_token(token) && private$verbose) {
         cli::cli_alert_info("Using PAT from {primary_token_name} envar.")
       } else {
         pat_names <- names(Sys.getenv()[grepl(primary_token_name, names(Sys.getenv()))])
@@ -396,7 +405,9 @@ GitHost <- R6::R6Class("GitHost",
         for (token_name in possible_tokens) {
           if (private$test_token(Sys.getenv(token_name))) {
             token <- Sys.getenv(token_name)
-            cli::cli_alert_info("Using PAT from {token_name} envar.")
+            if (private$verbose) {
+              cli::cli_alert_info("Using PAT from {token_name} envar.")
+            }
             break
           }
         }
@@ -448,21 +459,6 @@ GitHost <- R6::R6Class("GitHost",
       return(repos)
     },
 
-    # Set organizations to scan
-    set_organizations = function(pulled_repos) {
-      if (!is.null(pulled_repos)) {
-        orgs <- pulled_repos %>%
-          dplyr::filter(grepl(private$api_url, api_url)) %>%
-          dplyr::select(organization) %>%
-          unique() %>%
-          unlist() %>%
-          unname()
-      } else {
-        orgs <- private$orgs
-      }
-      return(orgs)
-    },
-
     # Filter repositories table by host
     filter_repos_by_host = function(repos_table) {
       dplyr::filter(
@@ -473,8 +469,19 @@ GitHost <- R6::R6Class("GitHost",
 
     #' Retrieve all repositories for an organization in a table format.
     pull_all_repos = function(settings, verbose = private$verbose) {
+      if (private$scan_all && is.null(private$orgs)) {
+        if (verbose) {
+          show_message(
+            host = private$host_name,
+            engine = "graphql",
+            information = "Pulling all organizations"
+          )
+        }
+        private$orgs <- private$engines$graphql$pull_orgs()
+      }
       graphql_engine <- private$engines$graphql
       repos_table <- purrr::map(private$orgs, function(org) {
+        org <- utils::URLdecode(org)
         if (!private$scan_all && verbose) {
           show_message(
             host = private$host_name,
@@ -606,6 +613,50 @@ GitHost <- R6::R6Class("GitHost",
         )
       }
       return(repos_dt)
+    },
+
+    # Pull files content from organizations
+    pull_files_from_orgs = function(file_path, verbose) {
+      graphql_engine <- private$engines$graphql
+      files_table <- purrr::map(private$orgs, function(org) {
+        if (verbose) {
+          show_message(
+            host = private$host_name,
+            engine = "graphql",
+            scope = org,
+            information = glue::glue("Pulling files: [{paste0(file_path, collapse = ', ')}]")
+          )
+        }
+        graphql_engine$pull_files_from_org(
+          org = org,
+          file_path = file_path
+        ) %>%
+          private$prepare_files_table(
+            org = org,
+            file_path = file_path
+          )
+      }) %>%
+        purrr::list_rbind() %>%
+        private$add_repo_api_url()
+      return(files_table)
+    },
+
+    # Pull files from host
+    pull_files_from_host = function(file_path, verbose) {
+      rest_engine <- private$engines$rest
+      if (verbose) {
+        show_message(
+          host = private$host_name,
+          engine = "rest",
+          information = glue::glue("Pulling files: [{paste0(file_path, collapse = ', ')}]")
+        )
+      }
+      files_table <- rest_engine$pull_files(
+        files = file_path
+      ) %>%
+        private$prepare_files_table_from_rest() %>%
+        private$add_repo_api_url()
+      return(files_table)
     }
   )
 )

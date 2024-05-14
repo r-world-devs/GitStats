@@ -30,15 +30,14 @@
 # `pull_files()` pulls files in the table format
 
     Code
-      gh_files_table <- test_host$pull_files(file_path = "LICENSE", settings = test_settings)
+      gh_files_table <- test_host$pull_files(file_path = "LICENSE")
     Message
       i [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling files: [LICENSE]...
 
 ---
 
     Code
-      gl_files_table <- test_host_gitlab$pull_files(file_path = "README.md",
-        settings = test_settings)
+      gl_files_table <- test_host_gitlab$pull_files(file_path = "README.md")
     Message
       i [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling files: [README.md]...
 
@@ -62,7 +61,7 @@
 
     Code
       gl_files_table <- test_host_gitlab$pull_files(file_path = c("meta_data.yaml",
-        "README.md"), settings = test_settings)
+        "README.md"))
     Message
       i [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling files: [meta_data.yaml, README.md]...
 

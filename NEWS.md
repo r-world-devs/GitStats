@@ -1,3 +1,19 @@
+# GitStats 2.0.1
+
+This is a patch release with some hot issues that needed to be addressed, notably covering `set_*_host()` functions with `verbose` control, tweaking a bit `verbose` feature in general, fixing pulling data for GitLab subgroups and speeding up `get_files()` function.
+
+## Features:
+
+- Getting files feature has been speeded up when `GitStats` is set to scan whole hosts, with switching to `Search API` instead of pulling files via `GraphQL` (with iteration over organizations and repositories) ([#411](https://github.com/r-world-devs/GitStats/issues/411)).
+- When setting hosts to be scanned in whole (without specifying `orgs` or `repos`) GitStats does not pull no more all organizations. Pulling all organizations from host is triggered only when user decides to pull repositories from organizations. If he decides, e.g. to pull repositories by code, there is no need to pull all organizations (which may be a time consuming process), as GitStats uses then `Search API` ([#393](https://github.com/r-world-devs/GitStats/issues/393)).
+- It is now possible to mute messages also from `set_*_host()` functions with `verbose_off()` or `verbose` parameter ([#413](https://github.com/r-world-devs/GitStats/issues/413)).
+- Setting `verbose` to `FALSE` does not lead to hiding output of the `get_*()` functions - i.e. a glimpse of table will always appear after pulling data, even if the `verbose` is switched off. `verbose` parameter serves now only the purpose to show and hide messages to user ([#423](https://github.com/r-world-devs/GitStats/issues/423)).
+
+## Fixes:
+
+- Pulling repositories from GitLab subgroups was fixed. It did not work, as the URL of a group (org) was passed to GraphQL API the same way as to REST API, i.e. with URL sign ("%2F", instead of "/").
+- GitStats returns now proper error, when you pass wrong host URL to `set_*_host()` function ([#415](https://github.com/r-world-devs/GitStats/issues/415))
+
 # GitStats 2.0.0
 
 This is a major release with general changes in workflow (simplifying it), changes in setting `GitStats` hosts, deprecation of some not very useful features (like plots, setting parameters separately) and new `get_release_logs()` function.
