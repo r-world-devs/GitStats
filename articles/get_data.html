@@ -8,8 +8,8 @@
 <meta name="description" content="GitStats">
 <title>Get data • GitStats</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Get data">
 <meta property="og:description" content="GitStats">
@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,10 +101,10 @@ on that.</p>
 <span>    token <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"GITLAB_PAT_PUBLIC"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Searching scope set to [org].</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Checking passed organizations...</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Checking host data...</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Set connection to GitHub.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Searching scope set to [org].</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Checking passed organizations...</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Checking host data...</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Set connection to GitLab.</span></span></code></pre></div>
 <p>By default your search preferences are set to
 <code>organizations</code> (<code>org</code>), which means that
@@ -117,7 +117,7 @@ you specified in <code>set_*_host()</code>.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #00BB00;">REST</span>] Pulling contributors...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitLab][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:mbtests] Pulling repositories...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitLab][Engine:<span style="color: #00BB00;">REST</span>] Pulling contributors...</span></span>
-<span><span class="co">#&gt; Rows: 70</span></span>
+<span><span class="co">#&gt; Rows: 71</span></span>
 <span><span class="co">#&gt; Columns: 18</span></span>
 <span><span class="co">#&gt; $ repo_id          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R_kgDOHNMr2w", "R_kgDOHYNOFQ", "R_kgDOHYNrJw", "R_kg…</span></span>
 <span><span class="co">#&gt; $ repo_name        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "shinyGizmo", "cohortBuilder", "shinyCohortBuilder", …</span></span>
@@ -128,15 +128,15 @@ you specified in <code>set_*_host()</code>.</p>
 <span><span class="co">#&gt; $ api_url          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://api.github.com/repos/r-world-devs/shinyGizmo…</span></span>
 <span><span class="co">#&gt; $ created_at       <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2022-04-20 10:04:32, 2022-05-22 18:31:55, 2022-05-22…</span></span>
 <span><span class="co">#&gt; $ last_activity_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2023-05-08, 2023-05-05, 2023-12-21, 2022-07-29, 2024…</span></span>
-<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 357.33 days, 360.33 days, 130.33 days, 640.33 days, …</span></span>
+<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 372.48 days, 375.48 days, 145.48 days, 655.48 days, …</span></span>
 <span><span class="co">#&gt; $ default_branch   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "dev", "dev", "dev", "master", "master", "master", "m…</span></span>
-<span><span class="co">#&gt; $ stars            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 19, 4, 6, 0, 2, 3, 0, 2, 8, 178, 4, 10, 1, 21, 1, 1, …</span></span>
-<span><span class="co">#&gt; $ forks            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0, 2, 1, 0, 0, 0, 0, 1, 5, 32, 1, 1, 0, 5, 2, 1, 0, 0…</span></span>
+<span><span class="co">#&gt; $ stars            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 19, 4, 6, 0, 2, 3, 0, 2, 8, 179, 4, 10, 1, 21, 1, 1, …</span></span>
+<span><span class="co">#&gt; $ forks            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0, 2, 1, 0, 1, 0, 0, 1, 5, 32, 1, 1, 0, 5, 2, 1, 0, 0…</span></span>
 <span><span class="co">#&gt; $ languages        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R, CSS, JavaScript", "R", "R, CSS, JavaScript, SCSS"…</span></span>
-<span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 6, 23, 34, 3, 78, 0, 0, 3, 6, 17, 0, 0, 0, 4, 0, 0, 0…</span></span>
-<span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 12, 1, 5, 0, 196, 0, 0, 0, 1, 170, 0, 0, 0, 16, 0, 0,…</span></span>
+<span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 6, 23, 34, 3, 76, 0, 0, 3, 6, 17, 0, 0, 0, 5, 0, 0, 0…</span></span>
+<span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 12, 1, 5, 0, 207, 0, 0, 0, 1, 170, 0, 0, 0, 16, 0, 0,…</span></span>
 <span><span class="co">#&gt; $ contributors     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "krystian8207, stla, galachad, stlagsk", "krystian820…</span></span>
-<span><span class="co">#&gt; $ contributors_n   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 4, 2, 2, 1, 2, 1, 6, 2, 5, 20, 1, 1, 1, 2, 3, 7, 2, 1…</span></span></code></pre></div>
+<span><span class="co">#&gt; $ contributors_n   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 4, 2, 2, 1, 3, 1, 6, 2, 5, 20, 1, 1, 1, 2, 3, 7, 2, 1…</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="storage">Storage<a class="anchor" aria-label="anchor" href="#storage"></a>
 </h2>
@@ -148,7 +148,7 @@ object.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/get_repos.html">get_repos</a></span><span class="op">(</span><span class="va">git_stats</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> <span style="color: #BBBB00;">Retrieving repositories from the GitStats storage.</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #00BBBB;">If you wish to pull the data from API once more, set `cache` parameter to `FALSE`.</span></span></span>
-<span><span class="co">#&gt; Rows: 70</span></span>
+<span><span class="co">#&gt; Rows: 71</span></span>
 <span><span class="co">#&gt; Columns: 18</span></span>
 <span><span class="co">#&gt; $ repo_id          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R_kgDOHNMr2w", "R_kgDOHYNOFQ", "R_kgDOHYNrJw", "R_kg…</span></span>
 <span><span class="co">#&gt; $ repo_name        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "shinyGizmo", "cohortBuilder", "shinyCohortBuilder", …</span></span>
@@ -159,15 +159,15 @@ object.</p>
 <span><span class="co">#&gt; $ api_url          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://api.github.com/repos/r-world-devs/shinyGizmo…</span></span>
 <span><span class="co">#&gt; $ created_at       <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2022-04-20 10:04:32, 2022-05-22 18:31:55, 2022-05-22…</span></span>
 <span><span class="co">#&gt; $ last_activity_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2023-05-08, 2023-05-05, 2023-12-21, 2022-07-29, 2024…</span></span>
-<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 357.33 days, 360.33 days, 130.33 days, 640.33 days, …</span></span>
+<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 372.48 days, 375.48 days, 145.48 days, 655.48 days, …</span></span>
 <span><span class="co">#&gt; $ default_branch   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "dev", "dev", "dev", "master", "master", "master", "m…</span></span>
-<span><span class="co">#&gt; $ stars            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 19, 4, 6, 0, 2, 3, 0, 2, 8, 178, 4, 10, 1, 21, 1, 1, …</span></span>
-<span><span class="co">#&gt; $ forks            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0, 2, 1, 0, 0, 0, 0, 1, 5, 32, 1, 1, 0, 5, 2, 1, 0, 0…</span></span>
+<span><span class="co">#&gt; $ stars            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 19, 4, 6, 0, 2, 3, 0, 2, 8, 179, 4, 10, 1, 21, 1, 1, …</span></span>
+<span><span class="co">#&gt; $ forks            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0, 2, 1, 0, 1, 0, 0, 1, 5, 32, 1, 1, 0, 5, 2, 1, 0, 0…</span></span>
 <span><span class="co">#&gt; $ languages        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R, CSS, JavaScript", "R", "R, CSS, JavaScript, SCSS"…</span></span>
-<span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 6, 23, 34, 3, 78, 0, 0, 3, 6, 17, 0, 0, 0, 4, 0, 0, 0…</span></span>
-<span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 12, 1, 5, 0, 196, 0, 0, 0, 1, 170, 0, 0, 0, 16, 0, 0,…</span></span>
+<span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 6, 23, 34, 3, 76, 0, 0, 3, 6, 17, 0, 0, 0, 5, 0, 0, 0…</span></span>
+<span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 12, 1, 5, 0, 207, 0, 0, 0, 1, 170, 0, 0, 0, 16, 0, 0,…</span></span>
 <span><span class="co">#&gt; $ contributors     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "krystian8207, stla, galachad, stlagsk", "krystian820…</span></span>
-<span><span class="co">#&gt; $ contributors_n   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 4, 2, 2, 1, 2, 1, 6, 2, 5, 20, 1, 1, 1, 2, 3, 7, 2, 1…</span></span></code></pre></div>
+<span><span class="co">#&gt; $ contributors_n   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 4, 2, 2, 1, 3, 1, 6, 2, 5, 20, 1, 1, 1, 2, 3, 7, 2, 1…</span></span></code></pre></div>
 <p>Unless, you switch off the cache.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/get_repos.html">get_repos</a></span><span class="op">(</span><span class="va">git_stats</span>, cache <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -176,7 +176,7 @@ object.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #00BB00;">REST</span>] Pulling contributors...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitLab][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:mbtests] Pulling repositories...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitLab][Engine:<span style="color: #00BB00;">REST</span>] Pulling contributors...</span></span>
-<span><span class="co">#&gt; Rows: 70</span></span>
+<span><span class="co">#&gt; Rows: 71</span></span>
 <span><span class="co">#&gt; Columns: 18</span></span>
 <span><span class="co">#&gt; $ repo_id          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R_kgDOHNMr2w", "R_kgDOHYNOFQ", "R_kgDOHYNrJw", "R_kg…</span></span>
 <span><span class="co">#&gt; $ repo_name        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "shinyGizmo", "cohortBuilder", "shinyCohortBuilder", …</span></span>
@@ -187,22 +187,31 @@ object.</p>
 <span><span class="co">#&gt; $ api_url          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://api.github.com/repos/r-world-devs/shinyGizmo…</span></span>
 <span><span class="co">#&gt; $ created_at       <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2022-04-20 10:04:32, 2022-05-22 18:31:55, 2022-05-22…</span></span>
 <span><span class="co">#&gt; $ last_activity_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2023-05-08, 2023-05-05, 2023-12-21, 2022-07-29, 2024…</span></span>
-<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 357.33 days, 360.33 days, 130.33 days, 640.33 days, …</span></span>
+<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 372.48 days, 375.48 days, 145.48 days, 655.48 days, …</span></span>
 <span><span class="co">#&gt; $ default_branch   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "dev", "dev", "dev", "master", "master", "master", "m…</span></span>
-<span><span class="co">#&gt; $ stars            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 19, 4, 6, 0, 2, 3, 0, 2, 8, 178, 4, 10, 1, 21, 1, 1, …</span></span>
-<span><span class="co">#&gt; $ forks            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0, 2, 1, 0, 0, 0, 0, 1, 5, 32, 1, 1, 0, 5, 2, 1, 0, 0…</span></span>
+<span><span class="co">#&gt; $ stars            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 19, 4, 6, 0, 2, 3, 0, 2, 8, 179, 4, 10, 1, 21, 1, 1, …</span></span>
+<span><span class="co">#&gt; $ forks            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0, 2, 1, 0, 1, 0, 0, 1, 5, 32, 1, 1, 0, 5, 2, 1, 0, 0…</span></span>
 <span><span class="co">#&gt; $ languages        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R, CSS, JavaScript", "R", "R, CSS, JavaScript, SCSS"…</span></span>
-<span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 6, 23, 34, 3, 78, 0, 0, 3, 6, 17, 0, 0, 0, 4, 0, 0, 0…</span></span>
-<span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 12, 1, 5, 0, 196, 0, 0, 0, 1, 170, 0, 0, 0, 16, 0, 0,…</span></span>
+<span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 6, 23, 34, 3, 76, 0, 0, 3, 6, 17, 0, 0, 0, 5, 0, 0, 0…</span></span>
+<span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 12, 1, 5, 0, 207, 0, 0, 0, 1, 170, 0, 0, 0, 16, 0, 0,…</span></span>
 <span><span class="co">#&gt; $ contributors     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "krystian8207, stla, galachad, stlagsk", "krystian820…</span></span>
-<span><span class="co">#&gt; $ contributors_n   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 4, 2, 2, 1, 2, 1, 6, 2, 5, 20, 1, 1, 1, 2, 3, 7, 2, 1…</span></span></code></pre></div>
+<span><span class="co">#&gt; $ contributors_n   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 4, 2, 2, 1, 3, 1, 6, 2, 5, 20, 1, 1, 1, 2, 3, 7, 2, 1…</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="verbose-mode">Verbose mode<a class="anchor" aria-label="anchor" href="#verbose-mode"></a>
 </h2>
 <p>If messages overwhelm you, you can switch them off.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/get_release_logs.html">get_release_logs</a></span><span class="op">(</span><span class="va">git_stats</span>, since <span class="op">=</span> <span class="st">"2024-01-01"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/get_release_logs.html">get_release_logs</a></span><span class="op">(</span><span class="va">git_stats</span>, since <span class="op">=</span> <span class="st">"2024-01-01"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Rows: 11</span></span>
+<span><span class="co">#&gt; Columns: 7</span></span>
+<span><span class="co">#&gt; $ repo_name    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "GitStats", "GitStats", "visR", "simaerep", "mmrm", "mmrm…</span></span>
+<span><span class="co">#&gt; $ repo_url     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/GitStats", "https://gith…</span></span>
+<span><span class="co">#&gt; $ release_name <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "2.0.1", "1.1.0", "Release v0.4.1", "v0.5.0", "v0.3.11", …</span></span>
+<span><span class="co">#&gt; $ release_tag  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "v2.0.1", "v1.1.0", "v0.4.1", "v0.5.0", "v0.3.11", "v0.3.…</span></span>
+<span><span class="co">#&gt; $ published_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-05-14 10:22:52, 2024-01-08 10:14:13, 2024-03-15 21:…</span></span>
+<span><span class="co">#&gt; $ release_url  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/GitStats/releases/tag/v2…</span></span>
+<span><span class="co">#&gt; $ release_log  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "This is a patch release with some hot issues that needed…</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="pull-repositories-with-code">Pull repositories with code<a class="anchor" aria-label="anchor" href="#pull-repositories-with-code"></a>
@@ -216,7 +225,7 @@ for those that have a particular text in a <code>code blob</code>:</p>
 <span>    token <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"GITHUB_PAT"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Searching scope set to [org].</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Checking passed organizations...</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Checking host data...</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Set connection to GitHub.</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/get_repos.html">get_repos</a></span><span class="op">(</span><span class="va">github_stats</span>, with_code <span class="op">=</span> <span class="st">"Shiny"</span><span class="op">)</span></span>
@@ -225,9 +234,9 @@ for those that have a particular text in a <code>code blob</code>:</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Preparing repositories table...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #00BB00;">REST</span>][Scope:openpharma] Pulling repositories...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Searching for code [Shiny]...</span></span>
-<span><span class="co">#&gt; Parsing search response into respositories output... <span style="color: #00BB00;">■■■■■■■■■■■■■             </span>…</span></span>
+<span><span class="co">#&gt; Parsing search response into respositories output... <span style="color: #00BB00;">■■■■■■■■■■■■■■            </span>…</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Preparing repositories table...</span></span>
-<span><span class="co">#&gt; Pulling repositories issues... <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■         </span>  72% |  ETA:  1s</span></span>
+<span><span class="co">#&gt; Pulling repositories issues... <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■        </span>  78% |  ETA:  1s</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #00BB00;">REST</span>] Pulling contributors...</span></span>
 <span><span class="co">#&gt; Rows: 23</span></span>
 <span><span class="co">#&gt; Columns: 18</span></span>
@@ -240,15 +249,15 @@ for those that have a particular text in a <code>code blob</code>:</p>
 <span><span class="co">#&gt; $ api_url          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://api.github.com/repos/r-world-devs/hypothesis…</span></span>
 <span><span class="co">#&gt; $ created_at       <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2023-04-13 13:52:24, 2022-05-22 19:04:12, 2023-02-21…</span></span>
 <span><span class="co">#&gt; $ last_activity_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2023-12-21 20:36:23, 2023-12-21 20:30:59, 2023-09-29…</span></span>
-<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 129.48 days, 129.48 days, 212.81 days, 360.01 days, …</span></span>
+<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 144.63 days, 144.63 days, 227.96 days, 375.16 days, …</span></span>
 <span><span class="co">#&gt; $ default_branch   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "master", "dev", "master", "dev", "master", "main", "…</span></span>
-<span><span class="co">#&gt; $ stars            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 2, 6, 3, 4, 2, 11, 6, 3, 10, 4, 178, 14, 4, 21, 0, 8,…</span></span>
-<span><span class="co">#&gt; $ forks            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 1, 1, 0, 2, 0, 7, 0, 0, 3, 0, 32, 0, 0, 5, 0, 1, 0, 0…</span></span>
+<span><span class="co">#&gt; $ stars            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 2, 6, 3, 4, 2, 11, 6, 3, 10, 4, 179, 15, 4, 21, 0, 8,…</span></span>
+<span><span class="co">#&gt; $ forks            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 1, 1, 0, 2, 1, 7, 0, 0, 3, 0, 32, 2, 0, 5, 0, 1, 0, 0…</span></span>
 <span><span class="co">#&gt; $ languages        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R", "R", "R", "R", "R", "R", "Shell", "JavaScript", …</span></span>
-<span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 4, 30, 1, 23, 30, 30, 1, 2, 29, 1, 18, 2, 0, 4, 0, 2,…</span></span>
+<span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 4, 30, 1, 23, 30, 30, 1, 2, 29, 1, 18, 7, 0, 5, 0, 2,…</span></span>
 <span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…</span></span>
 <span><span class="co">#&gt; $ contributors     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "krystian8207, galachad", "krystian8207, galachad", "…</span></span>
-<span><span class="co">#&gt; $ contributors_n   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 2, 2, 1, 2, 2, 13, 1, 2, 9, 1, 20, 3, 2, 2, 1, 2, 2, …</span></span></code></pre></div>
+<span><span class="co">#&gt; $ contributors_n   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 2, 2, 1, 2, 3, 13, 1, 2, 9, 1, 20, 3, 2, 2, 1, 2, 2, …</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
