@@ -24,7 +24,7 @@ result from its storage.}
 printing output is switched off.}
 }
 \value{
-A \code{GitStats} object with table of files.
+A data.frame.
 }
 \description{
 Pull files content from Git Hosts.
