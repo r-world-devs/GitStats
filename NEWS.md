@@ -1,12 +1,13 @@
 # GitStats 2.0.1
 
-This is a patch release with some hot issues that needed to be addressed, notably covering `set_*_host()` functions with `verbose` control, fixing pulling data for GitLab subgroups and substantially speeding up `get_files()` function.
+This is a patch release with some hot issues that needed to be addressed, notably covering `set_*_host()` functions with `verbose` control, tweaking a bit `verbose` feature in general, fixing pulling data for GitLab subgroups and speeding up `get_files()` function.
 
 ## Features:
 
-- Getting files feature has been speeded up with switching to `Search API` instead of pulling files via `GraphQL` via iteration over organizations and repositories ([#411](https://github.com/r-world-devs/GitStats/issues/411)).
+- Getting files feature has been speeded up when `GitStats` is set to scan whole hosts, with switching to `Search API` instead of pulling files via `GraphQL` (with iteration over organizations and repositories) ([#411](https://github.com/r-world-devs/GitStats/issues/411)).
 - When setting hosts to be scanned in whole (without specifying `orgs` or `repos`) GitStats does not pull no more all organizations. Pulling all organizations from host is triggered only when user decides to pull repositories from organizations. If he decides, e.g. to pull repositories by code, there is no need to pull all organizations (which may be a time consuming process), as GitStats uses then `Search API` ([#393](https://github.com/r-world-devs/GitStats/issues/393)).
 - It is now possible to mute messages also from `set_*_host()` functions with `verbose_off()` or `verbose` parameter ([#413](https://github.com/r-world-devs/GitStats/issues/413)).
+- Setting `verbose` to `FALSE` does not lead to hiding output of the `get_*()` functions - i.e. a glimpse of table will always appear after pulling data, even if the `verbose` is switched off. `verbose` parameter serves now only the purpose to show and hide messages to user ([#423](https://github.com/r-world-devs/GitStats/issues/423)).
 
 ## Fixes:
 
