@@ -27,7 +27,7 @@ result from its storage.}
 printing output is switched off.}
 }
 \value{
-A table of repositories content.
+A data.frame.
 }
 \description{
 Wrapper over searching repositories by code blobs related to

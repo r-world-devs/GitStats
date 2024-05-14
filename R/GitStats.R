@@ -96,7 +96,7 @@ GitStats <- R6::R6Class("GitStats",
           verbose = verbose
         )
       }
-      if (verbose) dplyr::glimpse(repositories)
+      dplyr::glimpse(repositories)
       return(invisible(repositories))
     },
 
@@ -135,7 +135,7 @@ GitStats <- R6::R6Class("GitStats",
           verbose = verbose
         )
       }
-      if (verbose) dplyr::glimpse(commits)
+      dplyr::glimpse(commits)
       return(invisible(commits))
     },
 
@@ -185,7 +185,7 @@ GitStats <- R6::R6Class("GitStats",
           verbose = verbose
         )
       }
-      if (verbose) dplyr::glimpse(users)
+      dplyr::glimpse(users)
       return(invisible(users))
     },
 
@@ -214,7 +214,7 @@ GitStats <- R6::R6Class("GitStats",
           verbose = verbose
         )
       }
-      if (verbose) dplyr::glimpse(files)
+      dplyr::glimpse(files)
       return(invisible(files))
     },
 
@@ -250,7 +250,7 @@ GitStats <- R6::R6Class("GitStats",
           verbose = verbose
         )
       }
-      if (verbose) dplyr::glimpse(release_logs)
+      dplyr::glimpse(release_logs)
       return(invisible(release_logs))
     },
 
@@ -288,7 +288,7 @@ GitStats <- R6::R6Class("GitStats",
           verbose = verbose
         )
       }
-      if (verbose) dplyr::glimpse(R_package_usage)
+      dplyr::glimpse(R_package_usage)
       return(invisible(R_package_usage))
     },
 
