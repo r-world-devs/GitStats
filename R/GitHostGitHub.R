@@ -15,6 +15,19 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
       if (private$verbose) {
         cli::cli_alert_success("Set connection to GitHub.")
       }
+    },
+
+    get_repos_urls = function(with_file, settings) {
+      repo_urls <- private$pull_repos_with_code(
+        code = with_file,
+        in_path = TRUE,
+        raw_output = TRUE,
+        settings = settings
+      ) %>%
+        purrr::map_vec(function(search_response) {
+          search_response$repository$url
+        })
+      return(repo_urls)
     }
   ),
   private = list(

@@ -21,6 +21,19 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       if (private$verbose) {
         cli::cli_alert_success("Set connection to GitLab.")
       }
+    },
+
+    get_repos_urls = function(with_file, settings) {
+      repo_urls <- private$pull_repos_with_code(
+        code = with_file,
+        in_path = TRUE,
+        raw_output = TRUE,
+        settings = settings
+      ) %>%
+        purrr::map_vec(function(search_response) {
+          paste0(private$api_url, "/projects/", search_response$project_id)
+        })
+      return(repo_urls)
     }
   ),
   private = list(

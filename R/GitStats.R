@@ -67,12 +67,15 @@ GitStats <- R6::R6Class("GitStats",
     #'   information to repositories.
     #' @param with_code A character, if  defined, GitStats will pull repositories
     #'   with specified text in code blobs.
+    #' @param with_file A character, if  defined, GitStats will pull repositories
+    #'   with specified file.
     #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
     #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
     get_repos = function(add_contributors = FALSE,
                          with_code = NULL,
+                         with_file = NULL,
                          cache = TRUE,
                          verbose = TRUE) {
       private$check_for_host()
@@ -84,6 +87,7 @@ GitStats <- R6::R6Class("GitStats",
         repositories <- private$get_repos_table(
           add_contributors = add_contributors,
           with_code = with_code,
+          with_file = with_file,
           verbose = verbose,
           settings = private$settings
         )
@@ -98,6 +102,22 @@ GitStats <- R6::R6Class("GitStats",
       }
       dplyr::glimpse(repositories)
       return(invisible(repositories))
+    },
+
+    #' @description A wrapper over search API endpoints to list repositories
+    #'   URLS with a given file.
+    #' @param with_file A character, if  defined, GitStats will pull
+    #'   repositories with specified file.
+    #' @return A character vector.
+    get_repos_urls = function(with_file) {
+      repo_urls <- purrr::map(private$hosts, function(host) {
+        host$get_repos_urls(
+          with_file = with_file,
+          settings = private$settings
+        )
+      }) %>%
+        unlist()
+      return(repo_urls)
     },
 
     #' @description A method to get information on commits.
@@ -486,10 +506,15 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Pull repositories tables from hosts and bind them into one
-    get_repos_table = function(add_contributors = FALSE, with_code, verbose, settings) {
+    get_repos_table = function(add_contributors = FALSE,
+                               with_code,
+                               with_file,
+                               verbose,
+                               settings) {
       repos_table <- purrr::map(private$hosts, ~ .$pull_repos(
         add_contributors = add_contributors,
         with_code = with_code,
+        with_file = with_file,
         verbose = verbose,
         settings = settings
       )) %>%

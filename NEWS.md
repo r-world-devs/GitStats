@@ -1,3 +1,8 @@
+# GitStats (development version)
+
+- Added new `get_repo_urls()` function to fetch repository API URLS that consist of a given file (`with_file` parameter) - this is a minimalist version of `get_repos()`, taking out all the process of parsing (search response into repositories one) and adding statistics on repositories, which makes it much faster ([#425](https://github.com/r-world-devs/GitStats/issues/425)).
+- Added `with_file` parameter to `get_repos()` function, which makes it possible to search for repositories with a given file and return full output for repositories.
+
 # GitStats 2.0.1
 
 This is a patch release with some hot issues that needed to be addressed, notably covering `set_*_host()` functions with `verbose` control, tweaking a bit `verbose` feature in general, fixing pulling data for GitLab subgroups and speeding up `get_files()` function.

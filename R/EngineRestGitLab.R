@@ -9,7 +9,8 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       files_list <- list()
       for (filename in files) {
         files_search_result <- private$search_for_code(
-          code = paste0("path:", filename),
+          code = filename,
+          in_path = TRUE,
           settings = list()
         ) %>%
           purrr::keep(~ .$path == filename)
@@ -26,19 +27,27 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     # @details For the time being there is no possibility to search GitLab with
     #   filtering by language. For more information look here:
     #   https://gitlab.com/gitlab-org/gitlab/-/issues/340333
-    pull_repos_by_code = function(org = NULL,
-                                  code,
+    pull_repos_by_code = function(code,
+                                  org = NULL,
+                                  in_path = FALSE,
+                                  raw_output = FALSE,
                                   verbose,
                                   settings) {
       private$set_verbose(verbose)
-      full_repos_list <- private$search_for_code(
+      search_response <- private$search_for_code(
         code = code,
+        in_path = in_path,
         org = org,
         settings = settings
-      ) %>%
-        private$map_search_into_repos() %>%
-        private$pull_repos_languages()
-      return(full_repos_list)
+      )
+      if (raw_output) {
+        search_output <- search_response
+      } else {
+        search_output <- search_response %>%
+          private$map_search_into_repos() %>%
+          private$pull_repos_languages()
+      }
+      return(search_output)
     },
 
     # Add information on open and closed issues of a repository.
@@ -232,13 +241,19 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     },
 
     # Search for code
-    search_for_code = function(code, org = NULL, settings, page_max = 1e6) {
+    search_for_code = function(code,
+                               in_path = FALSE,
+                               org = NULL,
+                               settings,
+                               page_max = 1e6) {
       page <- 1
       still_more_hits <- TRUE
       full_repos_list <- list()
       private$set_search_endpoint(org)
-      if (!grepl("path:", code)) {
+      if (!in_path) {
         code <- paste0("%22", code, "%22")
+      } else {
+        code <- paste0("path:", code)
       }
       while (still_more_hits | page < page_max) {
         search_result <- self$response(
