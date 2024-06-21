@@ -145,14 +145,14 @@ get_repos <- function(gitstats_object,
 #' @name get_repos_urls
 #' @description A wrapper over search API endpoints to list repositories
 #'   URLS with a given file.
-#' @param with_file A character, if  defined, GitStats will pull
-#'   repositories with specified file.
+#' @param with_files A character vector, if defined, GitStats will pull
+#'   repositories with specified files.
 #' @return A character vector.
 #' @export
 get_repos_urls <- function(gitstats_object,
-                           with_file = NULL) {
+                           with_files = NULL) {
   gitstats_object$get_repos_urls(
-    with_file = with_file
+    with_files = with_files
   )
 }
 

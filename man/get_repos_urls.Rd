@@ -4,11 +4,11 @@
 \alias{get_repos_urls}
 \title{List repository URLS}
 \usage{
-get_repos_urls(gitstats_object, with_file = NULL)
+get_repos_urls(gitstats_object, with_files = NULL)
 }
 \arguments{
-\item{with_file}{A character, if  defined, GitStats will pull
-repositories with specified file.}
+\item{with_files}{A character vector, if defined, GitStats will pull
+repositories with specified files.}
 }
 \value{
 A character vector.

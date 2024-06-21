@@ -23,9 +23,9 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       }
     },
 
-    get_repos_urls = function(with_file, settings) {
+    get_repos_urls = function(file, settings) {
       repo_urls <- private$pull_repos_with_code(
-        code = with_file,
+        code = file,
         in_path = TRUE,
         raw_output = TRUE,
         settings = settings

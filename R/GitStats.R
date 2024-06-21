@@ -106,17 +106,21 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description A wrapper over search API endpoints to list repositories
     #'   URLS with a given file.
-    #' @param with_file A character, if  defined, GitStats will pull
+    #' @param with_files A character, if  defined, GitStats will pull
     #'   repositories with specified file.
     #' @return A character vector.
-    get_repos_urls = function(with_file) {
+    get_repos_urls = function(with_files) {
       repo_urls <- purrr::map(private$hosts, function(host) {
-        host$get_repos_urls(
-          with_file = with_file,
-          settings = private$settings
-        )
+        purrr::map(with_files, function(file) {
+          host$get_repos_urls(
+            file = file,
+            settings = private$settings
+          )
+        }) %>%
+          unlist()
       }) %>%
-        unlist()
+        unlist() %>%
+        unique()
       return(repo_urls)
     },
 

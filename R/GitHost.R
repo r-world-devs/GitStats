@@ -526,6 +526,7 @@ GitHost <- R6::R6Class("GitHost",
         repos_table <- private$pull_repos_with_code_from_orgs(
           code = code,
           in_path = in_path,
+          raw_output = raw_output,
           settings = settings
         )
       }
@@ -561,9 +562,9 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Pull repositories with code from given organizations
-    pull_repos_with_code_from_orgs = function(code, in_path = FALSE, settings) {
+    pull_repos_with_code_from_orgs = function(code, in_path = FALSE, raw_output = FALSE, settings) {
       rest_engine <- private$engines$rest
-      repos_table <- purrr::map(private$orgs, function(org) {
+      repos_list <- purrr::map(private$orgs, function(org) {
         if (private$verbose) {
           show_message(
             host = private$host_name,
@@ -573,19 +574,30 @@ GitHost <- R6::R6Class("GitHost",
             information = "Pulling repositories"
           )
         }
-        rest_engine$pull_repos_by_code(
+        repos_response <- rest_engine$pull_repos_by_code(
           org = org,
           code = code,
           in_path = in_path,
+          raw_output = raw_output,
           verbose = private$verbose,
           settings = settings
-        ) %>%
-          private$tailor_repos_response() %>%
+        )
+        if (!raw_output) {
+          repos_table <- repos_response %>%
+            private$tailor_repos_response() %>%
           private$prepare_repos_table_from_rest() %>%
           rest_engine$pull_repos_issues()
-      }, .progress = private$scan_all) %>%
-        purrr::list_rbind()
-      return(repos_table)
+          return(repos_table)
+        } else {
+          return(repos_response)
+        }
+      }, .progress = private$scan_all)
+      if (!raw_output) {
+        repos_output <- purrr::list_rbind(repos_list)
+      } else {
+        repos_output <- purrr::list_flatten(repos_list)
+      }
+      return(repos_output)
     },
 
     #' Add information on repository contributors.
