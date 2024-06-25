@@ -17,7 +17,8 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
       }
     },
 
-    get_repos_urls = function(file, settings) {
+    get_repos_urls = function(file, verbose, settings) {
+      private$set_verbose(verbose)
       repo_urls <- private$pull_repos_with_code(
         code = file,
         in_path = TRUE,

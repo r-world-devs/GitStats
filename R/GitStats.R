@@ -100,20 +100,22 @@ GitStats <- R6::R6Class("GitStats",
           verbose = verbose
         )
       }
-      dplyr::glimpse(repositories)
-      return(invisible(repositories))
+      return(repositories)
     },
 
     #' @description A wrapper over search API endpoints to list repositories
     #'   URLS with a given file.
-    #' @param with_files A character, if  defined, GitStats will pull
-    #'   repositories with specified file.
+    #' @param with_files A character vector, if defined, GitStats will pull
+    #'   repositories with specified files.
+    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
+    #'   printing output is switched off.
     #' @return A character vector.
-    get_repos_urls = function(with_files) {
+    get_repos_urls = function(with_files, verbose) {
       repo_urls <- purrr::map(private$hosts, function(host) {
         purrr::map(with_files, function(file) {
           host$get_repos_urls(
             file = file,
+            verbose = verbose,
             settings = private$settings
           )
         }) %>%
@@ -159,8 +161,7 @@ GitStats <- R6::R6Class("GitStats",
           verbose = verbose
         )
       }
-      dplyr::glimpse(commits)
-      return(invisible(commits))
+      return(commits)
     },
 
     #' @title Get statistics on commits
@@ -209,8 +210,7 @@ GitStats <- R6::R6Class("GitStats",
           verbose = verbose
         )
       }
-      dplyr::glimpse(users)
-      return(invisible(users))
+      return(users)
     },
 
     #' @description Pull text content of a file from all repositories.
@@ -238,8 +238,7 @@ GitStats <- R6::R6Class("GitStats",
           verbose = verbose
         )
       }
-      dplyr::glimpse(files)
-      return(invisible(files))
+      return(files)
     },
 
     #' @description Get release logs of repositories.
@@ -274,8 +273,7 @@ GitStats <- R6::R6Class("GitStats",
           verbose = verbose
         )
       }
-      dplyr::glimpse(release_logs)
-      return(invisible(release_logs))
+      return(release_logs)
     },
 
     #' @description Wrapper over pulling repositories by code.
@@ -312,8 +310,7 @@ GitStats <- R6::R6Class("GitStats",
           verbose = verbose
         )
       }
-      dplyr::glimpse(R_package_usage)
-      return(invisible(R_package_usage))
+      return(R_package_usage)
     },
 
     #' @description Return organizations vector from GitStats.

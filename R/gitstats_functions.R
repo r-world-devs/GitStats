@@ -147,12 +147,16 @@ get_repos <- function(gitstats_object,
 #'   URLS with a given file.
 #' @param with_files A character vector, if defined, GitStats will pull
 #'   repositories with specified files.
+#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
+#'   output is switched off.
 #' @return A character vector.
 #' @export
 get_repos_urls <- function(gitstats_object,
-                           with_files = NULL) {
+                           with_files = NULL,
+                           verbose = TRUE) {
   gitstats_object$get_repos_urls(
-    with_files = with_files
+    with_files = with_files,
+    verbose    = verbose
   )
 }
 
