@@ -62,15 +62,19 @@ GitHost <- R6::R6Class("GitHost",
       return(repos_table)
     },
 
-    get_repos_urls = function(file, verbose, settings) {
+    get_repos_urls = function(file = NULL, verbose, settings) {
       private$set_verbose(verbose)
-      repo_urls <- private$pull_repos_with_code(
-        code = file,
-        in_path = TRUE,
-        raw_output = TRUE,
-        settings = settings
-      ) %>%
-        private$get_repo_api_url()
+      if (!is.null(file)) {
+        repo_urls <- private$pull_repos_with_code(
+          code = file,
+          in_path = TRUE,
+          raw_output = TRUE,
+          settings = settings
+        ) %>%
+          private$get_repo_api_url()
+      } else {
+        repo_urls <- private$pull_all_repos_urls()
+      }
       return(repo_urls)
     },
 
@@ -543,6 +547,38 @@ GitHost <- R6::R6Class("GitHost",
         )
       }
       return(repos_table)
+    },
+
+    pull_all_repos_urls = function(verbose = private$verbose) {
+      if (private$scan_all && is.null(private$orgs)) {
+        if (verbose) {
+          show_message(
+            host = private$host_name,
+            engine = "graphql",
+            information = "Pulling all organizations"
+          )
+        }
+        private$orgs <- private$engines$graphql$pull_orgs()
+      }
+      rest_engine <- private$engines$rest
+      repos_vector <- purrr::map(private$orgs, function(org) {
+        org <- utils::URLdecode(org)
+        if (!private$scan_all && verbose) {
+          show_message(
+            host = private$host_name,
+            engine = "rest",
+            scope = org,
+            information = "Pulling repositories (URLS)"
+          )
+        }
+        repos <- private$set_repos(settings, org)
+        repos_urls <- rest_engine$pull_repos_urls(
+          org = org
+        )
+        return(repos_urls)
+      }, .progress = private$scan_all) %>%
+        unlist()
+      return(repos_vector)
     },
 
     # Pull repositories with code from whole Git Host

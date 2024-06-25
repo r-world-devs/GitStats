@@ -66,17 +66,23 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       return(search_output)
     },
 
+    pull_repos_urls = function(org) {
+      repos_urls <- self$response(
+        endpoint = paste0(private$endpoints[["organizations"]], org, "/repos")
+      ) %>%
+        purrr::map_vec(~ .$url)
+      return(repos_urls)
+    },
+
     #' A method to add information on open and closed issues of a repository.
     pull_repos_issues = function(repos_table) {
       if (nrow(repos_table) > 0) {
         repos_iterator <- paste0(repos_table$organization, "/", repos_table$repo_name)
         issues <- purrr::map_dfr(repos_iterator, function(repo_path) {
           issues_endpoint <- paste0(private$endpoints[["repositories"]], repo_path, "/issues")
-
           issues <- self$response(
             endpoint = issues_endpoint
           )
-
           data.frame(
             "open" = length(purrr::keep(issues, ~ .$state == "open")),
             "closed" = length(purrr::keep(issues, ~ .$state == "closed"))
@@ -134,7 +140,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         self$rest_api_url,
         '/search/code?q='
       )
-      private$endpoints[["organization"]] <- paste0(
+      private$endpoints[["organizations"]] <- paste0(
         self$rest_api_url,
         "/orgs/"
       )

@@ -110,7 +110,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
     #' @return A character vector.
-    get_repos_urls = function(with_files, verbose) {
+    get_repos_urls = function(with_files = NULL, verbose) {
       private$check_for_host()
       repo_urls <- private$get_repos_vector(
         with_files = with_files,
@@ -519,14 +519,21 @@ GitStats <- R6::R6Class("GitStats",
 
     get_repos_vector = function(with_files, verbose) {
       purrr::map(private$hosts, function(host) {
-        purrr::map(with_files, function(file) {
+        if (!is.null(with_files)) {
+          purrr::map(with_files, function(file) {
+            host$get_repos_urls(
+              file = file,
+              verbose = verbose,
+              settings = private$settings
+            )
+          }) %>%
+            unlist()
+        } else {
           host$get_repos_urls(
-            file = file,
             verbose = verbose,
             settings = private$settings
           )
-        }) %>%
-          unlist()
+        }
       }) %>%
         unlist() %>%
         unique()
