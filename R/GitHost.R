@@ -62,6 +62,18 @@ GitHost <- R6::R6Class("GitHost",
       return(repos_table)
     },
 
+    get_repos_urls = function(file, verbose, settings) {
+      private$set_verbose(verbose)
+      repo_urls <- private$pull_repos_with_code(
+        code = file,
+        in_path = TRUE,
+        raw_output = TRUE,
+        settings = settings
+      ) %>%
+        private$get_repo_api_url()
+      return(repo_urls)
+    },
+
     #' Pull commits method
     pull_commits = function(since,
                             until = Sys.Date(),

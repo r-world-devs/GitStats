@@ -144,7 +144,8 @@ get_repos <- function(gitstats_object,
 #' @title List repository URLS
 #' @name get_repos_urls
 #' @description A wrapper over search API endpoints to list repositories
-#'   URLS with a given file.
+#'   URLS with a given file or files.
+#' @param gitstats_object A GitStats object.
 #' @param with_files A character vector, if defined, GitStats will pull
 #'   repositories with specified files.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing

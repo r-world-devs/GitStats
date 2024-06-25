@@ -21,20 +21,6 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       if (private$verbose) {
         cli::cli_alert_success("Set connection to GitLab.")
       }
-    },
-
-    get_repos_urls = function(file, verbose, settings) {
-      private$set_verbose(verbose)
-      repo_urls <- private$pull_repos_with_code(
-        code = file,
-        in_path = TRUE,
-        raw_output = TRUE,
-        settings = settings
-      ) %>%
-        purrr::map_vec(function(search_response) {
-          paste0(private$api_url, "/projects/", search_response$project_id)
-        })
-      return(repo_urls)
     }
   ),
   private = list(
@@ -202,6 +188,13 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           )
       }
       return(repos_table)
+    },
+
+    # Get projects API URL from search response
+    get_repo_api_url = function(search_response) {
+      purrr::map_vec(search_response, function(project) {
+        paste0(private$api_url, "/projects/", project$project_id)
+      })
     },
 
     # Pull commits from GitHub

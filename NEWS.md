@@ -1,7 +1,8 @@
 # GitStats (development version)
 
-- Added new `get_repos_urls()` function to fetch repository API URLS that consist of a given file or files (`with_files` parameter) - this is a minimalist version of `get_repos()`, taking out all the process of parsing (search response into repositories one) and adding statistics on repositories, which makes it much faster ([#425](https://github.com/r-world-devs/GitStats/issues/425)).
+- Added new `get_repos_urls()` function to fetch repository API URLS that consist of a given file or files (`with_files` parameter) - this is a minimalist version of `get_repos()`, which takes out all the process of parsing (search response into repositories one) and adding statistics on repositories. This makes it much faster. ([#425](https://github.com/r-world-devs/GitStats/issues/425)).
 - Added `with_file` parameter to `get_repos()` function, which makes it possible to search for repositories with a given file and return full output for repositories.
+- Removed `dplyr::glimpse()` from `get_*()` functions, so there is printing to console only if `get_*()` function is not assigned to the object ([#426](https://github.com/r-world-devs/GitStats/issues/426)).
 
 # GitStats 2.0.1
 

@@ -15,20 +15,6 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
       if (private$verbose) {
         cli::cli_alert_success("Set connection to GitHub.")
       }
-    },
-
-    get_repos_urls = function(file, verbose, settings) {
-      private$set_verbose(verbose)
-      repo_urls <- private$pull_repos_with_code(
-        code = file,
-        in_path = TRUE,
-        raw_output = TRUE,
-        settings = settings
-      ) %>%
-        purrr::map_vec(function(search_response) {
-          search_response$repository$url
-        })
-      return(repo_urls)
     }
   ),
   private = list(
@@ -176,6 +162,13 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
           )
       }
       return(repos_table)
+    },
+
+    # Get projects API URL from search response
+    get_repo_api_url = function(search_response) {
+      purrr::map_vec(search_response, function(project) {
+        project$repository$url
+      })
     },
 
     # Pull commits from GitHub

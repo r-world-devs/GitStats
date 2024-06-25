@@ -7,6 +7,8 @@
 get_repos_urls(gitstats_object, with_files = NULL, verbose = TRUE)
 }
 \arguments{
+\item{gitstats_object}{A GitStats object.}
+
 \item{with_files}{A character vector, if defined, GitStats will pull
 repositories with specified files.}
 

@@ -111,18 +111,11 @@ GitStats <- R6::R6Class("GitStats",
     #'   printing output is switched off.
     #' @return A character vector.
     get_repos_urls = function(with_files, verbose) {
-      repo_urls <- purrr::map(private$hosts, function(host) {
-        purrr::map(with_files, function(file) {
-          host$get_repos_urls(
-            file = file,
-            verbose = verbose,
-            settings = private$settings
-          )
-        }) %>%
-          unlist()
-      }) %>%
-        unlist() %>%
-        unique()
+      private$check_for_host()
+      repo_urls <- private$get_repos_vector(
+        with_files = with_files,
+        verbose = verbose
+      )
       return(repo_urls)
     },
 
@@ -522,6 +515,21 @@ GitStats <- R6::R6Class("GitStats",
         purrr::list_rbind() %>%
         private$add_stats_to_repos()
       return(repos_table)
+    },
+
+    get_repos_vector = function(with_files, verbose) {
+      purrr::map(private$hosts, function(host) {
+        purrr::map(with_files, function(file) {
+          host$get_repos_urls(
+            file = file,
+            verbose = verbose,
+            settings = private$settings
+          )
+        }) %>%
+          unlist()
+      }) %>%
+        unlist() %>%
+        unique()
     },
 
     # Pull commits tables from hosts and bind them into one
