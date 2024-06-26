@@ -50,6 +50,15 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       return(search_output)
     },
 
+    # Pull all repositories URLs from organization
+    pull_repos_urls = function(org) {
+      repos_urls <- self$response(
+        endpoint = paste0(private$endpoints[["organizations"]], utils::URLencode(org, reserved = TRUE), "/projects")
+      ) %>%
+        purrr::map_vec(~ .$`_links`$self)
+      return(repos_urls)
+    },
+
     # Add information on open and closed issues of a repository.
     pull_repos_issues = function(repos_table) {
       if (nrow(repos_table) > 0) {
@@ -191,6 +200,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
 
     # Endpoints list
     endpoints = list(
+      organizations = NULL,
       projects = NULL,
       search = NULL
     ),
@@ -205,6 +215,10 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       private$endpoints[["projects"]] <- paste0(
         self$rest_api_url,
         "/projects/"
+      )
+      private$endpoints[["organizations"]] <- paste0(
+        self$rest_api_url,
+        "/groups/"
       )
     },
 

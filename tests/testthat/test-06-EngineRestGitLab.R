@@ -52,3 +52,13 @@ test_that("`get_commits_authors_handles_and_names()` adds author logis and names
   )
   test_mocker$cache(gl_commits_table)
 })
+
+test_that("pull_repos_urls() works", {
+  gl_repos_urls <- test_rest$pull_repos_urls(
+    org = "mbtests"
+  )
+  expect_gt(
+    length(gl_repos_urls),
+    0
+  )
+})

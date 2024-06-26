@@ -190,11 +190,9 @@ test_that("`prepare_repos_table()` prepares repos table", {
 })
 
 test_that("pull_all_repos_urls prepares repo_urls vector", {
-  gh_repos_urls <- test_host_gitlab$pull_all_repos_urls(verbose = FALSE)
-  expect_gt(length(gh_repos_urls), 0)
-  expect_true(any(grepl("openpharma", gh_repos_urls)))
-  expect_true(any(grepl("r-world-devs", gh_repos_urls)))
-  expect_true(all(grepl("api", gh_repos_urls)))
+  gl_repos_urls <- test_host_gitlab$pull_all_repos_urls(verbose = FALSE)
+  expect_gt(length(gl_repos_urls), 0)
+  expect_true(all(grepl("api", gl_repos_urls)))
 })
 
 test_that("GitLab prepares user table", {
