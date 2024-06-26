@@ -144,13 +144,27 @@ get_repos <- function(gitstats_object,
 #' @title List repository URLS
 #' @name get_repos_urls
 #' @description A wrapper over search API endpoints to list repositories
-#'   URLS with a given file or files.
+#'   URLS.
 #' @param gitstats_object A GitStats object.
 #' @param with_files A character vector, if defined, GitStats will pull
 #'   repositories with specified files.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
 #'   output is switched off.
 #' @return A character vector.
+#' @examples
+#' \dontrun{
+#' my_gitstats <- create_gitstats() %>%
+#'   set_github_host(
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs", "openpharma")
+#'   ) %>%
+#'   set_gitlab_host(
+#'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+#'     orgs = "mbtests"
+#'   )
+#' get_repos_urls(my_gitstats)
+#' get_repos_urls(my_gitstats, with_files = c("DESCRIPTION", "LICENSE"))
+#' }
 #' @export
 get_repos_urls <- function(gitstats_object,
                            with_files = NULL,

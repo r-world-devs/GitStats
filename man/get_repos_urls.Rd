@@ -20,5 +20,20 @@ A character vector.
 }
 \description{
 A wrapper over search API endpoints to list repositories
-URLS with a given file.
+URLS.
+}
+\examples{
+\dontrun{
+my_gitstats <- create_gitstats() \%>\%
+  set_github_host(
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("r-world-devs", "openpharma")
+  ) \%>\%
+  set_gitlab_host(
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    orgs = "mbtests"
+  )
+get_repos_urls(my_gitstats)
+get_repos_urls(my_gitstats, with_files = c("DESCRIPTION", "LICENSE"))
+}
 }

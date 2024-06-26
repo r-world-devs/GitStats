@@ -104,7 +104,7 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     #' @description A wrapper over search API endpoints to list repositories
-    #'   URLS with a given file.
+    #'   URLS.
     #' @param with_files A character vector, if defined, GitStats will pull
     #'   repositories with specified files.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
