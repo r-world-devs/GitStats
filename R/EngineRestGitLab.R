@@ -51,11 +51,17 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     },
 
     # Pull all repositories URLs from organization
-    pull_repos_urls = function(org) {
+    pull_repos_urls = function(type, org) {
       repos_urls <- self$response(
         endpoint = paste0(private$endpoints[["organizations"]], utils::URLencode(org, reserved = TRUE), "/projects")
       ) %>%
-        purrr::map_vec(~ .$`_links`$self)
+        purrr::map_vec(function(project) {
+          if (type == "api") {
+            project$`_links`$self
+          } else {
+            project$web_url
+          }
+        })
       return(repos_urls)
     },
 

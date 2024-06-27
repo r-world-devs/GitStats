@@ -42,6 +42,7 @@ test_that("`pull_repos_contributors()` adds contributors to repos table", {
 
 test_that("pull_repos_urls() works", {
   gh_repos_urls <- test_rest$pull_repos_urls(
+    type = "web",
     org = "r-world-devs"
   )
   expect_gt(

@@ -108,14 +108,30 @@ test_that("`pull_all_repos()` works as expected", {
   test_mocker$cache(gh_repos_table)
 })
 
-test_that("pull_all_repos_urls prepares repo_urls vector", {
+test_that("pull_all_repos_urls prepares api repo_urls vector", {
   test_host <- create_github_testhost(orgs = c("r-world-devs", "openpharma"),
                                       mode = "private")
-  gh_repos_urls <- test_host$pull_all_repos_urls(verbose = FALSE)
+  gh_repos_urls <- test_host$pull_all_repos_urls(
+    type = "api",
+    verbose = FALSE
+  )
   expect_gt(length(gh_repos_urls), 0)
   expect_true(any(grepl("openpharma", gh_repos_urls)))
   expect_true(any(grepl("r-world-devs", gh_repos_urls)))
   expect_true(all(grepl("api", gh_repos_urls)))
+})
+
+test_that("pull_all_repos_urls prepares web repo_urls vector", {
+  test_host <- create_github_testhost(orgs = c("r-world-devs", "openpharma"),
+                                      mode = "private")
+  gh_repos_urls <- test_host$pull_all_repos_urls(
+    type = "web",
+    verbose = FALSE
+  )
+  expect_gt(length(gh_repos_urls), 0)
+  expect_true(any(grepl("openpharma", gh_repos_urls)))
+  expect_true(any(grepl("r-world-devs", gh_repos_urls)))
+  expect_true(all(grepl("https://github.com/", gh_repos_urls)))
 })
 
 test_that("`pull_repos_with_code()` works", {
@@ -189,10 +205,22 @@ test_that("`prepare_repos_table()` prepares repos table", {
   test_mocker$cache(gl_repos_table)
 })
 
-test_that("pull_all_repos_urls prepares repo_urls vector", {
-  gl_repos_urls <- test_host_gitlab$pull_all_repos_urls(verbose = FALSE)
+test_that("pull_all_repos_urls prepares api repo_urls vector", {
+  gl_repos_urls <- test_host_gitlab$pull_all_repos_urls(
+    type = "api",
+    verbose = FALSE
+  )
   expect_gt(length(gl_repos_urls), 0)
   expect_true(all(grepl("api", gl_repos_urls)))
+})
+
+test_that("pull_all_repos_urls prepares web repo_urls vector", {
+  gl_repos_urls <- test_host_gitlab$pull_all_repos_urls(
+    type = "web",
+    verbose = FALSE
+  )
+  expect_gt(length(gl_repos_urls), 0)
+  expect_true(all(!grepl("api", gl_repos_urls)))
 })
 
 test_that("GitLab prepares user table", {

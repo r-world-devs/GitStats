@@ -4,10 +4,18 @@
 \alias{get_repos_urls}
 \title{List repository URLS}
 \usage{
-get_repos_urls(gitstats_object, with_files = NULL, verbose = TRUE)
+get_repos_urls(
+  gitstats_object,
+  type = "web",
+  with_files = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{gitstats_object}{A GitStats object.}
+
+\item{type}{A character, choose if \code{api} or \code{web} (\code{html}) URLs should be
+returned.}
 
 \item{with_files}{A character vector, if defined, GitStats will pull
 repositories with specified files.}
@@ -19,8 +27,7 @@ output is switched off.}
 A character vector.
 }
 \description{
-A wrapper over search API endpoints to list repositories
-URLS.
+A wrapper over search API endpoints to list repositories URLS.
 }
 \examples{
 \dontrun{
@@ -33,7 +40,7 @@ my_gitstats <- create_gitstats() \%>\%
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "mbtests"
   )
-get_repos_urls(my_gitstats)
+get_repos_urls(my_gitstats, type = "api")
 get_repos_urls(my_gitstats, with_files = c("DESCRIPTION", "LICENSE"))
 }
 }

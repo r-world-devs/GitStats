@@ -62,7 +62,8 @@ GitHost <- R6::R6Class("GitHost",
       return(repos_table)
     },
 
-    get_repos_urls = function(file = NULL, verbose, settings) {
+    # Get repositories URLS from the Git host
+    get_repos_urls = function(type = "web", file = NULL, verbose, settings) {
       private$set_verbose(verbose)
       if (!is.null(file)) {
         repo_urls <- private$pull_repos_with_code(
@@ -71,9 +72,13 @@ GitHost <- R6::R6Class("GitHost",
           raw_output = TRUE,
           settings = settings
         ) %>%
-          private$get_repo_api_url()
+          private$get_repo_url_from_response(
+            type = type
+          )
       } else {
-        repo_urls <- private$pull_all_repos_urls()
+        repo_urls <- private$pull_all_repos_urls(
+          type = type
+        )
       }
       return(repo_urls)
     },
@@ -549,7 +554,7 @@ GitHost <- R6::R6Class("GitHost",
       return(repos_table)
     },
 
-    pull_all_repos_urls = function(verbose = private$verbose) {
+    pull_all_repos_urls = function(type, verbose = private$verbose) {
       if (private$scan_all && is.null(private$orgs)) {
         if (verbose) {
           show_message(
@@ -573,6 +578,7 @@ GitHost <- R6::R6Class("GitHost",
         }
         repos <- private$set_repos(settings, org)
         repos_urls <- rest_engine$pull_repos_urls(
+          type = type,
           org = org
         )
         return(repos_urls)

@@ -105,14 +105,17 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description A wrapper over search API endpoints to list repositories
     #'   URLS.
+    #' @param type A character, choose if `api` or `web` (`html`) URLs should be
+    #'   returned.
     #' @param with_files A character vector, if defined, GitStats will pull
     #'   repositories with specified files.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
     #' @return A character vector.
-    get_repos_urls = function(with_files = NULL, verbose) {
+    get_repos_urls = function(type = "web", with_files = NULL, verbose) {
       private$check_for_host()
       repo_urls <- private$get_repos_vector(
+        type = type,
         with_files = with_files,
         verbose = verbose
       )
@@ -517,11 +520,12 @@ GitStats <- R6::R6Class("GitStats",
       return(repos_table)
     },
 
-    get_repos_vector = function(with_files, verbose) {
+    get_repos_vector = function(type, with_files, verbose) {
       purrr::map(private$hosts, function(host) {
         if (!is.null(with_files)) {
           purrr::map(with_files, function(file) {
             host$get_repos_urls(
+              type = type,
               file = file,
               verbose = verbose,
               settings = private$settings
@@ -530,6 +534,7 @@ GitStats <- R6::R6Class("GitStats",
             unlist()
         } else {
           host$get_repos_urls(
+            type = type,
             verbose = verbose,
             settings = private$settings
           )
