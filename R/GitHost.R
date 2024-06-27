@@ -623,7 +623,7 @@ GitHost <- R6::R6Class("GitHost",
           show_message(
             host = private$host_name,
             engine = "rest",
-            scope = org,
+            scope = utils::URLdecode(org),
             code = code,
             information = "Pulling repositories"
           )
