@@ -190,6 +190,17 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       return(repos_table)
     },
 
+    # Get projects API URL from search response
+    get_repo_url_from_response = function(search_response, type) {
+      purrr::map_vec(search_response, function(project) {
+        if (type == "api") {
+          paste0(private$api_url, "/projects/", project$project_id)
+        } else {
+          browser()
+        }
+      })
+    },
+
     # Pull commits from GitHub
     pull_commits_from_host = function(since, until, settings) {
       rest_engine <- private$engines$rest

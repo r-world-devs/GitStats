@@ -8,6 +8,7 @@ get_repos(
   gitstats_object,
   add_contributors = TRUE,
   with_code = NULL,
+  with_file = NULL,
   cache = TRUE,
   verbose = is_verbose(gitstats_object)
 )
@@ -28,6 +29,9 @@ additional information.}
 
 \item{with_code}{A character, if  defined, GitStats will pull repositories
 with specified text in code blobs.}
+
+\item{with_file}{A character, if  defined, GitStats will pull repositories
+with specified file.}
 
 \item{cache}{A logical, if set to \code{TRUE} GitStats will retrieve the last
 result from its storage.}

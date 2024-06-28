@@ -24,8 +24,10 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     },
 
     # Pulling repositories where code appears
-    pull_repos_by_code = function(org = NULL,
-                                  code,
+    pull_repos_by_code = function(code,
+                                  org = NULL,
+                                  in_path = FALSE,
+                                  raw_output = FALSE,
                                   verbose,
                                   settings) {
       private$set_verbose(verbose)
@@ -34,7 +36,11 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       } else {
         ''
       }
-      query <- paste0('"', code, '"', user_query)
+      query <- if (!in_path) {
+        paste0('"', code, '"', user_query)
+      } else {
+        paste0('"', code, '"+in:path', user_query)
+      }
       search_endpoint <- paste0(private$endpoints[["search"]], query)
       total_n <- self$response(search_endpoint)[["total_count"]]
       if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
@@ -47,13 +53,32 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
           search_result = search_result,
           files = settings$files
         )
-        repos_list <- private$map_search_into_repos(
-          search_response = search_result
-        )
+        if (!raw_output) {
+          search_output <- private$map_search_into_repos(
+            search_response = search_result
+          )
+        } else {
+          search_output <- search_result
+        }
       } else {
-        repos_list <- list()
+        search_output <- list()
       }
-      return(repos_list)
+      return(search_output)
+    },
+
+    #' Pull all repositories URLS from organization
+    pull_repos_urls = function(type, org) {
+      repos_urls <- self$response(
+        endpoint = paste0(private$endpoints[["organizations"]], org, "/repos")
+      ) %>%
+        purrr::map_vec(function(repository) {
+          if (type == "api") {
+            repository$url
+          } else {
+            repository$html_url
+          }
+        })
+      return(repos_urls)
     },
 
     #' A method to add information on open and closed issues of a repository.
@@ -62,11 +87,9 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         repos_iterator <- paste0(repos_table$organization, "/", repos_table$repo_name)
         issues <- purrr::map_dfr(repos_iterator, function(repo_path) {
           issues_endpoint <- paste0(private$endpoints[["repositories"]], repo_path, "/issues")
-
           issues <- self$response(
             endpoint = issues_endpoint
           )
-
           data.frame(
             "open" = length(purrr::keep(issues, ~ .$state == "open")),
             "closed" = length(purrr::keep(issues, ~ .$state == "closed"))
@@ -124,7 +147,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         self$rest_api_url,
         '/search/code?q='
       )
-      private$endpoints[["organization"]] <- paste0(
+      private$endpoints[["organizations"]] <- paste0(
         self$rest_api_url,
         "/orgs/"
       )

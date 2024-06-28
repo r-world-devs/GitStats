@@ -39,3 +39,14 @@ test_that("`pull_repos_contributors()` adds contributors to repos table", {
   )
   test_mocker$cache(gh_repos_by_code_table)
 })
+
+test_that("pull_repos_urls() works", {
+  gh_repos_urls <- test_rest$pull_repos_urls(
+    type = "web",
+    org = "r-world-devs"
+  )
+  expect_gt(
+    length(gh_repos_urls),
+    0
+  )
+})

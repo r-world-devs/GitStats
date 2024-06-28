@@ -146,3 +146,34 @@ test_that("get_release_logs works as expected", {
   )
   expect_releases_table(release_logs)
 })
+
+test_that("get_repo_urls gets vector of repository URLS", {
+  test_gitstats <- create_test_gitstats(hosts = 1)
+  repo_urls <- test_gitstats$get_repos_urls(
+    verbose = FALSE
+  )
+  expect_type(
+    repo_urls,
+    "character"
+  )
+  expect_gt(
+    length(repo_urls),
+    1
+  )
+})
+
+test_that("get_repo_urls gets vector of repository URLS", {
+  test_gitstats <- create_test_gitstats(hosts = 1)
+  repo_urls <- test_gitstats$get_repos_urls(
+    with_files = c("DESCRIPTION", "NEWS.md", "LICENSE"),
+    verbose = FALSE
+  )
+  expect_type(
+    repo_urls,
+    "character"
+  )
+  expect_gt(
+    length(repo_urls),
+    1
+  )
+})

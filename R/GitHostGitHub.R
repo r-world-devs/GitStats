@@ -164,6 +164,17 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
       return(repos_table)
     },
 
+    # Get projects API URL from search response
+    get_repo_url_from_response = function(search_response, type) {
+      purrr::map_vec(search_response, function(project) {
+        if (type == "api") {
+          project$repository$url
+        } else {
+          project$repository$html_url
+        }
+      })
+    },
+
     # Pull commits from GitHub
     pull_commits_from_host = function(since, until, settings) {
       graphql_engine <- private$engines$graphql
@@ -312,7 +323,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
             "file_path" = file_data$path,
             "file_content" = file_data$content,
             "file_size" = file_data$size,
-            "repo_url" = private$get_repo_url(file_data$url)
+            "repo_url" = private$set_repo_url(file_data$url)
           )
         }) %>%
           purrr::list_rbind()
@@ -328,7 +339,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
     },
 
     # Get repository url
-    get_repo_url = function(repo_fullname) {
+    set_repo_url = function(repo_fullname) {
       paste0(private$endpoints$repositories, "/", repo_fullname)
     },
 
