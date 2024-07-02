@@ -5,9 +5,9 @@
 #' @param date A date.
 #' @return A character (git time stamp format).
 date_to_gts <- function(date) {
-  date_format <- as.Date(date)
-  posixt_format <- as.POSIXct(date)
-  if (as.POSIXct(date_format) == as.POSIXct(posixt_format)) {
+  date_format <- lubridate::as_date(date)
+  posixt_format <- lubridate::as_datetime(date)
+  if (lubridate::as_datetime(date_format) == lubridate::as_datetime(posixt_format)) {
     paste0(date, "T00:00:00Z")
   } else {
     stringr::str_replace(
