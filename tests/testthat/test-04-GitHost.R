@@ -223,6 +223,17 @@ test_that("pull_all_repos_urls prepares web repo_urls vector", {
   expect_true(all(!grepl("api", gl_repos_urls)))
 })
 
+test_that("`get_repo_url_from_response()` works", {
+  suppressMessages(
+    result <- test_host_gitlab$get_repo_url_from_response(
+      search_response = test_mocker$use("gl_search_response"),
+      type = "web"
+    )
+  )
+  expect_gt(length(result), 0)
+  expect_type(result, "character")
+})
+
 test_that("GitLab prepares user table", {
   gl_user_table <- test_host_gitlab$prepare_user_table(
     user_response = test_mocker$use("gl_user_response")
