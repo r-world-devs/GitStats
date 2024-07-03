@@ -21,7 +21,7 @@ Imports:
     dplyr,
     glue,
     httr2,
-    lubridate,
+    lubridate (>= 1.8.0),
     magrittr,
     rlang (>= 1.1.0),
     R6,

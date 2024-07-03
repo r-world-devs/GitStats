@@ -29,8 +29,7 @@ date_to_gts <- function(date) {
 #' @return A vector of dates in Posixt format.
 gts_to_posixt <- function(date_vector) {
   date_vector <- gsub("T", " ", gsub("Z", "", date_vector))
-
-  as.POSIXct(date_vector)
+  lubridate::as_datetime(date_vector)
 }
 
 #' @noRd
