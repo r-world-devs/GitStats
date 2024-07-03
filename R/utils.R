@@ -52,7 +52,8 @@ commits_stats <- function(object, time_interval) {
 
 #' @noRd
 standardize_dates <- function(dates) {
-  purrr::discard(dates, is.null) %>% purrr::map_vec(as.POSIXct)
+  purrr::discard(dates, is.null) %>%
+    purrr::map_vec(lubridate::as_datetime)
 }
 
 #' @importFrom utils URLencode URLdecode
