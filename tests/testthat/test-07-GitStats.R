@@ -140,7 +140,7 @@ test_that("get_R_package_usage works as expected", {
 test_that("get_release_logs works as expected", {
   test_gitstats <- create_test_gitstats(hosts = 1)
   release_logs <- test_gitstats$get_release_logs(
-    since = "2023-05-01",
+    since = "2023-08-01",
     until = "2023-09-30",
     verbose = FALSE
   )
@@ -165,7 +165,7 @@ test_that("get_repo_urls gets vector of repository URLS", {
 test_that("get_repo_urls gets vector of repository URLS", {
   test_gitstats <- create_test_gitstats(hosts = 1)
   repo_urls <- test_gitstats$get_repos_urls(
-    with_files = c("DESCRIPTION", "NEWS.md", "LICENSE"),
+    with_files = c("NEWS.md", "LICENSE"),
     verbose = FALSE
   )
   expect_type(

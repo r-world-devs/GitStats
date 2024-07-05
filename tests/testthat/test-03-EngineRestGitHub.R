@@ -50,8 +50,7 @@ test_that("`pull_repos_by_code()` for GitHub prepares a list of repositories", {
   gh_repos_by_code <- test_rest$pull_repos_by_code(
     code = "shiny",
     org = "openpharma",
-    verbose = FALSE,
-    settings = test_settings_silence
+    verbose = FALSE
   )
   expect_gh_search_response(
     gh_repos_by_code[[1]]
@@ -60,13 +59,11 @@ test_that("`pull_repos_by_code()` for GitHub prepares a list of repositories", {
 })
 
 test_that("`pull_repos_by_code()` filters responses for specific files in GitHub", {
-  settings_with_file <- test_settings_silence
-  settings_with_file$files <- "DESCRIPTION"
   gh_repos_by_code <- test_rest$pull_repos_by_code(
     code = "shiny",
+    filename = "DESCRIPTION",
     org = "openpharma",
-    verbose = FALSE,
-    settings = settings_with_file
+    verbose = FALSE
   )
   purrr::walk(gh_repos_by_code, function(repo) {
     expect_gh_search_response(repo)

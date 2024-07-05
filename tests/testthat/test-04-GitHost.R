@@ -134,9 +134,9 @@ test_that("pull_all_repos_urls prepares web repo_urls vector", {
   expect_true(all(grepl("https://github.com/", gh_repos_urls)))
 })
 
-test_that("`pull_repos_with_code()` works", {
+test_that("`get_repos_with_code()` works", {
   suppressMessages(
-    result <- test_host$pull_repos_with_code(
+    result <- test_host$get_repos_with_code(
       code = "Shiny",
       settings = test_settings
     )
@@ -151,12 +151,12 @@ test_host <- create_github_testhost(orgs = "r-world-devs")
 
 test_that("`pull_commits()` retrieves commits in the table format", {
   mockery::stub(
-    test_host$pull_commits,
+    test_host$get_commits,
     "private$set_repositories",
     test_mocker$use("gh_repos_table")$repo_name
   )
   suppressMessages(
-    commits_table <- test_host$pull_commits(
+    commits_table <- test_host$get_commits(
       since = "2023-01-01",
       until = "2023-02-28",
       settings = test_settings

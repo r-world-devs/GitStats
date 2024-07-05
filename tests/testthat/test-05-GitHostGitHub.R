@@ -162,7 +162,7 @@ test_that("pull_commits for GitHub works", {
     repos = c("openpharma/DataFakeR", "r-world-devs/GitStats", "r-world-devs/cohortBuilder")
   )
   suppressMessages(
-    gh_commits_table <- test_host$pull_commits(
+    gh_commits_table <- test_host$get_commits(
       since = "2023-03-01",
       until = "2023-04-01",
       settings = test_settings_repo

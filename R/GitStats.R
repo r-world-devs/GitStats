@@ -75,6 +75,7 @@ GitStats <- R6::R6Class("GitStats",
     #'   printing output is switched off.
     get_repos = function(add_contributors = FALSE,
                          with_code = NULL,
+                         in_files = NULL,
                          with_files = NULL,
                          cache = TRUE,
                          verbose = TRUE) {
@@ -87,6 +88,7 @@ GitStats <- R6::R6Class("GitStats",
         repositories <- private$get_repos_table(
           add_contributors = add_contributors,
           with_code = with_code,
+          in_files = in_files,
           with_files = with_files,
           verbose = verbose,
           settings = private$settings

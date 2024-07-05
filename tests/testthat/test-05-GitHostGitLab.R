@@ -79,7 +79,7 @@ test_host <- create_gitlab_testhost(
 
 test_that("pull_commits for GitLab works", {
   suppressMessages(
-    gl_commits_table <- test_host$pull_commits(
+    gl_commits_table <- test_host$get_commits(
       since = "2023-03-01",
       until = "2023-04-01",
       settings = test_settings
@@ -95,7 +95,7 @@ test_that("pull_commits for GitLab works with repos implied", {
     repos = c("mbtests/gitstatstesting", "mbtests/gitstats-testing-2")
   )
   expect_snapshot(
-    gl_commits_table <- test_host$pull_commits(
+    gl_commits_table <- test_host$get_commits(
       since = "2023-01-01",
       until = "2023-06-01",
       settings = test_settings_repo

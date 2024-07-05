@@ -103,6 +103,9 @@ set_gitlab_host <- function(gitstats_object,
 #'   additional information.
 #' @param with_code A character vector, if defined, GitStats will pull
 #'   repositories with specified code phrases in code blobs.
+#' @param in_files A character vector of file names. Works when `with_code` is
+#'   set - then it searches code blobs only in files passed to `in_files`
+#'   parameter.
 #' @param with_files A character vector, if defined, GitStats will pull
 #'   repositories with specified files.
 #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
@@ -123,18 +126,21 @@ set_gitlab_host <- function(gitstats_object,
 #'   )
 #' get_repos(my_gitstats)
 #' get_repos(my_gitstats, add_contributors = FALSE)
-#' get_repos(my_gitstats, with_code = "Shiny")
+#' get_repos(my_gitstats, with_code = "Shiny", in_files = "renv.lock")
+#' get_repos(my_gitstats, with_files = "DESCRIPTION")
 #' }
 #' @export
 get_repos <- function(gitstats_object,
                       add_contributors = TRUE,
                       with_code = NULL,
+                      in_files = NULL,
                       with_files = NULL,
                       cache = TRUE,
                       verbose = is_verbose(gitstats_object)) {
   gitstats_object$get_repos(
     add_contributors = add_contributors,
     with_code = with_code,
+    in_files = in_files,
     with_files = with_files,
     cache = cache,
     verbose = verbose

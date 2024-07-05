@@ -10,7 +10,7 @@ repo_host_colnames <- c('repo_id', 'repo_name', 'default_branch', 'stars', 'fork
 
 expect_package_usage_table <- function(object, add_col = NULL) {
   expect_s3_class(object, "data.frame")
-  expect_named(object, c("repo_name", "repo_url", "api_url", "package_usage"))
+  expect_named(object, c('repo_name', 'organization', 'fullname', 'platform', 'repo_url', 'api_url', 'package_usage'))
   expect_gt(nrow(object), 0)
 }
 
