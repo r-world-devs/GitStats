@@ -8,7 +8,7 @@ get_repos(
   gitstats_object,
   add_contributors = TRUE,
   with_code = NULL,
-  with_file = NULL,
+  with_files = NULL,
   cache = TRUE,
   verbose = is_verbose(gitstats_object)
 )
@@ -27,11 +27,11 @@ default), \code{GitStats} iterates additionally over pulled repositories and
 reaches to the \verb{contributors APIs}, which makes it slower, but gives
 additional information.}
 
-\item{with_code}{A character, if  defined, GitStats will pull repositories
-with specified text in code blobs.}
+\item{with_code}{A character vector, if defined, GitStats will pull
+repositories with specified code phrases in code blobs.}
 
-\item{with_file}{A character, if  defined, GitStats will pull repositories
-with specified file.}
+\item{with_files}{A character vector, if defined, GitStats will pull
+repositories with specified files.}
 
 \item{cache}{A logical, if set to \code{TRUE} GitStats will retrieve the last
 result from its storage.}

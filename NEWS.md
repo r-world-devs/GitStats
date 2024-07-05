@@ -1,7 +1,8 @@
 # GitStats (development version)
 
-- Added new `get_repos_urls()` function to fetch repository URLS (either web or API - choose with `type` parameter). It may return also only these repository URLS that consist of a given file or files (with passing argument to `with_files` parameter). This is a minimalist version of `get_repos()`, which takes out all the process of parsing (search response into repositories one) and adding statistics on repositories. This makes it poorer with content but faster. ([#425](https://github.com/r-world-devs/GitStats/issues/425)).
-- Added `with_file` parameter to `get_repos()` function, which makes it possible to search for repositories with a given file and return full output for repositories.
+- Added new `get_repos_urls()` function to fetch repository URLS (either web or API - choose with `type` parameter). It may return also only these repository URLS that consist of a given file or files (with passing argument to `with_files` parameter) or a text in code blobs (`with_code` parameter). This is a minimalist version of `get_repos()`, which takes out all the process of parsing (search response into repositories one) and adding statistics on repositories. This makes it poorer with content but faster. ([#425](https://github.com/r-world-devs/GitStats/issues/425)).
+- Added `with_files` parameter to `get_repos()` function, which makes it possible to search for repositories with a given file or files and return full output for repositories.
+- It is also possible now to pass multiple code phrases to `with_code` parameter (as a character vector) in `get_repos()` and `get_repos_urls()` ([282](https://github.com/r-world-devs/GitStats/issues/282))
 - Removed `dplyr::glimpse()` from `get_*()` functions, so there is printing to console only if `get_*()` function is not assigned to the object ([#426](https://github.com/r-world-devs/GitStats/issues/426)).
 
 # GitStats 2.0.1

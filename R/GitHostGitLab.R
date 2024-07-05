@@ -204,6 +204,10 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           web_url <- project_response$web_url
           return(web_url)
         }
+      }, .progress = if (type != "api") {
+        "Mapping api URL to web URL..."
+      } else {
+        FALSE
       })
     },
 
