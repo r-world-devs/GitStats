@@ -29,11 +29,12 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Pull repositories method
-    pull_repos = function(add_contributors = TRUE,
-                          with_code = NULL,
-                          with_file = NULL,
-                          verbose = TRUE,
-                          settings) {
+    get_repos = function(add_contributors = TRUE,
+                         with_code = NULL,
+                         in_files = NULL,
+                         with_file = NULL,
+                         verbose = TRUE,
+                         settings) {
       private$set_verbose(verbose)
       if (is.null(with_code) && is.null(with_file)) {
         repos_table <- private$pull_all_repos(
@@ -43,6 +44,7 @@ GitHost <- R6::R6Class("GitHost",
       if (!is.null(with_code)) {
         repos_table <- private$pull_repos_with_code(
           code = with_code,
+          in_files = in_files,
           settings = settings
         )
       } else if (!is.null(with_file)) {
@@ -63,11 +65,11 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Get repositories URLS from the Git host
-    get_repos_urls = function(type = "web", code = NULL, file = NULL, verbose, settings) {
+    get_repos_urls = function(type = "web", with_code = NULL, with_file = NULL, verbose, settings) {
       private$set_verbose(verbose)
       if (!is.null(code)) {
         repo_urls <- private$pull_repos_with_code(
-          code = code,
+          code = with_code,
           raw_output = TRUE,
           settings = settings
         ) %>%
@@ -76,7 +78,7 @@ GitHost <- R6::R6Class("GitHost",
           )
       } else if (!is.null(file)) {
         repo_urls <- private$pull_repos_with_code(
-          code = file,
+          code = with_file,
           in_path = TRUE,
           raw_output = TRUE,
           settings = settings
@@ -93,10 +95,10 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     #' Pull commits method
-    pull_commits = function(since,
-                            until = Sys.Date(),
-                            verbose = TRUE,
-                            settings) {
+    get_commits = function(since,
+                           until = Sys.Date(),
+                           verbose = TRUE,
+                           settings) {
       private$set_verbose(verbose)
       if (private$scan_all && is.null(private$orgs)) {
         cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
@@ -543,10 +545,11 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Pull repositories with specific code
-    pull_repos_with_code = function(code, in_path = FALSE, raw_output = FALSE, settings) {
+    pull_repos_with_code = function(code, in_files = FALSE, in_path = FALSE, raw_output = FALSE, settings) {
       if (private$scan_all) {
         repos_table <- private$pull_repos_with_code_from_host(
           code = code,
+          in_files = in_files,
           in_path = in_path,
           raw_output = raw_output,
           settings = settings
@@ -555,6 +558,7 @@ GitHost <- R6::R6Class("GitHost",
       if (!private$scan_all) {
         repos_table <- private$pull_repos_with_code_from_orgs(
           code = code,
+          in_files = in_files,
           in_path = in_path,
           raw_output = raw_output,
           settings = settings
@@ -563,6 +567,7 @@ GitHost <- R6::R6Class("GitHost",
       return(repos_table)
     },
 
+    # Pull all repositories URLs from organizations
     pull_all_repos_urls = function(type, verbose = private$verbose) {
       if (private$scan_all && is.null(private$orgs)) {
         if (verbose) {
@@ -597,8 +602,7 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Pull repositories with code from whole Git Host
-    pull_repos_with_code_from_host = function(code, in_path = FALSE, raw_output = FALSE, settings) {
-      rest_engine <- private$engines$rest
+    pull_repos_with_code_from_host = function(code, in_files = NULL, in_path = FALSE, raw_output = FALSE, settings) {
       if (private$verbose) {
         show_message(
           host = private$host_name,
@@ -606,12 +610,13 @@ GitHost <- R6::R6Class("GitHost",
           information = "Pulling repositories"
         )
       }
-      repos_response <- rest_engine$pull_repos_by_code(
+      rest_engine <- private$engines$rest
+      repos_response <- private$pull_repos_response_with_code(
+        rest_engine = rest_engine,
         code = code,
+        in_files = in_files,
         in_path = in_path,
-        raw_output = raw_output,
-        verbose = private$verbose,
-        settings = settings
+        raw_output = raw_output
       )
       if (!raw_output) {
         repos_table <- repos_response %>%
@@ -625,8 +630,7 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Pull repositories with code from given organizations
-    pull_repos_with_code_from_orgs = function(code, in_path = FALSE, raw_output = FALSE, settings) {
-      rest_engine <- private$engines$rest
+    pull_repos_with_code_from_orgs = function(code, in_files = NULL, in_path = FALSE, raw_output = FALSE, settings) {
       repos_list <- purrr::map(private$orgs, function(org) {
         if (private$verbose) {
           show_message(
@@ -637,13 +641,14 @@ GitHost <- R6::R6Class("GitHost",
             information = "Pulling repositories"
           )
         }
-        repos_response <- rest_engine$pull_repos_by_code(
+        rest_engine <- private$engines$rest
+        repos_response <- private$pull_repos_response_with_code(
+          rest_engine = rest_engine,
           org = org,
           code = code,
+          in_files = in_files,
           in_path = in_path,
-          raw_output = raw_output,
-          verbose = private$verbose,
-          settings = settings
+          raw_output = raw_output
         )
         if (!raw_output) {
           repos_table <- repos_response %>%
@@ -661,6 +666,33 @@ GitHost <- R6::R6Class("GitHost",
         repos_output <- purrr::list_flatten(repos_list)
       }
       return(repos_output)
+    },
+
+    # Wrapper in case in_files is fed.
+    pull_repos_response_with_code = function(rest_engine, org = NULL, code, in_files, in_path, raw_output) {
+      if (is.null(in_files)) {
+        repos_response <- rest_engine$pull_repos_by_code(
+          org = org,
+          code = code,
+          in_path = in_path,
+          raw_output = raw_output,
+          verbose = private$verbose
+        )
+      } else {
+        repos_response <- purrr::map(in_files, function(filename) {
+          cli::cli_alert_info("In file: {filename}")
+          rest_engine$pull_repos_by_code(
+            org = org,
+            code = code,
+            filename = filename,
+            in_path = in_path,
+            raw_output = raw_output,
+            verbose = private$verbose
+          )
+        }) %>%
+          purrr::list_flatten()
+      }
+      return(repos_response)
     },
 
     #' Add information on repository contributors.

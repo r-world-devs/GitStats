@@ -353,15 +353,7 @@ GitStats <- R6::R6Class("GitStats",
 
     # @field settings List of search preferences.
     settings = list(
-      files = NULL,
       verbose = TRUE,
-      cache = TRUE
-    ),
-
-    # temporary settings used when calling some methods for custom purposes
-    temp_settings = list(
-      files = NULL,
-      verbose = FALSE,
       cache = TRUE
     ),
 
@@ -510,16 +502,17 @@ GitStats <- R6::R6Class("GitStats",
     # Pull repositories tables from hosts and bind them into one
     get_repos_table = function(add_contributors = FALSE,
                                with_code,
+                               in_files = NULL,
                                with_files,
                                verbose,
                                settings) {
       repos_table <- purrr::map(private$hosts, function(host) {
         if (!is.null(with_code)) {
           purrr::map(with_code, function(with_code) {
-            host$pull_repos(
+            host$get_repos(
               add_contributors = add_contributors,
               with_code = with_code,
-              with_file = NULL,
+              in_files = in_files,
               verbose = verbose,
               settings = settings
             )
@@ -527,9 +520,8 @@ GitStats <- R6::R6Class("GitStats",
             purrr::list_rbind()
         } else if (!is.null(with_files)) {
           purrr::map(with_files, function(with_file) {
-            host$pull_repos(
+            host$get_repos(
               add_contributors = add_contributors,
-              with_code = NULL,
               with_file = with_file,
               verbose = verbose,
               settings = settings
@@ -537,7 +529,7 @@ GitStats <- R6::R6Class("GitStats",
           }) %>%
             purrr::list_rbind()
         } else {
-          host$pull_repos(
+          host$get_repos(
             add_contributors = add_contributors,
             verbose = verbose,
             settings = settings
@@ -556,7 +548,7 @@ GitStats <- R6::R6Class("GitStats",
           purrr::map(with_code, function(code) {
             host$get_repos_urls(
               type = type,
-              code = code,
+              with_code = code,
               verbose = verbose,
               settings = private$settings
             )
@@ -566,7 +558,7 @@ GitStats <- R6::R6Class("GitStats",
           purrr::map(with_files, function(file) {
             host$get_repos_urls(
               type = type,
-              file = file,
+              with_file = file,
               verbose = verbose,
               settings = private$settings
             )
@@ -587,7 +579,7 @@ GitStats <- R6::R6Class("GitStats",
     # Pull commits tables from hosts and bind them into one
     get_commits_table = function(since, until, verbose) {
       commits_table <- purrr::map(private$hosts, function(host) {
-        host$pull_commits(
+        host$get_commits(
           since = since,
           until = until,
           verbose = verbose,
@@ -668,17 +660,15 @@ GitStats <- R6::R6Class("GitStats",
         paste0("library(", package_name, ")"),
         paste0("require(", package_name, ")")
       )
-      private$temp_settings$files <- NULL
       repos_using_package <- purrr::map(package_usage_phrases, ~ {
         repos_using_package <- private$get_repos_table(
           with_code = .,
-          verbose = FALSE,
-          settings = private$temp_settings
+          verbose = FALSE
         )
         if (!is.null(repos_using_package)) {
           repos_using_package$package_usage <- "library"
           repos_using_package <- repos_using_package %>%
-            dplyr::select(repo_name, repo_url, api_url, package_usage)
+            dplyr::select(repo_name, organization, fullname, platform, repo_url, api_url, package_usage)
         }
         return(repos_using_package)
       }) %>%
@@ -693,18 +683,18 @@ GitStats <- R6::R6Class("GitStats",
       if (verbose) {
         cli::cli_alert_info("Checking where [{package_name}] is used as a dependency...")
       }
-      private$temp_settings$files <- c("DESCRIPTION", "NAMESPACE")
       repos_with_package <- private$get_repos_table(
         with_code = package_name,
+        in_files = c("DESCRIPTION", "NAMESPACE"),
         verbose = FALSE,
-        settings = private$temp_settings
+        settings = private$settings
       )
       if (nrow(repos_with_package) > 0) {
         repos_with_package <- repos_with_package[!duplicated(repos_with_package$api_url),]
         repos_with_package$package_usage <- "import"
       }
       repos_with_package <- repos_with_package %>%
-        dplyr::select(repo_name, repo_url, api_url, package_usage)
+        dplyr::select(repo_name, organization, fullname, platform, repo_url, api_url, package_usage)
       return(repos_with_package)
     },
 

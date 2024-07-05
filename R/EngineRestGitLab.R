@@ -29,16 +29,16 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #   https://gitlab.com/gitlab-org/gitlab/-/issues/340333
     pull_repos_by_code = function(code,
                                   org = NULL,
+                                  filename = NULL,
                                   in_path = FALSE,
                                   raw_output = FALSE,
-                                  verbose,
-                                  settings) {
+                                  verbose) {
       private$set_verbose(verbose)
       search_response <- private$search_for_code(
         code = code,
+        filename = filename,
         in_path = in_path,
-        org = org,
-        settings = settings
+        org = org
       )
       if (raw_output) {
         search_output <- search_response
@@ -262,24 +262,27 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
 
     # Search for code
     search_for_code = function(code,
+                               filename = NULL,
                                in_path = FALSE,
                                org = NULL,
-                               settings,
                                page_max = 1e6) {
       page <- 1
       still_more_hits <- TRUE
       full_repos_list <- list()
       private$set_search_endpoint(org)
       if (!in_path) {
-        code <- paste0("%22", code, "%22")
+        query <- paste0("%22", code, "%22")
       } else {
-        code <- paste0("path:", code)
+        query <- paste0("path:", code)
+      }
+      if (!is.null(filename)) {
+        query <- paste0(query, "%20filename:", filename)
       }
       while (still_more_hits | page < page_max) {
         search_result <- self$response(
           paste0(
             private$endpoints[["search"]],
-            code,
+            query,
             "&per_page=100&page=",
             page
           )
@@ -288,11 +291,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           still_more_hits <- FALSE
           break()
         } else {
-          repos_list <- private$limit_search_to_files(
-            search_result = search_result,
-            files = settings$files
-          )
-          full_repos_list <- append(full_repos_list, repos_list)
+          full_repos_list <- append(full_repos_list, search_result)
           page <- page + 1
         }
       }

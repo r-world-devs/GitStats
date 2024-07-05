@@ -26,10 +26,10 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     # Pulling repositories where code appears
     pull_repos_by_code = function(code,
                                   org = NULL,
+                                  filename = NULL,
                                   in_path = FALSE,
                                   raw_output = FALSE,
-                                  verbose,
-                                  settings) {
+                                  verbose) {
       private$set_verbose(verbose)
       user_query <- if (!is.null(org)) {
         paste0('+user:', org)
@@ -41,6 +41,9 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
       } else {
         paste0('"', code, '"+in:path', user_query)
       }
+      if (!is.null(filename)) {
+        query <- paste0(query, '+in:file+filename:', filename)
+      }
       search_endpoint <- paste0(private$endpoints[["search"]], query)
       total_n <- self$response(search_endpoint)[["total_count"]]
       if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
@@ -48,10 +51,6 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         search_result <- private$search_response(
           search_endpoint = search_endpoint,
           total_n = total_n
-        )
-        search_result <- private$limit_search_to_files(
-          search_result = search_result,
-          files = settings$files
         )
         if (!raw_output) {
           search_output <- private$map_search_into_repos(
