@@ -63,9 +63,18 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Get repositories URLS from the Git host
-    get_repos_urls = function(type = "web", file = NULL, verbose, settings) {
+    get_repos_urls = function(type = "web", code = NULL, file = NULL, verbose, settings) {
       private$set_verbose(verbose)
-      if (!is.null(file)) {
+      if (!is.null(code)) {
+        repo_urls <- private$pull_repos_with_code(
+          code = code,
+          raw_output = TRUE,
+          settings = settings
+        ) %>%
+          private$get_repo_url_from_response(
+            type = type
+          )
+      } else if (!is.null(file)) {
         repo_urls <- private$pull_repos_with_code(
           code = file,
           in_path = TRUE,

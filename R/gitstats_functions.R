@@ -101,10 +101,10 @@ set_gitlab_host <- function(gitstats_object,
 #'   default), `GitStats` iterates additionally over pulled repositories and
 #'   reaches to the `contributors APIs`, which makes it slower, but gives
 #'   additional information.
-#' @param with_code A character, if  defined, GitStats will pull repositories
-#'   with specified text in code blobs.
-#' @param with_file A character, if  defined, GitStats will pull repositories
-#'   with specified file.
+#' @param with_code A character vector, if defined, GitStats will pull
+#'   repositories with specified code phrases in code blobs.
+#' @param with_files A character vector, if defined, GitStats will pull
+#'   repositories with specified files.
 #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
 #'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
@@ -129,13 +129,13 @@ set_gitlab_host <- function(gitstats_object,
 get_repos <- function(gitstats_object,
                       add_contributors = TRUE,
                       with_code = NULL,
-                      with_file = NULL,
+                      with_files = NULL,
                       cache = TRUE,
                       verbose = is_verbose(gitstats_object)) {
   gitstats_object$get_repos(
     add_contributors = add_contributors,
     with_code = with_code,
-    with_file = with_file,
+    with_files = with_files,
     cache = cache,
     verbose = verbose
   )
@@ -147,6 +147,8 @@ get_repos <- function(gitstats_object,
 #' @param gitstats_object A GitStats object.
 #' @param type A character, choose if `api` or `web` (`html`) URLs should be
 #'   returned.
+#' @param with_code A character vector, if defined, GitStats will pull
+#'   repositories with specified code phrases in code blobs.
 #' @param with_files A character vector, if defined, GitStats will pull
 #'   repositories with specified files.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
@@ -169,10 +171,12 @@ get_repos <- function(gitstats_object,
 #' @export
 get_repos_urls <- function(gitstats_object,
                            type = "web",
+                           with_code = NULL,
                            with_files = NULL,
                            verbose = TRUE) {
   gitstats_object$get_repos_urls(
     type = type,
+    with_code = with_code,
     with_files = with_files,
     verbose    = verbose
   )

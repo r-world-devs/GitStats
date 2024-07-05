@@ -7,6 +7,7 @@
 get_repos_urls(
   gitstats_object,
   type = "web",
+  with_code = NULL,
   with_files = NULL,
   verbose = TRUE
 )
@@ -16,6 +17,9 @@ get_repos_urls(
 
 \item{type}{A character, choose if \code{api} or \code{web} (\code{html}) URLs should be
 returned.}
+
+\item{with_code}{A character vector, if defined, GitStats will pull
+repositories with specified code phrases in code blobs.}
 
 \item{with_files}{A character vector, if defined, GitStats will pull
 repositories with specified files.}

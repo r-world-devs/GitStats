@@ -65,17 +65,17 @@ GitStats <- R6::R6Class("GitStats",
     #'   a keyword.
     #' @param add_contributors A boolean to decide whether to add contributors
     #'   information to repositories.
-    #' @param with_code A character, if  defined, GitStats will pull repositories
-    #'   with specified text in code blobs.
-    #' @param with_file A character, if  defined, GitStats will pull repositories
-    #'   with specified file.
+    #' @param with_code A character vector, if defined, GitStats will pull
+    #'   repositories with specified code phrases in code blobs.
+    #' @param with_files A character vector, if defined, GitStats will pull
+    #'   repositories with specified files.
     #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
     #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
     get_repos = function(add_contributors = FALSE,
                          with_code = NULL,
-                         with_file = NULL,
+                         with_files = NULL,
                          cache = TRUE,
                          verbose = TRUE) {
       private$check_for_host()
@@ -87,7 +87,7 @@ GitStats <- R6::R6Class("GitStats",
         repositories <- private$get_repos_table(
           add_contributors = add_contributors,
           with_code = with_code,
-          with_file = with_file,
+          with_files = with_files,
           verbose = verbose,
           settings = private$settings
         )
@@ -107,15 +107,21 @@ GitStats <- R6::R6Class("GitStats",
     #'   URLS.
     #' @param type A character, choose if `api` or `web` (`html`) URLs should be
     #'   returned.
+    #' @param with_code A character vector, if defined, GitStats will pull
+    #'   repositories with specified code phrases in code blobs.
     #' @param with_files A character vector, if defined, GitStats will pull
     #'   repositories with specified files.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
     #' @return A character vector.
-    get_repos_urls = function(type = "web", with_files = NULL, verbose) {
+    get_repos_urls = function(type = "web",
+                              with_code = NULL,
+                              with_files = NULL,
+                              verbose = TRUE) {
       private$check_for_host()
       repo_urls <- private$get_repos_vector(
         type = type,
+        with_code = with_code,
         with_files = with_files,
         verbose = verbose
       )
@@ -422,8 +428,7 @@ GitStats <- R6::R6Class("GitStats",
       } else {
         dates <- NULL
       }
-      trigger <- private$storage_is_empty(storage) ||
-        !cache ||
+      trigger <- private$storage_is_empty(storage) || !cache ||
         private$dates_do_not_comply(storage, dates)
       return(trigger)
     },
@@ -505,24 +510,59 @@ GitStats <- R6::R6Class("GitStats",
     # Pull repositories tables from hosts and bind them into one
     get_repos_table = function(add_contributors = FALSE,
                                with_code,
-                               with_file,
+                               with_files,
                                verbose,
                                settings) {
-      repos_table <- purrr::map(private$hosts, ~ .$pull_repos(
-        add_contributors = add_contributors,
-        with_code = with_code,
-        with_file = with_file,
-        verbose = verbose,
-        settings = settings
-      )) %>%
+      repos_table <- purrr::map(private$hosts, function(host) {
+        if (!is.null(with_code)) {
+          purrr::map(with_code, function(with_code) {
+            host$pull_repos(
+              add_contributors = add_contributors,
+              with_code = with_code,
+              with_file = NULL,
+              verbose = verbose,
+              settings = settings
+            )
+          }) %>%
+            purrr::list_rbind()
+        } else if (!is.null(with_files)) {
+          purrr::map(with_files, function(with_file) {
+            host$pull_repos(
+              add_contributors = add_contributors,
+              with_code = NULL,
+              with_file = with_file,
+              verbose = verbose,
+              settings = settings
+            )
+          }) %>%
+            purrr::list_rbind()
+        } else {
+          host$pull_repos(
+            add_contributors = add_contributors,
+            verbose = verbose,
+            settings = settings
+          )
+        }
+      }) %>%
         purrr::list_rbind() %>%
         private$add_stats_to_repos()
       return(repos_table)
     },
 
-    get_repos_vector = function(type, with_files, verbose) {
+    # Get repositories character vectors from hosts and bind them into one
+    get_repos_vector = function(type, with_code, with_files, verbose) {
       purrr::map(private$hosts, function(host) {
-        if (!is.null(with_files)) {
+        if (!is.null(with_code)) {
+          purrr::map(with_code, function(code) {
+            host$get_repos_urls(
+              type = type,
+              code = code,
+              verbose = verbose,
+              settings = private$settings
+            )
+          }) %>%
+            unlist()
+        } else if (!is.null(with_files)) {
           purrr::map(with_files, function(file) {
             host$get_repos_urls(
               type = type,
