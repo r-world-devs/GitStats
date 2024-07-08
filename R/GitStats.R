@@ -595,7 +595,7 @@ GitStats <- R6::R6Class("GitStats",
     # Pull information on unique users in a table form
     get_users_table = function(logins) {
       purrr::map(private$hosts, function(host) {
-        host$pull_users(logins)
+        host$get_users(logins)
       }) %>%
         unique() %>%
         purrr::list_rbind()
@@ -604,7 +604,7 @@ GitStats <- R6::R6Class("GitStats",
     # Pull content of a text file in a table form
     get_files_table = function(file_path, verbose) {
       purrr::map(private$hosts, function(host) {
-        host$pull_files(
+        host$get_files(
           file_path = file_path,
           verbose = verbose
         )
@@ -614,7 +614,7 @@ GitStats <- R6::R6Class("GitStats",
 
     # Pull release logs tables from hosts and bind them into one
     get_release_logs_table = function(since, until, verbose) {
-      purrr::map(private$hosts, ~ .$pull_release_logs(
+      purrr::map(private$hosts, ~ .$get_release_logs(
         since = since,
         until = until,
         verbose = verbose,

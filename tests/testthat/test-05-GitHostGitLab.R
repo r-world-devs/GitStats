@@ -77,7 +77,7 @@ test_host <- create_gitlab_testhost(
   orgs = c("mbtests")
 )
 
-test_that("pull_commits for GitLab works", {
+test_that("get_commits for GitLab works", {
   suppressMessages(
     gl_commits_table <- test_host$get_commits(
       since = "2023-03-01",
@@ -90,7 +90,7 @@ test_that("pull_commits for GitLab works", {
   )
 })
 
-test_that("pull_commits for GitLab works with repos implied", {
+test_that("get_commits for GitLab works with repos implied", {
   test_host <- create_gitlab_testhost(
     repos = c("mbtests/gitstatstesting", "mbtests/gitstats-testing-2")
   )
@@ -106,9 +106,9 @@ test_that("pull_commits for GitLab works with repos implied", {
   )
 })
 
-test_that("pull_files for GitLab works", {
+test_that("getpull_files for GitLab works", {
   suppressMessages(
-    gl_files_table <- test_host$pull_files(
+    gl_files_table <- test_host$get_files(
       file_path = "meta_data.yaml"
     )
   )

@@ -212,7 +212,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     },
 
     # Pull commits from GitHub
-    pull_commits_from_host = function(since, until, settings) {
+    get_commits_from_host = function(since, until, settings) {
       rest_engine <- private$engines$rest
       commits_table <- purrr::map(private$orgs, function(org) {
         commits_table_org <- NULL

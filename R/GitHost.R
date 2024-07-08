@@ -107,7 +107,7 @@ GitHost <- R6::R6Class("GitHost",
       if (is.null(until)) {
         until <- Sys.time()
       }
-      commits_table <- private$pull_commits_from_host(
+      commits_table <- private$get_commits_from_host(
         since = since,
         until = until,
         settings = settings
@@ -116,7 +116,7 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     #' Pull information about users.
-    pull_users = function(users) {
+    get_users = function(users) {
       graphql_engine <- private$engines$graphql
       users_table <-  purrr::map(users, function(user) {
         graphql_engine$pull_user(user) %>%
@@ -128,14 +128,14 @@ GitHost <- R6::R6Class("GitHost",
 
     #' Retrieve content of given text files from all repositories for a host in
     #' a table format.
-    pull_files = function(file_path, verbose = TRUE) {
+    get_files = function(file_path, verbose = TRUE) {
       files_table <- if (!private$scan_all) {
-        private$pull_files_from_orgs(
+        private$get_files_from_orgs(
           file_path = file_path,
           verbose = verbose
         )
       } else {
-        private$pull_files_from_host(
+        private$get_files_from_host(
           file_path = file_path,
           verbose = verbose
         )
@@ -144,7 +144,7 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     #' Iterator over pulling release logs from engines
-    pull_release_logs = function(since, until, verbose, settings) {
+    get_release_logs = function(since, until, verbose, settings) {
       if (private$scan_all && is.null(private$orgs)) {
         cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
         private$orgs <- private$engines$graphql$pull_orgs()
@@ -741,7 +741,7 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Pull files content from organizations
-    pull_files_from_orgs = function(file_path, verbose) {
+    get_files_from_orgs = function(file_path, verbose) {
       graphql_engine <- private$engines$graphql
       files_table <- purrr::map(private$orgs, function(org) {
         if (verbose) {
@@ -754,6 +754,7 @@ GitHost <- R6::R6Class("GitHost",
         }
         graphql_engine$pull_files_from_org(
           org = org,
+          repos = private$repos,
           file_path = file_path
         ) %>%
           private$prepare_files_table(
@@ -767,7 +768,7 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Pull files from host
-    pull_files_from_host = function(file_path, verbose) {
+    get_files_from_host = function(file_path, verbose) {
       rest_engine <- private$engines$rest
       if (verbose) {
         show_message(

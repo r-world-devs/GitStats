@@ -149,7 +149,7 @@ test_that("`get_repos_with_code()` works", {
 test_host <- create_github_testhost(orgs = "r-world-devs")
 
 
-test_that("`pull_commits()` retrieves commits in the table format", {
+test_that("`get_commits()` retrieves commits in the table format", {
   mockery::stub(
     test_host$get_commits,
     "private$set_repositories",
@@ -167,9 +167,9 @@ test_that("`pull_commits()` retrieves commits in the table format", {
   )
 })
 
-test_that("`pull_files()` pulls files in the table format", {
+test_that("`get_files()` pulls files in the table format", {
   expect_snapshot(
-    gh_files_table <- test_host$pull_files(
+    gh_files_table <- test_host$get_files(
       file_path = "LICENSE"
     )
   )
@@ -177,9 +177,22 @@ test_that("`pull_files()` pulls files in the table format", {
   test_mocker$cache(gh_files_table)
 })
 
-test_that("`pull_release_logs()` pulls release logs in the table format", {
+test_that("`get_files()` pulls files only for the repositories specified", {
+  test_host <- create_github_testhost(
+    repos = c("r-world-devs/GitStats", "openpharma/visR", "openpharma/DataFakeR"),
+  )
   expect_snapshot(
-    releases_table <- test_host$pull_release_logs(
+    gh_files_table <- test_host$get_files(
+      file_path = "renv.lock"
+    )
+  )
+  expect_files_table(gh_files_table, add_col = "api_url")
+  expect_equal(nrow(gh_files_table), 2) # visR does not have renv.lock
+})
+
+test_that("`get_release_logs()` pulls release logs in the table format", {
+  expect_snapshot(
+    releases_table <- test_host$get_release_logs(
       since = "2023-05-01",
       until = "2023-09-30",
       verbose = TRUE,
@@ -294,9 +307,9 @@ test_that("GitHost prepares table from GitLab repositories response", {
 
 test_host_gitlab <- create_gitlab_testhost(orgs = "mbtests")
 
-test_that("`pull_files()` pulls files in the table format", {
+test_that("`get_files()` pulls files in the table format", {
   expect_snapshot(
-    gl_files_table <- test_host_gitlab$pull_files(
+    gl_files_table <- test_host_gitlab$get_files(
       file_path = "README.md"
     )
   )
@@ -304,9 +317,9 @@ test_that("`pull_files()` pulls files in the table format", {
   test_mocker$cache(gl_files_table)
 })
 
-test_that("`pull_files()` pulls two files in the table format", {
+test_that("`get_files()` pulls two files in the table format", {
   expect_snapshot(
-    gl_files_table <- test_host_gitlab$pull_files(
+    gl_files_table <- test_host_gitlab$get_files(
       file_path = c("meta_data.yaml", "README.md")
     )
   )
@@ -316,8 +329,8 @@ test_that("`pull_files()` pulls two files in the table format", {
   )
 })
 
-test_that("pull_users build users table for GitHub", {
-  users_result <- test_host$pull_users(
+test_that("get_users build users table for GitHub", {
+  users_result <- test_host$get_users(
     users = c("maciekbanas", "Cotau", "marcinkowskak")
   )
   expect_users_table(
@@ -325,8 +338,8 @@ test_that("pull_users build users table for GitHub", {
   )
 })
 
-test_that("pull_users build users table for GitLab", {
-  users_result <- test_host_gitlab$pull_users(
+test_that("get_users build users table for GitLab", {
+  users_result <- test_host_gitlab$get_users(
     users = c("maciekbanas", "Cotau", "marcinkowskak")
   )
   expect_users_table(

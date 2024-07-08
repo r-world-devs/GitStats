@@ -113,20 +113,30 @@ test_that("`pull_releases_from_org()` pulls releases from the repositories", {
 })
 
 test_that("GitHub GraphQL Engine pulls files from organization", {
-  expect_snapshot(
-    github_files_response <- test_graphql_github$pull_files_from_org(
-      "r-world-devs",
-      "meta_data.yaml"
-    )
+  github_files_response <- test_graphql_github$pull_files_from_org(
+    org = "r-world-devs",
+    repos = NULL,
+    file_path = "meta_data.yaml"
   )
   expect_github_files_response(github_files_response)
   test_mocker$cache(github_files_response)
 })
 
+test_that("GitHub GraphQL Engine pulls files from defined repositories", {
+  github_files_response <- test_graphql_github$pull_files_from_org(
+    org = "openpharma",
+    repos = c("DataFakeR", "visR"),
+    file_path = "README.md"
+  )
+  expect_github_files_response(github_files_response)
+  expect_equal(length(github_files_response[["README.md"]]), 2)
+})
+
 test_that("GitHub GraphQL Engine pulls two files from a group", {
   github_files_response <- test_graphql_github$pull_files_from_org(
-    "r-world-devs",
-    c("DESCRIPTION", "NAMESPACE")
+    org = "r-world-devs",
+    repos = NULL,
+    file_path = c("DESCRIPTION", "NAMESPACE")
   )
   expect_github_files_response(github_files_response)
   expect_true(

@@ -86,17 +86,29 @@ test_that("`pull_repos_from_org()` does not fail when GraphQL response is not co
 
 test_that("GitLab GraphQL Engine pulls files from a group", {
   gitlab_files_response <- test_gql_gl$pull_files_from_org(
-    "mbtests",
-    "meta_data.yaml"
+    org = "mbtests",
+    repos = NULL,
+    file_path = "meta_data.yaml"
   )
   expect_gitlab_files_response(gitlab_files_response)
   test_mocker$cache(gitlab_files_response)
 })
 
+test_that("GitLab GraphQL Engine pulls files only from defined projects", {
+  gitlab_files_response <- test_gql_gl$pull_files_from_org(
+    org = "mbtests",
+    repos = c("gitstatstesting", "gitstats-testing-2", "gitstatstesting3"),
+    file_path = "README.md"
+  )
+  expect_gitlab_files_response(gitlab_files_response)
+  expect_equal(length(gitlab_files_response), 3)
+})
+
 test_that("GitLab GraphQL Engine pulls two files from a group", {
   gitlab_files_response <- test_gql_gl$pull_files_from_org(
-    "mbtests",
-    c("meta_data.yaml", "README.md")
+    org = "mbtests",
+    repos = NULL,
+    file_path = c("meta_data.yaml", "README.md")
   )
   expect_gitlab_files_response(gitlab_files_response)
   expect_true(
