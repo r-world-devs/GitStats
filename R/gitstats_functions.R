@@ -178,11 +178,13 @@ get_repos <- function(gitstats_object,
 get_repos_urls <- function(gitstats_object,
                            type = "web",
                            with_code = NULL,
+                           in_files = NULL,
                            with_files = NULL,
                            verbose = TRUE) {
   gitstats_object$get_repos_urls(
     type = type,
     with_code = with_code,
+    in_files = in_files,
     with_files = with_files,
     verbose    = verbose
   )

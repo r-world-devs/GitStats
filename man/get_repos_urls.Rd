@@ -8,6 +8,7 @@ get_repos_urls(
   gitstats_object,
   type = "web",
   with_code = NULL,
+  in_files = NULL,
   with_files = NULL,
   verbose = TRUE
 )

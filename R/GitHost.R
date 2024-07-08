@@ -65,11 +65,17 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Get repositories URLS from the Git host
-    get_repos_urls = function(type = "web", with_code = NULL, with_file = NULL, verbose, settings) {
+    get_repos_urls = function(type = "web",
+                              with_code = NULL,
+                              in_files = NULL,
+                              with_file = NULL,
+                              verbose,
+                              settings) {
       private$set_verbose(verbose)
       if (!is.null(with_code)) {
         repo_urls <- private$get_repos_with_code(
           code = with_code,
+          in_files = in_files,
           raw_output = TRUE,
           settings = settings
         ) %>%
@@ -778,7 +784,8 @@ GitHost <- R6::R6Class("GitHost",
         )
       }
       files_table <- rest_engine$pull_files(
-        files = file_path
+        files = file_path,
+        verbose = verbose
       ) %>%
         private$prepare_files_table_from_rest() %>%
         private$add_repo_api_url()

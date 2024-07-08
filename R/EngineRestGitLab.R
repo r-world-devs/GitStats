@@ -5,13 +5,14 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
   public = list(
 
     # Pull repositories with files
-    pull_files = function(files) {
+    pull_files = function(files, verbose = TRUE) {
       files_list <- list()
       for (filename in files) {
         files_search_result <- private$search_for_code(
           code = filename,
           in_path = TRUE,
-          settings = list()
+          settings = list(),
+          verbose = verbose
         ) %>%
           purrr::keep(~ .$path == filename)
         files_content <- private$add_file_content(
@@ -38,7 +39,8 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         code = code,
         filename = filename,
         in_path = in_path,
-        org = org
+        org = org,
+        verbose = verbose
       )
       if (raw_output) {
         search_output <- search_response
@@ -265,11 +267,13 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
                                filename = NULL,
                                in_path = FALSE,
                                org = NULL,
-                               page_max = 1e6) {
+                               page_max = 1e6,
+                               verbose = TRUE) {
       page <- 1
       still_more_hits <- TRUE
       full_repos_list <- list()
       private$set_search_endpoint(org)
+      if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
       if (!in_path) {
         query <- paste0("%22", code, "%22")
       } else {

@@ -67,6 +67,9 @@ GitStats <- R6::R6Class("GitStats",
     #'   information to repositories.
     #' @param with_code A character vector, if defined, GitStats will pull
     #'   repositories with specified code phrases in code blobs.
+    #' @param in_files A character vector of file names. Works when `with_code` is
+    #'   set - then it searches code blobs only in files passed to `in_files`
+    #'   parameter.
     #' @param with_files A character vector, if defined, GitStats will pull
     #'   repositories with specified files.
     #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
@@ -111,6 +114,9 @@ GitStats <- R6::R6Class("GitStats",
     #'   returned.
     #' @param with_code A character vector, if defined, GitStats will pull
     #'   repositories with specified code phrases in code blobs.
+    #' @param in_files A character vector of file names. Works when `with_code` is
+    #'   set - then it searches code blobs only in files passed to `in_files`
+    #'   parameter.
     #' @param with_files A character vector, if defined, GitStats will pull
     #'   repositories with specified files.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
@@ -118,12 +124,14 @@ GitStats <- R6::R6Class("GitStats",
     #' @return A character vector.
     get_repos_urls = function(type = "web",
                               with_code = NULL,
+                              in_files = NULL,
                               with_files = NULL,
                               verbose = TRUE) {
       private$check_for_host()
       repo_urls <- private$get_repos_vector(
         type = type,
         with_code = with_code,
+        in_files = in_files,
         with_files = with_files,
         verbose = verbose
       )
@@ -544,13 +552,14 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Get repositories character vectors from hosts and bind them into one
-    get_repos_vector = function(type, with_code, with_files, verbose) {
+    get_repos_vector = function(type, with_code, in_files, with_files, verbose) {
       purrr::map(private$hosts, function(host) {
         if (!is.null(with_code)) {
           purrr::map(with_code, function(code) {
             host$get_repos_urls(
               type = type,
               with_code = code,
+              in_files = in_files,
               verbose = verbose,
               settings = private$settings
             )
