@@ -254,7 +254,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         repos <- private$orgs_repos[[org]]
         repos_names <- paste0(org, "%2f", repos)
       } else {
-        repos_table <- private$pull_all_repos(
+        repos_table <- private$get_all_repos(
           verbose = FALSE,
           settings = settings
         )

@@ -20,10 +20,10 @@
     Message
       i Preparing repositories table...
 
-# `pull_all_repos()` works as expected
+# `get_all_repos()` works as expected
 
     Code
-      gh_repos_table <- test_host$pull_all_repos(settings = test_settings)
+      gh_repos_table <- test_host$get_all_repos(settings = test_settings)
     Message
       i [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling repositories...
 

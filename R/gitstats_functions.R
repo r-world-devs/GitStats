@@ -155,8 +155,13 @@ get_repos <- function(gitstats_object,
 #'   returned.
 #' @param with_code A character vector, if defined, GitStats will pull
 #'   repositories with specified code phrases in code blobs.
+#' @param in_files A character vector of file names. Works when `with_code` is
+#'   set - then it searches code blobs only in files passed to `in_files`
+#'   parameter.
 #' @param with_files A character vector, if defined, GitStats will pull
 #'   repositories with specified files.
+#' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+#'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
 #'   output is switched off.
 #' @return A character vector.
@@ -180,13 +185,15 @@ get_repos_urls <- function(gitstats_object,
                            with_code = NULL,
                            in_files = NULL,
                            with_files = NULL,
+                           cache = TRUE,
                            verbose = TRUE) {
   gitstats_object$get_repos_urls(
     type = type,
     with_code = with_code,
     in_files = in_files,
     with_files = with_files,
-    verbose    = verbose
+    cache = cache,
+    verbose = verbose
   )
 }
 

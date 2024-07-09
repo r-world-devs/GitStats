@@ -37,7 +37,7 @@ GitHost <- R6::R6Class("GitHost",
                          settings) {
       private$set_verbose(verbose)
       if (is.null(with_code) && is.null(with_file)) {
-        repos_table <- private$pull_all_repos(
+        repos_table <- private$get_all_repos(
           settings = settings
         )
       }
@@ -93,7 +93,7 @@ GitHost <- R6::R6Class("GitHost",
             type = type
           )
       } else {
-        repo_urls <- private$pull_all_repos_urls(
+        repo_urls <- private$get_all_repos_urls(
           type = type
         )
       }
@@ -513,7 +513,7 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     #' Retrieve all repositories for an organization in a table format.
-    pull_all_repos = function(settings, verbose = private$verbose) {
+    get_all_repos = function(settings, verbose = private$verbose) {
       if (private$scan_all && is.null(private$orgs)) {
         if (verbose) {
           show_message(
@@ -574,7 +574,7 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Pull all repositories URLs from organizations
-    pull_all_repos_urls = function(type, verbose = private$verbose) {
+    get_all_repos_urls = function(type, verbose = private$verbose) {
       if (private$scan_all && is.null(private$orgs)) {
         if (verbose) {
           show_message(
@@ -616,15 +616,14 @@ GitHost <- R6::R6Class("GitHost",
           information = "Pulling repositories"
         )
       }
-      rest_engine <- private$engines$rest
-      repos_response <- private$pull_repos_response_with_code(
-        rest_engine = rest_engine,
+      repos_response <- private$get_repos_response_with_code(
         code = code,
         in_files = in_files,
         in_path = in_path,
         raw_output = raw_output
       )
       if (!raw_output) {
+        rest_engine <- private$engines$rest
         repos_table <- repos_response %>%
           private$tailor_repos_response() %>%
           private$prepare_repos_table_from_rest() %>%
@@ -647,9 +646,7 @@ GitHost <- R6::R6Class("GitHost",
             information = "Pulling repositories"
           )
         }
-        rest_engine <- private$engines$rest
-        repos_response <- private$pull_repos_response_with_code(
-          rest_engine = rest_engine,
+        repos_response <- private$get_repos_response_with_code(
           org = org,
           code = code,
           in_files = in_files,
@@ -657,6 +654,7 @@ GitHost <- R6::R6Class("GitHost",
           raw_output = raw_output
         )
         if (!raw_output) {
+          rest_engine <- private$engines$rest
           repos_table <- repos_response %>%
             private$tailor_repos_response() %>%
           private$prepare_repos_table_from_rest() %>%
@@ -675,7 +673,8 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Wrapper in case in_files is fed.
-    pull_repos_response_with_code = function(rest_engine, org = NULL, code, in_files, in_path, raw_output) {
+    get_repos_response_with_code = function(org = NULL, code, in_files, in_path, raw_output) {
+      rest_engine <- private$engines$rest
       if (is.null(in_files)) {
         repos_response <- rest_engine$pull_repos_by_code(
           org = org,

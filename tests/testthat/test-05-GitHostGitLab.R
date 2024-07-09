@@ -1,3 +1,5 @@
+# private
+
 test_host <- create_gitlab_testhost(
   orgs = "mbtests",
   mode = "private"
@@ -73,6 +75,20 @@ test_that("`prepare_commits_table()` prepares table of commits properly", {
   test_mocker$cache(gl_commits_table)
 })
 
+test_that("`get_repo_url_from_response()` works", {
+  suppressMessages(
+    gl_repo_web_urls <- test_host$get_repo_url_from_response(
+      search_response = test_mocker$use("gl_search_response"),
+      type = "web"
+    )
+  )
+  expect_gt(length(gl_repo_web_urls), 0)
+  expect_type(gl_repo_web_urls, "character")
+  test_mocker$cache(gl_repo_web_urls)
+})
+
+# public
+
 test_host <- create_gitlab_testhost(
   orgs = c("mbtests")
 )
@@ -106,7 +122,7 @@ test_that("get_commits for GitLab works with repos implied", {
   )
 })
 
-test_that("getpull_files for GitLab works", {
+test_that("get_files for GitLab works", {
   suppressMessages(
     gl_files_table <- test_host$get_files(
       file_path = "meta_data.yaml"
@@ -115,4 +131,22 @@ test_that("getpull_files for GitLab works", {
   expect_files_table(
     gl_files_table, add_col = "api_url"
   )
+})
+
+test_that("get_repos_urls returns repositories URLS", {
+  mockery::stub(
+    test_host$get_repos_urls,
+    "private$get_repo_url_from_response",
+    test_mocker$use("gl_repo_web_urls")
+  )
+  gl_repos_urls_with_code_in_files <- test_host$get_repos_urls(
+    type = "web",
+    with_code = "shiny",
+    in_files = "DESCRIPTION",
+    verbose = FALSE,
+    settings = test_settings
+  )
+  expect_type(gl_repos_urls_with_code_in_files, "character")
+  expect_gt(length(gl_repos_urls_with_code_in_files), 0)
+  test_mocker$cache(gl_repos_urls_with_code_in_files)
 })

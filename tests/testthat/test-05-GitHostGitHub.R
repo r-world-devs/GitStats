@@ -151,13 +151,30 @@ test_that("pull_repos_contributors returns table with contributors for GitHub", 
   expect_equal(nrow(repos_table_1), nrow(repos_table_2))
 })
 
+test_that("get_repo_url_from_response retrieves repositories URLS", {
+  gh_repo_api_urls <- test_host$get_repo_url_from_response(
+    search_response = test_mocker$use("gh_search_repos_response"),
+    type = "api"
+  )
+  expect_type(gh_repo_api_urls, "character")
+  expect_gt(length(gh_repo_api_urls), 0)
+  test_mocker$cache(gh_repo_api_urls)
+  gh_repo_web_urls <- test_host$get_repo_url_from_response(
+    search_response = test_mocker$use("gh_search_response_in_file"),
+    type = "web"
+  )
+  expect_type(gh_repo_web_urls, "character")
+  expect_gt(length(gh_repo_web_urls), 0)
+  test_mocker$cache(gh_repo_web_urls)
+})
+
 # public methods
 
 test_host <- create_github_testhost(
   orgs = c("openpharma", "r-world-devs")
 )
 
-test_that("pull_commits for GitHub works", {
+test_that("get_commits for GitHub works", {
   test_host <- create_github_testhost(
     repos = c("openpharma/DataFakeR", "r-world-devs/GitStats", "r-world-devs/cohortBuilder")
   )
@@ -173,7 +190,7 @@ test_that("pull_commits for GitHub works", {
   )
 })
 
-test_that("pull_files for GitHub works", {
+test_that("get_files for GitHub works", {
   suppressMessages(
     gh_files_table <- test_host$get_files(
       file_path = "DESCRIPTION"
@@ -185,14 +202,20 @@ test_that("pull_files for GitHub works", {
   )
 })
 
-test_that("pull_release logs for GitHub works", {
-  gh_releases_table <- test_host$get_release_logs(
-    since = "2023-05-01",
-    until = "2023-09-30",
+test_that("get_repos_urls returns repositories URLS", {
+  mockery::stub(
+    test_host$get_repos_urls,
+    "private$get_repo_url_from_response",
+    test_mocker$use("gh_repo_web_urls")
+  )
+  gh_repos_urls_with_code_in_files <- test_host$get_repos_urls(
+    type = "web",
+    with_code = "shiny",
+    in_files = "DESCRIPTION",
     verbose = FALSE,
     settings = test_settings
   )
-  expect_releases_table(
-    gh_releases_table
-  )
+  expect_type(gh_repos_urls_with_code_in_files, "character")
+  expect_gt(length(gh_repos_urls_with_code_in_files), 0)
+  test_mocker$cache(gh_repos_urls_with_code_in_files)
 })

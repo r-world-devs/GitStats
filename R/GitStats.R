@@ -119,6 +119,8 @@ GitStats <- R6::R6Class("GitStats",
     #'   parameter.
     #' @param with_files A character vector, if defined, GitStats will pull
     #'   repositories with specified files.
+    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+    #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
     #' @return A character vector.
@@ -126,16 +128,31 @@ GitStats <- R6::R6Class("GitStats",
                               with_code = NULL,
                               in_files = NULL,
                               with_files = NULL,
+                              cache = TRUE,
                               verbose = TRUE) {
       private$check_for_host()
-      repo_urls <- private$get_repos_vector(
-        type = type,
-        with_code = with_code,
-        in_files = in_files,
-        with_files = with_files,
-        verbose = verbose
+      trigger <- private$trigger_pulling(
+        storage = "repos_urls",
+        cache = cache
       )
-      return(repo_urls)
+      if (trigger) {
+        repos_urls <- private$get_repos_urls_from_hosts(
+          type = type,
+          with_code = with_code,
+          in_files = in_files,
+          with_files = with_files,
+          verbose = verbose
+        )
+        private$save_to_storage(
+          table = repos_urls
+        )
+      } else {
+        repos_urls <- private$get_from_storage(
+          table = "repos_urls",
+          verbose = verbose
+        )
+      }
+      return(repos_urls)
     },
 
     #' @description A method to get information on commits.
@@ -518,26 +535,20 @@ GitStats <- R6::R6Class("GitStats",
                                settings) {
       repos_table <- purrr::map(private$hosts, function(host) {
         if (!is.null(with_code)) {
-          purrr::map(with_code, function(with_code) {
-            host$get_repos(
-              add_contributors = add_contributors,
-              with_code = with_code,
-              in_files = in_files,
-              verbose = verbose,
-              settings = settings
-            )
-          }) %>%
-            purrr::list_rbind()
+          private$get_repos_from_host_with_code(
+            host = host,
+            add_contributors = add_contributors,
+            with_code = with_code,
+            in_files = in_files,
+            verbose = verbose
+          )
         } else if (!is.null(with_files)) {
-          purrr::map(with_files, function(with_file) {
-            host$get_repos(
-              add_contributors = add_contributors,
-              with_file = with_file,
-              verbose = verbose,
-              settings = settings
-            )
-          }) %>%
-            purrr::list_rbind()
+          privater$get_repos_from_host_with_files(
+            host = host,
+            add_contributors = add_contributors,
+            with_files = with_files,
+            verbose = verbose
+          )
         } else {
           host$get_repos(
             add_contributors = add_contributors,
@@ -551,30 +562,60 @@ GitStats <- R6::R6Class("GitStats",
       return(repos_table)
     },
 
+    # Get repositories table from one host with given text in code blobs
+    get_repos_from_host_with_code = function(host,
+                                             add_contributors,
+                                             with_code,
+                                             in_files,
+                                             verbose,
+                                             settings) {
+      purrr::map(with_code, function(with_code) {
+        host$get_repos(
+          add_contributors = add_contributors,
+          with_code = with_code,
+          in_files = in_files,
+          verbose = verbose,
+          settings = settings
+        )
+      }) %>%
+        purrr::list_rbind()
+    },
+
+    # Get repositories table from one host with given files
+    get_repos_from_host_with_files = function(host,
+                                              add_contributors,
+                                              with_files,
+                                              verbose,
+                                              settings) {
+      purrr::map(with_files, function(with_file) {
+        host$get_repos(
+          add_contributors = add_contributors,
+          with_file = with_file,
+          verbose = verbose,
+          settings = settings
+        )
+      }) %>%
+        purrr::list_rbind()
+    },
+
     # Get repositories character vectors from hosts and bind them into one
-    get_repos_vector = function(type, with_code, in_files, with_files, verbose) {
+    get_repos_urls_from_hosts = function(type, with_code, in_files, with_files, verbose) {
       purrr::map(private$hosts, function(host) {
         if (!is.null(with_code)) {
-          purrr::map(with_code, function(code) {
-            host$get_repos_urls(
-              type = type,
-              with_code = code,
-              in_files = in_files,
-              verbose = verbose,
-              settings = private$settings
-            )
-          }) %>%
-            unlist()
+          private$get_repos_urls_from_host_with_code(
+            host = host,
+            type = type,
+            with_code = with_code,
+            in_files = in_files,
+            verbose = verbose
+          )
         } else if (!is.null(with_files)) {
-          purrr::map(with_files, function(file) {
-            host$get_repos_urls(
-              type = type,
-              with_file = file,
-              verbose = verbose,
-              settings = private$settings
-            )
-          }) %>%
-            unlist()
+          private$get_repos_urls_from_host_with_files(
+            host = host,
+            type = type,
+            with_files = with_files,
+            verbose = verbose
+          )
         } else {
           host$get_repos_urls(
             type = type,
@@ -587,7 +628,41 @@ GitStats <- R6::R6Class("GitStats",
         unique()
     },
 
-    # Pull commits tables from hosts and bind them into one
+    # Get repositories URLs from one host with code
+    get_repos_urls_from_host_with_code = function(host,
+                                                  type,
+                                                  with_code,
+                                                  in_files,
+                                                  verbose) {
+      purrr::map(with_code, function(code) {
+        host$get_repos_urls(
+          type = type,
+          with_code = code,
+          in_files = in_files,
+          verbose = verbose,
+          settings = private$settings
+        )
+      }) %>%
+        unlist()
+    },
+
+    # Get repositories URLs from one host with files
+    get_repos_urls_from_host_with_files = function(host,
+                                                   type,
+                                                   with_files,
+                                                   verbose) {
+      purrr::map(with_files, function(file) {
+        host$get_repos_urls(
+          type = type,
+          with_file = file,
+          verbose = verbose,
+          settings = private$settings
+        )
+      }) %>%
+        unlist()
+    },
+
+    # Get commits tables from hosts and bind them into one
     get_commits_table = function(since, until, verbose) {
       commits_table <- purrr::map(private$hosts, function(host) {
         host$get_commits(
@@ -623,26 +698,28 @@ GitStats <- R6::R6Class("GitStats",
 
     # Pull release logs tables from hosts and bind them into one
     get_release_logs_table = function(since, until, verbose) {
-      purrr::map(private$hosts, ~ .$get_release_logs(
-        since = since,
-        until = until,
-        verbose = verbose,
-        settings = private$settings
-      )) %>%
+      purrr::map(private$hosts, function(host) {
+        host$get_release_logs(
+          since = since,
+          until = until,
+          verbose = verbose,
+          settings = private$settings
+        )
+      }) %>%
         purrr::list_rbind()
     },
 
     # Pull information on package usage in a table form
     get_R_package_usage_table = function(package_name, only_loading, verbose) {
       if (!only_loading) {
-        repos_with_package_as_dependency <- private$check_R_package_as_dependency(
+        repos_with_package_as_dependency <- private$get_R_package_as_dependency(
           package_name = package_name,
           verbose = verbose
         )
       } else {
         repos_with_package_as_dependency <- NULL
       }
-      repos_using_package <- private$check_R_package_loading(
+      repos_using_package <- private$get_R_package_loading(
         package_name = package_name,
         verbose = verbose
       )
@@ -663,7 +740,7 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Search repositories with `library(package_name)` in code blobs.
-    check_R_package_loading = function(package_name, verbose) {
+    get_R_package_loading = function(package_name, verbose) {
       if (verbose) {
         cli::cli_alert_info("Checking where [{package_name}] is loaded from library...")
       }
@@ -690,7 +767,7 @@ GitStats <- R6::R6Class("GitStats",
 
     # @description Search repositories with `package_name` in DESCRIPTION and NAMESPACE files.
     # @param package_name Name of a package.
-    check_R_package_as_dependency = function(package_name, verbose) {
+    get_R_package_as_dependency = function(package_name, verbose) {
       if (verbose) {
         cli::cli_alert_info("Checking where [{package_name}] is used as a dependency...")
       }
