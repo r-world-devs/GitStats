@@ -84,10 +84,13 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     },
 
     # Pull all given files from all repositories of an organization.
-    pull_files_from_org = function(org, file_path) {
+    pull_files_from_org = function(org, repos, file_path) {
       repos_list <- self$pull_repos_from_org(
         org = org
       )
+      if (!is.null(repos)) {
+        repos_list <- purrr::keep(repos_list, ~ .$repo_name %in% repos)
+      }
       repositories <- purrr::map(repos_list, ~ .$repo_name)
       def_branches <- purrr::map(repos_list, ~ .$default_branch$name)
       files_list <- purrr::map(file_path, function(file_path) {

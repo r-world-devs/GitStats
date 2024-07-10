@@ -50,11 +50,16 @@ test_that("`perform_request()` returns proper status", {
 test_that("`response()` returns search response from GitHub's REST API", {
   search_endpoint <- "https://api.github.com/search/code?q=shiny+user:openpharma"
   test_mocker$cache(search_endpoint)
-  gh_search_response <- test_rest$response(search_endpoint)
-  expect_gh_search_response(
-    gh_search_response$items[[1]]
-  )
-  test_mocker$cache(gh_search_response)
+  gh_search_response_raw <- test_rest$response(search_endpoint)
+  expect_gh_search_response(gh_search_response_raw[["items"]])
+  test_mocker$cache(gh_search_response_raw)
+})
+
+test_that("`response()` returns search response from GitHub's REST API", {
+  search_endpoint <- "https://api.github.com/search/code?q=shiny+user:openpharma+in:file+filename:DESCRIPTION"
+  gh_search_response_in_file <- test_rest$response(search_endpoint)[["items"]]
+  expect_gh_search_response(gh_search_response_in_file)
+  test_mocker$cache(gh_search_response_in_file)
 })
 
 test_rest <- create_testrest(
@@ -66,7 +71,7 @@ test_that("`response()` returns responses from GitLab's REST API", {
   gl_search_response <- test_rest$response(
     "https://gitlab.com/api/v4/groups/9970/search?scope=blobs&search=git"
   )
-  expect_gl_search_response(gl_search_response[[1]])
+  expect_gl_search_response(gl_search_response)
   test_mocker$cache(gl_search_response)
 
   gl_commits_rest_response_repo_1 <- test_rest$response(

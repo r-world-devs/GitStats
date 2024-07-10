@@ -1,15 +1,27 @@
 expect_gl_search_response <- function(object) {
-  expect_list_contains(
+  expect_type(
     object,
-    c("basename", "data", "path", "filename", "id", "ref", "startline", "project_id")
+    "list"
   )
+  purrr::walk(object, ~ {
+    expect_list_contains(
+      .,
+      c("basename", "data", "path", "filename", "id", "ref", "startline", "project_id")
+    )
+  })
 }
 
 expect_gh_search_response <- function(object) {
-  expect_list_contains(
+  expect_type(
     object,
-    c("name", "path", "sha", "url", "git_url", "html_url", "repository", "score")
+    "list"
   )
+  purrr::walk(object, ~ {
+    expect_list_contains(
+      .,
+      c("name", "path", "sha", "url", "git_url", "html_url", "repository", "score")
+    )
+  })
 }
 
 expect_gl_repos_rest_response <- function(object) {
@@ -17,12 +29,25 @@ expect_gl_repos_rest_response <- function(object) {
     object,
     "list"
   )
-  expect_list_contains(
-    object[[1]],
-    c(
-      "id", "description", "name", "name_with_namespace", "path"
+  purrr::walk(object, ~ {
+    expect_list_contains(
+      .,
+      c("id", "description", "name", "name_with_namespace", "path")
     )
+  })
+}
+
+expect_gh_repos_rest_response <- function(object) {
+  expect_type(
+    object,
+    "list"
   )
+  purrr::walk(object, ~ {
+    expect_list_contains(
+      .,
+      c("id", "node_id", "name", "full_name")
+    )
+  })
 }
 
 expect_gl_repos_gql_response <- function(object) {

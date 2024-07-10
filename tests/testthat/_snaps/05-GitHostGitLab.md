@@ -20,10 +20,10 @@
     Message
       i [Host:GitLab][Engine:REST] Pulling contributors...
 
-# pull_commits for GitLab works with repos implied
+# get_commits for GitLab works with repos implied
 
     Code
-      gl_commits_table <- test_host$pull_commits(since = "2023-01-01", until = "2023-06-01",
+      gl_commits_table <- test_host$get_commits(since = "2023-01-01", until = "2023-06-01",
         settings = test_settings_repo)
     Message
       i [Host:GitLab][Engine:REST][Scope:mbtests] Pulling commits...

@@ -164,7 +164,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
       return(repos_table)
     },
 
-    # Get projects API URL from search response
+    # Get projects URL from search response
     get_repo_url_from_response = function(search_response, type) {
       purrr::map_vec(search_response, function(project) {
         if (type == "api") {
@@ -176,7 +176,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
     },
 
     # Pull commits from GitHub
-    pull_commits_from_host = function(since, until, settings) {
+    get_commits_from_host = function(since, until, settings) {
       graphql_engine <- private$engines$graphql
       commits_table <- purrr::map(private$orgs, function(org) {
         commits_table_org <- NULL
@@ -214,7 +214,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
       if (private$searching_scope == "repo") {
         repos_names <- private$orgs_repos[[org]]
       } else {
-        repos_table <- private$pull_all_repos(
+        repos_table <- private$get_all_repos(
           verbose = FALSE,
           settings = settings
         )

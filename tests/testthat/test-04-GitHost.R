@@ -24,14 +24,11 @@ test_that("`extract_repos_and_orgs` extracts fullnames vector into a list of Git
 
 test_that("GitHub tailors precisely `repos_list`", {
   gh_repos_by_code <- test_mocker$use("gh_repos_by_code")
-
   gh_repos_by_code_tailored <-
     test_host$tailor_repos_response(gh_repos_by_code)
-
   gh_repos_by_code_tailored %>%
     expect_type("list") %>%
     expect_length(length(gh_repos_by_code))
-
   expect_list_contains_only(
     gh_repos_by_code_tailored[[1]],
     c(
@@ -40,12 +37,10 @@ test_that("GitHub tailors precisely `repos_list`", {
       "organization"
     )
   )
-
   expect_lt(
     length(gh_repos_by_code_tailored[[1]]),
     length(gh_repos_by_code[[1]])
   )
-
   test_mocker$cache(gh_repos_by_code_tailored)
 })
 
@@ -58,6 +53,7 @@ test_that("`prepare_repos_table()` prepares repos table", {
   expect_repos_table(
     gh_repos_by_code_table
   )
+  gh_repos_by_code_table <- test_host$add_repo_api_url(gh_repos_by_code_table)
   test_mocker$cache(gh_repos_by_code_table)
 })
 
@@ -96,9 +92,9 @@ test_that("GitHub prepares user table", {
   test_mocker$cache(gh_user_table)
 })
 
-test_that("`pull_all_repos()` works as expected", {
+test_that("`get_all_repos()` works as expected", {
   expect_snapshot(
-    gh_repos_table <- test_host$pull_all_repos(
+    gh_repos_table <- test_host$get_all_repos(
       settings = test_settings
     )
   )
@@ -108,23 +104,24 @@ test_that("`pull_all_repos()` works as expected", {
   test_mocker$cache(gh_repos_table)
 })
 
-test_that("pull_all_repos_urls prepares api repo_urls vector", {
+test_that("get_all_repos_urls prepares api repo_urls vector", {
   test_host <- create_github_testhost(orgs = c("r-world-devs", "openpharma"),
                                       mode = "private")
-  gh_repos_urls <- test_host$pull_all_repos_urls(
+  gh_api_repos_urls <- test_host$get_all_repos_urls(
     type = "api",
     verbose = FALSE
   )
-  expect_gt(length(gh_repos_urls), 0)
-  expect_true(any(grepl("openpharma", gh_repos_urls)))
-  expect_true(any(grepl("r-world-devs", gh_repos_urls)))
-  expect_true(all(grepl("api", gh_repos_urls)))
+  expect_gt(length(gh_api_repos_urls), 0)
+  expect_true(any(grepl("openpharma", gh_api_repos_urls)))
+  expect_true(any(grepl("r-world-devs", gh_api_repos_urls)))
+  expect_true(all(grepl("api", gh_api_repos_urls)))
+  test_mocker$cache(gh_api_repos_urls)
 })
 
-test_that("pull_all_repos_urls prepares web repo_urls vector", {
+test_that("get_all_repos_urls prepares web repo_urls vector", {
   test_host <- create_github_testhost(orgs = c("r-world-devs", "openpharma"),
                                       mode = "private")
-  gh_repos_urls <- test_host$pull_all_repos_urls(
+  gh_repos_urls <- test_host$get_all_repos_urls(
     type = "web",
     verbose = FALSE
   )
@@ -132,11 +129,12 @@ test_that("pull_all_repos_urls prepares web repo_urls vector", {
   expect_true(any(grepl("openpharma", gh_repos_urls)))
   expect_true(any(grepl("r-world-devs", gh_repos_urls)))
   expect_true(all(grepl("https://github.com/", gh_repos_urls)))
+  test_mocker$cache(gh_repos_urls)
 })
 
-test_that("`pull_repos_with_code()` works", {
+test_that("`get_repos_with_code()` works", {
   suppressMessages(
-    result <- test_host$pull_repos_with_code(
+    result <- test_host$get_repos_with_code(
       code = "Shiny",
       settings = test_settings
     )
@@ -149,14 +147,14 @@ test_that("`pull_repos_with_code()` works", {
 test_host <- create_github_testhost(orgs = "r-world-devs")
 
 
-test_that("`pull_commits()` retrieves commits in the table format", {
+test_that("`get_commits()` retrieves commits in the table format", {
   mockery::stub(
-    test_host$pull_commits,
+    test_host$get_commits,
     "private$set_repositories",
     test_mocker$use("gh_repos_table")$repo_name
   )
   suppressMessages(
-    commits_table <- test_host$pull_commits(
+    commits_table <- test_host$get_commits(
       since = "2023-01-01",
       until = "2023-02-28",
       settings = test_settings
@@ -167,9 +165,9 @@ test_that("`pull_commits()` retrieves commits in the table format", {
   )
 })
 
-test_that("`pull_files()` pulls files in the table format", {
+test_that("`get_files()` pulls files in the table format", {
   expect_snapshot(
-    gh_files_table <- test_host$pull_files(
+    gh_files_table <- test_host$get_files(
       file_path = "LICENSE"
     )
   )
@@ -177,9 +175,22 @@ test_that("`pull_files()` pulls files in the table format", {
   test_mocker$cache(gh_files_table)
 })
 
-test_that("`pull_release_logs()` pulls release logs in the table format", {
+test_that("`get_files()` pulls files only for the repositories specified", {
+  test_host <- create_github_testhost(
+    repos = c("r-world-devs/GitStats", "openpharma/visR", "openpharma/DataFakeR"),
+  )
   expect_snapshot(
-    releases_table <- test_host$pull_release_logs(
+    gh_files_table <- test_host$get_files(
+      file_path = "renv.lock"
+    )
+  )
+  expect_files_table(gh_files_table, add_col = "api_url")
+  expect_equal(nrow(gh_files_table), 2) # visR does not have renv.lock
+})
+
+test_that("`get_release_logs()` pulls release logs in the table format", {
+  expect_snapshot(
+    releases_table <- test_host$get_release_logs(
       since = "2023-05-01",
       until = "2023-09-30",
       verbose = TRUE,
@@ -189,6 +200,7 @@ test_that("`pull_release_logs()` pulls release logs in the table format", {
   expect_releases_table(releases_table)
   expect_gt(min(releases_table$published_at), as.POSIXct("2023-05-01"))
   expect_lt(max(releases_table$published_at), as.POSIXct("2023-09-30"))
+  test_mocker$cache(releases_table)
 })
 
 # GitLab - private methods
@@ -205,33 +217,23 @@ test_that("`prepare_repos_table()` prepares repos table", {
   test_mocker$cache(gl_repos_table)
 })
 
-test_that("pull_all_repos_urls prepares api repo_urls vector", {
-  gl_repos_urls <- test_host_gitlab$pull_all_repos_urls(
+test_that("get_all_repos_urls prepares api repo_urls vector", {
+  gl_api_repos_urls <- test_host_gitlab$get_all_repos_urls(
     type = "api",
     verbose = FALSE
   )
-  expect_gt(length(gl_repos_urls), 0)
-  expect_true(all(grepl("api", gl_repos_urls)))
+  expect_gt(length(gl_api_repos_urls), 0)
+  expect_true(all(grepl("api", gl_api_repos_urls)))
+  test_mocker$cache(gl_api_repos_urls)
 })
 
-test_that("pull_all_repos_urls prepares web repo_urls vector", {
-  gl_repos_urls <- test_host_gitlab$pull_all_repos_urls(
+test_that("get_all_repos_urls prepares web repo_urls vector", {
+  gl_repos_urls <- test_host_gitlab$get_all_repos_urls(
     type = "web",
     verbose = FALSE
   )
   expect_gt(length(gl_repos_urls), 0)
   expect_true(all(!grepl("api", gl_repos_urls)))
-})
-
-test_that("`get_repo_url_from_response()` works", {
-  suppressMessages(
-    result <- test_host_gitlab$get_repo_url_from_response(
-      search_response = test_mocker$use("gl_search_response"),
-      type = "web"
-    )
-  )
-  expect_gt(length(result), 0)
-  expect_type(result, "character")
 })
 
 test_that("GitLab prepares user table", {
@@ -287,6 +289,7 @@ test_that("GitHost prepares table from GitLab repositories response", {
   expect_repos_table(
     gl_repos_by_code_table
   )
+  gl_repos_by_code_table <- test_host_gitlab$add_repo_api_url(gl_repos_by_code_table)
   test_mocker$cache(gl_repos_by_code_table)
 })
 
@@ -294,9 +297,9 @@ test_that("GitHost prepares table from GitLab repositories response", {
 
 test_host_gitlab <- create_gitlab_testhost(orgs = "mbtests")
 
-test_that("`pull_files()` pulls files in the table format", {
+test_that("`get_files()` pulls files in the table format", {
   expect_snapshot(
-    gl_files_table <- test_host_gitlab$pull_files(
+    gl_files_table <- test_host_gitlab$get_files(
       file_path = "README.md"
     )
   )
@@ -304,9 +307,9 @@ test_that("`pull_files()` pulls files in the table format", {
   test_mocker$cache(gl_files_table)
 })
 
-test_that("`pull_files()` pulls two files in the table format", {
+test_that("`get_files()` pulls two files in the table format", {
   expect_snapshot(
-    gl_files_table <- test_host_gitlab$pull_files(
+    gl_files_table <- test_host_gitlab$get_files(
       file_path = c("meta_data.yaml", "README.md")
     )
   )
@@ -316,8 +319,8 @@ test_that("`pull_files()` pulls two files in the table format", {
   )
 })
 
-test_that("pull_users build users table for GitHub", {
-  users_result <- test_host$pull_users(
+test_that("get_users build users table for GitHub", {
+  users_result <- test_host$get_users(
     users = c("maciekbanas", "Cotau", "marcinkowskak")
   )
   expect_users_table(
@@ -325,8 +328,8 @@ test_that("pull_users build users table for GitHub", {
   )
 })
 
-test_that("pull_users build users table for GitLab", {
-  users_result <- test_host_gitlab$pull_users(
+test_that("get_users build users table for GitLab", {
+  users_result <- test_host_gitlab$get_users(
     users = c("maciekbanas", "Cotau", "marcinkowskak")
   )
   expect_users_table(

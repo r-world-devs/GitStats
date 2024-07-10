@@ -8,6 +8,7 @@ get_repos(
   gitstats_object,
   add_contributors = TRUE,
   with_code = NULL,
+  in_files = NULL,
   with_files = NULL,
   cache = TRUE,
   verbose = is_verbose(gitstats_object)
@@ -29,6 +30,10 @@ additional information.}
 
 \item{with_code}{A character vector, if defined, GitStats will pull
 repositories with specified code phrases in code blobs.}
+
+\item{in_files}{A character vector of file names. Works when \code{with_code} is
+set - then it searches code blobs only in files passed to \code{in_files}
+parameter.}
 
 \item{with_files}{A character vector, if defined, GitStats will pull
 repositories with specified files.}
@@ -58,6 +63,7 @@ my_gitstats <- create_gitstats() \%>\%
   )
 get_repos(my_gitstats)
 get_repos(my_gitstats, add_contributors = FALSE)
-get_repos(my_gitstats, with_code = "Shiny")
+get_repos(my_gitstats, with_code = "Shiny", in_files = "renv.lock")
+get_repos(my_gitstats, with_files = "DESCRIPTION")
 }
 }

@@ -14,7 +14,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       } else {
         pagination_phrase <- paste0('after: "', end_cursor, '"')
       }
-
       paste0(
       'query {
         search(first: 100, type: USER, query: "type:org" ', pagination_phrase, ') {
@@ -44,7 +43,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       } else {
         after_cursor <- paste0('after: "', repo_cursor, '" ')
       }
-
       paste0('
         query GetReposByOrg($org: String!) {
           repositoryOwner(login: $org) {

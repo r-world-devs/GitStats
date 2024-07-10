@@ -212,7 +212,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     },
 
     # Pull commits from GitHub
-    pull_commits_from_host = function(since, until, settings) {
+    get_commits_from_host = function(since, until, settings) {
       rest_engine <- private$engines$rest
       commits_table <- purrr::map(private$orgs, function(org) {
         commits_table_org <- NULL
@@ -254,7 +254,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         repos <- private$orgs_repos[[org]]
         repos_names <- paste0(org, "%2f", repos)
       } else {
-        repos_table <- private$pull_all_repos(
+        repos_table <- private$get_all_repos(
           verbose = FALSE,
           settings = settings
         )

@@ -8,7 +8,9 @@ get_repos_urls(
   gitstats_object,
   type = "web",
   with_code = NULL,
+  in_files = NULL,
   with_files = NULL,
+  cache = TRUE,
   verbose = TRUE
 )
 }
@@ -21,8 +23,15 @@ returned.}
 \item{with_code}{A character vector, if defined, GitStats will pull
 repositories with specified code phrases in code blobs.}
 
+\item{in_files}{A character vector of file names. Works when \code{with_code} is
+set - then it searches code blobs only in files passed to \code{in_files}
+parameter.}
+
 \item{with_files}{A character vector, if defined, GitStats will pull
 repositories with specified files.}
+
+\item{cache}{A logical, if set to \code{TRUE} GitStats will retrieve the last
+result from its storage.}
 
 \item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and printing
 output is switched off.}

@@ -33,10 +33,7 @@ test_that("`pull_repos_languages` works", {
       repos_list = repos_list
     )
   )
-  expect_list_contains(
-    repos_list_with_languages[[1]],
-    "languages"
-  )
+  purrr::walk(repos_list_with_languages, ~ expect_list_contains(., "languages"))
 })
 
 # public methods
