@@ -87,9 +87,11 @@ set_gitlab_host <- function(gitstats_object,
   return(invisible(gitstats_object))
 }
 
-#' @title Get information on repositories
+#' @title Get data on repositories
 #' @name get_repos
-#' @description  List all repositories for an organization or by a keyword.
+#' @description  Pulls data on all repositories for an organization or those
+#'   with a given text in code blobs (`with_code` parameter) or a file
+#'   (`with_files` parameter) and parse it into table format.
 #' @param gitstats_object A GitStats object.
 #' @param add_contributors A logical parameter to decide whether to add
 #'   information about repositories' contributors to the repositories output
@@ -147,9 +149,11 @@ get_repos <- function(gitstats_object,
   )
 }
 
-#' @title List repository URLS
+#' @title Get repository URLS
 #' @name get_repos_urls
-#' @description A wrapper over search API endpoints to list repositories URLS.
+#' @description Pulls a vector of repositories URLs (web or API): either all for
+#'   an organization or those with a given text in code blobs (`with_code`
+#'   parameter) or a file (`with_files` parameter).
 #' @param gitstats_object A GitStats object.
 #' @param type A character, choose if `api` or `web` (`html`) URLs should be
 #'   returned.
@@ -197,7 +201,7 @@ get_repos_urls <- function(gitstats_object,
   )
 }
 
-#' @title Get information on commits
+#' @title Get data on commits
 #' @name get_commits
 #' @description List all commits from all repositories for an organization or a
 #'   vector of repositories.
@@ -239,7 +243,7 @@ get_commits <- function(gitstats_object,
   )
 }
 
-#' @title Get statistics on commits
+#' @title Get commits statistics
 #' @name get_commits_stats
 #' @description Prepare statistics from the pulled commits data.
 #' @details To make function work, you need first to get commits data with
@@ -268,7 +272,6 @@ get_commits_stats = function(gitstats_object,
 
 #' @title Get users data
 #' @name get_users
-#' @description Pull users data from Git Host.
 #' @param gitstats_object A GitStats object.
 #' @param logins A character vector of logins.
 #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
@@ -301,16 +304,17 @@ get_users <- function(gitstats_object,
   )
 }
 
-#' @title Get files content
+#' @title Get data on files
 #' @name get_files
-#' @description Pull files content from Git Hosts.
+#' @description Pull text files content for a given scope (orgs, repos or whole
+#'   git hosts).
 #' @param gitstats_object A GitStats object.
 #' @param file_path A standardized path to file(s) in repositories. May be a
 #'   character vector if multiple files are to be pulled.
 #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
 #'   result from its storage.
-#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
-#'   printing output is switched off.
+#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
+#'   output is switched off.
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
@@ -337,7 +341,7 @@ get_files <- function(gitstats_object,
   )
 }
 
-#' @title Get information on package usage across repositories
+#' @title Get data on package usage across repositories
 #' @name get_R_package_usage
 #' @description Wrapper over searching repositories by code blobs related to
 #'   loading package (`library(package)` and `require(package)` in all files) or

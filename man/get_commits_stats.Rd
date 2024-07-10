@@ -2,7 +2,7 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{get_commits_stats}
 \alias{get_commits_stats}
-\title{Get statistics on commits}
+\title{Get commits statistics}
 \usage{
 get_commits_stats(gitstats_object, time_interval = c("month", "day", "week"))
 }

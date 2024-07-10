@@ -2,7 +2,7 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{get_repos_urls}
 \alias{get_repos_urls}
-\title{List repository URLS}
+\title{Get repository URLS}
 \usage{
 get_repos_urls(
   gitstats_object,
@@ -40,7 +40,9 @@ output is switched off.}
 A character vector.
 }
 \description{
-A wrapper over search API endpoints to list repositories URLS.
+Pulls a vector of repositories URLs (web or API): either all for
+an organization or those with a given text in code blobs (\code{with_code}
+parameter) or a file (\code{with_files} parameter).
 }
 \examples{
 \dontrun{
