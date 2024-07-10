@@ -26,7 +26,7 @@ printing output is switched off.}
 A data.frame.
 }
 \description{
-Pull users data from Git Host.
+Get users data
 }
 \examples{
 \dontrun{

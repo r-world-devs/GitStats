@@ -2,7 +2,7 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{get_repos}
 \alias{get_repos}
-\title{Get information on repositories}
+\title{Get data on repositories}
 \usage{
 get_repos(
   gitstats_object,
@@ -48,7 +48,9 @@ output is switched off.}
 A data.frame.
 }
 \description{
-List all repositories for an organization or by a keyword.
+Pulls data on all repositories for an organization or those
+with a given text in code blobs (\code{with_code} parameter) or a file
+(\code{with_file} parameter) and parse it into table format.
 }
 \examples{
 \dontrun{

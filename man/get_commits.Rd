@@ -2,7 +2,7 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{get_commits}
 \alias{get_commits}
-\title{Get information on commits}
+\title{Get data on commits}
 \usage{
 get_commits(
   gitstats_object,

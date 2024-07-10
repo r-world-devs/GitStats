@@ -2,7 +2,7 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{get_R_package_usage}
 \alias{get_R_package_usage}
-\title{Get information on package usage across repositories}
+\title{Get data on package usage across repositories}
 \usage{
 get_R_package_usage(
   gitstats_object,
