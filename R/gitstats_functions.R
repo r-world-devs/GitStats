@@ -91,7 +91,7 @@ set_gitlab_host <- function(gitstats_object,
 #' @name get_repos
 #' @description  Pulls data on all repositories for an organization or those
 #'   with a given text in code blobs (`with_code` parameter) or a file
-#'   (`with_file` parameter) and parse it into table format.
+#'   (`with_files` parameter) and parse it into table format.
 #' @param gitstats_object A GitStats object.
 #' @param add_contributors A logical parameter to decide whether to add
 #'   information about repositories' contributors to the repositories output
