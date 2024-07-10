@@ -40,9 +40,9 @@ output is switched off.}
 A character vector.
 }
 \description{
-Pulls a vector of repositories URLS (web or API): either all for
+Pulls a vector of repositories URLs (web or API): either all for
 an organization or those with a given text in code blobs (\code{with_code}
-parameter) or a file (\code{with_file} parameter).
+parameter) or a file (\code{with_files} parameter).
 }
 \examples{
 \dontrun{
