@@ -151,9 +151,9 @@ get_repos <- function(gitstats_object,
 
 #' @title Get repository URLS
 #' @name get_repos_urls
-#' @description Pulls a vector of repositories URLS (web or API): either all for
+#' @description Pulls a vector of repositories URLs (web or API): either all for
 #'   an organization or those with a given text in code blobs (`with_code`
-#'   parameter) or a file (`with_file` parameter).
+#'   parameter) or a file (`with_files` parameter).
 #' @param gitstats_object A GitStats object.
 #' @param type A character, choose if `api` or `web` (`html`) URLs should be
 #'   returned.
