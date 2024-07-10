@@ -40,6 +40,23 @@ test_that("check_for_host returns error when no hosts are passed", {
   )
 })
 
+test_that("check_params_conflict returns error", {
+  expect_snapshot_error(
+    test_gitstats_priv$check_params_conflict(
+      with_code = NULL,
+      with_files = NULL,
+      in_files = "DESCRIPTION"
+    )
+  )
+  expect_snapshot_error(
+    test_gitstats_priv$check_params_conflict(
+      with_code = "shiny",
+      with_files = "DESCRIPTION",
+      in_files = NULL
+    )
+  )
+})
+
 test_gitstats_priv <- create_test_gitstats(hosts = 2, priv_mode = TRUE)
 
 test_that("get_repos_urls_from_hosts gets data from the hosts", {

@@ -38,6 +38,17 @@
 
     Add first your hosts with `set_github_host()` or `set_gitlab_host()`.
 
+# check_params_conflict returns error
+
+    ! Passing files to `in_files` parameter works only when you search code with `with_code` parameter.
+    i If you want to search for repositories with [DESCRIPTION] files you should instead use `with_files` parameter.
+
+---
+
+    x Both `with_code` and `with_files` parameters are defined.
+    ! Use either `with_code` of `with_files` parameter.
+    i If you want to search for [shiny] code in given files - use `in_files` parameter together with `with_code` instead.
+
 # subgroups are cleanly printed in GitStats
 
     Code

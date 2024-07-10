@@ -83,6 +83,11 @@ GitStats <- R6::R6Class("GitStats",
                          cache = TRUE,
                          verbose = TRUE) {
       private$check_for_host()
+      private$check_params_conflict(
+        with_code = with_code,
+        in_files = in_files,
+        with_files = with_files
+      )
       trigger <- private$trigger_pulling(
         storage = "repositories",
         cache = cache
@@ -131,6 +136,11 @@ GitStats <- R6::R6Class("GitStats",
                               cache = TRUE,
                               verbose = TRUE) {
       private$check_for_host()
+      private$check_params_conflict(
+        with_code = with_code,
+        in_files = in_files,
+        with_files = with_files
+      )
       trigger <- private$trigger_pulling(
         storage = "repos_urls",
         cache = cache
@@ -407,6 +417,23 @@ GitStats <- R6::R6Class("GitStats",
     check_for_host = function() {
       if (length(private$hosts) == 0) {
         cli::cli_abort("Add first your hosts with `set_github_host()` or `set_gitlab_host()`.", call = NULL)
+      }
+    },
+
+    # Check if parameters are in conflict
+    check_params_conflict = function(with_code, in_files, with_files) {
+      if (!is.null(with_code) && !is.null(with_files)) {
+        cli::cli_abort(c(
+          "x" = "Both `with_code` and `with_files` parameters are defined.",
+          "!" = "Use either `with_code` of `with_files` parameter.",
+          "i" = "If you want to search for [{with_code}] code in given files - use `in_files` parameter together with `with_code` instead."
+          ), call = NULL)
+      }
+      if (!is.null(in_files) && is.null(with_code)) {
+        cli::cli_abort(c(
+          "!" = "Passing files to `in_files` parameter works only when you search code with `with_code` parameter.",
+          "i" = "If you want to search for repositories with [{in_files}] files you should instead use `with_files` parameter."
+          ), call = NULL)
       }
     },
 
