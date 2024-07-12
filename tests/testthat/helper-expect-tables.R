@@ -14,13 +14,21 @@ expect_package_usage_table <- function(object, add_col = NULL) {
   expect_gt(nrow(object), 0)
 }
 
-expect_repos_table <- function(pull_repos_object, repo_cols = repo_host_colnames, add_col = NULL) {
+expect_repos_table_object <- function(repos_object) {
+  expect_repos_table(
+    repos_object = repos_object,
+    repo_cols = repo_gitstats_colnames
+  )
+  expect_s3_class(repos_object, "repos_table")
+}
+
+expect_repos_table <- function(repos_object, repo_cols = repo_host_colnames, add_col = NULL) {
   repo_cols <- c(
     repo_cols, add_col
   )
-  expect_s3_class(pull_repos_object, "data.frame")
-  expect_named(pull_repos_object, repo_cols)
-  expect_gt(nrow(pull_repos_object), 0)
+  expect_s3_class(repos_object, "data.frame")
+  expect_named(repos_object, repo_cols)
+  expect_gt(nrow(repos_object), 0)
 }
 
 expect_commits_table <- function(pull_commits_object, with_stats = TRUE, exp_author = TRUE) {

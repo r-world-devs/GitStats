@@ -99,6 +99,23 @@ test_that("get_repos_urls_from_hosts gets data with_code in_files from the hosts
   test_mocker$cache(repos_urls_from_hosts_with_code_in_files)
 })
 
+test_that("set_object_class works correctly", {
+  repos_urls <- test_gitstats_priv$set_object_class(
+    object = test_mocker$use("repos_urls_from_hosts_with_code_in_files"),
+    class = "repos_urls",
+    attr_list = list(
+      "type" = "api",
+      "with_code" = "shiny",
+      "in_files" = c("NAMESPACE", "DESCRIPTION"),
+      "with_files" = NULL
+    )
+  )
+  expect_s3_class(repos_urls, "repos_urls")
+  expect_equal(attr(repos_urls, "type"), "api")
+  expect_equal(attr(repos_urls, "with_code"), "shiny")
+  expect_equal(attr(repos_urls, "in_files"), c("NAMESPACE", "DESCRIPTION"))
+})
+
 test_that("get_repos_table with_code works", {
   mockery::stub(
     test_gitstats_priv$get_repos_table,
@@ -120,6 +137,21 @@ test_that("get_repos_table with_code works", {
     repo_cols = repo_gitstats_colnames,
     add_col = c("contributors", "contributors_n")
   )
+  test_mocker$cache(repos_table)
+})
+
+test_that("set_object_class for repos_table works correctly", {
+  repos_table <- test_gitstats_priv$set_object_class(
+    object = test_mocker$use("repos_table"),
+    class = "repos_table",
+    attr_list = list(
+      "with_code" = NULL,
+      "in_files" = NULL,
+      "with_files" = "renv.lock"
+    )
+  )
+  expect_s3_class(repos_table, "repos_table")
+  expect_equal(attr(repos_table, "with_files"), "renv.lock")
   test_mocker$cache(repos_table)
 })
 
@@ -178,6 +210,37 @@ test_that("get_release_logs_table works as expected", {
   expect_releases_table(release_logs_table)
 })
 
+test_that("check_if_args_changed", {
+  test_gitstats <- create_test_gitstats(
+    hosts = 2,
+    priv_mode = TRUE,
+    inject_repos = "repos_table"
+  )
+  check <- test_gitstats$check_if_args_changed(
+    storage = "repositories",
+    args_list = list(
+      "with_code" = "shiny",
+      "in_files" = "DESCRIPTION",
+      "with_files" = NULL
+    )
+  )
+  # repos_table from mock should be set to with_files = 'renv.lock'
+  expect_true(
+    check
+  )
+  check <- test_gitstats$check_if_args_changed(
+    storage = "repositories",
+    args_list = list(
+      "with_code" = NULL,
+      "in_files" = NULL,
+      "with_files" = "renv.lock"
+    )
+  )
+  expect_false(
+    check
+  )
+})
+
 # public methods
 
 test_that("GitStats get users info", {
@@ -191,14 +254,16 @@ test_that("GitStats get users info", {
   )
 })
 
-test_that("get_repos works properly", {
+test_that("get_repos works properly and for the second time uses cache", {
   test_gitstats <- create_test_gitstats(hosts = 2)
   repos_table <- test_gitstats$get_repos(verbose = FALSE)
-  expect_repos_table(
-    repos_table,
-    repo_cols = repo_gitstats_colnames
+  expect_repos_table_object(
+    repos_object = repos_table
   )
   test_mocker$cache(repos_table)
+  expect_snapshot(
+    repos_table <- test_gitstats$get_repos()
+  )
 })
 
 test_that("get_repos pulls repositories without contributors", {

@@ -88,9 +88,14 @@ GitStats <- R6::R6Class("GitStats",
         in_files = in_files,
         with_files = with_files
       )
+      args_list <- list("with_code" = with_code,
+                        "in_files" = in_files,
+                        "with_files" = with_files)
       trigger <- private$trigger_pulling(
+        cache = cache,
         storage = "repositories",
-        cache = cache
+        args_list = args_list,
+        verbose = verbose
       )
       if (trigger) {
         repositories <- private$get_repos_table(
@@ -100,7 +105,11 @@ GitStats <- R6::R6Class("GitStats",
           with_files = with_files,
           verbose = verbose,
           settings = private$settings
-        )
+        ) %>%
+          private$set_object_class(
+            class = "repos_table",
+            attr_list = args_list
+          )
         private$save_to_storage(
           table = repositories
         )
@@ -141,9 +150,15 @@ GitStats <- R6::R6Class("GitStats",
         in_files = in_files,
         with_files = with_files
       )
+      args_list <- list("type" = type,
+                        "with_code" = with_code,
+                        "in_files" = in_files,
+                        "with_files" = with_files)
       trigger <- private$trigger_pulling(
+        cache = cache,
         storage = "repos_urls",
-        cache = cache
+        args_list = args_list,
+        verbose = verbose
       )
       if (trigger) {
         repos_urls <- private$get_repos_urls_from_hosts(
@@ -152,7 +167,11 @@ GitStats <- R6::R6Class("GitStats",
           in_files = in_files,
           with_files = with_files,
           verbose = verbose
-        )
+        ) %>%
+          private$set_object_class(
+            class = "repos_urls",
+            attr_list = args_list
+          )
         private$save_to_storage(
           table = repos_urls
         )
@@ -177,11 +196,13 @@ GitStats <- R6::R6Class("GitStats",
                            cache = TRUE,
                            verbose = TRUE) {
       private$check_for_host()
+      args_list <- list("since" = since,
+                        "until" = until)
       trigger <- private$trigger_pulling(
-        storage = "commits",
         cache = cache,
-        since = since,
-        until = until
+        storage = "commits",
+        args_list = args_list,
+        verbose = verbose
       )
       if (trigger) {
         commits <- private$get_commits_table(
@@ -189,9 +210,9 @@ GitStats <- R6::R6Class("GitStats",
           until = until,
           verbose = verbose
         ) %>%
-          private$set_dates_as_attr(
-            since = since,
-            until = until
+          private$set_object_class(
+            class = "commits_data",
+            attr_list = args_list
           )
         private$save_to_storage(commits)
       } else {
@@ -235,13 +256,19 @@ GitStats <- R6::R6Class("GitStats",
     #'   printing output is switched off.
     get_users = function(logins, cache = TRUE, verbose = TRUE) {
       private$check_for_host()
-      trigger <- private$trigger_pulling_users(
-        logins = logins,
-        cache = cache
+      args_list <- list("logins" = logins)
+      trigger <- private$trigger_pulling(
+        cache = cache,
+        storage = "users",
+        args_list = args_list,
+        verbose = verbose
       )
       if (trigger) {
         users <- private$get_users_table(logins) %>%
-          private$set_as_attr("logins", logins)
+          private$set_object_class(
+            class = "users_data",
+            attr_list = args_list
+          )
         private$save_to_storage(users)
       } else {
         users <- private$get_from_storage(
@@ -260,16 +287,22 @@ GitStats <- R6::R6Class("GitStats",
     #'   printing output is switched off.
     get_files = function(file_path, cache = TRUE, verbose = TRUE) {
       private$check_for_host()
-      trigger <- private$trigger_pulling_files(
-        file_path = file_path,
-        cache = cache
+      args_list <- list("file_path" = file_path)
+      trigger <- private$trigger_pulling(
+        cache = cache,
+        storage = "files",
+        args_list = args_list,
+        verbose = verbose
       )
       if (trigger) {
         files <- private$get_files_table(
           file_path = file_path,
           verbose = verbose
         ) %>%
-          private$set_as_attr("file_path", file_path)
+          private$set_object_class(
+            class = "files_data",
+            attr_list = args_list
+          )
         private$save_to_storage(files)
       } else {
         files <- private$get_from_storage(
@@ -292,11 +325,15 @@ GitStats <- R6::R6Class("GitStats",
                                 cache = TRUE,
                                 verbose = TRUE) {
       private$check_for_host()
+      args_list <- list(
+        "since" = since,
+        "until" = until
+      )
       trigger <- private$trigger_pulling(
         storage = "release_logs",
         cache = cache,
-        since = since,
-        until = until
+        args_list = args_list,
+        verbose = verbose
       )
       if (trigger) {
         release_logs <- private$get_release_logs_table(
@@ -304,7 +341,10 @@ GitStats <- R6::R6Class("GitStats",
           until = until,
           verbose = verbose
         ) %>%
-          private$set_dates_as_attr(since, until)
+          private$set_object_class(
+            class = "release_logs",
+            attr_list = args_list
+          )
         private$save_to_storage(release_logs)
       } else {
         release_logs <- private$get_from_storage(
@@ -328,20 +368,29 @@ GitStats <- R6::R6Class("GitStats",
                                    cache = TRUE,
                                    verbose = TRUE) {
       private$check_for_host()
-      trigger <- private$trigger_pulling_package(
-        package_name = package_name,
-        cache = cache
-      )
       if (is.null(package_name)) {
         cli::cli_abort("You need to define `package_name`.", call = NULL)
       }
+      args_list <- list(
+        "package_name" = package_name,
+        "only_loading" = only_loading
+      )
+      trigger <- private$trigger_pulling(
+        storage = "R_package_usage",
+        cache = cache,
+        args_list = args_list,
+        verbose = verbose
+      )
       if (trigger) {
         R_package_usage <- private$get_R_package_usage_table(
           package_name = package_name,
           only_loading = only_loading,
           verbose = verbose
         ) %>%
-          private$set_as_attr("package_name", package_name)
+          private$set_object_class(
+            class = "R_package_usage",
+            attr_list = args_list
+          )
         private$save_to_storage(R_package_usage)
       } else {
         R_package_usage <- private$get_from_storage(
@@ -461,95 +510,60 @@ GitStats <- R6::R6Class("GitStats",
     # Retrieve table form storage
     get_from_storage = function(table, verbose) {
       if (verbose) {
-        cli::cli_alert_warning(cli::col_yellow(glue::glue("Retrieving {table} from the GitStats storage.")))
-        cli::cli_alert_info(cli::col_cyan("If you wish to pull the data from API once more, set `cache` parameter to `FALSE`."))
+        cli::cli_alert_warning(cli::col_yellow(
+          glue::glue("Retrieving {table} from the GitStats storage.")
+        ))
+        cli::cli_alert_info(cli::col_cyan(
+          "If you wish to pull the data from API once more, set `cache` parameter to `FALSE`."
+        ))
       }
       private$storage[[table]]
     },
 
-    # Decide if data needs to be pulled from API
-    trigger_pulling = function(storage, cache, since = NULL, until = NULL) {
-      if (!is.null(since) || !is.null(until)) {
-        dates <- list(since, until)
+    # Decide if repositories data will be pulled from API
+    trigger_pulling = function(cache, storage, args_list, verbose) {
+      trigger <- FALSE
+      if (private$storage_is_empty(storage)) {
+        trigger <- TRUE
       } else {
-        dates <- NULL
+        repos_parameters_changed <- private$check_if_args_changed(
+          storage = storage,
+          args_list = args_list
+        )
+        if (repos_parameters_changed) {
+          if (verbose) {
+            cli::cli_alert_info(cli::col_blue(
+              "Parameters changed, I will pull data from API."
+            ))
+          }
+          trigger <- TRUE
+        } else if (!repos_parameters_changed && !cache) {
+          if (verbose) {
+            cli::cli_alert_info(cli::col_blue(
+              "Cache set to FALSE, I will pull data from API."
+            ))
+          }
+          trigger <- TRUE
+        }
       }
-      trigger <- private$storage_is_empty(storage) || !cache ||
-        private$dates_do_not_comply(storage, dates)
       return(trigger)
     },
 
-    # Decide if data needs to be pulled from API
-    trigger_pulling_package = function(package_name, cache) {
-      !cache || !private$is_package_usage_in_storage(package_name)
-    },
-
-    # Check if package is already in GitStats storage
-    is_package_usage_in_storage = function(package_name) {
-      package_usage_in_storage <- private$storage[["R_package_usage"]]
-      if (!is.null(package_usage_in_storage)) {
-        package_name == attr(package_usage_in_storage, "package_name")
-      } else {
-        FALSE
-      }
-    },
-
-    # Decide if data needs to be pulled from API
-    trigger_pulling_files = function(file_path, cache) {
-      !cache || !private$are_files_in_storage(file_path)
-    },
-
-    # Check if data on files is already in GitStats storage
-    are_files_in_storage = function(file_path) {
-      files_in_storage <- private$storage[["files"]]
-      if (!is.null(files_in_storage)) {
-        setequal(file_path, attr(files_in_storage, "file_path"))
-      } else {
-        FALSE
-      }
-    },
-
-    # Decide if data needs to be pulled from API
-    trigger_pulling_users = function(logins, cache) {
-      !cache || !private$are_users_in_storage(logins)
-    },
-
-    # Check if data on users is already in GitStats storage
-    are_users_in_storage = function(logins) {
-      users_in_storage <- private$storage[["users"]]
-      if (!is.null(users_in_storage)) {
-        setequal(logins, attr(users_in_storage, "logins"))
-      } else {
-        FALSE
-      }
-    },
-
-    # Check if dates in function call are the same as in storage
-    dates_do_not_comply = function(storage, dates = NULL) {
-      do_not_comply <- FALSE
-      if (!is.null(dates)) {
-        dates <- standardize_dates(dates)
-        dates_storage <- private$get_dates_from_storage(storage)
-        do_not_comply <- !dplyr::setequal(dates, dates_storage)
-      }
-      return(do_not_comply)
-    },
-
-    # Get date from and date until from storage
-    get_dates_from_storage = function(storage) {
-      attr(private$storage[[storage]], "dates_range")
+    # Check
+    check_if_args_changed = function(storage, args_list) {
+      storage_data <- private$storage[[paste0(storage)]]
+      stored_params <- purrr::map(names(args_list), ~ attr(storage_data, .) %||% "")
+      new_params <- purrr::map(args_list, ~ . %||% "")
+      !all(purrr::map2_lgl(new_params, stored_params, ~ identical(.x, .y)))
     },
 
     # Save dates parameters as attributes of the object
-    set_dates_as_attr = function(object, since, until) {
-      attr(object, "dates_range") <- list(since, until) %>%
-        standardize_dates()
-      return(object)
-    },
-
-    # Save meta data as an attribute of the object
-    set_as_attr = function(object, attribute_name, attribute) {
-      attr(object, attribute_name) <- attribute
+    set_object_class = function(object, class, attr_list) {
+      class(object) <- append(class, class(object))
+      purrr::iwalk(attr_list, function(attrib, attrib_name)  {
+        attr(object, attrib_name) <<- attrib
+      })
+      # standardize_dates()
       return(object)
     },
 

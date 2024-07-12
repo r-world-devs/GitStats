@@ -45,8 +45,8 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         query <- paste0(query, '+in:file+filename:', filename)
       }
       search_endpoint <- paste0(private$endpoints[["search"]], query)
-      total_n <- self$response(search_endpoint)[["total_count"]]
       if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
+      total_n <- self$response(search_endpoint)[["total_count"]]
       if (length(total_n) > 0) {
         search_result <- private$search_response(
           search_endpoint = search_endpoint,
