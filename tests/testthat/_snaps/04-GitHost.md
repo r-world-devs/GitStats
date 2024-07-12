@@ -31,15 +31,11 @@
 
     Code
       gh_files_table <- test_host$get_files(file_path = "LICENSE")
-    Message
-      i [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling files: [LICENSE]...
 
 ---
 
     Code
       gl_files_table <- test_host_gitlab$get_files(file_path = "README.md")
-    Message
-      i [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling files: [README.md]...
 
 # `get_files()` pulls files only for the repositories specified
 

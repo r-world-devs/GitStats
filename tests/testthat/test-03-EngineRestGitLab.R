@@ -62,3 +62,15 @@ test_that("`pull_commits_from_repos()` pulls commits from repo", {
   )
   test_mocker$cache(gl_commits_org)
 })
+
+test_that("pull_repos_urls() works", {
+  gl_repos_urls <- test_rest$pull_repos_urls(
+    type = "api",
+    org = "mbtests"
+  )
+  expect_gt(
+    length(gl_repos_urls),
+    0
+  )
+  test_mocker$cache(gl_repos_urls)
+})

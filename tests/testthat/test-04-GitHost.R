@@ -119,14 +119,18 @@ test_that("get_all_repos_urls prepares api repo_urls vector", {
 })
 
 test_that("get_all_repos_urls prepares web repo_urls vector", {
-  test_host <- create_github_testhost(orgs = c("r-world-devs", "openpharma"),
+  test_host <- create_github_testhost(orgs = "r-world-devs",
                                       mode = "private")
+  mockery::stub(
+    test_host$get_all_repos_urls,
+    "rest_engine$pull_repos_urls",
+    test_mocker$use("gh_repos_urls")
+  )
   gh_repos_urls <- test_host$get_all_repos_urls(
     type = "web",
     verbose = FALSE
   )
   expect_gt(length(gh_repos_urls), 0)
-  expect_true(any(grepl("openpharma", gh_repos_urls)))
   expect_true(any(grepl("r-world-devs", gh_repos_urls)))
   expect_true(all(grepl("https://github.com/", gh_repos_urls)))
   test_mocker$cache(gh_repos_urls)
@@ -142,6 +146,16 @@ test_that("`get_repos_with_code()` works", {
   expect_repos_table(result)
 })
 
+test_that("GitHub prepares table from files response", {
+  gh_files_table <- test_host$prepare_files_table(
+    files_response = test_mocker$use("github_files_response"),
+    org = "r-world-devs",
+    file_path = "LICENSE"
+  )
+  expect_files_table(gh_files_table)
+  test_mocker$cache(gh_files_table)
+})
+
 # public methods
 
 test_host <- create_github_testhost(orgs = "r-world-devs")
@@ -150,8 +164,8 @@ test_host <- create_github_testhost(orgs = "r-world-devs")
 test_that("`get_commits()` retrieves commits in the table format", {
   mockery::stub(
     test_host$get_commits,
-    "private$set_repositories",
-    test_mocker$use("gh_repos_table")$repo_name
+    "private$get_commits_from_host",
+    test_mocker$use("commits_table")
   )
   suppressMessages(
     commits_table <- test_host$get_commits(
@@ -166,12 +180,17 @@ test_that("`get_commits()` retrieves commits in the table format", {
 })
 
 test_that("`get_files()` pulls files in the table format", {
+  mockery::stub(
+    test_host$get_files,
+    "private$get_files_from_orgs",
+    test_mocker$use("gh_files_table")
+  )
   expect_snapshot(
     gh_files_table <- test_host$get_files(
       file_path = "LICENSE"
     )
   )
-  expect_files_table(gh_files_table, add_col = "api_url")
+  expect_files_table(gh_files_table)
   test_mocker$cache(gh_files_table)
 })
 
@@ -218,6 +237,11 @@ test_that("`prepare_repos_table()` prepares repos table", {
 })
 
 test_that("get_all_repos_urls prepares api repo_urls vector", {
+  mockery::stub(
+    test_host_gitlab$get_all_repos_urls,
+    "rest_engine$pull_repos_urls",
+    test_mocker$use("gl_repos_urls")
+  )
   gl_api_repos_urls <- test_host_gitlab$get_all_repos_urls(
     type = "api",
     verbose = FALSE
@@ -248,13 +272,15 @@ test_that("GitLab prepares user table", {
 })
 
 test_that("GitLab prepares table from files response", {
-  files_table <- test_host_gitlab$prepare_files_table(
+  gl_files_table <- test_host_gitlab$prepare_files_table(
     files_response = test_mocker$use("gitlab_files_response"),
     org = "mbtests",
     file_path = "meta_data.yaml"
   )
-  expect_files_table(files_table)
+  expect_files_table(gl_files_table)
+  test_mocker$cache(gl_files_table)
 })
+
 test_that("`tailor_repos_response()` tailors precisely `repos_list`", {
   gl_repos_by_code <- test_mocker$use("gl_search_repos_by_code")
 
@@ -298,12 +324,17 @@ test_that("GitHost prepares table from GitLab repositories response", {
 test_host_gitlab <- create_gitlab_testhost(orgs = "mbtests")
 
 test_that("`get_files()` pulls files in the table format", {
+  mockery::stub(
+    test_host_gitlab$get_files,
+    "private$get_files_from_orgs",
+    test_mocker$use("gl_files_table")
+  )
   expect_snapshot(
     gl_files_table <- test_host_gitlab$get_files(
       file_path = "README.md"
     )
   )
-  expect_files_table(gl_files_table, add_col = "api_url")
+  expect_files_table(gl_files_table)
   test_mocker$cache(gl_files_table)
 })
 

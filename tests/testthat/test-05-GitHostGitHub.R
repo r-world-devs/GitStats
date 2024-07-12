@@ -120,15 +120,6 @@ test_that("GitHub prepares repos table from repositories response", {
   test_mocker$cache(gh_repos_table)
 })
 
-test_that("GitHub prepares table from files response", {
-  files_table <- test_host$prepare_files_table(
-    files_response = test_mocker$use("github_files_response"),
-    org = "r-world-devs",
-    file_path = "meta_data.yaml"
-  )
-  expect_files_table(files_table)
-})
-
 test_that("GitHost adds `repo_api_url` column to GitHub repos table", {
   repos_table <- test_mocker$use("gh_repos_table")
   gh_repos_table_with_api_url <- test_host$add_repo_api_url(repos_table)

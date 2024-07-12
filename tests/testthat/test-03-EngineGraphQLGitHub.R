@@ -116,7 +116,7 @@ test_that("GitHub GraphQL Engine pulls files from organization", {
   github_files_response <- test_graphql_github$pull_files_from_org(
     org = "r-world-devs",
     repos = NULL,
-    file_path = "meta_data.yaml"
+    file_path = "LICENSE"
   )
   expect_github_files_response(github_files_response)
   test_mocker$cache(github_files_response)
