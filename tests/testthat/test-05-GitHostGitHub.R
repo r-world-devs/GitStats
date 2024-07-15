@@ -127,19 +127,20 @@ test_that("GitHost adds `repo_api_url` column to GitHub repos table", {
   test_mocker$cache(gh_repos_table_with_api_url)
 })
 
-test_that("pull_repos_contributors returns table with contributors for GitHub", {
-  repos_table_1 <- test_mocker$use("gh_repos_table_with_api_url")
+test_that("`get_all_repos()` works as expected", {
+  mockery::stub(
+    test_host$get_all_repos,
+    "private$prepare_repos_table_from_graphql",
+    test_mocker$use("gh_repos_table_with_api_url")
+  )
   expect_snapshot(
-    repos_table_2 <- test_host$pull_repos_contributors(
-      repos_table = repos_table_1,
-      settings = test_settings
-    )
+    gh_repos_table <- test_host$get_all_repos()
   )
-  expect_gt(
-    length(repos_table_2$contributors),
-    0
+  expect_repos_table(
+    gh_repos_table,
+    with_cols = "api_url"
   )
-  expect_equal(nrow(repos_table_1), nrow(repos_table_2))
+  test_mocker$cache(gh_repos_table)
 })
 
 test_that("get_repo_url_from_response retrieves repositories URLS", {
@@ -159,6 +160,46 @@ test_that("get_repo_url_from_response retrieves repositories URLS", {
   test_mocker$cache(gh_repo_web_urls)
 })
 
+test_that("get_commits_from_host for GitHub works", {
+  test_host <- create_github_testhost(
+    repos = c("openpharma/DataFakeR", "r-world-devs/GitStats", "r-world-devs/cohortBuilder"),
+    mode = "private"
+  )
+  mockery::stub(
+    test_host$get_commits_from_host,
+    "private$prepare_commits_table",
+    test_mocker$use("gh_commits_table")
+  )
+  suppressMessages(
+    gh_commits_table <- test_host$get_commits_from_host(
+      since = "2023-03-01",
+      until = "2023-04-01",
+      settings = test_settings_repo
+    )
+  )
+  expect_commits_table(
+    gh_commits_table
+  )
+  test_mocker$cache(gh_commits_table)
+})
+
+test_that("get_files_from_orgs for GitHub works", {
+  mockery::stub(
+    test_host$get_files_from_orgs,
+    "private$prepare_files_table",
+    test_mocker$use("gh_files_table")
+  )
+  gh_files_table <- test_host$get_files_from_orgs(
+    file_path = "DESCRIPTION",
+    verbose = FALSE
+  )
+  expect_files_table(
+    gh_files_table,
+    with_cols = "api_url"
+  )
+  test_mocker$cache(gh_files_table)
+})
+
 # public methods
 
 test_host <- create_github_testhost(
@@ -168,6 +209,11 @@ test_host <- create_github_testhost(
 test_that("get_commits for GitHub works", {
   test_host <- create_github_testhost(
     repos = c("openpharma/DataFakeR", "r-world-devs/GitStats", "r-world-devs/cohortBuilder")
+  )
+  mockery::stub(
+    test_host$get_commits,
+    "private$get_commits_from_host",
+    test_mocker$use("gh_commits_table")
   )
   suppressMessages(
     gh_commits_table <- test_host$get_commits(
@@ -182,6 +228,11 @@ test_that("get_commits for GitHub works", {
 })
 
 test_that("get_files for GitHub works", {
+  mockery::stub(
+    test_host$get_files,
+    "private$get_files_from_orgs",
+    test_mocker$use("gh_files_table")
+  )
   suppressMessages(
     gh_files_table <- test_host$get_files(
       file_path = "DESCRIPTION"
@@ -189,7 +240,7 @@ test_that("get_files for GitHub works", {
   )
   expect_files_table(
     gh_files_table,
-    add_col = "api_url"
+    with_cols = "api_url"
   )
 })
 
@@ -203,8 +254,7 @@ test_that("get_repos_urls returns repositories URLS", {
     type = "web",
     with_code = "shiny",
     in_files = "DESCRIPTION",
-    verbose = FALSE,
-    settings = test_settings
+    verbose = FALSE
   )
   expect_type(gh_repos_urls_with_code_in_files, "character")
   expect_gt(length(gh_repos_urls_with_code_in_files), 0)

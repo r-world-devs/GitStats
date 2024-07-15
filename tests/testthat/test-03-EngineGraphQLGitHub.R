@@ -90,7 +90,6 @@ test_that("`pull_repos_from_org()` prepares formatted list", {
 })
 
 test_that("`pull_commits_from_repos()` pulls commits from repos", {
-
   commits_from_repos <- test_graphql_github$pull_commits_from_repos(
     org = "r-world-devs",
     repo = "GitStats",

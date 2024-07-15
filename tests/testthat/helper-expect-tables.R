@@ -8,7 +8,7 @@ repo_host_colnames <- c('repo_id', 'repo_name', 'default_branch', 'stars', 'fork
                        'created_at', 'last_activity_at', 'languages', 'issues_open',
                        'issues_closed', 'organization', 'repo_url')
 
-expect_package_usage_table <- function(object, add_col = NULL) {
+expect_package_usage_table <- function(object, with_cols = NULL) {
   expect_s3_class(object, "data.frame")
   expect_named(object, c('repo_name', 'organization', 'fullname', 'platform', 'repo_url', 'api_url', 'package_usage'))
   expect_gt(nrow(object), 0)
@@ -22,9 +22,9 @@ expect_repos_table_object <- function(repos_object, with_cols = NULL) {
   expect_s3_class(repos_object, "repos_table")
 }
 
-expect_repos_table <- function(repos_object, repo_cols = repo_host_colnames, add_col = NULL) {
+expect_repos_table <- function(repos_object, repo_cols = repo_host_colnames, with_cols = NULL) {
   repo_cols <- c(
-    repo_cols, add_col
+    repo_cols, with_cols
   )
   expect_s3_class(repos_object, "data.frame")
   expect_named(repos_object, repo_cols)
@@ -67,13 +67,13 @@ expect_users_table <- function(get_user_object, one_user = FALSE) {
   }
 }
 
-expect_files_table <- function(files_object, add_col = NULL) {
+expect_files_table <- function(files_object, with_cols = NULL) {
   expect_s3_class(files_object, "data.frame")
   expect_named(
     files_object,
     c("repo_name", "repo_id", "organization",
       "file_path", "file_content", "file_size",
-      "repo_url", add_col)
+      "repo_url", with_cols)
   )
   expect_type(files_object$file_size, "integer")
   expect_gt(nrow(files_object), 0)

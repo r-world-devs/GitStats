@@ -57,9 +57,7 @@ test_that("`pull_commits_from_repos()` pulls commits from repo", {
     since = "2023-01-01",
     until = "2023-04-20"
   )
-  expect_gl_commit_rest_response(
-    gl_commits_org[[1]]
-  )
+  purrr::walk(gl_commits_org, ~ expect_gl_commit_rest_response(.))
   test_mocker$cache(gl_commits_org)
 })
 

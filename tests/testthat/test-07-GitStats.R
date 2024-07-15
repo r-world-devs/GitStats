@@ -157,7 +157,7 @@ test_that("get_repos_table with_code works", {
   expect_repos_table(
     repos_table,
     repo_cols = repo_gitstats_colnames,
-    add_col = c("contributors", "contributors_n")
+    with_cols = c("contributors", "contributors_n")
   )
   test_mocker$cache(repos_table)
 })
@@ -306,7 +306,12 @@ test_that("get_commits works properly", {
   mockery::stub(
     test_gitstats$get_commits,
     "private$get_commits_table",
-    test_mocker$use("commits_table")
+    purrr::list_rbind(
+      list(
+        test_mocker$use("gh_commits_table"),
+        test_mocker$use("gl_commits_table")
+      )
+    )
   )
   suppressMessages(
     commits_table <- test_gitstats$get_commits(
@@ -338,7 +343,8 @@ test_that("get_files works properly", {
     verbose = FALSE
   )
   expect_files_table(
-    files_table
+    files_table,
+    with_cols = "api_url"
   )
   test_mocker$cache(files_table)
 })

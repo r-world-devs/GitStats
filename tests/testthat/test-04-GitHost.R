@@ -71,14 +71,14 @@ test_that("`prepare_releases_table()` prepares releases table", {
 })
 
 test_that("`prepare_commits_table()` prepares commits table", {
-  commits_table <- test_host$prepare_commits_table(
+  gh_commits_table <- test_host$prepare_commits_table(
     repos_list_with_commits = test_mocker$use("commits_from_repos"),
     org = "r-world-devs"
   )
   expect_commits_table(
-    commits_table
+    gh_commits_table
   )
-  test_mocker$cache(commits_table)
+  test_mocker$cache(gh_commits_table)
 })
 
 test_that("GitHub prepares user table", {
@@ -90,18 +90,6 @@ test_that("GitHub prepares user table", {
     one_user = TRUE
   )
   test_mocker$cache(gh_user_table)
-})
-
-test_that("`get_all_repos()` works as expected", {
-  expect_snapshot(
-    gh_repos_table <- test_host$get_all_repos(
-      settings = test_settings
-    )
-  )
-  expect_repos_table(
-    gh_repos_table
-  )
-  test_mocker$cache(gh_repos_table)
 })
 
 test_that("get_all_repos_urls prepares api repo_urls vector", {
@@ -136,14 +124,22 @@ test_that("get_all_repos_urls prepares web repo_urls vector", {
   test_mocker$cache(gh_repos_urls)
 })
 
-test_that("`get_repos_with_code()` works", {
-  suppressMessages(
-    result <- test_host$get_repos_with_code(
-      code = "Shiny",
-      settings = test_settings
-    )
+test_that("`get_repos_with_code_from_orgs()` works", {
+  mockery::stub(
+    test_host$get_repos_with_code_from_orgs,
+    "private$get_repos_response_with_code",
+    test_mocker$use("gh_repos_by_code")
   )
-  expect_repos_table(result)
+  mockery::stub(
+    test_host$get_repos_with_code_from_orgs,
+    "private$prepare_repos_table_from_rest",
+    test_mocker$use("gh_repos_by_code_table")
+  )
+  repos_with_code <- test_host$get_repos_with_code_from_orgs(
+    code = "shiny",
+    verbose = FALSE
+  )
+  expect_repos_table(repos_with_code, with_cols = "api_url")
 })
 
 test_that("GitHub prepares table from files response", {
@@ -165,7 +161,7 @@ test_that("`get_commits()` retrieves commits in the table format", {
   mockery::stub(
     test_host$get_commits,
     "private$get_commits_from_host",
-    test_mocker$use("commits_table")
+    test_mocker$use("gh_commits_table")
   )
   suppressMessages(
     commits_table <- test_host$get_commits(
@@ -203,18 +199,21 @@ test_that("`get_files()` pulls files only for the repositories specified", {
       file_path = "renv.lock"
     )
   )
-  expect_files_table(gh_files_table, add_col = "api_url")
+  expect_files_table(gh_files_table, with_cols = "api_url")
   expect_equal(nrow(gh_files_table), 2) # visR does not have renv.lock
 })
 
 test_that("`get_release_logs()` pulls release logs in the table format", {
-  expect_snapshot(
-    releases_table <- test_host$get_release_logs(
-      since = "2023-05-01",
-      until = "2023-09-30",
-      verbose = TRUE,
-      settings = test_settings
-    )
+  mockery::stub(
+    test_host$get_release_logs,
+    "private$prepare_releases_table",
+    test_mocker$use("releases_table")
+  )
+  releases_table <- test_host$get_release_logs(
+    since = "2023-05-01",
+    until = "2023-09-30",
+    verbose = FALSE,
+    settings = test_settings
   )
   expect_releases_table(releases_table)
   expect_gt(min(releases_table$published_at), as.POSIXct("2023-05-01"))
@@ -344,7 +343,7 @@ test_that("`get_files()` pulls two files in the table format", {
       file_path = c("meta_data.yaml", "README.md")
     )
   )
-  expect_files_table(gl_files_table, add_col = "api_url")
+  expect_files_table(gl_files_table, with_cols = "api_url")
   expect_true(
     all(c("meta_data.yaml", "README.md") %in% gl_files_table$file_path)
   )

@@ -20,13 +20,6 @@
     Message
       i Preparing repositories table...
 
-# `get_all_repos()` works as expected
-
-    Code
-      gh_repos_table <- test_host$get_all_repos(settings = test_settings)
-    Message
-      i [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling repositories...
-
 # `get_files()` pulls files in the table format
 
     Code
@@ -44,14 +37,6 @@
     Message
       i [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling files: [renv.lock]...
       i [Host:GitHub][Engine:GraphQl][Scope:openpharma] Pulling files: [renv.lock]...
-
-# `get_release_logs()` pulls release logs in the table format
-
-    Code
-      releases_table <- test_host$get_release_logs(since = "2023-05-01", until = "2023-09-30",
-        verbose = TRUE, settings = test_settings)
-    Message
-      i [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling release logs...
 
 # GitHost prepares table from GitLab repositories response
 
