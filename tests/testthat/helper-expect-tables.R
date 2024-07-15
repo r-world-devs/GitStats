@@ -14,10 +14,10 @@ expect_package_usage_table <- function(object, add_col = NULL) {
   expect_gt(nrow(object), 0)
 }
 
-expect_repos_table_object <- function(repos_object) {
+expect_repos_table_object <- function(repos_object, with_cols = NULL) {
   expect_repos_table(
     repos_object = repos_object,
-    repo_cols = repo_gitstats_colnames
+    repo_cols = c(repo_gitstats_colnames, with_cols)
   )
   expect_s3_class(repos_object, "repos_table")
 }

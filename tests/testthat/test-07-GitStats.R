@@ -116,6 +116,28 @@ test_that("set_object_class works correctly", {
   expect_equal(attr(repos_urls, "in_files"), c("NAMESPACE", "DESCRIPTION"))
 })
 
+test_that("get_repos_table works", {
+  mockery::stub(
+    test_gitstats_priv$get_repos_table,
+    "host$get_repos",
+    purrr::list_rbind(list(
+      test_mocker$use("gh_repos_table_with_api_url"),
+      test_mocker$use("gl_repos_table_with_api_url")
+    ))
+  )
+  repos_table <- test_gitstats_priv$get_repos_table(
+    with_code = NULL,
+    in_files = NULL,
+    with_files = NULL,
+    verbose = FALSE,
+    settings = test_settings
+  )
+  expect_repos_table(
+    repos_table,
+    repo_cols = repo_gitstats_colnames
+  )
+})
+
 test_that("get_repos_table with_code works", {
   mockery::stub(
     test_gitstats_priv$get_repos_table,
@@ -256,9 +278,15 @@ test_that("GitStats get users info", {
 
 test_that("get_repos works properly and for the second time uses cache", {
   test_gitstats <- create_test_gitstats(hosts = 2)
+  mockery::stub(
+    test_gitstats$get_repos,
+    "private$get_repos_table",
+    test_mocker$use("repos_table")
+  )
   repos_table <- test_gitstats$get_repos(verbose = FALSE)
   expect_repos_table_object(
-    repos_object = repos_table
+    repos_object = repos_table,
+    with_cols = c("contributors", "contributors_n")
   )
   test_mocker$cache(repos_table)
   expect_snapshot(
@@ -275,6 +303,11 @@ test_that("get_repos pulls repositories without contributors", {
 
 test_that("get_commits works properly", {
   test_gitstats <- create_test_gitstats(hosts = 2)
+  mockery::stub(
+    test_gitstats$get_commits,
+    "private$get_commits_table",
+    test_mocker$use("commits_table")
+  )
   suppressMessages(
     commits_table <- test_gitstats$get_commits(
       since = "2023-06-15",
@@ -290,12 +323,22 @@ test_that("get_commits works properly", {
 
 test_that("get_files works properly", {
   test_gitstats <- create_test_gitstats(hosts = 2)
+  mockery::stub(
+    test_gitstats$get_files,
+    "private$get_files_table",
+    purrr::list_rbind(
+      list(
+        test_mocker$use("gh_files_table"),
+        test_mocker$use("gl_files_table")
+      )
+    )
+  )
   files_table <- test_gitstats$get_files(
     file_path = "meta_data.yaml",
     verbose = FALSE
   )
   expect_files_table(
-    files_table, add_col = "api_url"
+    files_table
   )
   test_mocker$cache(files_table)
 })
