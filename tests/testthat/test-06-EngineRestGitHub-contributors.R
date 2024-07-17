@@ -31,22 +31,11 @@ test_that("`pull_repos_contributors()` adds contributors to repos table", {
   )
   expect_repos_table(
     gh_repos_by_code_table,
-    add_col = c("api_url", "contributors")
+    with_cols = c("api_url", "contributors")
   )
   expect_gt(
     length(gh_repos_by_code_table$contributors),
     0
   )
   test_mocker$cache(gh_repos_by_code_table)
-})
-
-test_that("pull_repos_urls() works", {
-  gh_repos_urls <- test_rest$pull_repos_urls(
-    type = "web",
-    org = "r-world-devs"
-  )
-  expect_gt(
-    length(gh_repos_urls),
-    0
-  )
 })

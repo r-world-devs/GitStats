@@ -44,14 +44,12 @@ GitHost <- R6::R6Class("GitHost",
       if (!is.null(with_code)) {
         repos_table <- private$get_repos_with_code(
           code = with_code,
-          in_files = in_files,
-          settings = settings
+          in_files = in_files
         )
       } else if (!is.null(with_file)) {
         repos_table <- private$get_repos_with_code(
           code = with_file,
-          in_path = TRUE,
-          settings = settings
+          in_path = TRUE
         )
       }
       repos_table <- private$add_repo_api_url(repos_table)
@@ -69,15 +67,13 @@ GitHost <- R6::R6Class("GitHost",
                               with_code = NULL,
                               in_files = NULL,
                               with_file = NULL,
-                              verbose,
-                              settings) {
+                              verbose) {
       private$set_verbose(verbose)
       if (!is.null(with_code)) {
         repo_urls <- private$get_repos_with_code(
           code = with_code,
           in_files = in_files,
-          raw_output = TRUE,
-          settings = settings
+          raw_output = TRUE
         ) %>%
           private$get_repo_url_from_response(
             type = type
@@ -86,8 +82,7 @@ GitHost <- R6::R6Class("GitHost",
         repo_urls <- private$get_repos_with_code(
           code = with_file,
           in_path = TRUE,
-          raw_output = TRUE,
-          settings = settings
+          raw_output = TRUE
         ) %>%
           private$get_repo_url_from_response(
             type = type
@@ -551,14 +546,14 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Pull repositories with specific code
-    get_repos_with_code = function(code, in_files = NULL, in_path = FALSE, raw_output = FALSE, settings) {
+    get_repos_with_code = function(code, in_files = NULL, in_path = FALSE, raw_output = FALSE, verbose = private$verbose) {
       if (private$scan_all) {
         repos_table <- private$get_repos_with_code_from_host(
           code = code,
           in_files = in_files,
           in_path = in_path,
           raw_output = raw_output,
-          settings = settings
+          verbose = verbose
         )
       }
       if (!private$scan_all) {
@@ -567,7 +562,7 @@ GitHost <- R6::R6Class("GitHost",
           in_files = in_files,
           in_path = in_path,
           raw_output = raw_output,
-          settings = settings
+          verbose = verbose
         )
       }
       return(repos_table)
@@ -608,8 +603,12 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Pull repositories with code from whole Git Host
-    get_repos_with_code_from_host = function(code, in_files = NULL, in_path = FALSE, raw_output = FALSE, settings) {
-      if (private$verbose) {
+    get_repos_with_code_from_host = function(code,
+                                             in_files = NULL,
+                                             in_path = FALSE,
+                                             raw_output = FALSE,
+                                             verbose = private$verbose) {
+      if (verbose) {
         show_message(
           host = private$host_name,
           engine = "rest",
@@ -635,9 +634,13 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Pull repositories with code from given organizations
-    get_repos_with_code_from_orgs = function(code, in_files = NULL, in_path = FALSE, raw_output = FALSE, settings) {
+    get_repos_with_code_from_orgs = function(code,
+                                             in_files = NULL,
+                                             in_path = FALSE,
+                                             raw_output = FALSE,
+                                             verbose = private$verbose) {
       repos_list <- purrr::map(private$orgs, function(org) {
-        if (private$verbose) {
+        if (verbose) {
           show_message(
             host = private$host_name,
             engine = "rest",

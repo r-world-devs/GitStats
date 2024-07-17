@@ -65,3 +65,15 @@ test_that("`pull_repos_by_code()` for GitHub prepares a raw (raw_output = TRUE) 
   expect_gh_search_response(gh_repos_by_code_raw)
   test_mocker$cache(gh_repos_by_code_raw)
 })
+
+test_that("pull_repos_urls() works", {
+  gh_repos_urls <- test_rest$pull_repos_urls(
+    type = "web",
+    org = "r-world-devs"
+  )
+  expect_gt(
+    length(gh_repos_urls),
+    0
+  )
+  test_mocker$cache(gh_repos_urls)
+})
