@@ -231,7 +231,8 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         commits_table_org <- rest_engine$pull_commits_from_repos(
           repos_names = repos_names,
           since = since,
-          until = until
+          until = until,
+          verbose = private$verbose
         ) %>%
           private$tailor_commits_info(org = org) %>%
           private$prepare_commits_table() %>%

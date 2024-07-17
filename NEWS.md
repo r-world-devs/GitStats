@@ -11,6 +11,7 @@ This is a patch release with substantial improvements to some functions (`get_re
 - Improved `get_R_package_usage()` with optimizing search of package names in `DESCRIPTION` and `NAMESPACE` files by removing filtering method and replacing it with `filename:` filter directly in search endpoint query ([#428](https://github.com/r-world-devs/GitStats/issues/428)).
 - Fixed `get_files()` when scanning scope is set to `repositories`. Earlier, it pulled given files from whole organizations, even if scanning scope was set to `repos` with `set_*_host()`. Now it shows only files for the given repositories ([#439](https://github.com/r-world-devs/GitStats/issues/439)).
 - Improved cache feature ([#436](https://github.com/r-world-devs/GitStats/issues/436)).
+- `verbose` parameter controls now showing of the progress bars ([#453](https://github.com/r-world-devs/GitStats/issues/453)).
 
 # GitStats 2.0.1
 

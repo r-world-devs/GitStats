@@ -120,7 +120,8 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     # Pull all commits from give repositories.
     pull_commits_from_repos = function(repos_names,
                                        since,
-                                       until) {
+                                       until,
+                                       verbose) {
       repos_list_with_commits <- purrr::map(repos_names, function(repo_path) {
         commits_from_repo <- private$pull_commits_from_one_repo(
           repo_path = repo_path,
@@ -128,7 +129,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           until = until
         )
         return(commits_from_repo)
-      }, .progress = !private$scan_all)
+      }, .progress = !private$scan_all && verbose)
       names(repos_list_with_commits) <- repos_names
       repos_list_with_commits <- repos_list_with_commits %>%
         purrr::discard(~ length(.) == 0)

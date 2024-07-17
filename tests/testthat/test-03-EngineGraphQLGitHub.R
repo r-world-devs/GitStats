@@ -16,8 +16,8 @@ test_that("`pull_commits_page_from_repo()` pulls commits page from repository", 
   commits_page <- test_graphql_github$pull_commits_page_from_repo(
     org = "r-world-devs",
     repo = "GitStats",
-    date_from = "2023-01-01",
-    date_until = "2023-02-28"
+    since = "2023-01-01",
+    until = "2023-02-28"
   )
   expect_gh_commit_gql_response(
     commits_page$data$repository$defaultBranchRef$target$history$edges[[1]]
@@ -53,8 +53,8 @@ test_that("`pull_commits_from_one_repo()` prepares formatted list", {
   commits_from_repo <- test_graphql_github$pull_commits_from_one_repo(
     org = "r-world-devs",
     repo = "GitStats",
-    date_from = "2023-01-01",
-    date_until = "2023-02-28"
+    since = "2023-01-01",
+    until = "2023-02-28"
   )
   expect_gh_commit_gql_response(
     commits_from_repo[[1]]
@@ -93,8 +93,9 @@ test_that("`pull_commits_from_repos()` pulls commits from repos", {
   commits_from_repos <- test_graphql_github$pull_commits_from_repos(
     org = "r-world-devs",
     repo = "GitStats",
-    date_from = "2023-01-01",
-    date_until = "2023-02-28"
+    since = "2023-01-01",
+    until = "2023-02-28",
+    verbose = FALSE
   )
   expect_gh_commit_gql_response(
     commits_from_repos[[1]][[1]]
