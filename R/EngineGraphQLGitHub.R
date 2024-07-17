@@ -67,16 +67,17 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     # Iterator over pulling commits from all repositories.
     pull_commits_from_repos = function(org,
                                        repos_names,
-                                       date_from,
-                                       date_until) {
+                                       since,
+                                       until,
+                                       verbose) {
       repos_list_with_commits <- purrr::map(repos_names, function(repo) {
         private$pull_commits_from_one_repo(
-          org,
-          repo,
-          date_from,
-          date_until
+          org = org,
+          repo = repo,
+          since = since,
+          until = until
         )
-      }, .progress = !private$scan_all)
+      }, .progress = !private$scan_all && verbose)
       names(repos_list_with_commits) <- repos_names
       repos_list_with_commits <- repos_list_with_commits %>%
         purrr::discard(~ length(.) == 0)
@@ -149,8 +150,8 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       # An iterator over pulling commit pages from one repository.
       pull_commits_from_one_repo = function(org,
                                             repo,
-                                            date_from,
-                                            date_until) {
+                                            since,
+                                            until) {
         next_page <- TRUE
         full_commits_list <- list()
         commits_cursor <- ""
@@ -158,8 +159,8 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           commits_response <- private$pull_commits_page_from_repo(
             org = org,
             repo = repo,
-            date_from = date_from,
-            date_until = date_until,
+            since = since,
+            until = until,
             commits_cursor = commits_cursor
           )
           commits_list <- commits_response$data$repository$defaultBranchRef$target$history$edges
@@ -179,15 +180,15 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       # Wrapper over building GraphQL query and response.
       pull_commits_page_from_repo = function(org,
                                              repo,
-                                             date_from,
-                                             date_until,
+                                             since,
+                                             until,
                                              commits_cursor = "",
                                              author_id = "") {
         commits_by_org_query <- self$gql_query$commits_by_repo(
           org = org,
           repo = repo,
-          since = date_to_gts(date_from),
-          until = date_to_gts(date_until),
+          since = date_to_gts(since),
+          until = date_to_gts(until),
           commits_cursor = commits_cursor,
           author_id = author_id
         )
