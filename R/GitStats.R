@@ -660,8 +660,7 @@ GitStats <- R6::R6Class("GitStats",
         } else {
           host$get_repos_urls(
             type = type,
-            verbose = verbose,
-            settings = private$settings
+            verbose = verbose
           )
         }
       }) %>%
@@ -680,8 +679,7 @@ GitStats <- R6::R6Class("GitStats",
           type = type,
           with_code = code,
           in_files = in_files,
-          verbose = verbose,
-          settings = private$settings
+          verbose = verbose
         )
       }) %>%
         unlist()
@@ -696,8 +694,7 @@ GitStats <- R6::R6Class("GitStats",
         host$get_repos_urls(
           type = type,
           with_file = file,
-          verbose = verbose,
-          settings = private$settings
+          verbose = verbose
         )
       }) %>%
         unlist()
