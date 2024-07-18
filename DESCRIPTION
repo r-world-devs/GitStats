@@ -28,8 +28,7 @@ Imports:
     purrr (>= 1.0.0),
     stringr
 Suggests:
-    spelling, 
-    covr,
+    spelling,
     knitr,
     mockery,
     rmarkdown,
