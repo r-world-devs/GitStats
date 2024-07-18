@@ -21,28 +21,20 @@ knitr::opts_chunk$set(
 [![Codecov test coverage](https://codecov.io/gh/r-world-devs/GitStats/branch/devel/graph/badge.svg)](https://app.codecov.io/gh/r-world-devs/GitStats?branch=devel)
 <!-- badges: end -->
 
-The goal of GitStats is to pull git data (e.g. `repositories`, `commits`, `release logs`) in a uniform way from different Git platforms (GitHub and GitLab for the time-being). 
+With GitStats you can pull git data in a uniform way (table format) from GitHub and GitLab. For the time-being you can get data on:
+
+* repositories,
+* commits,
+* users,
+* release logs,
+* text files content,
+* R package usage.
 
 ## Installation
 
 ```r
 devtools::install_github("r-world-devs/GitStats")
 ```
-
-## Setting up your tokens
-
-Please remember to have your access tokens stored as environment variables, e.g. `GITHUB_PAT` for access to GitHub API and `GITLAB_PAT` for GitLab API.
-
-### Access scopes of tokens
-
-For `GitStats` to work you need:
-
-- [GitHub] `public_repo`, `read:org` and `read:user` scopes,
-- [GitLab] `read_api` scope.
-
-### API versions
-
-GitStats is configured to connect to GitHub API (version 3) and GitLab API (version 4).
 
 ## GitStats workflow
 

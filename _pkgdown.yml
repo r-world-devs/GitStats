@@ -18,3 +18,5 @@ articles:
   contents:
   - set_hosts
   - get_data
+  - get_repos_with_code
+
