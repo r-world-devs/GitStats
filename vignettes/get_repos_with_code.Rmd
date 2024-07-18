@@ -24,14 +24,14 @@ library(GitStats)
 
 github_stats <- create_gitstats() %>%
   set_github_host(
-    orgs = c("r-world-devs", "openpharma", "pharmaverse", "insightsengineering"),
+    orgs = c("r-world-devs", "openpharma"),
     token = Sys.getenv("GITHUB_PAT")
   ) %>% 
   verbose_off()
 
 repos_urls <- get_repos_urls(
   gitstats_object = github_stats, 
-  with_code = c("purrr", "shiny")
+  with_code = "shiny"
 )
 dplyr::glimpse(repos_urls)
 ```
@@ -44,7 +44,6 @@ repos_urls <- get_repos_urls(
   with_code =  c("purrr", "shiny"), 
   in_files = c("DESCRIPTION", "NAMESPACE", "renv.lock")
 )
-dplyr::glimpse(repos_urls)
 ```
 
 You can also search for repositories with certain files (do not confuse `with_files` with `in_files`!).
@@ -54,17 +53,16 @@ repos_urls <- get_repos_urls(
   gitstats_object = github_stats, 
   with_files = c("renv.lock", "DESCRIPTION")
 )
-dplyr::glimpse(repos_urls)
 ```
 
 ## Package usage
 
 `GitStats` allows you to search for repositories which make use of certain R packages. This function scans repositories if they import packages (look for package name in `DESCRIPTION` or `NAMESPACE`) or if the load package with `library()` or `request()`.
 
-```{r, eval = FALSE}
+```{r}
 package_usage <- get_R_package_usage(
   gitstats_object = github_stats, 
-  package_name = "renv"
+  package_name = "shiny"
 )
 dplyr::glimpse(package_usage)
 ```
