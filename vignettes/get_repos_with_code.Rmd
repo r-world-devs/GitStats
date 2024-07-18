@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 
 Apart from pulling all repositories from organizations, you can look for those that have a particular text in a `code blob`:
 
-```{r}
+```{r, eval = FALSE}
 library(GitStats)
 
 github_stats <- create_gitstats() %>%
@@ -33,7 +33,6 @@ repos_urls <- get_repos_urls(
   gitstats_object = github_stats, 
   with_code = "shiny"
 )
-dplyr::glimpse(repos_urls)
 ```
 
 You can limit your search, as it is allowed with GitLab and GitHub API search endpoints, to certain files.
@@ -59,10 +58,9 @@ repos_urls <- get_repos_urls(
 
 `GitStats` allows you to search for repositories which make use of certain R packages. This function scans repositories if they import packages (look for package name in `DESCRIPTION` or `NAMESPACE`) or if the load package with `library()` or `request()`.
 
-```{r}
+```{r, eval = FALSE}
 package_usage <- get_R_package_usage(
   gitstats_object = github_stats, 
   package_name = "shiny"
 )
-dplyr::glimpse(package_usage)
 ```
