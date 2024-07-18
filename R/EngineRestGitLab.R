@@ -5,12 +5,14 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
   public = list(
 
     # Pull repositories with files
-    pull_files = function(files) {
+    pull_files = function(files, verbose = TRUE) {
       files_list <- list()
       for (filename in files) {
         files_search_result <- private$search_for_code(
-          code = paste0("path:", filename),
-          settings = list()
+          code = filename,
+          in_path = TRUE,
+          settings = list(),
+          verbose = verbose
         ) %>%
           purrr::keep(~ .$path == filename)
         files_content <- private$add_file_content(
@@ -26,19 +28,43 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     # @details For the time being there is no possibility to search GitLab with
     #   filtering by language. For more information look here:
     #   https://gitlab.com/gitlab-org/gitlab/-/issues/340333
-    pull_repos_by_code = function(org = NULL,
-                                  code,
-                                  verbose,
-                                  settings) {
+    pull_repos_by_code = function(code,
+                                  org = NULL,
+                                  filename = NULL,
+                                  in_path = FALSE,
+                                  raw_output = FALSE,
+                                  verbose) {
       private$set_verbose(verbose)
-      full_repos_list <- private$search_for_code(
+      search_response <- private$search_for_code(
         code = code,
+        filename = filename,
+        in_path = in_path,
         org = org,
-        settings = settings
+        verbose = verbose
+      )
+      if (raw_output) {
+        search_output <- search_response
+      } else {
+        search_output <- search_response %>%
+          private$map_search_into_repos() %>%
+          private$pull_repos_languages()
+      }
+      return(search_output)
+    },
+
+    # Pull all repositories URLs from organization
+    pull_repos_urls = function(type, org) {
+      repos_urls <- self$response(
+        endpoint = paste0(private$endpoints[["organizations"]], utils::URLencode(org, reserved = TRUE), "/projects")
       ) %>%
-        private$map_search_into_repos() %>%
-        private$pull_repos_languages()
-      return(full_repos_list)
+        purrr::map_vec(function(project) {
+          if (type == "api") {
+            project$`_links`$self
+          } else {
+            project$web_url
+          }
+        })
+      return(repos_urls)
     },
 
     # Add information on open and closed issues of a repository.
@@ -94,7 +120,8 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     # Pull all commits from give repositories.
     pull_commits_from_repos = function(repos_names,
                                        since,
-                                       until) {
+                                       until,
+                                       verbose) {
       repos_list_with_commits <- purrr::map(repos_names, function(repo_path) {
         commits_from_repo <- private$pull_commits_from_one_repo(
           repo_path = repo_path,
@@ -102,7 +129,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           until = until
         )
         return(commits_from_repo)
-      }, .progress = !private$scan_all)
+      }, .progress = !private$scan_all && verbose)
       names(repos_list_with_commits) <- repos_names
       repos_list_with_commits <- repos_list_with_commits %>%
         purrr::discard(~ length(.) == 0)
@@ -182,6 +209,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
 
     # Endpoints list
     endpoints = list(
+      organizations = NULL,
       projects = NULL,
       search = NULL
     ),
@@ -196,6 +224,10 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
       private$endpoints[["projects"]] <- paste0(
         self$rest_api_url,
         "/projects/"
+      )
+      private$endpoints[["organizations"]] <- paste0(
+        self$rest_api_url,
+        "/groups/"
       )
     },
 
@@ -232,19 +264,30 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     },
 
     # Search for code
-    search_for_code = function(code, org = NULL, settings, page_max = 1e6) {
+    search_for_code = function(code,
+                               filename = NULL,
+                               in_path = FALSE,
+                               org = NULL,
+                               page_max = 1e6,
+                               verbose = TRUE) {
       page <- 1
       still_more_hits <- TRUE
       full_repos_list <- list()
       private$set_search_endpoint(org)
-      if (!grepl("path:", code)) {
-        code <- paste0("%22", code, "%22")
+      if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
+      if (!in_path) {
+        query <- paste0("%22", code, "%22")
+      } else {
+        query <- paste0("path:", code)
+      }
+      if (!is.null(filename)) {
+        query <- paste0(query, "%20filename:", filename)
       }
       while (still_more_hits | page < page_max) {
         search_result <- self$response(
           paste0(
             private$endpoints[["search"]],
-            code,
+            query,
             "&per_page=100&page=",
             page
           )
@@ -253,11 +296,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           still_more_hits <- FALSE
           break()
         } else {
-          repos_list <- private$limit_search_to_files(
-            search_result = search_result,
-            files = settings$files
-          )
-          full_repos_list <- append(full_repos_list, repos_list)
+          full_repos_list <- append(full_repos_list, search_result)
           page <- page + 1
         }
       }

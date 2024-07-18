@@ -87,9 +87,11 @@ set_gitlab_host <- function(gitstats_object,
   return(invisible(gitstats_object))
 }
 
-#' @title Get information on repositories
+#' @title Get data on repositories
 #' @name get_repos
-#' @description  List all repositories for an organization or by a keyword.
+#' @description  Pulls data on all repositories for an organization or those
+#'   with a given text in code blobs (`with_code` parameter) or a file
+#'   (`with_files` parameter) and parse it into table format.
 #' @param gitstats_object A GitStats object.
 #' @param add_contributors A logical parameter to decide whether to add
 #'   information about repositories' contributors to the repositories output
@@ -101,8 +103,13 @@ set_gitlab_host <- function(gitstats_object,
 #'   default), `GitStats` iterates additionally over pulled repositories and
 #'   reaches to the `contributors APIs`, which makes it slower, but gives
 #'   additional information.
-#' @param with_code A character, if  defined, GitStats will pull repositories
-#'   with specified text in code blobs.
+#' @param with_code A character vector, if defined, GitStats will pull
+#'   repositories with specified code phrases in code blobs.
+#' @param in_files A character vector of file names. Works when `with_code` is
+#'   set - then it searches code blobs only in files passed to `in_files`
+#'   parameter.
+#' @param with_files A character vector, if defined, GitStats will pull
+#'   repositories with specified files.
 #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
 #'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
@@ -121,23 +128,80 @@ set_gitlab_host <- function(gitstats_object,
 #'   )
 #' get_repos(my_gitstats)
 #' get_repos(my_gitstats, add_contributors = FALSE)
-#' get_repos(my_gitstats, with_code = "Shiny")
+#' get_repos(my_gitstats, with_code = "Shiny", in_files = "renv.lock")
+#' get_repos(my_gitstats, with_files = "DESCRIPTION")
 #' }
 #' @export
 get_repos <- function(gitstats_object,
                       add_contributors = TRUE,
                       with_code = NULL,
+                      in_files = NULL,
+                      with_files = NULL,
                       cache = TRUE,
                       verbose = is_verbose(gitstats_object)) {
   gitstats_object$get_repos(
     add_contributors = add_contributors,
     with_code = with_code,
+    in_files = in_files,
+    with_files = with_files,
     cache = cache,
     verbose = verbose
   )
 }
 
-#' @title Get information on commits
+#' @title Get repository URLS
+#' @name get_repos_urls
+#' @description Pulls a vector of repositories URLs (web or API): either all for
+#'   an organization or those with a given text in code blobs (`with_code`
+#'   parameter) or a file (`with_files` parameter).
+#' @param gitstats_object A GitStats object.
+#' @param type A character, choose if `api` or `web` (`html`) URLs should be
+#'   returned.
+#' @param with_code A character vector, if defined, GitStats will pull
+#'   repositories with specified code phrases in code blobs.
+#' @param in_files A character vector of file names. Works when `with_code` is
+#'   set - then it searches code blobs only in files passed to `in_files`
+#'   parameter.
+#' @param with_files A character vector, if defined, GitStats will pull
+#'   repositories with specified files.
+#' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+#'   result from its storage.
+#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
+#'   output is switched off.
+#' @return A character vector.
+#' @examples
+#' \dontrun{
+#' my_gitstats <- create_gitstats() %>%
+#'   set_github_host(
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs", "openpharma")
+#'   ) %>%
+#'   set_gitlab_host(
+#'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+#'     orgs = "mbtests"
+#'   )
+#' get_repos_urls(my_gitstats, type = "api")
+#' get_repos_urls(my_gitstats, with_files = c("DESCRIPTION", "LICENSE"))
+#' }
+#' @export
+get_repos_urls <- function(gitstats_object,
+                           type = "web",
+                           with_code = NULL,
+                           in_files = NULL,
+                           with_files = NULL,
+                           cache = TRUE,
+                           verbose = TRUE) {
+  gitstats_object$get_repos_urls(
+    type = type,
+    with_code = with_code,
+    in_files = in_files,
+    with_files = with_files,
+    cache = cache,
+    verbose = verbose
+  )
+}
+
+#' @title Get data on commits
 #' @name get_commits
 #' @description List all commits from all repositories for an organization or a
 #'   vector of repositories.
@@ -179,7 +243,7 @@ get_commits <- function(gitstats_object,
   )
 }
 
-#' @title Get statistics on commits
+#' @title Get commits statistics
 #' @name get_commits_stats
 #' @description Prepare statistics from the pulled commits data.
 #' @details To make function work, you need first to get commits data with
@@ -208,7 +272,6 @@ get_commits_stats = function(gitstats_object,
 
 #' @title Get users data
 #' @name get_users
-#' @description Pull users data from Git Host.
 #' @param gitstats_object A GitStats object.
 #' @param logins A character vector of logins.
 #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
@@ -241,16 +304,17 @@ get_users <- function(gitstats_object,
   )
 }
 
-#' @title Get files content
+#' @title Get data on files
 #' @name get_files
-#' @description Pull files content from Git Hosts.
+#' @description Pull text files content for a given scope (orgs, repos or whole
+#'   git hosts).
 #' @param gitstats_object A GitStats object.
 #' @param file_path A standardized path to file(s) in repositories. May be a
 #'   character vector if multiple files are to be pulled.
 #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
 #'   result from its storage.
-#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
-#'   printing output is switched off.
+#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
+#'   output is switched off.
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
@@ -277,7 +341,7 @@ get_files <- function(gitstats_object,
   )
 }
 
-#' @title Get information on package usage across repositories
+#' @title Get data on package usage across repositories
 #' @name get_R_package_usage
 #' @description Wrapper over searching repositories by code blobs related to
 #'   loading package (`library(package)` and `require(package)` in all files) or

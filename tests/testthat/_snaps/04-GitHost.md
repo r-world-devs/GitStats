@@ -20,34 +20,23 @@
     Message
       i Preparing repositories table...
 
-# `pull_all_repos()` works as expected
+# `get_files()` pulls files in the table format
 
     Code
-      gh_repos_table <- test_host$pull_all_repos(settings = test_settings)
-    Message
-      i [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling repositories...
-
-# `pull_files()` pulls files in the table format
-
-    Code
-      gh_files_table <- test_host$pull_files(file_path = "LICENSE")
-    Message
-      i [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling files: [LICENSE]...
+      gh_files_table <- test_host$get_files(file_path = "LICENSE")
 
 ---
 
     Code
-      gl_files_table <- test_host_gitlab$pull_files(file_path = "README.md")
-    Message
-      i [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling files: [README.md]...
+      gl_files_table <- test_host_gitlab$get_files(file_path = "README.md")
 
-# `pull_release_logs()` pulls release logs in the table format
+# `get_files()` pulls files only for the repositories specified
 
     Code
-      releases_table <- test_host$pull_release_logs(since = "2023-05-01", until = "2023-09-30",
-        verbose = TRUE, settings = test_settings)
+      gh_files_table <- test_host$get_files(file_path = "renv.lock")
     Message
-      i [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling release logs...
+      i [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling files: [renv.lock]...
+      i [Host:GitHub][Engine:GraphQl][Scope:openpharma] Pulling files: [renv.lock]...
 
 # GitHost prepares table from GitLab repositories response
 
@@ -57,10 +46,10 @@
     Message
       i Preparing repositories table...
 
-# `pull_files()` pulls two files in the table format
+# `get_files()` pulls two files in the table format
 
     Code
-      gl_files_table <- test_host_gitlab$pull_files(file_path = c("meta_data.yaml",
+      gl_files_table <- test_host_gitlab$get_files(file_path = c("meta_data.yaml",
         "README.md"))
     Message
       i [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling files: [meta_data.yaml, README.md]...

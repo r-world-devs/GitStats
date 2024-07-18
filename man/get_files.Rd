@@ -2,7 +2,7 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{get_files}
 \alias{get_files}
-\title{Get files content}
+\title{Get data on files}
 \usage{
 get_files(
   gitstats_object,
@@ -20,14 +20,15 @@ character vector if multiple files are to be pulled.}
 \item{cache}{A logical, if set to \code{TRUE} GitStats will retrieve the last
 result from its storage.}
 
-\item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and
-printing output is switched off.}
+\item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and printing
+output is switched off.}
 }
 \value{
 A data.frame.
 }
 \description{
-Pull files content from Git Hosts.
+Pull text files content for a given scope (orgs, repos or whole
+git hosts).
 }
 \examples{
 \dontrun{

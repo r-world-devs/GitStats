@@ -16,8 +16,8 @@ test_that("`pull_commits_page_from_repo()` pulls commits page from repository", 
   commits_page <- test_graphql_github$pull_commits_page_from_repo(
     org = "r-world-devs",
     repo = "GitStats",
-    date_from = "2023-01-01",
-    date_until = "2023-02-28"
+    since = "2023-01-01",
+    until = "2023-02-28"
   )
   expect_gh_commit_gql_response(
     commits_page$data$repository$defaultBranchRef$target$history$edges[[1]]
@@ -53,8 +53,8 @@ test_that("`pull_commits_from_one_repo()` prepares formatted list", {
   commits_from_repo <- test_graphql_github$pull_commits_from_one_repo(
     org = "r-world-devs",
     repo = "GitStats",
-    date_from = "2023-01-01",
-    date_until = "2023-02-28"
+    since = "2023-01-01",
+    until = "2023-02-28"
   )
   expect_gh_commit_gql_response(
     commits_from_repo[[1]]
@@ -90,12 +90,12 @@ test_that("`pull_repos_from_org()` prepares formatted list", {
 })
 
 test_that("`pull_commits_from_repos()` pulls commits from repos", {
-
   commits_from_repos <- test_graphql_github$pull_commits_from_repos(
     org = "r-world-devs",
     repo = "GitStats",
-    date_from = "2023-01-01",
-    date_until = "2023-02-28"
+    since = "2023-01-01",
+    until = "2023-02-28",
+    verbose = FALSE
   )
   expect_gh_commit_gql_response(
     commits_from_repos[[1]][[1]]
@@ -113,20 +113,30 @@ test_that("`pull_releases_from_org()` pulls releases from the repositories", {
 })
 
 test_that("GitHub GraphQL Engine pulls files from organization", {
-  expect_snapshot(
-    github_files_response <- test_graphql_github$pull_files_from_org(
-      "r-world-devs",
-      "meta_data.yaml"
-    )
+  github_files_response <- test_graphql_github$pull_files_from_org(
+    org = "r-world-devs",
+    repos = NULL,
+    file_path = "LICENSE"
   )
   expect_github_files_response(github_files_response)
   test_mocker$cache(github_files_response)
 })
 
+test_that("GitHub GraphQL Engine pulls files from defined repositories", {
+  github_files_response <- test_graphql_github$pull_files_from_org(
+    org = "openpharma",
+    repos = c("DataFakeR", "visR"),
+    file_path = "README.md"
+  )
+  expect_github_files_response(github_files_response)
+  expect_equal(length(github_files_response[["README.md"]]), 2)
+})
+
 test_that("GitHub GraphQL Engine pulls two files from a group", {
   github_files_response <- test_graphql_github$pull_files_from_org(
-    "r-world-devs",
-    c("DESCRIPTION", "NAMESPACE")
+    org = "r-world-devs",
+    repos = NULL,
+    file_path = c("DESCRIPTION", "NAMESPACE")
   )
   expect_github_files_response(github_files_response)
   expect_true(

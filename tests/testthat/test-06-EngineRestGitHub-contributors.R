@@ -31,7 +31,7 @@ test_that("`pull_repos_contributors()` adds contributors to repos table", {
   )
   expect_repos_table(
     gh_repos_by_code_table,
-    add_col = "contributors"
+    with_cols = c("api_url", "contributors")
   )
   expect_gt(
     length(gh_repos_by_code_table$contributors),

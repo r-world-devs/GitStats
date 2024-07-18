@@ -14,7 +14,7 @@ test_that("when posixt format passed `date_to_gts()` prepares git time stamps wi
 
 test_that("`gts_to_posixt()` transforms git timestamp format into posixt format", {
   gts <- c("2022-12-19T12:27:15Z", "2022-12-19T12:21:55Z", "2022-12-19T11:55:39Z")
-  posixt <- as.POSIXct(c("2022-12-19 12:27:15", "2022-12-19 12:21:55", "2022-12-19 11:55:39"))
+  posixt <- lubridate::as_datetime(c("2022-12-19 12:27:15", "2022-12-19 12:21:55", "2022-12-19 11:55:39"))
 
   expect_equal(gts_to_posixt(gts), posixt)
 })

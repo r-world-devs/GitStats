@@ -190,8 +190,29 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       return(repos_table)
     },
 
+    # Get projects API URL from search response
+    get_repo_url_from_response = function(search_response, type) {
+      purrr::map_vec(search_response, function(response) {
+        api_url <- paste0(private$api_url, "/projects/", response$project_id)
+        if (type == "api") {
+          return(api_url)
+        } else {
+          rest_engine <- private$engines$rest
+          project_response <- rest_engine$response(
+            endpoint = api_url
+          )
+          web_url <- project_response$web_url
+          return(web_url)
+        }
+      }, .progress = if (type != "api") {
+        "Mapping api URL to web URL..."
+      } else {
+        FALSE
+      })
+    },
+
     # Pull commits from GitHub
-    pull_commits_from_host = function(since, until, settings) {
+    get_commits_from_host = function(since, until, settings) {
       rest_engine <- private$engines$rest
       commits_table <- purrr::map(private$orgs, function(org) {
         commits_table_org <- NULL
@@ -210,7 +231,8 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         commits_table_org <- rest_engine$pull_commits_from_repos(
           repos_names = repos_names,
           since = since,
-          until = until
+          until = until,
+          verbose = private$verbose
         ) %>%
           private$tailor_commits_info(org = org) %>%
           private$prepare_commits_table() %>%
@@ -233,7 +255,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         repos <- private$orgs_repos[[org]]
         repos_names <- paste0(org, "%2f", repos)
       } else {
-        repos_table <- private$pull_all_repos(
+        repos_table <- private$get_all_repos(
           verbose = FALSE,
           settings = settings
         )

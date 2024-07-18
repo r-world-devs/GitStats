@@ -1,0 +1,66 @@
+---
+title: "Getting repositories with specific code or files"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting repositories with specific code or files}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 4,
+  message = FALSE
+)
+```
+
+Apart from pulling all repositories from organizations, you can look for those that have a particular text in a `code blob`:
+
+```{r, eval = FALSE}
+library(GitStats)
+
+github_stats <- create_gitstats() %>%
+  set_github_host(
+    orgs = c("r-world-devs", "openpharma"),
+    token = Sys.getenv("GITHUB_PAT")
+  ) %>% 
+  verbose_off()
+
+repos_urls <- get_repos_urls(
+  gitstats_object = github_stats, 
+  with_code = "shiny"
+)
+```
+
+You can limit your search, as it is allowed with GitLab and GitHub API search endpoints, to certain files.
+
+```{r, eval = FALSE}
+repos_urls <- get_repos_urls(
+  gitstats_object = github_stats,
+  with_code =  c("purrr", "shiny"), 
+  in_files = c("DESCRIPTION", "NAMESPACE", "renv.lock")
+)
+```
+
+You can also search for repositories with certain files (do not confuse `with_files` with `in_files`!).
+
+```{r, eval = FALSE}
+repos_urls <- get_repos_urls(
+  gitstats_object = github_stats, 
+  with_files = c("renv.lock", "DESCRIPTION")
+)
+```
+
+## Package usage
+
+`GitStats` allows you to search for repositories which make use of certain R packages. This function scans repositories if they import packages (look for package name in `DESCRIPTION` or `NAMESPACE`) or if the load package with `library()` or `request()`.
+
+```{r, eval = FALSE}
+package_usage <- get_R_package_usage(
+  gitstats_object = github_stats, 
+  package_name = "shiny"
+)
+```

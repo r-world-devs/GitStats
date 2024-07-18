@@ -24,11 +24,11 @@
     Message
       i Using PAT from GITHUB_PAT envar.
 
-# pull_repos_contributors returns table with contributors for GitHub
+# `get_all_repos()` works as expected
 
     Code
-      repos_table_2 <- test_host$pull_repos_contributors(repos_table = repos_table_1,
-        settings = test_settings)
+      gh_repos_table <- test_host$get_all_repos()
     Message
-      i [Host:GitHub][Engine:REST] Pulling contributors...
+      i [Host:GitHub][Engine:GraphQl][Scope:openpharma] Pulling repositories...
+      i [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling repositories...
 

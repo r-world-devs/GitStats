@@ -72,7 +72,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      },
 
      # Pull all given files from all repositories of a group.
-     pull_files_from_org = function(org, file_path) {
+     pull_files_from_org = function(org, repos, file_path) {
        org <- URLdecode(org)
        full_files_list <- list()
        next_page <- TRUE
@@ -110,6 +110,12 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
          }
          full_files_list <- append(full_files_list, files_list)
        }
+       if (!is.null(repos)) {
+         full_files_list <- purrr::keep(full_files_list, function(project) {
+           repo_name <- private$get_repo_name_from_url(project$webUrl)
+           repo_name %in% repos
+         })
+       }
        return(full_files_list)
      },
 
@@ -144,6 +150,13 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
          vars = list("org" = org)
        )
        return(response)
+     },
+
+     # Helper
+     get_repo_name_from_url = function(web_url) {
+       url_split <- stringr::str_split(web_url, ":|/")[[1]]
+       repo_name <- url_split[length(url_split)]
+       return(repo_name)
      }
    )
 )

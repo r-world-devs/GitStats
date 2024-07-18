@@ -33,10 +33,7 @@ test_that("`pull_repos_languages` works", {
       repos_list = repos_list
     )
   )
-  expect_list_contains(
-    repos_list_with_languages[[1]],
-    "languages"
-  )
+  purrr::walk(repos_list_with_languages, ~ expect_list_contains(., "languages"))
 })
 
 # public methods
@@ -58,10 +55,21 @@ test_that("`pull_commits_from_repos()` pulls commits from repo", {
   gl_commits_org <- test_rest$pull_commits_from_repos(
     repos_names = repos_names,
     since = "2023-01-01",
-    until = "2023-04-20"
+    until = "2023-04-20",
+    verbose = FALSE
   )
-  expect_gl_commit_rest_response(
-    gl_commits_org[[1]]
-  )
+  purrr::walk(gl_commits_org, ~ expect_gl_commit_rest_response(.))
   test_mocker$cache(gl_commits_org)
+})
+
+test_that("pull_repos_urls() works", {
+  gl_repos_urls <- test_rest$pull_repos_urls(
+    type = "api",
+    org = "mbtests"
+  )
+  expect_gt(
+    length(gl_repos_urls),
+    0
+  )
+  test_mocker$cache(gl_repos_urls)
 })

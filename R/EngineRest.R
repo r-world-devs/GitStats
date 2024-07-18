@@ -50,16 +50,6 @@ EngineRest <- R6::R6Class("EngineRest",
       return(contributors_vec)
     },
 
-    # Filtering handler if files are set for scanning scope
-    limit_search_to_files = function(search_result, files) {
-      if (!is.null(files)) {
-        search_result <- purrr::keep(search_result, function(repository) {
-          any(repository$path %in% files)
-        })
-      }
-      return(search_result)
-    },
-
     # Helper
     paginate_results = function(endpoint, joining_sign = "?") {
       full_response <- list()

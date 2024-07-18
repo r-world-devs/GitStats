@@ -30,7 +30,7 @@ test_that("`pull_repos_contributors()` adds contributors to repos table", {
   )
   expect_repos_table(
     gl_repos_table_with_contributors,
-    add_col = c("api_url", "contributors")
+    with_cols = c("api_url", "contributors")
   )
   expect_gt(
     length(gl_repos_table_with_contributors$contributors),

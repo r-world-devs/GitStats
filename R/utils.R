@@ -5,9 +5,9 @@
 #' @param date A date.
 #' @return A character (git time stamp format).
 date_to_gts <- function(date) {
-  date_format <- as.Date(date)
-  posixt_format <- as.POSIXct(date)
-  if (as.POSIXct(date_format) == as.POSIXct(posixt_format)) {
+  date_format <- lubridate::as_date(date)
+  posixt_format <- lubridate::as_datetime(date)
+  if (lubridate::as_datetime(date_format) == lubridate::as_datetime(posixt_format)) {
     paste0(date, "T00:00:00Z")
   } else {
     stringr::str_replace(
@@ -29,8 +29,7 @@ date_to_gts <- function(date) {
 #' @return A vector of dates in Posixt format.
 gts_to_posixt <- function(date_vector) {
   date_vector <- gsub("T", " ", gsub("Z", "", date_vector))
-
-  as.POSIXct(date_vector)
+  lubridate::as_datetime(date_vector)
 }
 
 #' @noRd
@@ -53,7 +52,8 @@ commits_stats <- function(object, time_interval) {
 
 #' @noRd
 standardize_dates <- function(dates) {
-  purrr::discard(dates, is.null) %>% purrr::map_vec(as.POSIXct)
+  purrr::discard(dates, is.null) %>%
+    purrr::map_vec(lubridate::as_datetime)
 }
 
 #' @importFrom utils URLencode URLdecode

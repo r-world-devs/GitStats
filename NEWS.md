@@ -1,3 +1,18 @@
+# GitStats 2.0.2
+
+This is a patch release with substantial improvements to some functions (`get_repos()`, `get_files()` and `get_R_package_usage()`), adding `with_files` and `in_files` parameters, fixing `cache` feature and introducing new `get_repos_urls()` function, a minimalist version of `get_repos()`:
+
+- Added new `get_repos_urls()` function to fetch repository URLs (either web or API - choose with `type` parameter). It may return also only these repository URLs that consist of a given file or files (with passing argument to `with_files` parameter) or a text in code blobs (`with_code` parameter). This is a minimalist version of `get_repos()`, which takes out all the process of parsing (search response into repositories one) and adding statistics on repositories. This makes it poorer with content but faster. ([#425](https://github.com/r-world-devs/GitStats/issues/425)).
+- Added `with_files` parameter to `get_repos()` function, which makes it possible to search for repositories with a given file or files and return full output for repositories.
+- It is also possible now to pass multiple code phrases to `with_code` parameter (as a character vector) in `get_repos()` and `get_repos_urls()` ([282](https://github.com/r-world-devs/GitStats/issues/282)).
+- Added `in_files` parameter to `get_repos()` which works with `with_code` parameter. When both are defined, `GitStats` searches code blobs only in given files.
+- Removed `dplyr::glimpse()` from `get_*()` functions, so there is printing to console only if `get_*()` function is not assigned to the object ([#426](https://github.com/r-world-devs/GitStats/issues/426)).
+- Output table of `get_R_package_usage()` consists now also of repository full name ([#438](https://github.com/r-world-devs/GitStats/issues/438)).
+- Improved `get_R_package_usage()` with optimizing search of package names in `DESCRIPTION` and `NAMESPACE` files by removing filtering method and replacing it with `filename:` filter directly in search endpoint query ([#428](https://github.com/r-world-devs/GitStats/issues/428)).
+- Fixed `get_files()` when scanning scope is set to `repositories`. Earlier, it pulled given files from whole organizations, even if scanning scope was set to `repos` with `set_*_host()`. Now it shows only files for the given repositories ([#439](https://github.com/r-world-devs/GitStats/issues/439)).
+- Improved cache feature ([#436](https://github.com/r-world-devs/GitStats/issues/436)).
+- `verbose` parameter controls now showing of the progress bars ([#453](https://github.com/r-world-devs/GitStats/issues/453)).
+
 # GitStats 2.0.1
 
 This is a patch release with some hot issues that needed to be addressed, notably covering `set_*_host()` functions with `verbose` control, tweaking a bit `verbose` feature in general, fixing pulling data for GitLab subgroups and speeding up `get_files()` function.

@@ -164,8 +164,19 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
       return(repos_table)
     },
 
+    # Get projects URL from search response
+    get_repo_url_from_response = function(search_response, type) {
+      purrr::map_vec(search_response, function(project) {
+        if (type == "api") {
+          project$repository$url
+        } else {
+          project$repository$html_url
+        }
+      })
+    },
+
     # Pull commits from GitHub
-    pull_commits_from_host = function(since, until, settings) {
+    get_commits_from_host = function(since, until, settings) {
       graphql_engine <- private$engines$graphql
       commits_table <- purrr::map(private$orgs, function(org) {
         commits_table_org <- NULL
@@ -184,8 +195,9 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
         commits_table_org <- graphql_engine$pull_commits_from_repos(
           org = org,
           repos_names = repos_names,
-          date_from = since,
-          date_until = until
+          since = since,
+          until = until,
+          verbose = private$verbose
         ) %>%
           private$prepare_commits_table(org)
         return(commits_table_org)
@@ -203,7 +215,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
       if (private$searching_scope == "repo") {
         repos_names <- private$orgs_repos[[org]]
       } else {
-        repos_table <- private$pull_all_repos(
+        repos_table <- private$get_all_repos(
           verbose = FALSE,
           settings = settings
         )
@@ -312,7 +324,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
             "file_path" = file_data$path,
             "file_content" = file_data$content,
             "file_size" = file_data$size,
-            "repo_url" = private$get_repo_url(file_data$url)
+            "repo_url" = private$set_repo_url(file_data$url)
           )
         }) %>%
           purrr::list_rbind()
@@ -328,7 +340,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
     },
 
     # Get repository url
-    get_repo_url = function(repo_fullname) {
+    set_repo_url = function(repo_fullname) {
       paste0(private$endpoints$repositories, "/", repo_fullname)
     },
 
