@@ -16,9 +16,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r}
-library(GitStats)
-```
 
 To make `GitStats` work you need to set hosts after creating `gitstats_object`.
 
@@ -37,6 +34,7 @@ When setting hosts you need to take into account:
 If you connect to public hosts you simply call `set_github_host()` or `set_gitlab_host()` function without specifying `host` parameter.
 
 ```{r}
+library(GitStats)
 git_stats <- create_gitstats() %>%
   set_github_host(
     orgs = c("r-world-devs", "openpharma"),
