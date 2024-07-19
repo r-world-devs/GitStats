@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,6 +43,7 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/set_hosts.html">Setting hosts</a>
     <a class="dropdown-item" href="../articles/get_data.html">Get data</a>
+    <a class="dropdown-item" href="../articles/get_repos_with_code.html">Getting repositories with specific code or files</a>
   </div>
 </li>
 <li class="nav-item">
@@ -81,14 +82,28 @@
 
     
     
+<p>To make <code>GitStats</code> work you need to set hosts after
+creating <code>gitstats_object</code>.</p>
+<p>You can set GitLab host with <code><a href="../reference/set_gitlab_host.html">set_gitlab_host()</a></code> and
+GitHub host with <code><a href="../reference/set_github_host.html">set_github_host()</a></code> or both.</p>
+<p>When setting hosts you need to take into account:</p>
+<ul>
+<li><p>Do you wish to connect to <code>private</code> or
+<code>public</code> hosts?</p></li>
+<li><p>What <code>scanning scope</code> do you wish to set? Do you want
+to scan specific <code>organizations</code> or <code>repositories</code>
+or maybe whole git platforms?</p></li>
+<li><p>Do you have <code>tokens</code> set up and stored in your
+environment variables that grant you access to APIs?</p></li>
+</ul>
 <div class="section level2">
-<h2 id="connect-to-github-andor-gitlab">Connect to GitHub and/or GitLab<a class="anchor" aria-label="anchor" href="#connect-to-github-andor-gitlab"></a>
+<h2 id="public-and-private-hosts">Public and private hosts<a class="anchor" aria-label="anchor" href="#public-and-private-hosts"></a>
 </h2>
-<p>To run <code>GitStats</code> you need first to set hosts.</p>
-<p>To set connections try:</p>
+<p>If you connect to public hosts you simply call
+<code><a href="../reference/set_github_host.html">set_github_host()</a></code> or <code><a href="../reference/set_gitlab_host.html">set_gitlab_host()</a></code>
+function without specifying <code>host</code> parameter.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-world-devs.github.io/GitStats/">GitStats</a></span><span class="op">)</span></span>
-<span></span>
 <span><span class="va">git_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_gitstats.html">create_gitstats</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="../reference/set_github_host.html">set_github_host</a></span><span class="op">(</span></span>
 <span>    orgs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"r-world-devs"</span>, <span class="st">"openpharma"</span><span class="op">)</span>,</span>
@@ -104,22 +119,10 @@
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Searching scope set to [org].</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Checking host data...</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Set connection to GitLab.</span></span></code></pre></div>
-<p>If you have your access tokens stored in environment variables with
-such names as <code>GITHUB_PAT</code> or <code>GITHUB_PAT_*</code> and
-<code>GITLAB_PAT</code> or <code>GITLAB_PAT_*</code> you do not need to
-specify them in <code>set_*_host()</code> functions,
-<code>GitStats</code> will automatically find them.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">git_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_gitstats.html">create_gitstats</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/set_github_host.html">set_github_host</a></span><span class="op">(</span></span>
-<span>    orgs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"r-world-devs"</span>, <span class="st">"openpharma"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/set_gitlab_host.html">set_gitlab_host</a></span><span class="op">(</span></span>
-<span>    orgs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mbtests"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span></code></pre></div>
 <p>If you wish to connect to internal GitHub or GitLab, you need to pass
-argument to <code>host</code> parameter.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+names of the hosts to <code>host</code> parameter. Remember also to have
+tokens set up properly for these hosts (on tokens read below).</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">git_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_gitstats.html">create_gitstats</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="../reference/set_github_host.html">set_github_host</a></span><span class="op">(</span></span>
 <span>    host <span class="op">=</span> <span class="st">"github.internal.com"</span>,</span>
@@ -132,27 +135,64 @@ argument to <code>host</code> parameter.</p>
 <span>    token <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"YOUR_GITLAB_PAT"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
 <div class="section level3">
-<h3 id="set-repositories-for-searching-scope">Set repositories for searching scope<a class="anchor" aria-label="anchor" href="#set-repositories-for-searching-scope"></a>
+<h3 id="api-versions">API versions<a class="anchor" aria-label="anchor" href="#api-versions"></a>
 </h3>
-<p>Instead of scanning whole organizations, you might be interested in
-scanning particular repositories. In that case pass a vector of full
-names of repositories to <code>repos</code> parameter while skipping
-<code>orgs</code>.</p>
+<p>GitStats is configured to connect to GitHub API (version 3) and
+GitLab API (version 4).</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="scanning-scope">Scanning scope<a class="anchor" aria-label="anchor" href="#scanning-scope"></a>
+</h2>
+<p>When setting hosts you choose what scanning scope of your GitStats
+will be:</p>
+<ul>
+<li>
+<code>organizations/groups</code> - in this case you need to pass
+character arguments (names of organizations (in case of GitHub) or
+groups (in case of GitLab)) to <code>orgs</code> parameter.</li>
+</ul>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">git_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_gitstats.html">create_gitstats</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/set_github_host.html">set_github_host</a></span><span class="op">(</span></span>
+<span>    orgs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"r-world-devs"</span>, <span class="st">"openpharma"</span><span class="op">)</span>,</span>
+<span>    token <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"GITHUB_PAT"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/set_gitlab_host.html">set_gitlab_host</a></span><span class="op">(</span></span>
+<span>    orgs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mbtests"</span><span class="op">)</span>,</span>
+<span>    token <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"GITLAB_PAT_PUBLIC"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Searching scope set to [org].</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Checking host data...</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Set connection to GitHub.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Searching scope set to [org].</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Checking host data...</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Set connection to GitLab.</span></span></code></pre></div>
+<ul>
+<li>
+<code>repositories</code> - in this case you need to pass full names
+of repositories (<code>{org_name}/{repo_name}</code>) to the
+<code>repos</code> parameter.</li>
+</ul>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">git_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_gitstats.html">create_gitstats</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="../reference/set_github_host.html">set_github_host</a></span><span class="op">(</span></span>
-<span>    repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"r-world-devs/GitStats"</span>, <span class="st">"r-world-devs/shinyCohortBuilder"</span>, <span class="st">"openpharma/DataFakeR"</span><span class="op">)</span></span>
+<span>    repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"r-world-devs/GitStats"</span>, <span class="st">"r-world-devs/shinyCohortBuilder"</span>, <span class="st">"openpharma/DataFakeR"</span><span class="op">)</span>,</span>
+<span>    token <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"GITHUB_PAT"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="../reference/set_gitlab_host.html">set_gitlab_host</a></span><span class="op">(</span></span>
-<span>    orgs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mbtests"</span><span class="op">)</span></span>
+<span>    repos <span class="op">=</span> <span class="st">"mbtests/gitstatstesting"</span>,</span>
+<span>    token <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"GITLAB_PAT_PUBLIC"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="set-whole-gitstats-platforms-to-scan">Set whole GitStats platforms to scan<a class="anchor" aria-label="anchor" href="#set-whole-gitstats-platforms-to-scan"></a>
-</h3>
-<p>This is possible in case of private hosts, as public ones are deemed
-to be too large. To set whole Git platform to be scanned just set hosts
-without specifying <code>orgs</code> or <code>repos</code>.</p>
+<ul>
+<li>
+<code>whole hosts</code> - this is possible for the time being only
+in case of private hosts, as public ones are deemed to be too large. To
+set whole Git platform to be scanned just set hosts without specifying
+<code>orgs</code> or <code>repos</code>. On the other hand, remember
+that to connect with internal host, you need to pass argument to
+<code>host</code> parameter.</li>
+</ul>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">git_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_gitstats.html">create_gitstats</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="../reference/set_github_host.html">set_github_host</a></span><span class="op">(</span></span>
@@ -164,6 +204,37 @@ without specifying <code>orgs</code> or <code>repos</code>.</p>
 <span>    token <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"YOUR_GITLAB_PAT"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
 </div>
+<div class="section level2">
+<h2 id="authorize-your-access-with-tokens">Authorize your access with tokens<a class="anchor" aria-label="anchor" href="#authorize-your-access-with-tokens"></a>
+</h2>
+<p>Remember to pass to your <code>set_*_host()</code> functions
+<code>tokens</code> that authorize access.</p>
+<p>You can store your tokens in environment variables, e.g. defined in
+<code>.Renviron</code> file as <code>GITHUB_PAT</code> for GitHub and
+<code>GITLAB_PAT</code> for GitLab.</p>
+<p>On how to create your tokens refer to GitHub API and GitLab API
+documentation.</p>
+<p>When creating tokens you will be asked to set access scopes of the
+tokens. For <code>GitStats</code> to work you need tokens with given
+scopes:</p>
+<ul>
+<li>[GitHub] <code>public_repo</code>, <code>read:org</code> and
+<code>read:user</code>,</li>
+<li>[GitLab] <code>read_api</code>.</li>
+</ul>
+<p>If you have your access tokens stored in environment variables with
+such names as <code>GITHUB_PAT</code> or <code>GITHUB_PAT_*</code> and
+<code>GITLAB_PAT</code> or <code>GITLAB_PAT_*</code> you do not need to
+specify them in <code>set_*_host()</code> functions,
+<code>GitStats</code> will automatically find them.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">git_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_gitstats.html">create_gitstats</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/set_github_host.html">set_github_host</a></span><span class="op">(</span></span>
+<span>    orgs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"r-world-devs"</span>, <span class="st">"openpharma"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/set_gitlab_host.html">set_gitlab_host</a></span><span class="op">(</span></span>
+<span>    orgs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mbtests"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

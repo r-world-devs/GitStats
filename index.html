@@ -30,7 +30,7 @@
     
     <a class="navbar-brand me-2" href="index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,6 +47,7 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="articles/set_hosts.html">Setting hosts</a>
     <a class="dropdown-item" href="articles/get_data.html">Get data</a>
+    <a class="dropdown-item" href="articles/get_repos_with_code.html">Getting repositories with specific code or files</a>
   </div>
 </li>
 <li class="nav-item">
@@ -76,31 +77,20 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>The goal of GitStats is to pull git data (e.g. <code>repositories</code>, <code>commits</code>, <code>release logs</code>) in a uniform way from different Git platforms (GitHub and GitLab for the time-being).</p>
+<p>With GitStats you can pull git data in a uniform way (table format) from GitHub and GitLab. For the time-being you can get data on:</p>
+<ul>
+<li>repositories,</li>
+<li>commits,</li>
+<li>users,</li>
+<li>release logs,</li>
+<li>text files content,</li>
+<li>R package usage.</li>
+</ul>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"r-world-devs/GitStats"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="setting-up-your-tokens">Setting up your tokens<a class="anchor" aria-label="anchor" href="#setting-up-your-tokens"></a>
-</h2>
-<p>Please remember to have your access tokens stored as environment variables, e.g. <code>GITHUB_PAT</code> for access to GitHub API and <code>GITLAB_PAT</code> for GitLab API.</p>
-<div class="section level3">
-<h3 id="access-scopes-of-tokens">Access scopes of tokens<a class="anchor" aria-label="anchor" href="#access-scopes-of-tokens"></a>
-</h3>
-<p>For <code>GitStats</code> to work you need:</p>
-<ul>
-<li>[GitHub] <code>public_repo</code>, <code>read:org</code> and <code>read:user</code> scopes,</li>
-<li>[GitLab] <code>read_api</code> scope.</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="api-versions">API versions<a class="anchor" aria-label="anchor" href="#api-versions"></a>
-</h3>
-<p>GitStats is configured to connect to GitHub API (version 3) and GitLab API (version 4).</p>
-</div>
 </div>
 <div class="section level2">
 <h2 id="gitstats-workflow">GitStats workflow<a class="anchor" aria-label="anchor" href="#gitstats-workflow"></a>

@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -26,6 +26,7 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/set_hosts.html">Setting hosts</a>
     <a class="dropdown-item" href="../articles/get_data.html">Get data</a>
+    <a class="dropdown-item" href="../articles/get_repos_with_code.html">Getting repositories with specific code or files</a>
   </div>
 </li>
 <li class="active nav-item">
@@ -51,6 +52,21 @@
       <small>Source: <a href="https://github.com/r-world-devs/GitStats/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.0.2" id="gitstats-202">GitStats 2.0.2<a class="anchor" aria-label="anchor" href="#gitstats-202"></a></h2>
+<p>This is a patch release with substantial improvements to some functions (<code><a href="../reference/get_repos.html">get_repos()</a></code>, <code><a href="../reference/get_files.html">get_files()</a></code> and <code><a href="../reference/get_R_package_usage.html">get_R_package_usage()</a></code>), adding <code>with_files</code> and <code>in_files</code> parameters, fixing <code>cache</code> feature and introducing new <code><a href="../reference/get_repos_urls.html">get_repos_urls()</a></code> function, a minimalist version of <code><a href="../reference/get_repos.html">get_repos()</a></code>:</p>
+<ul><li>Added new <code><a href="../reference/get_repos_urls.html">get_repos_urls()</a></code> function to fetch repository URLs (either web or API - choose with <code>type</code> parameter). It may return also only these repository URLs that consist of a given file or files (with passing argument to <code>with_files</code> parameter) or a text in code blobs (<code>with_code</code> parameter). This is a minimalist version of <code><a href="../reference/get_repos.html">get_repos()</a></code>, which takes out all the process of parsing (search response into repositories one) and adding statistics on repositories. This makes it poorer with content but faster. (<a href="https://github.com/r-world-devs/GitStats/issues/425" class="external-link">#425</a>).</li>
+<li>Added <code>with_files</code> parameter to <code><a href="../reference/get_repos.html">get_repos()</a></code> function, which makes it possible to search for repositories with a given file or files and return full output for repositories.</li>
+<li>It is also possible now to pass multiple code phrases to <code>with_code</code> parameter (as a character vector) in <code><a href="../reference/get_repos.html">get_repos()</a></code> and <code><a href="../reference/get_repos_urls.html">get_repos_urls()</a></code> (<a href="https://github.com/r-world-devs/GitStats/issues/282" class="external-link">282</a>).</li>
+<li>Added <code>in_files</code> parameter to <code><a href="../reference/get_repos.html">get_repos()</a></code> which works with <code>with_code</code> parameter. When both are defined, <code>GitStats</code> searches code blobs only in given files.</li>
+<li>Removed <code><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">dplyr::glimpse()</a></code> from <code>get_*()</code> functions, so there is printing to console only if <code>get_*()</code> function is not assigned to the object (<a href="https://github.com/r-world-devs/GitStats/issues/426" class="external-link">#426</a>).</li>
+<li>Output table of <code><a href="../reference/get_R_package_usage.html">get_R_package_usage()</a></code> consists now also of repository full name (<a href="https://github.com/r-world-devs/GitStats/issues/438" class="external-link">#438</a>).</li>
+<li>Improved <code><a href="../reference/get_R_package_usage.html">get_R_package_usage()</a></code> with optimizing search of package names in <code>DESCRIPTION</code> and <code>NAMESPACE</code> files by removing filtering method and replacing it with <code>filename:</code> filter directly in search endpoint query (<a href="https://github.com/r-world-devs/GitStats/issues/428" class="external-link">#428</a>).</li>
+<li>Fixed <code><a href="../reference/get_files.html">get_files()</a></code> when scanning scope is set to <code>repositories</code>. Earlier, it pulled given files from whole organizations, even if scanning scope was set to <code>repos</code> with <code>set_*_host()</code>. Now it shows only files for the given repositories (<a href="https://github.com/r-world-devs/GitStats/issues/439" class="external-link">#439</a>).</li>
+<li>Improved cache feature (<a href="https://github.com/r-world-devs/GitStats/issues/436" class="external-link">#436</a>).</li>
+<li>
+<code>verbose</code> parameter controls now showing of the progress bars (<a href="https://github.com/r-world-devs/GitStats/issues/453" class="external-link">#453</a>).</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.0.1" id="gitstats-201">GitStats 2.0.1<a class="anchor" aria-label="anchor" href="#gitstats-201"></a></h2>
 <p>This is a patch release with some hot issues that needed to be addressed, notably covering <code>set_*_host()</code> functions with <code>verbose</code> control, tweaking a bit <code>verbose</code> feature in general, fixing pulling data for GitLab subgroups and speeding up <code><a href="../reference/get_files.html">get_files()</a></code> function.</p>
