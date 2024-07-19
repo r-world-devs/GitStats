@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,6 +43,7 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/set_hosts.html">Setting hosts</a>
     <a class="dropdown-item" href="../articles/get_data.html">Get data</a>
+    <a class="dropdown-item" href="../articles/get_repos_with_code.html">Getting repositories with specific code or files</a>
   </div>
 </li>
 <li class="nav-item">
@@ -85,8 +86,8 @@
 <blockquote>
 <p>Example workflow makes use of public GitHub and GitLab, but it is
 plausible, that you will use your internal git platforms, where you need
-to define <code>host</code> parameter. See vignette(“set_hosts”) article
-on that.</p>
+to define <code>host</code> parameter. See
+<code><a href="../articles/set_hosts.html">vignette("set_hosts")</a></code> article on that.</p>
 </blockquote>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-world-devs.github.io/GitStats/">GitStats</a></span><span class="op">)</span></span>
@@ -106,18 +107,19 @@ on that.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Searching scope set to [org].</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Checking host data...</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Set connection to GitLab.</span></span></code></pre></div>
-<p>By default your search preferences are set to
-<code>organizations</code> (<code>org</code>), which means that
-<code>GitStats</code> will pull all repositories from the organizations
-you specified in <code>set_*_host()</code>.</p>
+<p>As scanning scope was set to <code>organizations</code>
+(<code>orgs</code> parameter in <code>set_*_host()</code>),
+<code>GitStats</code> will pull all repositories from these
+organizations.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/get_repos.html">get_repos</a></span><span class="op">(</span><span class="va">git_stats</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">repos</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_repos.html">get_repos</a></span><span class="op">(</span><span class="va">git_stats</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:r-world-devs] Pulling repositories...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:openpharma] Pulling repositories...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #00BB00;">REST</span>] Pulling contributors...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitLab][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:mbtests] Pulling repositories...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitLab][Engine:<span style="color: #00BB00;">REST</span>] Pulling contributors...</span></span>
-<span><span class="co">#&gt; Rows: 71</span></span>
+<span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">repos</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Rows: 78</span></span>
 <span><span class="co">#&gt; Columns: 18</span></span>
 <span><span class="co">#&gt; $ repo_id          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R_kgDOHNMr2w", "R_kgDOHYNOFQ", "R_kgDOHYNrJw", "R_kg…</span></span>
 <span><span class="co">#&gt; $ repo_name        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "shinyGizmo", "cohortBuilder", "shinyCohortBuilder", …</span></span>
@@ -127,138 +129,118 @@ you specified in <code>set_*_host()</code>.</p>
 <span><span class="co">#&gt; $ repo_url         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/shinyGizmo", "https:…</span></span>
 <span><span class="co">#&gt; $ api_url          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://api.github.com/repos/r-world-devs/shinyGizmo…</span></span>
 <span><span class="co">#&gt; $ created_at       <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2022-04-20 10:04:32, 2022-05-22 18:31:55, 2022-05-22…</span></span>
-<span><span class="co">#&gt; $ last_activity_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2023-05-08, 2023-05-05, 2023-12-21, 2022-07-29, 2024…</span></span>
-<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 372.42 days, 375.42 days, 145.42 days, 655.42 days, …</span></span>
+<span><span class="co">#&gt; $ last_activity_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-07-12, 2024-06-13, 2024-07-08, 2024-06-13, 2024…</span></span>
+<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 7.31 days, 36.31 days, 11.31 days, 36.31 days, 0.31 …</span></span>
 <span><span class="co">#&gt; $ default_branch   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "dev", "dev", "dev", "master", "master", "master", "m…</span></span>
-<span><span class="co">#&gt; $ stars            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 19, 4, 6, 0, 2, 3, 0, 2, 8, 179, 4, 10, 1, 21, 1, 1, …</span></span>
-<span><span class="co">#&gt; $ forks            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0, 2, 1, 0, 1, 0, 0, 1, 5, 32, 1, 1, 0, 5, 2, 1, 0, 0…</span></span>
+<span><span class="co">#&gt; $ stars            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 19, 4, 6, 0, 2, 3, 0, 2, 1, 0, 0, 0, 0, 8, 19, 179, 4…</span></span>
+<span><span class="co">#&gt; $ forks            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0, 2, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 5, 9, 31, 1, 1…</span></span>
 <span><span class="co">#&gt; $ languages        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R, CSS, JavaScript", "R", "R, CSS, JavaScript, SCSS"…</span></span>
-<span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 6, 23, 34, 3, 77, 0, 0, 3, 6, 17, 0, 0, 0, 5, 0, 0, 0…</span></span>
-<span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 12, 1, 5, 0, 206, 0, 0, 0, 1, 170, 0, 0, 0, 16, 0, 0,…</span></span>
+<span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 6, 23, 35, 3, 86, 0, 0, 3, 0, 0, 0, 0, 0, 6, 96, 18, …</span></span>
+<span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 12, 1, 5, 0, 220, 0, 0, 0, 0, 0, 0, 0, 0, 1, 374, 170…</span></span>
 <span><span class="co">#&gt; $ contributors     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "krystian8207, stla, galachad, stlagsk", "krystian820…</span></span>
-<span><span class="co">#&gt; $ contributors_n   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 4, 2, 2, 1, 3, 1, 6, 2, 5, 20, 1, 1, 1, 2, 3, 7, 2, 1…</span></span></code></pre></div>
-<div class="section level2">
-<h2 id="storage">Storage<a class="anchor" aria-label="anchor" href="#storage"></a>
-</h2>
-<p>After pulling, the data is saved to <code>GitStats</code>. Caching
-feature is by default turned on. If you run the <code>get_*()</code>
-function once more, data will be retrieved from <code>GitStats</code>
-object.</p>
+<span><span class="co">#&gt; $ contributors_n   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 4, 2, 3, 1, 4, 1, 6, 2, 1, 142, 2, 3, 1, 5, 19, 20, 1…</span></span></code></pre></div>
+<p>You can always go for the lighter version of <code>get_repos</code>,
+i.e. <code><a href="../reference/get_repos_urls.html">get_repos_urls()</a></code> which will print you a vector of URLs
+instead of whole table.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/get_repos.html">get_repos</a></span><span class="op">(</span><span class="va">git_stats</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> <span style="color: #BBBB00;">Retrieving repositories from the GitStats storage.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #00BBBB;">If you wish to pull the data from API once more, set `cache` parameter to `FALSE`.</span></span></span>
-<span><span class="co">#&gt; Rows: 71</span></span>
-<span><span class="co">#&gt; Columns: 18</span></span>
-<span><span class="co">#&gt; $ repo_id          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R_kgDOHNMr2w", "R_kgDOHYNOFQ", "R_kgDOHYNrJw", "R_kg…</span></span>
-<span><span class="co">#&gt; $ repo_name        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "shinyGizmo", "cohortBuilder", "shinyCohortBuilder", …</span></span>
-<span><span class="co">#&gt; $ organization     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "r-world-devs", "r-world-devs", "r-world-devs", "r-wo…</span></span>
-<span><span class="co">#&gt; $ fullname         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "r-world-devs/shinyGizmo", "r-world-devs/cohortBuilde…</span></span>
-<span><span class="co">#&gt; $ platform         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "github", "github", "github", "github", "github", "gi…</span></span>
-<span><span class="co">#&gt; $ repo_url         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/shinyGizmo", "https:…</span></span>
-<span><span class="co">#&gt; $ api_url          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://api.github.com/repos/r-world-devs/shinyGizmo…</span></span>
-<span><span class="co">#&gt; $ created_at       <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2022-04-20 10:04:32, 2022-05-22 18:31:55, 2022-05-22…</span></span>
-<span><span class="co">#&gt; $ last_activity_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2023-05-08, 2023-05-05, 2023-12-21, 2022-07-29, 2024…</span></span>
-<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 372.42 days, 375.42 days, 145.42 days, 655.42 days, …</span></span>
-<span><span class="co">#&gt; $ default_branch   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "dev", "dev", "dev", "master", "master", "master", "m…</span></span>
-<span><span class="co">#&gt; $ stars            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 19, 4, 6, 0, 2, 3, 0, 2, 8, 179, 4, 10, 1, 21, 1, 1, …</span></span>
-<span><span class="co">#&gt; $ forks            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0, 2, 1, 0, 1, 0, 0, 1, 5, 32, 1, 1, 0, 5, 2, 1, 0, 0…</span></span>
-<span><span class="co">#&gt; $ languages        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R, CSS, JavaScript", "R", "R, CSS, JavaScript, SCSS"…</span></span>
-<span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 6, 23, 34, 3, 77, 0, 0, 3, 6, 17, 0, 0, 0, 5, 0, 0, 0…</span></span>
-<span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 12, 1, 5, 0, 206, 0, 0, 0, 1, 170, 0, 0, 0, 16, 0, 0,…</span></span>
-<span><span class="co">#&gt; $ contributors     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "krystian8207, stla, galachad, stlagsk", "krystian820…</span></span>
-<span><span class="co">#&gt; $ contributors_n   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 4, 2, 2, 1, 3, 1, 6, 2, 5, 20, 1, 1, 1, 2, 3, 7, 2, 1…</span></span></code></pre></div>
-<p>Unless, you switch off the cache.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/get_repos.html">get_repos</a></span><span class="op">(</span><span class="va">git_stats</span>, cache <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:r-world-devs] Pulling repositories...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:openpharma] Pulling repositories...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #00BB00;">REST</span>] Pulling contributors...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitLab][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:mbtests] Pulling repositories...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitLab][Engine:<span style="color: #00BB00;">REST</span>] Pulling contributors...</span></span>
-<span><span class="co">#&gt; Rows: 71</span></span>
-<span><span class="co">#&gt; Columns: 18</span></span>
-<span><span class="co">#&gt; $ repo_id          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R_kgDOHNMr2w", "R_kgDOHYNOFQ", "R_kgDOHYNrJw", "R_kg…</span></span>
-<span><span class="co">#&gt; $ repo_name        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "shinyGizmo", "cohortBuilder", "shinyCohortBuilder", …</span></span>
-<span><span class="co">#&gt; $ organization     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "r-world-devs", "r-world-devs", "r-world-devs", "r-wo…</span></span>
-<span><span class="co">#&gt; $ fullname         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "r-world-devs/shinyGizmo", "r-world-devs/cohortBuilde…</span></span>
-<span><span class="co">#&gt; $ platform         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "github", "github", "github", "github", "github", "gi…</span></span>
-<span><span class="co">#&gt; $ repo_url         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/shinyGizmo", "https:…</span></span>
-<span><span class="co">#&gt; $ api_url          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://api.github.com/repos/r-world-devs/shinyGizmo…</span></span>
-<span><span class="co">#&gt; $ created_at       <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2022-04-20 10:04:32, 2022-05-22 18:31:55, 2022-05-22…</span></span>
-<span><span class="co">#&gt; $ last_activity_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2023-05-08, 2023-05-05, 2023-12-21, 2022-07-29, 2024…</span></span>
-<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 372.42 days, 375.42 days, 145.42 days, 655.42 days, …</span></span>
-<span><span class="co">#&gt; $ default_branch   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "dev", "dev", "dev", "master", "master", "master", "m…</span></span>
-<span><span class="co">#&gt; $ stars            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 19, 4, 6, 0, 2, 3, 0, 2, 8, 179, 4, 10, 1, 21, 1, 1, …</span></span>
-<span><span class="co">#&gt; $ forks            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0, 2, 1, 0, 1, 0, 0, 1, 5, 32, 1, 1, 0, 5, 2, 1, 0, 0…</span></span>
-<span><span class="co">#&gt; $ languages        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R, CSS, JavaScript", "R", "R, CSS, JavaScript, SCSS"…</span></span>
-<span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 6, 23, 34, 3, 77, 0, 0, 3, 6, 17, 0, 0, 0, 5, 0, 0, 0…</span></span>
-<span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 12, 1, 5, 0, 206, 0, 0, 0, 1, 170, 0, 0, 0, 16, 0, 0,…</span></span>
-<span><span class="co">#&gt; $ contributors     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "krystian8207, stla, galachad, stlagsk", "krystian820…</span></span>
-<span><span class="co">#&gt; $ contributors_n   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 4, 2, 2, 1, 3, 1, 6, 2, 5, 20, 1, 1, 1, 2, 3, 7, 2, 1…</span></span></code></pre></div>
-</div>
+<code class="sourceCode R"><span><span class="va">repos_urls</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_repos_urls.html">get_repos_urls</a></span><span class="op">(</span><span class="va">git_stats</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #00BB00;">REST</span>][Scope:r-world-devs] Pulling repositories (URLS)...</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #00BB00;">REST</span>][Scope:openpharma] Pulling repositories (URLS)...</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitLab][Engine:<span style="color: #00BB00;">REST</span>][Scope:mbtests] Pulling repositories (URLS)...</span></span>
+<span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">repos_urls</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  'repos_urls' chr [1:52] "https://github.com/r-world-devs/shinyGizmo" ...</span></span>
+<span><span class="co">#&gt;  - attr(*, "type")= chr "web"</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="verbose-mode">Verbose mode<a class="anchor" aria-label="anchor" href="#verbose-mode"></a>
 </h2>
-<p>If messages overwhelm you, you can switch them off.</p>
+<p>If messages overwhelm you, you can switch them off in the
+function:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">release_logs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_release_logs.html">get_release_logs</a></span><span class="op">(</span></span>
+<span>  gitstats_object <span class="op">=</span> <span class="va">git_stats</span>, </span>
+<span>  since <span class="op">=</span> <span class="st">"2024-01-01"</span>, </span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>Or globally:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/get_release_logs.html">get_release_logs</a></span><span class="op">(</span><span class="va">git_stats</span>, since <span class="op">=</span> <span class="st">"2024-01-01"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Rows: 10</span></span>
-<span><span class="co">#&gt; Columns: 7</span></span>
-<span><span class="co">#&gt; $ repo_name    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "GitStats", "visR", "simaerep", "mmrm", "mmrm", "savvyr",…</span></span>
-<span><span class="co">#&gt; $ repo_url     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/GitStats", "https://gith…</span></span>
-<span><span class="co">#&gt; $ release_name <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "1.1.0", "Release v0.4.1", "v0.5.0", "v0.3.11", "v0.3.10"…</span></span>
-<span><span class="co">#&gt; $ release_tag  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "v1.1.0", "v0.4.1", "v0.5.0", "v0.3.11", "v0.3.10", "v0.1…</span></span>
-<span><span class="co">#&gt; $ published_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-01-08 10:14:13, 2024-03-15 21:51:26, 2024-04-03 11:…</span></span>
-<span><span class="co">#&gt; $ release_url  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/GitStats/releases/tag/v1…</span></span>
-<span><span class="co">#&gt; $ release_log  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "## New features:\r\n\r\n- `pull_R_package_usage()` with …</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/verbose_off.html">verbose_off</a></span><span class="op">(</span><span class="va">git_stats</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="pull-repositories-with-code">Pull repositories with code<a class="anchor" aria-label="anchor" href="#pull-repositories-with-code"></a>
+<h2 id="storage">Storage<a class="anchor" aria-label="anchor" href="#storage"></a>
 </h2>
-<p>Apart from pulling all repositories from organizations, you can look
-for those that have a particular text in a <code>code blob</code>:</p>
+<p>After pulling, the data is saved to <code>GitStats</code>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">github_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_gitstats.html">create_gitstats</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/set_github_host.html">set_github_host</a></span><span class="op">(</span></span>
-<span>    orgs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"r-world-devs"</span>, <span class="st">"openpharma"</span><span class="op">)</span>,</span>
-<span>    token <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"GITHUB_PAT"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Searching scope set to [org].</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">Checking host data...</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Set connection to GitHub.</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/get_repos.html">get_repos</a></span><span class="op">(</span><span class="va">github_stats</span>, with_code <span class="op">=</span> <span class="st">"Shiny"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #00BB00;">REST</span>][Scope:r-world-devs] Pulling repositories...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Searching for code [Shiny]...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Preparing repositories table...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #00BB00;">REST</span>][Scope:openpharma] Pulling repositories...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Searching for code [Shiny]...</span></span>
-<span><span class="co">#&gt; Parsing search response into respositories output... <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■        </span>…</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Preparing repositories table...</span></span>
-<span><span class="co">#&gt; Pulling repositories issues... <span style="color: #00BB00;">■■■■■■■■                        </span>  22% |  ETA:  4s</span></span>
-<span><span class="co">#&gt; Pulling repositories issues... <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■   </span>  94% |  ETA:  0s</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #00BB00;">REST</span>] Pulling contributors...</span></span>
-<span><span class="co">#&gt; Rows: 23</span></span>
-<span><span class="co">#&gt; Columns: 18</span></span>
-<span><span class="co">#&gt; $ repo_id          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "627452680", "495151911", "604718884", "495144469", "…</span></span>
-<span><span class="co">#&gt; $ repo_name        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "hypothesis", "shinyCohortBuilder", "shinyTimelines",…</span></span>
-<span><span class="co">#&gt; $ organization     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "r-world-devs", "r-world-devs", "r-world-devs", "r-wo…</span></span>
-<span><span class="co">#&gt; $ fullname         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "r-world-devs/hypothesis", "r-world-devs/shinyCohortB…</span></span>
-<span><span class="co">#&gt; $ platform         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "github", "github", "github", "github", "github", "gi…</span></span>
-<span><span class="co">#&gt; $ repo_url         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/hypothesis", "https:…</span></span>
-<span><span class="co">#&gt; $ api_url          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://api.github.com/repos/r-world-devs/hypothesis…</span></span>
-<span><span class="co">#&gt; $ created_at       <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2023-04-13 13:52:24, 2022-05-22 19:04:12, 2023-02-21…</span></span>
-<span><span class="co">#&gt; $ last_activity_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2023-12-21 20:36:23, 2023-12-21 20:30:59, 2023-09-29…</span></span>
-<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 144.57 days, 144.57 days, 227.90 days, 375.10 days, …</span></span>
-<span><span class="co">#&gt; $ default_branch   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "master", "dev", "master", "dev", "master", "main", "…</span></span>
-<span><span class="co">#&gt; $ stars            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 2, 6, 3, 4, 2, 11, 6, 3, 10, 4, 179, 15, 4, 21, 0, 8,…</span></span>
-<span><span class="co">#&gt; $ forks            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 1, 1, 0, 2, 1, 7, 0, 0, 3, 0, 32, 2, 0, 5, 0, 1, 0, 0…</span></span>
-<span><span class="co">#&gt; $ languages        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R", "R", "R", "R", "R", "R", "Shell", "JavaScript", …</span></span>
-<span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 4, 30, 1, 23, 30, 30, 1, 2, 29, 1, 18, 7, 0, 5, 0, 2,…</span></span>
-<span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…</span></span>
-<span><span class="co">#&gt; $ contributors     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "krystian8207, galachad", "krystian8207, galachad", "…</span></span>
-<span><span class="co">#&gt; $ contributors_n   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 2, 2, 1, 2, 3, 13, 1, 2, 9, 1, 20, 3, 2, 2, 1, 2, 2, …</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">commits</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_commits.html">get_commits</a></span><span class="op">(</span></span>
+<span>  gitstats_object <span class="op">=</span> <span class="va">git_stats</span>, </span>
+<span>  since <span class="op">=</span> <span class="st">"2024-06-01"</span>, </span>
+<span>  until <span class="op">=</span> <span class="st">"2024-06-30"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:r-world-devs] Pulling commits...</span></span>
+<span><span class="co">#&gt;  <span style="color: #00BB00;">■■■■■■                          </span>  16% |  ETA: 19s</span></span>
+<span><span class="co">#&gt;  <span style="color: #00BB00;">■■■■■■■■■■■                     </span>  32% |  ETA: 14s</span></span>
+<span><span class="co">#&gt;  <span style="color: #00BB00;">■■■■■■■■■■■■■■■■                </span>  51% |  ETA:  9s</span></span>
+<span><span class="co">#&gt;  <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■           </span>  68% |  ETA:  6s</span></span>
+<span><span class="co">#&gt;  <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■     </span>  87% |  ETA:  2s</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:openpharma] Pulling commits...</span></span>
+<span><span class="co">#&gt;  <span style="color: #00BB00;">■■■■■■■                         </span>  20% |  ETA: 13s</span></span>
+<span><span class="co">#&gt;  <span style="color: #00BB00;">■■■■■■■■■■■                     </span>  32% |  ETA: 14s</span></span>
+<span><span class="co">#&gt;  <span style="color: #00BB00;">■■■■■■■■■■■■■■                  </span>  42% |  ETA: 13s</span></span>
+<span><span class="co">#&gt;  <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■              </span>  55% |  ETA: 10s</span></span>
+<span><span class="co">#&gt;  <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■           </span>  68% |  ETA:  7s</span></span>
+<span><span class="co">#&gt;  <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■       </span>  80% |  ETA:  5s</span></span>
+<span><span class="co">#&gt;  <span style="color: #00BB00;">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■   </span>  93% |  ETA:  2s</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitLab][Engine:<span style="color: #00BB00;">REST</span>][Scope:mbtests] Pulling commits...</span></span>
+<span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Rows: 91</span></span>
+<span><span class="co">#&gt; Columns: 10</span></span>
+<span><span class="co">#&gt; $ id             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "C_kwDOIvtxstoAKDcyZDIyMjFjNDkyYzczN2I3MmZjNWNjMmU0ZmVm…</span></span>
+<span><span class="co">#&gt; $ committed_date <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-06-28 09:05:20, 2024-06-27 11:23:20, 2024-06-27 1…</span></span>
+<span><span class="co">#&gt; $ author         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "Maciej Banaś", "banasm", "banasm", "banasm", "banasm",…</span></span>
+<span><span class="co">#&gt; $ author_login   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "maciekbanas", "maciekbanas", "maciekbanas", "maciekban…</span></span>
+<span><span class="co">#&gt; $ author_name    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "Maciej Banaś", "Maciej Banaś", "Maciej Banaś", "Maciej…</span></span>
+<span><span class="co">#&gt; $ additions      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 459, 1, 100, 32, 27, 108, 52, 29, 1, 57, 172, 3, 9, 3, …</span></span>
+<span><span class="co">#&gt; $ deletions      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 54, 1, 28, 3, 5, 16, 42, 22, 1, 26, 30, 0, 1, 0, 11, 1,…</span></span>
+<span><span class="co">#&gt; $ repository     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "GitStats", "GitStats", "GitStats", "GitStats", "GitSta…</span></span>
+<span><span class="co">#&gt; $ organization   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "r-world-devs", "r-world-devs", "r-world-devs", "r-worl…</span></span>
+<span><span class="co">#&gt; $ api_url        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://api.github.com", "https://api.github.com", "ht…</span></span></code></pre></div>
+<p>Caching feature is by default turned on. If you run the
+<code>get_*()</code> function once more, data will be retrieved from
+<code>GitStats</code> object.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">commits</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_commits.html">get_commits</a></span><span class="op">(</span></span>
+<span>  gitstats_object <span class="op">=</span> <span class="va">git_stats</span>, </span>
+<span>  since <span class="op">=</span> <span class="st">"2024-06-01"</span>, </span>
+<span>  until <span class="op">=</span> <span class="st">"2024-06-30"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> <span style="color: #BBBB00;">Retrieving commits from the GitStats storage.</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #00BBBB;">If you wish to pull the data from API once more, set `cache` parameter to `FALSE`.</span></span></span>
+<span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Rows: 91</span></span>
+<span><span class="co">#&gt; Columns: 10</span></span>
+<span><span class="co">#&gt; $ id             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "C_kwDOIvtxstoAKDcyZDIyMjFjNDkyYzczN2I3MmZjNWNjMmU0ZmVm…</span></span>
+<span><span class="co">#&gt; $ committed_date <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-06-28 09:05:20, 2024-06-27 11:23:20, 2024-06-27 1…</span></span>
+<span><span class="co">#&gt; $ author         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "Maciej Banaś", "banasm", "banasm", "banasm", "banasm",…</span></span>
+<span><span class="co">#&gt; $ author_login   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "maciekbanas", "maciekbanas", "maciekbanas", "maciekban…</span></span>
+<span><span class="co">#&gt; $ author_name    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "Maciej Banaś", "Maciej Banaś", "Maciej Banaś", "Maciej…</span></span>
+<span><span class="co">#&gt; $ additions      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 459, 1, 100, 32, 27, 108, 52, 29, 1, 57, 172, 3, 9, 3, …</span></span>
+<span><span class="co">#&gt; $ deletions      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 54, 1, 28, 3, 5, 16, 42, 22, 1, 26, 30, 0, 1, 0, 11, 1,…</span></span>
+<span><span class="co">#&gt; $ repository     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "GitStats", "GitStats", "GitStats", "GitStats", "GitSta…</span></span>
+<span><span class="co">#&gt; $ organization   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "r-world-devs", "r-world-devs", "r-world-devs", "r-worl…</span></span>
+<span><span class="co">#&gt; $ api_url        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://api.github.com", "https://api.github.com", "ht…</span></span></code></pre></div>
+<p>Unless, you switch off the cache:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">commits</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_commits.html">get_commits</a></span><span class="op">(</span></span>
+<span>  gitstats_object <span class="op">=</span> <span class="va">git_stats</span>, </span>
+<span>  since <span class="op">=</span> <span class="st">"2024-06-01"</span>, </span>
+<span>  until <span class="op">=</span> <span class="st">"2024-06-30"</span>,</span>
+<span>  cache <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>Or simply change the parameters for the function:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">commits</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_commits.html">get_commits</a></span><span class="op">(</span></span>
+<span>  gitstats_object <span class="op">=</span> <span class="va">git_stats</span>, </span>
+<span>  since <span class="op">=</span> <span class="st">"2024-07-01"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
