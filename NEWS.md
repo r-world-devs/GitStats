@@ -1,3 +1,7 @@
+# GitStats (development version)
+
+- Changed message when searching scope is set to scan whole git host (no `orgs` nor `repos` specified) from warning to info ([#456](https://github.com/r-world-devs/GitStats/issues/456)).
+
 # GitStats 2.0.2
 
 This is a patch release with substantial improvements to some functions (`get_repos()`, `get_files()` and `get_R_package_usage()`), adding `with_files` and `in_files` parameters, fixing `cache` feature and introducing new `get_repos_urls()` function, a minimalist version of `get_repos()`:

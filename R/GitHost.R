@@ -300,8 +300,8 @@ GitHost <- R6::R6Class("GitHost",
           call = NULL)
         } else {
           if (private$verbose) {
-            cli::cli_alert_warning(cli::col_yellow(
-              "No `orgs` specified."
+            cli::cli_alert_info(cli::col_grey(
+              "No `orgs` nor `repos` specified."
             ))
             cli::cli_alert_info(cli::col_grey(
               "Searching scope set to [all]."
