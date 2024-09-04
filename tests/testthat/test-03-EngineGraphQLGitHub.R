@@ -192,6 +192,16 @@ test_that("GitHub GraphQL Engine pulls files from organization", {
   test_mocker$cache(github_files_response)
 })
 
+test_that("GitHub GraphQL Engine pulls .png files from organization", {
+  github_png_files_response <- test_graphql_github$pull_files_from_org(
+    org = "r-world-devs",
+    repos = NULL,
+    file_path = "man/figures/logo.png"
+  )
+  expect_github_files_response(github_png_files_response)
+  test_mocker$cache(github_png_files_response)
+})
+
 test_that("GitHub GraphQL Engine pulls files from defined repositories", {
   github_files_response <- test_graphql_github$pull_files_from_org(
     org = "openpharma",

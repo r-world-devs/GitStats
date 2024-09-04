@@ -296,7 +296,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
               "repo_id" = repository$id,
               "organization" = org,
               "file_path" = file,
-              "file_content" = repository$object$text,
+              "file_content" = repository$object$text %||% NA,
               "file_size" = repository$object$byteSize,
               "repo_url" = repository$url
             )
