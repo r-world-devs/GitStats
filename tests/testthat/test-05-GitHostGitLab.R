@@ -138,14 +138,14 @@ test_that("get_commits for GitLab works with repos implied", {
   )
 })
 
-test_that("get_files for GitLab works", {
+test_that("get_files_content for GitLab works", {
   mockery::stub(
-    test_host$get_files,
+    test_host$get_files_content,
     "private$get_files_from_orgs",
     test_mocker$use("gl_files_table")
   )
   suppressMessages(
-    gl_files_table <- test_host$get_files(
+    gl_files_table <- test_host$get_files_content(
       file_path = "meta_data.yaml"
     )
   )

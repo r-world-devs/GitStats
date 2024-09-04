@@ -57,6 +57,12 @@
       ! Retrieving repositories from the GitStats storage.
       i If you wish to pull the data from API once more, set `cache` parameter to `FALSE`.
 
+# get_files_structure_from_hosts works as expected
+
+    Code
+      files_structure <- test_gitstats$get_files_structure(pattern = "\\md", depth = 1L,
+        verbose = TRUE)
+
 # subgroups are cleanly printed in GitStats
 
     Code
