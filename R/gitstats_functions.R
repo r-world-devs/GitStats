@@ -304,8 +304,8 @@ get_users <- function(gitstats_object,
   )
 }
 
-#' @title Get data on files
-#' @name get_files
+#' @title Get content of files
+#' @name get_files_content
 #' @description Pull text files content for a given scope (orgs, repos or whole
 #'   git hosts).
 #' @param gitstats_object A GitStats object.
@@ -326,16 +326,59 @@ get_users <- function(gitstats_object,
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
 #'   )
-#'  get_files(my_gitstats, c("LICENSE", "DESCRIPTION"))
+#'  get_files(
+#'    gitstats_obj = my_gitstats,
+#'    file_path = c("LICENSE", "DESCRIPTION"))
 #' }
 #' @return A data.frame.
 #' @export
-get_files <- function(gitstats_object,
-                      file_path,
-                      cache = TRUE,
-                      verbose = is_verbose(gitstats_object)){
-  gitstats_object$get_files(
+get_files_content <- function(gitstats_object,
+                              file_path,
+                              cache = TRUE,
+                              verbose = is_verbose(gitstats_object)) {
+  gitstats_object$get_files_content(
     file_path = file_path,
+    cache = cache,
+    verbose = verbose
+  )
+}
+
+#' @title Get structure of files
+#' @name get_files_structure
+#' @description Pulls file structure for a given repository.
+#' @param gitstats_object A GitStats object.
+#' @param pattern An optional regular expression. If defined, it pulls file
+#'   structure for a repository matching this pattern.
+#' @param depth An optional integer. Defines level of directories to retrieve
+#'   files from. E.g. if set to `0`, it will pull files only from root, if `1`,
+#'   will take data from `root` directory and directories visible in `root`
+#'   directory. If left with no argument, will pull files from all directories.
+#' @examples
+#' \dontrun{
+#'  my_gitstats <- create_gitstats() %>%
+#'   set_github_host(
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs")
+#'   ) %>%
+#'   set_gitlab_host(
+#'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+#'     orgs = "mbtests"
+#'   )
+#'  get_files_structure(
+#'    gitstats_obj = my_gitstats,
+#'    pattern = "\\.md"
+#'  )
+#' }
+#' @return A list of vectors.
+#' @export
+get_files_structure <- function(gitstats_object,
+                                pattern = NULL,
+                                depth = Inf,
+                                cache = TRUE,
+                                verbose = is_verbose(gitstats_object)) {
+  gitstats_object$get_files_structure(
+    pattern = pattern,
+    depth = depth,
     cache = cache,
     verbose = verbose
   )

@@ -1,5 +1,11 @@
 # GitStats (development version)
 
+## New features:
+
+- Added new `get_files_structure()` function to pull files structure for a given repository with possibility to control level of directories (`depth` parameter) and to limit output to files matching regex argument passed to `pattern` parameter ([#338](https://github.com/r-world-devs/GitStats/issues/338)). Together with that, `get_files()` function was renamed to `get_files_content()` to better reflect its purpose.
+
+## Other:
+
 - Changed message when searching scope is set to scan whole git host (no `orgs` nor `repos` specified) from warning to info ([#456](https://github.com/r-world-devs/GitStats/issues/456)).
 
 # GitStats 2.0.2

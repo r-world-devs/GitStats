@@ -129,7 +129,7 @@ GitHost <- R6::R6Class("GitHost",
 
     #' Retrieve content of given text files from all repositories for a host in
     #' a table format.
-    get_files = function(file_path, verbose = TRUE) {
+    get_files_content = function(file_path, verbose = TRUE) {
       files_table <- if (!private$scan_all) {
         private$get_files_from_orgs(
           file_path = file_path,
@@ -142,6 +142,15 @@ GitHost <- R6::R6Class("GitHost",
         )
       }
       return(files_table)
+    },
+
+    get_files_structure = function(pattern, depth, verbose = TRUE) {
+      files_structure <- private$get_files_structure_from_orgs(
+        pattern = pattern,
+        depth = depth,
+        verbose = verbose
+      )
+      return(files_structure)
     },
 
     #' Iterator over pulling release logs from engines
@@ -773,6 +782,32 @@ GitHost <- R6::R6Class("GitHost",
         purrr::list_rbind() %>%
         private$add_repo_api_url()
       return(files_table)
+    },
+
+    get_files_structure_from_orgs = function(pattern, depth, verbose) {
+      graphql_engine <- private$engines$graphql
+      files_structure_list <- purrr::map(private$orgs, function(org) {
+        if (verbose) {
+          user_info <- if (!is.null(pattern)) {
+            glue::glue("Pulling files structure...[files matching pattern: '{pattern}']")
+          } else {
+            glue::glue("Pulling files structure...")
+          }
+          show_message(
+            host = private$host_name,
+            engine = "graphql",
+            scope = org,
+            information = user_info
+          )
+        }
+        graphql_engine$get_files_structure_from_org(
+          org = org,
+          repos = private$repos,
+          pattern = pattern
+        )
+      })
+      names(files_structure_list) <- private$orgs
+      return(files_structure_list)
     },
 
     # Pull files from host
