@@ -353,6 +353,10 @@ get_files_content <- function(gitstats_object,
 #'   files from. E.g. if set to `0`, it will pull files only from root, if `1`,
 #'   will take data from `root` directory and directories visible in `root`
 #'   directory. If left with no argument, will pull files from all directories.
+#' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+#'   result from its storage.
+#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
+#'   output is switched off.
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%

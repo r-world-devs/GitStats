@@ -22,6 +22,12 @@ structure for a repository matching this pattern.}
 files from. E.g. if set to \code{0}, it will pull files only from root, if \code{1},
 will take data from \code{root} directory and directories visible in \code{root}
 directory. If left with no argument, will pull files from all directories.}
+
+\item{cache}{A logical, if set to \code{TRUE} GitStats will retrieve the last
+result from its storage.}
+
+\item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and printing
+output is switched off.}
 }
 \value{
 A list of vectors.
