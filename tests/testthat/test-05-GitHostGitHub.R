@@ -183,13 +183,13 @@ test_that("get_commits_from_host for GitHub works", {
   test_mocker$cache(gh_commits_table)
 })
 
-test_that("get_files_from_orgs for GitHub works", {
+test_that("get_files_content_from_orgs for GitHub works", {
   mockery::stub(
-    test_host$get_files_from_orgs,
+    test_host$get_files_content_from_orgs,
     "private$prepare_files_table",
     test_mocker$use("gh_files_table")
   )
-  gh_files_table <- test_host$get_files_from_orgs(
+  gh_files_table <- test_host$get_files_content_from_orgs(
     file_path = "DESCRIPTION",
     verbose = FALSE
   )
@@ -252,7 +252,7 @@ test_that("get_commits for GitHub works", {
 test_that("get_files_content for GitHub works", {
   mockery::stub(
     test_host$get_files_content,
-    "private$get_files_from_orgs",
+    "private$get_files_content_from_orgs",
     test_mocker$use("gh_files_table")
   )
   suppressMessages(

@@ -189,7 +189,7 @@ test_that("`get_commits()` retrieves commits in the table format", {
 test_that("`get_files_content()` pulls files in the table format", {
   mockery::stub(
     test_host$get_files_content,
-    "private$get_files_from_orgs",
+    "private$get_files_content_from_orgs",
     test_mocker$use("gh_files_table")
   )
   expect_snapshot(
@@ -336,7 +336,7 @@ test_host_gitlab <- create_gitlab_testhost(orgs = "mbtests")
 test_that("`get_files_content()` pulls files in the table format", {
   mockery::stub(
     test_host_gitlab$get_files_content,
-    "private$get_files_from_orgs",
+    "private$get_files_content_from_orgs",
     test_mocker$use("gl_files_table")
   )
   expect_snapshot(

@@ -93,14 +93,14 @@ test_that("get_commits_from_host works", {
   test_mocker$cache(gl_commits_table)
 })
 
-test_that("get_files_from_orgs for GitLab works", {
+test_that("get_files_content_from_orgs for GitLab works", {
   mockery::stub(
-    test_host$get_files_from_orgs,
+    test_host$get_files_content_from_orgs,
     "private$prepare_files_table",
     test_mocker$use("gl_files_table")
   )
   suppressMessages(
-    gl_files_table <- test_host$get_files_from_orgs(
+    gl_files_table <- test_host$get_files_content_from_orgs(
       file_path = "meta_data.yaml",
       verbose = FALSE
     )
@@ -141,7 +141,7 @@ test_that("get_commits for GitLab works with repos implied", {
 test_that("get_files_content for GitLab works", {
   mockery::stub(
     test_host$get_files_content,
-    "private$get_files_from_orgs",
+    "private$get_files_content_from_orgs",
     test_mocker$use("gl_files_table")
   )
   suppressMessages(

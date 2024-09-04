@@ -131,12 +131,12 @@ GitHost <- R6::R6Class("GitHost",
     #' a table format.
     get_files_content = function(file_path, verbose = TRUE) {
       files_table <- if (!private$scan_all) {
-        private$get_files_from_orgs(
+        private$get_files_content_from_orgs(
           file_path = file_path,
           verbose = verbose
         )
       } else {
-        private$get_files_from_host(
+        private$get_files_content_from_host(
           file_path = file_path,
           verbose = verbose
         )
@@ -758,7 +758,7 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Pull files content from organizations
-    get_files_from_orgs = function(file_path, verbose) {
+    get_files_content_from_orgs = function(file_path, verbose) {
       graphql_engine <- private$engines$graphql
       files_table <- purrr::map(private$orgs, function(org) {
         if (verbose) {
@@ -811,7 +811,7 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Pull files from host
-    get_files_from_host = function(file_path, verbose) {
+    get_files_content_from_host = function(file_path, verbose) {
       rest_engine <- private$engines$rest
       if (verbose) {
         show_message(

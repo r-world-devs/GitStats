@@ -347,7 +347,7 @@ test_that("get_files_content works properly", {
   test_gitstats <- create_test_gitstats(hosts = 2)
   mockery::stub(
     test_gitstats$get_files_content,
-    "private$get_files_table",
+    "private$get_files_content_from_hosts",
     purrr::list_rbind(
       list(
         test_mocker$use("gh_files_table"),

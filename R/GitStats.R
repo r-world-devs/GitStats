@@ -295,7 +295,7 @@ GitStats <- R6::R6Class("GitStats",
         verbose = verbose
       )
       if (trigger) {
-        files <- private$get_files_table(
+        files <- private$get_files_content_from_hosts(
           file_path = file_path,
           verbose = verbose
         ) %>%
@@ -755,7 +755,7 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Pull content of a text file in a table form
-    get_files_table = function(file_path, verbose) {
+    get_files_content_from_hosts = function(file_path, verbose) {
       purrr::map(private$hosts, function(host) {
         host$get_files_content(
           file_path = file_path,
