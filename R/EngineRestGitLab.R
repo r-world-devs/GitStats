@@ -251,7 +251,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     },
 
     # Iterator over pulling pages of repositories.
-    pull_repos_from_org = function(org, settings) {
+    get_repos_from_org = function(org, settings) {
       repo_endpoint <- paste0(self$rest_api_url, "/groups/", org, "/projects")
       repos_response <- private$paginate_results(
         endpoint = repo_endpoint

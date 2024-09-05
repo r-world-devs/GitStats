@@ -540,7 +540,7 @@ GitHost <- R6::R6Class("GitHost",
           )
         }
         repos <- private$set_repos(settings, org)
-        repos_table <- graphql_engine$pull_repos_from_org(
+        repos_table <- graphql_engine$get_repos_from_org(
           org = org
         ) %>%
           private$prepare_repos_table_from_graphql()
@@ -803,7 +803,8 @@ GitHost <- R6::R6Class("GitHost",
         graphql_engine$get_files_structure_from_org(
           org = org,
           repos = private$repos,
-          pattern = pattern
+          pattern = pattern,
+          depth = depth
         )
       })
       names(files_structure_list) <- private$orgs

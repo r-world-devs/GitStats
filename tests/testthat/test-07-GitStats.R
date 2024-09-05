@@ -264,7 +264,7 @@ test_that("check_if_args_changed", {
 })
 
 test_that("get_files_structure_from_hosts works as expected", {
-  test_gitstats <- create_test_gitstats(hosts = 1, priv_mode = TRUE)
+  test_gitstats <- create_test_gitstats(hosts = 2, priv_mode = TRUE)
   mockery::stub(
     test_gitstats$get_files_structure_from_hosts,
     "host$get_files_structure",
@@ -275,7 +275,8 @@ test_that("get_files_structure_from_hosts works as expected", {
     depth = 1L,
     verbose = FALSE
   )
-  expect_equal(names(files_structure_from_hosts), "https://api.github.com")
+  expect_equal(names(files_structure_from_hosts),
+               c("https://api.github.com", "https://gitlab.com/api/v4"))
   expect_equal(names(files_structure_from_hosts[[1]]), c("r-world-devs", "openpharma"))
   test_mocker$cache(files_structure_from_hosts)
 })
@@ -366,8 +367,8 @@ test_that("get_files_content works properly", {
   test_mocker$cache(files_table)
 })
 
-test_that("get_files_structure_from_hosts works as expected", {
-  test_gitstats <- create_test_gitstats(hosts = 1)
+test_that("get_files_structure works as expected", {
+  test_gitstats <- create_test_gitstats(hosts = 2)
   mockery::stub(
     test_gitstats$get_files_structure,
     "private$get_files_structure_from_hosts",

@@ -44,6 +44,7 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
               node {
                 repo_id: id
                 repo_name: name
+                repo_path: path
                 ... on Project {
                   repository {
                     rootRef
@@ -140,6 +141,37 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
             }
           }'
       )
+    },
+
+    files_tree_from_repo = function(){
+      '
+      query GetFilesTree ($fullPath: ID!, $file_path: String!) {
+        project(fullPath: $fullPath) {
+          repository {
+            tree(path: $file_path) {
+              trees (first: 100) {
+                pageInfo{
+                  endCursor
+                  hasNextPage
+                }
+                nodes {
+                  name
+                }
+              }
+              blobs (first: 100) {
+                pageInfo{
+                  endCursor
+                  hasNextPage
+                }
+                nodes {
+                  name
+                }
+              }
+            }
+          }
+        }
+      }
+      '
     },
 
     #' @description Prepare query to get releases from GitHub repositories.

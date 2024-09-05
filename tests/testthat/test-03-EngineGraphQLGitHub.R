@@ -63,7 +63,7 @@ test_that("`pull_commits_from_one_repo()` prepares formatted list", {
 })
 
 test_that("get_file_response works", {
-  files_tree_response <- test_graphql_github$get_file_response(
+  gh_files_tree_response <- test_graphql_github$get_file_response(
     org = "r-world-devs",
     repo = "GitStats",
     def_branch = "master",
@@ -71,14 +71,14 @@ test_that("get_file_response works", {
     files_query = test_mocker$use("gh_files_tree_query")
   )
   expect_github_files_raw_response(
-    files_tree_response
+    gh_files_tree_response
   )
-  test_mocker$cache(files_tree_response)
+  test_mocker$cache(gh_files_tree_response)
 })
 
 test_that("get_dirs_and_files returns list with directories and files", {
   files_and_dirs_list <- test_graphql_github$get_files_and_dirs(
-    files_tree_response = test_mocker$use("files_tree_response")
+    files_tree_response = test_mocker$use("gh_files_tree_response")
   )
   expect_type(
     files_and_dirs_list,
@@ -105,6 +105,12 @@ test_that("get_files_structure_from_repo returns list with files and dirs vector
 })
 
 test_that("get_files_structure_from_repo returns list of files up to 2 tier of dirs", {
+  files_structure_very_shallow <- test_graphql_github$get_files_structure_from_repo(
+    org = "r-world-devs",
+    repo = "GitStats",
+    def_branch = "master",
+    depth = 1L
+  )
   files_structure_shallow <- test_graphql_github$get_files_structure_from_repo(
     org = "r-world-devs",
     repo = "GitStats",
@@ -114,6 +120,9 @@ test_that("get_files_structure_from_repo returns list of files up to 2 tier of d
   expect_type(
     files_structure_shallow,
     "character"
+  )
+  expect_true(
+    length(files_structure_very_shallow) < length(files_structure_shallow)
   )
   files_structure <- test_mocker$use("files_structure")
   expect_true(
@@ -132,6 +141,23 @@ test_that("only files with certain pattern are retrieved", {
   )
 })
 
+test_that("get_repos_data pulls data on repos and branches", {
+  repos_data <- test_graphql_github$get_repos_data(
+    org = "r-world-devs",
+    repos = NULL
+  )
+  expect_equal(
+    names(repos_data),
+    c("repositories", "def_branches")
+  )
+  expect_true(
+    length(repos_data$repositories) > 0
+  )
+  expect_true(
+    length(repos_data$def_branches) > 0
+  )
+})
+
 # public methods
 
 test_graphql_github <- EngineGraphQLGitHub$new(
@@ -139,13 +165,13 @@ test_graphql_github <- EngineGraphQLGitHub$new(
   token = Sys.getenv("GITHUB_PAT")
 )
 
-test_that("`pull_repos_from_org()` prepares formatted list", {
+test_that("`get_repos_from_org()` prepares formatted list", {
   mockery::stub(
-    test_graphql_github$pull_repos_from_org,
+    test_graphql_github$get_repos_from_org,
     "private$pull_repos_page",
     test_mocker$use("gh_repos_page")
   )
-  gh_repos_from_org <- test_graphql_github$pull_repos_from_org(
+  gh_repos_from_org <- test_graphql_github$get_repos_from_org(
     org = "r-world-devs"
   )
   expect_list_contains(

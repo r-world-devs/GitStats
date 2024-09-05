@@ -111,6 +111,29 @@ test_that("get_files_content_from_orgs for GitLab works", {
   test_mocker$cache(gl_files_table)
 })
 
+test_that("get_files_structure_from_orgs pulls files structure for repositories in orgs", {
+  test_host <- create_gitlab_testhost(
+    repos = c("mbtests/gitstatstesting", "mbtests/graphql_tests"),
+    mode = "private"
+  )
+  expect_snapshot(
+    gl_files_structure_from_orgs <- test_host$get_files_structure_from_orgs(
+      pattern = "\\.md|\\.R",
+      depth = 1L,
+      verbose = TRUE
+    )
+  )
+  expect_equal(
+    names(gl_files_structure_from_orgs),
+    c("mbtests")
+  )
+  purrr::walk(gl_files_structure_from_orgs[[1]], function(repo_files) {
+    expect_true(all(grepl("\\.md|\\.R", repo_files)))
+  })
+  test_mocker$cache(gl_files_structure_from_orgs)
+})
+
+
 # public
 
 test_host <- create_gitlab_testhost(
@@ -170,4 +193,25 @@ test_that("get_repos_urls returns repositories URLS", {
   expect_type(gl_repos_urls_with_code_in_files, "character")
   expect_gt(length(gl_repos_urls_with_code_in_files), 0)
   test_mocker$cache(gl_repos_urls_with_code_in_files)
+})
+
+test_that("get_files_structure pulls files structure for repositories in orgs", {
+  mockery::stub(
+    test_host$get_files_structure,
+    "private$get_files_structure_from_orgs",
+    test_mocker$use("gl_files_structure_from_orgs")
+  )
+  gl_files_structure_from_orgs <- test_host$get_files_structure(
+    pattern = "\\.md|\\.R",
+    depth = 2L,
+    verbose = FALSE
+  )
+  expect_equal(
+    names(gl_files_structure_from_orgs),
+    c("mbtests")
+  )
+  purrr::walk(gl_files_structure_from_orgs[[1]], function(repo_files) {
+    expect_true(all(grepl("\\.md|\\.R", repo_files)))
+  })
+  test_mocker$cache(gl_files_structure_from_orgs)
 })

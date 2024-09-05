@@ -161,6 +161,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           repo$last_activity_at <- as.POSIXct(repo$last_activity_at)
           repo$organization <- repo$group$path
           repo$group <- NULL
+          repo$repo_path <- NULL # temporary to close issue 338
           data.frame(repo)
         }) %>%
           dplyr::relocate(

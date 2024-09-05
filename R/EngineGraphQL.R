@@ -52,11 +52,15 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
          httr2::req_headers("Authorization" = paste0("Bearer ", private$token)) %>%
          httr2::req_body_json(list(query = gql_query, variables = vars)) %>%
          httr2::req_retry(
-           is_transient = ~ httr2::resp_status(.x) %in% c(400, 500, 502),
+           is_transient = ~ httr2::resp_status(.x) %in% c(400, 502),
            max_seconds = 60
          ) %>%
          httr2::req_perform()
        return(response)
+     },
+
+     filter_files_by_pattern = function(files_structure, pattern) {
+       files_structure[grepl(pattern, files_structure)]
      }
    )
 )
