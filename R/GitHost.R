@@ -385,7 +385,7 @@ GitHost <- R6::R6Class("GitHost",
     # Check if repositories exist
     check_repositories = function(repos) {
       if (private$verbose) {
-        cli::cli_alert_info(cli::col_grey("Checking host data..."))
+        cli::cli_alert_info(cli::col_grey("Checking repositories..."))
       }
       repos <- purrr::map(repos, function(repo) {
         repo_endpoint = glue::glue("{private$endpoints$repositories}/{repo}")
@@ -409,7 +409,7 @@ GitHost <- R6::R6Class("GitHost",
     # Check if organizations exist
     check_organizations = function(orgs) {
       if (private$verbose) {
-        cli::cli_alert_info(cli::col_grey("Checking host data..."))
+        cli::cli_alert_info(cli::col_grey("Checking organizations..."))
       }
       orgs <- purrr::map(orgs, function(org) {
         org_endpoint = glue::glue("{private$endpoints$orgs}/{org}")
