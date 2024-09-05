@@ -2,33 +2,32 @@ devtools::load_all(".")
 
 test_gitstats <- create_gitstats() |>
   set_github_host(
-    repos = c("r-world-devs/dbplyr", "r-world-devs/MegaStudy", "openpharma/visR")
+    orgs = c("r-world-devs", "openpharma")
+  ) |>
+  set_gitlab_host(
+    orgs = "mbtests"
   )
 
-files_structure <- get_files_structure(
+logo_files_structure <- get_files_structure(
   gitstats_obj = test_gitstats,
-  pattern = "\\.md"
+  pattern = "\\.png",
+  depth = 1L
 )
 
-file_content <- purrr::map(files_structure[[1]], function(org) {
-  purrr::map(org, function(repo_files) {
+purrr::imap(logo_files_structure[[1]]$openpharma, function(repository, repository_name) {
+  create_gitstats() |>
+    set_github_host(
+      repos = paste0("openpharma/", repository_name)
+    ) |>
     get_files_content(
-      gitstats_obj = test_gitstats,
-      file_path = repo_files,
-      verbose = FALSE
+      file_path = repository
     )
-  }) |>
-    purrr::list_rbind()
-}) |>
+}) %>%
   purrr::list_rbind()
 
-test_gitstats <- create_gitstats() |>
-  set_github_host(
-    orgs = "r-world-devs"
-  )
-
-files_structure <- get_files_structure(
+md_files_structure <- get_files_structure(
   gitstats_obj = test_gitstats,
-  pattern = "\\.md",
-  depth = 2L
+  pattern = "\\.md|\\.qmd|\\.Rmd",
+  depth = 2L,
+  verbose = FALSE
 )
