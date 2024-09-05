@@ -276,7 +276,7 @@ test_that("get_files_structure_from_hosts works as expected", {
     verbose = FALSE
   )
   expect_equal(names(files_structure_from_hosts),
-               c("https://api.github.com", "https://gitlab.com/api/v4"))
+               c("github.com", "gitlab.com"))
   expect_equal(names(files_structure_from_hosts[[1]]), c("r-world-devs", "openpharma"))
   test_mocker$cache(files_structure_from_hosts)
 })

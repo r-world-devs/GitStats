@@ -19,6 +19,7 @@ GitHost <- R6::R6Class("GitHost",
                           verbose = NA) {
       private$set_verbose(verbose)
       private$set_api_url(host)
+      private$set_web_url(host)
       private$set_endpoints()
       private$check_if_public(host)
       private$set_token(token)
@@ -208,6 +209,9 @@ GitHost <- R6::R6Class("GitHost",
     # A REST API URL.
     api_url = NULL,
 
+    # Web URL.
+    web_url = NULL,
+
     # A GraphQL API url.
     graphql_api_url = NULL,
 
@@ -266,6 +270,17 @@ GitHost <- R6::R6Class("GitHost",
         glue::glue(
           "{host}/api/v{private$api_version}"
         )
+      }
+    },
+
+    # Set web url
+    set_custom_web_url = function(host) {
+      private$web_url <- if (!grepl("https://", host)) {
+        glue::glue(
+          "https://{host}"
+        )
+      } else {
+        host
       }
     },
 

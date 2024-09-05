@@ -50,7 +50,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       )
     ),
 
-    # Set API url
+    # Set API URL
     set_api_url = function(host) {
       if (is.null(host)) {
         private$api_url <- glue::glue(
@@ -58,6 +58,17 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         )
       } else {
         private$set_custom_api_url(host)
+      }
+    },
+
+    # Set web URL
+    set_web_url = function(host) {
+      if (is.null(host)) {
+        private$web_url <- glue::glue(
+          "https://gitlab.com"
+        )
+      } else {
+        private$set_custom_web_url(host)
       }
     },
 

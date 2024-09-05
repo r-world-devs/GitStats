@@ -778,7 +778,7 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     get_host_urls = function() {
-      purrr::map_vec(private$hosts, ~ .$.__enclos_env__$private$api_url)
+      purrr::map_vec(private$hosts, ~ gsub("https://", "", .$.__enclos_env__$private$web_url))
     },
 
     # Pull release logs tables from hosts and bind them into one
