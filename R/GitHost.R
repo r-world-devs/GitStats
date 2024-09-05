@@ -145,6 +145,14 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     get_files_structure = function(pattern, depth, verbose = TRUE) {
+      if (private$scan_all) {
+        cli::cli_abort(c(
+          "x" = "This feature is not applicable to scan whole Git Host (time consuming).",
+          "i" = "Set `orgs` or `repos` arguments in `set_*_host()` if you wish to run this function."
+          ),
+          call = NULL
+        )
+      }
       files_structure <- private$get_files_structure_from_orgs(
         pattern = pattern,
         depth = depth,
