@@ -62,6 +62,102 @@ test_that("`pull_commits_from_one_repo()` prepares formatted list", {
   test_mocker$cache(commits_from_repo)
 })
 
+test_that("get_file_response works", {
+  gh_files_tree_response <- test_graphql_github$get_file_response(
+    org = "r-world-devs",
+    repo = "GitStats",
+    def_branch = "master",
+    file_path = "",
+    files_query = test_mocker$use("gh_files_tree_query")
+  )
+  expect_github_files_raw_response(
+    gh_files_tree_response
+  )
+  test_mocker$cache(gh_files_tree_response)
+})
+
+test_that("get_dirs_and_files returns list with directories and files", {
+  files_and_dirs_list <- test_graphql_github$get_files_and_dirs(
+    files_tree_response = test_mocker$use("gh_files_tree_response")
+  )
+  expect_type(
+    files_and_dirs_list,
+    "list"
+  )
+  expect_list_contains(
+    files_and_dirs_list,
+    c("files", "dirs")
+  )
+  test_mocker$cache(files_and_dirs_list)
+})
+
+test_that("get_files_structure_from_repo returns list with files and dirs vectors", {
+  files_structure <- test_graphql_github$get_files_structure_from_repo(
+    org = "r-world-devs",
+    repo = "GitStats",
+    def_branch = "master"
+  )
+  expect_type(
+    files_structure,
+    "character"
+  )
+  test_mocker$cache(files_structure)
+})
+
+test_that("get_files_structure_from_repo returns list of files up to 2 tier of dirs", {
+  files_structure_very_shallow <- test_graphql_github$get_files_structure_from_repo(
+    org = "r-world-devs",
+    repo = "GitStats",
+    def_branch = "master",
+    depth = 1L
+  )
+  files_structure_shallow <- test_graphql_github$get_files_structure_from_repo(
+    org = "r-world-devs",
+    repo = "GitStats",
+    def_branch = "master",
+    depth = 2L
+  )
+  expect_type(
+    files_structure_shallow,
+    "character"
+  )
+  expect_true(
+    length(files_structure_very_shallow) < length(files_structure_shallow)
+  )
+  files_structure <- test_mocker$use("files_structure")
+  expect_true(
+    length(files_structure_shallow) < length(files_structure)
+  )
+})
+
+test_that("only files with certain pattern are retrieved", {
+  md_files_structure <- test_graphql_github$filter_files_by_pattern(
+    files_structure = test_mocker$use("files_structure"),
+    pattern = "\\.md|\\.qmd|\\.Rmd"
+  )
+  files_structure <- test_mocker$use("files_structure")
+  expect_true(
+    length(md_files_structure) < length(files_structure)
+  )
+})
+
+test_that("get_repos_data pulls data on repos and branches", {
+  repos_data <- test_graphql_github$get_repos_data(
+    org = "r-world-devs",
+    repos = NULL
+  )
+  expect_equal(
+    names(repos_data),
+    c("repositories", "def_branches")
+  )
+  expect_true(
+    length(repos_data$repositories) > 0
+  )
+  expect_true(
+    length(repos_data$def_branches) > 0
+  )
+})
+
 # public methods
 
 test_graphql_github <- EngineGraphQLGitHub$new(
@@ -69,13 +165,13 @@ test_graphql_github <- EngineGraphQLGitHub$new(
   token = Sys.getenv("GITHUB_PAT")
 )
 
-test_that("`pull_repos_from_org()` prepares formatted list", {
+test_that("`get_repos_from_org()` prepares formatted list", {
   mockery::stub(
-    test_graphql_github$pull_repos_from_org,
+    test_graphql_github$get_repos_from_org,
     "private$pull_repos_page",
     test_mocker$use("gh_repos_page")
   )
-  gh_repos_from_org <- test_graphql_github$pull_repos_from_org(
+  gh_repos_from_org <- test_graphql_github$get_repos_from_org(
     org = "r-world-devs"
   )
   expect_list_contains(
@@ -122,6 +218,16 @@ test_that("GitHub GraphQL Engine pulls files from organization", {
   test_mocker$cache(github_files_response)
 })
 
+test_that("GitHub GraphQL Engine pulls .png files from organization", {
+  github_png_files_response <- test_graphql_github$pull_files_from_org(
+    org = "r-world-devs",
+    repos = NULL,
+    file_path = "man/figures/logo.png"
+  )
+  expect_github_files_response(github_png_files_response)
+  test_mocker$cache(github_png_files_response)
+})
+
 test_that("GitHub GraphQL Engine pulls files from defined repositories", {
   github_files_response <- test_graphql_github$pull_files_from_org(
     org = "openpharma",
@@ -147,3 +253,24 @@ test_that("GitHub GraphQL Engine pulls two files from a group", {
   )
 })
 
+test_that("GitHub GraphQL Engine pulls files structure from repositories", {
+  gh_files_structure <- test_graphql_github$get_files_structure_from_org(
+    org = "openpharma",
+    repos = c("DataFakeR", "visR")
+  )
+  purrr::walk(gh_files_structure, ~ expect_true(length(.) > 0))
+  expect_equal(
+    names(gh_files_structure),
+    c("visR", "DataFakeR")
+  )
+  test_mocker$cache(gh_files_structure)
+})
+
+test_that("GitHub GraphQL Engine pulls files structure with pattern from repositories", {
+  gh_md_files_structure <- test_graphql_github$get_files_structure_from_org(
+    org = "openpharma",
+    repos = c("DataFakeR", "visR"),
+    pattern = "\\.md"
+  )
+  purrr::walk(gh_md_files_structure, ~ expect_true(all(grepl("\\.md", .))))
+})

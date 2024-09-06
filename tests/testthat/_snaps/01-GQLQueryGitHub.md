@@ -19,12 +19,12 @@
     Output
       [1] "\n        query GetUser($user: String!) {\n          user(login: $user) {\n            id\n            name\n            login\n            email\n            location\n            starred_repos: starredRepositories {\n              totalCount\n            }\n            contributions: contributionsCollection {\n              totalIssueContributions\n              totalCommitContributions\n              totalPullRequestContributions\n              totalPullRequestReviewContributions\n            }\n            avatar_url: avatarUrl\n            web_url: websiteUrl\n          }\n        }"
 
-# file query is built properly
+# files tree query is built properly
 
     Code
-      gh_files_query
+      gh_files_tree_query
     Output
-      [1] "query GetFilesByRepo($org: String!, $repo: String!, $file_path: String!) {\n          repository(owner: $org, name: $repo) {\n            id\n            name\n            url\n            object(expression: $file_path) {\n              ... on Blob {\n                text\n                byteSize\n              }\n            }\n          }\n      }"
+      [1] "query GetFilesFromRepo($org: String!, $repo: String!, $expression: String!) {\n          repository(owner: $org, name: $repo) {\n            id\n            name\n            url\n            object(expression: $expression) {\n              ... on Tree {\n                entries {\n                  name\n                  type\n                }\n              }\n            }\n          }\n      }"
 
 # releases query is built properly
 

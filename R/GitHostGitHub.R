@@ -44,12 +44,21 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
       )
     ),
 
-    # Set API url
+    # Set API URL
     set_api_url = function(host) {
       if (is.null(host)) {
         private$api_url <- "https://api.github.com"
       } else {
         private$set_custom_api_url(host)
+      }
+    },
+
+    # Set web URL
+    set_web_url = function(host) {
+      if (is.null(host)) {
+        private$web_url <- "https://github.com"
+      } else {
+        private$set_custom_web_url(host)
       }
     },
 
@@ -296,7 +305,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
               "repo_id" = repository$id,
               "organization" = org,
               "file_path" = file,
-              "file_content" = repository$object$text,
+              "file_content" = repository$object$text %||% NA,
               "file_size" = repository$object$byteSize,
               "repo_url" = repository$url
             )

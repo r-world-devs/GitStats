@@ -32,13 +32,13 @@ test_that("user query is built properly", {
   test_mocker$cache(gh_user_query)
 })
 
-
-test_that("file query is built properly", {
-  gh_files_query <-
-    test_gqlquery_gh$files_by_repo()
+test_that("files tree query is built properly", {
+  gh_files_tree_query <-
+    test_gqlquery_gh$files_tree_from_repo()
   expect_snapshot(
-    gh_files_query
+    gh_files_tree_query
   )
+  test_mocker$cache(gh_files_tree_query)
 })
 
 test_that("releases query is built properly", {

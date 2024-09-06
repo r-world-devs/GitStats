@@ -5,7 +5,7 @@
       orgs = c("openpharma", "r-world-devs"))
     Message
       i Searching scope set to [org].
-      i Checking host data...
+      i Checking organizations...
       v Set connection to GitHub.
 
 ---
@@ -15,7 +15,7 @@
       orgs = c("mbtests"))
     Message
       i Searching scope set to [org].
-      i Checking host data...
+      i Checking organizations...
       v Set connection to GitLab.
 
 # When empty token for GitHub, GitStats pulls default token
@@ -26,7 +26,7 @@
     Message
       i Using PAT from GITHUB_PAT envar.
       i Searching scope set to [org].
-      i Checking host data...
+      i Checking organizations...
       v Set connection to GitHub.
 
 # When empty token for GitLab, GitStats pulls default token
@@ -38,7 +38,7 @@
     Message
       i Using PAT from GITLAB_PAT envar.
       i Searching scope set to [org].
-      i Checking host data...
+      i Checking organizations...
       v Set connection to GitLab.
 
 # Set GitHub host with particular repos vector instead of orgs
@@ -49,7 +49,7 @@
         "openpharma/GithubMetrics", "openpharma/DataFakeR"))
     Message
       i Searching scope set to [repo].
-      i Checking host data...
+      i Checking repositories...
       v Set connection to GitHub.
 
 # Set GitLab host with particular repos vector instead of orgs
@@ -59,7 +59,7 @@
       repos = c("mbtests/gitstatstesting", "mbtests/gitstats-testing-2"))
     Message
       i Searching scope set to [repo].
-      i Checking host data...
+      i Checking repositories...
       v Set connection to GitLab.
 
 # Set host prints error when repos and orgs are defined and host is not passed to GitStats
@@ -86,7 +86,7 @@
         "r_world_devs"))
     Message
       i Searching scope set to [org].
-      i Checking host data...
+      i Checking organizations...
     Condition
       Error in `purrr::map()`:
       i In index: 1.
@@ -100,10 +100,10 @@
         set_github_host(token = Sys.getenv("GITHUB_PAT"), orgs = "openpharma")
     Message
       i Searching scope set to [org].
-      i Checking host data...
+      i Checking organizations...
       v Set connection to GitHub.
       i Searching scope set to [org].
-      i Checking host data...
+      i Checking organizations...
       v Set connection to GitHub.
     Condition
       Error:
@@ -116,7 +116,7 @@
         "GITHUB_PAT"), orgs = c("openparma"))
     Message
       i Searching scope set to [org].
-      i Checking host data...
+      i Checking organizations...
     Condition
       Error in `purrr::map()`:
       i In index: 1.
@@ -132,7 +132,7 @@
         "GITLAB_PAT_PUBLIC"), orgs = c("openparma", "mbtests"))
     Message
       i Searching scope set to [org].
-      i Checking host data...
+      i Checking organizations...
     Condition
       Error in `purrr::map()`:
       i In index: 1.
@@ -148,7 +148,7 @@
         "GITHUB_PAT"), orgs = c("openpharma", "r_world_devs"))
     Message
       i Searching scope set to [org].
-      i Checking host data...
+      i Checking organizations...
     Condition
       Error in `purrr::map()`:
       i In index: 2.

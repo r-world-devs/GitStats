@@ -285,7 +285,7 @@ GitStats <- R6::R6Class("GitStats",
     #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
-    get_files = function(file_path, cache = TRUE, verbose = TRUE) {
+    get_files_content = function(file_path, cache = TRUE, verbose = TRUE) {
       private$check_for_host()
       args_list <- list("file_path" = file_path)
       trigger <- private$trigger_pulling(
@@ -295,7 +295,7 @@ GitStats <- R6::R6Class("GitStats",
         verbose = verbose
       )
       if (trigger) {
-        files <- private$get_files_table(
+        files <- private$get_files_content_from_hosts(
           file_path = file_path,
           verbose = verbose
         ) %>%
@@ -311,6 +311,36 @@ GitStats <- R6::R6Class("GitStats",
         )
       }
       return(files)
+    },
+
+    get_files_structure = function(pattern, depth, cache = TRUE, verbose = TRUE) {
+      private$check_for_host()
+      args_list <- list("pattern" = pattern,
+                        "depth" = depth)
+      trigger <- private$trigger_pulling(
+        cache = cache,
+        storage = "files_structure",
+        args_list = args_list,
+        verbose = verbose
+      )
+      if (trigger) {
+        files_structure <- private$get_files_structure_from_hosts(
+          pattern = pattern,
+          depth = depth,
+          verbose = verbose
+        ) %>%
+          private$set_object_class(
+            class = "files_structure",
+            attr_list = args_list
+          )
+        private$save_to_storage(files_structure)
+      } else {
+        files <- private$get_from_storage(
+          table = "files_structure",
+          verbose = verbose
+        )
+      }
+      return(files_structure)
     },
 
     #' @description Get release logs of repositories.
@@ -449,6 +479,7 @@ GitStats <- R6::R6Class("GitStats",
       commits = NULL,
       users = NULL,
       files = NULL,
+      files_structure = NULL,
       R_package_usage = NULL,
       release_logs = NULL
     ),
@@ -724,14 +755,30 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Pull content of a text file in a table form
-    get_files_table = function(file_path, verbose) {
+    get_files_content_from_hosts = function(file_path, verbose) {
       purrr::map(private$hosts, function(host) {
-        host$get_files(
+        host$get_files_content(
           file_path = file_path,
           verbose = verbose
         )
       }) %>%
         purrr::list_rbind()
+    },
+
+    get_files_structure_from_hosts = function(pattern, depth, verbose) {
+      files_structure_from_hosts <- purrr::map(private$hosts, function(host) {
+        host$get_files_structure(
+          pattern = pattern,
+          depth = depth,
+          verbose = verbose
+        )
+      })
+      names(files_structure_from_hosts) <- private$get_host_urls()
+      return(files_structure_from_hosts)
+    },
+
+    get_host_urls = function() {
+      purrr::map_vec(private$hosts, ~ gsub("https://", "", .$.__enclos_env__$private$web_url))
     },
 
     # Pull release logs tables from hosts and bind them into one

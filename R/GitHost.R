@@ -19,6 +19,7 @@ GitHost <- R6::R6Class("GitHost",
                           verbose = NA) {
       private$set_verbose(verbose)
       private$set_api_url(host)
+      private$set_web_url(host)
       private$set_endpoints()
       private$check_if_public(host)
       private$set_token(token)
@@ -129,19 +130,36 @@ GitHost <- R6::R6Class("GitHost",
 
     #' Retrieve content of given text files from all repositories for a host in
     #' a table format.
-    get_files = function(file_path, verbose = TRUE) {
+    get_files_content = function(file_path, verbose = TRUE) {
       files_table <- if (!private$scan_all) {
-        private$get_files_from_orgs(
+        private$get_files_content_from_orgs(
           file_path = file_path,
           verbose = verbose
         )
       } else {
-        private$get_files_from_host(
+        private$get_files_content_from_host(
           file_path = file_path,
           verbose = verbose
         )
       }
       return(files_table)
+    },
+
+    get_files_structure = function(pattern, depth, verbose = TRUE) {
+      if (private$scan_all) {
+        cli::cli_abort(c(
+          "x" = "This feature is not applicable to scan whole Git Host (time consuming).",
+          "i" = "Set `orgs` or `repos` arguments in `set_*_host()` if you wish to run this function."
+          ),
+          call = NULL
+        )
+      }
+      files_structure <- private$get_files_structure_from_orgs(
+        pattern = pattern,
+        depth = depth,
+        verbose = verbose
+      )
+      return(files_structure)
     },
 
     #' Iterator over pulling release logs from engines
@@ -190,6 +208,9 @@ GitHost <- R6::R6Class("GitHost",
 
     # A REST API URL.
     api_url = NULL,
+
+    # Web URL.
+    web_url = NULL,
 
     # A GraphQL API url.
     graphql_api_url = NULL,
@@ -249,6 +270,17 @@ GitHost <- R6::R6Class("GitHost",
         glue::glue(
           "{host}/api/v{private$api_version}"
         )
+      }
+    },
+
+    # Set web url
+    set_custom_web_url = function(host) {
+      private$web_url <- if (!grepl("https://", host)) {
+        glue::glue(
+          "https://{host}"
+        )
+      } else {
+        host
       }
     },
 
@@ -353,7 +385,7 @@ GitHost <- R6::R6Class("GitHost",
     # Check if repositories exist
     check_repositories = function(repos) {
       if (private$verbose) {
-        cli::cli_alert_info(cli::col_grey("Checking host data..."))
+        cli::cli_alert_info(cli::col_grey("Checking repositories..."))
       }
       repos <- purrr::map(repos, function(repo) {
         repo_endpoint = glue::glue("{private$endpoints$repositories}/{repo}")
@@ -377,7 +409,7 @@ GitHost <- R6::R6Class("GitHost",
     # Check if organizations exist
     check_organizations = function(orgs) {
       if (private$verbose) {
-        cli::cli_alert_info(cli::col_grey("Checking host data..."))
+        cli::cli_alert_info(cli::col_grey("Checking organizations..."))
       }
       orgs <- purrr::map(orgs, function(org) {
         org_endpoint = glue::glue("{private$endpoints$orgs}/{org}")
@@ -531,7 +563,7 @@ GitHost <- R6::R6Class("GitHost",
           )
         }
         repos <- private$set_repos(settings, org)
-        repos_table <- graphql_engine$pull_repos_from_org(
+        repos_table <- graphql_engine$get_repos_from_org(
           org = org
         ) %>%
           private$prepare_repos_table_from_graphql()
@@ -749,7 +781,7 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Pull files content from organizations
-    get_files_from_orgs = function(file_path, verbose) {
+    get_files_content_from_orgs = function(file_path, verbose) {
       graphql_engine <- private$engines$graphql
       files_table <- purrr::map(private$orgs, function(org) {
         if (verbose) {
@@ -775,8 +807,35 @@ GitHost <- R6::R6Class("GitHost",
       return(files_table)
     },
 
+    get_files_structure_from_orgs = function(pattern, depth, verbose) {
+      graphql_engine <- private$engines$graphql
+      files_structure_list <- purrr::map(private$orgs, function(org) {
+        if (verbose) {
+          user_info <- if (!is.null(pattern)) {
+            glue::glue("Pulling files structure...[files matching pattern: '{pattern}']")
+          } else {
+            glue::glue("Pulling files structure...")
+          }
+          show_message(
+            host = private$host_name,
+            engine = "graphql",
+            scope = org,
+            information = user_info
+          )
+        }
+        graphql_engine$get_files_structure_from_org(
+          org = org,
+          repos = private$repos,
+          pattern = pattern,
+          depth = depth
+        )
+      })
+      names(files_structure_list) <- private$orgs
+      return(files_structure_list)
+    },
+
     # Pull files from host
-    get_files_from_host = function(file_path, verbose) {
+    get_files_content_from_host = function(file_path, verbose) {
       rest_engine <- private$engines$rest
       if (verbose) {
         show_message(

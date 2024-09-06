@@ -123,6 +123,24 @@ expect_user_gql_response <- function(object) {
   )
 }
 
+expect_github_files_raw_response <- function(object) {
+  purrr::walk(object$data$repository$object$entries, function(entry) {
+    expect_list_contains(
+      entry,
+      c("name", "type")
+    )
+  })
+}
+
+expect_gitlab_files_raw_response <- function(object) {
+  purrr::walk(object$data$project$repository$tree$blobs$nodes, function(node) {
+    expect_list_contains(
+      node,
+      c("name", "type")
+    )
+  })
+}
+
 expect_github_files_response <- function(object) {
   expect_type(
     object,

@@ -263,6 +263,24 @@ test_that("check_if_args_changed", {
   )
 })
 
+test_that("get_files_structure_from_hosts works as expected", {
+  test_gitstats <- create_test_gitstats(hosts = 2, priv_mode = TRUE)
+  mockery::stub(
+    test_gitstats$get_files_structure_from_hosts,
+    "host$get_files_structure",
+    test_mocker$use("gh_files_structure_from_orgs")
+  )
+  files_structure_from_hosts <- test_gitstats$get_files_structure_from_hosts(
+    pattern = "\\md",
+    depth = 1L,
+    verbose = FALSE
+  )
+  expect_equal(names(files_structure_from_hosts),
+               c("github.com", "gitlab.com"))
+  expect_equal(names(files_structure_from_hosts[[1]]), c("r-world-devs", "openpharma"))
+  test_mocker$cache(files_structure_from_hosts)
+})
+
 # public methods
 
 test_that("GitStats get users info", {
@@ -326,11 +344,11 @@ test_that("get_commits works properly", {
   test_mocker$cache(commits_table)
 })
 
-test_that("get_files works properly", {
+test_that("get_files_content works properly", {
   test_gitstats <- create_test_gitstats(hosts = 2)
   mockery::stub(
-    test_gitstats$get_files,
-    "private$get_files_table",
+    test_gitstats$get_files_content,
+    "private$get_files_content_from_hosts",
     purrr::list_rbind(
       list(
         test_mocker$use("gh_files_table"),
@@ -338,7 +356,7 @@ test_that("get_files works properly", {
       )
     )
   )
-  files_table <- test_gitstats$get_files(
+  files_table <- test_gitstats$get_files_content(
     file_path = "meta_data.yaml",
     verbose = FALSE
   )
@@ -347,6 +365,23 @@ test_that("get_files works properly", {
     with_cols = "api_url"
   )
   test_mocker$cache(files_table)
+})
+
+test_that("get_files_structure works as expected", {
+  test_gitstats <- create_test_gitstats(hosts = 2)
+  mockery::stub(
+    test_gitstats$get_files_structure,
+    "private$get_files_structure_from_hosts",
+    test_mocker$use("files_structure_from_hosts")
+  )
+  expect_snapshot(
+    files_structure <- test_gitstats$get_files_structure(
+      pattern = "\\md",
+      depth = 1L,
+      verbose = TRUE
+    )
+  )
+  expect_s3_class(files_structure, "files_structure")
 })
 
 test_that("show_orgs print orgs properly", {

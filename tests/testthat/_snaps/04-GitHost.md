@@ -20,20 +20,20 @@
     Message
       i Preparing repositories table...
 
-# `get_files()` pulls files in the table format
+# `get_files_content()` pulls files in the table format
 
     Code
-      gh_files_table <- test_host$get_files(file_path = "LICENSE")
+      gh_files_table <- test_host$get_files_content(file_path = "LICENSE")
 
 ---
 
     Code
-      gl_files_table <- test_host_gitlab$get_files(file_path = "README.md")
+      gl_files_table <- test_host_gitlab$get_files_content(file_path = "README.md")
 
-# `get_files()` pulls files only for the repositories specified
+# `get_files_content()` pulls files only for the repositories specified
 
     Code
-      gh_files_table <- test_host$get_files(file_path = "renv.lock")
+      gh_files_table <- test_host$get_files_content(file_path = "renv.lock")
     Message
       i [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling files: [renv.lock]...
       i [Host:GitHub][Engine:GraphQl][Scope:openpharma] Pulling files: [renv.lock]...
@@ -46,11 +46,11 @@
     Message
       i Preparing repositories table...
 
-# `get_files()` pulls two files in the table format
+# `get_files_content()` pulls two files in the table format
 
     Code
-      gl_files_table <- test_host_gitlab$get_files(file_path = c("meta_data.yaml",
-        "README.md"))
+      gl_files_table <- test_host_gitlab$get_files_content(file_path = c(
+        "meta_data.yaml", "README.md"))
     Message
       i [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling files: [meta_data.yaml, README.md]...
 

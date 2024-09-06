@@ -143,14 +143,13 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     #' @description Prepare query to get files in a standard filepath from
     #'   GitHub repositories.
     #' @return A query.
-    files_by_repo = function(){
-      paste0(
-      'query GetFilesByRepo($org: String!, $repo: String!, $file_path: String!) {
+    file_blob_from_repo = function(){
+      'query GetFileBlobFromRepo($org: String!, $repo: String!, $expression: String!) {
           repository(owner: $org, name: $repo) {
             id
             name
             url
-            object(expression: $file_path) {
+            object(expression: $expression) {
               ... on Blob {
                 text
                 byteSize
@@ -158,7 +157,24 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
             }
           }
       }'
-      )
+    },
+
+    files_tree_from_repo = function(){
+      'query GetFilesFromRepo($org: String!, $repo: String!, $expression: String!) {
+          repository(owner: $org, name: $repo) {
+            id
+            name
+            url
+            object(expression: $expression) {
+              ... on Tree {
+                entries {
+                  name
+                  type
+                }
+              }
+            }
+          }
+      }'
     },
 
     #' @description Prepare query to get releases from GitHub repositories.

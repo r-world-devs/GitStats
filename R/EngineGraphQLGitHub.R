@@ -40,7 +40,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     },
 
     # Pull all repositories from organization
-    pull_repos_from_org = function(org = NULL) {
+    get_repos_from_org = function(org = NULL) {
       full_repos_list <- list()
       next_page <- TRUE
       repo_cursor <- ""
@@ -86,24 +86,20 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
 
     # Pull all given files from all repositories of an organization.
     pull_files_from_org = function(org, repos, file_path) {
-      repos_list <- self$pull_repos_from_org(
-        org = org
+      repo_data <- private$get_repos_data(
+        org = org,
+        repos = repos
       )
-      if (!is.null(repos)) {
-        repos_list <- purrr::keep(repos_list, ~ .$repo_name %in% repos)
-      }
-      repositories <- purrr::map(repos_list, ~ .$repo_name)
-      def_branches <- purrr::map(repos_list, ~ .$default_branch$name)
+      repositories <- repo_data[["repositories"]]
+      def_branches <- repo_data[["def_branches"]]
       files_list <- purrr::map(file_path, function(file_path) {
-        files_list <- purrr::map2(repositories, def_branches, function(repository, def_branch) {
-          files_query <- self$gql_query$files_by_repo()
-          files_response <- self$gql_response(
-            gql_query = files_query,
-            vars = list(
-              "org" = org,
-              "repo" = repository,
-              "file_path" = paste0(def_branch, ":", file_path)
-            )
+        files_list <- purrr::map2(repositories, def_branches, function(repo, def_branch) {
+          private$get_file_response(
+            org = org,
+            repo = repo,
+            def_branch = def_branch,
+            file_path = file_path,
+            files_query = self$gql_query$file_blob_from_repo()
           )
         }) %>%
           purrr::map(~ .$data$repository)
@@ -113,6 +109,28 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       })
       names(files_list) <- file_path
       return(files_list)
+    },
+
+    # Pull all files from all repositories of an organization.
+    get_files_structure_from_org = function(org, repos, pattern = NULL, depth = Inf) {
+      repo_data <- private$get_repos_data(
+        org = org,
+        repos = repos
+      )
+      repositories <- repo_data[["repositories"]]
+      def_branches <- repo_data[["def_branches"]]
+      files_structure <- purrr::map2(repositories, def_branches, function(repo, def_branch) {
+        private$get_files_structure_from_repo(
+          org = org,
+          repo = repo,
+          def_branch = def_branch,
+          pattern = pattern,
+          depth = depth
+        )
+      })
+      names(files_structure) <- repositories
+      files_structure <- purrr::discard(files_structure, ~ length(.) == 0)
+      return(files_structure)
     },
 
     # Pull release logs from organization
@@ -196,6 +214,105 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           gql_query = commits_by_org_query
         )
         return(response)
+      },
+
+      get_repos_data = function(org, repos = NULL) {
+        repos_list <- self$get_repos_from_org(
+          org = org
+        )
+        if (!is.null(repos)) {
+          repos_list <- purrr::keep(repos_list, ~ .$repo_name %in% repos)
+        }
+        result <- list(
+          "repositories" = purrr::map(repos_list, ~ .$repo_name),
+          "def_branches" = purrr::map(repos_list, ~ .$default_branch$name)
+        )
+        return(result)
+      },
+
+      get_file_response = function(org, repo, def_branch, file_path, files_query) {
+        expression <- paste0(def_branch, ":", file_path)
+        files_response <- self$gql_response(
+          gql_query = files_query,
+          vars = list(
+            "org" = org,
+            "repo" = repo,
+            "expression" = expression
+          )
+        )
+        return(files_response)
+      },
+
+      get_files_structure_from_repo = function(org, repo, def_branch, pattern = NULL, depth = Inf) {
+        files_tree_response <- private$get_file_response(
+          org = org,
+          repo = repo,
+          def_branch = def_branch,
+          file_path = "",
+          files_query = self$gql_query$files_tree_from_repo()
+        )
+        files_and_dirs_list <- private$get_files_and_dirs(
+          files_tree_response = files_tree_response
+        )
+        if (length(files_and_dirs_list$dirs) > 0) {
+          folders_exist <- TRUE
+        } else {
+          folders_exist <- FALSE
+        }
+        all_files_and_dirs_list <- files_and_dirs_list
+        dirs <- files_and_dirs_list$dirs
+        tier <- 1
+        while (folders_exist && tier < depth) {
+          new_dirs_list <- c()
+          for (dir in dirs) {
+            files_tree_response <- private$get_file_response(
+              org = org,
+              repo = repo,
+              def_branch = def_branch,
+              file_path = dir,
+              files_query = self$gql_query$files_tree_from_repo()
+            )
+            files_and_dirs_list <- private$get_files_and_dirs(
+              files_tree_response = files_tree_response
+            )
+            all_files_and_dirs_list$files <- append(
+              all_files_and_dirs_list$files,
+              paste0(dir, "/", files_and_dirs_list$files)
+            )
+            if (length(files_and_dirs_list$dirs) > 0) {
+              new_dirs_list <- c(new_dirs_list, paste0(dir, "/", files_and_dirs_list$dirs))
+            }
+          }
+          if (length(new_dirs_list) > 0) {
+            dirs <- new_dirs_list
+            folders_exist <- TRUE
+            tier <- tier + 1
+          } else {
+            folders_exist <- FALSE
+          }
+        }
+        if (!is.null(pattern)) {
+          files_structure <- private$filter_files_by_pattern(
+            files_structure = all_files_and_dirs_list$files,
+            pattern = pattern
+          )
+        } else {
+          files_structure <- all_files_and_dirs_list$files
+        }
+        return(files_structure)
+      },
+
+      get_files_and_dirs = function(files_tree_response) {
+        entries <- files_tree_response$data$repository$object$entries
+        dirs <- purrr::keep(entries, ~ .$type == "tree") %>%
+          purrr::map_vec(~ .$name)
+        files <- purrr::discard(entries, ~ .$type == "tree") %>%
+          purrr::map_vec(~ .$name)
+        result <- list(
+          "dirs" = dirs,
+          "files" = files
+        )
+        return(result)
       }
     )
 )

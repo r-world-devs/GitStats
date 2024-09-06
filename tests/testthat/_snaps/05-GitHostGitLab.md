@@ -13,6 +13,14 @@
     x Host will not be added.
     i Specify `orgs` or `repos`.
 
+# get_files_structure_from_orgs pulls files structure for repositories in orgs
+
+    Code
+      gl_files_structure_from_orgs <- test_host$get_files_structure_from_orgs(
+        pattern = "\\.md|\\.R", depth = 1L, verbose = TRUE)
+    Message
+      i [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling files structure...[files matching pattern: '\.md|\.R']...
+
 # get_commits for GitLab works with repos implied
 
     Code
