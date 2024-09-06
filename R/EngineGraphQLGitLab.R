@@ -72,11 +72,17 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      },
 
      # Pull all given files from all repositories of a group.
-     pull_files_from_org = function(org, repos, file_path) {
+     get_files_from_org = function(org, repos, file_path_vec, host_files_structure, verbose = FALSE) {
        org <- URLdecode(org)
        full_files_list <- list()
        next_page <- TRUE
        end_cursor <- ""
+       if (!is.null(host_files_structure)) {
+         file_path_vec <- private$get_path_from_files_structure(
+           host_files_structure = host_files_structure,
+           org = org
+         )
+       }
        while (next_page) {
          files_query <- self$gql_query$files_by_org(
            end_cursor = end_cursor
@@ -86,7 +92,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
              gql_query = files_query,
              vars = list(
                "org" = org,
-               "file_paths" = file_path
+               "file_paths" = file_path_vec
              )
            )
          },
@@ -124,7 +130,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
        return(full_files_list)
      },
 
-     get_files_structure_from_org = function(org, repos, pattern = NULL, depth = Inf) {
+     get_files_structure_from_org = function(org, repos, pattern = NULL, depth = Inf, verbose = FALSE) {
        repo_data <- private$get_repos_data(
          org = org,
          repos = repos
@@ -137,7 +143,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
            pattern = pattern,
            depth = depth
          )
-       })
+       }, .progress = verbose)
        names(files_structure) <- repositories
        files_structure <- purrr::discard(files_structure, ~ length(.) == 0)
        return(files_structure)
@@ -205,6 +211,10 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
          )
        )
        return(files_response)
+     },
+
+     get_path_from_files_structure = function(host_files_structure, org) {
+       host_files_structure[[org]] %>% unlist() %>% unique()
      },
 
      get_files_structure_from_repo = function(org, repo, pattern = NULL, depth = Inf) {

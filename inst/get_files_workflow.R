@@ -5,14 +5,16 @@ test_gitstats <- create_gitstats() |>
     orgs = c("r-world-devs", "openpharma")
   ) |>
   set_gitlab_host(
-    orgs = "mbtests"
+    orgs = c("mbtests", "mbtestapps")
   )
 
-logo_files_structure <- get_files_structure(
+md_files_structure <- get_files_structure(
   gitstats_obj = test_gitstats,
-  pattern = "\\.png",
-  depth = 1L
+  pattern = "\\.md|.R",
+  depth = 2L
 )
+
+get_files_content(test_gitstats)
 
 purrr::imap(logo_files_structure[[1]]$openpharma, function(repository, repository_name) {
   create_gitstats() |>

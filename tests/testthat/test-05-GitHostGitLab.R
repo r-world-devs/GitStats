@@ -130,9 +130,41 @@ test_that("get_files_structure_from_orgs pulls files structure for repositories 
   purrr::walk(gl_files_structure_from_orgs[[1]], function(repo_files) {
     expect_true(all(grepl("\\.md|\\.R", repo_files)))
   })
+})
+
+test_that("get_files_structure_from_orgs pulls files structure for all repositories in orgs", {
+  test_host <- create_gitlab_testhost(
+    orgs = c("mbtests", "mbtestapps"),
+    mode = "private"
+  )
+  gl_files_structure_from_orgs <- test_host$get_files_structure_from_orgs(
+    pattern = "\\.md|\\.R",
+    depth = 1L,
+    verbose = FALSE
+  )
+  expect_equal(
+    names(gl_files_structure_from_orgs),
+    c("mbtests", "mbtestapps")
+  )
+  purrr::walk(gl_files_structure_from_orgs[[1]], function(repo_files) {
+    expect_true(all(grepl("\\.md|\\.R", repo_files)))
+  })
   test_mocker$cache(gl_files_structure_from_orgs)
 })
 
+test_that("get_path_from_files_structure gets file path from files structure", {
+  test_graphql_gitlab <- EngineGraphQLGitLab$new(
+    gql_api_url = "https://gitlab.com/api/v4/graphql",
+    token = Sys.getenv("GITHLAB_PAT_PUBLIC")
+  )
+  test_graphql_gitlab <- environment(test_graphql_gitlab$initialize)$private
+  file_path <- test_graphql_gitlab$get_path_from_files_structure(
+    host_files_structure = test_mocker$use("gl_files_structure_from_orgs"),
+    org = "mbtests" # this will need fixing and repo parameter must come back
+  )
+  expect_equal(typeof(file_path), "character")
+  expect_true(length(file_path) > 0)
+})
 
 # public
 
@@ -208,7 +240,7 @@ test_that("get_files_structure pulls files structure for repositories in orgs", 
   )
   expect_equal(
     names(gl_files_structure_from_orgs),
-    c("mbtests")
+    c("mbtests", "mbtestapps")
   )
   purrr::walk(gl_files_structure_from_orgs[[1]], function(repo_files) {
     expect_true(all(grepl("\\.md|\\.R", repo_files)))

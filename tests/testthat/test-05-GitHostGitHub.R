@@ -222,6 +222,32 @@ test_that("get_files_structure_from_orgs pulls files structure for repositories 
   test_mocker$cache(gh_files_structure_from_orgs)
 })
 
+test_that("get_orgs_and_repos_from_files_structure", {
+  result <- test_host$get_orgs_and_repos_from_files_structure(
+    host_files_structure = test_mocker$use("gh_files_structure_from_orgs")
+  )
+  expect_equal(
+    names(result),
+    c("orgs", "repos")
+  )
+  purrr::walk(result, ~ expect_true(length(.) > 0))
+})
+
+test_that("get_path_from_files_structure gets file path from files structure", {
+  test_graphql_github <- EngineGraphQLGitHub$new(
+    gql_api_url = "https://api.github.com/graphql",
+    token = Sys.getenv("GITHUB_PAT")
+  )
+  test_graphql_github <- environment(test_graphql_github$initialize)$private
+  file_path <- test_graphql_github$get_path_from_files_structure(
+    host_files_structure = test_mocker$use("gh_files_structure_from_orgs"),
+    org = "r-world-devs",
+    repo = "GitStats"
+  )
+  expect_equal(typeof(file_path), "character")
+  expect_true(length(file_path) > 0)
+})
+
 # public methods
 
 test_host <- create_github_testhost(

@@ -130,10 +130,11 @@ GitHost <- R6::R6Class("GitHost",
 
     #' Retrieve content of given text files from all repositories for a host in
     #' a table format.
-    get_files_content = function(file_path, verbose = TRUE) {
+    get_files_content = function(file_path, host_files_structure = NULL, verbose = TRUE) {
       files_table <- if (!private$scan_all) {
         private$get_files_content_from_orgs(
           file_path = file_path,
+          host_files_structure = host_files_structure,
           verbose = verbose
         )
       } else {
@@ -781,21 +782,41 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Pull files content from organizations
-    get_files_content_from_orgs = function(file_path, verbose) {
+    get_files_content_from_orgs = function(file_path, host_files_structure = NULL, verbose) {
       graphql_engine <- private$engines$graphql
-      files_table <- purrr::map(private$orgs, function(org) {
+      if (!is.null(host_files_structure)) {
         if (verbose) {
+          cli::cli_alert_info(cli::col_green("I will make use of files structure stored in GitStats."))
+        }
+        result <- private$get_orgs_and_repos_from_files_structure(
+          host_files_structure = host_files_structure
+        )
+        orgs <- result$orgs
+        repos <- result$repos
+      } else {
+        orgs <- private$orgs
+        repos <- private$repos
+      }
+      files_table <- purrr::map(orgs, function(org) {
+        if (verbose) {
+          user_msg <- if (!is.null(host_files_structure)) {
+            "Pulling files from files structure"
+          } else {
+            glue::glue("Pulling files content: [{paste0(file_path, collapse = ', ')}]")
+          }
           show_message(
             host = private$host_name,
             engine = "graphql",
             scope = org,
-            information = glue::glue("Pulling files: [{paste0(file_path, collapse = ', ')}]")
+            information = user_msg
           )
         }
-        graphql_engine$pull_files_from_org(
+        graphql_engine$get_files_from_org(
           org = org,
-          repos = private$repos,
-          file_path = file_path
+          repos = repos,
+          file_path_vec = file_path,
+          host_files_structure = host_files_structure,
+          verbose = verbose
         ) %>%
           private$prepare_files_table(
             org = org,
@@ -805,6 +826,14 @@ GitHost <- R6::R6Class("GitHost",
         purrr::list_rbind() %>%
         private$add_repo_api_url()
       return(files_table)
+    },
+
+    get_orgs_and_repos_from_files_structure = function(host_files_structure) {
+      result <- list(
+        "orgs" = names(host_files_structure),
+        "repos" = purrr::map(host_files_structure, ~names(.)) %>% unlist() %>% unname()
+      )
+      return(result)
     },
 
     get_files_structure_from_orgs = function(pattern, depth, verbose) {
@@ -827,7 +856,8 @@ GitHost <- R6::R6Class("GitHost",
           org = org,
           repos = private$repos,
           pattern = pattern,
-          depth = depth
+          depth = depth,
+          verbose = verbose
         )
       })
       names(files_structure_list) <- private$orgs

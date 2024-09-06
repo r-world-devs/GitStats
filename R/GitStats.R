@@ -281,13 +281,23 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description Pull text content of a file from all repositories.
     #' @param file_path A file path, may be a character vector.
+    #' @param use_files_structure Logical. If `TRUE` and `file_path` is set to
+    #'   `NULL`, instead of pulling files in `file_path`, will iterate over
+    #'   `files_structure` pulled by `get_files_structure()` function and kept in
+    #'   storage. If there is no `files_structure` in storage, an error will be
+    #'   returned. If `file_path` is defined, it will override `use_files_structure`
+    #'   parameter.
     #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
     #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
-    get_files_content = function(file_path, cache = TRUE, verbose = TRUE) {
+    get_files_content = function(file_path = NULL,
+                                 use_files_structure = TRUE,
+                                 cache = TRUE,
+                                 verbose = TRUE) {
       private$check_for_host()
-      args_list <- list("file_path" = file_path)
+      args_list <- list("file_path" = file_path,
+                        "use_files_structure" = use_files_structure)
       trigger <- private$trigger_pulling(
         cache = cache,
         storage = "files",
@@ -297,6 +307,7 @@ GitStats <- R6::R6Class("GitStats",
       if (trigger) {
         files <- private$get_files_content_from_hosts(
           file_path = file_path,
+          use_files_structure = use_files_structure,
           verbose = verbose
         ) %>%
           private$set_object_class(
@@ -335,7 +346,7 @@ GitStats <- R6::R6Class("GitStats",
           )
         private$save_to_storage(files_structure)
       } else {
-        files <- private$get_from_storage(
+        files_structure <- private$get_from_storage(
           table = "files_structure",
           verbose = verbose
         )
@@ -755,14 +766,40 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Pull content of a text file in a table form
-    get_files_content_from_hosts = function(file_path, verbose) {
+    get_files_content_from_hosts = function(file_path, use_files_structure, verbose) {
       purrr::map(private$hosts, function(host) {
+        if (is.null(file_path) && use_files_structure) {
+          host_files_structure <- private$get_host_files_structure(
+            host = host,
+            verbose = verbose
+          )
+        } else {
+          files_structure <- NULL
+        }
         host$get_files_content(
           file_path = file_path,
+          host_files_structure = host_files_structure,
           verbose = verbose
         )
       }) %>%
         purrr::list_rbind()
+    },
+
+    get_host_files_structure = function(host, verbose) {
+      files_structure <- private$get_from_storage(
+        table = "files_structure",
+        verbose = verbose
+      )
+      if (is.null(files_structure)) {
+        cli::cli_abort(c(
+          "x" = "No files_structure object found in GitStats.",
+          "i" = "Run `get_files_structure()` function first, then `get_files_content()`."
+        ),
+        call = NULL
+        )
+      }
+      host_name <- host$.__enclos_env__$private$web_url
+      return(files_structure[[gsub("https://", "", host_name)]])
     },
 
     get_files_structure_from_hosts = function(pattern, depth, verbose) {
@@ -1012,10 +1049,15 @@ GitStats <- R6::R6Class("GitStats",
 
     # print storage
     print_storage = function() {
-      gitstats_storage <- purrr::imap(private$storage, function(storage_table, storage_name) {
-        if (!is.null(storage_table)) {
+      gitstats_storage <- purrr::imap(private$storage, function(storage_object, storage_name) {
+        if (!is.null(storage_object)) {
+          storage_size <- if (inherits(storage_object, "data.frame")) {
+            nrow(storage_object)
+          } else {
+            length(storage_object)
+          }
           glue::glue(
-            "{stringr::str_to_title(storage_name)}: {nrow(storage_table)} {private$print_storage_attribute(storage_table, storage_name)}"
+            "{stringr::str_to_title(storage_name)}: {storage_size} {private$print_storage_attribute(storage_object, storage_name)}"
           )
         }
       }) %>%
@@ -1023,7 +1065,7 @@ GitStats <- R6::R6Class("GitStats",
       if (length(gitstats_storage) == 0) {
         private$print_item(
           "Storage",
-          cli::col_grey("<no tables in storage>")
+          cli::col_grey("<no data in storage>")
         )
       } else {
         cat(paste0(
@@ -1035,9 +1077,10 @@ GitStats <- R6::R6Class("GitStats",
 
     # print storage attribute
     print_storage_attribute = function(storage_table, storage_name) {
-       if (storage_name != "repositories") {
+      if (storage_name != "repositories") {
         storage_attr <- switch(storage_name,
                                "files" = "file_path",
+                               "files_structure" = "pattern",
                                "commits" = "dates_range",
                                "release_logs" = "dates_range",
                                "users" = "logins",
@@ -1045,6 +1088,7 @@ GitStats <- R6::R6Class("GitStats",
         attr_data <- attr(storage_table, storage_attr)
         attr_name <- switch(storage_attr,
                             "file_path" = "files",
+                            "pattern" = "files matching pattern",
                             "dates_range" = "date range",
                             "package_name" = "package",
                             "logins" = "logins")

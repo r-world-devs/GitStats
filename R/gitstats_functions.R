@@ -311,6 +311,12 @@ get_users <- function(gitstats_object,
 #' @param gitstats_object A GitStats object.
 #' @param file_path A standardized path to file(s) in repositories. May be a
 #'   character vector if multiple files are to be pulled.
+#' @param use_files_structure Logical. If `TRUE` and `file_path` is set to
+#'   `NULL`, instead of pulling files in `file_path`, will iterate over
+#'   `files_structure` pulled by `get_files_structure()` function and kept in
+#'   storage. If there is no `files_structure` in storage, an error will be
+#'   returned. If `file_path` is defined, it will override `use_files_structure`
+#'   parameter.
 #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
 #'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
@@ -326,18 +332,32 @@ get_users <- function(gitstats_object,
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
 #'   )
-#'  get_files(
+#'  get_files_content(
 #'    gitstats_obj = my_gitstats,
-#'    file_path = c("LICENSE", "DESCRIPTION"))
+#'    file_path = c("LICENSE", "DESCRIPTION")
+#'  )
+#'
+#'  # example with files structure
+#'  files_structure <- get_files_structure(
+#'    gitstats_obj = my_gitstats,
+#'    pattern = "\\.Rmd",
+#'    depth = 2L
+#'  )
+#'  # get_files_content() will make use of pulled earlier files structure
+#'  files_content <- get_files_content(
+#'    gitstats_obj = my_gitstats
+#'  )
 #' }
 #' @return A data.frame.
 #' @export
 get_files_content <- function(gitstats_object,
-                              file_path,
+                              file_path = NULL,
+                              use_files_structure = TRUE,
                               cache = TRUE,
                               verbose = is_verbose(gitstats_object)) {
   gitstats_object$get_files_content(
     file_path = file_path,
+    use_files_structure = use_files_structure,
     cache = cache,
     verbose = verbose
   )

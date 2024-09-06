@@ -5,6 +5,7 @@ create_test_gitstats <- function(
     inject_repos = NULL,
     inject_commits = NULL,
     inject_files = NULL,
+    inject_files_structure = NULL,
     inject_users = NULL,
     inject_package_usage = NULL
 ) {
@@ -40,6 +41,9 @@ create_test_gitstats <- function(
   }
   if (!is.null(inject_files)) {
     test_gitstats$.__enclos_env__$private$storage$files <- test_mocker$use(inject_files)
+  }
+  if (!is.null(inject_files_structure)) {
+    test_gitstats$.__enclos_env__$private$storage$files_structure <- test_mocker$use(inject_files_structure)
   }
   if (!is.null(inject_users)) {
     test_gitstats$.__enclos_env__$private$storage$users <- test_mocker$use(inject_users)

@@ -152,30 +152,33 @@ test_that("`get_repos_from_org()` does not fail when GraphQL response is not com
 })
 
 test_that("GitLab GraphQL Engine pulls files from a group", {
-  gitlab_files_response <- test_gql_gl$pull_files_from_org(
+  gitlab_files_response <- test_gql_gl$get_files_from_org(
     org = "mbtests",
     repos = NULL,
-    file_path = "meta_data.yaml"
+    file_path_vec = "meta_data.yaml",
+    host_files_structure = NULL
   )
   expect_gitlab_files_response(gitlab_files_response)
   test_mocker$cache(gitlab_files_response)
 })
 
 test_that("GitLab GraphQL Engine pulls files only from defined projects", {
-  gitlab_files_response <- test_gql_gl$pull_files_from_org(
+  gitlab_files_response <- test_gql_gl$get_files_from_org(
     org = "mbtests",
     repos = c("gitstatstesting", "gitstats-testing-2", "gitstatstesting3"),
-    file_path = "README.md"
+    file_path_vec = "README.md",
+    host_files_structure = NULL
   )
   expect_gitlab_files_response(gitlab_files_response)
   expect_equal(length(gitlab_files_response), 3)
 })
 
 test_that("GitLab GraphQL Engine pulls two files from a group", {
-  gitlab_files_response <- test_gql_gl$pull_files_from_org(
+  gitlab_files_response <- test_gql_gl$get_files_from_org(
     org = "mbtests",
     repos = NULL,
-    file_path = c("meta_data.yaml", "README.md")
+    file_path_vec = c("meta_data.yaml", "README.md"),
+    host_files_structure = NULL
   )
   expect_gitlab_files_response(gitlab_files_response)
   expect_true(

@@ -298,16 +298,16 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
     # Prepare files table.
     prepare_files_table = function(files_response, org, file_path) {
       if (!is.null(files_response)) {
-        files_table <- purrr::map(file_path, function(file) {
-          purrr::imap(files_response[[file]], function(repository, name) {
+        files_table <- purrr::map(files_response, function(repository) {
+          purrr::imap(repository, function(file_data, file_name) {
             data.frame(
-              "repo_name" = repository$name,
-              "repo_id" = repository$id,
+              "repo_name" = file_data$repo_name,
+              "repo_id" = file_data$repo_id,
               "organization" = org,
-              "file_path" = file,
-              "file_content" = repository$object$text %||% NA,
-              "file_size" = repository$object$byteSize,
-              "repo_url" = repository$url
+              "file_path" = file_name,
+              "file_content" = file_data$file$text %||% NA,
+              "file_size" = file_data$file$byteSize,
+              "repo_url" = file_data$repo_url
             )
           }) %>%
             purrr::list_rbind()

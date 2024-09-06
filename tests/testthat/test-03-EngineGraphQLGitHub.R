@@ -209,48 +209,53 @@ test_that("`pull_releases_from_org()` pulls releases from the repositories", {
 })
 
 test_that("GitHub GraphQL Engine pulls files from organization", {
-  github_files_response <- test_graphql_github$pull_files_from_org(
+  github_files_response <- test_graphql_github$get_files_from_org(
     org = "r-world-devs",
     repos = NULL,
-    file_path = "LICENSE"
+    file_path_vec = "LICENSE",
+    host_files_structure = NULL
   )
   expect_github_files_response(github_files_response)
   test_mocker$cache(github_files_response)
 })
 
 test_that("GitHub GraphQL Engine pulls .png files from organization", {
-  github_png_files_response <- test_graphql_github$pull_files_from_org(
+  github_png_files_response <- test_graphql_github$get_files_from_org(
     org = "r-world-devs",
     repos = NULL,
-    file_path = "man/figures/logo.png"
+    file_path_vec = "man/figures/logo.png",
+    host_files_structure = NULL
   )
   expect_github_files_response(github_png_files_response)
   test_mocker$cache(github_png_files_response)
 })
 
 test_that("GitHub GraphQL Engine pulls files from defined repositories", {
-  github_files_response <- test_graphql_github$pull_files_from_org(
+  github_files_response <- test_graphql_github$get_files_from_org(
     org = "openpharma",
     repos = c("DataFakeR", "visR"),
-    file_path = "README.md"
+    file_path_vec = "README.md",
+    host_files_structure = NULL
   )
   expect_github_files_response(github_files_response)
-  expect_equal(length(github_files_response[["README.md"]]), 2)
+  expect_equal(length(github_files_response), 2)
 })
 
 test_that("GitHub GraphQL Engine pulls two files from a group", {
-  github_files_response <- test_graphql_github$pull_files_from_org(
+  github_files_response <- test_graphql_github$get_files_from_org(
     org = "r-world-devs",
     repos = NULL,
-    file_path = c("DESCRIPTION", "NAMESPACE")
+    file_path_vec = c("DESCRIPTION", "NAMESPACE"),
+    host_files_structure = NULL
   )
   expect_github_files_response(github_files_response)
-  expect_true(
+  purrr::walk(github_files_response, ~ {expect_true(
     all(
       c("DESCRIPTION", "NAMESPACE") %in%
-        names(github_files_response)
+        names(.)
     )
   )
+  })
 })
 
 test_that("GitHub GraphQL Engine pulls files structure from repositories", {
