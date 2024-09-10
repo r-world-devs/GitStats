@@ -814,7 +814,7 @@ GitHost <- R6::R6Class("GitHost",
         graphql_engine$get_files_from_org(
           org = org,
           repos = repos,
-          file_path_vec = file_path,
+          file_paths = file_path,
           host_files_structure = host_files_structure,
           verbose = verbose
         ) %>%

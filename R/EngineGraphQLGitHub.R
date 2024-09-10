@@ -85,7 +85,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     },
 
     # Pull all given files from all repositories of an organization.
-    get_files_from_org = function(org, repos, file_path_vec, host_files_structure, verbose = FALSE) {
+    get_files_from_org = function(org, repos, file_paths, host_files_structure, verbose = FALSE) {
       repo_data <- private$get_repos_data(
         org = org,
         repos = repos
@@ -94,13 +94,13 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       def_branches <- repo_data[["def_branches"]]
       org_files_list <- purrr::map2(repositories, def_branches, function(repo, def_branch) {
         if (!is.null(host_files_structure)) {
-          file_path_vec <- private$get_path_from_files_structure(
+          file_paths <- private$get_path_from_files_structure(
             host_files_structure = host_files_structure,
             org = org,
             repo = repo
           )
         }
-        repo_files_list <- purrr::map(file_path_vec, function(file_path) {
+        repo_files_list <- purrr::map(file_paths, function(file_path) {
           private$get_file_response(
             org = org,
             repo = repo,
@@ -110,11 +110,11 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           )
         }) %>%
           purrr::map(~ .$data$repository)
-        names(repo_files_list) <- file_path_vec
+        names(repo_files_list) <- file_paths
         return(repo_files_list)
       }, .progress = verbose)
       names(org_files_list) <- repositories
-      for (file_path in file_path_vec) {
+      for (file_path in file_paths) {
         org_files_list <- purrr::discard(org_files_list, ~ length(.[[file_path]]$file) == 0)
       }
       return(org_files_list)
@@ -250,10 +250,6 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           )
         )
         return(files_response)
-      },
-
-      get_path_from_files_structure = function(host_files_structure, org, repo) {
-        host_files_structure[[org]][[repo]]
       },
 
       get_files_structure_from_repo = function(org, repo, def_branch, pattern = NULL, depth = Inf) {

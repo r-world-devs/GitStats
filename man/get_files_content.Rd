@@ -15,15 +15,16 @@ get_files_content(
 \arguments{
 \item{gitstats_object}{A GitStats object.}
 
-\item{file_path}{A standardized path to file(s) in repositories. May be a
-character vector if multiple files are to be pulled.}
+\item{file_path}{Optional. A standardized path to file(s) in repositories.
+May be a character vector if multiple files are to be pulled. If set to
+\code{NULL} and \code{use_files_structure} parameter is set to \code{TRUE}, \code{GitStats}
+will try to pull data from \code{files_structure} (see below).}
 
 \item{use_files_structure}{Logical. If \code{TRUE} and \code{file_path} is set to
-\code{NULL}, instead of pulling files in \code{file_path}, will iterate over
-\code{files_structure} pulled by \code{get_files_structure()} function and kept in
-storage. If there is no \code{files_structure} in storage, an error will be
-returned. If \code{file_path} is defined, it will override \code{use_files_structure}
-parameter.}
+\code{NULL}, will iterate over \code{files_structure} pulled by
+\code{get_files_structure()} function and kept in storage. If there is no
+\code{files_structure} in storage, an error will be returned. If \code{file_path} is
+defined, it will override \code{use_files_structure} parameter.}
 
 \item{cache}{A logical, if set to \code{TRUE} GitStats will retrieve the last
 result from its storage.}

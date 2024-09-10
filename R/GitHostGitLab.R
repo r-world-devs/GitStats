@@ -342,25 +342,47 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     # Prepare files table.
     prepare_files_table = function(files_response, org, file_path) {
       if (!is.null(files_response)) {
-        files_table <- purrr::map(files_response, function(project) {
-          purrr::map(project$repository$blobs$nodes, function(file) {
-            data.frame(
-              "repo_name" = project$name,
-              "repo_id" = project$id,
-              "organization" = org,
-              "file_path" = file$name,
-              "file_content" = file$rawBlob,
-              "file_size" = as.integer(file$size),
-              "repo_url" = project$webUrl
-            )
+        if (private$response_prepared_by_iteration(files_response)) {
+          files_table <- purrr::map(files_response, function(response_data) {
+            purrr::map(response_data$data$project$repository$blobs$nodes, function(file) {
+                data.frame(
+                  "repo_name" = response_data$data$project$name,
+                  "repo_id" = response_data$data$project$id,
+                  "organization" = org,
+                  "file_path" = file$name,
+                  "file_content" = file$rawBlob,
+                  "file_size" = as.integer(file$size),
+                  "repo_url" = response_data$data$project$webUrl
+                )
+              }) %>%
+                purrr::list_rbind()
           }) %>%
             purrr::list_rbind()
-        }) %>%
-          purrr::list_rbind()
+        } else {
+          files_table <- purrr::map(files_response, function(project) {
+            purrr::map(project$repository$blobs$nodes, function(file) {
+              data.frame(
+                "repo_name" = project$name,
+                "repo_id" = project$id,
+                "organization" = org,
+                "file_path" = file$name,
+                "file_content" = file$rawBlob,
+                "file_size" = as.integer(file$size),
+                "repo_url" = project$webUrl
+              )
+            }) %>%
+              purrr::list_rbind()
+          }) %>%
+            purrr::list_rbind()
+        }
       } else {
         files_table <- NULL
       }
       return(files_table)
+    },
+
+    response_prepared_by_iteration = function(files_response) {
+      !all(purrr::map_lgl(files_response, ~ all(c("name", "id", "webUrl", "repository") %in% names(.))))
     },
 
     # Prepare files table from REST API.

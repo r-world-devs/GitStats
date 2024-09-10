@@ -24,6 +24,12 @@ test_that("file queries are built properly", {
   expect_snapshot(
     gl_files_query
   )
+  gl_file_blobs_from_repo_query <-
+    test_gqlquery_gl$file_blob_from_repo()
+  expect_snapshot(
+    gl_file_blobs_from_repo_query
+  )
+  test_mocker$cache(gl_file_blobs_from_repo_query)
 })
 
 test_that("releases query is built properly", {

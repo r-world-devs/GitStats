@@ -66,6 +66,23 @@
 # get_files_content makes use of files_structure
 
     Code
+      files_content <- test_gitstats$get_files_content(file_path = NULL,
+        use_files_structure = TRUE, verbose = TRUE)
+    Message
+      ! Retrieving files_structure from the GitStats storage.
+      i If you wish to pull the data from API once more, set `cache` parameter to `FALSE`.
+      i I will make use of files structure stored in GitStats.
+      i [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling files from files structure...
+      i [Host:GitHub][Engine:GraphQl][Scope:openpharma] Pulling files from files structure...
+      ! Retrieving files_structure from the GitStats storage.
+      i If you wish to pull the data from API once more, set `cache` parameter to `FALSE`.
+      i I will make use of files structure stored in GitStats.
+      i [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling files from files structure...
+      i [Host:GitLab][Engine:GraphQl][Scope:mbtestapps] Pulling files from files structure...
+
+---
+
+    Code
       test_gitstats
     Output
       A GitStats object for 2 hosts: 

@@ -212,7 +212,7 @@ test_that("GitHub GraphQL Engine pulls files from organization", {
   github_files_response <- test_graphql_github$get_files_from_org(
     org = "r-world-devs",
     repos = NULL,
-    file_path_vec = "LICENSE",
+    file_paths = "LICENSE",
     host_files_structure = NULL
   )
   expect_github_files_response(github_files_response)
@@ -223,7 +223,7 @@ test_that("GitHub GraphQL Engine pulls .png files from organization", {
   github_png_files_response <- test_graphql_github$get_files_from_org(
     org = "r-world-devs",
     repos = NULL,
-    file_path_vec = "man/figures/logo.png",
+    file_paths = "man/figures/logo.png",
     host_files_structure = NULL
   )
   expect_github_files_response(github_png_files_response)
@@ -234,7 +234,7 @@ test_that("GitHub GraphQL Engine pulls files from defined repositories", {
   github_files_response <- test_graphql_github$get_files_from_org(
     org = "openpharma",
     repos = c("DataFakeR", "visR"),
-    file_path_vec = "README.md",
+    file_paths = "README.md",
     host_files_structure = NULL
   )
   expect_github_files_response(github_files_response)
@@ -245,7 +245,7 @@ test_that("GitHub GraphQL Engine pulls two files from a group", {
   github_files_response <- test_graphql_github$get_files_from_org(
     org = "r-world-devs",
     repos = NULL,
-    file_path_vec = c("DESCRIPTION", "NAMESPACE"),
+    file_paths = c("DESCRIPTION", "NAMESPACE"),
     host_files_structure = NULL
   )
   expect_github_files_response(github_files_response)

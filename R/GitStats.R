@@ -280,13 +280,15 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     #' @description Pull text content of a file from all repositories.
-    #' @param file_path A file path, may be a character vector.
+    #' @param file_path Optional. A standardized path to file(s) in repositories.
+    #'   May be a character vector if multiple files are to be pulled. If set to
+    #'   `NULL` and `use_files_structure` parameter is set to `TRUE`, `GitStats`
+    #'   will try to pull data from `files_structure` (see below).
     #' @param use_files_structure Logical. If `TRUE` and `file_path` is set to
-    #'   `NULL`, instead of pulling files in `file_path`, will iterate over
-    #'   `files_structure` pulled by `get_files_structure()` function and kept in
-    #'   storage. If there is no `files_structure` in storage, an error will be
-    #'   returned. If `file_path` is defined, it will override `use_files_structure`
-    #'   parameter.
+    #'   `NULL`, will iterate over `files_structure` pulled by
+    #'   `get_files_structure()` function and kept in storage. If there is no
+    #'   `files_structure` in storage, an error will be returned. If `file_path`
+    #'   is defined, it will override `use_files_structure` parameter.
     #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
     #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and

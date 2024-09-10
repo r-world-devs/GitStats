@@ -278,14 +278,9 @@ test_that("get_files_structure_from_hosts works as expected", {
   expect_equal(names(files_structure_from_hosts),
                c("github.com", "gitlab.com"))
   expect_equal(names(files_structure_from_hosts[[1]]), c("r-world-devs", "openpharma"))
+  files_structure_from_hosts[[2]] <- test_mocker$use("gl_files_structure_from_orgs")
   test_mocker$cache(files_structure_from_hosts)
 })
-
-# test_that("get_hosts_files_structure pulls files structure for a host", {
-#   test_gitstats$get_hosts_files_structure(
-#     host =
-#   )
-# })
 
 # public methods
 
@@ -396,10 +391,12 @@ test_that("get_files_content makes use of files_structure", {
     hosts = 2,
     inject_files_structure = "files_structure"
   )
-  files_content <- test_gitstats$get_files_content(
-    file_path = NULL,
-    use_files_structure = TRUE,
-    verbose = TRUE
+  expect_snapshot(
+    files_content <- test_gitstats$get_files_content(
+      file_path = NULL,
+      use_files_structure = TRUE,
+      verbose = TRUE
+    )
   )
   expect_files_table(
     files_content,

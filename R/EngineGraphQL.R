@@ -53,14 +53,26 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
          httr2::req_body_json(list(query = gql_query, variables = vars)) %>%
          httr2::req_retry(
            is_transient = ~ httr2::resp_status(.x) %in% c(400, 502),
-           max_seconds = 60
+           max_seconds = 30
          ) %>%
          httr2::req_perform()
        return(response)
      },
 
+     is_query_error = function(response) {
+       names(response) == "errors"
+     },
+
      filter_files_by_pattern = function(files_structure, pattern) {
        files_structure[grepl(pattern, files_structure)]
+     },
+
+     get_path_from_files_structure = function(host_files_structure, org, repo = NULL) {
+       if (is.null(repo)) {
+         host_files_structure[[org]] %>% unlist() %>% unique()
+       } else {
+         host_files_structure[[org]][[repo]]
+       }
      }
    )
 )
