@@ -130,11 +130,12 @@ GitHost <- R6::R6Class("GitHost",
 
     #' Retrieve content of given text files from all repositories for a host in
     #' a table format.
-    get_files_content = function(file_path, host_files_structure = NULL, verbose = TRUE) {
+    get_files_content = function(file_path, host_files_structure = NULL, only_text_files = TRUE, verbose = TRUE) {
       files_table <- if (!private$scan_all) {
         private$get_files_content_from_orgs(
           file_path = file_path,
           host_files_structure = host_files_structure,
+          only_text_files = only_text_files,
           verbose = verbose
         )
       } else {
@@ -782,7 +783,10 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Pull files content from organizations
-    get_files_content_from_orgs = function(file_path, host_files_structure = NULL, verbose) {
+    get_files_content_from_orgs = function(file_path,
+                                           host_files_structure = NULL,
+                                           only_text_files = TRUE,
+                                           verbose = TRUE) {
       graphql_engine <- private$engines$graphql
       if (!is.null(host_files_structure)) {
         if (verbose) {
@@ -816,6 +820,7 @@ GitHost <- R6::R6Class("GitHost",
           repos = repos,
           file_paths = file_path,
           host_files_structure = host_files_structure,
+          only_text_files = only_text_files,
           verbose = verbose
         ) %>%
           private$prepare_files_table(
@@ -861,6 +866,15 @@ GitHost <- R6::R6Class("GitHost",
         )
       })
       names(files_structure_list) <- private$orgs
+      files_structure_list <- files_structure_list %>%
+        purrr::discard(~ length(.) == 0)
+      if (length(files_structure_list) == 0 && verbose) {
+        cli::cli_alert_warning(
+          cli::col_yellow(
+            "For {private$host_name} no files structure found."
+          )
+        )
+      }
       return(files_structure_list)
     },
 
@@ -874,8 +888,8 @@ GitHost <- R6::R6Class("GitHost",
           information = glue::glue("Pulling files: [{paste0(file_path, collapse = ', ')}]")
         )
       }
-      files_table <- rest_engine$pull_files(
-        files = file_path,
+      files_table <- rest_engine$get_files(
+        file_paths = file_path,
         verbose = verbose
       ) %>%
         private$prepare_files_table_from_rest() %>%

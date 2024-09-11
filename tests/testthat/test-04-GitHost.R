@@ -358,7 +358,7 @@ test_host_gitlab <- create_gitlab_testhost(orgs = "mbtests")
 test_that("`get_files_content()` pulls files in the table format", {
   mockery::stub(
     test_host_gitlab$get_files_content,
-    "private$get_files_content_from_orgs",
+    "super$get_files_content",
     test_mocker$use("gl_files_table")
   )
   expect_snapshot(

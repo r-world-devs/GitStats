@@ -100,6 +100,13 @@ test_that("get_repos_data pulls data on repositories", {
   )
 })
 
+
+test_that("is query error is FALSE when response is empty (non query error)", {
+  expect_false(
+    test_gql_gl$is_query_error(list())
+  )
+})
+
 # public methods
 
 test_gql_gl <- EngineGraphQLGitLab$new(
@@ -167,6 +174,7 @@ test_that("GitLab GraphQL Engine pulls files from a group", {
     org = "mbtests",
     repos = NULL,
     file_paths = "meta_data.yaml",
+    only_text_files = TRUE,
     host_files_structure = NULL
   )
   expect_gitlab_files_from_org_response(gitlab_files_response)
@@ -190,7 +198,8 @@ test_that("GitLab GraphQL Engine pulls files only from defined projects", {
     org = "mbtests",
     repos = c("gitstatstesting", "gitstats-testing-2", "gitstatstesting3"),
     file_paths = "README.md",
-    host_files_structure = NULL
+    host_files_structure = NULL,
+    only_text_files = TRUE
   )
   expect_gitlab_files_from_org_response(gitlab_files_response)
   expect_equal(length(gitlab_files_response), 3)
@@ -201,7 +210,8 @@ test_that("GitLab GraphQL Engine pulls two files from a group", {
     org = "mbtests",
     repos = NULL,
     file_paths = c("meta_data.yaml", "README.md"),
-    host_files_structure = NULL
+    host_files_structure = NULL,
+    only_text_files = TRUE
   )
   expect_gitlab_files_from_org_response(gitlab_files_response)
   expect_true(
@@ -257,6 +267,7 @@ test_that("Gitlab GraphQL switches to pulling files per repositories when query 
       repos = NULL,
       file_paths = c("DESCRIPTION", "project_metadata.yaml", "README.md"),
       host_files_structure = NULL,
+      only_text_files = TRUE,
       verbose = TRUE,
       progress = FALSE
     )

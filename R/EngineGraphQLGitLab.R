@@ -81,6 +81,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
                                    repos,
                                    file_paths,
                                    host_files_structure,
+                                   only_text_files,
                                    verbose = FALSE,
                                    progress = verbose) {
        org <- URLdecode(org)
@@ -90,8 +91,11 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
        if (!is.null(host_files_structure)) {
          file_paths <- private$get_path_from_files_structure(
            host_files_structure = host_files_structure,
+           only_text_files = only_text_files,
            org = org
          )
+       } else if (is.null(host_files_structure) && only_text_files) {
+         file_paths <- file_paths[!grepl(non_text_files_pattern, file_paths)]
        }
        while (next_page) {
          files_query <- self$gql_query$files_by_org(
@@ -107,9 +111,6 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
            )
          },
          error = function(e) {
-           if (verbose) {
-             cli::cli_alert_danger(e)
-           }
            list()
          })
          if (private$is_query_error(files_response)) {
@@ -127,6 +128,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
                repos = repos,
                file_paths = file_paths,
                host_files_structure = host_files_structure,
+               only_text_files = only_text_files,
                verbose = verbose,
                progress = progress
              )
@@ -171,6 +173,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
                                             repos,
                                             file_paths = NULL,
                                             host_files_structure = NULL,
+                                            only_text_files = TRUE,
                                             verbose = FALSE,
                                             progress = verbose) {
        if (is.null(repos)) {
@@ -184,6 +187,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
          if (!is.null(host_files_structure)) {
            file_paths <- private$get_path_from_files_structure(
              host_files_structure = host_files_structure,
+             only_text_files = only_text_files,
              org = org,
              repo = repo
            )

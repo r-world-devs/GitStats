@@ -213,6 +213,7 @@ test_that("GitHub GraphQL Engine pulls files from organization", {
     org = "r-world-devs",
     repos = NULL,
     file_paths = "LICENSE",
+    only_text_files = TRUE,
     host_files_structure = NULL
   )
   expect_github_files_response(github_files_response)
@@ -224,6 +225,7 @@ test_that("GitHub GraphQL Engine pulls .png files from organization", {
     org = "r-world-devs",
     repos = NULL,
     file_paths = "man/figures/logo.png",
+    only_text_files = FALSE,
     host_files_structure = NULL
   )
   expect_github_files_response(github_png_files_response)
@@ -235,7 +237,8 @@ test_that("GitHub GraphQL Engine pulls files from defined repositories", {
     org = "openpharma",
     repos = c("DataFakeR", "visR"),
     file_paths = "README.md",
-    host_files_structure = NULL
+    host_files_structure = NULL,
+    only_text_files = TRUE
   )
   expect_github_files_response(github_files_response)
   expect_equal(length(github_files_response), 2)
@@ -246,7 +249,8 @@ test_that("GitHub GraphQL Engine pulls two files from a group", {
     org = "r-world-devs",
     repos = NULL,
     file_paths = c("DESCRIPTION", "NAMESPACE"),
-    host_files_structure = NULL
+    host_files_structure = NULL,
+    only_text_files = TRUE
   )
   expect_github_files_response(github_files_response)
   purrr::walk(github_files_response, ~ {expect_true(

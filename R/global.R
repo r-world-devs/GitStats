@@ -6,3 +6,5 @@ globalVariables(c(
   "repository", "stars", "forks", "languages", "issues_open", "issues_closed",
   "contributors_n"
 ))
+
+non_text_files_pattern <- "\\.(png||.jpg||.jpeg||.bmp||.gif||.tiff)$"

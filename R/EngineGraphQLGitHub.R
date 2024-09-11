@@ -85,7 +85,12 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     },
 
     # Pull all given files from all repositories of an organization.
-    get_files_from_org = function(org, repos, file_paths, host_files_structure, verbose = FALSE) {
+    get_files_from_org = function(org,
+                                  repos,
+                                  file_paths,
+                                  host_files_structure,
+                                  only_text_files,
+                                  verbose = FALSE) {
       repo_data <- private$get_repos_data(
         org = org,
         repos = repos
@@ -96,9 +101,12 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         if (!is.null(host_files_structure)) {
           file_paths <- private$get_path_from_files_structure(
             host_files_structure = host_files_structure,
+            only_text_files = only_text_files,
             org = org,
             repo = repo
           )
+        } else if (is.null(host_files_structure) && only_text_files) {
+          file_paths <- file_paths[!grepl(non_text_files_pattern, file_paths)]
         }
         repo_files_list <- purrr::map(file_paths, function(file_path) {
           private$get_file_response(

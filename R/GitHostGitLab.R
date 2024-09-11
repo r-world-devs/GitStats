@@ -21,6 +21,48 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       if (private$verbose) {
         cli::cli_alert_success("Set connection to GitLab.")
       }
+    },
+
+    # Retrieve content of given text files from all repositories for a host in
+    # a table format.
+    get_files_content = function(file_path, host_files_structure = NULL, only_text_files = TRUE, verbose = TRUE) {
+      if (!private$scan_all && private$are_non_text_files(file_path, host_files_structure)) {
+        if (only_text_files) {
+          files_table <- private$get_files_content_from_orgs(
+            file_path = file_path,
+            host_files_structure = host_files_structure,
+            only_text_files = only_text_files,
+            verbose = verbose
+          )
+        } else {
+          text_files_table <- private$get_files_content_from_orgs(
+            file_path = file_path,
+            host_files_structure = host_files_structure,
+            only_text_files = TRUE,
+            verbose = verbose
+          )
+          non_text_files_table <- private$get_files_content_from_orgs_via_rest(
+            file_path = file_path,
+            host_files_structure = host_files_structure,
+            clean_files_content = FALSE,
+            only_non_text_files = TRUE,
+            verbose = verbose
+          )
+          files_table <- purrr::list_rbind(
+            list(
+              text_files_table,
+              non_text_files_table
+            )
+          )
+        }
+      } else {
+        files_table <- super$get_files_content(
+          file_path = file_path,
+          host_files_structure = host_files_structure,
+          verbose = verbose
+        )
+      }
+      return(files_table)
     }
   ),
   private = list(
@@ -315,6 +357,68 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         )
       }
       return(commits_dt)
+    },
+
+    are_non_text_files = function(file_path, host_files_structure) {
+      if (!is.null(file_path)) {
+        any(grepl(non_text_files_pattern, file_path))
+      } else if (!is.null(host_files_structure)) {
+        any(grepl(non_text_files_pattern, unlist(host_files_structure, use.names = FALSE)))
+      } else {
+        FALSE
+      }
+    },
+
+    # Pull files from orgs via rest
+    get_files_content_from_orgs_via_rest = function(file_path,
+                                                    host_files_structure,
+                                                    only_non_text_files,
+                                                    clean_files_content,
+                                                    verbose) {
+      rest_engine <- private$engines$rest
+      if (!is.null(host_files_structure)) {
+        if (verbose) {
+          cli::cli_alert_info(cli::col_green("I will make use of files structure stored in GitStats."))
+        }
+        result <- private$get_orgs_and_repos_from_files_structure(
+          host_files_structure = host_files_structure
+        )
+        orgs <- result$orgs
+        repos <- result$repos
+      } else {
+        orgs <- private$orgs
+        repos <- private$repos
+      }
+      if (verbose) {
+        user_msg <- if (!is.null(host_files_structure)) {
+          "Pulling files from files structure"
+        } else {
+          glue::glue("Pulling files content: [{paste0(file_path, collapse = ', ')}]")
+        }
+        show_message(
+          host = private$host_name,
+          engine = "rest",
+          information = user_msg
+        )
+      }
+      files_table <- purrr::map(orgs, function(org) {
+        if (!is.null(host_files_structure)) {
+          file_path <- host_files_structure[[org]] %>% unlist(use.names = FALSE) %>% unique()
+        }
+        if (only_non_text_files) {
+          file_path <- file_path[grepl(non_text_files_pattern, file_path)]
+        }
+        files_table <- rest_engine$get_files(
+          file_paths = file_path,
+          clean_files_content = clean_files_content,
+          org = org,
+          verbose = FALSE
+        ) %>%
+          private$prepare_files_table_from_rest()
+      }) %>%
+        purrr::list_rbind() %>%
+        private$add_repo_api_url()
+      return(files_table)
     },
 
     # Prepare user table.

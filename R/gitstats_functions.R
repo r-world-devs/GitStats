@@ -318,6 +318,9 @@ get_users <- function(gitstats_object,
 #'   `get_files_structure()` function and kept in storage. If there is no
 #'   `files_structure` in storage, an error will be returned. If `file_path` is
 #'   defined, it will override `use_files_structure` parameter.
+#' @param only_text_files A logical, `TRUE` by default. If set to `FALSE`, apart
+#'   from files with text content shows in table output also non-text files with
+#'   `NA` value for text content.
 #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
 #'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
@@ -354,11 +357,13 @@ get_users <- function(gitstats_object,
 get_files_content <- function(gitstats_object,
                               file_path = NULL,
                               use_files_structure = TRUE,
+                              only_text_files = TRUE,
                               cache = TRUE,
                               verbose = is_verbose(gitstats_object)) {
   gitstats_object$get_files_content(
     file_path = file_path,
     use_files_structure = use_files_structure,
+    only_text_files = only_text_files,
     cache = cache,
     verbose = verbose
   )

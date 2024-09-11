@@ -160,6 +160,7 @@ test_that("get_path_from_files_structure gets file path from files structure", {
   test_graphql_gitlab <- environment(test_graphql_gitlab$initialize)$private
   file_path <- test_graphql_gitlab$get_path_from_files_structure(
     host_files_structure = test_mocker$use("gl_files_structure_from_orgs"),
+    only_text_files = TRUE,
     org = "mbtests" # this will need fixing and repo parameter must come back
   )
   expect_equal(typeof(file_path), "character")

@@ -282,6 +282,22 @@ test_that("get_files_structure_from_hosts works as expected", {
   test_mocker$cache(files_structure_from_hosts)
 })
 
+test_that("if returned files_structure is empty, do not store it and give proper message", {
+  test_gitstats <- create_test_gitstats(hosts = 2, priv_mode = TRUE)
+  mockery::stub(
+    test_gitstats$get_files_structure_from_hosts,
+    "host$get_files_structure",
+    list()
+  )
+  expect_snapshot(
+    files_structure <- test_gitstats$get_files_structure_from_hosts(
+      pattern = "\\.png",
+      depth = 1L,
+      verbose = TRUE
+    )
+  )
+})
+
 # public methods
 
 test_that("GitStats get users info", {
@@ -377,13 +393,29 @@ test_that("get_files_structure works as expected", {
   )
   expect_snapshot(
     files_structure <- test_gitstats$get_files_structure(
-      pattern = "\\md",
+      pattern = "\\.md",
       depth = 2L,
       verbose = TRUE
     )
   )
   expect_s3_class(files_structure, "files_structure")
   test_mocker$cache(files_structure)
+})
+
+test_that("if returned files_structure is empty, do not store it and give proper message", {
+  test_gitstats <- create_test_gitstats(hosts = 2)
+  mockery::stub(
+    test_gitstats$get_files_structure,
+    "private$get_files_structure_from_hosts",
+    NULL
+  )
+  expect_snapshot(
+    files_structure <- test_gitstats$get_files_structure(
+      pattern = "\\.png",
+      depth = 1L,
+      verbose = TRUE
+    )
+  )
 })
 
 test_that("get_files_content makes use of files_structure", {

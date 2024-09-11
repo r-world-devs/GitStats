@@ -8,6 +8,7 @@ get_files_content(
   gitstats_object,
   file_path = NULL,
   use_files_structure = TRUE,
+  only_text_files = TRUE,
   cache = TRUE,
   verbose = is_verbose(gitstats_object)
 )
@@ -25,6 +26,10 @@ will try to pull data from \code{files_structure} (see below).}
 \code{get_files_structure()} function and kept in storage. If there is no
 \code{files_structure} in storage, an error will be returned. If \code{file_path} is
 defined, it will override \code{use_files_structure} parameter.}
+
+\item{only_text_files}{A logical, \code{TRUE} by default. If set to \code{FALSE}, apart
+from files with text content shows in table output also non-text files with
+\code{NA} value for text content.}
 
 \item{cache}{A logical, if set to \code{TRUE} GitStats will retrieve the last
 result from its storage.}
