@@ -787,7 +787,7 @@ GitStats <- R6::R6Class("GitStats",
             verbose = FALSE
           )
         } else {
-          files_structure <- NULL
+          host_files_structure <- NULL
         }
         host$get_files_content(
           file_path = file_path,

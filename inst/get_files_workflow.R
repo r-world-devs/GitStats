@@ -8,6 +8,11 @@ test_gitstats <- create_gitstats() |>
     orgs = c("mbtests", "mbtestapps")
   )
 
+get_files_content(
+  gitstats_obj = test_gitstats,
+  file_path = c("LICENSE", "DESCRIPTION")
+)
+
 md_files_structure <- get_files_structure(
   gitstats_obj = test_gitstats,
   pattern = "\\.md|.R",
