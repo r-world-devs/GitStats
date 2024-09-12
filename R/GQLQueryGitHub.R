@@ -146,10 +146,10 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     file_blob_from_repo = function(){
       'query GetFileBlobFromRepo($org: String!, $repo: String!, $expression: String!) {
           repository(owner: $org, name: $repo) {
-            id
-            name
-            url
-            object(expression: $expression) {
+            repo_id: id
+            repo_name: name
+            repo_url: url
+            file: object(expression: $expression) {
               ... on Blob {
                 text
                 byteSize

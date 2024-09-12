@@ -6,7 +6,9 @@
 \usage{
 get_files_content(
   gitstats_object,
-  file_path,
+  file_path = NULL,
+  use_files_structure = TRUE,
+  only_text_files = TRUE,
   cache = TRUE,
   verbose = is_verbose(gitstats_object)
 )
@@ -14,8 +16,20 @@ get_files_content(
 \arguments{
 \item{gitstats_object}{A GitStats object.}
 
-\item{file_path}{A standardized path to file(s) in repositories. May be a
-character vector if multiple files are to be pulled.}
+\item{file_path}{Optional. A standardized path to file(s) in repositories.
+May be a character vector if multiple files are to be pulled. If set to
+\code{NULL} and \code{use_files_structure} parameter is set to \code{TRUE}, \code{GitStats}
+will try to pull data from \code{files_structure} (see below).}
+
+\item{use_files_structure}{Logical. If \code{TRUE} and \code{file_path} is set to
+\code{NULL}, will iterate over \code{files_structure} pulled by
+\code{get_files_structure()} function and kept in storage. If there is no
+\code{files_structure} in storage, an error will be returned. If \code{file_path} is
+defined, it will override \code{use_files_structure} parameter.}
+
+\item{only_text_files}{A logical, \code{TRUE} by default. If set to \code{FALSE}, apart
+from files with text content shows in table output also non-text files with
+\code{NA} value for text content.}
 
 \item{cache}{A logical, if set to \code{TRUE} GitStats will retrieve the last
 result from its storage.}
@@ -41,8 +55,20 @@ git hosts).
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "mbtests"
   )
- get_files(
+ get_files_content(
    gitstats_obj = my_gitstats,
-   file_path = c("LICENSE", "DESCRIPTION"))
+   file_path = c("LICENSE", "DESCRIPTION")
+ )
+
+ # example with files structure
+ files_structure <- get_files_structure(
+   gitstats_obj = my_gitstats,
+   pattern = "\\\\.Rmd",
+   depth = 2L
+ )
+ # get_files_content() will make use of pulled earlier files structure
+ files_content <- get_files_content(
+   gitstats_obj = my_gitstats
+ )
 }
 }

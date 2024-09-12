@@ -5,22 +5,29 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
   public = list(
 
     # Pull repositories with files
-    pull_files = function(files, verbose = TRUE) {
+    get_files = function(file_paths = NULL,
+                         org = NULL,
+                         clean_files_content = TRUE,
+                         verbose = TRUE) {
       files_list <- list()
-      for (filename in files) {
+      file_paths <- utils::URLencode(file_paths, reserved = TRUE)
+      files_list <- purrr::map(file_paths, function(filename) {
         files_search_result <- private$search_for_code(
           code = filename,
           in_path = TRUE,
-          settings = list(),
+          org = org,
           verbose = verbose
         ) %>%
           purrr::keep(~ .$path == filename)
-        files_content <- private$add_file_content(
+        files_content <- private$add_file_info(
           files_search_result = files_search_result,
-          filename = filename
+          clean_file_content = clean_files_content,
+          filename = filename,
+          verbose = verbose
         )
-        files_list <- append(files_list, files_content)
-      }
+        return(files_content)
+      }, .progress = !verbose) %>%
+        purrr::list_flatten()
       return(files_list)
     },
 
@@ -364,7 +371,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     },
 
     # Add file content to files search result
-    add_file_content = function(files_search_result, filename) {
+    add_file_info = function(files_search_result, filename, clean_file_content = FALSE, verbose = FALSE) {
       purrr::map(files_search_result, function(file_data) {
         repo_data <- self$response(
           paste0(
@@ -392,9 +399,16 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           file_data$repo_fullname <- repo_data$path_with_namespace
           file_data$repo_id <- repo_data$id
           file_data$repo_url <- repo_data$web_url
+          if (clean_file_content) {
+            file_data$content <- NA
+          }
         }
         return(file_data)
-      }, .progress = glue::glue("Adding file [{filename}] info...")) %>%
+      }, .progress = if (verbose) {
+        glue::glue("Adding file [{filename}] info...")
+        } else {
+          FALSE
+        }) %>%
         purrr::discard(is.null)
     }
   )

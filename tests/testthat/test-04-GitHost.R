@@ -281,6 +281,19 @@ test_that("GitLab prepares user table", {
   test_mocker$cache(gl_user_table)
 })
 
+test_that("checker properly identifies gitlab files responses", {
+  expect_false(
+    test_host_gitlab$response_prepared_by_iteration(
+      files_response = test_mocker$use("gitlab_files_response")
+    )
+  )
+  expect_true(
+    test_host_gitlab$response_prepared_by_iteration(
+      files_response = test_mocker$use("gitlab_files_response_by_repos")
+    )
+  )
+})
+
 test_that("GitLab prepares table from files response", {
   gl_files_table <- test_host_gitlab$prepare_files_table(
     files_response = test_mocker$use("gitlab_files_response"),
@@ -289,6 +302,15 @@ test_that("GitLab prepares table from files response", {
   )
   expect_files_table(gl_files_table)
   test_mocker$cache(gl_files_table)
+})
+
+test_that("GitLab prepares table from files response prepared in alternative way", {
+  gl_files_table <- test_host_gitlab$prepare_files_table(
+    files_response = test_mocker$use("gitlab_files_response_by_repos"),
+    org = "mbtests",
+    file_path = "meta_data.yaml"
+  )
+  expect_files_table(gl_files_table)
 })
 
 test_that("`tailor_repos_response()` tailors precisely `repos_list`", {
@@ -336,7 +358,7 @@ test_host_gitlab <- create_gitlab_testhost(orgs = "mbtests")
 test_that("`get_files_content()` pulls files in the table format", {
   mockery::stub(
     test_host_gitlab$get_files_content,
-    "private$get_files_content_from_orgs",
+    "super$get_files_content",
     test_mocker$use("gl_files_table")
   )
   expect_snapshot(

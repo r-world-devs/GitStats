@@ -36,8 +36,20 @@
 
     Code
       gh_files_structure_from_orgs <- test_host$get_files_structure_from_orgs(
-        pattern = "\\.md|\\.qmd", depth = 1L, verbose = TRUE)
+        pattern = "\\.md|\\.qmd|\\.png", depth = 2L, verbose = TRUE)
     Message
-      i [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling files structure...[files matching pattern: '\.md|\.qmd']...
-      i [Host:GitHub][Engine:GraphQl][Scope:openpharma] Pulling files structure...[files matching pattern: '\.md|\.qmd']...
+      i [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling files structure...[files matching pattern: '\.md|\.qmd|\.png']...
+      i [Host:GitHub][Engine:GraphQl][Scope:openpharma] Pulling files structure...[files matching pattern: '\.md|\.qmd|\.png']...
+
+# when files_structure is empty, appropriate message is returned
+
+    Code
+      test_host$get_files_structure_from_orgs(pattern = "\\.png", depth = 1L,
+        verbose = TRUE)
+    Message
+      i [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling files structure...[files matching pattern: '\.png']...
+      i [Host:GitHub][Engine:GraphQl][Scope:openpharma] Pulling files structure...[files matching pattern: '\.png']...
+      ! For GitHub no files structure found.
+    Output
+      named list()
 

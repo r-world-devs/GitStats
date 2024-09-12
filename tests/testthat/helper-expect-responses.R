@@ -125,18 +125,27 @@ expect_user_gql_response <- function(object) {
 
 expect_github_files_raw_response <- function(object) {
   purrr::walk(object$data$repository$object$entries, function(entry) {
-    expect_list_contains(
-      entry,
+    expect_equal(
+      names(entry),
       c("name", "type")
     )
   })
 }
 
-expect_gitlab_files_raw_response <- function(object) {
+expect_gitlab_files_blob_response <- function(object) {
+  purrr::walk(object$data$project$repository$blobs$nodes, function(node) {
+    expect_equal(
+      names(node),
+      c("name", "rawBlob", "size")
+    )
+  })
+}
+
+expect_gitlab_files_tree_response <- function(object) {
   purrr::walk(object$data$project$repository$tree$blobs$nodes, function(node) {
-    expect_list_contains(
-      node,
-      c("name", "type")
+    expect_equal(
+      names(node),
+      c("name")
     )
   })
 }
@@ -150,21 +159,21 @@ expect_github_files_response <- function(object) {
     length(object[[1]]),
     0
   )
-  purrr::walk(object, function(file_path) {
-    purrr::walk(file_path, function(repository) {
+  purrr::walk(object, function(repository) {
+    purrr::walk(repository, function(file_path) {
       expect_list_contains(
-        repository,
-        c("name", "id", "object")
+        file_path,
+        c("repo_name", "repo_id", "repo_url", "object")
       )
       expect_list_contains(
-        repository$object,
+        file_path$file,
         c("text", "byteSize")
       )
     })
   })
 }
 
-expect_gitlab_files_response <- function(object) {
+expect_gitlab_files_from_org_response <- function(object) {
   expect_type(
     object,
     "list"
@@ -187,6 +196,31 @@ expect_gitlab_files_response <- function(object) {
       )
     )
   })
+}
+
+expect_gitlab_files_from_org_by_repos_response <- function(response, expected_files) {
+  expect_type(
+    response,
+    "list"
+  )
+  expect_gt(
+    length(response),
+    0
+  )
+  purrr::walk(response, function(repo) {
+    purrr::walk(repo$data$project$repository$blobs$nodes, function(file) {
+      expect_equal(
+        names(file),
+        c("name", "rawBlob", "size")
+      )
+    })
+  })
+  files_vec <- purrr::map(response, ~ purrr::map_vec(.$data$project$repository$blobs$nodes, ~ .$name)) %>%
+    unlist() %>%
+    unique()
+  expect_true(
+    all(expected_files %in% files_vec)
+  )
 }
 
 expect_github_releases_response <- function(object) {

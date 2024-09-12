@@ -280,14 +280,31 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     #' @description Pull text content of a file from all repositories.
-    #' @param file_path A file path, may be a character vector.
+    #' @param file_path Optional. A standardized path to file(s) in repositories.
+    #'   May be a character vector if multiple files are to be pulled. If set to
+    #'   `NULL` and `use_files_structure` parameter is set to `TRUE`, `GitStats`
+    #'   will try to pull data from `files_structure` (see below).
+    #' @param use_files_structure Logical. If `TRUE` and `file_path` is set to
+    #'   `NULL`, will iterate over `files_structure` pulled by
+    #'   `get_files_structure()` function and kept in storage. If there is no
+    #'   `files_structure` in storage, an error will be returned. If `file_path`
+    #'   is defined, it will override `use_files_structure` parameter.
+    #' @param only_text_files A logical, `TRUE` by default. If set to `FALSE`, apart
+    #'   from files with text content shows in table output also non-text files with
+    #'   `NA` value for text content.
     #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
     #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
-    get_files_content = function(file_path, cache = TRUE, verbose = TRUE) {
+    get_files_content = function(file_path = NULL,
+                                 use_files_structure = TRUE,
+                                 only_text_files = TRUE,
+                                 cache = TRUE,
+                                 verbose = TRUE) {
       private$check_for_host()
-      args_list <- list("file_path" = file_path)
+      args_list <- list("file_path" = file_path,
+                        "use_files_structure" = use_files_structure,
+                        "only_text_files" = only_text_files)
       trigger <- private$trigger_pulling(
         cache = cache,
         storage = "files",
@@ -297,6 +314,8 @@ GitStats <- R6::R6Class("GitStats",
       if (trigger) {
         files <- private$get_files_content_from_hosts(
           file_path = file_path,
+          use_files_structure = use_files_structure,
+          only_text_files = only_text_files,
           verbose = verbose
         ) %>%
           private$set_object_class(
@@ -328,14 +347,17 @@ GitStats <- R6::R6Class("GitStats",
           pattern = pattern,
           depth = depth,
           verbose = verbose
-        ) %>%
-          private$set_object_class(
+        )
+        if (!is.null(files_structure)) {
+          files_structure <- private$set_object_class(
+            object = files_structure,
             class = "files_structure",
             attr_list = args_list
           )
-        private$save_to_storage(files_structure)
+          private$save_to_storage(files_structure)
+        }
       } else {
-        files <- private$get_from_storage(
+        files_structure <- private$get_from_storage(
           table = "files_structure",
           verbose = verbose
         )
@@ -588,13 +610,12 @@ GitStats <- R6::R6Class("GitStats",
       !all(purrr::map2_lgl(new_params, stored_params, ~ identical(.x, .y)))
     },
 
-    # Save dates parameters as attributes of the object
+    # Set object class with attributes
     set_object_class = function(object, class, attr_list) {
       class(object) <- append(class, class(object))
       purrr::iwalk(attr_list, function(attrib, attrib_name)  {
         attr(object, attrib_name) <<- attrib
       })
-      # standardize_dates()
       return(object)
     },
 
@@ -755,14 +776,54 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Pull content of a text file in a table form
-    get_files_content_from_hosts = function(file_path, verbose) {
+    get_files_content_from_hosts = function(file_path,
+                                            use_files_structure,
+                                            only_text_files,
+                                            verbose) {
       purrr::map(private$hosts, function(host) {
-        host$get_files_content(
-          file_path = file_path,
-          verbose = verbose
-        )
+        if (is.null(file_path) && use_files_structure) {
+          host_files_structure <- private$get_host_files_structure(
+            host = host,
+            verbose = FALSE
+          )
+        } else {
+          host_files_structure <- NULL
+        }
+        if (is.null(file_path) && is.null(host_files_structure)) {
+          host_name <- host$.__enclos_env__$private$host_name
+          if (verbose) {
+            cli::cli_alert_warning(
+              cli::col_yellow("I will skip pulling data for {host_name}: files structure is empty.")
+            )
+          }
+          NULL
+        } else {
+          host$get_files_content(
+            file_path = file_path,
+            host_files_structure = host_files_structure,
+            only_text_files = only_text_files,
+            verbose = verbose
+          )
+        }
       }) %>%
         purrr::list_rbind()
+    },
+
+    get_host_files_structure = function(host, verbose) {
+      files_structure <- private$get_from_storage(
+        table = "files_structure",
+        verbose = verbose
+      )
+      if (is.null(files_structure)) {
+        cli::cli_abort(c(
+          "x" = "No files_structure object found in GitStats.",
+          "i" = "Run `get_files_structure()` function first, then `get_files_content()`."
+        ),
+        call = NULL
+        )
+      }
+      host_name <- host$.__enclos_env__$private$web_url
+      return(files_structure[[gsub("https://", "", host_name)]])
     },
 
     get_files_structure_from_hosts = function(pattern, depth, verbose) {
@@ -774,6 +835,23 @@ GitStats <- R6::R6Class("GitStats",
         )
       })
       names(files_structure_from_hosts) <- private$get_host_urls()
+      files_structure_from_hosts <- files_structure_from_hosts %>%
+        purrr::discard(~ length(.) == 0)
+      if (length(files_structure_from_hosts) == 0) {
+        files_structure_from_hosts <- NULL
+        if (verbose) {
+          cli::cli_alert_warning(
+            cli::col_yellow(
+              "No files structure found for matching pattern {pattern} in {depth} level of dirs."
+            )
+          )
+          cli::cli_alert_warning(
+            cli::col_yellow(
+              "Files structure will not be saved in GitStats."
+            )
+          )
+        }
+      }
       return(files_structure_from_hosts)
     },
 
@@ -1012,10 +1090,15 @@ GitStats <- R6::R6Class("GitStats",
 
     # print storage
     print_storage = function() {
-      gitstats_storage <- purrr::imap(private$storage, function(storage_table, storage_name) {
-        if (!is.null(storage_table)) {
+      gitstats_storage <- purrr::imap(private$storage, function(storage_object, storage_name) {
+        if (!is.null(storage_object)) {
+          storage_size <- if (inherits(storage_object, "data.frame")) {
+            nrow(storage_object)
+          } else {
+            length(storage_object)
+          }
           glue::glue(
-            "{stringr::str_to_title(storage_name)}: {nrow(storage_table)} {private$print_storage_attribute(storage_table, storage_name)}"
+            "{stringr::str_to_title(storage_name)}: {storage_size} {private$print_storage_attribute(storage_object, storage_name)}"
           )
         }
       }) %>%
@@ -1023,7 +1106,7 @@ GitStats <- R6::R6Class("GitStats",
       if (length(gitstats_storage) == 0) {
         private$print_item(
           "Storage",
-          cli::col_grey("<no tables in storage>")
+          cli::col_grey("<no data in storage>")
         )
       } else {
         cat(paste0(
@@ -1035,9 +1118,10 @@ GitStats <- R6::R6Class("GitStats",
 
     # print storage attribute
     print_storage_attribute = function(storage_table, storage_name) {
-       if (storage_name != "repositories") {
+      if (storage_name != "repositories") {
         storage_attr <- switch(storage_name,
                                "files" = "file_path",
+                               "files_structure" = "pattern",
                                "commits" = "dates_range",
                                "release_logs" = "dates_range",
                                "users" = "logins",
@@ -1045,6 +1129,7 @@ GitStats <- R6::R6Class("GitStats",
         attr_data <- attr(storage_table, storage_attr)
         attr_name <- switch(storage_attr,
                             "file_path" = "files",
+                            "pattern" = "files matching pattern",
                             "dates_range" = "date range",
                             "package_name" = "package",
                             "logins" = "logins")

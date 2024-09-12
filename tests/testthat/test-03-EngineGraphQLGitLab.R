@@ -22,18 +22,29 @@ test_that("`pull_repos_page()` pulls repos page from GitLab group", {
   test_mocker$cache(gl_repos_page)
 })
 
-test_that("get_file_response()", {
-  gl_files_tree_response <- test_gql_gl$get_file_response(
+
+test_that("get_file_blobs_response() works", {
+  gl_file_blobs_response <- test_gql_gl$get_file_blobs_response(
     org = "mbtests",
     repo = "graphql_tests",
-    file_path = "",
-    files_query = test_mocker$use("gl_files_tree_query")
+    file_path = "README.md"
   )
-  expect_gitlab_files_raw_response(gl_files_tree_response)
+  expect_gitlab_files_blob_response(gl_file_blobs_response)
+  test_mocker$cache(gl_file_blobs_response)
+})
+
+
+test_that("get_files_tree_response() works", {
+  gl_files_tree_response <- test_gql_gl$get_files_tree_response(
+    org = "mbtests",
+    repo = "graphql_tests",
+    file_path = ""
+  )
+  expect_gitlab_files_tree_response(gl_files_tree_response)
   test_mocker$cache(gl_files_tree_response)
 })
 
-test_that("get_dirs_and_files returns list with directories and files", {
+test_that("get_dirs_and_files() returns list with directories and files", {
   gl_files_and_dirs_list <- test_gql_gl$get_files_and_dirs(
     files_tree_response = test_mocker$use("gl_files_tree_response")
   )
@@ -86,6 +97,13 @@ test_that("get_repos_data pulls data on repositories", {
   )
   expect_true(
     length(repositories) > 0
+  )
+})
+
+
+test_that("is query error is FALSE when response is empty (non query error)", {
+  expect_false(
+    test_gql_gl$is_query_error(list())
   )
 })
 
@@ -152,32 +170,50 @@ test_that("`get_repos_from_org()` does not fail when GraphQL response is not com
 })
 
 test_that("GitLab GraphQL Engine pulls files from a group", {
-  gitlab_files_response <- test_gql_gl$pull_files_from_org(
+  gitlab_files_response <- test_gql_gl$get_files_from_org(
     org = "mbtests",
     repos = NULL,
-    file_path = "meta_data.yaml"
+    file_paths = "meta_data.yaml",
+    only_text_files = TRUE,
+    host_files_structure = NULL
   )
-  expect_gitlab_files_response(gitlab_files_response)
+  expect_gitlab_files_from_org_response(gitlab_files_response)
   test_mocker$cache(gitlab_files_response)
 })
 
+test_that("GitLab GraphQL Engine pulls files from org by iterating over repos", {
+  gl_files_from_org <- test_gql_gl$get_files_from_org_per_repo(
+    org = "mbtests",
+    repos = c("gitstatstesting", "gitstats-testing-2", "graphql_tests"),
+    file_paths = c("DESCRIPTION", "project_metadata.yaml", "README.md")
+  )
+  expect_gitlab_files_from_org_by_repos_response(
+    response = gl_files_from_org,
+    expected_files = c("DESCRIPTION", "project_metadata.yaml", "README.md")
+  )
+})
+
 test_that("GitLab GraphQL Engine pulls files only from defined projects", {
-  gitlab_files_response <- test_gql_gl$pull_files_from_org(
+  gitlab_files_response <- test_gql_gl$get_files_from_org(
     org = "mbtests",
     repos = c("gitstatstesting", "gitstats-testing-2", "gitstatstesting3"),
-    file_path = "README.md"
+    file_paths = "README.md",
+    host_files_structure = NULL,
+    only_text_files = TRUE
   )
-  expect_gitlab_files_response(gitlab_files_response)
+  expect_gitlab_files_from_org_response(gitlab_files_response)
   expect_equal(length(gitlab_files_response), 3)
 })
 
 test_that("GitLab GraphQL Engine pulls two files from a group", {
-  gitlab_files_response <- test_gql_gl$pull_files_from_org(
+  gitlab_files_response <- test_gql_gl$get_files_from_org(
     org = "mbtests",
     repos = NULL,
-    file_path = c("meta_data.yaml", "README.md")
+    file_paths = c("meta_data.yaml", "README.md"),
+    host_files_structure = NULL,
+    only_text_files = TRUE
   )
-  expect_gitlab_files_response(gitlab_files_response)
+  expect_gitlab_files_from_org_response(gitlab_files_response)
   expect_true(
     all(
       c("meta_data.yaml", "README.md") %in%
@@ -212,4 +248,33 @@ test_that("GitLab GraphQL Engine pulls files structure from repositories", {
     c("graphql_tests", "gitstatstesting")
   )
   purrr::walk(gl_files_structure_shallow, ~ expect_false(all(grepl("/", .)))) # no dirs
+})
+
+test_that("Gitlab GraphQL switches to pulling files per repositories when query is too complex", {
+  mockery::stub(
+    test_gql_gl$get_files_from_org,
+    "private$is_query_error",
+    TRUE
+  )
+  mockery::stub(
+    test_gql_gl$get_files_from_org,
+    "private$is_complexity_error",
+    TRUE
+  )
+  expect_snapshot(
+    gitlab_files_response_by_repos <- test_gql_gl$get_files_from_org(
+      org = "mbtests",
+      repos = NULL,
+      file_paths = c("DESCRIPTION", "project_metadata.yaml", "README.md"),
+      host_files_structure = NULL,
+      only_text_files = TRUE,
+      verbose = TRUE,
+      progress = FALSE
+    )
+  )
+  expect_gitlab_files_from_org_by_repos_response(
+    response = gitlab_files_response_by_repos,
+    expected_files = c("DESCRIPTION", "project_metadata.yaml", "README.md")
+  )
+  test_mocker$cache(gitlab_files_response_by_repos)
 })

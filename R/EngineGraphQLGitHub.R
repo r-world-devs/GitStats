@@ -85,15 +85,30 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     },
 
     # Pull all given files from all repositories of an organization.
-    pull_files_from_org = function(org, repos, file_path) {
+    get_files_from_org = function(org,
+                                  repos,
+                                  file_paths,
+                                  host_files_structure,
+                                  only_text_files,
+                                  verbose = FALSE) {
       repo_data <- private$get_repos_data(
         org = org,
         repos = repos
       )
       repositories <- repo_data[["repositories"]]
       def_branches <- repo_data[["def_branches"]]
-      files_list <- purrr::map(file_path, function(file_path) {
-        files_list <- purrr::map2(repositories, def_branches, function(repo, def_branch) {
+      org_files_list <- purrr::map2(repositories, def_branches, function(repo, def_branch) {
+        if (!is.null(host_files_structure)) {
+          file_paths <- private$get_path_from_files_structure(
+            host_files_structure = host_files_structure,
+            only_text_files = only_text_files,
+            org = org,
+            repo = repo
+          )
+        } else if (is.null(host_files_structure) && only_text_files) {
+          file_paths <- file_paths[!grepl(non_text_files_pattern, file_paths)]
+        }
+        repo_files_list <- purrr::map(file_paths, function(file_path) {
           private$get_file_response(
             org = org,
             repo = repo,
@@ -103,16 +118,18 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           )
         }) %>%
           purrr::map(~ .$data$repository)
-        names(files_list) <- repositories
-        files_list <- purrr::discard(files_list, ~ length(.$object) == 0)
-        return(files_list)
-      })
-      names(files_list) <- file_path
-      return(files_list)
+        names(repo_files_list) <- file_paths
+        return(repo_files_list)
+      }, .progress = verbose)
+      names(org_files_list) <- repositories
+      for (file_path in file_paths) {
+        org_files_list <- purrr::discard(org_files_list, ~ length(.[[file_path]]$file) == 0)
+      }
+      return(org_files_list)
     },
 
     # Pull all files from all repositories of an organization.
-    get_files_structure_from_org = function(org, repos, pattern = NULL, depth = Inf) {
+    get_files_structure_from_org = function(org, repos, pattern = NULL, depth = Inf, verbose = FALSE) {
       repo_data <- private$get_repos_data(
         org = org,
         repos = repos
@@ -127,7 +144,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
           pattern = pattern,
           depth = depth
         )
-      })
+      }, .progress = verbose)
       names(files_structure) <- repositories
       files_structure <- purrr::discard(files_structure, ~ length(.) == 0)
       return(files_structure)

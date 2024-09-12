@@ -309,8 +309,18 @@ get_users <- function(gitstats_object,
 #' @description Pull text files content for a given scope (orgs, repos or whole
 #'   git hosts).
 #' @param gitstats_object A GitStats object.
-#' @param file_path A standardized path to file(s) in repositories. May be a
-#'   character vector if multiple files are to be pulled.
+#' @param file_path Optional. A standardized path to file(s) in repositories.
+#'   May be a character vector if multiple files are to be pulled. If set to
+#'   `NULL` and `use_files_structure` parameter is set to `TRUE`, `GitStats`
+#'   will try to pull data from `files_structure` (see below).
+#' @param use_files_structure Logical. If `TRUE` and `file_path` is set to
+#'   `NULL`, will iterate over `files_structure` pulled by
+#'   `get_files_structure()` function and kept in storage. If there is no
+#'   `files_structure` in storage, an error will be returned. If `file_path` is
+#'   defined, it will override `use_files_structure` parameter.
+#' @param only_text_files A logical, `TRUE` by default. If set to `FALSE`, apart
+#'   from files with text content shows in table output also non-text files with
+#'   `NA` value for text content.
 #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
 #'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
@@ -326,18 +336,34 @@ get_users <- function(gitstats_object,
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
 #'   )
-#'  get_files(
+#'  get_files_content(
 #'    gitstats_obj = my_gitstats,
-#'    file_path = c("LICENSE", "DESCRIPTION"))
+#'    file_path = c("LICENSE", "DESCRIPTION")
+#'  )
+#'
+#'  # example with files structure
+#'  files_structure <- get_files_structure(
+#'    gitstats_obj = my_gitstats,
+#'    pattern = "\\.Rmd",
+#'    depth = 2L
+#'  )
+#'  # get_files_content() will make use of pulled earlier files structure
+#'  files_content <- get_files_content(
+#'    gitstats_obj = my_gitstats
+#'  )
 #' }
 #' @return A data.frame.
 #' @export
 get_files_content <- function(gitstats_object,
-                              file_path,
+                              file_path = NULL,
+                              use_files_structure = TRUE,
+                              only_text_files = TRUE,
                               cache = TRUE,
                               verbose = is_verbose(gitstats_object)) {
   gitstats_object$get_files_content(
     file_path = file_path,
+    use_files_structure = use_files_structure,
+    only_text_files = only_text_files,
     cache = cache,
     verbose = verbose
   )

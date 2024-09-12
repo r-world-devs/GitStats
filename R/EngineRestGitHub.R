@@ -5,7 +5,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
   public = list(
 
     # Pull repositories with files
-    pull_files = function(files) {
+    get_files = function(files) {
       files_list <- list()
       for (filename in files) {
         search_file_endpoint <- paste0(private$endpoints[["search"]], "filename:", filename)
