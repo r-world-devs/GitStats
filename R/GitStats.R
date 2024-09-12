@@ -789,12 +789,22 @@ GitStats <- R6::R6Class("GitStats",
         } else {
           host_files_structure <- NULL
         }
-        host$get_files_content(
-          file_path = file_path,
-          host_files_structure = host_files_structure,
-          only_text_files = only_text_files,
-          verbose = verbose
-        )
+        if (is.null(file_path) && is.null(host_files_structure)) {
+          host_name <- host$.__enclos_env__$private$host_name
+          if (verbose) {
+            cli::cli_alert_warning(
+              cli::col_yellow("I will skip pulling data for {host_name}: files structure is empty.")
+            )
+          }
+          NULL
+        } else {
+          host$get_files_content(
+            file_path = file_path,
+            host_files_structure = host_files_structure,
+            only_text_files = only_text_files,
+            verbose = verbose
+          )
+        }
       }) %>%
         purrr::list_rbind()
     },
