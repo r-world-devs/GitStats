@@ -1,16 +1,8 @@
 test_mocker <- Mocker$new()
 
-test_team <- list(
-  "Member1" = list(
-    logins = "galachad"
-  ),
-  "Member2" = list(
-    logins = "Cotau"
-  ),
-  "Member3" = list(
-    logins = c("maciekbanas", "banasm")
-  )
-)
+test_gqlquery_gh <- GQLQueryGitHub$new()
+test_gqlquery_gl <- GQLQueryGitLab$new()
+
 
 test_settings <- list(
   verbose = TRUE,

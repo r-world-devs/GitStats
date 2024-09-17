@@ -93,80 +93,6 @@ test_that("get_commits_from_host works", {
   test_mocker$cache(gl_commits_table)
 })
 
-test_that("get_files_content_from_orgs for GitLab works", {
-  mockery::stub(
-    test_host$get_files_content_from_orgs,
-    "private$prepare_files_table",
-    test_mocker$use("gl_files_table")
-  )
-  suppressMessages(
-    gl_files_table <- test_host$get_files_content_from_orgs(
-      file_path = "meta_data.yaml",
-      verbose = FALSE
-    )
-  )
-  expect_files_table(
-    gl_files_table, with_cols = "api_url"
-  )
-  test_mocker$cache(gl_files_table)
-})
-
-test_that("get_files_structure_from_orgs pulls files structure for repositories in orgs", {
-  test_host <- create_gitlab_testhost(
-    repos = c("mbtests/gitstatstesting", "mbtests/graphql_tests"),
-    mode = "private"
-  )
-  expect_snapshot(
-    gl_files_structure_from_orgs <- test_host$get_files_structure_from_orgs(
-      pattern = "\\.md|\\.R",
-      depth = 1L,
-      verbose = TRUE
-    )
-  )
-  expect_equal(
-    names(gl_files_structure_from_orgs),
-    c("mbtests")
-  )
-  purrr::walk(gl_files_structure_from_orgs[[1]], function(repo_files) {
-    expect_true(all(grepl("\\.md|\\.R", repo_files)))
-  })
-})
-
-test_that("get_files_structure_from_orgs pulls files structure for all repositories in orgs", {
-  test_host <- create_gitlab_testhost(
-    orgs = c("mbtests", "mbtestapps"),
-    mode = "private"
-  )
-  gl_files_structure_from_orgs <- test_host$get_files_structure_from_orgs(
-    pattern = "\\.md|\\.R",
-    depth = 1L,
-    verbose = FALSE
-  )
-  expect_equal(
-    names(gl_files_structure_from_orgs),
-    c("mbtests", "mbtestapps")
-  )
-  purrr::walk(gl_files_structure_from_orgs[[1]], function(repo_files) {
-    expect_true(all(grepl("\\.md|\\.R", repo_files)))
-  })
-  test_mocker$cache(gl_files_structure_from_orgs)
-})
-
-test_that("get_path_from_files_structure gets file path from files structure", {
-  test_graphql_gitlab <- EngineGraphQLGitLab$new(
-    gql_api_url = "https://gitlab.com/api/v4/graphql",
-    token = Sys.getenv("GITHLAB_PAT_PUBLIC")
-  )
-  test_graphql_gitlab <- environment(test_graphql_gitlab$initialize)$private
-  file_path <- test_graphql_gitlab$get_path_from_files_structure(
-    host_files_structure = test_mocker$use("gl_files_structure_from_orgs"),
-    only_text_files = TRUE,
-    org = "mbtests" # this will need fixing and repo parameter must come back
-  )
-  expect_equal(typeof(file_path), "character")
-  expect_true(length(file_path) > 0)
-})
-
 # public
 
 test_host <- create_gitlab_testhost(
@@ -194,23 +120,6 @@ test_that("get_commits for GitLab works with repos implied", {
   )
 })
 
-test_that("get_files_content for GitLab works", {
-  mockery::stub(
-    test_host$get_files_content,
-    "private$get_files_content_from_orgs",
-    test_mocker$use("gl_files_table")
-  )
-  suppressMessages(
-    gl_files_table <- test_host$get_files_content(
-      file_path = "meta_data.yaml"
-    )
-  )
-  expect_files_table(
-    gl_files_table, with_cols = "api_url"
-  )
-  test_mocker$cache(gl_files_table)
-})
-
 test_that("get_repos_urls returns repositories URLS", {
   mockery::stub(
     test_host$get_repos_urls,
@@ -226,25 +135,4 @@ test_that("get_repos_urls returns repositories URLS", {
   expect_type(gl_repos_urls_with_code_in_files, "character")
   expect_gt(length(gl_repos_urls_with_code_in_files), 0)
   test_mocker$cache(gl_repos_urls_with_code_in_files)
-})
-
-test_that("get_files_structure pulls files structure for repositories in orgs", {
-  mockery::stub(
-    test_host$get_files_structure,
-    "private$get_files_structure_from_orgs",
-    test_mocker$use("gl_files_structure_from_orgs")
-  )
-  gl_files_structure_from_orgs <- test_host$get_files_structure(
-    pattern = "\\.md|\\.R",
-    depth = 2L,
-    verbose = FALSE
-  )
-  expect_equal(
-    names(gl_files_structure_from_orgs),
-    c("mbtests", "mbtestapps")
-  )
-  purrr::walk(gl_files_structure_from_orgs[[1]], function(repo_files) {
-    expect_true(all(grepl("\\.md|\\.R", repo_files)))
-  })
-  test_mocker$cache(gl_files_structure_from_orgs)
 })

@@ -76,7 +76,9 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
                                               org,
                                               repo = NULL) {
        if (is.null(repo)) {
-         file_path <- host_files_structure[[org]] %>% unlist() %>% unique()
+         file_path <- host_files_structure[[org]] %>%
+           unlist(use.names = FALSE) %>%
+           unique()
        } else {
          file_path <- host_files_structure[[org]][[repo]]
        }
