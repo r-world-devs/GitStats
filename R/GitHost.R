@@ -121,7 +121,7 @@ GitHost <- R6::R6Class("GitHost",
     get_users = function(users) {
       graphql_engine <- private$engines$graphql
       users_table <-  purrr::map(users, function(user) {
-        graphql_engine$pull_user(user) %>%
+        graphql_engine$get_user(user) %>%
           private$prepare_user_table()
       }) %>%
         purrr::list_rbind()
@@ -188,7 +188,7 @@ GitHost <- R6::R6Class("GitHost",
         )
         gql_engine <- private$engines$graphql
         if (length(repos_names) > 0) {
-          release_logs_table_org <- gql_engine$pull_release_logs_from_org(
+          release_logs_table_org <- gql_engine$get_release_logs_from_org(
             org = org,
             repos_names = repos_names
           ) %>%

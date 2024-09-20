@@ -71,9 +71,12 @@ test_that("get_repos works properly and for the second time uses cache", {
     repos_object = repos_table,
     with_cols = c("contributors", "contributors_n")
   )
-  test_mocker$cache(repos_table)
   expect_snapshot(
     repos_table <- test_gitstats$get_repos()
+  )
+  expect_repos_table_object(
+    repos_object = repos_table,
+    with_cols = c("contributors", "contributors_n")
   )
 })
 

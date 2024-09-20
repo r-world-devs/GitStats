@@ -226,7 +226,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      },
 
      # Pull all releases from all repositories of an organization.
-     pull_release_logs_from_org = function(repos_names, org) {
+     get_release_logs_from_org = function(repos_names, org) {
        release_responses <- purrr::map(repos_names, function(repository) {
          releases_from_repo_query <- self$gql_query$releases_from_repo()
          response <- self$gql_response(

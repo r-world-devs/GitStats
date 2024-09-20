@@ -1,3 +1,29 @@
+# GitStats
+
+test_that("get_commits works properly", {
+  mockery::stub(
+    test_gitstats$get_commits,
+    "private$get_commits_table",
+    purrr::list_rbind(
+      list(
+        test_mocker$use("gh_commits_table"),
+        test_mocker$use("gl_commits_table")
+      )
+    )
+  )
+  suppressMessages(
+    commits_table <- test_gitstats$get_commits(
+      since = "2023-06-15",
+      until = "2023-06-30",
+      verbose = FALSE
+    )
+  )
+  expect_commits_table(
+    commits_table
+  )
+  test_mocker$cache(commits_table)
+})
+
 test_gitstats <- create_test_gitstats(
   hosts = 2,
   inject_commits = "commits_table"

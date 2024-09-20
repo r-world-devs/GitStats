@@ -38,6 +38,23 @@ test_that("get_repos_urls_from_hosts gets data with_code in_files from the hosts
   test_mocker$cache(repos_urls_from_hosts_with_code_in_files)
 })
 
+test_that("set_object_class works correctly", {
+  repos_urls <- test_gitstats_priv$set_object_class(
+    object = test_mocker$use("repos_urls_from_hosts_with_code_in_files"),
+    class = "repos_urls",
+    attr_list = list(
+      "type" = "api",
+      "with_code" = "shiny",
+      "in_files" = c("NAMESPACE", "DESCRIPTION"),
+      "with_files" = NULL
+    )
+  )
+  expect_s3_class(repos_urls, "repos_urls")
+  expect_equal(attr(repos_urls, "type"), "api")
+  expect_equal(attr(repos_urls, "with_code"), "shiny")
+  expect_equal(attr(repos_urls, "in_files"), c("NAMESPACE", "DESCRIPTION"))
+})
+
 test_that("get_repos_urls gets vector of repository URLS", {
   test_gitstats <- create_test_gitstats(hosts = 2)
   mockery::stub(

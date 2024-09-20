@@ -282,7 +282,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           org = org,
           settings = settings
         )
-        commits_table_org <- rest_engine$pull_commits_from_repos(
+        commits_table_org <- rest_engine$get_commits_from_repos(
           repos_names = repos_names,
           since = since,
           until = until,

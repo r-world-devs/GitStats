@@ -32,7 +32,7 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
      },
 
      # A method to pull information on user.
-     pull_user = function(username) {
+     get_user = function(username) {
        response <- tryCatch({
          self$gql_response(
            gql_query = self$gql_query$user(),
