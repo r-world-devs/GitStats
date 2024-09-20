@@ -35,7 +35,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     # @details For the time being there is no possibility to search GitLab with
     #   filtering by language. For more information look here:
     #   https://gitlab.com/gitlab-org/gitlab/-/issues/340333
-    pull_repos_by_code = function(code,
+    get_repos_by_code = function(code,
                                   org = NULL,
                                   filename = NULL,
                                   in_path = FALSE,
@@ -60,7 +60,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     },
 
     # Pull all repositories URLs from organization
-    pull_repos_urls = function(type, org) {
+    get_repos_urls = function(type, org) {
       repos_urls <- self$response(
         endpoint = paste0(private$endpoints[["organizations"]], utils::URLencode(org, reserved = TRUE), "/projects")
       ) %>%
@@ -75,7 +75,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     },
 
     # Add information on open and closed issues of a repository.
-    pull_repos_issues = function(repos_table) {
+    get_repos_issues = function(repos_table) {
       if (nrow(repos_table) > 0) {
         issues <- purrr::map(repos_table$repo_id, function(repos_id) {
           id <- gsub("gid://gitlab/Project/", "", repos_id)
@@ -96,7 +96,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     },
 
     #' Add information on repository contributors.
-    pull_repos_contributors = function(repos_table, settings) {
+    get_repos_contributors = function(repos_table, settings) {
       if (nrow(repos_table) > 0) {
         repo_urls <- repos_table$api_url
         user_name <- rlang::expr(.$name)

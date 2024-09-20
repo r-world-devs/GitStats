@@ -22,41 +22,6 @@ test_that("`extract_repos_and_orgs` extracts fullnames vector into a list of Git
   )
 })
 
-test_that("GitHub tailors precisely `repos_list`", {
-  gh_repos_by_code <- test_mocker$use("gh_repos_by_code")
-  gh_repos_by_code_tailored <-
-    test_host$tailor_repos_response(gh_repos_by_code)
-  gh_repos_by_code_tailored %>%
-    expect_type("list") %>%
-    expect_length(length(gh_repos_by_code))
-  expect_list_contains_only(
-    gh_repos_by_code_tailored[[1]],
-    c(
-      "repo_id", "repo_name", "created_at", "last_activity_at",
-      "forks", "stars", "issues_open", "issues_closed",
-      "organization"
-    )
-  )
-  expect_lt(
-    length(gh_repos_by_code_tailored[[1]]),
-    length(gh_repos_by_code[[1]])
-  )
-  test_mocker$cache(gh_repos_by_code_tailored)
-})
-
-test_that("`prepare_repos_table()` prepares repos table", {
-  expect_snapshot(
-    gh_repos_by_code_table <- test_host$prepare_repos_table_from_rest(
-      repos_list = test_mocker$use("gh_repos_by_code_tailored")
-    )
-  )
-  expect_repos_table(
-    gh_repos_by_code_table
-  )
-  gh_repos_by_code_table <- test_host$add_repo_api_url(gh_repos_by_code_table)
-  test_mocker$cache(gh_repos_by_code_table)
-})
-
 test_that("`prepare_releases_table()` prepares releases table", {
   releases_table <- test_host$prepare_releases_table(
     releases_response = test_mocker$use("releases_from_repos"),
@@ -70,16 +35,7 @@ test_that("`prepare_releases_table()` prepares releases table", {
   test_mocker$cache(releases_table)
 })
 
-test_that("`prepare_commits_table()` prepares commits table", {
-  gh_commits_table <- test_host$prepare_commits_table(
-    repos_list_with_commits = test_mocker$use("commits_from_repos"),
-    org = "r-world-devs"
-  )
-  expect_commits_table(
-    gh_commits_table
-  )
-  test_mocker$cache(gh_commits_table)
-})
+
 
 test_that("GitHub prepares user table", {
   gh_user_table <- test_host$prepare_user_table(
@@ -92,78 +48,9 @@ test_that("GitHub prepares user table", {
   test_mocker$cache(gh_user_table)
 })
 
-test_that("get_all_repos_urls prepares api repo_urls vector", {
-  test_host <- create_github_testhost(orgs = c("r-world-devs", "openpharma"),
-                                      mode = "private")
-  gh_api_repos_urls <- test_host$get_all_repos_urls(
-    type = "api",
-    verbose = FALSE
-  )
-  expect_gt(length(gh_api_repos_urls), 0)
-  expect_true(any(grepl("openpharma", gh_api_repos_urls)))
-  expect_true(any(grepl("r-world-devs", gh_api_repos_urls)))
-  expect_true(all(grepl("api", gh_api_repos_urls)))
-  test_mocker$cache(gh_api_repos_urls)
-})
-
-test_that("get_all_repos_urls prepares web repo_urls vector", {
-  test_host <- create_github_testhost(orgs = "r-world-devs",
-                                      mode = "private")
-  mockery::stub(
-    test_host$get_all_repos_urls,
-    "rest_engine$pull_repos_urls",
-    test_mocker$use("gh_repos_urls")
-  )
-  gh_repos_urls <- test_host$get_all_repos_urls(
-    type = "web",
-    verbose = FALSE
-  )
-  expect_gt(length(gh_repos_urls), 0)
-  expect_true(any(grepl("r-world-devs", gh_repos_urls)))
-  expect_true(all(grepl("https://github.com/", gh_repos_urls)))
-  test_mocker$cache(gh_repos_urls)
-})
-
-test_that("`get_repos_with_code_from_orgs()` works", {
-  mockery::stub(
-    test_host$get_repos_with_code_from_orgs,
-    "private$get_repos_response_with_code",
-    test_mocker$use("gh_repos_by_code")
-  )
-  mockery::stub(
-    test_host$get_repos_with_code_from_orgs,
-    "private$prepare_repos_table_from_rest",
-    test_mocker$use("gh_repos_by_code_table")
-  )
-  repos_with_code <- test_host$get_repos_with_code_from_orgs(
-    code = "shiny",
-    verbose = FALSE
-  )
-  expect_repos_table(repos_with_code, with_cols = "api_url")
-})
-
 # public methods
 
 test_host <- create_github_testhost(orgs = "r-world-devs")
-
-
-test_that("`get_commits()` retrieves commits in the table format", {
-  mockery::stub(
-    test_host$get_commits,
-    "private$get_commits_from_host",
-    test_mocker$use("gh_commits_table")
-  )
-  suppressMessages(
-    commits_table <- test_host$get_commits(
-      since = "2023-01-01",
-      until = "2023-02-28",
-      settings = test_settings
-    )
-  )
-  expect_commits_table(
-    commits_table
-  )
-})
 
 test_that("`get_release_logs()` pulls release logs in the table format", {
   mockery::stub(
@@ -187,40 +74,6 @@ test_that("`get_release_logs()` pulls release logs in the table format", {
 
 test_host_gitlab <- create_gitlab_testhost(orgs = "mbtests", mode = "private")
 
-test_that("`prepare_repos_table()` prepares repos table", {
-  gl_repos_table <- test_host_gitlab$prepare_repos_table_from_graphql(
-    repos_list = test_mocker$use("gl_repos_from_org")
-  )
-  expect_repos_table(
-    gl_repos_table
-  )
-  test_mocker$cache(gl_repos_table)
-})
-
-test_that("get_all_repos_urls prepares api repo_urls vector", {
-  mockery::stub(
-    test_host_gitlab$get_all_repos_urls,
-    "rest_engine$pull_repos_urls",
-    test_mocker$use("gl_repos_urls")
-  )
-  gl_api_repos_urls <- test_host_gitlab$get_all_repos_urls(
-    type = "api",
-    verbose = FALSE
-  )
-  expect_gt(length(gl_api_repos_urls), 0)
-  expect_true(all(grepl("api", gl_api_repos_urls)))
-  test_mocker$cache(gl_api_repos_urls)
-})
-
-test_that("get_all_repos_urls prepares web repo_urls vector", {
-  gl_repos_urls <- test_host_gitlab$get_all_repos_urls(
-    type = "web",
-    verbose = FALSE
-  )
-  expect_gt(length(gl_repos_urls), 0)
-  expect_true(all(!grepl("api", gl_repos_urls)))
-})
-
 test_that("GitLab prepares user table", {
   gl_user_table <- test_host_gitlab$prepare_user_table(
     user_response = test_mocker$use("gl_user_response")
@@ -232,49 +85,9 @@ test_that("GitLab prepares user table", {
   test_mocker$cache(gl_user_table)
 })
 
-test_that("`tailor_repos_response()` tailors precisely `repos_list`", {
-  gl_repos_by_code <- test_mocker$use("gl_search_repos_by_code")
-
-  gl_repos_by_code_tailored <-
-    test_host_gitlab$tailor_repos_response(gl_repos_by_code)
-
-  gl_repos_by_code_tailored %>%
-    expect_type("list") %>%
-    expect_length(length(gl_repos_by_code))
-
-  expect_list_contains_only(
-    gl_repos_by_code_tailored[[1]],
-    c(
-      "repo_id", "repo_name", "created_at", "last_activity_at",
-      "forks", "stars", "languages", "issues_open",
-      "issues_closed", "organization"
-    )
-  )
-  expect_lt(
-    length(gl_repos_by_code_tailored[[1]]),
-    length(gl_repos_by_code[[1]])
-  )
-  test_mocker$cache(gl_repos_by_code_tailored)
-})
-
-test_that("GitHost prepares table from GitLab repositories response", {
-  expect_snapshot(
-    gl_repos_by_code_table <- test_host_gitlab$prepare_repos_table_from_rest(
-      repos_list = test_mocker$use("gl_repos_by_code_tailored")
-    )
-  )
-  expect_repos_table(
-    gl_repos_by_code_table
-  )
-  gl_repos_by_code_table <- test_host_gitlab$add_repo_api_url(gl_repos_by_code_table)
-  test_mocker$cache(gl_repos_by_code_table)
-})
-
 # public - GitLab
 
 test_host_gitlab <- create_gitlab_testhost(orgs = "mbtests")
-
-
 
 test_that("get_users build users table for GitHub", {
   users_result <- test_host$get_users(

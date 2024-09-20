@@ -29,7 +29,3 @@ test_fixtures$half_empty_gql_response <- list(
     )
   )
 )
-
-test_fixtures$gl_search_response <- list(
-
-)

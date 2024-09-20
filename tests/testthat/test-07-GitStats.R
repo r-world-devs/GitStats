@@ -59,46 +59,6 @@ test_that("check_params_conflict returns error", {
 
 test_gitstats_priv <- create_test_gitstats(hosts = 2, priv_mode = TRUE)
 
-test_that("get_repos_urls_from_hosts gets data from the hosts", {
-  mockery::stub(
-    test_gitstats_priv$get_repos_urls_from_hosts,
-    "host$get_repos_urls",
-    c(test_mocker$use("gh_api_repos_urls"), test_mocker$use("gl_api_repos_urls"))
-  )
-  repos_urls_from_hosts <- test_gitstats_priv$get_repos_urls_from_hosts(
-    type = "api",
-    with_code = NULL,
-    in_files = NULL,
-    with_files = NULL,
-    verbose = FALSE
-  )
-  expect_type(repos_urls_from_hosts, "character")
-  expect_gt(length(repos_urls_from_hosts), 0)
-  expect_true(any(grepl("gitlab.com/api", repos_urls_from_hosts)))
-  expect_true(any(grepl("api.github", repos_urls_from_hosts)))
-  test_mocker$cache(repos_urls_from_hosts)
-})
-
-test_that("get_repos_urls_from_hosts gets data with_code in_files from the hosts", {
-  mockery::stub(
-    test_gitstats_priv$get_repos_urls_from_hosts,
-    "private$get_repos_urls_from_host_with_code",
-    c(test_mocker$use("gh_repos_urls_with_code_in_files"), test_mocker$use("gl_repos_urls_with_code_in_files"))
-  )
-  repos_urls_from_hosts_with_code_in_files <- test_gitstats_priv$get_repos_urls_from_hosts(
-    type = "api",
-    with_code = "shiny",
-    in_files = "DESCRIPTION",
-    with_files = NULL,
-    verbose = FALSE
-  )
-  expect_type(repos_urls_from_hosts_with_code_in_files, "character")
-  expect_gt(length(repos_urls_from_hosts_with_code_in_files), 0)
-  expect_true(any(grepl("gitlab.com", repos_urls_from_hosts_with_code_in_files)))
-  expect_true(any(grepl("github.com", repos_urls_from_hosts_with_code_in_files)))
-  test_mocker$cache(repos_urls_from_hosts_with_code_in_files)
-})
-
 test_that("set_object_class works correctly", {
   repos_urls <- test_gitstats_priv$set_object_class(
     object = test_mocker$use("repos_urls_from_hosts_with_code_in_files"),
@@ -114,67 +74,6 @@ test_that("set_object_class works correctly", {
   expect_equal(attr(repos_urls, "type"), "api")
   expect_equal(attr(repos_urls, "with_code"), "shiny")
   expect_equal(attr(repos_urls, "in_files"), c("NAMESPACE", "DESCRIPTION"))
-})
-
-test_that("get_repos_table works", {
-  mockery::stub(
-    test_gitstats_priv$get_repos_table,
-    "host$get_repos",
-    purrr::list_rbind(list(
-      test_mocker$use("gh_repos_table_with_api_url"),
-      test_mocker$use("gl_repos_table_with_api_url")
-    ))
-  )
-  repos_table <- test_gitstats_priv$get_repos_table(
-    with_code = NULL,
-    in_files = NULL,
-    with_files = NULL,
-    verbose = FALSE,
-    settings = test_settings
-  )
-  expect_repos_table(
-    repos_table,
-    repo_cols = repo_gitstats_colnames
-  )
-})
-
-test_that("get_repos_table with_code works", {
-  mockery::stub(
-    test_gitstats_priv$get_repos_table,
-    "private$get_repos_from_host_with_code",
-    purrr::list_rbind(
-      list(test_mocker$use("gh_repos_by_code_table"),
-           test_mocker$use("gl_repos_by_code_table"))
-    )
-  )
-  repos_table <- test_gitstats_priv$get_repos_table(
-    with_code = "shiny",
-    in_files = "DESCRIPTION",
-    with_files = NULL,
-    verbose = FALSE,
-    settings = test_settings
-  )
-  expect_repos_table(
-    repos_table,
-    repo_cols = repo_gitstats_colnames,
-    with_cols = c("contributors", "contributors_n")
-  )
-  test_mocker$cache(repos_table)
-})
-
-test_that("set_object_class for repos_table works correctly", {
-  repos_table <- test_gitstats_priv$set_object_class(
-    object = test_mocker$use("repos_table"),
-    class = "repos_table",
-    attr_list = list(
-      "with_code" = NULL,
-      "in_files" = NULL,
-      "with_files" = "renv.lock"
-    )
-  )
-  expect_s3_class(repos_table, "repos_table")
-  expect_equal(attr(repos_table, "with_files"), "renv.lock")
-  test_mocker$cache(repos_table)
 })
 
 test_that("get_R_package_as_dependency work correctly", {
@@ -263,41 +162,6 @@ test_that("check_if_args_changed", {
   )
 })
 
-test_that("get_files_structure_from_hosts works as expected", {
-  test_gitstats <- create_test_gitstats(hosts = 2, priv_mode = TRUE)
-  mockery::stub(
-    test_gitstats$get_files_structure_from_hosts,
-    "host$get_files_structure",
-    test_mocker$use("gh_files_structure_from_orgs")
-  )
-  files_structure_from_hosts <- test_gitstats$get_files_structure_from_hosts(
-    pattern = "\\md",
-    depth = 1L,
-    verbose = FALSE
-  )
-  expect_equal(names(files_structure_from_hosts),
-               c("github.com", "gitlab.com"))
-  expect_equal(names(files_structure_from_hosts[[1]]), c("r-world-devs", "openpharma"))
-  files_structure_from_hosts[[2]] <- test_mocker$use("gl_files_structure_from_orgs")
-  test_mocker$cache(files_structure_from_hosts)
-})
-
-test_that("if returned files_structure is empty, do not store it and give proper message", {
-  test_gitstats <- create_test_gitstats(hosts = 2, priv_mode = TRUE)
-  mockery::stub(
-    test_gitstats$get_files_structure_from_hosts,
-    "host$get_files_structure",
-    list()
-  )
-  expect_snapshot(
-    files_structure <- test_gitstats$get_files_structure_from_hosts(
-      pattern = "\\.png",
-      depth = 1L,
-      verbose = TRUE
-    )
-  )
-})
-
 # public methods
 
 test_that("GitStats get users info", {
@@ -308,134 +172,6 @@ test_that("GitStats get users info", {
   )
   expect_users_table(
     users_result
-  )
-})
-
-test_that("get_repos works properly and for the second time uses cache", {
-  test_gitstats <- create_test_gitstats(hosts = 2)
-  mockery::stub(
-    test_gitstats$get_repos,
-    "private$get_repos_table",
-    test_mocker$use("repos_table")
-  )
-  repos_table <- test_gitstats$get_repos(verbose = FALSE)
-  expect_repos_table_object(
-    repos_object = repos_table,
-    with_cols = c("contributors", "contributors_n")
-  )
-  test_mocker$cache(repos_table)
-  expect_snapshot(
-    repos_table <- test_gitstats$get_repos()
-  )
-})
-
-test_that("get_repos pulls repositories without contributors", {
-  test_gitstats <- create_test_gitstats(hosts = 2)
-  repos_table <- test_gitstats$get_repos(add_contributors = FALSE, verbose = FALSE)
-  expect_repos_table(repos_table, repo_cols = repo_gitstats_colnames)
-  expect_false("contributors" %in% names(repos_table))
-})
-
-test_that("get_commits works properly", {
-  test_gitstats <- create_test_gitstats(hosts = 2)
-  mockery::stub(
-    test_gitstats$get_commits,
-    "private$get_commits_table",
-    purrr::list_rbind(
-      list(
-        test_mocker$use("gh_commits_table"),
-        test_mocker$use("gl_commits_table")
-      )
-    )
-  )
-  suppressMessages(
-    commits_table <- test_gitstats$get_commits(
-      since = "2023-06-15",
-      until = "2023-06-30",
-      verbose = FALSE
-    )
-  )
-  expect_commits_table(
-    commits_table
-  )
-  test_mocker$cache(commits_table)
-})
-
-test_that("get_files_content works properly", {
-  test_gitstats <- create_test_gitstats(hosts = 2)
-  mockery::stub(
-    test_gitstats$get_files_content,
-    "private$get_files_content_from_hosts",
-    purrr::list_rbind(
-      list(
-        test_mocker$use("gh_files_table"),
-        test_mocker$use("gl_files_table")
-      )
-    )
-  )
-  files_table <- test_gitstats$get_files_content(
-    file_path = "meta_data.yaml",
-    verbose = FALSE
-  )
-  expect_files_table(
-    files_table,
-    with_cols = "api_url"
-  )
-  test_mocker$cache(files_table)
-})
-
-test_that("get_files_structure works as expected", {
-  test_gitstats <- create_test_gitstats(hosts = 2)
-  mockery::stub(
-    test_gitstats$get_files_structure,
-    "private$get_files_structure_from_hosts",
-    test_mocker$use("files_structure_from_hosts")
-  )
-  expect_snapshot(
-    files_structure <- test_gitstats$get_files_structure(
-      pattern = "\\.md",
-      depth = 2L,
-      verbose = TRUE
-    )
-  )
-  expect_s3_class(files_structure, "files_structure")
-  test_mocker$cache(files_structure)
-})
-
-test_that("if returned files_structure is empty, do not store it and give proper message", {
-  test_gitstats <- create_test_gitstats(hosts = 2)
-  mockery::stub(
-    test_gitstats$get_files_structure,
-    "private$get_files_structure_from_hosts",
-    NULL
-  )
-  expect_snapshot(
-    files_structure <- test_gitstats$get_files_structure(
-      pattern = "\\.png",
-      depth = 1L,
-      verbose = TRUE
-    )
-  )
-})
-
-test_that("get_files_content makes use of files_structure", {
-  test_gitstats <- create_test_gitstats(
-    hosts = 2,
-    inject_files_structure = "files_structure"
-  )
-  expect_snapshot(
-    files_content <- test_gitstats$get_files_content(
-      file_path = NULL,
-      use_files_structure = TRUE,
-      verbose = TRUE
-    )
-  )
-  expect_files_table(
-    files_content,
-    with_cols = "api_url"
-  )
-  expect_snapshot(
-    test_gitstats
   )
 })
 
@@ -465,47 +201,5 @@ test_that("show_orgs print subgroups properly", {
 test_that("subgroups are cleanly printed in GitStats", {
   expect_snapshot(
     test_gitstats
-  )
-})
-
-test_that("get_repos_urls gets vector of repository URLS", {
-  test_gitstats <- create_test_gitstats(hosts = 2)
-  mockery::stub(
-    test_gitstats$get_repos_urls,
-    "private$get_repos_urls_from_hosts",
-    test_mocker$use("repos_urls_from_hosts")
-  )
-  repo_urls <- test_gitstats$get_repos_urls(
-    verbose = FALSE
-  )
-  expect_type(
-    repo_urls,
-    "character"
-  )
-  expect_gt(
-    length(repo_urls),
-    1
-  )
-})
-
-test_that("get_repos_urls gets vector of repository URLS", {
-  test_gitstats <- create_test_gitstats(hosts = 2)
-  mockery::stub(
-    test_gitstats$get_repos_urls,
-    "private$get_repos_urls_from_hosts",
-    test_mocker$use("repos_urls_from_hosts_with_code_in_files")
-  )
-  repo_urls <- test_gitstats$get_repos_urls(
-    with_code = "shiny",
-    in_files = "DESCRIPTION",
-    verbose = FALSE
-  )
-  expect_type(
-    repo_urls,
-    "character"
-  )
-  expect_gt(
-    length(repo_urls),
-    1
   )
 })

@@ -39,13 +39,6 @@ test_that("file queries for GitLab and GitHub are built properly", {
 
 # GraphQL Requests - GitHub
 
-test_graphql_github <- EngineGraphQLGitHub$new(
-  gql_api_url = "https://api.github.com/graphql",
-  token = Sys.getenv("GITHUB_PAT")
-)
-
-test_graphql_github_priv <- environment(test_graphql_github$initialize)$private
-
 test_that("get_file_response works", {
   gh_files_tree_response <- test_graphql_github_priv$get_file_response(
     org = "r-world-devs",
@@ -122,6 +115,23 @@ test_that("only files with certain pattern are retrieved", {
   files_structure <- test_mocker$use("files_structure")
   expect_true(
     length(md_files_structure) < length(files_structure)
+  )
+})
+
+test_that("get_repos_data pulls data on repos and branches", {
+  repos_data <- test_graphql_github_priv$get_repos_data(
+    org = "r-world-devs",
+    repos = NULL
+  )
+  expect_equal(
+    names(repos_data),
+    c("repositories", "def_branches")
+  )
+  expect_true(
+    length(repos_data$repositories) > 0
+  )
+  expect_true(
+    length(repos_data$def_branches) > 0
   )
 })
 
@@ -250,6 +260,16 @@ test_that("get_dirs_and_files() returns list with directories and files", {
     length(gl_files_and_dirs_list$dirs) > 0
   )
   test_mocker$cache(gl_files_and_dirs_list)
+})
+
+test_that("get_repos_data pulls data on repositories", {
+  repositories <- test_graphql_gitlab_priv$get_repos_data(
+    org = "mbtests",
+    repos = NULL
+  )
+  expect_true(
+    length(repositories) > 0
+  )
 })
 
 test_that("get_files_structure_from_repo() pulls files structure from repo", {
@@ -389,8 +409,6 @@ test_that("Gitlab GraphQL switches to pulling files per repositories when query 
 
 # GitHost preparing output
 
-github_testhost_priv <- create_github_testhost(orgs = "r-world-devs", mode = "private")
-
 test_that("GitHubHost prepares table from files response", {
   gh_files_table <- github_testhost_priv$prepare_files_table(
     files_response = test_mocker$use("github_files_response"),
@@ -493,8 +511,6 @@ test_that("get_path_from_files_structure gets file path from files structure", {
   expect_true(length(file_path) > 0)
 })
 
-github_testhost <- create_github_testhost(orgs = "r-world-devs")
-
 test_that("`get_files_content()` pulls files in the table format", {
   mockery::stub(
     github_testhost$get_files_content,
@@ -543,8 +559,6 @@ test_that("get_files_structure pulls files structure for repositories in orgs", 
   })
   test_mocker$cache(gh_files_structure_from_orgs)
 })
-
-gitlab_testhost_priv <- create_gitlab_testhost(orgs = "mbtests", mode = "private")
 
 test_that("checker properly identifies gitlab files responses", {
   expect_false(
@@ -652,8 +666,6 @@ test_that("get_path_from_files_structure gets file path from files structure", {
   expect_true(length(file_path) > 0)
 })
 
-gitlab_testhost <- create_gitlab_testhost(orgs = "mbtests")
-
 test_that("`get_files_content()` pulls files in the table format", {
   mockery::stub(
     gitlab_testhost$get_files_content,
@@ -700,4 +712,99 @@ test_that("get_files_structure pulls files structure for repositories in orgs", 
     expect_true(all(grepl("\\.md|\\.R", repo_files)))
   })
   test_mocker$cache(gl_files_structure_from_orgs)
+})
+
+# GitStats
+
+test_that("get_files_structure_from_hosts works as expected", {
+  mockery::stub(
+    test_gitstats_priv$get_files_structure_from_hosts,
+    "host$get_files_structure",
+    test_mocker$use("gh_files_structure_from_orgs")
+  )
+  files_structure_from_hosts <- test_gitstats_priv$get_files_structure_from_hosts(
+    pattern = "\\md",
+    depth = 1L,
+    verbose = FALSE
+  )
+  expect_equal(names(files_structure_from_hosts),
+               c("github.com", "gitlab.com"))
+  expect_equal(names(files_structure_from_hosts[[1]]), c("r-world-devs", "openpharma"))
+  files_structure_from_hosts[[2]] <- test_mocker$use("gl_files_structure_from_orgs")
+  test_mocker$cache(files_structure_from_hosts)
+})
+
+test_that("if returned files_structure is empty, do not store it and give proper message", {
+  mockery::stub(
+    test_gitstats_priv$get_files_structure_from_hosts,
+    "host$get_files_structure",
+    list()
+  )
+  expect_snapshot(
+    files_structure <- test_gitstats_priv$get_files_structure_from_hosts(
+      pattern = "\\.png",
+      depth = 1L,
+      verbose = TRUE
+    )
+  )
+})
+
+test_that("get_files_content works properly", {
+  mockery::stub(
+    test_gitstats$get_files_content,
+    "private$get_files_content_from_hosts",
+    purrr::list_rbind(
+      list(
+        test_mocker$use("gh_files_table"),
+        test_mocker$use("gl_files_table")
+      )
+    )
+  )
+  files_table <- test_gitstats$get_files_content(
+    file_path = "meta_data.yaml",
+    verbose = FALSE
+  )
+  expect_files_table(
+    files_table,
+    with_cols = "api_url"
+  )
+  test_mocker$cache(files_table)
+})
+
+test_that("get_files_structure works as expected", {
+  mockery::stub(
+    test_gitstats$get_files_structure,
+    "private$get_files_structure_from_hosts",
+    test_mocker$use("files_structure_from_hosts")
+  )
+  expect_snapshot(
+    files_structure <- test_gitstats$get_files_structure(
+      pattern = "\\.md",
+      depth = 2L,
+      verbose = TRUE
+    )
+  )
+  expect_s3_class(files_structure, "files_structure")
+  test_mocker$cache(files_structure)
+})
+
+test_that("get_files_content makes use of files_structure", {
+  test_gitstats <- create_test_gitstats(
+    hosts = 2,
+    inject_files_structure = "files_structure"
+  )
+  expect_snapshot(
+    files_content <- test_gitstats$get_files_content(
+      file_path = NULL,
+      use_files_structure = TRUE,
+      verbose = TRUE
+    )
+  )
+  expect_files_table(
+    files_content,
+    with_cols = "api_url"
+  )
+  expect_snapshot(
+    test_gitstats
+  )
 })
