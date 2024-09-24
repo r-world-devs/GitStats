@@ -84,28 +84,39 @@ test_that("only files with certain pattern are retrieved", {
   expect_true(
     length(md_files_structure) < length(files_structure)
   )
+  test_mocker$cache(md_files_structure)
 })
 
 test_that("GitHub GraphQL Engine pulls files structure from repositories", {
+  mockery::stub(
+    test_graphql_github$get_files_structure_from_org,
+    "private$get_files_structure_from_repo",
+    test_mocker$use("files_structure")
+  )
   gh_files_structure <- test_graphql_github$get_files_structure_from_org(
-    org = "openpharma",
-    repos = c("DataFakeR", "visR")
+    org = "r-world-devs",
+    repos = c("GitStats")
   )
   purrr::walk(gh_files_structure, ~ expect_true(length(.) > 0))
   expect_equal(
     names(gh_files_structure),
-    c("visR", "DataFakeR")
+    c("GitStats")
   )
   test_mocker$cache(gh_files_structure)
 })
 
 test_that("GitHub GraphQL Engine pulls files structure with pattern from repositories", {
-  gh_md_files_structure <- test_graphql_github$get_files_structure_from_org(
-    org = "openpharma",
-    repos = c("DataFakeR", "visR"),
-    pattern = "\\.md"
+  mockery::stub(
+    test_graphql_github$get_files_structure_from_org,
+    "private$get_files_structure_from_repo",
+    test_mocker$use("md_files_structure")
   )
-  purrr::walk(gh_md_files_structure, ~ expect_true(all(grepl("\\.md", .))))
+  gh_md_files_structure <- test_graphql_github$get_files_structure_from_org(
+    org = "r-world-devs",
+    repos = "GitStats",
+    pattern = "\\.md|\\.qmd|\\.Rmd"
+  )
+  purrr::walk(gh_md_files_structure, ~ expect_true(all(grepl("\\.md|\\.qmd|\\.Rmd", .))))
 })
 
 test_that("get_files_structure_from_orgs pulls files structure for repositories in orgs", {
