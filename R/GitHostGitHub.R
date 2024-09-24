@@ -201,7 +201,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
           org = org,
           settings = settings
         )
-        commits_table_org <- graphql_engine$pull_commits_from_repos(
+        commits_table_org <- graphql_engine$get_commits_from_repos(
           org = org,
           repos_names = repos_names,
           since = since,

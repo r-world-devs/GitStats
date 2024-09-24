@@ -31,7 +31,7 @@ expect_repos_table <- function(repos_object, repo_cols = repo_host_colnames, wit
   expect_gt(nrow(repos_object), 0)
 }
 
-expect_commits_table <- function(pull_commits_object, with_stats = TRUE, exp_author = TRUE) {
+expect_commits_table <- function(get_commits_object, with_stats = TRUE, exp_author = TRUE) {
   commit_cols <- if (exp_author) {
     c(
       "id", "committed_date", "author", "author_login", "author_name", "additions", "deletions",
@@ -43,13 +43,13 @@ expect_commits_table <- function(pull_commits_object, with_stats = TRUE, exp_aut
       "repository", "organization", "api_url"
     )
   }
-  expect_s3_class(pull_commits_object, "data.frame")
-  expect_named(pull_commits_object, commit_cols)
-  expect_gt(nrow(pull_commits_object), 0)
-  expect_s3_class(pull_commits_object$committed_date, "POSIXt")
+  expect_s3_class(get_commits_object, "data.frame")
+  expect_named(get_commits_object, commit_cols)
+  expect_gt(nrow(get_commits_object), 0)
+  expect_s3_class(get_commits_object$committed_date, "POSIXt")
   if (with_stats) {
-    expect_type(pull_commits_object$additions, "integer")
-    expect_type(pull_commits_object$deletions, "integer")
+    expect_type(get_commits_object$additions, "integer")
+    expect_type(get_commits_object$deletions, "integer")
   }
 }
 

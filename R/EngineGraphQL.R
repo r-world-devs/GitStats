@@ -32,7 +32,7 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
      },
 
      # A method to pull information on user.
-     pull_user = function(username) {
+     get_user = function(username) {
        response <- tryCatch({
          self$gql_response(
            gql_query = self$gql_query$user(),
@@ -76,7 +76,9 @@ EngineGraphQL <- R6::R6Class("EngineGraphQL",
                                               org,
                                               repo = NULL) {
        if (is.null(repo)) {
-         file_path <- host_files_structure[[org]] %>% unlist() %>% unique()
+         file_path <- host_files_structure[[org]] %>%
+           unlist(use.names = FALSE) %>%
+           unique()
        } else {
          file_path <- host_files_structure[[org]][[repo]]
        }

@@ -45,7 +45,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       next_page <- TRUE
       repo_cursor <- ""
       while (next_page) {
-        repos_response <- private$pull_repos_page(
+        repos_response <- private$get_repos_page(
           org = org,
           repo_cursor = repo_cursor
         )
@@ -65,13 +65,13 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     },
 
     # Iterator over pulling commits from all repositories.
-    pull_commits_from_repos = function(org,
+    get_commits_from_repos = function(org,
                                        repos_names,
                                        since,
                                        until,
                                        verbose) {
       repos_list_with_commits <- purrr::map(repos_names, function(repo) {
-        private$pull_commits_from_one_repo(
+        private$get_commits_from_one_repo(
           org = org,
           repo = repo,
           since = since,
@@ -151,7 +151,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     },
 
     # Pull release logs from organization
-    pull_release_logs_from_org = function(repos_names, org) {
+    get_release_logs_from_org = function(repos_names, org) {
       release_responses <- purrr::map(repos_names, function(repository) {
         releases_from_repo_query <- self$gql_query$releases_from_repo()
         response <- self$gql_response(
@@ -170,7 +170,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     private = list(
 
       # Wrapper over building GraphQL query and response.
-      pull_repos_page = function(org = NULL,
+      get_repos_page = function(org = NULL,
                                  repo_cursor = "") {
         repos_query <- self$gql_query$repos_by_org(
           repo_cursor = repo_cursor
@@ -183,7 +183,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       },
 
       # An iterator over pulling commit pages from one repository.
-      pull_commits_from_one_repo = function(org,
+      get_commits_from_one_repo = function(org,
                                             repo,
                                             since,
                                             until) {
@@ -191,7 +191,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
         full_commits_list <- list()
         commits_cursor <- ""
         while (next_page) {
-          commits_response <- private$pull_commits_page_from_repo(
+          commits_response <- private$get_commits_page_from_repo(
             org = org,
             repo = repo,
             since = since,
@@ -213,7 +213,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       },
 
       # Wrapper over building GraphQL query and response.
-      pull_commits_page_from_repo = function(org,
+      get_commits_page_from_repo = function(org,
                                              repo,
                                              since,
                                              until,

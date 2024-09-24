@@ -24,7 +24,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     },
 
     # Pulling repositories where code appears
-    pull_repos_by_code = function(code,
+    get_repos_by_code = function(code,
                                   org = NULL,
                                   filename = NULL,
                                   in_path = FALSE,
@@ -66,7 +66,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     },
 
     #' Pull all repositories URLS from organization
-    pull_repos_urls = function(type, org) {
+    get_repos_urls = function(type, org) {
       repos_urls <- self$response(
         endpoint = paste0(private$endpoints[["organizations"]], org, "/repos")
       ) %>%
@@ -81,7 +81,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     },
 
     #' A method to add information on open and closed issues of a repository.
-    pull_repos_issues = function(repos_table) {
+    get_repos_issues = function(repos_table) {
       if (nrow(repos_table) > 0) {
         repos_iterator <- paste0(repos_table$organization, "/", repos_table$repo_name)
         issues <- purrr::map_dfr(repos_iterator, function(repo_path) {
@@ -105,7 +105,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     },
 
     #' Add information on repository contributors.
-    pull_repos_contributors = function(repos_table, settings) {
+    get_repos_contributors = function(repos_table, settings) {
       if (nrow(repos_table) > 0) {
         repo_iterator <- paste0(repos_table$organization, "/", repos_table$repo_name)
         user_name <- rlang::expr(.$login)

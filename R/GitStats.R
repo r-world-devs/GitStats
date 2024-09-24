@@ -332,6 +332,19 @@ GitStats <- R6::R6Class("GitStats",
       return(files)
     },
 
+    #' @name get_files_structure
+    #' @description Pulls file structure for a given repository.
+    #' @param gitstats_object A GitStats object.
+    #' @param pattern An optional regular expression. If defined, it pulls file
+    #'   structure for a repository matching this pattern.
+    #' @param depth An optional integer. Defines level of directories to retrieve
+    #'   files from. E.g. if set to `0`, it will pull files only from root, if `1`,
+    #'   will take data from `root` directory and directories visible in `root`
+    #'   directory. If left with no argument, will pull files from all directories.
+    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+    #'   result from its storage.
+    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
+    #'   output is switched off.
     get_files_structure = function(pattern, depth, cache = TRUE, verbose = TRUE) {
       private$check_for_host()
       args_list <- list("pattern" = pattern,

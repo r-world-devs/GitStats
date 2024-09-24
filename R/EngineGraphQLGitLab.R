@@ -48,7 +48,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
        next_page <- TRUE
        repo_cursor <- ""
        while (next_page) {
-         repos_response <- private$pull_repos_page(
+         repos_response <- private$get_repos_page(
            org = org,
            repo_cursor = repo_cursor
          )
@@ -226,7 +226,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      },
 
      # Pull all releases from all repositories of an organization.
-     pull_release_logs_from_org = function(repos_names, org) {
+     get_release_logs_from_org = function(repos_names, org) {
        release_responses <- purrr::map(repos_names, function(repository) {
          releases_from_repo_query <- self$gql_query$releases_from_repo()
          response <- self$gql_response(
@@ -250,7 +250,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      },
 
      # Wrapper over building GraphQL query and response.
-     pull_repos_page = function(org = NULL,
+     get_repos_page = function(org = NULL,
                                 repo_cursor = "") {
        repos_query <- self$gql_query$repos_by_org(
          repo_cursor = repo_cursor

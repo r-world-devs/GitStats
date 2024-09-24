@@ -55,7 +55,7 @@ GitHost <- R6::R6Class("GitHost",
       }
       repos_table <- private$add_repo_api_url(repos_table)
       if (add_contributors) {
-        repos_table <- private$pull_repos_contributors(
+        repos_table <- private$get_repos_contributors(
           repos_table = repos_table,
           settings = settings
         )
@@ -121,7 +121,7 @@ GitHost <- R6::R6Class("GitHost",
     get_users = function(users) {
       graphql_engine <- private$engines$graphql
       users_table <-  purrr::map(users, function(user) {
-        graphql_engine$pull_user(user) %>%
+        graphql_engine$get_user(user) %>%
           private$prepare_user_table()
       }) %>%
         purrr::list_rbind()
@@ -188,7 +188,7 @@ GitHost <- R6::R6Class("GitHost",
         )
         gql_engine <- private$engines$graphql
         if (length(repos_names) > 0) {
-          release_logs_table_org <- gql_engine$pull_release_logs_from_org(
+          release_logs_table_org <- gql_engine$get_release_logs_from_org(
             org = org,
             repos_names = repos_names
           ) %>%
@@ -626,7 +626,7 @@ GitHost <- R6::R6Class("GitHost",
           )
         }
         repos <- private$set_repos(settings, org)
-        repos_urls <- rest_engine$pull_repos_urls(
+        repos_urls <- rest_engine$get_repos_urls(
           type = type,
           org = org
         )
@@ -660,7 +660,7 @@ GitHost <- R6::R6Class("GitHost",
         repos_table <- repos_response %>%
           private$tailor_repos_response() %>%
           private$prepare_repos_table_from_rest() %>%
-          rest_engine$pull_repos_issues()
+          rest_engine$get_repos_issues()
         return(repos_table)
       } else {
         return(repos_response)
@@ -695,7 +695,7 @@ GitHost <- R6::R6Class("GitHost",
           repos_table <- repos_response %>%
             private$tailor_repos_response() %>%
           private$prepare_repos_table_from_rest() %>%
-          rest_engine$pull_repos_issues()
+          rest_engine$get_repos_issues()
           return(repos_table)
         } else {
           return(repos_response)
@@ -713,7 +713,7 @@ GitHost <- R6::R6Class("GitHost",
     get_repos_response_with_code = function(org = NULL, code, in_files, in_path, raw_output) {
       rest_engine <- private$engines$rest
       if (is.null(in_files)) {
-        repos_response <- rest_engine$pull_repos_by_code(
+        repos_response <- rest_engine$get_repos_by_code(
           org = org,
           code = code,
           in_path = in_path,
@@ -723,7 +723,7 @@ GitHost <- R6::R6Class("GitHost",
       } else {
         repos_response <- purrr::map(in_files, function(filename) {
           cli::cli_alert_info("In file: {filename}")
-          rest_engine$pull_repos_by_code(
+          rest_engine$get_repos_by_code(
             org = org,
             code = code,
             filename = filename,
@@ -738,7 +738,7 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     #' Add information on repository contributors.
-    pull_repos_contributors = function(repos_table, settings) {
+    get_repos_contributors = function(repos_table, settings) {
       if (!is.null(repos_table) && nrow(repos_table) > 0) {
         if (!private$scan_all && private$verbose) {
           show_message(
@@ -749,7 +749,7 @@ GitHost <- R6::R6Class("GitHost",
         }
         repos_table <- private$filter_repos_by_host(repos_table)
         rest_engine <- private$engines$rest
-        repos_table <- rest_engine$pull_repos_contributors(
+        repos_table <- rest_engine$get_repos_contributors(
           repos_table = repos_table,
           settings = settings
         )
