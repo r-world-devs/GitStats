@@ -18,6 +18,7 @@ GitHub and GitLab. For the time-being you can get data on:
 - commits,
 - users,
 - release logs,
+- repository files structure,
 - text files content,
 - R package usage.
 
