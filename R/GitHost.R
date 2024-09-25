@@ -34,13 +34,10 @@ GitHost <- R6::R6Class("GitHost",
                          with_code = NULL,
                          in_files = NULL,
                          with_file = NULL,
-                         verbose = TRUE,
-                         settings) {
+                         verbose = TRUE) {
       private$set_verbose(verbose)
       if (is.null(with_code) && is.null(with_file)) {
-        repos_table <- private$get_all_repos(
-          settings = settings
-        )
+        repos_table <- private$get_all_repos()
       }
       if (!is.null(with_code)) {
         repos_table <- private$get_repos_with_code(
@@ -56,8 +53,7 @@ GitHost <- R6::R6Class("GitHost",
       repos_table <- private$add_repo_api_url(repos_table)
       if (add_contributors) {
         repos_table <- private$get_repos_contributors(
-          repos_table = repos_table,
-          settings = settings
+          repos_table = repos_table
         )
       }
       return(repos_table)
@@ -98,10 +94,9 @@ GitHost <- R6::R6Class("GitHost",
 
     #' Pull commits method
     get_commits = function(since,
-                           until = Sys.Date(),
-                           verbose = TRUE,
-                           settings) {
-      private$set_verbose(verbose)
+                           until    = Sys.Date(),
+                           verbose  = TRUE,
+                           progress = TRUE) {
       if (private$scan_all && is.null(private$orgs)) {
         cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
         private$orgs <- private$engines$graphql$pull_orgs()
@@ -109,10 +104,11 @@ GitHost <- R6::R6Class("GitHost",
       if (is.null(until)) {
         until <- Sys.time()
       }
-      commits_table <- private$get_commits_from_host(
-        since = since,
-        until = until,
-        settings = settings
+      commits_table <- private$get_commits_from_orgs(
+        since    = since,
+        until    = until,
+        verbose  = verbose,
+        progress = progress
       )
       return(commits_table)
     },
@@ -130,24 +126,33 @@ GitHost <- R6::R6Class("GitHost",
 
     #' Retrieve content of given text files from all repositories for a host in
     #' a table format.
-    get_files_content = function(file_path, host_files_structure = NULL, only_text_files = TRUE, verbose = TRUE) {
+    get_files_content = function(file_path,
+                                 host_files_structure = NULL,
+                                 only_text_files      = TRUE,
+                                 verbose              = TRUE,
+                                 progress             = TRUE) {
       files_table <- if (!private$scan_all) {
         private$get_files_content_from_orgs(
-          file_path = file_path,
+          file_path            = file_path,
           host_files_structure = host_files_structure,
-          only_text_files = only_text_files,
-          verbose = verbose
+          only_text_files      = only_text_files,
+          verbose              = verbose,
+          progress             = progress
         )
       } else {
         private$get_files_content_from_host(
           file_path = file_path,
-          verbose = verbose
+          verbose = verbose,
+          progress = progress
         )
       }
       return(files_table)
     },
 
-    get_files_structure = function(pattern, depth, verbose = TRUE) {
+    get_files_structure = function(pattern,
+                                   depth,
+                                   verbose  = TRUE,
+                                   progress = TRUE) {
       if (private$scan_all) {
         cli::cli_abort(c(
           "x" = "This feature is not applicable to scan whole Git Host (time consuming).",
@@ -157,15 +162,16 @@ GitHost <- R6::R6Class("GitHost",
         )
       }
       files_structure <- private$get_files_structure_from_orgs(
-        pattern = pattern,
-        depth = depth,
-        verbose = verbose
+        pattern  = pattern,
+        depth    = depth,
+        verbose  = verbose,
+        progress = progress
       )
       return(files_structure)
     },
 
     #' Iterator over pulling release logs from engines
-    get_release_logs = function(since, until, verbose, settings) {
+    get_release_logs = function(since, until, verbose) {
       if (private$scan_all && is.null(private$orgs)) {
         cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
         private$orgs <- private$engines$graphql$pull_orgs()
@@ -183,8 +189,7 @@ GitHost <- R6::R6Class("GitHost",
           )
         }
         repos_names <- private$set_repositories(
-          org = org,
-          settings = settings
+          org = org
         )
         gql_engine <- private$engines$graphql
         if (length(repos_names) > 0) {
@@ -524,7 +529,7 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Set repositories
-    set_repos = function(settings, org) {
+    set_repos = function(org) {
       if (private$searching_scope == "repo") {
         repos <- private$orgs_repos[[org]]
       } else {
@@ -542,12 +547,12 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     #' Retrieve all repositories for an organization in a table format.
-    get_all_repos = function(settings, verbose = private$verbose) {
+    get_all_repos = function(verbose = private$verbose) {
       if (private$scan_all && is.null(private$orgs)) {
         if (verbose) {
           show_message(
-            host = private$host_name,
-            engine = "graphql",
+            host        = private$host_name,
+            engine      = "graphql",
             information = "Pulling all organizations"
           )
         }
@@ -558,13 +563,13 @@ GitHost <- R6::R6Class("GitHost",
         org <- utils::URLdecode(org)
         if (!private$scan_all && verbose) {
           show_message(
-            host = private$host_name,
-            engine = "graphql",
-            scope = org,
+            host        = private$host_name,
+            engine      = "graphql",
+            scope       = org,
             information = "Pulling repositories"
           )
         }
-        repos <- private$set_repos(settings, org)
+        repos <- private$set_repos(org)
         repos_table <- graphql_engine$get_repos_from_org(
           org = org
         ) %>%
@@ -580,10 +585,14 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Pull repositories with specific code
-    get_repos_with_code = function(code, in_files = NULL, in_path = FALSE, raw_output = FALSE, verbose = private$verbose) {
+    get_repos_with_code = function(code,
+                                   in_files   = NULL,
+                                   in_path    = FALSE,
+                                   raw_output = FALSE,
+                                   verbose    = private$verbose) {
       if (private$scan_all) {
         repos_table <- private$get_repos_with_code_from_host(
-          code = code,
+          code     = code,
           in_files = in_files,
           in_path = in_path,
           raw_output = raw_output,
@@ -625,7 +634,7 @@ GitHost <- R6::R6Class("GitHost",
             information = "Pulling repositories (URLS)"
           )
         }
-        repos <- private$set_repos(settings, org)
+        repos <- private$set_repos(org)
         repos_urls <- rest_engine$get_repos_urls(
           type = type,
           org = org
@@ -785,8 +794,9 @@ GitHost <- R6::R6Class("GitHost",
     # Pull files content from organizations
     get_files_content_from_orgs = function(file_path,
                                            host_files_structure = NULL,
-                                           only_text_files = TRUE,
-                                           verbose = TRUE) {
+                                           only_text_files      = TRUE,
+                                           verbose              = TRUE,
+                                           progress             = TRUE) {
       graphql_engine <- private$engines$graphql
       if (!is.null(host_files_structure)) {
         if (verbose) {
@@ -809,22 +819,23 @@ GitHost <- R6::R6Class("GitHost",
             glue::glue("Pulling files content: [{paste0(file_path, collapse = ', ')}]")
           }
           show_message(
-            host = private$host_name,
-            engine = "graphql",
-            scope = org,
+            host        = private$host_name,
+            engine      = "graphql",
+            scope       = org,
             information = user_msg
           )
         }
         graphql_engine$get_files_from_org(
-          org = org,
-          repos = repos,
-          file_paths = file_path,
+          org                  = org,
+          repos                = repos,
+          file_paths           = file_path,
           host_files_structure = host_files_structure,
-          only_text_files = only_text_files,
-          verbose = verbose
+          only_text_files      = only_text_files,
+          verbose              = verbose,
+          progress             = progress
         ) %>%
           private$prepare_files_table(
-            org = org,
+            org       = org,
             file_path = file_path
           )
       }) %>%
@@ -835,13 +846,16 @@ GitHost <- R6::R6Class("GitHost",
 
     get_orgs_and_repos_from_files_structure = function(host_files_structure) {
       result <- list(
-        "orgs" = names(host_files_structure),
+        "orgs"  = names(host_files_structure),
         "repos" = purrr::map(host_files_structure, ~names(.)) %>% unlist() %>% unname()
       )
       return(result)
     },
 
-    get_files_structure_from_orgs = function(pattern, depth, verbose) {
+    get_files_structure_from_orgs = function(pattern,
+                                             depth,
+                                             verbose  = TRUE,
+                                             progress = TRUE) {
       graphql_engine <- private$engines$graphql
       files_structure_list <- purrr::map(private$orgs, function(org) {
         if (verbose) {
@@ -858,11 +872,12 @@ GitHost <- R6::R6Class("GitHost",
           )
         }
         graphql_engine$get_files_structure_from_org(
-          org = org,
-          repos = private$repos,
-          pattern = pattern,
-          depth = depth,
-          verbose = verbose
+          org      = org,
+          repos    = private$repos,
+          pattern  = pattern,
+          depth    = depth,
+          verbose  = verbose,
+          progress = progress
         )
       })
       names(files_structure_list) <- private$orgs
@@ -879,7 +894,9 @@ GitHost <- R6::R6Class("GitHost",
     },
 
     # Pull files from host
-    get_files_content_from_host = function(file_path, verbose) {
+    get_files_content_from_host = function(file_path,
+                                           verbose  = TRUE,
+                                           progress = TRUE) {
       rest_engine <- private$engines$rest
       if (verbose) {
         show_message(
@@ -890,7 +907,8 @@ GitHost <- R6::R6Class("GitHost",
       }
       files_table <- rest_engine$get_files(
         file_paths = file_path,
-        verbose = verbose
+        verbose    = verbose,
+        progress   = progress
       ) %>%
         private$prepare_files_table_from_rest() %>%
         private$add_repo_api_url()

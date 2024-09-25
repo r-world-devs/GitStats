@@ -5,28 +5,30 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
   public = list(
 
     # Pull repositories with files
-    get_files = function(file_paths = NULL,
-                         org = NULL,
+    get_files = function(file_paths          = NULL,
+                         org                 = NULL,
                          clean_files_content = TRUE,
-                         verbose = TRUE) {
+                         verbose             = TRUE,
+                         progress            = TRUE) {
       files_list <- list()
       file_paths <- utils::URLencode(file_paths, reserved = TRUE)
       files_list <- purrr::map(file_paths, function(filename) {
         files_search_result <- private$search_for_code(
-          code = filename,
+          code    = filename,
           in_path = TRUE,
-          org = org,
+          org     = org,
           verbose = verbose
         ) %>%
           purrr::keep(~ .$path == filename)
         files_content <- private$add_file_info(
           files_search_result = files_search_result,
-          clean_file_content = clean_files_content,
-          filename = filename,
-          verbose = verbose
+          clean_file_content  = clean_files_content,
+          filename            = filename,
+          verbose             = verbose,
+          progress            = progress
         )
         return(files_content)
-      }, .progress = !verbose) %>%
+      }, .progress = progress) %>%
         purrr::list_flatten()
       return(files_list)
     },
@@ -126,9 +128,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
 
     # Pull all commits from give repositories.
     get_commits_from_repos = function(repos_names,
-                                       since,
-                                       until,
-                                       verbose) {
+                                      since,
+                                      until,
+                                      progress) {
       repos_list_with_commits <- purrr::map(repos_names, function(repo_path) {
         commits_from_repo <- private$get_commits_from_one_repo(
           repo_path = repo_path,
@@ -136,7 +138,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           until = until
         )
         return(commits_from_repo)
-      }, .progress = !private$scan_all && verbose)
+      }, .progress = !private$scan_all && progress)
       names(repos_list_with_commits) <- repos_names
       repos_list_with_commits <- repos_list_with_commits %>%
         purrr::discard(~ length(.) == 0)
@@ -144,7 +146,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     },
 
     # A method to get separately GL logins and display names
-    get_commits_authors_handles_and_names = function(commits_table, verbose) {
+    get_commits_authors_handles_and_names = function(commits_table,
+                                                     verbose = TRUE,
+                                                     progress = verbose) {
       if (nrow(commits_table) > 0) {
         if (verbose) {
           cli::cli_alert_info("Looking up for authors' names and logins...")
@@ -186,7 +190,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
             )
           }
           return(user_tbl)
-        }, .progress = TRUE) %>%
+        }, .progress = progress) %>%
           purrr::list_rbind()
 
         commits_table <- commits_table %>%
@@ -371,7 +375,11 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     },
 
     # Add file content to files search result
-    add_file_info = function(files_search_result, filename, clean_file_content = FALSE, verbose = FALSE) {
+    add_file_info = function(files_search_result,
+                             filename,
+                             clean_file_content = FALSE,
+                             verbose            = FALSE,
+                             progress           = FALSE) {
       purrr::map(files_search_result, function(file_data) {
         repo_data <- self$response(
           paste0(
@@ -404,7 +412,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           }
         }
         return(file_data)
-      }, .progress = if (verbose) {
+      }, .progress = if (progress) {
         glue::glue("Adding file [{filename}] info...")
         } else {
           FALSE

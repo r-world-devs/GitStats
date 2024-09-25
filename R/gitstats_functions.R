@@ -210,8 +210,10 @@ get_repos_urls <- function(gitstats_object,
 #' @param until An end date.
 #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
 #'   result from its storage.
-#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
-#'   printing output is switched off.
+#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
+#'   output is switched off.
+#' @param progress A logical, by default set to `verbose` value. If `FALSE` no
+#'   cli progress bar will be displayed.
 #' @return A data.frame.
 #' @examples
 #' \dontrun{
@@ -228,18 +230,20 @@ get_repos_urls <- function(gitstats_object,
 #' }
 #' @export
 get_commits <- function(gitstats_object,
-                        since = NULL,
-                        until = NULL,
-                        cache = TRUE,
-                        verbose = is_verbose(gitstats_object)) {
+                        since    = NULL,
+                        until    = NULL,
+                        cache    = TRUE,
+                        verbose  = is_verbose(gitstats_object),
+                        progress = verbose) {
   if (is.null(since)) {
     cli::cli_abort(cli::col_red("You need to pass date to `since` parameter."), call = NULL)
   }
   gitstats_object$get_commits(
-    since = since,
-    until = until,
-    cache = cache,
-    verbose = verbose
+    since    = since,
+    until    = until,
+    cache    = cache,
+    verbose  = verbose,
+    progress = progress
   )
 }
 
@@ -325,6 +329,8 @@ get_users <- function(gitstats_object,
 #'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
 #'   output is switched off.
+#' @param progress A logical, by default set to `verbose` value. If `FALSE` no
+#'   cli progress bar will be displayed.
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
@@ -359,13 +365,15 @@ get_files_content <- function(gitstats_object,
                               use_files_structure = TRUE,
                               only_text_files = TRUE,
                               cache = TRUE,
-                              verbose = is_verbose(gitstats_object)) {
+                              verbose = is_verbose(gitstats_object),
+                              progress = verbose) {
   gitstats_object$get_files_content(
     file_path = file_path,
     use_files_structure = use_files_structure,
     only_text_files = only_text_files,
     cache = cache,
-    verbose = verbose
+    verbose = verbose,
+    progress = progress
   )
 }
 
@@ -383,6 +391,8 @@ get_files_content <- function(gitstats_object,
 #'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
 #'   output is switched off.
+#' @param progress A logical, by default set to `verbose` value. If `FALSE` no
+#'   cli progress bar will be displayed.
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
@@ -405,12 +415,14 @@ get_files_structure <- function(gitstats_object,
                                 pattern = NULL,
                                 depth = Inf,
                                 cache = TRUE,
-                                verbose = is_verbose(gitstats_object)) {
+                                verbose = is_verbose(gitstats_object),
+                                progress = verbose) {
   gitstats_object$get_files_structure(
     pattern = pattern,
     depth = depth,
     cache = cache,
-    verbose = verbose
+    verbose = verbose,
+    progress = progress
   )
 }
 

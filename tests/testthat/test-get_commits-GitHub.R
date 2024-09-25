@@ -87,14 +87,14 @@ test_that("`prepare_commits_table()` prepares commits table", {
   test_mocker$cache(gh_commits_table)
 })
 
-test_that("get_commits_from_host for GitHub works", {
+test_that("get_commits_from_orgs for GitHub works", {
   mockery::stub(
-    github_testhost_repos_priv$get_commits_from_host,
+    github_testhost_repos_priv$get_commits_from_orgs,
     "private$prepare_commits_table",
     test_mocker$use("gh_commits_table")
   )
   suppressMessages(
-    gh_commits_table <- github_testhost_repos_priv$get_commits_from_host(
+    gh_commits_table <- github_testhost_repos_priv$get_commits_from_orgs(
       since = "2023-03-01",
       until = "2023-04-01",
       settings = test_settings_repo
@@ -109,7 +109,7 @@ test_that("get_commits_from_host for GitHub works", {
 test_that("`get_commits()` retrieves commits in the table format", {
   mockery::stub(
     github_testhost$get_commits,
-    "private$get_commits_from_host",
+    "private$get_commits_from_orgs",
     test_mocker$use("gh_commits_table")
   )
   suppressMessages(
@@ -127,7 +127,7 @@ test_that("`get_commits()` retrieves commits in the table format", {
 test_that("get_commits for GitHub repositories works", {
   mockery::stub(
     github_testhost_repos$get_commits,
-    "private$get_commits_from_host",
+    "private$get_commits_from_orgs",
     test_mocker$use("gh_commits_table")
   )
   suppressMessages(

@@ -191,27 +191,31 @@ GitStats <- R6::R6Class("GitStats",
     #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
+    #' @param progress A logical, by default set to `verbose` value. If `FALSE` no
+    #'   cli progress bar will be displayed.
     get_commits = function(since,
                            until,
-                           cache = TRUE,
-                           verbose = TRUE) {
+                           cache    = TRUE,
+                           verbose  = TRUE,
+                           progress = TRUE) {
       private$check_for_host()
       args_list <- list("since" = since,
                         "until" = until)
       trigger <- private$trigger_pulling(
-        cache = cache,
-        storage = "commits",
+        cache     = cache,
+        storage   = "commits",
         args_list = args_list,
-        verbose = verbose
+        verbose   = verbose
       )
       if (trigger) {
-        commits <- private$get_commits_table(
-          since = since,
-          until = until,
-          verbose = verbose
+        commits <- private$get_commits_from_hosts(
+          since    = since,
+          until    = until,
+          verbose  = verbose,
+          progress = progress
         ) %>%
           private$set_object_class(
-            class = "commits_data",
+            class     = "commits_data",
             attr_list = args_list
           )
         private$save_to_storage(commits)
@@ -300,7 +304,8 @@ GitStats <- R6::R6Class("GitStats",
                                  use_files_structure = TRUE,
                                  only_text_files = TRUE,
                                  cache = TRUE,
-                                 verbose = TRUE) {
+                                 verbose = TRUE,
+                                 progress = verbose) {
       private$check_for_host()
       args_list <- list("file_path" = file_path,
                         "use_files_structure" = use_files_structure,
@@ -316,7 +321,8 @@ GitStats <- R6::R6Class("GitStats",
           file_path = file_path,
           use_files_structure = use_files_structure,
           only_text_files = only_text_files,
-          verbose = verbose
+          verbose = verbose,
+          progress = progress
         ) %>%
           private$set_object_class(
             class = "files_data",
@@ -345,7 +351,11 @@ GitStats <- R6::R6Class("GitStats",
     #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
     #'   output is switched off.
-    get_files_structure = function(pattern, depth, cache = TRUE, verbose = TRUE) {
+    get_files_structure = function(pattern,
+                                   depth,
+                                   cache = TRUE,
+                                   verbose = TRUE,
+                                   progress = verbose) {
       private$check_for_host()
       args_list <- list("pattern" = pattern,
                         "depth" = depth)
@@ -359,7 +369,8 @@ GitStats <- R6::R6Class("GitStats",
         files_structure <- private$get_files_structure_from_hosts(
           pattern = pattern,
           depth = depth,
-          verbose = verbose
+          verbose = verbose,
+          progress = progress
         )
         if (!is.null(files_structure)) {
           files_structure <- private$set_object_class(
@@ -505,18 +516,18 @@ GitStats <- R6::R6Class("GitStats",
     # @field settings List of search preferences.
     settings = list(
       verbose = TRUE,
-      cache = TRUE
+      cache   = TRUE
     ),
 
     # @field storage for results
     storage = list(
-      repositories = NULL,
-      commits = NULL,
-      users = NULL,
-      files = NULL,
+      repositories    = NULL,
+      commits         = NULL,
+      users           = NULL,
+      files           = NULL,
       files_structure = NULL,
       R_package_usage = NULL,
-      release_logs = NULL
+      release_logs    = NULL
     ),
 
     # Add new host
@@ -766,13 +777,13 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     # Get commits tables from hosts and bind them into one
-    get_commits_table = function(since, until, verbose) {
+    get_commits_from_hosts = function(since, until, verbose, progress) {
       commits_table <- purrr::map(private$hosts, function(host) {
         host$get_commits(
-          since = since,
-          until = until,
-          verbose = verbose,
-          settings = private$settings
+          since    = since,
+          until    = until,
+          verbose  = verbose,
+          progress = progress
         )
       }) %>%
         purrr::list_rbind()
@@ -792,7 +803,8 @@ GitStats <- R6::R6Class("GitStats",
     get_files_content_from_hosts = function(file_path,
                                             use_files_structure,
                                             only_text_files,
-                                            verbose) {
+                                            verbose,
+                                            progress) {
       purrr::map(private$hosts, function(host) {
         if (is.null(file_path) && use_files_structure) {
           host_files_structure <- private$get_host_files_structure(
@@ -815,7 +827,8 @@ GitStats <- R6::R6Class("GitStats",
             file_path = file_path,
             host_files_structure = host_files_structure,
             only_text_files = only_text_files,
-            verbose = verbose
+            verbose = verbose,
+            progress = progress
           )
         }
       }) %>%
@@ -839,12 +852,13 @@ GitStats <- R6::R6Class("GitStats",
       return(files_structure[[gsub("https://", "", host_name)]])
     },
 
-    get_files_structure_from_hosts = function(pattern, depth, verbose) {
+    get_files_structure_from_hosts = function(pattern, depth, verbose, progress) {
       files_structure_from_hosts <- purrr::map(private$hosts, function(host) {
         host$get_files_structure(
-          pattern = pattern,
-          depth = depth,
-          verbose = verbose
+          pattern  = pattern,
+          depth    = depth,
+          verbose  = verbose,
+          progress = progress
         )
       })
       names(files_structure_from_hosts) <- private$get_host_urls()

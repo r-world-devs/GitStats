@@ -73,8 +73,9 @@ After pulling, the data is saved to `GitStats`.
 ```{r}
 commits <- get_commits(
   gitstats_object = git_stats, 
-  since = "2024-06-01", 
-  until = "2024-06-30"
+  since           = "2024-06-01", 
+  until           = "2024-06-30",
+  progress        = FALSE
 )
 dplyr::glimpse(commits)
 ```
@@ -84,28 +85,30 @@ Caching feature is by default turned on. If you run the `get_*()` function once 
 ```{r}
 commits <- get_commits(
   gitstats_object = git_stats, 
-  since = "2024-06-01", 
-  until = "2024-06-30"
+  since           = "2024-06-01", 
+  until           = "2024-06-30"
 )
 dplyr::glimpse(commits)
 ```
 
 Unless, you switch off the cache:
 
-```{r, eval = FALSE}
+```{r}
 commits <- get_commits(
   gitstats_object = git_stats, 
-  since = "2024-06-01", 
-  until = "2024-06-30",
-  cache = FALSE
+  since    = "2024-06-01", 
+  until    = "2024-06-30",
+  cache    = FALSE,
+  progress = FALSE
 )
 ```
 
 Or simply change the parameters for the function:
 
-```{r, eval = FALSE}
+```{r}
 commits <- get_commits(
   gitstats_object = git_stats, 
-  since = "2024-07-01"
+  since           = "2024-07-01",
+  progress        = FALSE
 )
 ```

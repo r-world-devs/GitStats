@@ -59,14 +59,14 @@ test_that("`prepare_commits_table()` prepares table of commits properly", {
   test_mocker$cache(gl_commits_table)
 })
 
-test_that("get_commits_from_host works", {
+test_that("get_commits_from_orgs works", {
   mockery::stub(
-    gitlab_testhost_priv$get_commits_from_host,
+    gitlab_testhost_priv$get_commits_from_orgs,
     "rest_engine$get_commits_from_repos",
     test_mocker$use("gl_commits_org")
   )
   suppressMessages(
-    gl_commits_table <- gitlab_testhost_priv$get_commits_from_host(
+    gl_commits_table <- gitlab_testhost_priv$get_commits_from_orgs(
       since = "2023-03-01",
       until = "2023-04-01",
       settings = test_settings
@@ -81,13 +81,13 @@ test_that("get_commits_from_host works", {
 test_that("get_commits for GitLab works with repos implied", {
   mockery::stub(
     gitlab_testhost_repos$get_commits,
-    "private$get_commits_from_host",
+    "private$get_commits_from_orgs",
     test_mocker$use("gl_commits_table")
   )
   gl_commits_table <- gitlab_testhost_repos$get_commits(
-    since = "2023-01-01",
-    until = "2023-06-01",
-    settings = test_settings_repo
+    since   = "2023-01-01",
+    until   = "2023-06-01",
+    verbose = FALSE
   )
   expect_commits_table(
     gl_commits_table

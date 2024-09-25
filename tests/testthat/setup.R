@@ -61,12 +61,6 @@ test_settings_silence <- list(
   storage = TRUE
 )
 
-test_settings_repo <- list(
-  searching_scope = "repo",
-  verbose = TRUE,
-  storage = TRUE
-)
-
 if (nchar(Sys.getenv("GITHUB_PAT")) == 0) {
   cli::cli_abort(c(
     "x" = "You did not set up your GITHUB_PAT environment variable.",
