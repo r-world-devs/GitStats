@@ -37,7 +37,7 @@ git_stats <- create_gitstats() %>%
 As scanning scope was set to `organizations` (`orgs` parameter in `set_*_host()`), `GitStats` will pull all repositories from these organizations.
 
 ```{r}
-repos <- get_repos(git_stats)
+repos <- get_repos(git_stats, progress = FALSE)
 dplyr::glimpse(repos)
 ```
 
@@ -52,12 +52,13 @@ dplyr::glimpse(repos_urls)
 
 If messages overwhelm you, you can switch them off in the function:
 
-```{r, eval = FALSE}
+```{r}
 release_logs <- get_release_logs(
   gitstats_object = git_stats, 
   since = "2024-01-01", 
   verbose = FALSE
 )
+dplyr::glimpse(release_logs)
 ```
 
 Or globally:
@@ -101,6 +102,7 @@ commits <- get_commits(
   cache    = FALSE,
   progress = FALSE
 )
+dplyr::glimpose(commits)
 ```
 
 Or simply change the parameters for the function:
@@ -111,4 +113,5 @@ commits <- get_commits(
   since           = "2024-07-01",
   progress        = FALSE
 )
+dplyr::glimpose(commits)
 ```

@@ -1,18 +1,18 @@
-test_that("get_repos_table works", {
+test_that("get_repos_from_hosts works", {
   mockery::stub(
-    test_gitstats_priv$get_repos_table,
+    test_gitstats_priv$get_repos_from_hosts,
     "host$get_repos",
     purrr::list_rbind(list(
       test_mocker$use("gh_repos_table_with_api_url"),
       test_mocker$use("gl_repos_table_with_api_url")
     ))
   )
-  repos_table <- test_gitstats_priv$get_repos_table(
+  repos_table <- test_gitstats_priv$get_repos_from_hosts(
     with_code = NULL,
     in_files = NULL,
     with_files = NULL,
     verbose = FALSE,
-    settings = test_settings
+    progress = FALSE
   )
   expect_repos_table(
     repos_table,
@@ -20,21 +20,21 @@ test_that("get_repos_table works", {
   )
 })
 
-test_that("get_repos_table with_code works", {
+test_that("get_repos_from_hosts with_code works", {
   mockery::stub(
-    test_gitstats_priv$get_repos_table,
+    test_gitstats_priv$get_repos_from_hosts,
     "private$get_repos_from_host_with_code",
     purrr::list_rbind(
       list(test_mocker$use("gh_repos_by_code_table"),
            test_mocker$use("gl_repos_by_code_table"))
     )
   )
-  repos_table <- test_gitstats_priv$get_repos_table(
-    with_code = "shiny",
-    in_files = "DESCRIPTION",
+  repos_table <- test_gitstats_priv$get_repos_from_hosts(
+    with_code  = "shiny",
+    in_files   = "DESCRIPTION",
     with_files = NULL,
-    verbose = FALSE,
-    settings = test_settings
+    verbose    = FALSE,
+    progress   = FALSE
   )
   expect_repos_table(
     repos_table,
@@ -49,8 +49,8 @@ test_that("set_object_class for repos_table works correctly", {
     object = test_mocker$use("repos_table"),
     class = "repos_table",
     attr_list = list(
-      "with_code" = NULL,
-      "in_files" = NULL,
+      "with_code"  = NULL,
+      "in_files"   = NULL,
       "with_files" = "renv.lock"
     )
   )
@@ -63,7 +63,7 @@ test_that("get_repos works properly and for the second time uses cache", {
   test_gitstats <- create_test_gitstats(hosts = 2)
   mockery::stub(
     test_gitstats$get_repos,
-    "private$get_repos_table",
+    "private$get_repos_from_hosts",
     test_mocker$use("repos_table")
   )
   repos_table <- test_gitstats$get_repos(verbose = FALSE)
@@ -82,7 +82,10 @@ test_that("get_repos works properly and for the second time uses cache", {
 
 test_that("get_repos pulls repositories without contributors", {
   test_gitstats <- create_test_gitstats(hosts = 2)
-  repos_table <- test_gitstats$get_repos(add_contributors = FALSE, verbose = FALSE)
+  repos_table <- test_gitstats$get_repos(
+    add_contributors = FALSE,
+    verbose          = FALSE
+  )
   expect_repos_table(repos_table, repo_cols = repo_gitstats_colnames)
   expect_false("contributors" %in% names(repos_table))
 })

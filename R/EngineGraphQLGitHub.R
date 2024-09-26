@@ -15,7 +15,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
     },
 
     #' Get all orgs from GitHub.
-    pull_orgs = function() {
+    get_orgs = function() {
       end_cursor <- NULL
       has_next_page <- TRUE
       full_orgs_list <- list()
@@ -90,7 +90,7 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
                                   file_paths,
                                   host_files_structure,
                                   only_text_files,
-                                  verbose  = FALSE,
+                                  verbose  = TRUE,
                                   progress = TRUE) {
       repo_data <- private$get_repos_data(
         org = org,

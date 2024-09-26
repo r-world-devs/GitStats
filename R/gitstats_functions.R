@@ -114,6 +114,8 @@ set_gitlab_host <- function(gitstats_object,
 #'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
 #'   output is switched off.
+#' @param progress A logical, by default set to `verbose` value. If `FALSE` no
+#'   cli progress bar will be displayed.
 #' @return A data.frame.
 #' @examples
 #' \dontrun{
@@ -134,18 +136,20 @@ set_gitlab_host <- function(gitstats_object,
 #' @export
 get_repos <- function(gitstats_object,
                       add_contributors = TRUE,
-                      with_code = NULL,
-                      in_files = NULL,
-                      with_files = NULL,
-                      cache = TRUE,
-                      verbose = is_verbose(gitstats_object)) {
+                      with_code        = NULL,
+                      in_files         = NULL,
+                      with_files       = NULL,
+                      cache            = TRUE,
+                      verbose          = is_verbose(gitstats_object),
+                      progress         = verbose) {
   gitstats_object$get_repos(
     add_contributors = add_contributors,
-    with_code = with_code,
-    in_files = in_files,
-    with_files = with_files,
-    cache = cache,
-    verbose = verbose
+    with_code        = with_code,
+    in_files         = in_files,
+    with_files       = with_files,
+    cache            = cache,
+    verbose          = verbose,
+    progress         = progress
   )
 }
 
@@ -168,6 +172,8 @@ get_repos <- function(gitstats_object,
 #'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
 #'   output is switched off.
+#' @param progress A logical, by default set to `verbose` value. If `FALSE` no
+#'   cli progress bar will be displayed.
 #' @return A character vector.
 #' @examples
 #' \dontrun{
@@ -185,19 +191,21 @@ get_repos <- function(gitstats_object,
 #' }
 #' @export
 get_repos_urls <- function(gitstats_object,
-                           type = "web",
-                           with_code = NULL,
-                           in_files = NULL,
+                           type       = "web",
+                           with_code  = NULL,
+                           in_files   = NULL,
                            with_files = NULL,
-                           cache = TRUE,
-                           verbose = TRUE) {
+                           cache      = TRUE,
+                           verbose    = is_verbose(gitstats_object),
+                           progress   = verbose) {
   gitstats_object$get_repos_urls(
-    type = type,
-    with_code = with_code,
-    in_files = in_files,
+    type       = type,
+    with_code  = with_code,
+    in_files   = in_files,
     with_files = with_files,
-    cache = cache,
-    verbose = verbose
+    cache      = cache,
+    verbose    = verbose,
+    progress   = progress
   )
 }
 
@@ -299,11 +307,11 @@ get_commits_stats = function(gitstats_object,
 #' @export
 get_users <- function(gitstats_object,
                       logins,
-                      cache = TRUE,
+                      cache   = TRUE,
                       verbose = is_verbose(gitstats_object)){
   gitstats_object$get_users(
-    logins = logins,
-    cache = cache,
+    logins  = logins,
+    cache   = cache,
     verbose = verbose
   )
 }
@@ -361,19 +369,19 @@ get_users <- function(gitstats_object,
 #' @return A data.frame.
 #' @export
 get_files_content <- function(gitstats_object,
-                              file_path = NULL,
+                              file_path           = NULL,
                               use_files_structure = TRUE,
-                              only_text_files = TRUE,
-                              cache = TRUE,
-                              verbose = is_verbose(gitstats_object),
-                              progress = verbose) {
+                              only_text_files     = TRUE,
+                              cache               = TRUE,
+                              verbose             = is_verbose(gitstats_object),
+                              progress            = verbose) {
   gitstats_object$get_files_content(
-    file_path = file_path,
+    file_path           = file_path,
     use_files_structure = use_files_structure,
-    only_text_files = only_text_files,
-    cache = cache,
-    verbose = verbose,
-    progress = progress
+    only_text_files     = only_text_files,
+    cache               = cache,
+    verbose             = verbose,
+    progress            = progress
   )
 }
 
@@ -412,16 +420,16 @@ get_files_content <- function(gitstats_object,
 #' @return A list of vectors.
 #' @export
 get_files_structure <- function(gitstats_object,
-                                pattern = NULL,
-                                depth = Inf,
-                                cache = TRUE,
-                                verbose = is_verbose(gitstats_object),
+                                pattern  = NULL,
+                                depth    = Inf,
+                                cache    = TRUE,
+                                verbose  = is_verbose(gitstats_object),
                                 progress = verbose) {
   gitstats_object$get_files_structure(
-    pattern = pattern,
-    depth = depth,
-    cache = cache,
-    verbose = verbose,
+    pattern  = pattern,
+    depth    = depth,
+    cache    = cache,
+    verbose  = verbose,
     progress = progress
   )
 }
@@ -451,18 +459,17 @@ get_files_structure <- function(gitstats_object,
 #'  get_R_package_usage(my_gitstats, "Shiny")
 #' }
 #' @export
-get_R_package_usage <- function(
-    gitstats_object,
-    package_name,
-    only_loading = FALSE,
-    cache = TRUE,
-    verbose = is_verbose(gitstats_object)
+get_R_package_usage <- function(gitstats_object,
+                                package_name,
+                                only_loading = FALSE,
+                                cache        = TRUE,
+                                verbose      = is_verbose(gitstats_object)
   ) {
   gitstats_object$get_R_package_usage(
     package_name = package_name,
     only_loading = only_loading,
-    cache = cache,
-    verbose = verbose
+    cache        = cache,
+    verbose      = verbose
   )
 }
 
@@ -481,21 +488,21 @@ get_R_package_usage <- function(
 #'   get_release_logs(my_gistats, since = "2024-01-01")
 #' }
 #' @export
-get_release_logs <- function(
-    gitstats_object,
-    since = NULL,
-    until = NULL,
-    cache = TRUE,
-    verbose = is_verbose(gitstats_object)
-) {
+get_release_logs <- function(gitstats_object,
+                             since = NULL,
+                             until = NULL,
+                             cache = TRUE,
+                             verbose = is_verbose(gitstats_object),
+                             progress = verbose) {
   if (is.null(since)) {
     cli::cli_abort(cli::col_red("You need to pass date to `since` parameter."), call = NULL)
   }
   gitstats_object$get_release_logs(
-    since = since,
-    until = until,
-    cache = cache,
-    verbose = verbose
+    since    = since,
+    until    = until,
+    cache    = cache,
+    verbose  = verbose,
+    progress = progress
   )
 }
 

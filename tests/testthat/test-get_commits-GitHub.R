@@ -64,11 +64,11 @@ test_that("`get_commits_from_one_repo()` prepares formatted list", {
 
 test_that("`get_commits_from_repos()` pulls commits from repos", {
   commits_from_repos <- test_graphql_github$get_commits_from_repos(
-    org = "r-world-devs",
-    repo = "GitStats",
-    since = "2023-01-01",
-    until = "2023-02-28",
-    verbose = FALSE
+    org      = "r-world-devs",
+    repo     = "GitStats",
+    since    = "2023-01-01",
+    until    = "2023-02-28",
+    progress = FALSE
   )
   expect_gh_commit_gql_response(
     commits_from_repos[[1]][[1]]
@@ -95,9 +95,10 @@ test_that("get_commits_from_orgs for GitHub works", {
   )
   suppressMessages(
     gh_commits_table <- github_testhost_repos_priv$get_commits_from_orgs(
-      since = "2023-03-01",
-      until = "2023-04-01",
-      settings = test_settings_repo
+      since    = "2023-03-01",
+      until    = "2023-04-01",
+      verbose  = FALSE,
+      progress = FALSE
     )
   )
   expect_commits_table(
@@ -114,9 +115,10 @@ test_that("`get_commits()` retrieves commits in the table format", {
   )
   suppressMessages(
     commits_table <- github_testhost$get_commits(
-      since = "2023-01-01",
-      until = "2023-02-28",
-      settings = test_settings
+      since    = "2023-01-01",
+      until    = "2023-02-28",
+      verbose  = FALSE,
+      progress = FALSE
     )
   )
   expect_commits_table(
@@ -132,9 +134,10 @@ test_that("get_commits for GitHub repositories works", {
   )
   suppressMessages(
     gh_commits_table <- github_testhost_repos$get_commits(
-      since = "2023-03-01",
-      until = "2023-04-01",
-      settings = test_settings_repo
+      since    = "2023-03-01",
+      until    = "2023-04-01",
+      verbose  = FALSE,
+      progress = FALSE
     )
   )
   expect_commits_table(

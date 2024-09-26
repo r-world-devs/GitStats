@@ -27,9 +27,9 @@ test_that("`get_commits_from_repos()` pulls commits from repo", {
   repos_names <- c("mbtests%2Fgitstatstesting", "mbtests%2Fgitstats-testing-2")
   gl_commits_org <- test_rest_gitlab$get_commits_from_repos(
     repos_names = repos_names,
-    since = "2023-01-01",
-    until = "2023-04-20",
-    verbose = FALSE
+    since       = "2023-01-01",
+    until       = "2023-04-20",
+    progress    = FALSE
   )
   purrr::walk(gl_commits_org, ~ expect_gl_commit_rest_response(.))
   test_mocker$cache(gl_commits_org)
@@ -67,9 +67,10 @@ test_that("get_commits_from_orgs works", {
   )
   suppressMessages(
     gl_commits_table <- gitlab_testhost_priv$get_commits_from_orgs(
-      since = "2023-03-01",
-      until = "2023-04-01",
-      settings = test_settings
+      since    = "2023-03-01",
+      until    = "2023-04-01",
+      verbose  = FALSE,
+      progress = FALSE
     )
   )
   expect_commits_table(

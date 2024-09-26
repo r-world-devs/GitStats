@@ -1,14 +1,16 @@
 # `set_searching_scope` does not throw error when `orgs` or `repos` are defined
 
     Code
-      gitlab_testhost_priv$set_searching_scope(orgs = "mbtests", repos = NULL)
+      gitlab_testhost_priv$set_searching_scope(orgs = "mbtests", repos = NULL,
+        verbose = TRUE)
     Message
       i Searching scope set to [org].
 
 ---
 
     Code
-      gitlab_testhost_priv$set_searching_scope(orgs = NULL, repos = "mbtests/GitStatsTesting")
+      gitlab_testhost_priv$set_searching_scope(orgs = NULL, repos = "mbtests/GitStatsTesting",
+        verbose = TRUE)
     Message
       i Searching scope set to [repo].
 
@@ -34,7 +36,7 @@
 # `set_default_token` sets default token for public GitHub
 
     Code
-      default_token <- github_testhost_priv$set_default_token()
+      default_token <- github_testhost_priv$set_default_token(verbose = TRUE)
     Message
       i Using PAT from GITHUB_PAT envar.
 
@@ -42,7 +44,7 @@
 
     Code
       withr::with_envvar(new = c(GITLAB_PAT = Sys.getenv("GITLAB_PAT_PUBLIC")), {
-        default_token <- gitlab_testhost_priv$set_default_token()
+        default_token <- gitlab_testhost_priv$set_default_token(verbose = TRUE)
       })
     Message
       i Using PAT from GITLAB_PAT envar.

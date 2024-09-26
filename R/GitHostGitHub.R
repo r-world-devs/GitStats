@@ -12,7 +12,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
                        token = token,
                        host = host,
                        verbose = verbose)
-      if (private$verbose) {
+      if (verbose) {
         cli::cli_alert_success("Set connection to GitHub.")
       }
     }
@@ -174,7 +174,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
     },
 
     # Get projects URL from search response
-    get_repo_url_from_response = function(search_response, type) {
+    get_repo_url_from_response = function(search_response, type, progress = TRUE) {
       purrr::map_vec(search_response, function(project) {
         if (type == "api") {
           project$repository$url

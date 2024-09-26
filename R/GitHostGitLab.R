@@ -18,7 +18,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
                        token = token,
                        host = host,
                        verbose = verbose)
-      if (private$verbose) {
+      if (verbose) {
         cli::cli_alert_success("Set connection to GitLab.")
       }
     },
@@ -253,7 +253,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     },
 
     # Get projects API URL from search response
-    get_repo_url_from_response = function(search_response, type) {
+    get_repo_url_from_response = function(search_response, type, progress = TRUE) {
       purrr::map_vec(search_response, function(response) {
         api_url <- paste0(private$api_url, "/projects/", response$project_id)
         if (type == "api") {
@@ -266,7 +266,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           web_url <- project_response$web_url
           return(web_url)
         }
-      }, .progress = if (type != "api") {
+      }, .progress = if (progress && type != "api") {
         "Mapping api URL to web URL..."
       } else {
         FALSE

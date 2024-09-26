@@ -5,10 +5,10 @@ test_that("`get_group_id()` gets group's id", {
 
 test_that("`set_searching_scope` does not throw error when `orgs` or `repos` are defined", {
   expect_snapshot(
-    gitlab_testhost_priv$set_searching_scope(orgs = "mbtests", repos = NULL)
+    gitlab_testhost_priv$set_searching_scope(orgs = "mbtests", repos = NULL, verbose = TRUE)
   )
   expect_snapshot(
-    gitlab_testhost_priv$set_searching_scope(orgs = NULL, repos = "mbtests/GitStatsTesting")
+    gitlab_testhost_priv$set_searching_scope(orgs = NULL, repos = "mbtests/GitStatsTesting", verbose = TRUE)
   )
 })
 
@@ -94,7 +94,9 @@ test_that("`check_if_public` works correctly", {
 
 test_that("`set_default_token` sets default token for public GitHub", {
   expect_snapshot(
-    default_token <- github_testhost_priv$set_default_token()
+    default_token <- github_testhost_priv$set_default_token(
+      verbose = TRUE
+    )
   )
   test_rest <- create_testrest(token = default_token,
                                mode = "private")
@@ -119,7 +121,7 @@ test_that("`test_token` works properly", {
 test_that("`set_default_token` sets default token for GitLab", {
   expect_snapshot(
     withr::with_envvar(new = c("GITLAB_PAT" = Sys.getenv("GITLAB_PAT_PUBLIC")), {
-      default_token <- gitlab_testhost_priv$set_default_token()
+      default_token <- gitlab_testhost_priv$set_default_token(verbose = TRUE)
     })
   )
   test_rest <- create_testrest(token = default_token,
@@ -136,8 +138,9 @@ test_that("`set_default_token` sets default token for GitLab", {
 test_that("`set_searching_scope` throws error when both `orgs` and `repos` are defined", {
   expect_snapshot_error(
     gitlab_testhost_priv$set_searching_scope(
-      orgs = "mbtests",
-      repos = "mbtests/GitStatsTesting"
+      orgs    = "mbtests",
+      repos   = "mbtests/GitStatsTesting",
+      verbose = TRUE
     )
   )
 })

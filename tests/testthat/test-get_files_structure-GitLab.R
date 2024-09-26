@@ -70,8 +70,10 @@ test_that("GitLab GraphQL Engine pulls files structure from repositories", {
     test_mocker$use("gl_files_structure")
   )
   gl_files_structure <- test_graphql_gitlab$get_files_structure_from_org(
-    org = "mbtests",
-    repos = c("graphql_tests")
+    org      = "mbtests",
+    repos    = c("graphql_tests"),
+    verbose  = FALSE,
+    progress = FALSE
   )
   purrr::walk(gl_files_structure, ~ expect_true(length(.) > 0))
   expect_equal(
@@ -84,9 +86,11 @@ test_that("GitLab GraphQL Engine pulls files structure from repositories", {
 
 test_that("GitLab GraphQL Engine pulls files structure from repositories", {
   gl_files_structure_shallow <- test_graphql_gitlab$get_files_structure_from_org(
-    org = "mbtests",
-    repos = c("gitstatstesting", "graphql_tests"),
-    depth = 1L
+    org      = "mbtests",
+    repos    = c("gitstatstesting", "graphql_tests"),
+    depth    = 1L,
+    verbose  = FALSE,
+    progress = FALSE
   )
   purrr::walk(gl_files_structure_shallow, ~ expect_true(length(.) > 0))
   expect_equal(
@@ -103,9 +107,10 @@ test_that("get_files_structure_from_orgs pulls files structure for repositories 
   )
   expect_snapshot(
     gl_files_structure_from_orgs <- gitlab_testhost_priv$get_files_structure_from_orgs(
-      pattern = "\\.md|\\.R",
-      depth = 1L,
-      verbose = TRUE
+      pattern  = "\\.md|\\.R",
+      depth    = 1L,
+      verbose  = TRUE,
+      progress = FALSE
     )
   )
   expect_equal(
@@ -123,9 +128,10 @@ test_that("get_files_structure_from_orgs pulls files structure for all repositor
     mode = "private"
   )
   gl_files_structure_from_orgs <- gitlab_testhost_priv$get_files_structure_from_orgs(
-    pattern = "\\.md|\\.R",
-    depth = 1L,
-    verbose = FALSE
+    pattern  = "\\.md|\\.R",
+    depth    = 1L,
+    verbose  = FALSE,
+    progress = FALSE
   )
   expect_equal(
     names(gl_files_structure_from_orgs),
@@ -159,9 +165,10 @@ test_that("get_files_structure pulls files structure for repositories in orgs", 
     test_mocker$use("gl_files_structure_from_orgs")
   )
   gl_files_structure_from_orgs <- gitlab_testhost$get_files_structure(
-    pattern = "\\.md|\\.R",
-    depth = 2L,
-    verbose = FALSE
+    pattern  = "\\.md|\\.R",
+    depth    = 2L,
+    verbose  = FALSE,
+    progress = FALSE
   )
   expect_equal(
     names(gl_files_structure_from_orgs),
