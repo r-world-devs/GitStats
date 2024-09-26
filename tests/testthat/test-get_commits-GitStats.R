@@ -3,7 +3,7 @@
 test_that("get_commits works properly", {
   mockery::stub(
     test_gitstats$get_commits,
-    "private$get_commits_table",
+    "private$get_commits_from_hosts",
     purrr::list_rbind(
       list(
         test_mocker$use("gh_commits_table"),

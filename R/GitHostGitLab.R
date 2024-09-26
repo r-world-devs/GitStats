@@ -18,35 +18,42 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
                        token = token,
                        host = host,
                        verbose = verbose)
-      if (private$verbose) {
+      if (verbose) {
         cli::cli_alert_success("Set connection to GitLab.")
       }
     },
 
     # Retrieve content of given text files from all repositories for a host in
     # a table format.
-    get_files_content = function(file_path, host_files_structure = NULL, only_text_files = TRUE, verbose = TRUE) {
+    get_files_content = function(file_path,
+                                 host_files_structure = NULL,
+                                 only_text_files      = TRUE,
+                                 verbose              = TRUE,
+                                 progress             = TRUE) {
       if (!private$scan_all && private$are_non_text_files(file_path, host_files_structure)) {
         if (only_text_files) {
           files_table <- private$get_files_content_from_orgs(
-            file_path = file_path,
+            file_path            = file_path,
             host_files_structure = host_files_structure,
-            only_text_files = only_text_files,
-            verbose = verbose
+            only_text_files      = only_text_files,
+            verbose              = verbose,
+            progress             = progress
           )
         } else {
           text_files_table <- private$get_files_content_from_orgs(
-            file_path = file_path,
+            file_path            = file_path,
             host_files_structure = host_files_structure,
-            only_text_files = TRUE,
-            verbose = verbose
+            only_text_files      = TRUE,
+            verbose              = verbose,
+            progress             = progress
           )
           non_text_files_table <- private$get_files_content_from_orgs_via_rest(
             file_path = file_path,
             host_files_structure = host_files_structure,
-            clean_files_content = FALSE,
-            only_non_text_files = TRUE,
-            verbose = verbose
+            clean_files_content  = FALSE,
+            only_non_text_files  = TRUE,
+            verbose              = verbose,
+            progress             = progress
           )
           files_table <- purrr::list_rbind(
             list(
@@ -57,9 +64,10 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         }
       } else {
         files_table <- super$get_files_content(
-          file_path = file_path,
+          file_path            = file_path,
           host_files_structure = host_files_structure,
-          verbose = verbose
+          verbose              = verbose,
+          progress             = progress
         )
       }
       return(files_table)
@@ -245,7 +253,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     },
 
     # Get projects API URL from search response
-    get_repo_url_from_response = function(search_response, type) {
+    get_repo_url_from_response = function(search_response, type, progress = TRUE) {
       purrr::map_vec(search_response, function(response) {
         api_url <- paste0(private$api_url, "/projects/", response$project_id)
         if (type == "api") {
@@ -258,7 +266,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           web_url <- project_response$web_url
           return(web_url)
         }
-      }, .progress = if (type != "api") {
+      }, .progress = if (progress && type != "api") {
         "Mapping api URL to web URL..."
       } else {
         FALSE
@@ -266,35 +274,38 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     },
 
     # Pull commits from GitHub
-    get_commits_from_host = function(since, until, settings) {
+    get_commits_from_orgs = function(since,
+                                     until,
+                                     verbose  = TRUE,
+                                     progress = verbose) {
       rest_engine <- private$engines$rest
       commits_table <- purrr::map(private$orgs, function(org) {
         commits_table_org <- NULL
-        if (!private$scan_all && private$verbose) {
+        if (!private$scan_all && verbose) {
           show_message(
-            host = private$host_name,
-            engine = "rest",
-            scope = utils::URLdecode(org),
+            host        = private$host_name,
+            engine      = "rest",
+            scope       = utils::URLdecode(org),
             information = "Pulling commits"
           )
         }
         repos_names <- private$set_repositories(
-          org = org,
-          settings = settings
+          org = org
         )
         commits_table_org <- rest_engine$get_commits_from_repos(
           repos_names = repos_names,
-          since = since,
-          until = until,
-          verbose = private$verbose
+          since       = since,
+          until       = until,
+          progress    = progress
         ) %>%
           private$tailor_commits_info(org = org) %>%
           private$prepare_commits_table() %>%
           rest_engine$get_commits_authors_handles_and_names(
-            verbose = private$verbose
+            verbose  = verbose,
+            progress = progress
           )
         return(commits_table_org)
-      }, .progress = if (private$scan_all && private$verbose) {
+      }, .progress = if (private$scan_all && progress) {
         "[GitHost:GitLab] Pulling commits..."
       } else {
         FALSE
@@ -310,8 +321,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         repos_names <- paste0(org, "%2f", repos)
       } else {
         repos_table <- private$get_all_repos(
-          verbose = FALSE,
-          settings = settings
+          verbose = FALSE
         )
         gitlab_web_url <- stringr::str_extract(private$api_url, "^.*?(?=api)")
         repos <- stringr::str_remove(repos_table$repo_url, gitlab_web_url)
@@ -374,7 +384,8 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
                                                     host_files_structure,
                                                     only_non_text_files,
                                                     clean_files_content,
-                                                    verbose) {
+                                                    verbose,
+                                                    progress) {
       rest_engine <- private$engines$rest
       if (!is.null(host_files_structure)) {
         if (verbose) {
@@ -409,13 +420,14 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           file_path <- file_path[grepl(non_text_files_pattern, file_path)]
         }
         files_table <- rest_engine$get_files(
-          file_paths = file_path,
+          file_paths          = file_path,
           clean_files_content = clean_files_content,
-          org = org,
-          verbose = FALSE
+          org                 = org,
+          verbose             = FALSE,
+          progress            = progress
         ) %>%
           private$prepare_files_table_from_rest()
-      }) %>%
+      }, .progress = progress) %>%
         purrr::list_rbind() %>%
         private$add_repo_api_url()
       return(files_table)

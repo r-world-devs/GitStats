@@ -100,7 +100,8 @@ test_that("`map_search_into_repos()` works", {
   gl_search_response <- test_mocker$use("gl_search_response")
   suppressMessages(
     gl_search_repos_by_code <- test_rest_gitlab_priv$map_search_into_repos(
-      gl_search_response
+      gl_search_response,
+      progress = FALSE
     )
   )
   expect_gl_repos_rest_response(
@@ -114,7 +115,8 @@ test_that("`pull_repos_languages` works", {
   repos_list[[1]]$id <- "45300912"
   suppressMessages(
     repos_list_with_languages <- test_rest_gitlab_priv$pull_repos_languages(
-      repos_list = repos_list
+      repos_list = repos_list,
+      progress   = FALSE
     )
   )
   purrr::walk(repos_list_with_languages, ~ expect_list_contains(., "languages"))
@@ -177,10 +179,9 @@ test_that("GitHost prepares table from GitLab repositories response", {
 
 test_that("`get_repos_issues()` adds issues to repos table", {
   gl_repos_by_code_table <- test_mocker$use("gl_repos_by_code_table")
-  suppressMessages(
-    gl_repos_by_code_table <- test_rest_gitlab$get_repos_issues(
-      gl_repos_by_code_table
-    )
+  gl_repos_by_code_table <- test_rest_gitlab$get_repos_issues(
+    gl_repos_by_code_table,
+    progress = FALSE
   )
   expect_gt(
     length(gl_repos_by_code_table$issues_open),
@@ -194,11 +195,9 @@ test_that("`get_repos_issues()` adds issues to repos table", {
 })
 
 test_that("`get_repos_contributors()` adds contributors to repos table", {
-  expect_snapshot(
-    gl_repos_table_with_contributors <- test_rest_gitlab$get_repos_contributors(
-      test_mocker$use("gl_repos_table_with_api_url"),
-      settings = test_settings
-    )
+  gl_repos_table_with_contributors <- test_rest_gitlab$get_repos_contributors(
+    test_mocker$use("gl_repos_table_with_api_url"),
+    progress = FALSE
   )
   expect_repos_table(
     gl_repos_table_with_contributors,

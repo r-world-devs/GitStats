@@ -24,5 +24,5 @@
 
     Code
       gh_repos_by_code_table <- test_rest_github$get_repos_contributors(repos_table = test_mocker$
-        use("gh_repos_by_code_table"), settings = test_settings)
+        use("gh_repos_by_code_table"), progress = FALSE)
 

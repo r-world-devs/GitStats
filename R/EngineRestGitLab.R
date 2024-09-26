@@ -5,28 +5,30 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
   public = list(
 
     # Pull repositories with files
-    get_files = function(file_paths = NULL,
-                         org = NULL,
+    get_files = function(file_paths          = NULL,
+                         org                 = NULL,
                          clean_files_content = TRUE,
-                         verbose = TRUE) {
+                         verbose             = TRUE,
+                         progress            = TRUE) {
       files_list <- list()
       file_paths <- utils::URLencode(file_paths, reserved = TRUE)
       files_list <- purrr::map(file_paths, function(filename) {
         files_search_result <- private$search_for_code(
-          code = filename,
+          code    = filename,
           in_path = TRUE,
-          org = org,
+          org     = org,
           verbose = verbose
         ) %>%
           purrr::keep(~ .$path == filename)
         files_content <- private$add_file_info(
           files_search_result = files_search_result,
-          clean_file_content = clean_files_content,
-          filename = filename,
-          verbose = verbose
+          clean_file_content  = clean_files_content,
+          filename            = filename,
+          verbose             = verbose,
+          progress            = progress
         )
         return(files_content)
-      }, .progress = !verbose) %>%
+      }, .progress = progress) %>%
         purrr::list_flatten()
       return(files_list)
     },
@@ -36,12 +38,12 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     #   filtering by language. For more information look here:
     #   https://gitlab.com/gitlab-org/gitlab/-/issues/340333
     get_repos_by_code = function(code,
-                                  org = NULL,
-                                  filename = NULL,
-                                  in_path = FALSE,
-                                  raw_output = FALSE,
-                                  verbose) {
-      private$set_verbose(verbose)
+                                 org = NULL,
+                                 filename = NULL,
+                                 in_path = FALSE,
+                                 raw_output = FALSE,
+                                 verbose = TRUE,
+                                 progress = TRUE) {
       search_response <- private$search_for_code(
         code = code,
         filename = filename,
@@ -53,8 +55,12 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         search_output <- search_response
       } else {
         search_output <- search_response %>%
-          private$map_search_into_repos() %>%
-          private$pull_repos_languages()
+          private$map_search_into_repos(
+            progress = progress
+          ) %>%
+          private$pull_repos_languages(
+            progress = progress
+          )
       }
       return(search_output)
     },
@@ -75,7 +81,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     },
 
     # Add information on open and closed issues of a repository.
-    get_repos_issues = function(repos_table) {
+    get_repos_issues = function(repos_table, progress) {
       if (nrow(repos_table) > 0) {
         issues <- purrr::map(repos_table$repo_id, function(repos_id) {
           id <- gsub("gid://gitlab/Project/", "", repos_id)
@@ -84,7 +90,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           self$response(
             endpoint = issues_endpoint
           )[["statistics"]][["counts"]]
-        }, .progress = if (private$verbose) {
+        }, .progress = if (progress) {
           "Pulling repositories issues..."
         } else {
           FALSE
@@ -96,7 +102,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     },
 
     #' Add information on repository contributors.
-    get_repos_contributors = function(repos_table, settings) {
+    get_repos_contributors = function(repos_table, progress) {
       if (nrow(repos_table) > 0) {
         repo_urls <- repos_table$api_url
         user_name <- rlang::expr(.$name)
@@ -115,7 +121,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
               NA
           })
           return(contributors_vec)
-        }, .progress = if (private$scan_all && private$verbose) {
+        }, .progress = if (progress) {
           "[GitHost:GitLab] Pulling contributors..."
         } else {
           FALSE
@@ -126,9 +132,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
 
     # Pull all commits from give repositories.
     get_commits_from_repos = function(repos_names,
-                                       since,
-                                       until,
-                                       verbose) {
+                                      since,
+                                      until,
+                                      progress) {
       repos_list_with_commits <- purrr::map(repos_names, function(repo_path) {
         commits_from_repo <- private$get_commits_from_one_repo(
           repo_path = repo_path,
@@ -136,7 +142,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           until = until
         )
         return(commits_from_repo)
-      }, .progress = !private$scan_all && verbose)
+      }, .progress = !private$scan_all && progress)
       names(repos_list_with_commits) <- repos_names
       repos_list_with_commits <- repos_list_with_commits %>%
         purrr::discard(~ length(.) == 0)
@@ -144,7 +150,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     },
 
     # A method to get separately GL logins and display names
-    get_commits_authors_handles_and_names = function(commits_table, verbose) {
+    get_commits_authors_handles_and_names = function(commits_table,
+                                                     verbose = TRUE,
+                                                     progress = verbose) {
       if (nrow(commits_table) > 0) {
         if (verbose) {
           cli::cli_alert_info("Looking up for authors' names and logins...")
@@ -186,7 +194,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
             )
           }
           return(user_tbl)
-        }, .progress = TRUE) %>%
+        }, .progress = progress) %>%
           purrr::list_rbind()
 
         commits_table <- commits_table %>%
@@ -258,14 +266,14 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     },
 
     # Iterator over pulling pages of repositories.
-    get_repos_from_org = function(org, settings) {
+    get_repos_from_org = function(org, progress) {
       repo_endpoint <- paste0(self$rest_api_url, "/groups/", org, "/projects")
       repos_response <- private$paginate_results(
         endpoint = repo_endpoint
       )
       full_repos_list <- repos_response %>%
         private$pull_repos_languages(
-          verbose = settings$verbose
+          progress = progress
         )
       return(full_repos_list)
     },
@@ -311,7 +319,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     },
 
     # Parse search response into repositories output
-    map_search_into_repos = function(search_response) {
+    map_search_into_repos = function(search_response, progress) {
       repos_ids <- purrr::map_chr(search_response, ~ as.character(.$project_id)) %>%
         unique()
 
@@ -319,7 +327,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         content <- self$response(
           endpoint = paste0(private$endpoints[["projects"]], repo_id)
         )
-      }, .progress = if (private$verbose) {
+      }, .progress = if (progress) {
         "Parsing search response into repositories output..."
       } else {
         FALSE
@@ -328,13 +336,13 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     },
 
     # Pull languages of repositories.
-    pull_repos_languages = function(repos_list) {
+    pull_repos_languages = function(repos_list, progress) {
       repos_list_with_languages <- purrr::map(repos_list, function(repo) {
         id <- repo$id
         repo$languages <- names(self$response(paste0(private$endpoints[["projects"]], id, "/languages")))
         repo
-      }, .progress = if (private$verbose) {
-        "Pulling reposiotories languages..."
+      }, .progress = if (progress) {
+        "Pulling repositories languages..."
       } else {
         FALSE
       })
@@ -371,7 +379,11 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
     },
 
     # Add file content to files search result
-    add_file_info = function(files_search_result, filename, clean_file_content = FALSE, verbose = FALSE) {
+    add_file_info = function(files_search_result,
+                             filename,
+                             clean_file_content = FALSE,
+                             verbose            = FALSE,
+                             progress           = FALSE) {
       purrr::map(files_search_result, function(file_data) {
         repo_data <- self$response(
           paste0(
@@ -404,7 +416,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           }
         }
         return(file_data)
-      }, .progress = if (verbose) {
+      }, .progress = if (progress) {
         glue::glue("Adding file [{filename}] info...")
         } else {
           FALSE

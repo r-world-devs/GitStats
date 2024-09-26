@@ -26,11 +26,13 @@ test_that("get_repos_data pulls data on repos and branches", {
 
 test_that("GitHub GraphQL Engine pulls files from organization", {
   github_files_response <- test_graphql_github$get_files_from_org(
-    org = "r-world-devs",
-    repos = NULL,
-    file_paths = "LICENSE",
-    only_text_files = TRUE,
-    host_files_structure = NULL
+    org                  = "r-world-devs",
+    repos                = NULL,
+    file_paths           = "LICENSE",
+    only_text_files      = TRUE,
+    host_files_structure = NULL,
+    verbose              = FALSE,
+    progress             = FALSE
   )
   expect_github_files_response(github_files_response)
   test_mocker$cache(github_files_response)
@@ -38,11 +40,13 @@ test_that("GitHub GraphQL Engine pulls files from organization", {
 
 test_that("GitHub GraphQL Engine pulls .png files from organization", {
   github_png_files_response <- test_graphql_github$get_files_from_org(
-    org = "r-world-devs",
-    repos = NULL,
-    file_paths = "man/figures/logo.png",
-    only_text_files = FALSE,
-    host_files_structure = NULL
+    org                  = "r-world-devs",
+    repos                = NULL,
+    file_paths           = "man/figures/logo.png",
+    only_text_files      = FALSE,
+    host_files_structure = NULL,
+    verbose              = FALSE,
+    progress             = FALSE
   )
   expect_github_files_response(github_png_files_response)
   test_mocker$cache(github_png_files_response)
@@ -50,11 +54,13 @@ test_that("GitHub GraphQL Engine pulls .png files from organization", {
 
 test_that("GitHub GraphQL Engine pulls files from defined repositories", {
   github_files_response <- test_graphql_github$get_files_from_org(
-    org = "openpharma",
-    repos = c("DataFakeR", "visR"),
-    file_paths = "README.md",
+    org                  = "openpharma",
+    repos                = c("DataFakeR", "visR"),
+    file_paths           = "README.md",
     host_files_structure = NULL,
-    only_text_files = TRUE
+    only_text_files      = TRUE,
+    verbose              = FALSE,
+    progress             = FALSE
   )
   expect_github_files_response(github_files_response)
   expect_equal(length(github_files_response), 2)
@@ -62,11 +68,13 @@ test_that("GitHub GraphQL Engine pulls files from defined repositories", {
 
 test_that("GitHub GraphQL Engine pulls two files from a group", {
   github_files_response <- test_graphql_github$get_files_from_org(
-    org = "r-world-devs",
-    repos = NULL,
-    file_paths = c("DESCRIPTION", "NAMESPACE"),
+    org                  = "r-world-devs",
+    repos                = NULL,
+    file_paths           = c("DESCRIPTION", "NAMESPACE"),
     host_files_structure = NULL,
-    only_text_files = TRUE
+    only_text_files      = TRUE,
+    verbose              = FALSE,
+    progress             = FALSE
   )
   expect_github_files_response(github_files_response)
   purrr::walk(github_files_response, ~ {expect_true(

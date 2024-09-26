@@ -16,8 +16,8 @@ articles:
 - title: Articles
   navbar: ~
   contents:
-  - 01_set_hosts
-  - 02_get_data
-  - 03_get_repos_with_code
-  - 04_get_files
+  - set_hosts
+  - get_data
+  - get_repos_with_code
+  - get_files
 

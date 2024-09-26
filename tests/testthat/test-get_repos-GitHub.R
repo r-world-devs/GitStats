@@ -87,10 +87,9 @@ test_that("`search_response()` performs search with limit under 100", {
 })
 
 test_that("Mapping search result to repositories works", {
-  suppressMessages(
-    result <- test_rest_github_priv$map_search_into_repos(
-      search_response = test_mocker$use("gh_search_repos_response")
-    )
+  result <- test_rest_github_priv$map_search_into_repos(
+    search_response = test_mocker$use("gh_search_repos_response"),
+    progress = FALSE
   )
   expect_gh_repos_rest_response(result)
 })
@@ -217,7 +216,8 @@ test_that("`get_repos_issues()` adds issues to repos table", {
   gh_repos_by_code_table <- test_mocker$use("gh_repos_by_code_table")
   suppressMessages(
     gh_repos_by_code_table <- test_rest_github$get_repos_issues(
-      gh_repos_by_code_table
+      gh_repos_by_code_table,
+      progress = FALSE
     )
   )
   expect_gt(
@@ -235,7 +235,7 @@ test_that("`get_repos_contributors()` adds contributors to repos table", {
   expect_snapshot(
     gh_repos_by_code_table <- test_rest_github$get_repos_contributors(
       repos_table = test_mocker$use("gh_repos_by_code_table"),
-      settings = test_settings
+      progress    = FALSE
     )
   )
   expect_repos_table(

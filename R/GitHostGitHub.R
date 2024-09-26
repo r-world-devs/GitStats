@@ -12,7 +12,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
                        token = token,
                        host = host,
                        verbose = verbose)
-      if (private$verbose) {
+      if (verbose) {
         cli::cli_alert_success("Set connection to GitHub.")
       }
     }
@@ -174,7 +174,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
     },
 
     # Get projects URL from search response
-    get_repo_url_from_response = function(search_response, type) {
+    get_repo_url_from_response = function(search_response, type, progress = TRUE) {
       purrr::map_vec(search_response, function(project) {
         if (type == "api") {
           project$repository$url
@@ -185,32 +185,31 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
     },
 
     # Pull commits from GitHub
-    get_commits_from_host = function(since, until, settings) {
+    get_commits_from_orgs = function(since, until, verbose, progress) {
       graphql_engine <- private$engines$graphql
       commits_table <- purrr::map(private$orgs, function(org) {
         commits_table_org <- NULL
-        if (!private$scan_all && private$verbose) {
+        if (!private$scan_all && verbose) {
           show_message(
-            host = private$host_name,
-            engine = "graphql",
-            scope = org,
+            host        = private$host_name,
+            engine      = "graphql",
+            scope       = org,
             information = "Pulling commits"
           )
         }
         repos_names <- private$set_repositories(
-          org = org,
-          settings = settings
+          org = org
         )
         commits_table_org <- graphql_engine$get_commits_from_repos(
-          org = org,
+          org         = org,
           repos_names = repos_names,
-          since = since,
-          until = until,
-          verbose = private$verbose
+          since       = since,
+          until       = until,
+          progress    = progress
         ) %>%
           private$prepare_commits_table(org)
         return(commits_table_org)
-      }, .progress = if (private$scan_all && private$verbose) {
+      }, .progress = if (private$scan_all && progress) {
         "[GitHost:GitHub] Pulling commits..."
       } else {
         FALSE
@@ -220,13 +219,12 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
     },
 
     # Use repositories either from parameter or, if not set, pull them from API
-    set_repositories = function(org, settings) {
+    set_repositories = function(org) {
       if (private$searching_scope == "repo") {
         repos_names <- private$orgs_repos[[org]]
       } else {
         repos_table <- private$get_all_repos(
-          verbose = FALSE,
-          settings = settings
+          verbose = FALSE
         )
         repos_names <- repos_table$repo_name
       }

@@ -18,8 +18,8 @@ test_that("`get_releases_from_org()` pulls releases from the repositories", {
 test_that("`prepare_releases_table()` prepares releases table", {
   releases_table <- github_testhost_priv$prepare_releases_table(
     releases_response = test_mocker$use("releases_from_repos"),
-    org = "r-world-devs",
-    date_from = "2023-05-01",
+    org        = "r-world-devs",
+    date_from  = "2023-05-01",
     date_until = "2023-09-30"
   )
   expect_releases_table(releases_table)
@@ -35,10 +35,10 @@ test_that("`get_release_logs()` pulls release logs in the table format", {
     test_mocker$use("releases_table")
   )
   releases_table <- github_testhost$get_release_logs(
-    since = "2023-05-01",
-    until = "2023-09-30",
-    verbose = FALSE,
-    settings = test_settings
+    since    = "2023-05-01",
+    until    = "2023-09-30",
+    verbose  = FALSE,
+    progress = FALSE
   )
   expect_releases_table(releases_table)
   expect_gt(min(releases_table$published_at), as.POSIXct("2023-05-01"))
