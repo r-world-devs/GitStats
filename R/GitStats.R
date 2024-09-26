@@ -77,7 +77,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
     #' @param progress A logical, by default set to `verbose` value. If `FALSE` no
-    #'   cli progress bar will be displayed.
+    #'   `cli` progress bar will be displayed.
     get_repos = function(add_contributors = FALSE,
                          with_code        = NULL,
                          in_files         = NULL,
@@ -131,8 +131,8 @@ GitStats <- R6::R6Class("GitStats",
     #'   returned.
     #' @param with_code A character vector, if defined, GitStats will pull
     #'   repositories with specified code phrases in code blobs.
-    #' @param in_files A character vector of file names. Works when `with_code` is
-    #'   set - then it searches code blobs only in files passed to `in_files`
+    #' @param in_files A character vector of file names. Works when `with_code`
+    #'   is set - then it searches code blobs only in files passed to `in_files`
     #'   parameter.
     #' @param with_files A character vector, if defined, GitStats will pull
     #'   repositories with specified files.
@@ -140,8 +140,8 @@ GitStats <- R6::R6Class("GitStats",
     #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
-    #' @param progress A logical, by default set to `verbose` value. If `FALSE` no
-    #'   cli progress bar will be displayed.
+    #' @param progress A logical, by default set to `verbose` value. If `FALSE`
+    #'   no `cli` progress bar will be displayed.
     #' @return A character vector.
     get_repos_urls = function(type       = "web",
                               with_code  = NULL,
@@ -198,8 +198,8 @@ GitStats <- R6::R6Class("GitStats",
     #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
-    #' @param progress A logical, by default set to `verbose` value. If `FALSE` no
-    #'   cli progress bar will be displayed.
+    #' @param progress A logical, by default set to `verbose` value. If `FALSE`
+    #'   no `cli` progress bar will be displayed.
     get_commits = function(since,
                            until,
                            cache    = TRUE,
@@ -291,22 +291,25 @@ GitStats <- R6::R6Class("GitStats",
     },
 
     #' @description Pull text content of a file from all repositories.
-    #' @param file_path Optional. A standardized path to file(s) in repositories.
-    #'   May be a character vector if multiple files are to be pulled. If set to
-    #'   `NULL` and `use_files_structure` parameter is set to `TRUE`, `GitStats`
-    #'   will try to pull data from `files_structure` (see below).
+    #' @param file_path Optional. A standardized path to file(s) in
+    #'   repositories. May be a character vector if multiple files are to be
+    #'   pulled. If set to `NULL` and `use_files_structure` parameter is set to
+    #'   `TRUE`, `GitStats` will try to pull data from `files_structure` (see
+    #'   below).
     #' @param use_files_structure Logical. If `TRUE` and `file_path` is set to
     #'   `NULL`, will iterate over `files_structure` pulled by
     #'   `get_files_structure()` function and kept in storage. If there is no
     #'   `files_structure` in storage, an error will be returned. If `file_path`
     #'   is defined, it will override `use_files_structure` parameter.
-    #' @param only_text_files A logical, `TRUE` by default. If set to `FALSE`, apart
-    #'   from files with text content shows in table output also non-text files with
-    #'   `NA` value for text content.
+    #' @param only_text_files A logical, `TRUE` by default. If set to `FALSE`,
+    #'   apart from files with text content shows in table output also non-text
+    #'   files with `NA` value for text content.
     #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
     #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
+    #' @param progress A logical, by default set to `verbose` value. If `FALSE`
+    #'   no `cli` progress bar will be displayed.
     get_files_content = function(file_path = NULL,
                                  use_files_structure = TRUE,
                                  only_text_files = TRUE,
@@ -358,6 +361,8 @@ GitStats <- R6::R6Class("GitStats",
     #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
     #'   output is switched off.
+    #' @param progress A logical, by default set to `verbose` value. If `FALSE`
+    #'   no `cli` progress bar will be displayed.
     get_files_structure = function(pattern,
                                    depth,
                                    cache = TRUE,
@@ -403,8 +408,8 @@ GitStats <- R6::R6Class("GitStats",
     #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
-    #' @param progress A logical, by default set to `verbose` value. If `FALSE` no
-    #'   cli progress bar will be displayed.
+    #' @param progress A logical, by default set to `verbose` value. If `FALSE`
+    #'   no `cli` progress bar will be displayed.
     get_release_logs = function(since,
                                 until,
                                 cache    = TRUE,

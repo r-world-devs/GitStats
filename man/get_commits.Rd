@@ -27,7 +27,7 @@ result from its storage.}
 output is switched off.}
 
 \item{progress}{A logical, by default set to \code{verbose} value. If \code{FALSE} no
-cli progress bar will be displayed.}
+\code{cli} progress bar will be displayed.}
 }
 \value{
 A data.frame.

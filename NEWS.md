@@ -4,7 +4,7 @@
 
 - Added new `get_files_structure()` function to pull files structure for a given repository with possibility to control level of directories (`depth` parameter) and to limit output to files matching regex argument passed to `pattern` parameter ([#338](https://github.com/r-world-devs/GitStats/issues/338)). Together with that, `get_files()` function was renamed to `get_files_content()` to better reflect its purpose.
 - Adjusted `get_files_content()` so it can make use of `files_structure` pulled to `GitStats` storage with `get_files_structure()` function - if `file_path` is set to `NULL` and `use_files_structure()` parameter to `TRUE` (both are by default)([#467](https://github.com/r-world-devs/GitStats/issues/467)).
-- Added `progress` parameter to user functions to control showing of cli progress bar separately from messages (which are controlled with `verbose`) ([#465](https://github.com/r-world-devs/GitStats/issues/465)).
+- Added `progress` parameter to user functions to control showing of `cli` progress bar separately from messages (which are controlled with `verbose`) ([#465](https://github.com/r-world-devs/GitStats/issues/465)).
 
 ## Other:
 

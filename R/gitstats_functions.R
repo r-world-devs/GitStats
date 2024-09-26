@@ -115,7 +115,7 @@ set_gitlab_host <- function(gitstats_object,
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
 #'   output is switched off.
 #' @param progress A logical, by default set to `verbose` value. If `FALSE` no
-#'   cli progress bar will be displayed.
+#'   `cli` progress bar will be displayed.
 #' @return A data.frame.
 #' @examples
 #' \dontrun{
@@ -173,7 +173,7 @@ get_repos <- function(gitstats_object,
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
 #'   output is switched off.
 #' @param progress A logical, by default set to `verbose` value. If `FALSE` no
-#'   cli progress bar will be displayed.
+#'   `cli` progress bar will be displayed.
 #' @return A character vector.
 #' @examples
 #' \dontrun{
@@ -221,7 +221,7 @@ get_repos_urls <- function(gitstats_object,
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
 #'   output is switched off.
 #' @param progress A logical, by default set to `verbose` value. If `FALSE` no
-#'   cli progress bar will be displayed.
+#'   `cli` progress bar will be displayed.
 #' @return A data.frame.
 #' @examples
 #' \dontrun{
@@ -338,7 +338,7 @@ get_users <- function(gitstats_object,
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
 #'   output is switched off.
 #' @param progress A logical, by default set to `verbose` value. If `FALSE` no
-#'   cli progress bar will be displayed.
+#'   `cli` progress bar will be displayed.
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
@@ -400,7 +400,7 @@ get_files_content <- function(gitstats_object,
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
 #'   output is switched off.
 #' @param progress A logical, by default set to `verbose` value. If `FALSE` no
-#'   cli progress bar will be displayed.
+#'   `cli` progress bar will be displayed.
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
