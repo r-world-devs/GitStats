@@ -32,11 +32,11 @@ GitHostGitHubTest <- R6::R6Class("GitHostGitHubTest",
       private$set_api_url(host)
       private$set_endpoints()
       private$check_if_public(host)
-      private$set_token(token)
+      private$set_token(token, verbose = FALSE)
       private$set_graphql_url()
-      private$set_orgs_and_repos(orgs, repos)
+      private$set_orgs_and_repos(orgs, repos, verbose = FALSE)
       private$setup_test_engines()
-      private$set_searching_scope(orgs, repos)
+      private$set_searching_scope(orgs, repos, verbose = FALSE)
     }
   ),
   private = list(
@@ -66,11 +66,11 @@ GitHostGitLabTest <- R6::R6Class("GitHostGitLabTest",
        private$set_api_url(host)
        private$set_endpoints()
        private$check_if_public(host)
-       private$set_token(token)
+       private$set_token(token, verbose = FALSE)
        private$set_graphql_url()
-       private$set_orgs_and_repos(orgs, repos)
+       private$set_orgs_and_repos(orgs, repos, verbose = FALSE)
        private$setup_test_engines()
-       private$set_searching_scope(orgs, repos)
+       private$set_searching_scope(orgs, repos, verbose = FALSE)
      }
    ),
    private = list(

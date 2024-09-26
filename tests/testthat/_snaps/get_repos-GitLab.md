@@ -13,9 +13,3 @@
     Message
       i Preparing repositories table...
 
-# `get_repos_contributors()` adds contributors to repos table
-
-    Code
-      gl_repos_table_with_contributors <- test_rest_gitlab$get_repos_contributors(
-        test_mocker$use("gl_repos_table_with_api_url"), settings = test_settings)
-

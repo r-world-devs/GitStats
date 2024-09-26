@@ -10,7 +10,8 @@ get_files_content(
   use_files_structure = TRUE,
   only_text_files = TRUE,
   cache = TRUE,
-  verbose = is_verbose(gitstats_object)
+  verbose = is_verbose(gitstats_object),
+  progress = verbose
 )
 }
 \arguments{
@@ -36,6 +37,9 @@ result from its storage.}
 
 \item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and printing
 output is switched off.}
+
+\item{progress}{A logical, by default set to \code{verbose} value. If \code{FALSE} no
+\code{cli} progress bar will be displayed.}
 }
 \value{
 A data.frame.

@@ -15,7 +15,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
      },
 
      #' Get all groups from GitLab.
-     pull_orgs = function() {
+     get_orgs = function() {
        group_cursor <- ""
        has_next_page <- TRUE
        full_orgs_list <- list()
@@ -83,7 +83,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
                                    host_files_structure,
                                    only_text_files,
                                    verbose = FALSE,
-                                   progress = verbose) {
+                                   progress = FALSE) {
        org <- URLdecode(org)
        full_files_list <- list()
        next_page <- TRUE
@@ -175,7 +175,7 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
                                             host_files_structure = NULL,
                                             only_text_files = TRUE,
                                             verbose = FALSE,
-                                            progress = verbose) {
+                                            progress = FALSE) {
        if (is.null(repos)) {
          repo_data <- private$get_repos_data(
            org = org,
@@ -187,15 +187,15 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
          if (!is.null(host_files_structure)) {
            file_paths <- private$get_path_from_files_structure(
              host_files_structure = host_files_structure,
-             only_text_files = only_text_files,
-             org = org,
-             repo = repo
+             only_text_files      = only_text_files,
+             org                  = org,
+             repo                 = repo
            )
          }
          files_response <- tryCatch({
            private$get_file_blobs_response(
-             org = org,
-             repo = repo,
+             org        = org,
+             repo       = repo,
              file_paths = file_paths
            )
          },
@@ -206,7 +206,12 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
        return(org_files_list)
      },
 
-     get_files_structure_from_org = function(org, repos, pattern = NULL, depth = Inf, verbose = FALSE) {
+     get_files_structure_from_org = function(org,
+                                             repos,
+                                             pattern  = NULL,
+                                             depth    = Inf,
+                                             verbose  = TRUE,
+                                             progress = TRUE) {
        repo_data <- private$get_repos_data(
          org = org,
          repos = repos
@@ -214,12 +219,12 @@ EngineGraphQLGitLab <- R6::R6Class("EngineGraphQLGitLab",
        repositories <- repo_data[["repositories"]]
        files_structure <- purrr::map(repositories, function(repo) {
          private$get_files_structure_from_repo(
-           org = org,
-           repo = repo,
+           org     = org,
+           repo    = repo,
            pattern = pattern,
-           depth = depth
+           depth   = depth
          )
-       }, .progress = verbose)
+       }, .progress = progress)
        names(files_structure) <- repositories
        files_structure <- purrr::discard(files_structure, ~ length(.) == 0)
        return(files_structure)

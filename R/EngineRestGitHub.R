@@ -25,12 +25,12 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
 
     # Pulling repositories where code appears
     get_repos_by_code = function(code,
-                                  org = NULL,
-                                  filename = NULL,
-                                  in_path = FALSE,
-                                  raw_output = FALSE,
-                                  verbose) {
-      private$set_verbose(verbose)
+                                 org        = NULL,
+                                 filename   = NULL,
+                                 in_path    = FALSE,
+                                 raw_output = FALSE,
+                                 verbose    = TRUE,
+                                 progress   = TRUE) {
       user_query <- if (!is.null(org)) {
         paste0('+user:', org)
       } else {
@@ -54,7 +54,8 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         )
         if (!raw_output) {
           search_output <- private$map_search_into_repos(
-            search_response = search_result
+            search_response = search_result,
+            progress        = progress
           )
         } else {
           search_output <- search_result
@@ -81,7 +82,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     },
 
     #' A method to add information on open and closed issues of a repository.
-    get_repos_issues = function(repos_table) {
+    get_repos_issues = function(repos_table, progress) {
       if (nrow(repos_table) > 0) {
         repos_iterator <- paste0(repos_table$organization, "/", repos_table$repo_name)
         issues <- purrr::map_dfr(repos_iterator, function(repo_path) {
@@ -93,7 +94,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
             "open" = length(purrr::keep(issues, ~ .$state == "open")),
             "closed" = length(purrr::keep(issues, ~ .$state == "closed"))
           )
-        }, .progress = if (private$verbose) {
+        }, .progress = if (progress) {
           "Pulling repositories issues..."
         } else {
           FALSE
@@ -105,7 +106,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     },
 
     #' Add information on repository contributors.
-    get_repos_contributors = function(repos_table, settings) {
+    get_repos_contributors = function(repos_table, progress) {
       if (nrow(repos_table) > 0) {
         repo_iterator <- paste0(repos_table$organization, "/", repos_table$repo_name)
         user_name <- rlang::expr(.$login)
@@ -122,7 +123,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
               NA
             }
           )
-        }, .progress = if (private$scan_all && private$verbose) {
+        }, .progress = if (progress) {
           "[GitHost:GitHub] Pulling contributors..."
         } else {
           FALSE
@@ -224,14 +225,14 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     },
 
     # Parse search response into repositories output
-    map_search_into_repos = function(search_response) {
+    map_search_into_repos = function(search_response, progress) {
       repos_ids <- purrr::map_chr(search_response, ~ as.character(.$repository$id)) %>%
         unique()
       repos_list <- purrr::map(repos_ids, function(repo_id) {
         content <- self$response(
           endpoint = paste0(self$rest_api_url, "/repositories/", repo_id)
         )
-      }, .progress = if (private$verbose) {
+      }, .progress = if (progress) {
         "Parsing search response into respositories output..."
         } else {
           FALSE
