@@ -102,7 +102,7 @@ commits <- get_commits(
   cache    = FALSE,
   progress = FALSE
 )
-dplyr::glimpose(commits)
+dplyr::glimpse(commits)
 ```
 
 Or simply change the parameters for the function:
@@ -113,5 +113,5 @@ commits <- get_commits(
   since           = "2024-07-01",
   progress        = FALSE
 )
-dplyr::glimpose(commits)
+dplyr::glimpse(commits)
 ```
