@@ -275,8 +275,8 @@ get_commits <- function(gitstats_object,
 #'  get_commits_stats(my_gitstats, time_interval = "week")
 #' }
 #' @export
-get_commits_stats = function(gitstats_object,
-                             time_interval = c("month", "day", "week")) {
+get_commits_stats <- function(gitstats_object,
+                              time_interval = c("month", "day", "week")) {
   gitstats_object$get_commits_stats(
     time_interval = time_interval
   )
@@ -308,7 +308,7 @@ get_commits_stats = function(gitstats_object,
 get_users <- function(gitstats_object,
                       logins,
                       cache   = TRUE,
-                      verbose = is_verbose(gitstats_object)){
+                      verbose = is_verbose(gitstats_object)) {
   gitstats_object$get_users(
     logins  = logins,
     cache   = cache,
@@ -463,8 +463,7 @@ get_R_package_usage <- function(gitstats_object,
                                 package_name,
                                 only_loading = FALSE,
                                 cache        = TRUE,
-                                verbose      = is_verbose(gitstats_object)
-  ) {
+                                verbose      = is_verbose(gitstats_object)) {
   gitstats_object$get_R_package_usage(
     package_name = package_name,
     only_loading = only_loading,
@@ -514,7 +513,7 @@ get_release_logs <- function(gitstats_object,
 #' @param gitstats_object A GitStats object.
 #' @return A vector of organizations.
 #' @export
-show_orgs <- function(gitstats_object){
+show_orgs <- function(gitstats_object) {
   gitstats_object$show_orgs()
 }
 

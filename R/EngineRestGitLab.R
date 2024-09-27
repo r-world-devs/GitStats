@@ -1,6 +1,7 @@
 #' @noRd
 #' @description A class for methods wrapping GitLab's REST API responses.
-EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
+EngineRestGitLab <- R6::R6Class(
+  classname = "EngineRestGitLab",
   inherit = EngineRest,
   public = list(
 
@@ -116,9 +117,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
               contributors_endpoint = contributors_endpoint,
               user_name = user_name
             )
-            },
-            error = function(e) {
-              NA
+          },
+          error = function(e) {
+            NA
           })
           return(contributors_vec)
         }, .progress = if (progress) {
@@ -351,8 +352,8 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
 
     # Iterator over pages of commits response.
     get_commits_from_one_repo = function(repo_path,
-                                          since,
-                                          until) {
+                                         since,
+                                         until) {
       commits_endpoint <- paste0(
         private$endpoints$projects,
         repo_path,
@@ -367,7 +368,7 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
           endpoint = commits_endpoint,
           joining_sign = "&"
         )
-      }, error = function (e) {
+      }, error = function(e) {
         list()
       })
       return(all_commits_in_repo)
@@ -418,9 +419,9 @@ EngineRestGitLab <- R6::R6Class("EngineRestGitLab",
         return(file_data)
       }, .progress = if (progress) {
         glue::glue("Adding file [{filename}] info...")
-        } else {
-          FALSE
-        }) %>%
+      } else {
+        FALSE
+      }) |>
         purrr::discard(is.null)
     }
   )

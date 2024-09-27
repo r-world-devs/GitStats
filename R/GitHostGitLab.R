@@ -129,35 +129,35 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
 
     # Set endpoint for basic checks
     set_test_endpoint = function() {
-      private$test_endpoint = glue::glue("{private$api_url}/projects")
+      private$test_endpoint <- glue::glue("{private$api_url}/projects")
     },
 
     # Set tokens endpoint
     set_tokens_endpoint = function() {
-      private$endpoints$tokens = glue::glue("{private$api_url}/personal_access_tokens")
+      private$endpoints$tokens <- glue::glue("{private$api_url}/personal_access_tokens")
     },
 
     # Set groups endpoint
     set_orgs_endpoint = function() {
-      private$endpoints$orgs = glue::glue("{private$api_url}/groups")
+      private$endpoints$orgs <- glue::glue("{private$api_url}/groups")
     },
 
     # Set projects endpoint
     set_repositories_endpoint = function() {
-      private$endpoints$repositories = glue::glue("{private$api_url}/projects")
+      private$endpoints$repositories <- glue::glue("{private$api_url}/projects")
     },
 
     # Setup REST and GraphQL engines
     setup_engines = function() {
       private$engines$rest <- EngineRestGitLab$new(
-          rest_api_url = private$api_url,
-          token = private$token,
-          scan_all = private$scan_all
+        rest_api_url = private$api_url,
+        token = private$token,
+        scan_all = private$scan_all
       )
       private$engines$graphql <- EngineGraphQLGitLab$new(
-          gql_api_url = private$graphql_api_url,
-          token = private$token,
-          scan_all = private$scan_all
+        gql_api_url = private$graphql_api_url,
+        token = private$token,
+        scan_all = private$scan_all
       )
     },
 
@@ -240,14 +240,14 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     },
 
     # Add `api_url` column to table.
-    add_repo_api_url = function(repos_table){
+    add_repo_api_url = function(repos_table) {
       if (!is.null(repos_table) && nrow(repos_table) > 0) {
         repos_table <- dplyr::mutate(
-            repos_table,
-            api_url = paste0(private$endpoints$repositories,
-                             "/",
-                             stringr::str_match(repo_id, "[0-9].*"))
-          )
+          repos_table,
+          api_url = paste0(private$endpoints$repositories,
+                           "/",
+                           stringr::str_match(repo_id, "[0-9].*"))
+        )
       }
       return(repos_table)
     },
@@ -358,7 +358,8 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       commits_dt <- purrr::map(commits_list, function(x) {
         purrr::map(x, ~ data.frame(.)) %>%
           purrr::list_rbind()
-      }) %>% purrr::list_rbind()
+      }) %>%
+        purrr::list_rbind()
 
       if (length(commits_dt) > 0) {
         commits_dt <- dplyr::mutate(
@@ -461,17 +462,17 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         if (private$response_prepared_by_iteration(files_response)) {
           files_table <- purrr::map(files_response, function(response_data) {
             purrr::map(response_data$data$project$repository$blobs$nodes, function(file) {
-                data.frame(
-                  "repo_name" = response_data$data$project$name,
-                  "repo_id" = response_data$data$project$id,
-                  "organization" = org,
-                  "file_path" = file$name,
-                  "file_content" = file$rawBlob,
-                  "file_size" = as.integer(file$size),
-                  "repo_url" = response_data$data$project$webUrl
-                )
-              }) %>%
-                purrr::list_rbind()
+              data.frame(
+                "repo_name" = response_data$data$project$name,
+                "repo_id" = response_data$data$project$id,
+                "organization" = org,
+                "file_path" = file$name,
+                "file_content" = file$rawBlob,
+                "file_size" = as.integer(file$size),
+                "repo_url" = response_data$data$project$webUrl
+              )
+            }) %>%
+              purrr::list_rbind()
           }) %>%
             purrr::list_rbind()
         } else {
