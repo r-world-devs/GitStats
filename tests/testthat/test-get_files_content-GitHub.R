@@ -158,7 +158,7 @@ test_that("`get_files_content()` pulls files in the table format", {
     test_mocker$use("gh_files_table")
   )
   gh_files_table <- github_testhost$get_files_content(
-    file_path = "LICENSE"
+    file_path = "DESCRIPTION"
   )
   expect_files_table(gh_files_table, with_cols = "api_url")
   test_mocker$cache(gh_files_table)
