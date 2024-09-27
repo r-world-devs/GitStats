@@ -24,7 +24,24 @@ test_that("get_repos_data pulls data on repos and branches", {
   )
 })
 
+test_that("GitHub GraphQL Engine pulls file response", {
+  github_file_response <- test_graphql_github_priv$get_file_response(
+    org         = "r-world-devs",
+    repo        = "GitStats",
+    def_branch  = "master",
+    file_path   = "LICENSE",
+    files_query = test_mocker$use("gh_file_blobs_from_repo_query")
+  )
+  expect_github_files_response(github_file_response)
+  test_mocker$cache(github_file_response)
+})
+
 test_that("GitHub GraphQL Engine pulls files from organization", {
+  mockery::stub(
+    test_graphql_github$get_files_from_org,
+    "private$get_file_response",
+    test_mocker$use("github_file_response")
+  )
   github_files_response <- test_graphql_github$get_files_from_org(
     org                  = "r-world-devs",
     repos                = NULL,
@@ -53,6 +70,11 @@ test_that("GitHub GraphQL Engine pulls .png files from organization", {
 })
 
 test_that("GitHub GraphQL Engine pulls files from defined repositories", {
+  mockery::stub(
+    test_graphql_github$get_files_from_org,
+    "private$get_file_response",
+    test_mocker$use("github_file_response")
+  )
   github_files_response <- test_graphql_github$get_files_from_org(
     org                  = "openpharma",
     repos                = c("DataFakeR", "visR"),
@@ -67,6 +89,11 @@ test_that("GitHub GraphQL Engine pulls files from defined repositories", {
 })
 
 test_that("GitHub GraphQL Engine pulls two files from a group", {
+  mockery::stub(
+    test_graphql_github$get_files_from_org,
+    "private$get_file_response",
+    test_mocker$use("github_file_response")
+  )
   github_files_response <- test_graphql_github$get_files_from_org(
     org                  = "r-world-devs",
     repos                = NULL,
