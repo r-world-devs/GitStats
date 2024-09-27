@@ -63,6 +63,11 @@ test_that("`get_commits_from_one_repo()` prepares formatted list", {
 })
 
 test_that("`get_commits_from_repos()` pulls commits from repos", {
+  mockery::stub(
+    test_graphql_github$get_commits_from_repos,
+    "private$get_commits_from_one_repo",
+    test_mocker$use("commits_from_repo")
+  )
   commits_from_repos <- test_graphql_github$get_commits_from_repos(
     org      = "r-world-devs",
     repo     = "GitStats",
