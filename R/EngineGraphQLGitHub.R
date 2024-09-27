@@ -1,8 +1,9 @@
 #' @noRd
 #' @description A class for methods wrapping GitHub's GraphQL API responses.
-EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
-    inherit = EngineGraphQL,
-    public = list(
+EngineGraphQLGitHub <- R6::R6Class(
+  classname = "EngineGraphQLGitHub",
+  inherit = EngineGraphQL,
+  public = list(
 
     #' Create `EngineGraphQLGitHub` object.
     initialize = function(gql_api_url,
@@ -173,169 +174,169 @@ EngineGraphQLGitHub <- R6::R6Class("EngineGraphQLGitHub",
       return(release_responses)
     }
   ),
-    private = list(
+  private = list(
 
-      # Wrapper over building GraphQL query and response.
-      get_repos_page = function(org = NULL,
-                                 repo_cursor = "") {
-        repos_query <- self$gql_query$repos_by_org(
-          repo_cursor = repo_cursor
-        )
-        response <- self$gql_response(
-          gql_query = repos_query,
-          vars = list("org" = org)
-        )
-        return(response)
-      },
+    # Wrapper over building GraphQL query and response.
+    get_repos_page = function(org = NULL,
+                              repo_cursor = "") {
+      repos_query <- self$gql_query$repos_by_org(
+        repo_cursor = repo_cursor
+      )
+      response <- self$gql_response(
+        gql_query = repos_query,
+        vars = list("org" = org)
+      )
+      return(response)
+    },
 
-      # An iterator over pulling commit pages from one repository.
-      get_commits_from_one_repo = function(org,
-                                            repo,
-                                            since,
-                                            until) {
-        next_page <- TRUE
-        full_commits_list <- list()
-        commits_cursor <- ""
-        while (next_page) {
-          commits_response <- private$get_commits_page_from_repo(
+    # An iterator over pulling commit pages from one repository.
+    get_commits_from_one_repo = function(org,
+                                         repo,
+                                         since,
+                                         until) {
+      next_page <- TRUE
+      full_commits_list <- list()
+      commits_cursor <- ""
+      while (next_page) {
+        commits_response <- private$get_commits_page_from_repo(
+          org = org,
+          repo = repo,
+          since = since,
+          until = until,
+          commits_cursor = commits_cursor
+        )
+        commits_list <- commits_response$data$repository$defaultBranchRef$target$history$edges
+        next_page <- commits_response$data$repository$defaultBranchRef$target$history$pageInfo$hasNextPage
+        if (is.null(next_page)) next_page <- FALSE
+        if (is.null(commits_list)) commits_list <- list()
+        if (next_page) {
+          commits_cursor <- commits_response$data$repository$defaultBranchRef$target$history$pageInfo$endCursor
+        } else {
+          commits_cursor <- ""
+        }
+        full_commits_list <- append(full_commits_list, commits_list)
+      }
+      return(full_commits_list)
+    },
+
+    # Wrapper over building GraphQL query and response.
+    get_commits_page_from_repo = function(org,
+                                          repo,
+                                          since,
+                                          until,
+                                          commits_cursor = "",
+                                          author_id = "") {
+      commits_by_org_query <- self$gql_query$commits_by_repo(
+        org = org,
+        repo = repo,
+        since = date_to_gts(since),
+        until = date_to_gts(until),
+        commits_cursor = commits_cursor,
+        author_id = author_id
+      )
+      response <- self$gql_response(
+        gql_query = commits_by_org_query
+      )
+      return(response)
+    },
+
+    get_repos_data = function(org, repos = NULL) {
+      repos_list <- self$get_repos_from_org(
+        org = org
+      )
+      if (!is.null(repos)) {
+        repos_list <- purrr::keep(repos_list, ~ .$repo_name %in% repos)
+      }
+      result <- list(
+        "repositories" = purrr::map(repos_list, ~ .$repo_name),
+        "def_branches" = purrr::map(repos_list, ~ .$default_branch$name)
+      )
+      return(result)
+    },
+
+    get_file_response = function(org, repo, def_branch, file_path, files_query) {
+      expression <- paste0(def_branch, ":", file_path)
+      files_response <- self$gql_response(
+        gql_query = files_query,
+        vars = list(
+          "org" = org,
+          "repo" = repo,
+          "expression" = expression
+        )
+      )
+      return(files_response)
+    },
+
+    get_files_structure_from_repo = function(org, repo, def_branch, pattern = NULL, depth = Inf) {
+      files_tree_response <- private$get_file_response(
+        org = org,
+        repo = repo,
+        def_branch = def_branch,
+        file_path = "",
+        files_query = self$gql_query$files_tree_from_repo()
+      )
+      files_and_dirs_list <- private$get_files_and_dirs(
+        files_tree_response = files_tree_response
+      )
+      if (length(files_and_dirs_list$dirs) > 0) {
+        folders_exist <- TRUE
+      } else {
+        folders_exist <- FALSE
+      }
+      all_files_and_dirs_list <- files_and_dirs_list
+      dirs <- files_and_dirs_list$dirs
+      tier <- 1
+      while (folders_exist && tier < depth) {
+        new_dirs_list <- c()
+        for (dir in dirs) {
+          files_tree_response <- private$get_file_response(
             org = org,
             repo = repo,
-            since = since,
-            until = until,
-            commits_cursor = commits_cursor
+            def_branch = def_branch,
+            file_path = dir,
+            files_query = self$gql_query$files_tree_from_repo()
           )
-          commits_list <- commits_response$data$repository$defaultBranchRef$target$history$edges
-          next_page <- commits_response$data$repository$defaultBranchRef$target$history$pageInfo$hasNextPage
-          if (is.null(next_page)) next_page <- FALSE
-          if (is.null(commits_list)) commits_list <- list()
-          if (next_page) {
-            commits_cursor <- commits_response$data$repository$defaultBranchRef$target$history$pageInfo$endCursor
-          } else {
-            commits_cursor <- ""
+          files_and_dirs_list <- private$get_files_and_dirs(
+            files_tree_response = files_tree_response
+          )
+          all_files_and_dirs_list$files <- append(
+            all_files_and_dirs_list$files,
+            paste0(dir, "/", files_and_dirs_list$files)
+          )
+          if (length(files_and_dirs_list$dirs) > 0) {
+            new_dirs_list <- c(new_dirs_list, paste0(dir, "/", files_and_dirs_list$dirs))
           }
-          full_commits_list <- append(full_commits_list, commits_list)
         }
-        return(full_commits_list)
-      },
-
-      # Wrapper over building GraphQL query and response.
-      get_commits_page_from_repo = function(org,
-                                             repo,
-                                             since,
-                                             until,
-                                             commits_cursor = "",
-                                             author_id = "") {
-        commits_by_org_query <- self$gql_query$commits_by_repo(
-          org = org,
-          repo = repo,
-          since = date_to_gts(since),
-          until = date_to_gts(until),
-          commits_cursor = commits_cursor,
-          author_id = author_id
-        )
-        response <- self$gql_response(
-          gql_query = commits_by_org_query
-        )
-        return(response)
-      },
-
-      get_repos_data = function(org, repos = NULL) {
-        repos_list <- self$get_repos_from_org(
-          org = org
-        )
-        if (!is.null(repos)) {
-          repos_list <- purrr::keep(repos_list, ~ .$repo_name %in% repos)
-        }
-        result <- list(
-          "repositories" = purrr::map(repos_list, ~ .$repo_name),
-          "def_branches" = purrr::map(repos_list, ~ .$default_branch$name)
-        )
-        return(result)
-      },
-
-      get_file_response = function(org, repo, def_branch, file_path, files_query) {
-        expression <- paste0(def_branch, ":", file_path)
-        files_response <- self$gql_response(
-          gql_query = files_query,
-          vars = list(
-            "org" = org,
-            "repo" = repo,
-            "expression" = expression
-          )
-        )
-        return(files_response)
-      },
-
-      get_files_structure_from_repo = function(org, repo, def_branch, pattern = NULL, depth = Inf) {
-        files_tree_response <- private$get_file_response(
-          org = org,
-          repo = repo,
-          def_branch = def_branch,
-          file_path = "",
-          files_query = self$gql_query$files_tree_from_repo()
-        )
-        files_and_dirs_list <- private$get_files_and_dirs(
-          files_tree_response = files_tree_response
-        )
-        if (length(files_and_dirs_list$dirs) > 0) {
+        if (length(new_dirs_list) > 0) {
+          dirs <- new_dirs_list
           folders_exist <- TRUE
+          tier <- tier + 1
         } else {
           folders_exist <- FALSE
         }
-        all_files_and_dirs_list <- files_and_dirs_list
-        dirs <- files_and_dirs_list$dirs
-        tier <- 1
-        while (folders_exist && tier < depth) {
-          new_dirs_list <- c()
-          for (dir in dirs) {
-            files_tree_response <- private$get_file_response(
-              org = org,
-              repo = repo,
-              def_branch = def_branch,
-              file_path = dir,
-              files_query = self$gql_query$files_tree_from_repo()
-            )
-            files_and_dirs_list <- private$get_files_and_dirs(
-              files_tree_response = files_tree_response
-            )
-            all_files_and_dirs_list$files <- append(
-              all_files_and_dirs_list$files,
-              paste0(dir, "/", files_and_dirs_list$files)
-            )
-            if (length(files_and_dirs_list$dirs) > 0) {
-              new_dirs_list <- c(new_dirs_list, paste0(dir, "/", files_and_dirs_list$dirs))
-            }
-          }
-          if (length(new_dirs_list) > 0) {
-            dirs <- new_dirs_list
-            folders_exist <- TRUE
-            tier <- tier + 1
-          } else {
-            folders_exist <- FALSE
-          }
-        }
-        if (!is.null(pattern)) {
-          files_structure <- private$filter_files_by_pattern(
-            files_structure = all_files_and_dirs_list$files,
-            pattern = pattern
-          )
-        } else {
-          files_structure <- all_files_and_dirs_list$files
-        }
-        return(files_structure)
-      },
-
-      get_files_and_dirs = function(files_tree_response) {
-        entries <- files_tree_response$data$repository$object$entries
-        dirs <- purrr::keep(entries, ~ .$type == "tree") %>%
-          purrr::map_vec(~ .$name)
-        files <- purrr::discard(entries, ~ .$type == "tree") %>%
-          purrr::map_vec(~ .$name)
-        result <- list(
-          "dirs" = dirs,
-          "files" = files
-        )
-        return(result)
       }
-    )
+      if (!is.null(pattern)) {
+        files_structure <- private$filter_files_by_pattern(
+          files_structure = all_files_and_dirs_list$files,
+          pattern = pattern
+        )
+      } else {
+        files_structure <- all_files_and_dirs_list$files
+      }
+      return(files_structure)
+    },
+
+    get_files_and_dirs = function(files_tree_response) {
+      entries <- files_tree_response$data$repository$object$entries
+      dirs <- purrr::keep(entries, ~ .$type == "tree") %>%
+        purrr::map_vec(~ .$name)
+      files <- purrr::discard(entries, ~ .$type == "tree") %>%
+        purrr::map_vec(~ .$name)
+      result <- list(
+        "dirs" = dirs,
+        "files" = files
+      )
+      return(result)
+    }
+  )
 )

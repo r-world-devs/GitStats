@@ -69,22 +69,22 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
 
     # Set endpoint for basic checks
     set_test_endpoint = function() {
-      private$test_endpoint = private$api_url
+      private$test_endpoint <- private$api_url
     },
 
     # Set tokens endpoint
     set_tokens_endpoint = function() {
-      private$endpoints$tokens = NULL
+      private$endpoints$tokens <- NULL
     },
 
     # Set groups endpoint
     set_orgs_endpoint = function() {
-      private$endpoints$orgs = glue::glue("{private$api_url}/orgs")
+      private$endpoints$orgs <- glue::glue("{private$api_url}/orgs")
     },
 
     # Set projects endpoint
     set_repositories_endpoint = function() {
-      private$endpoints$repositories = glue::glue("{private$api_url}/repos")
+      private$endpoints$repositories <- glue::glue("{private$api_url}/repos")
     },
 
     # Setup REST and GraphQL engines
@@ -105,7 +105,8 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
     # token parameter only for need of super method
     check_token_scopes = function(response, token = NULL) {
       token_scopes <- response$headers$`x-oauth-scopes` %>%
-        stringr::str_split(", ") %>% unlist()
+        stringr::str_split(", ") %>%
+        unlist()
       all(private$access_scopes %in% token_scopes)
     },
 
@@ -119,7 +120,11 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
           "stars" = repo$stargazers_count,
           "forks" = repo$forks_count,
           "created_at" = gts_to_posixt(repo$created_at),
-          "last_activity_at" = if (!is.null(repo$pushed_at)) gts_to_posixt(repo$pushed_at) else gts_to_posixt(repo$created_at),
+          "last_activity_at" = if (!is.null(repo$pushed_at)) {
+            gts_to_posixt(repo$pushed_at)
+          } else {
+            gts_to_posixt(repo$created_at)
+          },
           "languages" = repo$language,
           "issues_open" = repo$issues_open,
           "issues_closed" = repo$issues_closed,
@@ -134,7 +139,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
     prepare_repos_table_from_graphql = function(repos_list) {
       if (length(repos_list) > 0) {
         repos_table <- purrr::map_dfr(repos_list, function(repo) {
-          repo$default_branch <- if(!is.null(repo$default_branch)) {
+          repo$default_branch <- if (!is.null(repo$default_branch)) {
             repo$default_branch$name
           } else {
             ""
@@ -163,12 +168,12 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
     },
 
     # Add `api_url` column to table.
-    add_repo_api_url = function(repos_table){
+    add_repo_api_url = function(repos_table) {
       if (!is.null(repos_table) && nrow(repos_table) > 0) {
         repos_table <- dplyr::mutate(
-            repos_table,
-            api_url = paste0(private$endpoints$repositories, "/", organization, "/", repo_name),
-          )
+          repos_table,
+          api_url = paste0(private$endpoints$repositories, "/", organization, "/", repo_name),
+        )
       }
       return(repos_table)
     },

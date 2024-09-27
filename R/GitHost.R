@@ -1,6 +1,7 @@
 #' @noRd
 #' @description A class to manage which engine to use for pulling data
-GitHost <- R6::R6Class("GitHost",
+GitHost <- R6::R6Class(
+  classname = "GitHost",
   public = list(
 
     #' @description Create a new `GitHost` object.
@@ -183,9 +184,7 @@ GitHost <- R6::R6Class("GitHost",
         cli::cli_abort(c(
           "x" = "This feature is not applicable to scan whole Git Host (time consuming).",
           "i" = "Set `orgs` or `repos` arguments in `set_*_host()` if you wish to run this function."
-          ),
-          call = NULL
-        )
+        ), call = NULL)
       }
       files_structure <- private$get_files_structure_from_orgs(
         pattern  = pattern,
@@ -322,7 +321,7 @@ GitHost <- R6::R6Class("GitHost",
 
     # Set authorizing token
     set_token = function(token, verbose) {
-      if (is.null(token)){
+      if (is.null(token)) {
         token <- private$set_default_token(
           verbose = verbose
         )
@@ -424,7 +423,7 @@ GitHost <- R6::R6Class("GitHost",
         cli::cli_alert_info(cli::col_grey("Checking repositories..."))
       }
       repos <- purrr::map(repos, function(repo) {
-        repo_endpoint = glue::glue("{private$endpoints$repositories}/{repo}")
+        repo_endpoint <- glue::glue("{private$endpoints$repositories}/{repo}")
         check <- private$check_endpoint(
           endpoint = repo_endpoint,
           type = "Repository"
@@ -448,7 +447,7 @@ GitHost <- R6::R6Class("GitHost",
         cli::cli_alert_info(cli::col_grey("Checking organizations..."))
       }
       orgs <- purrr::map(orgs, function(org) {
-        org_endpoint = glue::glue("{private$endpoints$orgs}/{org}")
+        org_endpoint <- glue::glue("{private$endpoints$orgs}/{org}")
         check <- private$check_endpoint(
           endpoint = org_endpoint,
           type = "Organization"
@@ -483,9 +482,12 @@ GitHost <- R6::R6Class("GitHost",
           if (grepl("404", e)) {
             cli::cli_abort(
               c(
-                "x" = "{type} you provided does not exist or its name was passed in a wrong way: {cli::col_red({endpoint})}",
-                "!" = "Please type your {tolower(type)} name as you see it in web URL.",
-                "i" = "E.g. do not use spaces. {type} names as you see on the page may differ from their web 'address'."
+                "x" = "{type} you provided does not exist or its name was passed
+                in a wrong way: {cli::col_red({endpoint})}",
+                "!" = "Please type your {tolower(type)} name as you see it in
+                web URL.",
+                "i" = "E.g. do not use spaces. {type} names as you see on the
+                page may differ from their web 'address'."
               ),
               call = NULL
             )
@@ -527,9 +529,9 @@ GitHost <- R6::R6Class("GitHost",
     test_token = function(token) {
       response <- NULL
       test_endpoint <- private$test_endpoint
-      try(response <- httr2::request(test_endpoint) %>%
-        httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
-        httr2::req_perform(), silent = TRUE)
+      try(response <- httr2::request(test_endpoint) |>
+            httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
+            httr2::req_perform(), silent = TRUE)
       if (!is.null(response)) {
         private$check_token_scopes(response, token)
         TRUE
@@ -541,7 +543,7 @@ GitHost <- R6::R6Class("GitHost",
     # Helper to extract organizations and repositories from vector of full names
     # of repositories
     extract_repos_and_orgs = function(repos_fullnames = NULL) {
-      repos_fullnames <-URLdecode(repos_fullnames)
+      repos_fullnames <- URLdecode(repos_fullnames)
       repos_vec <- stringr::str_split(repos_fullnames, "/") %>%
         purrr::map(~ paste0(.[length(.)], collapse = "/")) %>%
         unlist()
@@ -745,12 +747,12 @@ GitHost <- R6::R6Class("GitHost",
           rest_engine <- private$engines$rest
           repos_table <- repos_response %>%
             private$tailor_repos_response() %>%
-          private$prepare_repos_table_from_rest(
-            verbose = verbose
-          ) %>%
-          rest_engine$get_repos_issues(
-            progress = progress
-          )
+            private$prepare_repos_table_from_rest(
+              verbose = verbose
+            ) %>%
+            rest_engine$get_repos_issues(
+              progress = progress
+            )
           return(repos_table)
         } else {
           return(repos_response)
@@ -832,13 +834,14 @@ GitHost <- R6::R6Class("GitHost",
         cli::cli_alert_info("Preparing repositories table...")
       }
       if (length(repos_dt) > 0) {
-        repos_dt <- dplyr::mutate(repos_dt,
-                                  repo_id = as.character(repo_id),
-                                  created_at = as.POSIXct(created_at),
-                                  last_activity_at = as.POSIXct(last_activity_at),
-                                  forks = as.integer(forks),
-                                  issues_open = as.integer(issues_open),
-                                  issues_closed = as.integer(issues_closed)
+        repos_dt <- dplyr::mutate(
+          repos_dt,
+          repo_id = as.character(repo_id),
+          created_at = as.POSIXct(created_at),
+          last_activity_at = as.POSIXct(last_activity_at),
+          forks = as.integer(forks),
+          issues_open = as.integer(issues_open),
+          issues_closed = as.integer(issues_closed)
         )
       }
       return(repos_dt)

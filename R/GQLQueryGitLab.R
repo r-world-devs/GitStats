@@ -104,7 +104,7 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
     #'   GitLab repositories.
     #' @param end_cursor An endCursor.
     #' @return A query.
-    files_by_org = function(end_cursor = ""){
+    files_by_org = function(end_cursor = "") {
       if (nchar(end_cursor) == 0) {
         after_cursor <- end_cursor
       } else {
@@ -114,32 +114,32 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
         'query GetFilesByOrg($org: ID!, $file_paths: [String!]!) {
             group(fullPath: $org) {
               projects(first: 100',
-                       after_cursor,
-                       ') {
-                count
-                pageInfo {
-                  hasNextPage
-                  endCursor
-                }
-                edges {
-                  node {
+        after_cursor,
+        ') {
+          count
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+          edges {
+            node {
+              name
+              id
+              webUrl
+              repository {
+                blobs(paths: $file_paths) {
+                  nodes {
                     name
-                    id
-                    webUrl
-                    repository {
-                      blobs(paths: $file_paths) {
-                        nodes {
-                          name
-                          rawBlob
-                          size
-                        }
-                      }
-                    }
+                    rawBlob
+                    size
                   }
                 }
               }
             }
-          }'
+          }
+        }
+      }
+    }'
       )
     },
 

@@ -1,6 +1,7 @@
 #' @noRd
 #' @description A class for methods wrapping GitHub's REST API responses.
-EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
+EngineRestGitHub <- R6::R6Class(
+  classname = "EngineRestGitHub",
   inherit = EngineRest,
   public = list(
 
@@ -112,17 +113,16 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         user_name <- rlang::expr(.$login)
         repos_table$contributors <- purrr::map_chr(repo_iterator, function(repos_id) {
           tryCatch({
-              contributors_endpoint <- paste0(private$endpoints[["repositories"]], repos_id, "/contributors")
-              contributors_vec <- private$pull_contributors_from_repo(
-                contributors_endpoint = contributors_endpoint,
-                user_name = user_name
-              )
-              return(contributors_vec)
-            },
-            error = function(e) {
-              NA
-            }
-          )
+            contributors_endpoint <- paste0(private$endpoints[["repositories"]], repos_id, "/contributors")
+            contributors_vec <- private$pull_contributors_from_repo(
+              contributors_endpoint = contributors_endpoint,
+              user_name = user_name
+            )
+            return(contributors_vec)
+          },
+          error = function(e) {
+            NA
+          })
         }, .progress = if (progress) {
           "[GitHost:GitHub] Pulling contributors..."
         } else {
@@ -199,10 +199,15 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
             NULL
           } else if ((n_count - 1) %/% 100 > 0) {
             for (page in (1:(n_count %/% 100) + 1)) {
-              resp_list <- self$response(paste0(search_endpoint, size_formula, "&page=", page, "&per_page=100"))[["items"]] %>% append(resp_list, .)
+              resp_list <- self$response(paste0(search_endpoint,
+                                                size_formula,
+                                                "&page=",
+                                                page,
+                                                "&per_page=100"))[["items"]] |>
+                append(resp_list, .)
             }
           } else if ((n_count - 1) %/% 100 == 0) {
-            resp_list <- self$response(paste0(search_endpoint, size_formula, "&page=1&per_page=100"))[["items"]] %>%
+            resp_list <- self$response(paste0(search_endpoint, size_formula, "&page=1&per_page=100"))[["items"]] |>
               append(resp_list, .)
           }
           index[1] <- index[2]
@@ -234,9 +239,9 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         )
       }, .progress = if (progress) {
         "Parsing search response into respositories output..."
-        } else {
-          FALSE
-        })
+      } else {
+        FALSE
+      })
       repos_list
     },
 

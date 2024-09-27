@@ -5,8 +5,8 @@ repo_gitstats_colnames <- c(
 )
 
 repo_host_colnames <- c('repo_id', 'repo_name', 'default_branch', 'stars', 'forks',
-                       'created_at', 'last_activity_at', 'languages', 'issues_open',
-                       'issues_closed', 'organization', 'repo_url')
+                        'created_at', 'last_activity_at', 'languages', 'issues_open',
+                        'issues_closed', 'organization', 'repo_url')
 
 expect_package_usage_table <- function(object, with_cols = NULL) {
   expect_s3_class(object, "data.frame")

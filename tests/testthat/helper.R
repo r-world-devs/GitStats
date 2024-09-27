@@ -1,14 +1,12 @@
 #' Create GitStats object for tests
-create_test_gitstats <- function(
-    hosts = 0,
-    priv_mode = FALSE,
-    inject_repos = NULL,
-    inject_commits = NULL,
-    inject_files = NULL,
-    inject_files_structure = NULL,
-    inject_users = NULL,
-    inject_package_usage = NULL
-) {
+create_test_gitstats <- function(hosts = 0,
+                                 priv_mode = FALSE,
+                                 inject_repos = NULL,
+                                 inject_commits = NULL,
+                                 inject_files = NULL,
+                                 inject_files_structure = NULL,
+                                 inject_users = NULL,
+                                 inject_package_usage = NULL) {
   test_gitstats <- create_gitstats()
 
   if (hosts == 1) {

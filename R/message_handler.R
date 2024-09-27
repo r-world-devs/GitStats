@@ -11,7 +11,7 @@ show_message <- function(host,
   } else if (engine == "rest") {
     msg_rest
   } else if (engine == "both") {
-    paste0(msg_rest, "&",msg_graphql)
+    paste0(msg_rest, "&", msg_graphql)
   }
   message <- if (is.null(scope)) {
     glue::glue("[Host:{host}][Engine:{engine_msg}] {information}...")

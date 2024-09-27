@@ -45,7 +45,7 @@ retrieve_platform <- function(api_url) {
 commits_stats <- function(object, time_interval) {
   stopifnot(inherits(object, "grouped_df"))
   object <- dplyr::ungroup(object)
-  class(object) = append(class(object), "commits_stats")
+  class(object) <- append(class(object), "commits_stats")
   attr(object, "time_interval") <- time_interval
   object
 }
