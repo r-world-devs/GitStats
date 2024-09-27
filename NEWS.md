@@ -1,4 +1,4 @@
-# GitStats (development version)
+# GitStats 2.1.0
 
 ## New features:
 
@@ -9,6 +9,7 @@
 ## Other:
 
 - Changed message when searching scope is set to scan whole git host (no `orgs` nor `repos` specified) from warning to info ([#456](https://github.com/r-world-devs/GitStats/issues/456)).
+- Added new CI/CD jobs: deploy to `gh-pages`, lint and check for bumping version.
 
 # GitStats 2.0.2
 

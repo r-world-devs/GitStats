@@ -88,21 +88,12 @@ test_that("`get_repos_from_org()` does not fail when GraphQL response is not com
   )
 })
 
-test_that("`response()` returns responses from GitLab's REST API", {
-  gl_search_response <- test_rest_gitlab$response(
-    "https://gitlab.com/api/v4/groups/9970/search?scope=blobs&search=git"
-  )
-  expect_gl_search_response(gl_search_response)
-  test_mocker$cache(gl_search_response)
-})
-
 test_that("`map_search_into_repos()` works", {
-  gl_search_response <- test_mocker$use("gl_search_response")
-  suppressMessages(
-    gl_search_repos_by_code <- test_rest_gitlab_priv$map_search_into_repos(
-      gl_search_response,
-      progress = FALSE
-    )
+  gl_search_response <- test_fixtures$gitlab_search_response
+  test_mocker$cache(gl_search_response)
+  gl_search_repos_by_code <- test_rest_gitlab_priv$map_search_into_repos(
+    gl_search_response,
+    progress = FALSE
   )
   expect_gl_repos_rest_response(
     gl_search_repos_by_code
