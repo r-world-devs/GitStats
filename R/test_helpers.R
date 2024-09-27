@@ -22,7 +22,8 @@ Mocker <- R6::R6Class("Mocker",
 #' @noRd
 #' @description A helper class for use in tests - it does not throw superfluous
 #'   messages and does exactly what is needed for in tests.
-GitHostGitHubTest <- R6::R6Class("GitHostGitHubTest",
+GitHostGitHubTest <- R6::R6Class(
+  classname = "GitHostGitHubTest",
   inherit = GitHostGitHub,
   public = list(
     initialize = function(orgs = NA,
@@ -41,14 +42,14 @@ GitHostGitHubTest <- R6::R6Class("GitHostGitHubTest",
   ),
   private = list(
     setup_test_engines = function() {
-        private$engines$rest <- TestEngineRestGitHub$new(
-          token = private$token,
-          rest_api_url = private$api_url
-        )
-        private$engines$graphql <- EngineGraphQLGitHub$new(
-          token = private$token,
-          gql_api_url = private$set_graphql_url()
-        )
+      private$engines$rest <- TestEngineRestGitHub$new(
+        token = private$token,
+        rest_api_url = private$api_url
+      )
+      private$engines$graphql <- EngineGraphQLGitHub$new(
+        token = private$token,
+        gql_api_url = private$set_graphql_url()
+      )
     }
   )
 )
@@ -56,35 +57,36 @@ GitHostGitHubTest <- R6::R6Class("GitHostGitHubTest",
 #' @noRd
 #' @description A helper class for use in tests - it does not throw superfluous
 #'   messages and does exactly what is needed for in tests.
-GitHostGitLabTest <- R6::R6Class("GitHostGitLabTest",
-   inherit = GitHostGitLab,
-   public = list(
-     initialize = function(orgs = NA,
-                           repos = NA,
-                           token = NA,
-                           host = NA) {
-       private$set_api_url(host)
-       private$set_endpoints()
-       private$check_if_public(host)
-       private$set_token(token, verbose = FALSE)
-       private$set_graphql_url()
-       private$set_orgs_and_repos(orgs, repos, verbose = FALSE)
-       private$setup_test_engines()
-       private$set_searching_scope(orgs, repos, verbose = FALSE)
-     }
-   ),
-   private = list(
-     setup_test_engines = function() {
-       private$engines$rest <- TestEngineRestGitLab$new(
-         token = private$token,
-         rest_api_url = private$api_url
-       )
-       private$engines$graphql <- EngineGraphQLGitLab$new(
-         token = private$token,
-         gql_api_url = private$set_graphql_url()
-       )
-     }
-   )
+GitHostGitLabTest <- R6::R6Class(
+  classname = "GitHostGitLabTest",
+  inherit = GitHostGitLab,
+  public = list(
+    initialize = function(orgs = NA,
+                          repos = NA,
+                          token = NA,
+                          host = NA) {
+      private$set_api_url(host)
+      private$set_endpoints()
+      private$check_if_public(host)
+      private$set_token(token, verbose = FALSE)
+      private$set_graphql_url()
+      private$set_orgs_and_repos(orgs, repos, verbose = FALSE)
+      private$setup_test_engines()
+      private$set_searching_scope(orgs, repos, verbose = FALSE)
+    }
+  ),
+  private = list(
+    setup_test_engines = function() {
+      private$engines$rest <- TestEngineRestGitLab$new(
+        token = private$token,
+        rest_api_url = private$api_url
+      )
+      private$engines$graphql <- EngineGraphQLGitLab$new(
+        token = private$token,
+        gql_api_url = private$set_graphql_url()
+      )
+    }
+  )
 )
 
 #' @noRd

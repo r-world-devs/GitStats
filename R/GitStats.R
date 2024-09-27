@@ -1,6 +1,7 @@
 #' @noRd
 #' @description A highest-level class to manage data pulled from different hosts.
-GitStats <- R6::R6Class("GitStats",
+GitStats <- R6::R6Class(
+  classname = "GitStats",
   public = list(
 
     #' @description Method to set connections to Git platforms.
@@ -241,7 +242,7 @@ GitStats <- R6::R6Class("GitStats",
     #' @param time_interval A character, specifying time interval to show
     #'   statistics.
     #' @return A table of `commits_stats` class.
-    get_commits_stats = function(time_interval = c("month", "day", "week")){
+    get_commits_stats = function(time_interval = c("month", "day", "week")) {
       commits <- private$storage[["commits"]]
       if (is.null(commits)) {
         cli::cli_abort(c(
@@ -498,7 +499,8 @@ GitStats <- R6::R6Class("GitStats",
       purrr::map(private$hosts, function(host) {
         orgs <- host$.__enclos_env__$private$orgs
         purrr::map_vec(orgs, ~ URLdecode(.))
-        }) %>% unlist()
+      }) %>%
+        unlist()
     },
 
     #' @description switch on verbose mode
@@ -517,7 +519,7 @@ GitStats <- R6::R6Class("GitStats",
 
     #' @description A print method for a GitStats object.
     print = function() {
-      cat(paste0("A ", cli::col_blue('GitStats'), " object for ", length(private$hosts)," hosts: \n"))
+      cat(paste0("A ", cli::col_blue('GitStats'), " object for ", length(private$hosts), " hosts: \n"))
       private$print_hosts()
       cat(cli::col_blue("Scanning scope: \n"))
       private$print_orgs_and_repos()
@@ -568,14 +570,17 @@ GitStats <- R6::R6Class("GitStats",
         cli::cli_abort(c(
           "x" = "Both `with_code` and `with_files` parameters are defined.",
           "!" = "Use either `with_code` of `with_files` parameter.",
-          "i" = "If you want to search for [{with_code}] code in given files - use `in_files` parameter together with `with_code` instead."
-          ), call = NULL)
+          "i" = "If you want to search for [{with_code}] code in given files
+          - use `in_files` parameter together with `with_code` instead."
+        ), call = NULL)
       }
       if (!is.null(in_files) && is.null(with_code)) {
         cli::cli_abort(c(
-          "!" = "Passing files to `in_files` parameter works only when you search code with `with_code` parameter.",
-          "i" = "If you want to search for repositories with [{in_files}] files you should instead use `with_files` parameter."
-          ), call = NULL)
+          "!" = "Passing files to `in_files` parameter works only when you
+          search code with `with_code` parameter.",
+          "i" = "If you want to search for repositories with [{in_files}] files
+          you should instead use `with_files` parameter."
+        ), call = NULL)
       }
     },
 
@@ -952,12 +957,12 @@ GitStats <- R6::R6Class("GitStats",
         )
       )
       duplicated_repos <- package_usage_table$api_url[duplicated(package_usage_table$api_url)]
-      package_usage_table <- package_usage_table[!duplicated(package_usage_table$api_url),]
+      package_usage_table <- package_usage_table[!duplicated(package_usage_table$api_url), ]
       package_usage_table <- package_usage_table %>%
         dplyr::mutate(
           package_usage = ifelse(api_url %in% duplicated_repos, "import, library", package_usage)
         )
-      rownames(package_usage_table) <- c(1:nrow(package_usage_table))
+      rownames(package_usage_table) <- seq_len(nrow(package_usage_table))
       return(package_usage_table)
     },
 
@@ -1001,7 +1006,7 @@ GitStats <- R6::R6Class("GitStats",
         progress = FALSE
       )
       if (nrow(repos_with_package) > 0) {
-        repos_with_package <- repos_with_package[!duplicated(repos_with_package$api_url),]
+        repos_with_package <- repos_with_package[!duplicated(repos_with_package$api_url), ]
         repos_with_package$package_usage <- "import"
       }
       repos_with_package <- repos_with_package %>%
@@ -1158,7 +1163,8 @@ GitStats <- R6::R6Class("GitStats",
             length(storage_object)
           }
           glue::glue(
-            "{stringr::str_to_title(storage_name)}: {storage_size} {private$print_storage_attribute(storage_object, storage_name)}"
+            "{stringr::str_to_title(storage_name)}: {storage_size}
+            {private$print_storage_attribute(storage_object, storage_name)}"
           )
         }
       }) %>%

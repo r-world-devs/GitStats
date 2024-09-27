@@ -15,22 +15,23 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
         pagination_phrase <- paste0('after: "', end_cursor, '"')
       }
       paste0(
-      'query {
-        search(first: 100, type: USER, query: "type:org" ', pagination_phrase, ') {
-          pageInfo {
-             hasNextPage
-             endCursor
-          }
-          edges {
-            node{
-              ... on Organization {
-                name
-                url
+        'query {
+          search(first: 100, type: USER, query: "type:org" ', pagination_phrase, ') {
+            pageInfo {
+               hasNextPage
+               endCursor
+            }
+            edges {
+              node{
+                ... on Organization {
+                  name
+                  url
+                }
               }
             }
           }
-        }
-      }')
+        }'
+      )
     },
 
     #' @description Prepare query to get repositories from GitHub.
@@ -48,7 +49,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
           repositoryOwner(login: $org) {
             ... on Organization {
               repositories(first: 100 ', after_cursor, ') {
-              ', private$repository_field(),'
+              ', private$repository_field(), '
               }
             }
           }
@@ -143,7 +144,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     #' @description Prepare query to get files in a standard filepath from
     #'   GitHub repositories.
     #' @return A query.
-    file_blob_from_repo = function(){
+    file_blob_from_repo = function() {
       'query GetFileBlobFromRepo($org: String!, $repo: String!, $expression: String!) {
           repository(owner: $org, name: $repo) {
             repo_id: id
@@ -159,7 +160,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       }'
     },
 
-    files_tree_from_repo = function(){
+    files_tree_from_repo = function() {
       'query GetFilesFromRepo($org: String!, $repo: String!, $expression: String!) {
           repository(owner: $org, name: $repo) {
             id

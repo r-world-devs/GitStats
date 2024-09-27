@@ -482,9 +482,12 @@ GitHost <- R6::R6Class(
           if (grepl("404", e)) {
             cli::cli_abort(
               c(
-                "x" = "{type} you provided does not exist or its name was passed in a wrong way: {cli::col_red({endpoint})}",
-                "!" = "Please type your {tolower(type)} name as you see it in web URL.",
-                "i" = "E.g. do not use spaces. {type} names as you see on the page may differ from their web 'address'."
+                "x" = "{type} you provided does not exist or its name was passed
+                in a wrong way: {cli::col_red({endpoint})}",
+                "!" = "Please type your {tolower(type)} name as you see it in
+                web URL.",
+                "i" = "E.g. do not use spaces. {type} names as you see on the
+                page may differ from their web 'address'."
               ),
               call = NULL
             )

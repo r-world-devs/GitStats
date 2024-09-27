@@ -1,10 +1,11 @@
 linters:  linters_with_defaults(
     quotes_linter = NULL,
-    line_length_linter = line_length_linter(125L),
+    line_length_linter = line_length_linter(120L),
     object_usage_linter = NULL,
-    object_length_linter = object_length_linter(45L),
+    object_length_linter = NULL,
     object_name_linter = NULL,
     cyclocomp_linter = NULL
   )
 exclusions: list(
-  "inst")
+  "inst",
+  "tests")
