@@ -12,3 +12,4 @@
 ^docs$
 ^pkgdown$
 ^project_metadata.yaml
+^.lintr

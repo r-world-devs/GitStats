@@ -1163,8 +1163,7 @@ GitStats <- R6::R6Class(
             length(storage_object)
           }
           glue::glue(
-            "{stringr::str_to_title(storage_name)}: {storage_size}
-            {private$print_storage_attribute(storage_object, storage_name)}"
+            "{stringr::str_to_title(storage_name)}: {storage_size} {private$print_storage_attribute(storage_object, storage_name)}"
           )
         }
       }) %>%
