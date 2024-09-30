@@ -44,6 +44,110 @@ test_fixtures$github_file_response <- list(
   )
 )
 
+test_fixtures$gitlab_file_org_response <- list(
+  "data" = list(
+    "group" = list(
+      "projects" = list(
+        "count" = 3,
+        "pageInfo" = list(
+          "hasNextPage" = FALSE,
+          "endCursor" = "xxxxxx"
+        ),
+        "edges" = list(
+          list(
+            "node" = list(
+              "name" = "graphql_tests",
+              "id" = "gid://gitlab/Project/61399846",
+              "webUrl" = "https://gitlab.com/mbtests/graphql_tests",
+              "repository" = list(
+                "blobs" = list(
+                  "nodes" = list() # empty response for query, no files found in org
+                )
+              )
+            )
+          ),
+          list(
+            "node" = list(
+              "name" = "RM Tests 3",
+              "id" = "gid://gitlab/Project/44346961",
+              "webUrl" = "https://gitlab.com/mbtests/rm-tests-3",
+              "repository" = list(
+                "blobs" = list(
+                  "nodes" = list(
+                    list(
+                      "name" = "meta_data.yaml",
+                      "rawBlob" = "Some interesting text",
+                      "size" = 4
+                    )
+                  )
+                )
+              )
+            )
+          ),
+          list(
+            "node" = list(
+              "name" = "RM Tests 2",
+              "id" = "gid://gitlab/Project/44293594",
+              "webUrl" = "https://gitlab.com/mbtests/rm-tests-2",
+              "repository" = list(
+                "blobs" = list(
+                  "nodes" = list(
+                    list(
+                      "name" = "meta_data.yaml",
+                      "rawBlob" = "Some interesting text",
+                      "size" = 5
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)
+
+test_fixtures$gitlab_file_repo_response <- list(
+  "data" = list(
+    "project" = list(
+      "name" = "TestProject",
+      "id" = "1010101",
+      "webUrl"  = "https://gitlab.com/mbtests/graphql_tests",
+      "repository" = list(
+        "blobs" = list(
+          "nodes" = list(
+            list(
+              "name" = "README.md",
+              "rawBlob" = "# graphql_tests\n\nThis project is for testing GraphQL capabilities.\n",
+              "size" =  "67"
+            ),
+            list(
+              "name" = "project_metadata.yaml",
+              "rawBlob" = "Name: GraphQL Tests",
+              "size" = "19"
+            )
+          )
+        )
+      )
+    )
+  )
+)
+
+test_fixtures$github_png_file_response <- list(
+  "data" = list(
+    "repository" = list(
+      "repo_id"   = "01010101",
+      "repo_name" = "TestProject",
+      "repo_url"  = "https://github.com/r-world-devs/GitStats",
+      "file" = list(
+        "text" = NULL,
+        "byteSize" = 50L
+      )
+    )
+  )
+)
+
 test_fixtures$gitlab_search_response <- list(
   list(
     "basename"   = "test",

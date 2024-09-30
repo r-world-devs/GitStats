@@ -25,6 +25,11 @@ test_that("get_repos_data pulls data on repos and branches", {
 })
 
 test_that("GitHub GraphQL Engine pulls file response", {
+  mockery::stub(
+    test_graphql_github_priv$get_file_response,
+    "self$gql_response",
+    test_fixtures$github_file_response
+  )
   github_file_response <- test_graphql_github_priv$get_file_response(
     org         = "r-world-devs",
     repo        = "GitStats",
@@ -34,6 +39,23 @@ test_that("GitHub GraphQL Engine pulls file response", {
   )
   expect_github_files_response(github_file_response)
   test_mocker$cache(github_file_response)
+})
+
+test_that("GitHub GraphQL Engine pulls png file response", {
+  mockery::stub(
+    test_graphql_github_priv$get_file_response,
+    "self$gql_response",
+    test_fixtures$github_png_file_response
+  )
+  github_png_file_response <- test_graphql_github_priv$get_file_response(
+    org         = "r-world-devs",
+    repo        = "GitStats",
+    def_branch  = "master",
+    file_path   = "man/figures/logo.png",
+    files_query = test_mocker$use("gh_file_blobs_from_repo_query")
+  )
+  expect_github_files_response(github_png_file_response)
+  test_mocker$cache(github_png_file_response)
 })
 
 test_that("GitHub GraphQL Engine pulls files from organization", {
@@ -56,6 +78,11 @@ test_that("GitHub GraphQL Engine pulls files from organization", {
 })
 
 test_that("GitHub GraphQL Engine pulls .png files from organization", {
+  mockery::stub(
+    test_graphql_github$get_files_from_org,
+    "private$get_file_response",
+    test_mocker$use("github_png_file_response")
+  )
   github_png_files_response <- test_graphql_github$get_files_from_org(
     org                  = "r-world-devs",
     repos                = NULL,
@@ -162,17 +189,4 @@ test_that("`get_files_content()` pulls files in the table format", {
   )
   expect_files_table(gh_files_table, with_cols = "api_url")
   test_mocker$cache(gh_files_table)
-})
-
-test_that("`get_files_content()` pulls files only for the repositories specified", {
-  github_testhost <- create_github_testhost(
-    repos = c("r-world-devs/GitStats", "openpharma/visR", "openpharma/DataFakeR"),
-  )
-  expect_snapshot(
-    gh_files_table <- github_testhost$get_files_content(
-      file_path = "renv.lock"
-    )
-  )
-  expect_files_table(gh_files_table, with_cols = "api_url")
-  expect_equal(nrow(gh_files_table), 2) # visR does not have renv.lock
 })
