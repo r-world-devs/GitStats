@@ -220,6 +220,40 @@ test_fixtures$github_search_response <- list(
   )
 )
 
+test_fixtures$gitlab_files_tree_response <- list(
+  "data" = list(
+    "project" = list(
+      "repository" = list(
+        "tree" = list(
+          "trees" = list(
+            "nodes" = list(
+              list(
+                "name" = "R"
+              ),
+              list(
+                "name" = "tests"
+              )
+            )
+          ),
+          "blobs" = list(
+            "nodes" = list(
+              list(
+                "name" = "DESCRIPTION"
+              ),
+              list(
+                "name" = "README.md"
+              ),
+              list(
+                "name" = "project_metadata.yaml"
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)
+
 test_fixtures$github_files_tree_response <- list(
   "data" = list(
     "repository" = list(
