@@ -47,24 +47,3 @@ test_that("get_files_structure works as expected", {
   expect_s3_class(files_structure, "files_structure")
   test_mocker$cache(files_structure)
 })
-
-test_that("get_files_content makes use of files_structure", {
-  test_gitstats <- create_test_gitstats(
-    hosts = 2,
-    inject_files_structure = "files_structure"
-  )
-  expect_snapshot(
-    files_content <- test_gitstats$get_files_content(
-      file_path = NULL,
-      use_files_structure = TRUE,
-      verbose = TRUE
-    )
-  )
-  expect_files_table(
-    files_content,
-    with_cols = "api_url"
-  )
-  expect_snapshot(
-    test_gitstats
-  )
-})

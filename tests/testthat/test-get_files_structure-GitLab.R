@@ -8,6 +8,11 @@ test_that("files tree query for GitLab are built properly", {
 })
 
 test_that("get_files_tree_response() works", {
+  mockery::stub(
+    test_graphql_gitlab_priv$get_files_tree_response,
+    "self$gql_response",
+    test_fixtures$gitlab_files_tree_response
+  )
   gl_files_tree_response <- test_graphql_gitlab_priv$get_files_tree_response(
     org = "mbtests",
     repo = "graphql_tests",
@@ -219,4 +224,22 @@ test_that("get_files_structure pulls files structure for repositories in orgs", 
     expect_true(all(grepl("\\.md|\\.R", repo_files)))
   })
   test_mocker$cache(gl_files_structure_from_orgs)
+})
+
+test_that("get_files_content makes use of files_structure", {
+  mockery::stub(
+    gitlab_testhost_priv$get_files_content_from_orgs,
+    "private$add_repo_api_url",
+    test_mocker$use("gl_files_table")
+  )
+  expect_snapshot(
+    files_content <- gitlab_testhost_priv$get_files_content_from_orgs(
+      file_path = NULL,
+      host_files_structure = test_mocker$use("gl_files_structure_from_orgs")
+    )
+  )
+  expect_files_table(
+    files_content,
+    with_cols = "api_url"
+  )
 })

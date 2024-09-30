@@ -276,6 +276,7 @@ EngineGraphQLGitLab <- R6::R6Class(
       repo_name <- url_split[length(url_split)]
       return(repo_name)
     },
+
     get_repos_data = function(org, repos = NULL) {
       repos_list <- self$get_repos_from_org(
         org = org
@@ -288,6 +289,7 @@ EngineGraphQLGitLab <- R6::R6Class(
       )
       return(result)
     },
+
     get_file_blobs_response = function(org, repo, file_paths) {
       file_blobs_response <- self$gql_response(
         gql_query = self$gql_query$file_blob_from_repo(),
@@ -298,6 +300,7 @@ EngineGraphQLGitLab <- R6::R6Class(
       )
       return(file_blobs_response)
     },
+
     get_files_tree_response = function(org, repo, file_path) {
       files_tree_response <- self$gql_response(
         gql_query = self$gql_query$files_tree_from_repo(),
@@ -308,6 +311,7 @@ EngineGraphQLGitLab <- R6::R6Class(
       )
       return(files_tree_response)
     },
+
     get_files_structure_from_repo = function(org, repo, pattern = NULL, depth = Inf) {
       files_tree_response <- private$get_files_tree_response(
         org = org,
@@ -364,6 +368,7 @@ EngineGraphQLGitLab <- R6::R6Class(
       }
       return(files_structure)
     },
+
     get_files_and_dirs = function(files_tree_response) {
       tree_nodes <- files_tree_response$data$project$repository$tree$trees$nodes
       blob_nodes <- files_tree_response$data$project$repository$tree$blobs$nodes

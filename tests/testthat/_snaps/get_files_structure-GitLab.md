@@ -14,3 +14,11 @@
     Message
       i [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling files structure...[files matching pattern: '\.md|\.R']...
 
+# get_files_content makes use of files_structure
+
+    Code
+      files_content <- gitlab_testhost_priv$get_files_content_from_orgs(file_path = NULL,
+        host_files_structure = test_mocker$use("gl_files_structure_from_orgs"))
+    Message
+      i I will make use of files structure stored in GitStats.
+

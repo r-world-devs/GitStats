@@ -26,3 +26,11 @@
     Output
       named list()
 
+# get_files_content makes use of files_structure
+
+    Code
+      files_content <- github_testhost_priv$get_files_content_from_orgs(file_path = NULL,
+        host_files_structure = test_mocker$use("gh_files_structure_from_orgs"))
+    Message
+      i I will make use of files structure stored in GitStats.
+
