@@ -9,11 +9,10 @@
 
     Code
       gh_files_structure_from_orgs <- github_testhost_priv$
-        get_files_structure_from_orgs(pattern = "\\.md|\\.qmd|\\.png", depth = 2L,
-        verbose = TRUE)
+        get_files_structure_from_orgs(pattern = NULL, depth = 2L, verbose = TRUE)
     Message
-      i [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling files structure...[files matching pattern: '\.md|\.qmd|\.png']...
-      i [Host:GitHub][Engine:GraphQl][Scope:openpharma] Pulling files structure...[files matching pattern: '\.md|\.qmd|\.png']...
+      i [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling files structure......
+      i [Host:GitHub][Engine:GraphQl][Scope:openpharma] Pulling files structure......
 
 # when files_structure is empty, appropriate message is returned
 

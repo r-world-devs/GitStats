@@ -115,3 +115,45 @@ test_fixtures$github_search_response <- list(
     )
   )
 )
+
+test_fixtures$github_files_tree_response <- list(
+  "data" = list(
+    "repository" = list(
+      "id"     = "R_kgD0Ivtxsg",
+      "name"   = "GitStats",
+      "url"    = "https://github.com/r-world-devs/GitStats",
+      "object" = list(
+        "entries" = list(
+          list(
+            "name" = ".Rbuildignore",
+            "type" = "blob"
+          ),
+          list(
+            "name" = ".Renviron",
+            "type" = "blob"
+          ),
+          list(
+            "name" = ".Rprofile",
+            "type" = "blob"
+          ),
+          list(
+            "name" = ".covrignore",
+            "type" = "blob"
+          ),
+          list(
+            "name" = "renv",
+            "type" = "tree"
+          ),
+          list(
+            "name" = "tests",
+            "type" = "tree"
+          ),
+          list(
+            "name" = "vignettes",
+            "type" = "tree"
+          )
+        )
+      )
+    )
+  )
+)
