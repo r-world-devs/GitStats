@@ -1,5 +1,6 @@
 #' @noRd
-GitHostGitHub <- R6::R6Class("GitHostGitHub",
+GitHostGitHub <- R6::R6Class(
+  classname = "GitHostGitHub",
   inherit = GitHost,
   public = list(
     initialize = function(orgs = NA,

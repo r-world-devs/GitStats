@@ -35,3 +35,29 @@ test_that("`perform_request()` returns proper status", {
     "HTTP 404 Not Found"
   )
 })
+
+test_that("`perform_request()` returns status 200", {
+  response <- test_rest_github_priv$perform_request(
+    endpoint = "https://api.github.com/repos/r-world-devs/GitStats",
+    token = Sys.getenv("GITHUB_PAT")
+  )
+  expect_equal(
+    response$status_code,
+    200
+  )
+})
+
+test_that("`perform_request()` for GraphQL returns status 200", {
+  response <- test_graphql_github_priv$perform_request(
+    gql_query = "{
+      viewer {
+        login
+      }
+    }",
+    vars = NULL
+  )
+  expect_equal(
+    response$status_code,
+    200
+  )
+})
