@@ -22,11 +22,3 @@
     Message
       i I will switch to pulling files per repository.
 
-# `get_files_content()` pulls two files in the table format
-
-    Code
-      gl_files_table <- gitlab_testhost$get_files_content(file_path = c(
-        "meta_data.yaml", "README.md"))
-    Message
-      i [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling files content: [meta_data.yaml, README.md]...
-

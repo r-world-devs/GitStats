@@ -39,6 +39,18 @@ test_that("get_dirs_and_files() returns list with directories and files", {
 })
 
 test_that("get_files_structure_from_repo() pulls files structure from repo", {
+  mockery::stub(
+    test_graphql_gitlab_priv$get_files_structure_from_repo,
+    "private$get_files_tree_response",
+    test_mocker$use("gl_files_tree_response")
+  )
+  files_and_dirs <- test_mocker$use("gl_files_and_dirs_list")
+  files_and_dirs$dirs <- character()
+  mockery::stub(
+    test_graphql_gitlab_priv$get_files_structure_from_repo,
+    "private$get_files_and_dirs",
+    files_and_dirs
+  )
   gl_files_structure <- test_graphql_gitlab_priv$get_files_structure_from_repo(
     org = "mbtests",
     repo = "graphql_tests"
@@ -50,7 +62,36 @@ test_that("get_files_structure_from_repo() pulls files structure from repo", {
   test_mocker$cache(gl_files_structure)
 })
 
+test_that("only files with certain pattern are retrieved", {
+  md_files_structure <- test_graphql_gitlab_priv$filter_files_by_pattern(
+    files_structure = test_mocker$use("gl_files_structure"),
+    pattern = "\\.md|\\.qmd|\\.Rmd"
+  )
+  files_structure <- test_mocker$use("files_structure")
+  expect_true(
+    length(md_files_structure) < length(files_structure)
+  )
+  test_mocker$cache(md_files_structure)
+})
+
 test_that("get_files_structure_from_repo() pulls files structure (files matching pattern) from repo", {
+  mockery::stub(
+    test_graphql_gitlab_priv$get_files_structure_from_repo,
+    "private$get_files_tree_response",
+    test_mocker$use("gl_files_tree_response")
+  )
+  files_and_dirs <- test_mocker$use("gl_files_and_dirs_list")
+  files_and_dirs$dirs <- character()
+  mockery::stub(
+    test_graphql_gitlab_priv$get_files_structure_from_repo,
+    "private$get_files_and_dirs",
+    files_and_dirs
+  )
+  mockery::stub(
+    test_graphql_gitlab_priv$get_files_structure_from_repo,
+    "private$filter_files_by_pattern",
+    test_mocker$use("md_files_structure")
+  )
   gl_md_files_structure <- test_graphql_gitlab_priv$get_files_structure_from_repo(
     org = "mbtests",
     repo = "graphql_tests",

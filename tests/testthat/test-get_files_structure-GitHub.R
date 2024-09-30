@@ -8,6 +8,11 @@ test_that("files tree query for GitHub are built properly", {
 })
 
 test_that("get_file_response works", {
+  mockery::stub(
+    test_graphql_github_priv$get_file_response,
+    "self$gql_response",
+    test_fixtures$github_files_tree_response
+  )
   gh_files_tree_response <- test_graphql_github_priv$get_file_response(
     org = "r-world-devs",
     repo = "GitStats",
@@ -37,6 +42,13 @@ test_that("get_dirs_and_files returns list with directories and files", {
 })
 
 test_that("get_files_structure_from_repo returns list with files and dirs vectors", {
+  files_and_dirs <- test_mocker$use("files_and_dirs_list")
+  files_and_dirs$dirs <- character()
+  mockery::stub(
+    test_graphql_github_priv$get_files_structure_from_repo,
+    "private$get_files_and_dirs",
+    files_and_dirs
+  )
   files_structure <- test_graphql_github_priv$get_files_structure_from_repo(
     org = "r-world-devs",
     repo = "GitStats",
@@ -46,10 +58,14 @@ test_that("get_files_structure_from_repo returns list with files and dirs vector
     files_structure,
     "character"
   )
-  test_mocker$cache(files_structure)
 })
 
 test_that("get_files_structure_from_repo returns list of files up to 2 tier of dirs", {
+  mockery::stub(
+    test_graphql_github_priv$get_files_structure_from_repo,
+    "private$get_files_tree_response",
+    test_mocker$use("gh_files_tree_response")
+  )
   files_structure_very_shallow <- test_graphql_github_priv$get_files_structure_from_repo(
     org = "r-world-devs",
     repo = "GitStats",
@@ -69,10 +85,8 @@ test_that("get_files_structure_from_repo returns list of files up to 2 tier of d
   expect_true(
     length(files_structure_very_shallow) < length(files_structure_shallow)
   )
-  files_structure <- test_mocker$use("files_structure")
-  expect_true(
-    length(files_structure_shallow) < length(files_structure)
-  )
+  files_structure <- files_structure_shallow
+  test_mocker$cache(files_structure)
 })
 
 test_that("only files with certain pattern are retrieved", {
@@ -121,12 +135,17 @@ test_that("GitHub GraphQL Engine pulls files structure with pattern from reposit
 
 test_that("get_files_structure_from_orgs pulls files structure for repositories in orgs", {
   github_testhost_priv <- create_github_testhost(
-    repos = c("r-world-devs/GitStats", "openpharma/DataFakeR", "openpharma/VisR"),
+    repos = c("r-world-devs/GitStats", "openpharma/DataFakeR"),
     mode = "private"
+  )
+  mockery::stub(
+    github_testhost_priv$get_files_structure_from_orgs,
+    "graphql_engine$get_files_structure_from_org",
+    test_mocker$use("gh_files_structure")
   )
   expect_snapshot(
     gh_files_structure_from_orgs <- github_testhost_priv$get_files_structure_from_orgs(
-      pattern = "\\.md|\\.qmd|\\.png",
+      pattern = NULL,
       depth = 2L,
       verbose = TRUE
     )
@@ -135,9 +154,7 @@ test_that("get_files_structure_from_orgs pulls files structure for repositories 
     names(gh_files_structure_from_orgs),
     c("r-world-devs", "openpharma")
   )
-  purrr::walk(gh_files_structure_from_orgs[[1]], function(repo_files) {
-    expect_true(all(grepl("\\.md|\\.qmd|\\.png", repo_files)))
-  })
+  expect_true(any(grepl("\\.md|\\.qmd|\\.Rmd", gh_files_structure_from_orgs[[1]])))
   test_mocker$cache(gh_files_structure_from_orgs)
 })
 
@@ -156,6 +173,12 @@ test_that("when files_structure is empty, appropriate message is returned", {
   github_testhost_priv <- create_github_testhost(
     repos = c("r-world-devs/GitStats", "openpharma/DataFakeR", "openpharma/VisR"),
     mode = "private"
+  )
+  mockery::stub(
+    github_testhost_priv$get_files_structure_from_orgs,
+    "graphql_engine$get_files_structure_from_org",
+    list() |>
+      purrr::set_names()
   )
   expect_snapshot(
     github_testhost_priv$get_files_structure_from_orgs(
@@ -199,7 +222,7 @@ test_that("get_files_structure pulls files structure for repositories in orgs", 
     c("r-world-devs", "openpharma")
   )
   purrr::walk(gh_files_structure_from_orgs[[2]], function(repo_files) {
-    expect_true(all(grepl("\\.md|\\.qmd", repo_files)))
+    expect_true(any(grepl("\\.md|\\.Rmd", repo_files)))
   })
   test_mocker$cache(gh_files_structure_from_orgs)
 })

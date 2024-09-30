@@ -56,9 +56,10 @@ test_that("`get_repos_from_org()` prepares formatted list", {
 # REST Engine search repos by code
 
 test_that("`response()` returns search response from GitHub's REST API", {
-  search_endpoint <- "https://api.github.com/search/code?q=shiny+user:openpharma"
-  test_mocker$cache(search_endpoint)
-  gh_search_response_raw <- test_rest_github$response(search_endpoint)
+  # search_endpoint <- "https://api.github.com/search/code?q=shiny+user:r-world-devs"
+  # test_mocker$cache(search_endpoint)
+  # gh_search_response_raw <- test_rest_github$response(search_endpoint)
+  gh_search_response_raw <- test_fixtures$github_search_response
   expect_gh_search_response(gh_search_response_raw[["items"]])
   test_mocker$cache(gh_search_response_raw)
 })
@@ -74,7 +75,7 @@ test_that("`search_response()` performs search with limit under 100", {
   total_n <- test_mocker$use("gh_search_response_raw")[["total_count"]]
   mockery::stub(
     test_rest_github_priv$search_response,
-    "private$rest_response",
+    "self$response",
     test_mocker$use("gh_search_response_raw")
   )
   gh_search_repos_response <- test_rest_github_priv$search_response(
