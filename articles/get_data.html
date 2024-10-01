@@ -62,7 +62,7 @@
       <h1>Get data</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/r-world-devs/GitStats/blob/master/vignettes/get_data.Rmd" class="external-link"><code>vignettes/get_data.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/r-world-devs/GitStats/blob/v2.1.0/vignettes/get_data.Rmd" class="external-link"><code>vignettes/get_data.Rmd</code></a></small>
       <div class="d-none name"><code>get_data.Rmd</code></div>
     </div>
 
@@ -101,30 +101,29 @@ organizations.</p>
 <code class="sourceCode R"><span><span class="va">repos</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_repos.html">get_repos</a></span><span class="op">(</span><span class="va">git_stats</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:r-world-devs] Pulling repositories...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:openpharma] Pulling repositories...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #00BB00;">REST</span>] Pulling contributors...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitLab][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:mbtests] Pulling repositories...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitLab][Engine:<span style="color: #00BB00;">REST</span>] Pulling contributors...</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">repos</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Rows: 82</span></span>
+<span><span class="co">#&gt; Rows: 10</span></span>
 <span><span class="co">#&gt; Columns: 18</span></span>
-<span><span class="co">#&gt; $ repo_id          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R_kgDOHNMr2w", "R_kgDOHYNOFQ", "R_kgDOHYNrJw", "R_kg…</span></span>
-<span><span class="co">#&gt; $ repo_name        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "shinyGizmo", "cohortBuilder", "shinyCohortBuilder", …</span></span>
-<span><span class="co">#&gt; $ organization     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "r-world-devs", "r-world-devs", "r-world-devs", "r-wo…</span></span>
-<span><span class="co">#&gt; $ fullname         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "r-world-devs/shinyGizmo", "r-world-devs/cohortBuilde…</span></span>
-<span><span class="co">#&gt; $ platform         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "github", "github", "github", "github", "github", "gi…</span></span>
-<span><span class="co">#&gt; $ repo_url         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/shinyGizmo", "https:…</span></span>
-<span><span class="co">#&gt; $ api_url          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://api.github.com/repos/r-world-devs/shinyGizmo…</span></span>
-<span><span class="co">#&gt; $ created_at       <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2022-04-20 10:04:32, 2022-05-22 18:31:55, 2022-05-22…</span></span>
-<span><span class="co">#&gt; $ last_activity_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-07-12, 2024-09-27, 2024-09-27, 2024-06-13, 2024…</span></span>
-<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 81.31 days, 4.31 days, 4.31 days, 110.31 days, 0.31 …</span></span>
-<span><span class="co">#&gt; $ default_branch   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "dev", "dev", "dev", "master", "master", "master", "m…</span></span>
-<span><span class="co">#&gt; $ stars            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 19, 5, 6, 0, 3, 3, 0, 2, 1, 0, 0, 0, 0, 1, 0, 10, 20,…</span></span>
-<span><span class="co">#&gt; $ forks            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 10, 3…</span></span>
-<span><span class="co">#&gt; $ languages        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R, CSS, JavaScript", "R", "R, CSS, JavaScript, SCSS"…</span></span>
-<span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 6, 22, 32, 3, 91, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 6, 10…</span></span>
-<span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 12, 2, 11, 0, 234, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3…</span></span>
-<span><span class="co">#&gt; $ contributors     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "krystian8207, stla, galachad, stlagsk", "krystian820…</span></span>
-<span><span class="co">#&gt; $ contributors_n   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 4, 2, 3, 1, 4, 1, 6, 2, 1, 142, 2, 3, 1, 1, 1, 5, 19,…</span></span></code></pre></div>
+<span><span class="co">#&gt; $ repo_id          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "gid://gitlab/Project/61399846", "gid://gitlab/Projec…</span></span>
+<span><span class="co">#&gt; $ repo_name        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "graphql_tests", "RegexTips", "GitStats Testing 4", "…</span></span>
+<span><span class="co">#&gt; $ organization     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "mbtests", "mbtests", "mbtests", "mbtests", "mbtests"…</span></span>
+<span><span class="co">#&gt; $ fullname         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "mbtests/graphql_tests", "mbtests/RegexTips", "mbtest…</span></span>
+<span><span class="co">#&gt; $ platform         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "gitlab", "gitlab", "gitlab", "gitlab", "gitlab", "gi…</span></span>
+<span><span class="co">#&gt; $ repo_url         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://gitlab.com/mbtests/graphql_tests", "https://…</span></span>
+<span><span class="co">#&gt; $ api_url          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://gitlab.com/api/v4/projects/61399846", "https…</span></span>
+<span><span class="co">#&gt; $ created_at       <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-09-04 10:12:08, 2023-07-04 06:38:27, 2023-04-20…</span></span>
+<span><span class="co">#&gt; $ last_activity_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-09-04, 2023-07-19, 2023-04-20, 2023-06-28, 2023…</span></span>
+<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 27.32 days, 440.32 days, 530.32 days, 461.32 days, 5…</span></span>
+<span><span class="co">#&gt; $ default_branch   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "main", "main", "main", "main", "main", "main", "main…</span></span>
+<span><span class="co">#&gt; $ stars            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0</span></span>
+<span><span class="co">#&gt; $ forks            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0</span></span>
+<span><span class="co">#&gt; $ languages        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "", "", "", "Python", "", "", "", "", "R", "R"</span></span>
+<span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0, 0, 0, 0, 0, 0, 0, 0, 1, 1</span></span>
+<span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0, 0, 0, 0, 0, 0, 0, 0, 0, 1</span></span>
+<span><span class="co">#&gt; $ contributors     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "Maciej Banaś", "Maciej Banaś", "Maciej Banaś", "Maci…</span></span>
+<span><span class="co">#&gt; $ contributors_n   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1</span></span></code></pre></div>
 <p>You can always go for the lighter version of <code>get_repos</code>,
 i.e. <code><a href="../reference/get_repos_urls.html">get_repos_urls()</a></code> which will print you a vector of URLs
 instead of whole table.</p>
@@ -148,15 +147,8 @@ function:</p>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">release_logs</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Rows: 25</span></span>
-<span><span class="co">#&gt; Columns: 7</span></span>
-<span><span class="co">#&gt; $ repo_name    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "cohortBuilder", "GitStats", "GitStats", "GitStats", "que…</span></span>
-<span><span class="co">#&gt; $ repo_url     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/cohortBuilder", "https:/…</span></span>
-<span><span class="co">#&gt; $ release_name <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "cohortBuilder 0.3.0", "2.0.2", "2.0.1", "1.1.0", "First …</span></span>
-<span><span class="co">#&gt; $ release_tag  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "v0.3.0", "v2.0.2", "v2.0.1", "v1.1.0", "v0.1.0", "v0.1.0…</span></span>
-<span><span class="co">#&gt; $ published_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-09-27 11:35:06, 2024-07-19 07:59:12, 2024-05-14 10:…</span></span>
-<span><span class="co">#&gt; $ release_url  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/cohortBuilder/releases/t…</span></span>
-<span><span class="co">#&gt; $ release_log  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "* Add new filter of type `\"query\"` that allows to conf…</span></span></code></pre></div>
+<span><span class="co">#&gt; Rows: 0</span></span>
+<span><span class="co">#&gt; Columns: 0</span></span></code></pre></div>
 <p>Or globally:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/verbose_off.html">verbose_off</a></span><span class="op">(</span><span class="va">git_stats</span><span class="op">)</span></span></code></pre></div>
@@ -176,18 +168,8 @@ function:</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:openpharma] Pulling commits...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitLab][Engine:<span style="color: #00BB00;">REST</span>][Scope:mbtests] Pulling commits...</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Rows: 107</span></span>
-<span><span class="co">#&gt; Columns: 10</span></span>
-<span><span class="co">#&gt; $ id             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "C_kwDOHYNOFdoAKGU3Mjg5MTViZGM4YzYzMTIwOWEwMzEwMDIwOTA0…</span></span>
-<span><span class="co">#&gt; $ committed_date <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-06-05 11:02:21, 2024-06-05 10:55:59, 2024-06-05 1…</span></span>
-<span><span class="co">#&gt; $ author         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "Kamil Koziej", "Kamil Koziej", "Kamil Koziej", "Krysti…</span></span>
-<span><span class="co">#&gt; $ author_login   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> NA, NA, NA, "krystian8207", "krystian8207", "krystian82…</span></span>
-<span><span class="co">#&gt; $ author_name    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> NA, NA, NA, "Krystian Igras", "Krystian Igras", "Krysti…</span></span>
-<span><span class="co">#&gt; $ additions      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 559, 0, 219, 1, 2, 108, 38, 83, 14, 1596, 973, 1292, 3,…</span></span>
-<span><span class="co">#&gt; $ deletions      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 304, 19, 87, 1, 1, 1, 0, 29, 0, 340, 163, 799, 6, 54, 1…</span></span>
-<span><span class="co">#&gt; $ repository     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "cohortBuilder", "cohortBuilder", "cohortBuilder", "coh…</span></span>
-<span><span class="co">#&gt; $ organization   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "r-world-devs", "r-world-devs", "r-world-devs", "r-worl…</span></span>
-<span><span class="co">#&gt; $ api_url        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://api.github.com", "https://api.github.com", "ht…</span></span></code></pre></div>
+<span><span class="co">#&gt; Rows: 0</span></span>
+<span><span class="co">#&gt; Columns: 0</span></span></code></pre></div>
 <p>Caching feature is by default turned on. If you run the
 <code>get_*()</code> function once more, data will be retrieved from
 <code>GitStats</code> object.</p>
@@ -200,18 +182,8 @@ function:</p>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> <span style="color: #BBBB00;">Retrieving commits from the GitStats storage.</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #00BBBB;">If you wish to pull the data from API once more, set `cache` parameter to `FALSE`.</span></span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Rows: 107</span></span>
-<span><span class="co">#&gt; Columns: 10</span></span>
-<span><span class="co">#&gt; $ id             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "C_kwDOHYNOFdoAKGU3Mjg5MTViZGM4YzYzMTIwOWEwMzEwMDIwOTA0…</span></span>
-<span><span class="co">#&gt; $ committed_date <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-06-05 11:02:21, 2024-06-05 10:55:59, 2024-06-05 1…</span></span>
-<span><span class="co">#&gt; $ author         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "Kamil Koziej", "Kamil Koziej", "Kamil Koziej", "Krysti…</span></span>
-<span><span class="co">#&gt; $ author_login   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> NA, NA, NA, "krystian8207", "krystian8207", "krystian82…</span></span>
-<span><span class="co">#&gt; $ author_name    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> NA, NA, NA, "Krystian Igras", "Krystian Igras", "Krysti…</span></span>
-<span><span class="co">#&gt; $ additions      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 559, 0, 219, 1, 2, 108, 38, 83, 14, 1596, 973, 1292, 3,…</span></span>
-<span><span class="co">#&gt; $ deletions      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 304, 19, 87, 1, 1, 1, 0, 29, 0, 340, 163, 799, 6, 54, 1…</span></span>
-<span><span class="co">#&gt; $ repository     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "cohortBuilder", "cohortBuilder", "cohortBuilder", "coh…</span></span>
-<span><span class="co">#&gt; $ organization   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "r-world-devs", "r-world-devs", "r-world-devs", "r-worl…</span></span>
-<span><span class="co">#&gt; $ api_url        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://api.github.com", "https://api.github.com", "ht…</span></span></code></pre></div>
+<span><span class="co">#&gt; Rows: 0</span></span>
+<span><span class="co">#&gt; Columns: 0</span></span></code></pre></div>
 <p>Unless, you switch off the cache:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">commits</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_commits.html">get_commits</a></span><span class="op">(</span></span>
@@ -226,18 +198,8 @@ function:</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitHub][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:openpharma] Pulling commits...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitLab][Engine:<span style="color: #00BB00;">REST</span>][Scope:mbtests] Pulling commits...</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Rows: 107</span></span>
-<span><span class="co">#&gt; Columns: 10</span></span>
-<span><span class="co">#&gt; $ id             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "C_kwDOHYNOFdoAKGU3Mjg5MTViZGM4YzYzMTIwOWEwMzEwMDIwOTA0…</span></span>
-<span><span class="co">#&gt; $ committed_date <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-06-05 11:02:21, 2024-06-05 10:55:59, 2024-06-05 1…</span></span>
-<span><span class="co">#&gt; $ author         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "Kamil Koziej", "Kamil Koziej", "Kamil Koziej", "Krysti…</span></span>
-<span><span class="co">#&gt; $ author_login   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> NA, NA, NA, "krystian8207", "krystian8207", "krystian82…</span></span>
-<span><span class="co">#&gt; $ author_name    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> NA, NA, NA, "Krystian Igras", "Krystian Igras", "Krysti…</span></span>
-<span><span class="co">#&gt; $ additions      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 559, 0, 219, 1, 2, 108, 38, 83, 14, 1596, 973, 1292, 3,…</span></span>
-<span><span class="co">#&gt; $ deletions      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 304, 19, 87, 1, 1, 1, 0, 29, 0, 340, 163, 799, 6, 54, 1…</span></span>
-<span><span class="co">#&gt; $ repository     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "cohortBuilder", "cohortBuilder", "cohortBuilder", "coh…</span></span>
-<span><span class="co">#&gt; $ organization   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "r-world-devs", "r-world-devs", "r-world-devs", "r-worl…</span></span>
-<span><span class="co">#&gt; $ api_url        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://api.github.com", "https://api.github.com", "ht…</span></span></code></pre></div>
+<span><span class="co">#&gt; Rows: 0</span></span>
+<span><span class="co">#&gt; Columns: 0</span></span></code></pre></div>
 <p>Or simply change the parameters for the function:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">commits</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_commits.html">get_commits</a></span><span class="op">(</span></span>
@@ -251,18 +213,18 @@ function:</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitLab][Engine:<span style="color: #00BB00;">REST</span>][Scope:mbtests] Pulling commits...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Looking up for authors' names and logins...</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Rows: 149</span></span>
+<span><span class="co">#&gt; Rows: 7</span></span>
 <span><span class="co">#&gt; Columns: 10</span></span>
-<span><span class="co">#&gt; $ id             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "C_kwDOHYNOFdoAKDJjN2Q4YTFkNDIzNmQ0YzIwZTI2NDU1Mjg2YTI1…</span></span>
-<span><span class="co">#&gt; $ committed_date <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-09-25 14:45:42, 2024-09-25 11:00:17, 2024-09-25 1…</span></span>
-<span><span class="co">#&gt; $ author         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "Krystian Igras", "Krystian Igras", "Krystian Igras", "…</span></span>
-<span><span class="co">#&gt; $ author_login   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "krystian8207", "krystian8207", "krystian8207", "krysti…</span></span>
-<span><span class="co">#&gt; $ author_name    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "Krystian Igras", "Krystian Igras", "Krystian Igras", "…</span></span>
-<span><span class="co">#&gt; $ additions      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 14, 626, 36, 126, 3, 921, 46, 0, 1, 14, 1, 557, 106, 15…</span></span>
-<span><span class="co">#&gt; $ deletions      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 2, 336, 36, 126, 1, 314, 2, 59, 1, 14, 0, 156, 21, 6, 1…</span></span>
-<span><span class="co">#&gt; $ repository     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "cohortBuilder", "cohortBuilder", "cohortBuilder", "coh…</span></span>
-<span><span class="co">#&gt; $ organization   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "r-world-devs", "r-world-devs", "r-world-devs", "r-worl…</span></span>
-<span><span class="co">#&gt; $ api_url        <span style="color: #949494; font-style: italic;">&lt;glue&gt;</span> "https://api.github.com", "https://api.github.com", "h…</span></span></code></pre></div>
+<span><span class="co">#&gt; $ id             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "4b006238c70424aca429526b659ec6fa8d01d393", "5c78ca1dfa…</span></span>
+<span><span class="co">#&gt; $ committed_date <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-09-04 10:19:15, 2024-09-04 10:18:50, 2024-09-04 1…</span></span>
+<span><span class="co">#&gt; $ author         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "Maciej Banaś", "Maciej Banaś", "Maciej Banaś", "Maciej…</span></span>
+<span><span class="co">#&gt; $ author_login   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "maciekbanas", "maciekbanas", "maciekbanas", "maciekban…</span></span>
+<span><span class="co">#&gt; $ author_name    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "Maciej Banaś", "Maciej Banaś", "Maciej Banaś", "Maciej…</span></span>
+<span><span class="co">#&gt; $ additions      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 16, 15, 1, 93, 0, 0, 0</span></span>
+<span><span class="co">#&gt; $ deletions      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 91, 0, 91, 0, 0, 0, 0</span></span>
+<span><span class="co">#&gt; $ repository     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "graphql_tests", "graphql_tests", "graphql_tests", "gra…</span></span>
+<span><span class="co">#&gt; $ organization   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "mbtests", "mbtests", "mbtests", "mbtests", "mbtests", …</span></span>
+<span><span class="co">#&gt; $ api_url        <span style="color: #949494; font-style: italic;">&lt;glue&gt;</span> "https://gitlab.com/api/v4", "https://gitlab.com/api/v4…</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
