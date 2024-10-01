@@ -30,6 +30,67 @@ test_fixtures$half_empty_gql_response <- list(
   )
 )
 
+commit_edge <- list(
+  "node" = list(
+    "id" = "xxx",
+    "committed_date" = "2023-01-25T10:26:41Z",
+    "author" = list(
+      "name" = "Maciej Banas",
+      "user" = list(
+        "name" = "Maciej Banas",
+        "login" = "maciekbanas"
+      )
+    ),
+    "additions" = 5L,
+    "deletions" = 8L
+  )
+)
+
+test_fixtures$github_commits_response <- list(
+  "data" = list(
+    "repository" = list(
+      "defaultBranchRef" = list(
+        "target" = list(
+          "history" = list(
+            "edges" = list(
+              rep(commit_edge, 5)
+            )
+          )
+        )
+      )
+    )
+  )
+)
+
+gitlab_commit <- list(
+  "id" = "xxxxxxxxxxxxxxxxx",
+  "short_id" = "xxx",
+  "created_at" = "2023-04-05T12:07:50.000+00:00",
+  "parent_ids" = list(
+    "iiiiiiiiiiiiiii"
+  ),
+  "title" = "Test title",
+  "message" = "Test title",
+  "author_name" = "Maciej Banas",
+  "author_email" = "testmail@test.com",
+  "authored_date" = "2023-04-05T12:07:50.000+00:00",
+  "committer_name" = "Maciej Banas",
+  "committer_email" = "testmail@test.com",
+  "committed_date" = "2023-04-05T12:07:50.000+00:00",
+  "trailers" = list(),
+  "extedned_trailers" = list(),
+  "web_url" = "https://test_url.com",
+  "stats" = list(
+    "additions" = 1L,
+    "deletions" = 0L,
+    "total" = 1L
+  )
+)
+
+test_fixtures$gitlab_commits_response <- list(
+  rep(gitlab_commit, 5)
+)
+
 test_fixtures$github_file_response <- list(
   "data" = list(
     "repository" = list(

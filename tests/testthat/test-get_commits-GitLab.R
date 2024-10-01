@@ -1,28 +1,8 @@
-test_that("GitLab REST API returns commits response", {
-  gl_commits_rest_response_repo_1 <- test_rest_gitlab$response(
-    "https://gitlab.com/api/v4/projects/44293594/repository/commits?since='2023-01-01T00:00:00'&until='2023-04-20T00:00:00'&with_stats=true"
-  )
-  expect_gl_commit_rest_response(
-    gl_commits_rest_response_repo_1
-  )
-  test_mocker$cache(gl_commits_rest_response_repo_1)
-
-  gl_commits_rest_response_repo_2 <- test_rest_gitlab$response(
-    "https://gitlab.com/api/v4/projects/44346961/repository/commits?since='2023-01-01T00:00:00'&until='2023-04-20T00:00:00'&with_stats=true"
-  )
-  expect_gl_commit_rest_response(
-    gl_commits_rest_response_repo_2
-  )
-  test_mocker$cache(gl_commits_rest_response_repo_2)
-})
-
 test_that("`get_commits_from_repos()` pulls commits from repo", {
-  gl_commits_repo_1 <- test_mocker$use("gl_commits_rest_response_repo_1")
-
   mockery::stub(
     test_rest_gitlab$get_commits_from_repos,
     "private$get_commits_from_one_repo",
-    gl_commits_repo_1
+    test_fixtures$gitlab_commits_response
   )
   repos_names <- c("mbtests%2Fgitstatstesting", "mbtests%2Fgitstats-testing-2")
   gl_commits_org <- test_rest_gitlab$get_commits_from_repos(

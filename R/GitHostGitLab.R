@@ -355,8 +355,8 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
 
     # A helper to turn list of data.frames into one data.frame
     prepare_commits_table = function(commits_list) {
-      commits_dt <- purrr::map(commits_list, function(x) {
-        purrr::map(x, ~ data.frame(.)) %>%
+      commits_dt <- purrr::map(commits_list, function(commit) {
+        purrr::map(commit, ~ data.frame(.)) %>%
           purrr::list_rbind()
       }) %>%
         purrr::list_rbind()
