@@ -1,5 +1,6 @@
 #' @noRd
-GitHostGitHub <- R6::R6Class("GitHostGitHub",
+GitHostGitHub <- R6::R6Class(
+  classname = "GitHostGitHub",
   inherit = GitHost,
   public = list(
     initialize = function(orgs = NA,
@@ -12,7 +13,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
                        token = token,
                        host = host,
                        verbose = verbose)
-      if (private$verbose) {
+      if (verbose) {
         cli::cli_alert_success("Set connection to GitHub.")
       }
     }
@@ -44,12 +45,21 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
       )
     ),
 
-    # Set API url
+    # Set API URL
     set_api_url = function(host) {
       if (is.null(host)) {
         private$api_url <- "https://api.github.com"
       } else {
         private$set_custom_api_url(host)
+      }
+    },
+
+    # Set web URL
+    set_web_url = function(host) {
+      if (is.null(host)) {
+        private$web_url <- "https://github.com"
+      } else {
+        private$set_custom_web_url(host)
       }
     },
 
@@ -60,22 +70,22 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
 
     # Set endpoint for basic checks
     set_test_endpoint = function() {
-      private$test_endpoint = private$api_url
+      private$test_endpoint <- private$api_url
     },
 
     # Set tokens endpoint
     set_tokens_endpoint = function() {
-      private$endpoints$tokens = NULL
+      private$endpoints$tokens <- NULL
     },
 
     # Set groups endpoint
     set_orgs_endpoint = function() {
-      private$endpoints$orgs = glue::glue("{private$api_url}/orgs")
+      private$endpoints$orgs <- glue::glue("{private$api_url}/orgs")
     },
 
     # Set projects endpoint
     set_repositories_endpoint = function() {
-      private$endpoints$repositories = glue::glue("{private$api_url}/repos")
+      private$endpoints$repositories <- glue::glue("{private$api_url}/repos")
     },
 
     # Setup REST and GraphQL engines
@@ -96,7 +106,8 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
     # token parameter only for need of super method
     check_token_scopes = function(response, token = NULL) {
       token_scopes <- response$headers$`x-oauth-scopes` %>%
-        stringr::str_split(", ") %>% unlist()
+        stringr::str_split(", ") %>%
+        unlist()
       all(private$access_scopes %in% token_scopes)
     },
 
@@ -110,7 +121,11 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
           "stars" = repo$stargazers_count,
           "forks" = repo$forks_count,
           "created_at" = gts_to_posixt(repo$created_at),
-          "last_activity_at" = if (!is.null(repo$pushed_at)) gts_to_posixt(repo$pushed_at) else gts_to_posixt(repo$created_at),
+          "last_activity_at" = if (!is.null(repo$pushed_at)) {
+            gts_to_posixt(repo$pushed_at)
+          } else {
+            gts_to_posixt(repo$created_at)
+          },
           "languages" = repo$language,
           "issues_open" = repo$issues_open,
           "issues_closed" = repo$issues_closed,
@@ -125,7 +140,7 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
     prepare_repos_table_from_graphql = function(repos_list) {
       if (length(repos_list) > 0) {
         repos_table <- purrr::map_dfr(repos_list, function(repo) {
-          repo$default_branch <- if(!is.null(repo$default_branch)) {
+          repo$default_branch <- if (!is.null(repo$default_branch)) {
             repo$default_branch$name
           } else {
             ""
@@ -154,18 +169,18 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
     },
 
     # Add `api_url` column to table.
-    add_repo_api_url = function(repos_table){
+    add_repo_api_url = function(repos_table) {
       if (!is.null(repos_table) && nrow(repos_table) > 0) {
         repos_table <- dplyr::mutate(
-            repos_table,
-            api_url = paste0(private$endpoints$repositories, "/", organization, "/", repo_name),
-          )
+          repos_table,
+          api_url = paste0(private$endpoints$repositories, "/", organization, "/", repo_name),
+        )
       }
       return(repos_table)
     },
 
     # Get projects URL from search response
-    get_repo_url_from_response = function(search_response, type) {
+    get_repo_url_from_response = function(search_response, type, progress = TRUE) {
       purrr::map_vec(search_response, function(project) {
         if (type == "api") {
           project$repository$url
@@ -176,32 +191,31 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
     },
 
     # Pull commits from GitHub
-    get_commits_from_host = function(since, until, settings) {
+    get_commits_from_orgs = function(since, until, verbose, progress) {
       graphql_engine <- private$engines$graphql
       commits_table <- purrr::map(private$orgs, function(org) {
         commits_table_org <- NULL
-        if (!private$scan_all && private$verbose) {
+        if (!private$scan_all && verbose) {
           show_message(
-            host = private$host_name,
-            engine = "graphql",
-            scope = org,
+            host        = private$host_name,
+            engine      = "graphql",
+            scope       = org,
             information = "Pulling commits"
           )
         }
         repos_names <- private$set_repositories(
-          org = org,
-          settings = settings
+          org = org
         )
-        commits_table_org <- graphql_engine$pull_commits_from_repos(
-          org = org,
+        commits_table_org <- graphql_engine$get_commits_from_repos(
+          org         = org,
           repos_names = repos_names,
-          since = since,
-          until = until,
-          verbose = private$verbose
+          since       = since,
+          until       = until,
+          progress    = progress
         ) %>%
           private$prepare_commits_table(org)
         return(commits_table_org)
-      }, .progress = if (private$scan_all && private$verbose) {
+      }, .progress = if (private$scan_all && progress) {
         "[GitHost:GitHub] Pulling commits..."
       } else {
         FALSE
@@ -211,13 +225,12 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
     },
 
     # Use repositories either from parameter or, if not set, pull them from API
-    set_repositories = function(org, settings) {
+    set_repositories = function(org) {
       if (private$searching_scope == "repo") {
         repos_names <- private$orgs_repos[[org]]
       } else {
         repos_table <- private$get_all_repos(
-          verbose = FALSE,
-          settings = settings
+          verbose = FALSE
         )
         repos_names <- repos_table$repo_name
       }
@@ -289,16 +302,16 @@ GitHostGitHub <- R6::R6Class("GitHostGitHub",
     # Prepare files table.
     prepare_files_table = function(files_response, org, file_path) {
       if (!is.null(files_response)) {
-        files_table <- purrr::map(file_path, function(file) {
-          purrr::imap(files_response[[file]], function(repository, name) {
+        files_table <- purrr::map(files_response, function(repository) {
+          purrr::imap(repository, function(file_data, file_name) {
             data.frame(
-              "repo_name" = repository$name,
-              "repo_id" = repository$id,
+              "repo_name" = file_data$repo_name,
+              "repo_id" = file_data$repo_id,
               "organization" = org,
-              "file_path" = file,
-              "file_content" = repository$object$text,
-              "file_size" = repository$object$byteSize,
-              "repo_url" = repository$url
+              "file_path" = file_name,
+              "file_content" = file_data$file$text %||% NA,
+              "file_size" = file_data$file$byteSize,
+              "repo_url" = file_data$repo_url
             )
           }) %>%
             purrr::list_rbind()

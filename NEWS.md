@@ -1,3 +1,17 @@
+# GitStats 2.1.0
+
+## New features:
+
+- Added new `get_files_structure()` function to pull files structure for a given repository with possibility to control level of directories (`depth` parameter) and to limit output to files matching regex argument passed to `pattern` parameter ([#338](https://github.com/r-world-devs/GitStats/issues/338)). Together with that, `get_files()` function was renamed to `get_files_content()` to better reflect its purpose.
+- Adjusted `get_files_content()` so it can make use of `files_structure` pulled to `GitStats` storage with `get_files_structure()` function - if `file_path` is set to `NULL` and `use_files_structure()` parameter to `TRUE` (both are by default)([#467](https://github.com/r-world-devs/GitStats/issues/467)).
+- Added `progress` parameter to user functions to control showing of `cli` progress bar separately from messages (which are controlled with `verbose`) ([#465](https://github.com/r-world-devs/GitStats/issues/465)).
+
+## Other:
+
+- Changed message when searching scope is set to scan whole git host (no `orgs` nor `repos` specified) from warning to info ([#456](https://github.com/r-world-devs/GitStats/issues/456)).
+- Added new CI/CD jobs: deploy to `gh-pages`, lint and check for bumping version.
+- Mocked extensively API responses to improve tests and checks progress ([#481](https://github.com/r-world-devs/GitStats/issues/481)].
+
 # GitStats 2.0.2
 
 This is a patch release with substantial improvements to some functions (`get_repos()`, `get_files()` and `get_R_package_usage()`), adding `with_files` and `in_files` parameters, fixing `cache` feature and introducing new `get_repos_urls()` function, a minimalist version of `get_repos()`:
@@ -19,7 +33,7 @@ This is a patch release with some hot issues that needed to be addressed, notabl
 
 ## Features:
 
-- Getting files feature has been speeded up when `GitStats` is set to scan whole hosts, with switching to `Search API` instead of pulling files via `GraphQL` (with iteration over organizations and repositories) ([#411](https://github.com/r-world-devs/GitStats/issues/411)).
+- Getting files feature has been sped up when `GitStats` is set to scan whole hosts, with switching to `Search API` instead of pulling files via `GraphQL` (with iteration over organizations and repositories) ([#411](https://github.com/r-world-devs/GitStats/issues/411)).
 - When setting hosts to be scanned in whole (without specifying `orgs` or `repos`) GitStats does not pull no more all organizations. Pulling all organizations from host is triggered only when user decides to pull repositories from organizations. If he decides, e.g. to pull repositories by code, there is no need to pull all organizations (which may be a time consuming process), as GitStats uses then `Search API` ([#393](https://github.com/r-world-devs/GitStats/issues/393)).
 - It is now possible to mute messages also from `set_*_host()` functions with `verbose_off()` or `verbose` parameter ([#413](https://github.com/r-world-devs/GitStats/issues/413)).
 - Setting `verbose` to `FALSE` does not lead to hiding output of the `get_*()` functions - i.e. a glimpse of table will always appear after pulling data, even if the `verbose` is switched off. `verbose` parameter serves now only the purpose to show and hide messages to user ([#423](https://github.com/r-world-devs/GitStats/issues/423)).

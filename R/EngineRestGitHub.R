@@ -1,11 +1,12 @@
 #' @noRd
 #' @description A class for methods wrapping GitHub's REST API responses.
-EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
+EngineRestGitHub <- R6::R6Class(
+  classname = "EngineRestGitHub",
   inherit = EngineRest,
   public = list(
 
     # Pull repositories with files
-    pull_files = function(files) {
+    get_files = function(files) {
       files_list <- list()
       for (filename in files) {
         search_file_endpoint <- paste0(private$endpoints[["search"]], "filename:", filename)
@@ -24,13 +25,13 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     },
 
     # Pulling repositories where code appears
-    pull_repos_by_code = function(code,
-                                  org = NULL,
-                                  filename = NULL,
-                                  in_path = FALSE,
-                                  raw_output = FALSE,
-                                  verbose) {
-      private$set_verbose(verbose)
+    get_repos_by_code = function(code,
+                                 org        = NULL,
+                                 filename   = NULL,
+                                 in_path    = FALSE,
+                                 raw_output = FALSE,
+                                 verbose    = TRUE,
+                                 progress   = TRUE) {
       user_query <- if (!is.null(org)) {
         paste0('+user:', org)
       } else {
@@ -54,7 +55,8 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
         )
         if (!raw_output) {
           search_output <- private$map_search_into_repos(
-            search_response = search_result
+            search_response = search_result,
+            progress        = progress
           )
         } else {
           search_output <- search_result
@@ -66,7 +68,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     },
 
     #' Pull all repositories URLS from organization
-    pull_repos_urls = function(type, org) {
+    get_repos_urls = function(type, org) {
       repos_urls <- self$response(
         endpoint = paste0(private$endpoints[["organizations"]], org, "/repos")
       ) %>%
@@ -81,7 +83,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     },
 
     #' A method to add information on open and closed issues of a repository.
-    pull_repos_issues = function(repos_table) {
+    get_repos_issues = function(repos_table, progress) {
       if (nrow(repos_table) > 0) {
         repos_iterator <- paste0(repos_table$organization, "/", repos_table$repo_name)
         issues <- purrr::map_dfr(repos_iterator, function(repo_path) {
@@ -93,7 +95,7 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
             "open" = length(purrr::keep(issues, ~ .$state == "open")),
             "closed" = length(purrr::keep(issues, ~ .$state == "closed"))
           )
-        }, .progress = if (private$verbose) {
+        }, .progress = if (progress) {
           "Pulling repositories issues..."
         } else {
           FALSE
@@ -105,24 +107,23 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     },
 
     #' Add information on repository contributors.
-    pull_repos_contributors = function(repos_table, settings) {
+    get_repos_contributors = function(repos_table, progress) {
       if (nrow(repos_table) > 0) {
         repo_iterator <- paste0(repos_table$organization, "/", repos_table$repo_name)
         user_name <- rlang::expr(.$login)
         repos_table$contributors <- purrr::map_chr(repo_iterator, function(repos_id) {
           tryCatch({
-              contributors_endpoint <- paste0(private$endpoints[["repositories"]], repos_id, "/contributors")
-              contributors_vec <- private$pull_contributors_from_repo(
-                contributors_endpoint = contributors_endpoint,
-                user_name = user_name
-              )
-              return(contributors_vec)
-            },
-            error = function(e) {
-              NA
-            }
-          )
-        }, .progress = if (private$scan_all && private$verbose) {
+            contributors_endpoint <- paste0(private$endpoints[["repositories"]], repos_id, "/contributors")
+            contributors_vec <- private$pull_contributors_from_repo(
+              contributors_endpoint = contributors_endpoint,
+              user_name = user_name
+            )
+            return(contributors_vec)
+          },
+          error = function(e) {
+            NA
+          })
+        }, .progress = if (progress) {
           "[GitHost:GitHub] Pulling contributors..."
         } else {
           FALSE
@@ -198,10 +199,15 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
             NULL
           } else if ((n_count - 1) %/% 100 > 0) {
             for (page in (1:(n_count %/% 100) + 1)) {
-              resp_list <- self$response(paste0(search_endpoint, size_formula, "&page=", page, "&per_page=100"))[["items"]] %>% append(resp_list, .)
+              resp_list <- self$response(paste0(search_endpoint,
+                                                size_formula,
+                                                "&page=",
+                                                page,
+                                                "&per_page=100"))[["items"]] |>
+                append(resp_list, .)
             }
           } else if ((n_count - 1) %/% 100 == 0) {
-            resp_list <- self$response(paste0(search_endpoint, size_formula, "&page=1&per_page=100"))[["items"]] %>%
+            resp_list <- self$response(paste0(search_endpoint, size_formula, "&page=1&per_page=100"))[["items"]] |>
               append(resp_list, .)
           }
           index[1] <- index[2]
@@ -224,18 +230,18 @@ EngineRestGitHub <- R6::R6Class("EngineRestGitHub",
     },
 
     # Parse search response into repositories output
-    map_search_into_repos = function(search_response) {
+    map_search_into_repos = function(search_response, progress) {
       repos_ids <- purrr::map_chr(search_response, ~ as.character(.$repository$id)) %>%
         unique()
       repos_list <- purrr::map(repos_ids, function(repo_id) {
         content <- self$response(
           endpoint = paste0(self$rest_api_url, "/repositories/", repo_id)
         )
-      }, .progress = if (private$verbose) {
+      }, .progress = if (progress) {
         "Parsing search response into respositories output..."
-        } else {
-          FALSE
-        })
+      } else {
+        FALSE
+      })
       repos_list
     },
 

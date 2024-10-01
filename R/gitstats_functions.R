@@ -114,6 +114,8 @@ set_gitlab_host <- function(gitstats_object,
 #'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
 #'   output is switched off.
+#' @param progress A logical, by default set to `verbose` value. If `FALSE` no
+#'   `cli` progress bar will be displayed.
 #' @return A data.frame.
 #' @examples
 #' \dontrun{
@@ -134,18 +136,20 @@ set_gitlab_host <- function(gitstats_object,
 #' @export
 get_repos <- function(gitstats_object,
                       add_contributors = TRUE,
-                      with_code = NULL,
-                      in_files = NULL,
-                      with_files = NULL,
-                      cache = TRUE,
-                      verbose = is_verbose(gitstats_object)) {
+                      with_code        = NULL,
+                      in_files         = NULL,
+                      with_files       = NULL,
+                      cache            = TRUE,
+                      verbose          = is_verbose(gitstats_object),
+                      progress         = verbose) {
   gitstats_object$get_repos(
     add_contributors = add_contributors,
-    with_code = with_code,
-    in_files = in_files,
-    with_files = with_files,
-    cache = cache,
-    verbose = verbose
+    with_code        = with_code,
+    in_files         = in_files,
+    with_files       = with_files,
+    cache            = cache,
+    verbose          = verbose,
+    progress         = progress
   )
 }
 
@@ -168,6 +172,8 @@ get_repos <- function(gitstats_object,
 #'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
 #'   output is switched off.
+#' @param progress A logical, by default set to `verbose` value. If `FALSE` no
+#'   `cli` progress bar will be displayed.
 #' @return A character vector.
 #' @examples
 #' \dontrun{
@@ -185,19 +191,21 @@ get_repos <- function(gitstats_object,
 #' }
 #' @export
 get_repos_urls <- function(gitstats_object,
-                           type = "web",
-                           with_code = NULL,
-                           in_files = NULL,
+                           type       = "web",
+                           with_code  = NULL,
+                           in_files   = NULL,
                            with_files = NULL,
-                           cache = TRUE,
-                           verbose = TRUE) {
+                           cache      = TRUE,
+                           verbose    = is_verbose(gitstats_object),
+                           progress   = verbose) {
   gitstats_object$get_repos_urls(
-    type = type,
-    with_code = with_code,
-    in_files = in_files,
+    type       = type,
+    with_code  = with_code,
+    in_files   = in_files,
     with_files = with_files,
-    cache = cache,
-    verbose = verbose
+    cache      = cache,
+    verbose    = verbose,
+    progress   = progress
   )
 }
 
@@ -210,8 +218,10 @@ get_repos_urls <- function(gitstats_object,
 #' @param until An end date.
 #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
 #'   result from its storage.
-#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
-#'   printing output is switched off.
+#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
+#'   output is switched off.
+#' @param progress A logical, by default set to `verbose` value. If `FALSE` no
+#'   `cli` progress bar will be displayed.
 #' @return A data.frame.
 #' @examples
 #' \dontrun{
@@ -228,18 +238,20 @@ get_repos_urls <- function(gitstats_object,
 #' }
 #' @export
 get_commits <- function(gitstats_object,
-                        since = NULL,
-                        until = NULL,
-                        cache = TRUE,
-                        verbose = is_verbose(gitstats_object)) {
+                        since    = NULL,
+                        until    = NULL,
+                        cache    = TRUE,
+                        verbose  = is_verbose(gitstats_object),
+                        progress = verbose) {
   if (is.null(since)) {
     cli::cli_abort(cli::col_red("You need to pass date to `since` parameter."), call = NULL)
   }
   gitstats_object$get_commits(
-    since = since,
-    until = until,
-    cache = cache,
-    verbose = verbose
+    since    = since,
+    until    = until,
+    cache    = cache,
+    verbose  = verbose,
+    progress = progress
   )
 }
 
@@ -263,8 +275,8 @@ get_commits <- function(gitstats_object,
 #'  get_commits_stats(my_gitstats, time_interval = "week")
 #' }
 #' @export
-get_commits_stats = function(gitstats_object,
-                             time_interval = c("month", "day", "week")) {
+get_commits_stats <- function(gitstats_object,
+                              time_interval = c("month", "day", "week")) {
   gitstats_object$get_commits_stats(
     time_interval = time_interval
   )
@@ -295,26 +307,38 @@ get_commits_stats = function(gitstats_object,
 #' @export
 get_users <- function(gitstats_object,
                       logins,
-                      cache = TRUE,
-                      verbose = is_verbose(gitstats_object)){
+                      cache   = TRUE,
+                      verbose = is_verbose(gitstats_object)) {
   gitstats_object$get_users(
-    logins = logins,
-    cache = cache,
+    logins  = logins,
+    cache   = cache,
     verbose = verbose
   )
 }
 
-#' @title Get data on files
-#' @name get_files
+#' @title Get content of files
+#' @name get_files_content
 #' @description Pull text files content for a given scope (orgs, repos or whole
 #'   git hosts).
 #' @param gitstats_object A GitStats object.
-#' @param file_path A standardized path to file(s) in repositories. May be a
-#'   character vector if multiple files are to be pulled.
+#' @param file_path Optional. A standardized path to file(s) in repositories.
+#'   May be a character vector if multiple files are to be pulled. If set to
+#'   `NULL` and `use_files_structure` parameter is set to `TRUE`, `GitStats`
+#'   will try to pull data from `files_structure` (see below).
+#' @param use_files_structure Logical. If `TRUE` and `file_path` is set to
+#'   `NULL`, will iterate over `files_structure` pulled by
+#'   `get_files_structure()` function and kept in storage. If there is no
+#'   `files_structure` in storage, an error will be returned. If `file_path` is
+#'   defined, it will override `use_files_structure` parameter.
+#' @param only_text_files A logical, `TRUE` by default. If set to `FALSE`, apart
+#'   from files with text content shows in table output also non-text files with
+#'   `NA` value for text content.
 #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
 #'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
 #'   output is switched off.
+#' @param progress A logical, by default set to `verbose` value. If `FALSE` no
+#'   `cli` progress bar will be displayed.
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
@@ -326,18 +350,87 @@ get_users <- function(gitstats_object,
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
 #'   )
-#'  get_files(my_gitstats, c("LICENSE", "DESCRIPTION"))
+#'  get_files_content(
+#'    gitstats_obj = my_gitstats,
+#'    file_path = c("LICENSE", "DESCRIPTION")
+#'  )
+#'
+#'  # example with files structure
+#'  files_structure <- get_files_structure(
+#'    gitstats_obj = my_gitstats,
+#'    pattern = "\\.Rmd",
+#'    depth = 2L
+#'  )
+#'  # get_files_content() will make use of pulled earlier files structure
+#'  files_content <- get_files_content(
+#'    gitstats_obj = my_gitstats
+#'  )
 #' }
 #' @return A data.frame.
 #' @export
-get_files <- function(gitstats_object,
-                      file_path,
-                      cache = TRUE,
-                      verbose = is_verbose(gitstats_object)){
-  gitstats_object$get_files(
-    file_path = file_path,
-    cache = cache,
-    verbose = verbose
+get_files_content <- function(gitstats_object,
+                              file_path           = NULL,
+                              use_files_structure = TRUE,
+                              only_text_files     = TRUE,
+                              cache               = TRUE,
+                              verbose             = is_verbose(gitstats_object),
+                              progress            = verbose) {
+  gitstats_object$get_files_content(
+    file_path           = file_path,
+    use_files_structure = use_files_structure,
+    only_text_files     = only_text_files,
+    cache               = cache,
+    verbose             = verbose,
+    progress            = progress
+  )
+}
+
+#' @title Get structure of files
+#' @name get_files_structure
+#' @description Pulls file structure for a given repository.
+#' @param gitstats_object A GitStats object.
+#' @param pattern An optional regular expression. If defined, it pulls file
+#'   structure for a repository matching this pattern.
+#' @param depth An optional integer. Defines level of directories to retrieve
+#'   files from. E.g. if set to `0`, it will pull files only from root, if `1`,
+#'   will take data from `root` directory and directories visible in `root`
+#'   directory. If left with no argument, will pull files from all directories.
+#' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+#'   result from its storage.
+#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
+#'   output is switched off.
+#' @param progress A logical, by default set to `verbose` value. If `FALSE` no
+#'   `cli` progress bar will be displayed.
+#' @examples
+#' \dontrun{
+#'  my_gitstats <- create_gitstats() %>%
+#'   set_github_host(
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs")
+#'   ) %>%
+#'   set_gitlab_host(
+#'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+#'     orgs = "mbtests"
+#'   )
+#'  get_files_structure(
+#'    gitstats_obj = my_gitstats,
+#'    pattern = "\\.md"
+#'  )
+#' }
+#' @return A list of vectors.
+#' @export
+get_files_structure <- function(gitstats_object,
+                                pattern  = NULL,
+                                depth    = Inf,
+                                cache    = TRUE,
+                                verbose  = is_verbose(gitstats_object),
+                                progress = verbose) {
+  gitstats_object$get_files_structure(
+    pattern  = pattern,
+    depth    = depth,
+    cache    = cache,
+    verbose  = verbose,
+    progress = progress
   )
 }
 
@@ -366,18 +459,16 @@ get_files <- function(gitstats_object,
 #'  get_R_package_usage(my_gitstats, "Shiny")
 #' }
 #' @export
-get_R_package_usage <- function(
-    gitstats_object,
-    package_name,
-    only_loading = FALSE,
-    cache = TRUE,
-    verbose = is_verbose(gitstats_object)
-  ) {
+get_R_package_usage <- function(gitstats_object,
+                                package_name,
+                                only_loading = FALSE,
+                                cache        = TRUE,
+                                verbose      = is_verbose(gitstats_object)) {
   gitstats_object$get_R_package_usage(
     package_name = package_name,
     only_loading = only_loading,
-    cache = cache,
-    verbose = verbose
+    cache        = cache,
+    verbose      = verbose
   )
 }
 
@@ -396,21 +487,21 @@ get_R_package_usage <- function(
 #'   get_release_logs(my_gistats, since = "2024-01-01")
 #' }
 #' @export
-get_release_logs <- function(
-    gitstats_object,
-    since = NULL,
-    until = NULL,
-    cache = TRUE,
-    verbose = is_verbose(gitstats_object)
-) {
+get_release_logs <- function(gitstats_object,
+                             since = NULL,
+                             until = NULL,
+                             cache = TRUE,
+                             verbose = is_verbose(gitstats_object),
+                             progress = verbose) {
   if (is.null(since)) {
     cli::cli_abort(cli::col_red("You need to pass date to `since` parameter."), call = NULL)
   }
   gitstats_object$get_release_logs(
-    since = since,
-    until = until,
-    cache = cache,
-    verbose = verbose
+    since    = since,
+    until    = until,
+    cache    = cache,
+    verbose  = verbose,
+    progress = progress
   )
 }
 
@@ -422,7 +513,7 @@ get_release_logs <- function(
 #' @param gitstats_object A GitStats object.
 #' @return A vector of organizations.
 #' @export
-show_orgs <- function(gitstats_object){
+show_orgs <- function(gitstats_object) {
   gitstats_object$show_orgs()
 }
 

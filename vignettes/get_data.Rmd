@@ -37,7 +37,7 @@ git_stats <- create_gitstats() %>%
 As scanning scope was set to `organizations` (`orgs` parameter in `set_*_host()`), `GitStats` will pull all repositories from these organizations.
 
 ```{r}
-repos <- get_repos(git_stats)
+repos <- get_repos(git_stats, progress = FALSE)
 dplyr::glimpse(repos)
 ```
 
@@ -52,12 +52,13 @@ dplyr::glimpse(repos_urls)
 
 If messages overwhelm you, you can switch them off in the function:
 
-```{r, eval = FALSE}
+```{r}
 release_logs <- get_release_logs(
-  gitstats_object = git_stats, 
-  since = "2024-01-01", 
+  gitstats_object = git_stats,
+  since = "2024-01-01",
   verbose = FALSE
 )
+dplyr::glimpse(release_logs)
 ```
 
 Or globally:
@@ -72,9 +73,10 @@ After pulling, the data is saved to `GitStats`.
 
 ```{r}
 commits <- get_commits(
-  gitstats_object = git_stats, 
-  since = "2024-06-01", 
-  until = "2024-06-30"
+  gitstats_object = git_stats,
+  since           = "2024-06-01",
+  until           = "2024-06-30",
+  progress        = FALSE
 )
 dplyr::glimpse(commits)
 ```
@@ -83,29 +85,33 @@ Caching feature is by default turned on. If you run the `get_*()` function once 
 
 ```{r}
 commits <- get_commits(
-  gitstats_object = git_stats, 
-  since = "2024-06-01", 
-  until = "2024-06-30"
+  gitstats_object = git_stats,
+  since           = "2024-06-01",
+  until           = "2024-06-30"
 )
 dplyr::glimpse(commits)
 ```
 
 Unless, you switch off the cache:
 
-```{r, eval = FALSE}
+```{r}
 commits <- get_commits(
-  gitstats_object = git_stats, 
-  since = "2024-06-01", 
-  until = "2024-06-30",
-  cache = FALSE
+  gitstats_object = git_stats,
+  since    = "2024-06-01",
+  until    = "2024-06-30",
+  cache    = FALSE,
+  progress = FALSE
 )
+dplyr::glimpse(commits)
 ```
 
 Or simply change the parameters for the function:
 
-```{r, eval = FALSE}
+```{r}
 commits <- get_commits(
-  gitstats_object = git_stats, 
-  since = "2024-07-01"
+  gitstats_object = git_stats,
+  since           = "2024-07-01",
+  progress        = FALSE
 )
+dplyr::glimpse(commits)
 ```

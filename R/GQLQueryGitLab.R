@@ -44,6 +44,7 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
               node {
                 repo_id: id
                 repo_name: name
+                repo_path: path
                 ... on Project {
                   repository {
                     rootRef
@@ -103,7 +104,7 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
     #'   GitLab repositories.
     #' @param end_cursor An endCursor.
     #' @return A query.
-    files_by_org = function(end_cursor = ""){
+    files_by_org = function(end_cursor = "") {
       if (nchar(end_cursor) == 0) {
         after_cursor <- end_cursor
       } else {
@@ -113,33 +114,85 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
         'query GetFilesByOrg($org: ID!, $file_paths: [String!]!) {
             group(fullPath: $org) {
               projects(first: 100',
-                       after_cursor,
-                       ') {
-                count
-                pageInfo {
-                  hasNextPage
-                  endCursor
-                }
-                edges {
-                  node {
+        after_cursor,
+        ') {
+          count
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+          edges {
+            node {
+              name
+              id
+              webUrl
+              repository {
+                blobs(paths: $file_paths) {
+                  nodes {
                     name
-                    id
-                    webUrl
-                    repository {
-                      blobs(paths: $file_paths) {
-                        nodes {
-                          name
-                          rawBlob
-                          size
-                        }
-                      }
-                    }
+                    rawBlob
+                    size
                   }
                 }
               }
             }
-          }'
+          }
+        }
+      }
+    }'
       )
+    },
+
+    file_blob_from_repo = function() {
+      '
+      query GetFilesByRepo($fullPath: ID!, $file_paths: [String!]!) {
+        project(fullPath: $fullPath) {
+          name
+          id
+          webUrl
+          repository {
+            blobs(paths: $file_paths) {
+              nodes {
+                name
+                rawBlob
+                size
+              }
+            }
+          }
+        }
+      }
+      '
+    },
+
+    files_tree_from_repo = function() {
+      '
+      query GetFilesTree ($fullPath: ID!, $file_path: String!) {
+        project(fullPath: $fullPath) {
+          repository {
+            tree(path: $file_path) {
+              trees (first: 100) {
+                pageInfo{
+                  endCursor
+                  hasNextPage
+                }
+                nodes {
+                  name
+                }
+              }
+              blobs (first: 100) {
+                pageInfo{
+                  endCursor
+                  hasNextPage
+                }
+                nodes {
+                  name
+                }
+              }
+            }
+          }
+        }
+      }
+      '
     },
 
     #' @description Prepare query to get releases from GitHub repositories.

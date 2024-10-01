@@ -27,6 +27,7 @@ With GitStats you can pull git data in a uniform way (table format) from GitHub 
 * commits,
 * users,
 * release logs,
+* repository files structure,
 * text files content,
 * R package usage.
 
