@@ -10,7 +10,7 @@ test_that("`get_releases_from_org()` pulls releases from the repositories", {
   mockery::stub(
     test_graphql_github$get_release_logs_from_org,
     "self$gql_response",
-    test_fixtures$github_releases_from_org
+    test_fixtures$github_releases_from_repo
   )
   releases_from_repos <- test_graphql_github$get_release_logs_from_org(
     repos_names = c("TestProject1", "TestProject2"),

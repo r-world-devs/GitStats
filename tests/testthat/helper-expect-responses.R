@@ -242,3 +242,23 @@ expect_github_releases_response <- function(object) {
     })
   })
 }
+
+expect_gitlab_releases_response <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  purrr::walk(object, function(response) {
+    expect_gt(length(response), 0)
+    expect_list_contains(
+      response$data$project,
+      c("releases")
+    )
+    purrr::walk(response$data$project$releases$nodes, function(node) {
+      expect_list_contains(
+        node,
+        c("name", "tagName", "releasedAt", "links", "description")
+      )
+    })
+  })
+}
