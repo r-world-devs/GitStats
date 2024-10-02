@@ -7,9 +7,14 @@ test_that("releases query is built properly", {
 })
 
 test_that("`get_releases_from_org()` pulls releases from the repositories", {
+  mockery::stub(
+    test_graphql_github$get_release_logs_from_org,
+    "self$gql_response",
+    test_fixtures$github_releases_from_org
+  )
   releases_from_repos <- test_graphql_github$get_release_logs_from_org(
-    repos_names = c("GitStats", "shinyCohortBuilder"),
-    org = "r-world-devs"
+    repos_names = c("TestProject1", "TestProject2"),
+    org = "test_org"
   )
   expect_github_releases_response(releases_from_repos)
   test_mocker$cache(releases_from_repos)
