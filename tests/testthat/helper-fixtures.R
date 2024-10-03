@@ -30,7 +30,116 @@ test_fixtures$half_empty_gql_response <- list(
   )
 )
 
-commit_edge <- list(
+github_repository_node <- list(
+  "repo_id" = "xyz",
+  "repo_name" = "TestRepo",
+  "default_branch" = list(
+    "name" = "main"
+  ),
+  "stars" = 10,
+  "forks" = 2,
+  "created_at" = "2022-04-20T00:00:00Z",
+  "last_activity_at" = "2023-04-20T00:00:00Z",
+  "languages" = list(
+    "nodes" = list(
+      list(
+        "name" = "R"
+      ),
+      list(
+        "name" = "CSS"
+      ),
+      list(
+        "name" = "JavaScript"
+      )
+    )
+  ),
+  "issues_open" = list(
+    "totalCount" = 10
+  ),
+  "issues_closed" = list(
+    "totalCount" = 5
+  ),
+  "organization" = list(
+    "login" = "test_org"
+  ),
+  "repo_url" = "https://test_url"
+)
+
+test_fixtures$github_repos_by_org_response <- list(
+  "data" = list(
+    "repositoryOwner" = list(
+      "repositories" = list(
+        "totalCount" = 5,
+        "pageInfo" = list(
+          "endCursor" = "xyx",
+          "hasNextPage" = FALSE
+        ),
+        "nodes" = list(
+          github_repository_node,
+          github_repository_node,
+          github_repository_node,
+          github_repository_node,
+          github_repository_node
+        )
+      )
+    )
+  )
+)
+
+gitlab_project_node <- list(
+  "node" = list(
+    "repo_id" = "gid://gitlab/Project/61399846",
+    "repo_name" = "test_repo",
+    "repo_path" = "test_repo",
+    "repository" = list(
+      "rootRef" = "main"
+    ),
+    "stars" = 8,
+    "forks" = 3,
+    "created_at" = "2023-09-18T00:00:00Z",
+    "last_activity_at" = "2024-09-18T00:00:00Z",
+    "languages" = list(
+      list(
+        "name" = "Python"
+      ),
+      list(
+        "name" = "R"
+      )
+    ),
+    "issues" = list(
+      "all" = 10,
+      "closed" = 8,
+      "opened" = 2
+    ),
+    "group" = list(
+      "path" = "test_group"
+    ),
+    "repo_url" = "https://test_gitlab_url.com"
+  )
+)
+
+test_fixtures$gitlab_repos_by_org_response <- list(
+  "data" = list(
+    "group" = list(
+      "projects" = list(
+        "count" = 5,
+        "pageInfo" = list(
+          "hasNextPage" = FALSE,
+          "endCursor" = "xyz"
+        ),
+        "edges" = list(
+          gitlab_project_node,
+          gitlab_project_node,
+          gitlab_project_node,
+          gitlab_project_node,
+          gitlab_project_node
+        )
+      )
+    )
+  )
+)
+
+github_commit_edge <- list(
   "node" = list(
     "id" = "xxx",
     "committed_date" = "2023-01-25T10:26:41Z",
@@ -53,7 +162,7 @@ test_fixtures$github_commits_response <- list(
         "target" = list(
           "history" = list(
             "edges" = list(
-              rep(commit_edge, 5)
+              rep(github_commit_edge, 5)
             )
           )
         )

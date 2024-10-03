@@ -161,6 +161,7 @@ GitHostGitHub <- R6::R6Class(
               default_branch,
               .after = repo_name
             )
+          return(repo)
         })
       } else {
         repos_table <- NULL

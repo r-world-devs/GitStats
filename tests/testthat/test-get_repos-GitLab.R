@@ -7,25 +7,14 @@ test_that("repos queries are built properly", {
   test_mocker$cache(gl_repos_by_org_query)
 })
 
-test_that("GitLab repos response to query works", {
-  gl_repos_by_org_gql_response <- test_graphql_gitlab$gql_response(
-    gql_query = test_mocker$use("gl_repos_by_org_query"),
-    vars = list(org = "mbtests")
-  )
-  expect_gl_repos_gql_response(
-    gl_repos_by_org_gql_response
-  )
-  test_mocker$cache(gl_repos_by_org_gql_response)
-})
-
 test_that("`get_repos_page()` pulls repos page from GitLab group", {
   mockery::stub(
     test_graphql_gitlab_priv$get_repos_page,
     "self$gql_response",
-    test_mocker$use("gl_repos_by_org_gql_response")
+    test_fixtures$gitlab_repos_by_org_response
   )
   gl_repos_page <- test_graphql_gitlab_priv$get_repos_page(
-    org = "mbtests"
+    org = "test_org"
   )
   expect_gl_repos_gql_response(
     gl_repos_page
@@ -40,7 +29,7 @@ test_that("`get_repos_from_org()` prepares formatted list", {
     test_mocker$use("gl_repos_page")
   )
   gl_repos_from_org <- test_graphql_gitlab$get_repos_from_org(
-    org = "mbtests"
+    org = "test_org"
   )
   expect_equal(
     names(gl_repos_from_org[[1]]$node),
@@ -60,7 +49,7 @@ test_that("`get_repos_from_org()` does not fail when GraphQL response is not com
     test_fixtures$empty_gql_response
   )
   gl_repos_from_org <- test_graphql_gitlab$get_repos_from_org(
-    org = "mbtests"
+    org = "test_org"
   )
   expect_type(
     gl_repos_from_org,
@@ -76,7 +65,7 @@ test_that("`get_repos_from_org()` does not fail when GraphQL response is not com
     test_fixtures$half_empty_gql_response
   )
   gl_repos_from_org <- test_graphql_gitlab$get_repos_from_org(
-    org = "mbtests"
+    org = "test_org"
   )
   expect_type(
     gl_repos_from_org,

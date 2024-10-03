@@ -7,25 +7,14 @@ test_that("repos_by_org query is built properly", {
   test_mocker$cache(gh_repos_by_org_query)
 })
 
-test_that("GitHub repos response to query works", {
-  gh_repos_by_org_gql_response <- test_graphql_github$gql_response(
-    test_mocker$use("gh_repos_by_org_query"),
-    vars = list(org = "r-world-devs")
-  )
-  expect_gh_repos_gql_response(
-    gh_repos_by_org_gql_response
-  )
-  test_mocker$cache(gh_repos_by_org_gql_response)
-})
-
 test_that("`get_repos_page()` pulls repos page from GitHub organization", {
   mockery::stub(
     test_graphql_github_priv$get_repos_page,
     "self$gql_response",
-    test_mocker$use("gh_repos_by_org_gql_response")
+    test_fixtures$github_repos_by_org_response
   )
   gh_repos_page <- test_graphql_github_priv$get_repos_page(
-    org = "r-world-devs"
+    org = "test_org"
   )
   expect_gh_repos_gql_response(
     gh_repos_page
@@ -40,7 +29,7 @@ test_that("`get_repos_from_org()` prepares formatted list", {
     test_mocker$use("gh_repos_page")
   )
   gh_repos_from_org <- test_graphql_github$get_repos_from_org(
-    org = "r-world-devs"
+    org = "test_org"
   )
   expect_list_contains(
     gh_repos_from_org[[1]],
@@ -56,9 +45,6 @@ test_that("`get_repos_from_org()` prepares formatted list", {
 # REST Engine search repos by code
 
 test_that("`response()` returns search response from GitHub's REST API", {
-  # search_endpoint <- "https://api.github.com/search/code?q=shiny+user:r-world-devs"
-  # test_mocker$cache(search_endpoint)
-  # gh_search_response_raw <- test_rest_github$response(search_endpoint)
   gh_search_response_raw <- test_fixtures$github_search_response
   expect_gh_search_response(gh_search_response_raw[["items"]])
   test_mocker$cache(gh_search_response_raw)
