@@ -1,4 +1,9 @@
 test_that("get_repos_urls() works", {
+  mockery::stub(
+    test_rest_github$get_repos_urls,
+    "self$response",
+    test_fixtures$github_repositories_rest_response
+  )
   gh_repos_urls <- test_rest_github$get_repos_urls(
     type = "web",
     org = "r-world-devs"
@@ -13,6 +18,11 @@ test_that("get_repos_urls() works", {
 test_that("get_all_repos_urls prepares api repo_urls vector", {
   github_testhost_priv <- create_github_testhost(orgs = c("r-world-devs", "openpharma"),
                                                  mode = "private")
+  mockery::stub(
+    test_rest_github$get_repos_urls,
+    "self$response",
+    test_fixtures$github_repositories_rest_response
+  )
   gh_api_repos_urls <- github_testhost_priv$get_all_repos_urls(
     type = "api",
     verbose = FALSE

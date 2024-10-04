@@ -30,6 +30,29 @@ test_fixtures$half_empty_gql_response <- list(
   )
 )
 
+test_fixtures$github_repositories_rest_response <- list(
+  list(
+    "html_url" = "https://github.com/r-world-devs/GitStats",
+    "url" = "https://api.github.com/repos/r-world-devs/GitStats"
+  ),
+  list(
+    "html_url" = "https://github.com/openpharma/DataFakeR",
+    "url" = "https://api.github.com/repos/openpharma/DataFakeR"
+  )
+)
+
+
+test_fixtures$gitlab_repositories_rest_response <- list(
+  list(
+    "_links" = list("self" = "https://gitlab.com/api/v4/projects/43400864"),
+    "web_url" = "https://gitlab.com/mbtests/gitstats-testing-2"
+  ),
+  list(
+    "_links" = list("self" = "https://gitlab.com/api/v4/projects/43398933"),
+    "web_url" = "https://gitlab.com/mbtests/gitstatstesting"
+  )
+)
+
 github_repository_node <- list(
   "repo_id" = "xyz",
   "repo_name" = "TestRepo",
@@ -553,5 +576,63 @@ test_fixtures$gitlab_releases_from_repo <- list(
         )
       )
     )
+  )
+)
+
+test_fixtures$github_user_response <- list(
+  "data" = list(
+    "user" = list(
+      "id" = "xxx",
+      "name" = "Mr Test",
+      "login" = "testlogin",
+      "email" = "",
+      "location" = NULL,
+      "starred_repos" = list(
+        "totalCount" = 15L
+      ),
+      "contributions" = list(
+        "totalCommitContributions" = 100L,
+        "totalIssueContributions" = 50L,
+        "totalPullRequestContributions" = 25L,
+        "totalPullRequestReviewContributions" = 5L
+      ),
+      "avatar_url" = "",
+      "web_url" = NULL
+    )
+  )
+)
+
+test_fixtures$gitlab_user_response <- list(
+  "data" = list(
+    "user" = list(
+      "id" = "xxx",
+      "name" = "Mr Test",
+      "login" = "testlogin",
+      "email" = "",
+      "location" = NULL,
+      "starred_repos" = list(
+        "count" = 15L
+      ),
+      "pull_requests" = list(
+        "count" = 2L
+      ),
+      "reviews" = list(
+        "count" = 5L
+      ),
+      "avatar_url" = "",
+      "web_url" = "https://gitlab.com/maciekbanas"
+    )
+  )
+)
+
+test_fixtures$gitlab_user_search_response <- list(
+  list(
+    "id" = "xxx",
+    "username" = "maciekbanas",
+    "name" = "Maciej Banas",
+    "state" = "active",
+    "locked" = FALSE,
+    "avatar_url" = "",
+    "web_url" = ""
   )
 )

@@ -158,46 +158,10 @@ EngineRestGitLab <- R6::R6Class(
         if (verbose) {
           cli::cli_alert_info("Looking up for authors' names and logins...")
         }
-        authors_dict <- purrr::map(unique(commits_table$author), function(author) {
-          author <- url_encode(author)
-          search_endpoint <- paste0(
-            self$rest_api_url,
-            "/search?scope=users&search=%22", author, "%22"
-          )
-          user_response <- list()
-          try({
-            user_response <- self$response(endpoint = search_endpoint)
-          }, silent = TRUE)
-          if (length(user_response) == 0) {
-            author <- stringi::stri_trans_general(author, "Latin-ASCII")
-            search_endpoint <- paste0(
-              self$rest_api_url,
-              "/search?scope=users&search=%22", author, "%22"
-            )
-            try({
-              user_response <- self$response(endpoint = search_endpoint)
-            }, silent = TRUE)
-          }
-          if (!is.null(user_response) && length(user_response) > 1) {
-            user_response <- purrr::keep(user_response, ~ grepl(author, .$name))
-          }
-          if (is.null(user_response) || length(user_response) == 0) {
-            user_tbl <- tibble::tibble(
-              author = URLdecode(author),
-              author_login = NA,
-              author_name = NA
-            )
-          } else {
-            user_tbl <- tibble::tibble(
-              author = URLdecode(author),
-              author_login = user_response[[1]]$username,
-              author_name = user_response[[1]]$name
-            )
-          }
-          return(user_tbl)
-        }, .progress = progress) %>%
-          purrr::list_rbind()
-
+        authors_dict <- private$get_authors_dict(
+          commits_table = commits_table,
+          progress = progress
+        )
         commits_table <- commits_table %>%
           dplyr::mutate(
             author_login = NA,
@@ -423,6 +387,48 @@ EngineRestGitLab <- R6::R6Class(
         FALSE
       }) |>
         purrr::discard(is.null)
+    },
+
+    get_authors_dict = function(commits_table, progress) {
+      purrr::map(unique(commits_table$author), function(author) {
+        author <- url_encode(author)
+        search_endpoint <- paste0(
+          self$rest_api_url,
+          "/search?scope=users&search=%22", author, "%22"
+        )
+        user_response <- list()
+        try({
+          user_response <- self$response(endpoint = search_endpoint)
+        }, silent = TRUE)
+        if (length(user_response) == 0) {
+          author <- stringi::stri_trans_general(author, "Latin-ASCII")
+          search_endpoint <- paste0(
+            self$rest_api_url,
+            "/search?scope=users&search=%22", author, "%22"
+          )
+          try({
+            user_response <- self$response(endpoint = search_endpoint)
+          }, silent = TRUE)
+        }
+        if (!is.null(user_response) && length(user_response) > 1) {
+          user_response <- purrr::keep(user_response, ~ grepl(author, .$name))
+        }
+        if (is.null(user_response) || length(user_response) == 0) {
+          user_tbl <- tibble::tibble(
+            author = URLdecode(author),
+            author_login = NA,
+            author_name = NA
+          )
+        } else {
+          user_tbl <- tibble::tibble(
+            author = URLdecode(author),
+            author_login = user_response[[1]]$username,
+            author_name = user_response[[1]]$name
+          )
+        }
+        return(user_tbl)
+      }, .progress = progress) %>%
+        purrr::list_rbind()
     }
   )
 )

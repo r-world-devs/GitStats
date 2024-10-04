@@ -39,11 +39,46 @@ test_that("`prepare_commits_table()` prepares table of commits properly", {
   test_mocker$cache(gl_commits_table)
 })
 
+test_that("get_authors_dict() prepares dictionary with handles and names", {
+  mockery::stub(
+    test_rest_gitlab_priv$get_authors_dict,
+    "self$response",
+    test_fixtures$gitlab_user_search_response
+  )
+  authors_dict <- test_rest_gitlab_priv$get_authors_dict(
+    commits_table = test_mocker$use("gl_commits_table"),
+    progress = FALSE
+  )
+  expect_s3_class(authors_dict, "data.frame")
+  expect_true(nrow(authors_dict) > 0)
+  expect_length(authors_dict, 3)
+  test_mocker$cache(authors_dict)
+})
+
+test_that("`get_commits_authors_handles_and_names()` adds author logis and names to commits table", {
+  mockery::stub(
+    test_rest_gitlab$get_commits_authors_handles_and_names,
+    "private$get_authors_dict",
+    test_mocker$use("authors_dict")
+  )
+  expect_snapshot(
+    gl_commits_table <- test_rest_gitlab$get_commits_authors_handles_and_names(
+      commits_table = test_mocker$use("gl_commits_table"),
+      verbose = TRUE
+    )
+  )
+  expect_commits_table(
+    gl_commits_table,
+    exp_auth = TRUE
+  )
+  test_mocker$cache(gl_commits_table)
+})
+
 test_that("get_commits_from_orgs works", {
   mockery::stub(
     gitlab_testhost_priv$get_commits_from_orgs,
-    "rest_engine$get_commits_from_repos",
-    test_mocker$use("gl_commits_org")
+    "rest_engine$get_commits_authors_handles_and_names",
+    test_mocker$use("gl_commits_table")
   )
   suppressMessages(
     gl_commits_table <- gitlab_testhost_priv$get_commits_from_orgs(
@@ -73,18 +108,4 @@ test_that("get_commits for GitLab works with repos implied", {
   expect_commits_table(
     gl_commits_table
   )
-})
-
-test_that("`get_commits_authors_handles_and_names()` adds author logis and names to commits table", {
-  expect_snapshot(
-    gl_commits_table <- test_rest_gitlab$get_commits_authors_handles_and_names(
-      commits_table = test_mocker$use("gl_commits_table"),
-      verbose = TRUE
-    )
-  )
-  expect_commits_table(
-    gl_commits_table,
-    exp_auth = TRUE
-  )
-  test_mocker$cache(gl_commits_table)
 })
