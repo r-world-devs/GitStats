@@ -102,6 +102,7 @@ EngineGraphQLGitHub <- R6::R6Class(
       org_files_list <- private$get_repositories_with_files(
         repositories = repositories,
         def_branches = def_branches,
+        org = org,
         file_paths = file_paths,
         host_files_structure = host_files_structure,
         only_text_files = only_text_files,
@@ -240,6 +241,7 @@ EngineGraphQLGitHub <- R6::R6Class(
 
     get_repositories_with_files = function(repositories,
                                            def_branches,
+                                           org,
                                            host_files_structure,
                                            only_text_files,
                                            file_paths,

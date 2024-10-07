@@ -73,6 +73,7 @@ test_that("get_repositories_with_files works", {
   gh_repositories_with_files <- test_graphql_github_priv$get_repositories_with_files(
     repositories = c("test_repo_1", "test_repo_2", "test_repo_3", "test_repo_4", "test_repo_5"),
     def_branches = c("test_branch_1", "test_branch_2", "test_branch_3", "test_branch_4", "test_branch_5"),
+    org = "test-org",
     file_paths   = "test_files",
     only_text_files      = TRUE,
     host_files_structure = NULL,
