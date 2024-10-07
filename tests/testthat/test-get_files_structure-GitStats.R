@@ -5,13 +5,13 @@ test_that("get_files_structure_from_hosts works as expected", {
     test_mocker$use("gh_files_structure_from_orgs")
   )
   files_structure_from_hosts <- test_gitstats_priv$get_files_structure_from_hosts(
-    pattern = "\\md",
+    pattern = "\\.md|\\.qmd\\.Rmd",
     depth = 1L,
     verbose = FALSE
   )
   expect_equal(names(files_structure_from_hosts),
                c("github.com", "gitlab.com"))
-  expect_equal(names(files_structure_from_hosts[[1]]), c("r-world-devs", "openpharma"))
+  expect_equal(names(files_structure_from_hosts[[1]]), c("test-org"))
   files_structure_from_hosts[[2]] <- test_mocker$use("gl_files_structure_from_orgs")
   test_mocker$cache(files_structure_from_hosts)
 })

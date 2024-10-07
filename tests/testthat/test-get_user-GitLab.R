@@ -37,10 +37,11 @@ test_that("get_users build users table for GitLab", {
     "private$prepare_user_table",
     test_mocker$use("gl_user_table")
   )
-  users_result <- gitlab_testhost$get_users(
+  gitlab_users <- gitlab_testhost$get_users(
     users = c("testuser1", "testuser2")
   )
   expect_users_table(
-    users_result
+    gitlab_users
   )
+  test_mocker$cache(gitlab_users)
 })

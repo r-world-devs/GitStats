@@ -33,11 +33,28 @@ test_that("`prepare_releases_table()` prepares releases table", {
   test_mocker$cache(releases_table)
 })
 
+test_that("`set_repositories` works", {
+  mockery::stub(
+    github_testhost_priv$set_repositories,
+    "private$get_all_repos",
+    test_mocker$use("gh_repos_table")
+  )
+  repos_names <- github_testhost_priv$set_repositories()
+  expect_type(repos_names, "character")
+  expect_gt(length(repos_names), 0)
+  test_mocker$cache(repos_names)
+})
+
 test_that("`get_release_logs()` pulls release logs in the table format", {
   mockery::stub(
     github_testhost$get_release_logs,
     "private$prepare_releases_table",
     test_mocker$use("releases_table")
+  )
+  mockery::stub(
+    github_testhost$get_release_logs,
+    "private$set_repositories",
+    test_mocker$use("repos_names")
   )
   releases_table <- github_testhost$get_release_logs(
     since    = "2023-05-01",

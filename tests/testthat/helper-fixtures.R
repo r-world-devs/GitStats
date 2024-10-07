@@ -30,14 +30,43 @@ test_fixtures$half_empty_gql_response <- list(
   )
 )
 
-test_fixtures$github_repositories_rest_response <- list(
-  list(
-    "html_url" = "https://github.com/r-world-devs/GitStats",
-    "url" = "https://api.github.com/repos/r-world-devs/GitStats"
+test_fixtures$github_repository_rest_response <- list(
+  "id" = 627452680,
+  "node_id" = "R_kgDOJWYrCA",
+  "name" = "testRepo",
+  "full_name" = "test-org/TestRepo",
+  "private" = FALSE,
+  "owner" = list(
+    "login" = "test-org",
+    "id" = 103638913,
+    "node_id" = "O_kgDOBi1ngQ",
+    "avatar_url" = "https://avatars.githubusercontent.com/u/103638913?v=4"
   ),
+  "html_url" = "https://testhost.com/test-org/TestRepo",
+  "description" = NULL,
+  "fork" = FALSE,
+  "url" = "https://testhost.com/api/v4/repos/test-org/TestRepo",
+  "forks_url" = "https://testhost.com/api/v4/repos/test-org/TestRepo/forks",
+  "collaborators_url" = "https://testhost.com/api/v4/repos/test-org/TestRepo/collaborators{/collaborator}",
+  "teams_url" = "https://testhost.com/api/v4/repos/test-org/TestRepo/teams",
+  "events_url" = "https://testhost.com/api/v4/repos/test-org/TestRepo/events",
+  "branches_url" = "https://testhost.com/api/v4/repos/test-org/TestRepo/branches{/branch}",
+  "created_at" = "2023-04-13T13:52:24Z",
+  "pushed_at" = "2023-12-21T20:36:23Z",
+  "size" = 211L,
+  "stargazers_count" = 2,
+  "watchers_count" = 2,
+  "language" = "R",
+  "forks_count" = 0,
+  "open_issues_count" = 3L
+)
+
+test_fixtures$github_repositories_rest_response <- list(
+  test_fixtures$github_repository_rest_response,
   list(
-    "html_url" = "https://github.com/openpharma/DataFakeR",
-    "url" = "https://api.github.com/repos/openpharma/DataFakeR"
+    "id" = 2222222222222,
+    "html_url" = "https://testhost.com/test-org/TestRepo",
+    "url" = "https://testhost.com/api/v4/repos/test-org/TestRepo"
   )
 )
 
@@ -378,7 +407,7 @@ test_fixtures$github_search_response <- list(
       "repository" = list(
         "id" = 627452680,
         "url" = "https://api.github.com/repos/r-world-devs/GitStats",
-        "html" = "https://github.com/r-world-devs/GitStats"
+        "html_url" = "https://github.com/r-world-devs/GitStats"
       ),
       "score" = 1
     ),
@@ -392,7 +421,7 @@ test_fixtures$github_search_response <- list(
       "repository" = list(
         "id" = 604718884,
         "url" = "https://api.github.com/repos/r-world-devs/GitStats",
-        "html" = "https://github.com/r-world-devs/GitStats"
+        "html_url" = "https://github.com/r-world-devs/GitStats"
       ),
       "score" = 1
     ),
@@ -406,7 +435,7 @@ test_fixtures$github_search_response <- list(
       "repository" = list(
         "id" = 495151911,
         "url" = "https://api.github.com/repos/r-world-devs/GitStats",
-        "html" = "https://github.com/r-world-devs/GitStats"
+        "html_url" = "https://github.com/r-world-devs/GitStats"
       ),
       "score" = 1
     )
@@ -451,8 +480,8 @@ test_fixtures$github_files_tree_response <- list(
   "data" = list(
     "repository" = list(
       "id"     = "R_kgD0Ivtxsg",
-      "name"   = "GitStats",
-      "url"    = "https://github.com/r-world-devs/GitStats",
+      "name"   = "TestRepo",
+      "url"    = "https://github.com/test-org/TestRepo",
       "object" = list(
         "entries" = list(
           list(
@@ -469,6 +498,18 @@ test_fixtures$github_files_tree_response <- list(
           ),
           list(
             "name" = ".covrignore",
+            "type" = "blob"
+          ),
+          list(
+            "name" = "test.md",
+            "type" = "blob"
+          ),
+          list(
+            "name" = "test.qmd",
+            "type" = "blob"
+          ),
+          list(
+            "name" = "test.Rmd",
             "type" = "blob"
           ),
           list(
@@ -635,4 +676,59 @@ test_fixtures$gitlab_user_search_response <- list(
     "avatar_url" = "",
     "web_url" = ""
   )
+)
+
+test_fixtures$github_contributor_response <- list(
+  "login" = "test_login",
+  "id" = 11111L,
+  "node_id" = "xxxxx",
+  "avatar_url" = "",
+  "gravatar_id" = "",
+  "url" = "",
+  "html_url" = "",
+  "followers_url" = ""
+)
+
+test_fixtures$github_contributors_response <- list(
+  test_fixtures$github_contributor_response,
+  test_fixtures$github_contributor_response,
+  test_fixtures$github_contributor_response
+)
+
+test_fixtures$github_open_issue_response <- list(
+  "url" = "test",
+  "repository_url" = "test",
+  "labels_url" = "test",
+  "comments_url" = "test",
+  "events_url" = "test",
+  "html_url" = "test",
+  "id" = 111111L,
+  "node_id" = "xxxxxx",
+  "number" = 1L,
+  "title" = "Test title",
+  "user" = list(),
+  "labels" = list(),
+  "state" = "open"
+)
+
+test_fixtures$github_closed_issue_response <- list(
+  "url" = "test",
+  "repository_url" = "test",
+  "labels_url" = "test",
+  "comments_url" = "test",
+  "events_url" = "test",
+  "html_url" = "test",
+  "id" = 111111L,
+  "node_id" = "xxxxxx",
+  "number" = 1L,
+  "title" = "Test title",
+  "user" = list(),
+  "labels" = list(),
+  "state" = "closed"
+)
+
+test_fixtures$github_issues_response <- list(
+  test_fixtures$github_open_issue_response,
+  test_fixtures$github_open_issue_response,
+  test_fixtures$github_closed_issue_response
 )

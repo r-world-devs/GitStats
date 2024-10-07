@@ -113,7 +113,7 @@ EngineRestGitLab <- R6::R6Class(
             "/repository/contributors"
           )
           contributors_vec <- tryCatch({
-            private$pull_contributors_from_repo(
+            private$get_contributors_from_repo(
               contributors_endpoint = contributors_endpoint,
               user_name = user_name
             )

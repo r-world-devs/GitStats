@@ -37,9 +37,9 @@ test_that("GitHost gets users tables", {
     "private$prepare_user_table",
     test_mocker$use("gh_user_table")
   )
-  users_table <- github_testhost$get_users(
+  github_users <- github_testhost$get_users(
     users = c("testuser1", "testuser2")
   )
-  expect_users_table(users_table)
-  test_mocker$cache(users_table)
+  expect_users_table(github_users)
+  test_mocker$cache(github_users)
 })

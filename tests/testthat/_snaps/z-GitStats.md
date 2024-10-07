@@ -18,7 +18,7 @@
       A GitStats object for 2 hosts: 
       Hosts: https://api.github.com, https://gitlab.com/api/v4
       Scanning scope: 
-       Organizations: [2] r-world-devs, mbtests
+       Organizations: [2] github_test_org, gitlab_test_group
        Repositories: [0] 
       Storage: <no data in storage>
 

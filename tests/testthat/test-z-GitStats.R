@@ -88,7 +88,7 @@ test_that("show_orgs print orgs properly", {
   test_gitstats <- create_test_gitstats(hosts = 2)
   expect_equal(
     test_gitstats$show_orgs(),
-    c("r-world-devs", "mbtests")
+    c("github_test_org", "gitlab_test_group")
   )
 })
 
