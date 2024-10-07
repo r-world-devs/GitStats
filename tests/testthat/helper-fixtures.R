@@ -735,3 +735,18 @@ test_fixtures$github_issues_response <- list(
   test_fixtures$github_open_issue_response,
   test_fixtures$github_closed_issue_response
 )
+
+test_fixtures$gitlab_issues_response <- list(
+  "statistics" = list(
+    "counts" = list(
+      "all" = 3,
+      "closed" = 2,
+      "opened" = 1
+    )
+  )
+)
+
+test_fixtures$gitlab_languages_response <- list(
+  "Python" = 100,
+  "R" = 50
+)

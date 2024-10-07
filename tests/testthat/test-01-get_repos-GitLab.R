@@ -90,16 +90,20 @@ test_that("`map_search_into_repos()` works", {
   test_mocker$cache(gl_search_repos_by_code)
 })
 
-test_that("`pull_repos_languages` works", {
+test_that("`get_repos_languages` works", {
   repos_list <- test_mocker$use("gl_search_repos_by_code")
   repos_list[[1]]$id <- "45300912"
-  suppressMessages(
-    repos_list_with_languages <- test_rest_gitlab_priv$pull_repos_languages(
-      repos_list = repos_list,
-      progress   = FALSE
-    )
+  mockery::stub(
+    test_rest_gitlab_priv$get_repos_languages,
+    "self$response",
+    test_fixtures$gitlab_languages_response
+  )
+  repos_list_with_languages <- test_rest_gitlab_priv$get_repos_languages(
+    repos_list = repos_list,
+    progress   = FALSE
   )
   purrr::walk(repos_list_with_languages, ~ expect_list_contains(., "languages"))
+  expect_equal(repos_list_with_languages[[1]]$languages, c("Python", "R"))
 })
 
 test_that("`prepare_repos_table()` prepares repos table", {
@@ -121,10 +125,8 @@ test_that("GitHost adds `repo_api_url` column to GitLab repos table", {
 
 test_that("`tailor_repos_response()` tailors precisely `repos_list`", {
   gl_repos_by_code <- test_mocker$use("gl_search_repos_by_code")
-
   gl_repos_by_code_tailored <-
     gitlab_testhost_priv$tailor_repos_response(gl_repos_by_code)
-
   gl_repos_by_code_tailored %>%
     expect_type("list") %>%
     expect_length(length(gl_repos_by_code))
@@ -158,6 +160,11 @@ test_that("GitHost prepares table from GitLab repositories response", {
 })
 
 test_that("`get_repos_issues()` adds issues to repos table", {
+  mockery::stub(
+    test_rest_gitlab$get_repos_issues,
+    "self$response",
+    test_fixtures$gitlab_issues_response
+  )
   gl_repos_by_code_table <- test_mocker$use("gl_repos_by_code_table")
   gl_repos_by_code_table <- test_rest_gitlab$get_repos_issues(
     gl_repos_by_code_table,
@@ -175,6 +182,11 @@ test_that("`get_repos_issues()` adds issues to repos table", {
 })
 
 test_that("`get_repos_contributors()` adds contributors to repos table", {
+  mockery::stub(
+    test_rest_gitlab$get_repos_contributors,
+    "private$get_contributors_from_repo",
+    "Maciej Banas"
+  )
   gl_repos_table_with_contributors <- test_rest_gitlab$get_repos_contributors(
     test_mocker$use("gl_repos_table_with_api_url"),
     progress = FALSE

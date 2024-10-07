@@ -59,7 +59,7 @@ EngineRestGitLab <- R6::R6Class(
           private$map_search_into_repos(
             progress = progress
           ) %>%
-          private$pull_repos_languages(
+          private$get_repos_languages(
             progress = progress
           )
       }
@@ -87,7 +87,6 @@ EngineRestGitLab <- R6::R6Class(
         issues <- purrr::map(repos_table$repo_id, function(repos_id) {
           id <- gsub("gid://gitlab/Project/", "", repos_id)
           issues_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/issues_statistics")
-
           self$response(
             endpoint = issues_endpoint
           )[["statistics"]][["counts"]]
@@ -237,7 +236,7 @@ EngineRestGitLab <- R6::R6Class(
         endpoint = repo_endpoint
       )
       full_repos_list <- repos_response %>%
-        private$pull_repos_languages(
+        private$get_repos_languages(
           progress = progress
         )
       return(full_repos_list)
@@ -301,7 +300,7 @@ EngineRestGitLab <- R6::R6Class(
     },
 
     # Pull languages of repositories.
-    pull_repos_languages = function(repos_list, progress) {
+    get_repos_languages = function(repos_list, progress) {
       repos_list_with_languages <- purrr::map(repos_list, function(repo) {
         id <- repo$id
         repo$languages <- names(self$response(paste0(private$endpoints[["projects"]], id, "/languages")))
