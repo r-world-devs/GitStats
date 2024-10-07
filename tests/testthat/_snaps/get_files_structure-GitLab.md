@@ -9,10 +9,10 @@
 
     Code
       gl_files_structure_from_orgs <- gitlab_testhost_priv$
-        get_files_structure_from_orgs(pattern = "\\.md|\\.R", depth = 1L, verbose = TRUE,
+        get_files_structure_from_orgs(pattern = "\\.md", depth = 1L, verbose = TRUE,
         progress = FALSE)
     Message
-      i [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling files structure...[files matching pattern: '\.md|\.R']...
+      i [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling files structure...[files matching pattern: '\.md']...
 
 # get_files_content makes use of files_structure
 

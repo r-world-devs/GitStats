@@ -467,6 +467,9 @@ test_fixtures$gitlab_files_tree_response <- list(
               ),
               list(
                 "name" = "project_metadata.yaml"
+              ),
+              list(
+                "name" = "report.md"
               )
             )
           )
