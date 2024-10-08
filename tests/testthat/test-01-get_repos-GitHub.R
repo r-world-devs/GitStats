@@ -44,7 +44,7 @@ test_that("`get_repos_from_org()` prepares formatted list", {
 
 # REST Engine search repos by code
 
-test_that("`search_response()` performs search with limit under 100", {
+test_that("`search_response()` performs search with limit under 1000", {
   total_n <- test_fixtures$github_search_response[["total_count"]]
   mockery::stub(
     test_rest_github_priv$search_response,
@@ -53,8 +53,22 @@ test_that("`search_response()` performs search with limit under 100", {
   )
   gh_search_repos_response <- test_rest_github_priv$search_response(
     search_endpoint = test_mocker$use("search_endpoint"),
-    total_n = total_n,
-    byte_max = 384000
+    total_n = total_n
+  )
+  expect_gh_search_response(gh_search_repos_response)
+  test_mocker$cache(gh_search_repos_response)
+})
+
+test_that("`search_response()` performs search with limit over 1000", {
+  total_n <- test_fixtures$github_search_response_large[["total_count"]]
+  mockery::stub(
+    test_rest_github_priv$search_response,
+    "self$response",
+    test_fixtures$github_search_response_large
+  )
+  gh_search_repos_response <- test_rest_github_priv$search_response(
+    search_endpoint = test_mocker$use("search_endpoint"),
+    total_n = total_n
   )
   expect_gh_search_response(gh_search_repos_response)
   test_mocker$cache(gh_search_repos_response)
