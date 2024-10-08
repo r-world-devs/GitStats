@@ -12,21 +12,11 @@ test_that("commits_by_repo GitHub query is built properly", {
   test_mocker$cache(gh_commits_by_repo_query)
 })
 
-test_that("GitHub GraphQL API returns commits response", {
-  gh_commits_by_repo_gql_response <- test_graphql_github$gql_response(
-    test_mocker$use("gh_commits_by_repo_query")
-  )
-  expect_gh_commit_gql_response(
-    gh_commits_by_repo_gql_response$data$repository$defaultBranchRef$target$history$edges[[1]]
-  )
-  test_mocker$cache(gh_commits_by_repo_gql_response)
-})
-
 test_that("`get_commits_page_from_repo()` pulls commits page from repository", {
   mockery::stub(
     test_graphql_github_priv$get_commits_page_from_repo,
     "self$gql_response",
-    test_mocker$use("gh_commits_by_repo_gql_response")
+    test_fixtures$github_commits_response
   )
   commits_page <- test_graphql_github_priv$get_commits_page_from_repo(
     org = "r-world-devs",
@@ -41,14 +31,10 @@ test_that("`get_commits_page_from_repo()` pulls commits page from repository", {
 })
 
 test_that("`get_commits_from_one_repo()` prepares formatted list", {
-  # overcome of infinite loop in get_commits_from_repo
-  commits_page <- test_mocker$use("commits_page")
-  commits_page$data$repository$defaultBranchRef$target$history$pageInfo$hasNextPage <- FALSE
-
   mockery::stub(
     test_graphql_github_priv$get_commits_from_one_repo,
     "private$get_commits_page_from_repo",
-    commits_page
+    test_mocker$use("commits_page")
   )
   commits_from_repo <- test_graphql_github_priv$get_commits_from_one_repo(
     org = "r-world-devs",

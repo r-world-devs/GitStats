@@ -42,7 +42,7 @@ EngineRest <- R6::R6Class("EngineRest",
   private = list(
 
     # Paginate contributors and parse response into character vector
-    pull_contributors_from_repo = function(contributors_endpoint, user_name) {
+    get_contributors_from_repo = function(contributors_endpoint, user_name) {
       contributors_response <- private$paginate_results(contributors_endpoint)
       contributors_vec <- contributors_response %>%
         purrr::map_chr(~ eval(user_name)) %>%

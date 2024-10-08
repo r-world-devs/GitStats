@@ -18,7 +18,7 @@
     Code
       gh_repos_table <- github_testhost_priv$get_all_repos()
     Message
-      i [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling repositories...
+      i [Host:GitHub][Engine:GraphQl][Scope:test-org] Pulling repositories...
 
 # `get_repos_contributors()` adds contributors to repos table
 

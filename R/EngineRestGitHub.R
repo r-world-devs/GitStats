@@ -114,7 +114,7 @@ EngineRestGitHub <- R6::R6Class(
         repos_table$contributors <- purrr::map_chr(repo_iterator, function(repos_id) {
           tryCatch({
             contributors_endpoint <- paste0(private$endpoints[["repositories"]], repos_id, "/contributors")
-            contributors_vec <- private$pull_contributors_from_repo(
+            contributors_vec <- private$get_contributors_from_repo(
               contributors_endpoint = contributors_endpoint,
               user_name = user_name
             )

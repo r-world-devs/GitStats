@@ -26,6 +26,7 @@ test_that("`perform_request()` throws error on bad host", {
 })
 
 test_that("`perform_request()` returns proper status", {
+  skip_if(Sys.getenv("GITHUB_PAT") == "")
   bad_endpoint <- "https://api.github.com/orgs/everybody_loves_somebody"
   expect_error(
     test_rest_github_priv$perform_request(
@@ -37,6 +38,7 @@ test_that("`perform_request()` returns proper status", {
 })
 
 test_that("`perform_request()` returns status 200", {
+  skip_if(Sys.getenv("GITHUB_PAT") == "")
   response <- test_rest_github_priv$perform_request(
     endpoint = "https://api.github.com/repos/r-world-devs/GitStats",
     token = Sys.getenv("GITHUB_PAT")
@@ -48,13 +50,15 @@ test_that("`perform_request()` returns status 200", {
 })
 
 test_that("`perform_request()` for GraphQL returns status 200", {
+  skip_if(Sys.getenv("GITHUB_PAT") == "")
   response <- test_graphql_github_priv$perform_request(
     gql_query = "{
       viewer {
         login
       }
     }",
-    vars = NULL
+    vars = NULL,
+    token = Sys.getenv("GITHUB_PAT")
   )
   expect_equal(
     response$status_code,

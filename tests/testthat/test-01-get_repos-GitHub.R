@@ -7,25 +7,14 @@ test_that("repos_by_org query is built properly", {
   test_mocker$cache(gh_repos_by_org_query)
 })
 
-test_that("GitHub repos response to query works", {
-  gh_repos_by_org_gql_response <- test_graphql_github$gql_response(
-    test_mocker$use("gh_repos_by_org_query"),
-    vars = list(org = "r-world-devs")
-  )
-  expect_gh_repos_gql_response(
-    gh_repos_by_org_gql_response
-  )
-  test_mocker$cache(gh_repos_by_org_gql_response)
-})
-
 test_that("`get_repos_page()` pulls repos page from GitHub organization", {
   mockery::stub(
     test_graphql_github_priv$get_repos_page,
     "self$gql_response",
-    test_mocker$use("gh_repos_by_org_gql_response")
+    test_fixtures$github_repos_by_org_response
   )
   gh_repos_page <- test_graphql_github_priv$get_repos_page(
-    org = "r-world-devs"
+    org = "test_org"
   )
   expect_gh_repos_gql_response(
     gh_repos_page
@@ -40,7 +29,7 @@ test_that("`get_repos_from_org()` prepares formatted list", {
     test_mocker$use("gh_repos_page")
   )
   gh_repos_from_org <- test_graphql_github$get_repos_from_org(
-    org = "r-world-devs"
+    org = "test_org"
   )
   expect_list_contains(
     gh_repos_from_org[[1]],
@@ -55,28 +44,12 @@ test_that("`get_repos_from_org()` prepares formatted list", {
 
 # REST Engine search repos by code
 
-test_that("`response()` returns search response from GitHub's REST API", {
-  # search_endpoint <- "https://api.github.com/search/code?q=shiny+user:r-world-devs"
-  # test_mocker$cache(search_endpoint)
-  # gh_search_response_raw <- test_rest_github$response(search_endpoint)
-  gh_search_response_raw <- test_fixtures$github_search_response
-  expect_gh_search_response(gh_search_response_raw[["items"]])
-  test_mocker$cache(gh_search_response_raw)
-})
-
-test_that("`response()` returns search response from GitHub's REST API", {
-  search_endpoint <- "https://api.github.com/search/code?q=shiny+user:openpharma+in:file+filename:DESCRIPTION"
-  gh_search_response_in_file <- test_rest_github$response(search_endpoint)[["items"]]
-  expect_gh_search_response(gh_search_response_in_file)
-  test_mocker$cache(gh_search_response_in_file)
-})
-
 test_that("`search_response()` performs search with limit under 100", {
-  total_n <- test_mocker$use("gh_search_response_raw")[["total_count"]]
+  total_n <- test_fixtures$github_search_response[["total_count"]]
   mockery::stub(
     test_rest_github_priv$search_response,
     "self$response",
-    test_mocker$use("gh_search_response_raw")
+    test_fixtures$github_search_response
   )
   gh_search_repos_response <- test_rest_github_priv$search_response(
     search_endpoint = test_mocker$use("search_endpoint"),
@@ -88,24 +61,40 @@ test_that("`search_response()` performs search with limit under 100", {
 })
 
 test_that("Mapping search result to repositories works", {
-  result <- test_rest_github_priv$map_search_into_repos(
+  mockery::stub(
+    test_rest_github_priv$map_search_into_repos,
+    "self$response",
+    test_fixtures$github_repository_rest_response
+  )
+  gh_mapped_repos <- test_rest_github_priv$map_search_into_repos(
     search_response = test_mocker$use("gh_search_repos_response"),
     progress = FALSE
   )
-  expect_gh_repos_rest_response(result)
+  expect_gh_repos_rest_response(gh_mapped_repos)
+  test_mocker$cache(gh_mapped_repos)
 })
 
 test_that("`get_repos_by_code()` returns repos output for code search in files", {
   mockery::stub(
     test_rest_github$get_repos_by_code,
+    "self$response",
+    list("total_count" = 3L)
+  )
+  mockery::stub(
+    test_rest_github$get_repos_by_code,
     "private$search_response",
-    test_mocker$use("gh_search_response_in_file")
+    test_fixtures$github_search_response
+  )
+  mockery::stub(
+    test_rest_github$get_repos_by_code,
+    "private$map_search_into_repos",
+    test_mocker$use("gh_mapped_repos")
   )
   gh_repos_by_code <- test_rest_github$get_repos_by_code(
-    code = "shiny",
-    filename = "DESCRIPTION",
-    org = "openpharma",
-    verbose = FALSE
+    code     = "test_code",
+    filename = "test_file",
+    org      = "test_org",
+    verbose  = FALSE
   )
   expect_gh_repos_rest_response(gh_repos_by_code)
   test_mocker$cache(gh_repos_by_code)
@@ -114,16 +103,26 @@ test_that("`get_repos_by_code()` returns repos output for code search in files",
 test_that("`get_repos_by_code()` for GitHub prepares a raw (raw_output = TRUE) search response", {
   mockery::stub(
     test_rest_github$get_repos_by_code,
+    "self$response",
+    list("total_count" = 3L)
+  )
+  mockery::stub(
+    test_rest_github$get_repos_by_code,
     "private$search_response",
-    test_mocker$use("gh_search_repos_response")
+    test_fixtures$github_search_response
+  )
+  mockery::stub(
+    test_rest_github$get_repos_by_code,
+    "private$map_search_into_repos",
+    test_mocker$use("gh_mapped_repos")
   )
   gh_repos_by_code_raw <- test_rest_github$get_repos_by_code(
-    code = "shiny",
-    org = "openpharma",
+    code       = "test_code",
+    org        = "test_org",
     raw_output = TRUE,
-    verbose = FALSE
+    verbose    = FALSE
   )
-  expect_gh_search_response(gh_repos_by_code_raw)
+  expect_gh_search_response(gh_repos_by_code_raw$items)
   test_mocker$cache(gh_repos_by_code_raw)
 })
 
@@ -162,6 +161,30 @@ test_that("`prepare_repos_table()` prepares repos table", {
   test_mocker$cache(gh_repos_by_code_table)
 })
 
+test_that("`get_repos_issues()` adds issues to repos table", {
+  mockery::stub(
+    test_rest_github$get_repos_issues,
+    "self$response",
+    test_fixtures$github_issues_response
+  )
+  gh_repos_by_code_table <- test_mocker$use("gh_repos_by_code_table")
+  suppressMessages(
+    gh_repos_by_code_table <- test_rest_github$get_repos_issues(
+      gh_repos_by_code_table,
+      progress = FALSE
+    )
+  )
+  expect_gt(
+    length(gh_repos_by_code_table$issues_open),
+    0
+  )
+  expect_gt(
+    length(gh_repos_by_code_table$issues_closed),
+    0
+  )
+  test_mocker$cache(gh_repos_by_code_table)
+})
+
 test_that("`get_repos_with_code_from_orgs()` works", {
   mockery::stub(
     github_testhost_priv$get_repos_with_code_from_orgs,
@@ -170,7 +193,7 @@ test_that("`get_repos_with_code_from_orgs()` works", {
   )
   mockery::stub(
     github_testhost_priv$get_repos_with_code_from_orgs,
-    "private$prepare_repos_table_from_rest",
+    "rest_engine$get_repos_issues",
     test_mocker$use("gh_repos_by_code_table")
   )
   repos_with_code <- github_testhost_priv$get_repos_with_code_from_orgs(
@@ -213,26 +236,27 @@ test_that("`get_all_repos()` works as expected", {
   test_mocker$cache(gh_repos_table)
 })
 
-test_that("`get_repos_issues()` adds issues to repos table", {
-  gh_repos_by_code_table <- test_mocker$use("gh_repos_by_code_table")
-  suppressMessages(
-    gh_repos_by_code_table <- test_rest_github$get_repos_issues(
-      gh_repos_by_code_table,
-      progress = FALSE
-    )
+test_that("get_contributors_from_repo", {
+  mockery::stub(
+    test_rest_github_priv$get_contributors_from_repo,
+    "private$paginate_results",
+    test_fixtures$github_contributors_response
   )
-  expect_gt(
-    length(gh_repos_by_code_table$issues_open),
-    0
+  github_contributors <- test_rest_github_priv$get_contributors_from_repo(
+    contributors_endpoint = "test_endpoint",
+    user_name = "test_user"
   )
-  expect_gt(
-    length(gh_repos_by_code_table$issues_closed),
-    0
-  )
-  test_mocker$cache(gh_repos_by_code_table)
+  expect_type(github_contributors, "character")
+  expect_gt(length(github_contributors), 0)
+  test_mocker$cache(github_contributors)
 })
 
 test_that("`get_repos_contributors()` adds contributors to repos table", {
+  mockery::stub(
+    test_rest_github$get_repos_contributors,
+    "private$get_contributors_from_repo",
+    test_mocker$use("github_contributors")
+  )
   expect_snapshot(
     gh_repos_by_code_table <- test_rest_github$get_repos_contributors(
       repos_table = test_mocker$use("gh_repos_by_code_table"),

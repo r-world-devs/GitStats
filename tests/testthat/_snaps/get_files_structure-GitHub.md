@@ -5,15 +5,6 @@
     Output
       [1] "query GetFilesFromRepo($org: String!, $repo: String!, $expression: String!) {\n          repository(owner: $org, name: $repo) {\n            id\n            name\n            url\n            object(expression: $expression) {\n              ... on Tree {\n                entries {\n                  name\n                  type\n                }\n              }\n            }\n          }\n      }"
 
-# get_files_structure_from_orgs pulls files structure for repositories in orgs
-
-    Code
-      gh_files_structure_from_orgs <- github_testhost_priv$
-        get_files_structure_from_orgs(pattern = NULL, depth = 2L, verbose = TRUE)
-    Message
-      i [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling files structure......
-      i [Host:GitHub][Engine:GraphQl][Scope:openpharma] Pulling files structure......
-
 # when files_structure is empty, appropriate message is returned
 
     Code

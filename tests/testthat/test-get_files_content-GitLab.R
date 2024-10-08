@@ -29,16 +29,27 @@ test_that("get_file_blobs_response() works", {
 
 
 test_that("get_repos_data pulls data on repositories", {
-  repositories <- test_graphql_gitlab_priv$get_repos_data(
+  mockery::stub(
+    test_graphql_gitlab_priv$get_repos_data,
+    "self$get_repos_from_org",
+    test_mocker$use("gl_repos_from_org")
+  )
+  gl_repos_data <- test_graphql_gitlab_priv$get_repos_data(
     org = "mbtests",
     repos = NULL
   )
   expect_true(
-    length(repositories) > 0
+    length(gl_repos_data) > 0
   )
+  test_mocker$cache(gl_repos_data)
 })
 
 test_that("GitLab GraphQL Engine pulls files from a group", {
+  mockery::stub(
+    test_graphql_gitlab$get_files_from_org,
+    "self$get_repos_data",
+    test_mocker$use("gl_repos_data")
+  )
   mockery::stub(
     test_graphql_gitlab$get_files_from_org,
     "self$gql_response",
@@ -56,6 +67,11 @@ test_that("GitLab GraphQL Engine pulls files from a group", {
 })
 
 test_that("GitLab GraphQL Engine pulls files from org by iterating over repos", {
+  mockery::stub(
+    test_graphql_gitlab$get_files_from_org_per_repo,
+    "self$get_repos_data",
+    test_mocker$use("gl_repos_data")
+  )
   mockery::stub(
     test_graphql_gitlab$get_files_from_org_per_repo,
     "private$get_file_blobs_response",
@@ -79,6 +95,11 @@ test_that("is query error is FALSE when response is empty (non query error)", {
 })
 
 test_that("Gitlab GraphQL switches to pulling files per repositories when query is too complex", {
+  mockery::stub(
+    test_graphql_gitlab$get_files_from_org,
+    "self$get_repos_data",
+    test_mocker$use("gl_repos_data")
+  )
   mockery::stub(
     test_graphql_gitlab$get_files_from_org,
     "private$is_query_error",

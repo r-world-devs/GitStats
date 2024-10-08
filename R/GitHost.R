@@ -197,8 +197,10 @@ GitHost <- R6::R6Class(
 
     #' Iterator over pulling release logs from engines
     get_release_logs = function(since, until, verbose, progress) {
-      if (private$scan_all && is.null(private$orgs) && verbose) {
-        cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
+      if (private$scan_all && is.null(private$orgs)) {
+        if (verbose) {
+          cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
+        }
         private$orgs <- private$engines$graphql$get_orgs()
       }
       until <- until %||% Sys.time()
@@ -668,7 +670,6 @@ GitHost <- R6::R6Class(
             information = "Pulling repositories (URLS)"
           )
         }
-        repos <- private$set_repos(org)
         repos_urls <- rest_engine$get_repos_urls(
           type = type,
           org  = org

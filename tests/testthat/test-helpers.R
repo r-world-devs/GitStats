@@ -54,6 +54,12 @@ test_that("`check_token()` prints error when token exists but does not grant acc
 })
 
 test_that("when token is proper token is passed", {
+  skip_on_cran()
+  github_testhost_priv <- create_github_testhost(
+    orgs = "test-org",
+    token = Sys.getenv("GITHUB_PAT"),
+    mode = "private"
+  )
   expect_equal(
     github_testhost_priv$check_token(Sys.getenv("GITHUB_PAT")),
     Sys.getenv("GITHUB_PAT")
@@ -61,6 +67,12 @@ test_that("when token is proper token is passed", {
 })
 
 test_that("check_endpoint returns TRUE if they are correct", {
+  skip_on_cran()
+  github_testhost_priv <- create_github_testhost(
+    org = "test-org",
+    token = Sys.getenv("GITHUB_PAT"),
+    mode = "private"
+  )
   expect_true(
     github_testhost_priv$check_endpoint(
       endpoint = "https://api.github.com/repos/r-world-devs/GitStats",
@@ -75,6 +87,12 @@ test_that("check_endpoint returns TRUE if they are correct", {
 })
 
 test_that("check_endpoint returns error if they are not correct", {
+  skip_on_cran()
+  github_testhost_priv <- create_github_testhost(
+    orgs = "test-org",
+    token = Sys.getenv("GITHUB_PAT"),
+    mode = "private"
+  )
   expect_snapshot_error(
     check <- github_testhost_priv$check_endpoint(
       endpoint = "https://api.github.com/repos/r-worlddevs/GitStats",

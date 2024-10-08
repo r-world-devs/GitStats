@@ -8,28 +8,17 @@ create_test_gitstats <- function(hosts = 0,
                                  inject_users = NULL,
                                  inject_package_usage = NULL) {
   test_gitstats <- create_gitstats()
-
   if (hosts == 1) {
-    suppressMessages({
-      test_gitstats$set_github_host(
-        host = NULL,
-        token = Sys.getenv("GITHUB_PAT"),
-        orgs = c("r-world-devs", "openpharma")
-      )
-    })
+    test_gitstats$.__enclos_env__$private$hosts[[1]] <- create_github_testhost(
+      orgs = "test_org"
+    )
   } else if (hosts == 2) {
-    suppressMessages({
-      test_gitstats$set_github_host(
-        host = NULL,
-        token = Sys.getenv("GITHUB_PAT"),
-        orgs = c("r-world-devs")
-      )
-      test_gitstats$set_gitlab_host(
-        host = NULL,
-        token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-        orgs = "mbtests"
-      )
-    })
+    test_gitstats$.__enclos_env__$private$hosts[[1]] <- create_github_testhost(
+      orgs = "github_test_org"
+    )
+    test_gitstats$.__enclos_env__$private$hosts[[2]] <- create_gitlab_testhost(
+      orgs = "gitlab_test_group"
+    )
   }
   if (!is.null(inject_repos)) {
     test_gitstats$.__enclos_env__$private$storage$repositories <- test_mocker$use(inject_repos)

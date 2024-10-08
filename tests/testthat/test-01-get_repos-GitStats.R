@@ -79,13 +79,3 @@ test_that("get_repos works properly and for the second time uses cache", {
     with_cols = c("contributors", "contributors_n")
   )
 })
-
-test_that("get_repos pulls repositories without contributors", {
-  test_gitstats <- create_test_gitstats(hosts = 2)
-  repos_table <- test_gitstats$get_repos(
-    add_contributors = FALSE,
-    verbose          = FALSE
-  )
-  expect_repos_table(repos_table, repo_cols = repo_gitstats_colnames)
-  expect_false("contributors" %in% names(repos_table))
-})

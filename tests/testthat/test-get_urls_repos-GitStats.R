@@ -14,7 +14,7 @@ test_that("get_repos_urls_from_hosts gets data from the hosts", {
   expect_type(repos_urls_from_hosts, "character")
   expect_gt(length(repos_urls_from_hosts), 0)
   expect_true(any(grepl("gitlab.com/api", repos_urls_from_hosts)))
-  expect_true(any(grepl("api.github", repos_urls_from_hosts)))
+  expect_true(any(grepl("testhost.com/api", repos_urls_from_hosts)))
   test_mocker$cache(repos_urls_from_hosts)
 })
 
