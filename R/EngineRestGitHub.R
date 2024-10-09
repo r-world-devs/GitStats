@@ -167,16 +167,24 @@ EngineRestGitHub <- R6::R6Class(
                                total_n,
                                byte_max = "384000") {
       if (total_n >= 0 & total_n < 1e3) {
-        resp_list <- list()
-        for (page in 1:(total_n %/% 100)) {
-          resp_list <- self$response(
-            paste0(search_endpoint, "+size:0..", byte_max, "&page=", page, "&per_page=100")
-          )[["items"]] %>%
-            append(resp_list, .)
-        }
-        resp_list
+        page_iterator <- 1:(total_n %/% 100)
+        items_list <- purrr::map(page_iterator, function(page) {
+          response <- self$response(
+            paste0(
+              search_endpoint,
+              "+size:0..",
+              byte_max,
+              "&page=",
+              page,
+              "&per_page=100"
+            )
+          )
+          return(response[["items"]])
+        }) %>%
+          purrr::list_flatten()
+        return(items_list)
       } else if (total_n >= 1e3) {
-        resp_list <- list()
+        items_list <- list()
         index <- c(0, 50)
         spinner <- cli::make_spinner(
           which = "timeTravel",
@@ -187,28 +195,29 @@ EngineRestGitHub <- R6::R6Class(
         while (index[2] < as.numeric(byte_max)) {
           size_formula <- paste0("+size:", as.character(index[1]), "..", as.character(index[2]))
           spinner$spin()
-          n_count <- tryCatch(
-            {
-              self$response(paste0(search_endpoint, size_formula))[["total_count"]]
-            },
-            error = function(e) {
-              NULL
-            }
-          )
+          n_count <- tryCatch({
+            self$response(paste0(search_endpoint, size_formula))[["total_count"]]
+          }, error = function(e) {
+            NULL
+          })
           if (is.null(n_count)) {
             NULL
           } else if ((n_count - 1) %/% 100 > 0) {
-            for (page in (1:(n_count %/% 100) + 1)) {
-              resp_list <- self$response(paste0(search_endpoint,
-                                                size_formula,
-                                                "&page=",
-                                                page,
-                                                "&per_page=100"))[["items"]] |>
-                append(resp_list, .)
-            }
+            total_pages <- 1:(n_count %/% 100) + 1
+            items_part_list <- purrr::map(total_pages, function(page) {
+              self$response(paste0(search_endpoint,
+                                   size_formula,
+                                   "&page=",
+                                   page,
+                                   "&per_page=100"))[["items"]]
+            }) %>%
+              purrr::list_flatten()
+            items_list <- append(items_list, items_part_list)
           } else if ((n_count - 1) %/% 100 == 0) {
-            resp_list <- self$response(paste0(search_endpoint, size_formula, "&page=1&per_page=100"))[["items"]] |>
-              append(resp_list, .)
+            response <- self$response(paste0(search_endpoint,
+                                             size_formula,
+                                             "&page=1&per_page=100"))
+            items_list <- append(items_list, response[["items"]])
           }
           index[1] <- index[2]
           if (index[2] < 1e3) {
@@ -225,7 +234,7 @@ EngineRestGitHub <- R6::R6Class(
           }
         }
         spinner$finish()
-        resp_list
+        return(items_list)
       }
     },
 

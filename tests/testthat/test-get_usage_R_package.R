@@ -37,3 +37,17 @@ test_that("get_R_package_usage_from_hosts works as expected", {
   expect_package_usage_table(R_package_usage_table)
   test_mocker$cache(R_package_usage_table)
 })
+
+test_that("when get_R_package_usage_from_hosts output is empty return warning", {
+  test_gitstats <- create_test_gitstats(hosts = 2)
+  mockery::stub(
+    test_gitstats$get_R_package_usage,
+    "private$get_R_package_usage_from_hosts",
+    data.frame()
+  )
+  expect_snapshot(
+    test_gitstats$get_R_package_usage(
+      package_name = "shiny", only_loading = FALSE, verbose = TRUE
+    )
+  )
+})
