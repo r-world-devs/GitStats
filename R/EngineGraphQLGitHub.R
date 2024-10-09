@@ -41,16 +41,22 @@ EngineGraphQLGitHub <- R6::R6Class(
     },
 
     # Pull all repositories from organization
-    get_repos_from_org = function(org = NULL) {
+    get_repos_from_org = function(org = NULL,
+                                  type = c("organization", "user")) {
       full_repos_list <- list()
       next_page <- TRUE
       repo_cursor <- ""
       while (next_page) {
         repos_response <- private$get_repos_page(
-          org = org,
+          login = org,
+          type  = type,
           repo_cursor = repo_cursor
         )
-        repositories <- repos_response$data$repositoryOwner$repositories
+        repositories <- if (type == "organization") {
+          repos_response$data$repositoryOwner$repositories
+        } else {
+          repos_response$data$user$repositories
+        }
         repos_list <- repositories$nodes
         next_page <- repositories$pageInfo$hasNextPage
         if (is.null(next_page)) next_page <- FALSE
@@ -162,14 +168,20 @@ EngineGraphQLGitHub <- R6::R6Class(
   private = list(
 
     # Wrapper over building GraphQL query and response.
-    get_repos_page = function(org = NULL,
+    get_repos_page = function(login = NULL,
+                              type,
                               repo_cursor = "") {
-      repos_query <- self$gql_query$repos_by_org(
-        repo_cursor = repo_cursor
-      )
+      repos_query <- if (type == "organization") {
+        self$gql_query$repos_by_org()
+      } else {
+        self$gql_query$repos_by_user()
+      }
       response <- self$gql_response(
         gql_query = repos_query,
-        vars = list("org" = org)
+        vars = list(
+          "login" = login,
+          "repoCursor" = repo_cursor
+        )
       )
       return(response)
     },

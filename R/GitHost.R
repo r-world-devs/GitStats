@@ -412,11 +412,32 @@ GitHost <- R6::R6Class(
           )
           private$repos_fullnames <- repos
           orgs_repos <- private$extract_repos_and_orgs(repos)
-          private$orgs <- names(orgs_repos)
+          private$orgs <- private$set_owner_type(
+            owners = names(orgs_repos)
+          )
           private$repos <- unname(unlist(orgs_repos))
           private$orgs_repos <- orgs_repos
         }
       }
+    },
+
+    # Set owner type
+    set_owner_type = function(owners) {
+      graphql_engine <- private$engines$graphql
+      user_or_org_query <- graphql_engine$gql_query$user_or_org_query
+      login_types <- purrr::map(owners, function(owner) {
+        response <- graphql_engine$gql_response(
+          gql_query = user_or_org_query,
+          vars = list(
+            "login" = owner
+          )
+        )
+        type <- purrr::discard(response$data, is.null) %>%
+          names()
+        attr(owner, "type") <- type
+        return(owner)
+      })
+      return(login_types)
     },
 
     # Check if repositories exist
@@ -593,6 +614,7 @@ GitHost <- R6::R6Class(
       }
       graphql_engine <- private$engines$graphql
       repos_table <- purrr::map(private$orgs, function(org) {
+        type <- attr(org, "type")
         org <- utils::URLdecode(org)
         if (!private$scan_all && verbose) {
           show_message(
@@ -604,7 +626,8 @@ GitHost <- R6::R6Class(
         }
         repos <- private$set_repos(org)
         repos_table <- graphql_engine$get_repos_from_org(
-          org = org
+          org  = org,
+          type = type
         ) %>%
           private$prepare_repos_table_from_graphql()
         if (!is.null(repos)) {
