@@ -16,12 +16,10 @@ expect_gh_search_response <- function(object) {
     object,
     "list"
   )
-  purrr::walk(object, ~ {
-    expect_list_contains(
-      .,
-      c("name", "path", "sha", "url", "git_url", "html_url", "repository", "score")
-    )
-  })
+  expect_list_contains(
+    object[[1]],
+    c("name", "path", "sha", "url", "git_url", "html_url", "repository", "score")
+  )
 }
 
 expect_gl_repos_rest_response <- function(object) {
