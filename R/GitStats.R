@@ -479,12 +479,23 @@ GitStats <- R6::R6Class(
           package_name = package_name,
           only_loading = only_loading,
           verbose      = verbose
-        ) %>%
-          private$set_object_class(
+        )
+        if (nrow(R_package_usage) > 0) {
+          R_package_usage <- private$set_object_class(
+            object    = R_package_usage,
             class     = "R_package_usage",
             attr_list = args_list
           )
-        private$save_to_storage(R_package_usage)
+          private$save_to_storage(R_package_usage)
+        } else {
+          if (verbose) {
+            cli::cli_alert_warning(
+              cli::col_yellow(
+                "No usage of R packages found."
+              )
+            )
+          }
+        }
       } else {
         R_package_usage <- private$get_from_storage(
           table   = "R_package_usage",
@@ -956,13 +967,15 @@ GitStats <- R6::R6Class(
           repos_using_package
         )
       )
-      duplicated_repos <- package_usage_table$api_url[duplicated(package_usage_table$api_url)]
-      package_usage_table <- package_usage_table[!duplicated(package_usage_table$api_url), ]
-      package_usage_table <- package_usage_table %>%
-        dplyr::mutate(
-          package_usage = ifelse(api_url %in% duplicated_repos, "import, library", package_usage)
-        )
-      rownames(package_usage_table) <- seq_len(nrow(package_usage_table))
+      if (nrow(package_usage_table) > 0) {
+        duplicated_repos <- package_usage_table$api_url[duplicated(package_usage_table$api_url)]
+        package_usage_table <- package_usage_table[!duplicated(package_usage_table$api_url), ]
+        package_usage_table <- package_usage_table %>%
+          dplyr::mutate(
+            package_usage = ifelse(api_url %in% duplicated_repos, "import, library", package_usage)
+          )
+        rownames(package_usage_table) <- seq_len(nrow(package_usage_table))
+      }
       return(package_usage_table)
     },
 
@@ -1005,12 +1018,12 @@ GitStats <- R6::R6Class(
         verbose = FALSE,
         progress = FALSE
       )
-      if (nrow(repos_with_package) > 0) {
+      if (!is.null(repos_with_package)) {
         repos_with_package <- repos_with_package[!duplicated(repos_with_package$api_url), ]
         repos_with_package$package_usage <- "import"
+        repos_with_package <- repos_with_package %>%
+          dplyr::select(repo_name, organization, fullname, platform, repo_url, api_url, package_usage)
       }
-      repos_with_package <- repos_with_package %>%
-        dplyr::select(repo_name, organization, fullname, platform, repo_url, api_url, package_usage)
       return(repos_with_package)
     },
 
