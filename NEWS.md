@@ -1,3 +1,7 @@
+# GitStats (development version)
+
+- Fixed getting large search responses for GitHub ([#491](https://github.com/r-world-devs/GitStats/issues/491)).
+
 # GitStats 2.1.0
 
 ## New features:
