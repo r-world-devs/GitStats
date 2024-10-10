@@ -48,20 +48,25 @@ expect_gh_repos_rest_response <- function(object) {
   })
 }
 
-expect_gl_repos_gql_response <- function(object) {
+expect_gl_repos_gql_response <- function(object, type = "organization") {
   expect_type(
     object,
     "list"
   )
+  repo_node <- if (type == "organization") {
+    object$data$group$projects$edges[[1]]$node
+  } else {
+    object$data$projects$edges[[1]]$node
+  }
   expect_list_contains(
-    object$data$group$projects$edges[[1]]$node,
+    repo_node,
     c(
       "id", "name", "repository", "stars", "forks", "created_at", "last_activity_at"
     )
   )
 }
 
-expect_gh_repos_gql_response <- function(object) {
+expect_gh_repos_gql_response <- function(object, type = "organization") {
   expect_type(
     object,
     "list"
@@ -70,8 +75,13 @@ expect_gh_repos_gql_response <- function(object) {
     object,
     "data"
   )
+  repo_node <- if (type == "organization") {
+    object$data$repositoryOwner$repositories$nodes[[1]]
+  } else {
+    object$data$user$repositories$nodes[[1]]
+  }
   expect_list_contains(
-    object$data$repositoryOwner$repositories$nodes[[1]],
+    repo_node,
     c(
       "id", "name", "stars", "forks", "created_at",
       "last_activity_at", "languages", "issues_open", "issues_closed",
