@@ -14,7 +14,8 @@ test_that("`get_repos_page()` pulls repos page from GitLab group", {
     test_fixtures$gitlab_repos_by_org_response
   )
   gl_repos_page <- test_graphql_gitlab_priv$get_repos_page(
-    org = "test_org"
+    org = "test_org",
+    type = "organization"
   )
   expect_gl_repos_gql_response(
     gl_repos_page
@@ -29,14 +30,15 @@ test_that("`get_repos_from_org()` prepares formatted list", {
     test_mocker$use("gl_repos_page")
   )
   gl_repos_from_org <- test_graphql_gitlab$get_repos_from_org(
-    org = "test_org"
+    org = "test_org",
+    type = "organization"
   )
   expect_equal(
     names(gl_repos_from_org[[1]]$node),
     c(
       "repo_id", "repo_name", "repo_path", "repository",
       "stars", "forks", "created_at", "last_activity_at",
-      "languages", "issues", "group", "repo_url"
+      "languages", "issues", "namespace", "repo_url"
     )
   )
   test_mocker$cache(gl_repos_from_org)
@@ -49,7 +51,8 @@ test_that("`get_repos_from_org()` does not fail when GraphQL response is not com
     test_fixtures$empty_gql_response
   )
   gl_repos_from_org <- test_graphql_gitlab$get_repos_from_org(
-    org = "test_org"
+    org = "test_org",
+    type = "organization"
   )
   expect_type(
     gl_repos_from_org,
@@ -65,7 +68,8 @@ test_that("`get_repos_from_org()` does not fail when GraphQL response is not com
     test_fixtures$half_empty_gql_response
   )
   gl_repos_from_org <- test_graphql_gitlab$get_repos_from_org(
-    org = "test_org"
+    org = "test_org",
+    type = "organization"
   )
   expect_type(
     gl_repos_from_org,

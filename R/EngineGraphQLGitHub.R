@@ -169,7 +169,7 @@ EngineGraphQLGitHub <- R6::R6Class(
 
     # Wrapper over building GraphQL query and response.
     get_repos_page = function(login = NULL,
-                              type,
+                              type = c("organization", "user"),
                               repo_cursor = "") {
       repos_query <- if (type == "organization") {
         self$gql_query$repos_by_org()
@@ -239,7 +239,8 @@ EngineGraphQLGitHub <- R6::R6Class(
 
     get_repos_data = function(org, repos = NULL) {
       repos_list <- self$get_repos_from_org(
-        org = org
+        org = org,
+        type = "organization"
       )
       if (!is.null(repos)) {
         repos_list <- purrr::keep(repos_list, ~ .$repo_name %in% repos)

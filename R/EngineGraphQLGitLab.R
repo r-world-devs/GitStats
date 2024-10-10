@@ -293,7 +293,8 @@ EngineGraphQLGitLab <- R6::R6Class(
 
     get_repos_data = function(org, repos = NULL) {
       repos_list <- self$get_repos_from_org(
-        org = org
+        org = org,
+        type = "organization"
       )
       if (!is.null(repos)) {
         repos_list <- purrr::keep(repos_list, ~ .$node$repo_path %in% repos)

@@ -44,7 +44,11 @@ GitHostGitHubTest <- R6::R6Class(
   private = list(
     set_orgs_and_repos_mocked = function(orgs, repos) {
       private$orgs <- orgs
-      private$repos <- repos
+      if (!is.null(repos)) {
+        private$repos <- repos
+        orgs_repos <- private$extract_repos_and_orgs(repos)
+        private$orgs <- names(orgs_repos)
+      }
     },
     setup_test_engines = function() {
       private$engines$rest <- TestEngineRestGitHub$new(
@@ -84,7 +88,11 @@ GitHostGitLabTest <- R6::R6Class(
   private = list(
     set_orgs_and_repos_mocked = function(orgs, repos) {
       private$orgs <- orgs
-      private$repos <- repos
+      if (!is.null(repos)) {
+        private$repos <- repos
+        orgs_repos <- private$extract_repos_and_orgs(repos)
+        private$orgs <- names(orgs_repos)
+      }
     },
     setup_test_engines = function() {
       private$engines$rest <- TestEngineRestGitLab$new(

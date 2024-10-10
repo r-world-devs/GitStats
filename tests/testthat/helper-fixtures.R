@@ -163,7 +163,7 @@ gitlab_project_node <- list(
       "closed" = 8,
       "opened" = 2
     ),
-    "group" = list(
+    "namespace" = list(
       "path" = "test_group"
     ),
     "repo_url" = "https://test_gitlab_url.com"
