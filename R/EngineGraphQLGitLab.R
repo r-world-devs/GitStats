@@ -46,19 +46,22 @@ EngineGraphQLGitLab <- R6::R6Class(
     },
 
     # Iterator over pulling pages of repositories.
-    get_repos_from_org = function(org = NULL) {
+    get_repos_from_org = function(org  = NULL,
+                                  type = c("organization", "user")) {
       full_repos_list <- list()
       next_page <- TRUE
       repo_cursor <- ""
       while (next_page) {
         repos_response <- private$get_repos_page(
           org = org,
+          type = type,
           repo_cursor = repo_cursor
         )
-        if (length(repos_response$data$group) == 0) {
-          cli::cli_abort("Empty")
+        core_response <- if (type == "organization") {
+          repos_response$data$group$projects
+        } else {
+          repos_response$data$projects
         }
-        core_response <- repos_response$data$group$projects
         repos_list <- core_response$edges
         next_page <- core_response$pageInfo$hasNextPage
         if (is.null(next_page)) next_page <- FALSE
@@ -259,14 +262,25 @@ EngineGraphQLGitLab <- R6::R6Class(
 
     # Wrapper over building GraphQL query and response.
     get_repos_page = function(org = NULL,
+                              type = "organization",
                               repo_cursor = "") {
-      repos_query <- self$gql_query$repos_by_org(
-        repo_cursor = repo_cursor
-      )
-      response <- self$gql_response(
-        gql_query = repos_query,
-        vars = list("org" = org)
-      )
+      if (type == "organization") {
+        response <- self$gql_response(
+          gql_query = self$gql_query$repos_by_org(),
+          vars = list(
+            "org" = org,
+            "repo_cursor" = repo_cursor
+          )
+        )
+      } else {
+        response <- self$gql_response(
+          gql_query = self$gql_query$repos_by_user(),
+          vars = list(
+            "username" = org,
+            "repo_cursor" = repo_cursor
+          )
+        )
+      }
       return(response)
     },
 

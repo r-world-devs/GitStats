@@ -147,6 +147,26 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       private$endpoints$repositories <- glue::glue("{private$api_url}/projects")
     },
 
+    # Set owner type
+    set_owner_type = function(owners) {
+      graphql_engine <- private$engines$graphql
+      user_or_org_query <- graphql_engine$gql_query$user_or_org_query
+      login_types <- purrr::map(owners, function(owner) {
+        response <- graphql_engine$gql_response(
+          gql_query = user_or_org_query,
+          vars = list(
+            "username"  = owner,
+            "grouppath" = owner
+          )
+        )
+        type <- purrr::discard(response$data, is.null) %>%
+          names()
+        attr(owner, "type") <- type
+        return(owner)
+      })
+      return(login_types)
+    },
+
     # Setup REST and GraphQL engines
     setup_engines = function() {
       private$engines$rest <- EngineRestGitLab$new(
@@ -220,8 +240,8 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           repo$issues_closed <- repo$issues$closed
           repo$issues <- NULL
           repo$last_activity_at <- as.POSIXct(repo$last_activity_at)
-          repo$organization <- repo$group$path
-          repo$group <- NULL
+          repo$organization <- repo$namespace$path
+          repo$namespace <- NULL
           repo$repo_path <- NULL # temporary to close issue 338
           data.frame(repo)
         }) %>%
