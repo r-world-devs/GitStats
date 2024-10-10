@@ -36,12 +36,16 @@ GitHostGitHubTest <- R6::R6Class(
       private$check_if_public(host)
       private$token <- token
       private$set_graphql_url()
-      private$set_orgs_and_repos(orgs, repos, verbose = FALSE)
+      private$set_orgs_and_repos_mocked(orgs, repos)
       private$setup_test_engines()
       private$set_searching_scope(orgs, repos, verbose = FALSE)
     }
   ),
   private = list(
+    set_orgs_and_repos_mocked = function(orgs, repos) {
+      private$orgs <- orgs
+      private$repos <- repos
+    },
     setup_test_engines = function() {
       private$engines$rest <- TestEngineRestGitHub$new(
         token = private$token,
@@ -72,12 +76,16 @@ GitHostGitLabTest <- R6::R6Class(
       private$check_if_public(host)
       private$token <- token
       private$set_graphql_url()
-      private$set_orgs_and_repos(orgs, repos, verbose = FALSE)
+      private$set_orgs_and_repos_mocked(orgs, repos)
       private$setup_test_engines()
       private$set_searching_scope(orgs, repos, verbose = FALSE)
     }
   ),
   private = list(
+    set_orgs_and_repos_mocked = function(orgs, repos) {
+      private$orgs <- orgs
+      private$repos <- repos
+    },
     setup_test_engines = function() {
       private$engines$rest <- TestEngineRestGitLab$new(
         token = private$token,

@@ -732,3 +732,23 @@ test_fixtures$gitlab_languages_response <- list(
   "Python" = 100,
   "R" = 50
 )
+
+test_fixtures$github_user_login <- list(
+  "data" = list(
+    "user" = list(
+      "__typename" = "User",
+      "login" = "test_user"
+    ),
+    "organization" = NULL
+  )
+)
+
+test_fixtures$github_org_login <- list(
+  "data" = list(
+    "user" = NULL,
+    "organization" = list(
+      "__typename" = "Organization",
+      "login" = "test_org"
+    )
+  )
+)
