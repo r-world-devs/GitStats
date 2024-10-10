@@ -23,54 +23,44 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
         }'
     },
 
+    #' @field user_or_org_query Query to check if a given string is user or
+    #'   organization.
+    user_or_org_query =
+      '
+      query ($username: String! $grouppath: ID!) {
+        user(username: $username) {
+          __typename
+          username
+        }
+        group(fullPath: $grouppath) {
+          __typename
+          fullPath
+        }
+      }'
+    ,
+
     #' @description Prepare query to get repositories from GitLab.
-    #' @param repo_cursor An end cursor for repositories page.
     #' @return A query.
-    repos_by_org = function(repo_cursor = "") {
-      if (nchar(repo_cursor) == 0) {
-        after_cursor <- repo_cursor
-      } else {
-        after_cursor <- paste0('after: "', repo_cursor, '" ')
-      }
-      paste0('query GetReposByOrg($org: ID!) {
-        group(fullPath: $org) {
-          projects(first: 100 ', after_cursor, ') {
-            count
-            pageInfo {
-              hasNextPage
-              endCursor
-            }
-            edges {
-              node {
-                repo_id: id
-                repo_name: name
-                repo_path: path
-                ... on Project {
-                  repository {
-                    rootRef
-                  }
-                }
-                stars: starCount
-                forks: forksCount
-                created_at: createdAt
-                last_activity_at: lastActivityAt
-                languages {
-                  name
-                }
-                issues: issueStatusCounts {
-                  all
-                  closed
-                  opened
-                }
-                group {
-                  path
-                }
-                repo_url: webUrl
-              }
+    repos_by_org = function() {
+      paste0('
+        query GetReposByOrg($org: ID! $repo_cursor: String!) {
+          group(fullPath: $org) {
+            projects(first: 100 after: $repo_cursor) {
+            ', private$projects_field_content, '
             }
           }
-        }
-      }')
+        }')
+    },
+
+    #' @description Prepare query to get repositories from GitLab.
+    #' @return A query.
+    repos_by_user = function() {
+      paste0('
+        query GetUserRepos ($username: String! $repo_cursor: String!) {
+          projects(search: $username searchNamespaces: true after: $repo_cursor first: 100) {
+            ', private$projects_field_content, '
+          }
+        }')
     },
 
     #' @description Prepare query to get info on a GitLab user.
@@ -216,5 +206,42 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
               }
           }'
     }
+  ),
+  private = list(
+    projects_field_content =
+      '
+      count
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        node {
+          repo_id: id
+          repo_name: name
+          repo_path: path
+          ... on Project {
+            repository {
+              rootRef
+            }
+          }
+          stars: starCount
+          forks: forksCount
+          created_at: createdAt
+          last_activity_at: lastActivityAt
+          languages {
+            name
+          }
+          issues: issueStatusCounts {
+            all
+            closed
+            opened
+          }
+          namespace {
+            path
+          }
+          repo_url: webUrl
+        }
+      }'
   )
 )

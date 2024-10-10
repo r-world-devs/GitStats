@@ -138,6 +138,27 @@ test_fixtures$github_repos_by_org_response <- list(
   )
 )
 
+test_fixtures$github_repos_by_user_response <- list(
+  "data" = list(
+    "user" = list(
+      "repositories" = list(
+        "totalCount" = 5,
+        "pageInfo" = list(
+          "endCursor" = "xyx",
+          "hasNextPage" = FALSE
+        ),
+        "nodes" = list(
+          github_repository_node,
+          github_repository_node,
+          github_repository_node,
+          github_repository_node,
+          github_repository_node
+        )
+      )
+    )
+  )
+)
+
 gitlab_project_node <- list(
   "node" = list(
     "repo_id" = "gid://gitlab/Project/61399846",
@@ -163,7 +184,7 @@ gitlab_project_node <- list(
       "closed" = 8,
       "opened" = 2
     ),
-    "group" = list(
+    "namespace" = list(
       "path" = "test_group"
     ),
     "repo_url" = "https://test_gitlab_url.com"
@@ -186,6 +207,25 @@ test_fixtures$gitlab_repos_by_org_response <- list(
           gitlab_project_node,
           gitlab_project_node
         )
+      )
+    )
+  )
+)
+
+test_fixtures$gitlab_repos_by_user_response <- list(
+  "data" = list(
+    "projects" = list(
+      "count" = 5,
+      "pageInfo" = list(
+        "hasNextPage" = FALSE,
+        "endCursor" = "xyz"
+      ),
+      "edges" = list(
+        gitlab_project_node,
+        gitlab_project_node,
+        gitlab_project_node,
+        gitlab_project_node,
+        gitlab_project_node
       )
     )
   )
@@ -731,4 +771,24 @@ test_fixtures$gitlab_issues_response <- list(
 test_fixtures$gitlab_languages_response <- list(
   "Python" = 100,
   "R" = 50
+)
+
+test_fixtures$github_user_login <- list(
+  "data" = list(
+    "user" = list(
+      "__typename" = "User",
+      "login" = "test_user"
+    ),
+    "organization" = NULL
+  )
+)
+
+test_fixtures$github_org_login <- list(
+  "data" = list(
+    "user" = NULL,
+    "organization" = list(
+      "__typename" = "Organization",
+      "login" = "test_org"
+    )
+  )
 )

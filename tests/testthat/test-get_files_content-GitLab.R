@@ -57,6 +57,7 @@ test_that("GitLab GraphQL Engine pulls files from a group", {
   )
   gitlab_files_response <- test_graphql_gitlab$get_files_from_org(
     org = "mbtests",
+    type = "organization",
     repos = NULL,
     file_paths = "meta_data.yaml",
     only_text_files = TRUE,
@@ -113,6 +114,7 @@ test_that("Gitlab GraphQL switches to pulling files per repositories when query 
   expect_snapshot(
     gitlab_files_response_by_repos <- test_graphql_gitlab$get_files_from_org(
       org = "mbtests",
+      type = "organization",
       repos = NULL,
       file_paths = c("DESCRIPTION", "project_metadata.yaml", "README.md"),
       host_files_structure = NULL,
