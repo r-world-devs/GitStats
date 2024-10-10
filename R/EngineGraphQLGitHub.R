@@ -93,6 +93,7 @@ EngineGraphQLGitHub <- R6::R6Class(
 
     # Pull all given files from all repositories of an organization.
     get_files_from_org = function(org,
+                                  type,
                                   repos,
                                   file_paths,
                                   host_files_structure,
@@ -101,6 +102,7 @@ EngineGraphQLGitHub <- R6::R6Class(
                                   progress = TRUE) {
       repo_data <- private$get_repos_data(
         org = org,
+        type = type,
         repos = repos
       )
       repositories <- repo_data[["repositories"]]
@@ -123,6 +125,7 @@ EngineGraphQLGitHub <- R6::R6Class(
 
     # Pull all files from all repositories of an organization.
     get_files_structure_from_org = function(org,
+                                            type,
                                             repos,
                                             pattern  = NULL,
                                             depth    = Inf,
@@ -130,6 +133,7 @@ EngineGraphQLGitHub <- R6::R6Class(
                                             progress = TRUE) {
       repo_data <- private$get_repos_data(
         org = org,
+        type = type,
         repos = repos
       )
       repositories <- repo_data[["repositories"]]
@@ -237,10 +241,10 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(response)
     },
 
-    get_repos_data = function(org, repos = NULL) {
+    get_repos_data = function(org, type, repos = NULL) {
       repos_list <- self$get_repos_from_org(
         org = org,
-        type = "organization"
+        type = type
       )
       if (!is.null(repos)) {
         repos_list <- purrr::keep(repos_list, ~ .$repo_name %in% repos)

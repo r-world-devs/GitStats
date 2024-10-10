@@ -886,8 +886,10 @@ GitHost <- R6::R6Class(
             information = user_msg
           )
         }
+        type <- attr(org, "type") %||% "organization"
         graphql_engine$get_files_from_org(
           org                  = org,
+          type                 = type,
           repos                = repos,
           file_paths           = file_path,
           host_files_structure = host_files_structure,
@@ -932,8 +934,10 @@ GitHost <- R6::R6Class(
             information = user_info
           )
         }
+        type <- attr(org, "type") %||% "organization"
         graphql_engine$get_files_structure_from_org(
           org      = org,
+          type     = type,
           repos    = private$repos,
           pattern  = pattern,
           depth    = depth,

@@ -84,6 +84,7 @@ EngineGraphQLGitLab <- R6::R6Class(
     # pulled files_structure. In such a case GitStats will switch from this function
     # to iterator over repositories (multiple queries), as it is done for GitHub.
     get_files_from_org = function(org,
+                                  type,
                                   repos,
                                   file_paths,
                                   host_files_structure,
@@ -103,73 +104,87 @@ EngineGraphQLGitLab <- R6::R6Class(
       } else if (is.null(host_files_structure) && only_text_files) {
         file_paths <- file_paths[!grepl(non_text_files_pattern, file_paths)]
       }
-      while (next_page) {
-        files_query <- self$gql_query$files_by_org(
-          end_cursor = end_cursor
-        )
-        files_response <- tryCatch(
-          {
-            self$gql_response(
-              gql_query = files_query,
-              vars = list(
-                "org" = org,
-                "file_paths" = file_paths
+      if (type == "organization") {
+        while (next_page) {
+          files_query <- self$gql_query$files_by_org(
+            end_cursor = end_cursor
+          )
+          files_response <- tryCatch(
+            {
+              self$gql_response(
+                gql_query = files_query,
+                vars = list(
+                  "org" = org,
+                  "file_paths" = file_paths
+                )
               )
-            )
-          },
-          error = function(e) {
-            list()
-          }
-        )
-        if (private$is_query_error(files_response)) {
-          if (verbose) {
-            purrr::walk(files_response$errors, ~ cli::cli_alert_warning(.))
-          }
-          if (private$is_complexity_error(files_response)) {
-            if (verbose) {
-              cli::cli_alert_info(
-                cli::col_br_cyan("I will switch to pulling files per repository.")
-              )
+            },
+            error = function(e) {
+              list()
             }
-            full_files_list <- self$get_files_from_org_per_repo(
-              org = org,
-              repos = repos,
-              file_paths = file_paths,
-              host_files_structure = host_files_structure,
-              only_text_files = only_text_files,
-              verbose = verbose,
-              progress = progress
-            )
-            return(full_files_list)
+          )
+          if (private$is_query_error(files_response)) {
+            if (verbose) {
+              purrr::walk(files_response$errors, ~ cli::cli_alert_warning(.))
+            }
+            if (private$is_complexity_error(files_response)) {
+              if (verbose) {
+                cli::cli_alert_info(
+                  cli::col_br_cyan("I will switch to pulling files per repository.")
+                )
+              }
+              full_files_list <- self$get_files_from_org_per_repo(
+                org = org,
+                type = type,
+                repos = repos,
+                file_paths = file_paths,
+                host_files_structure = host_files_structure,
+                only_text_files = only_text_files,
+                verbose = verbose,
+                progress = progress
+              )
+              return(full_files_list)
+            }
           }
+          if (length(files_response$data$group) == 0 && verbose) {
+            cli::cli_alert_danger("Empty response.")
+          }
+          projects <- files_response$data$group$projects
+          files_list <- purrr::map(projects$edges, function(edge) {
+            edge$node
+          }) %>%
+            purrr::discard(~ length(.$repository$blobs$nodes) == 0)
+          if (is.null(files_list)) files_list <- list()
+          if (length(files_list) > 0) {
+            next_page <- files_response$pageInfo$hasNextPage
+          } else {
+            next_page <- FALSE
+          }
+          if (is.null(next_page)) next_page <- FALSE
+          if (next_page) {
+            end_cursor <- files_response$pageInfo$endCursor
+          } else {
+            end_cursor <- ""
+          }
+          full_files_list <- append(full_files_list, files_list)
         }
-        if (length(files_response$data$group) == 0 && verbose) {
-          cli::cli_alert_danger("Empty response.")
+        if (!is.null(repos)) {
+          full_files_list <- purrr::keep(full_files_list, function(project) {
+            repo_name <- private$get_repo_name_from_url(project$webUrl)
+            repo_name %in% repos
+          })
         }
-        projects <- files_response$data$group$projects
-        files_list <- purrr::map(projects$edges, function(edge) {
-          edge$node
-        }) %>%
-          purrr::discard(~ length(.$repository$blobs$nodes) == 0)
-        if (is.null(files_list)) files_list <- list()
-        if (length(files_list) > 0) {
-          next_page <- files_response$pageInfo$hasNextPage
-        } else {
-          next_page <- FALSE
-        }
-        if (is.null(next_page)) next_page <- FALSE
-        if (next_page) {
-          end_cursor <- files_response$pageInfo$endCursor
-        } else {
-          end_cursor <- ""
-        }
-        full_files_list <- append(full_files_list, files_list)
-      }
-      if (!is.null(repos)) {
-        full_files_list <- purrr::keep(full_files_list, function(project) {
-          repo_name <- private$get_repo_name_from_url(project$webUrl)
-          repo_name %in% repos
-        })
+      } else {
+        full_files_list <- self$get_files_from_org_per_repo(
+          org = org,
+          type = type,
+          repos = repos,
+          file_paths = file_paths,
+          host_files_structure = host_files_structure,
+          only_text_files = only_text_files,
+          verbose = verbose,
+          progress = progress
+        )
       }
       return(full_files_list)
     },
@@ -178,6 +193,7 @@ EngineGraphQLGitLab <- R6::R6Class(
     # one query way applied with get_files_from_org() fails due to its complexity.
     # For more info see docs above.
     get_files_from_org_per_repo = function(org,
+                                           type,
                                            repos,
                                            file_paths = NULL,
                                            host_files_structure = NULL,
@@ -187,6 +203,7 @@ EngineGraphQLGitLab <- R6::R6Class(
       if (is.null(repos)) {
         repo_data <- private$get_repos_data(
           org = org,
+          type = type,
           repos = repos
         )
         repos <- repo_data[["repositories"]]
@@ -216,6 +233,7 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(org_files_list)
     },
     get_files_structure_from_org = function(org,
+                                            type,
                                             repos,
                                             pattern = NULL,
                                             depth = Inf,
@@ -223,6 +241,7 @@ EngineGraphQLGitLab <- R6::R6Class(
                                             progress = TRUE) {
       repo_data <- private$get_repos_data(
         org = org,
+        type = type,
         repos = repos
       )
       repositories <- repo_data[["repositories"]]
@@ -291,10 +310,10 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(repo_name)
     },
 
-    get_repos_data = function(org, repos = NULL) {
+    get_repos_data = function(org, type, repos = NULL) {
       repos_list <- self$get_repos_from_org(
         org = org,
-        type = "organization"
+        type = type
       )
       if (!is.null(repos)) {
         repos_list <- purrr::keep(repos_list, ~ .$node$repo_path %in% repos)
