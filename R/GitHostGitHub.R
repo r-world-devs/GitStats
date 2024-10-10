@@ -88,6 +88,25 @@ GitHostGitHub <- R6::R6Class(
       private$endpoints$repositories <- glue::glue("{private$api_url}/repos")
     },
 
+    # Set owner type
+    set_owner_type = function(owners) {
+      graphql_engine <- private$engines$graphql
+      user_or_org_query <- graphql_engine$gql_query$user_or_org_query
+      login_types <- purrr::map(owners, function(owner) {
+        response <- graphql_engine$gql_response(
+          gql_query = user_or_org_query,
+          vars = list(
+            "login" = owner
+          )
+        )
+        type <- purrr::discard(response$data, is.null) %>%
+          names()
+        attr(owner, "type") <- type
+        return(owner)
+      })
+      return(login_types)
+    },
+
     # Setup REST and GraphQL engines
     setup_engines = function() {
       private$engines$rest <- EngineRestGitHub$new(

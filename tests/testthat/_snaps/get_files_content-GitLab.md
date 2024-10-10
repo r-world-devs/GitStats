@@ -16,9 +16,9 @@
 
     Code
       gitlab_files_response_by_repos <- test_graphql_gitlab$get_files_from_org(org = "mbtests",
-        repos = NULL, file_paths = c("DESCRIPTION", "project_metadata.yaml",
-          "README.md"), host_files_structure = NULL, only_text_files = TRUE, verbose = TRUE,
-        progress = FALSE)
+        type = "organization", repos = NULL, file_paths = c("DESCRIPTION",
+          "project_metadata.yaml", "README.md"), host_files_structure = NULL,
+        only_text_files = TRUE, verbose = TRUE, progress = FALSE)
     Message
       i I will switch to pulling files per repository.
 
