@@ -36,19 +36,6 @@ jobs:
           )
         shell: Rscript {0}
 
-      - name: Generate code coverage report
-        run: |
-          Rscript -e "covr::report(covr::package_coverage(), file='coverage.xml')"
-
-      - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@v2
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage.xml
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: true
-
       - name: Show testthat output
         if: always()
         run: |
