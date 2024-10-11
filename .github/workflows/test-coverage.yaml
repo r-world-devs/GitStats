@@ -1,5 +1,3 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
     branches: [master]
@@ -14,6 +12,7 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       GITLAB_PAT_PUBLIC: ${{ secrets.GITLAB_PAT}}
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       USE_RENV: "FALSE"
 
     steps:
@@ -28,7 +27,7 @@ jobs:
           extra-packages: any::covr
           needs: coverage
 
-      - name: Test coverage
+      - name: Code coverage
         run: |
           covr::codecov(
             quiet = FALSE,
@@ -36,6 +35,14 @@ jobs:
             install_path = file.path(Sys.getenv("RUNNER_TEMP"), "package")
           )
         shell: Rscript {0}
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true
 
       - name: Show testthat output
         if: always()
