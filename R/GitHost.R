@@ -412,7 +412,9 @@ GitHost <- R6::R6Class(
           )
           private$repos_fullnames <- repos
           orgs_repos <- private$extract_repos_and_orgs(repos)
-          private$orgs <- names(orgs_repos)
+          private$orgs <- private$set_owner_type(
+            owners = names(orgs_repos)
+          )
           private$repos <- unname(unlist(orgs_repos))
           private$orgs_repos <- orgs_repos
         }
@@ -593,6 +595,7 @@ GitHost <- R6::R6Class(
       }
       graphql_engine <- private$engines$graphql
       repos_table <- purrr::map(private$orgs, function(org) {
+        type <- attr(org, "type") %||% "organization"
         org <- utils::URLdecode(org)
         if (!private$scan_all && verbose) {
           show_message(
@@ -604,7 +607,8 @@ GitHost <- R6::R6Class(
         }
         repos <- private$set_repos(org)
         repos_table <- graphql_engine$get_repos_from_org(
-          org = org
+          org  = org,
+          type = type
         ) %>%
           private$prepare_repos_table_from_graphql()
         if (!is.null(repos)) {
@@ -882,8 +886,10 @@ GitHost <- R6::R6Class(
             information = user_msg
           )
         }
+        type <- attr(org, "type") %||% "organization"
         graphql_engine$get_files_from_org(
           org                  = org,
+          type                 = type,
           repos                = repos,
           file_paths           = file_path,
           host_files_structure = host_files_structure,
@@ -928,8 +934,10 @@ GitHost <- R6::R6Class(
             information = user_info
           )
         }
+        type <- attr(org, "type") %||% "organization"
         graphql_engine$get_files_structure_from_org(
           org      = org,
+          type     = type,
           repos    = private$repos,
           pattern  = pattern,
           depth    = depth,

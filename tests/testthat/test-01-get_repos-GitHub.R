@@ -14,7 +14,8 @@ test_that("`get_repos_page()` pulls repos page from GitHub organization", {
     test_fixtures$github_repos_by_org_response
   )
   gh_repos_page <- test_graphql_github_priv$get_repos_page(
-    org = "test_org"
+    login = "test_org",
+    type = "organization"
   )
   expect_gh_repos_gql_response(
     gh_repos_page
@@ -29,7 +30,8 @@ test_that("`get_repos_from_org()` prepares formatted list", {
     test_mocker$use("gh_repos_page")
   )
   gh_repos_from_org <- test_graphql_github$get_repos_from_org(
-    org = "test_org"
+    org = "test_org",
+    type = "organization"
   )
   expect_list_contains(
     gh_repos_from_org[[1]],
@@ -40,6 +42,44 @@ test_that("`get_repos_from_org()` prepares formatted list", {
     )
   )
   test_mocker$cache(gh_repos_from_org)
+})
+
+test_that("`get_repos_page()` pulls repos page from GitHub user", {
+  mockery::stub(
+    test_graphql_github_priv$get_repos_page,
+    "self$gql_response",
+    test_fixtures$github_repos_by_user_response
+  )
+  gh_repos_user_page <- test_graphql_github_priv$get_repos_page(
+    login = "test_user",
+    type = "user"
+  )
+  expect_gh_repos_gql_response(
+    gh_repos_user_page,
+    type = "user"
+  )
+  test_mocker$cache(gh_repos_user_page)
+})
+
+test_that("`get_repos_from_org()` prepares formatted list", {
+  mockery::stub(
+    test_graphql_github$get_repos_from_org,
+    "private$get_repos_page",
+    test_mocker$use("gh_repos_user_page")
+  )
+  gh_repos_from_user <- test_graphql_github$get_repos_from_org(
+    org = "test_user",
+    type = "user"
+  )
+  expect_list_contains(
+    gh_repos_from_user[[1]],
+    c(
+      "id", "name", "stars", "forks", "created_at",
+      "last_activity_at", "languages", "issues_open", "issues_closed",
+      "contributors", "repo_url"
+    )
+  )
+  test_mocker$cache(gh_repos_from_user)
 })
 
 # REST Engine search repos by code

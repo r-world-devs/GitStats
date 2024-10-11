@@ -52,9 +52,9 @@ output is switched off.}
 A data.frame.
 }
 \description{
-Pulls data on all repositories for an organization or those
-with a given text in code blobs (\code{with_code} parameter) or a file
-(\code{with_files} parameter) and parse it into table format.
+Pulls data on all repositories for an organization, individual
+user or those with a given text in code blobs (\code{with_code} parameter) or a
+file (\code{with_files} parameter) and parse it into table format.
 }
 \examples{
 \dontrun{

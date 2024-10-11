@@ -1,5 +1,6 @@
 # GitStats (development version)
 
+- Added possibility to get repositories for individual users with `get_repos()` ([#492](https://github.com/r-world-devs/GitStats/issues/492)). Earlier this was only possible for GitHub organizations and GitLab groups.
 - Fixed getting large search responses for GitHub ([#491](https://github.com/r-world-devs/GitStats/issues/491)).
 
 # GitStats 2.1.0
