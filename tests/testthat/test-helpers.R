@@ -55,6 +55,11 @@ test_that("when token is proper token is passed", {
     token = Sys.getenv("GITHUB_PAT"),
     mode = "private"
   )
+  mockery::stub(
+    github_testhost_priv$check_token,
+    "private$test_token",
+    TRUE
+  )
   expect_equal(
     github_testhost_priv$check_token(Sys.getenv("GITHUB_PAT")),
     Sys.getenv("GITHUB_PAT")
