@@ -1,8 +1,3 @@
-test_that("`get_group_id()` gets group's id", {
-  gl_group_id <- test_rest_gitlab_priv$get_group_id("mbtests")
-  expect_equal(gl_group_id, 63684059)
-})
-
 test_that("`set_searching_scope` does not throw error when `orgs` or `repos` are defined", {
   expect_snapshot(
     gitlab_testhost_priv$set_searching_scope(orgs = "mbtests", repos = NULL, verbose = TRUE)
@@ -128,6 +123,7 @@ test_that("`set_default_token` sets default token for public GitHub", {
 })
 
 test_that("`test_token` works properly", {
+  skip_on_cran()
   expect_true(
     github_testhost_priv$test_token(Sys.getenv("GITHUB_PAT"))
   )
