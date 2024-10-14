@@ -77,20 +77,16 @@
 # Error shows, when wrong input is passed when setting connection and host is not passed
 
     x Token exists but does not grant access.
-    i Check if you use correct token. Check scopes your token is using.
+    i Check if you use correct token.
+    ! Scope that is needed: [read_api].
 
 ---
 
     Code
       create_gitstats() %>% set_github_host(host = "wrong.url", orgs = c("openpharma",
         "r_world_devs"))
-    Message
-      i Searching scope set to [org].
-      i Checking organizations...
     Condition
-      Error in `purrr::map()`:
-      i In index: 1.
-      Caused by error:
+      Error:
       ! Could not resolve host: wrong.url
 
 # Error pops out, when two clients of the same url api are passed as input

@@ -482,12 +482,6 @@ GitHost <- R6::R6Class(
           private$engines$rest$response(endpoint = endpoint)
         },
         error = function(e) {
-          if (!is.null(e$parent$message) && grepl("Could not resolve host", e$parent$message)) {
-            cli::cli_abort(
-              cli::col_red(e$parent$message),
-              call = NULL
-            )
-          }
           if (grepl("404", e)) {
             cli::cli_abort(
               c(
@@ -546,9 +540,18 @@ GitHost <- R6::R6Class(
     test_token = function(token) {
       response <- NULL
       test_endpoint <- private$test_endpoint
-      try(response <- httr2::request(test_endpoint) |>
-            httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
-            httr2::req_perform(), silent = TRUE)
+      response <- tryCatch({
+        httr2::request(test_endpoint) |>
+          httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
+          httr2::req_perform()
+        },
+        error = function(e) {
+          if (!is.null(e$parent) && grepl("Could not resolve host", e$parent$message)) {
+            cli::cli_abort(e$parent$message, call = NULL)
+          } else {
+            NULL
+          }
+        })
       if (!is.null(response)) {
         check <- private$check_token_scopes(response, token)
       } else {
