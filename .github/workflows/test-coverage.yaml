@@ -10,7 +10,7 @@ jobs:
   test-coverage:
     runs-on: ubuntu-latest
     env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_PAT: ${{ secrets.TEST_GITHUB_PAT }}
       GITLAB_PAT_PUBLIC: ${{ secrets.GITLAB_PAT}}
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       USE_RENV: "FALSE"

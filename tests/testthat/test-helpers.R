@@ -135,7 +135,7 @@ test_that("`set_default_token` sets default token for public GitHub", {
 test_that("`test_token` works properly", {
   skip_on_cran()
   expect_true(
-    github_testhost_priv$test_token(Sys.getenv("TEST_GITHUB_PAT"))
+    github_testhost_priv$test_token(Sys.getenv("GITHUB_PAT"))
   )
   expect_false(
     github_testhost_priv$test_token("false_token")
