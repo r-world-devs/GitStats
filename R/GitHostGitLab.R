@@ -84,6 +84,9 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     # Default token name
     token_name = "GITLAB_PAT",
 
+    # Minimum access scopes for token
+    min_access_scopes = c("read_api"),
+
     # Access scopes for token
     access_scopes = c("api", "read_api"),
 
@@ -184,21 +187,24 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     # check token scopes
     # response parameter only for need of super method
     check_token_scopes = function(response = NULL, token) {
-      token_scopes <- httr2::request(private$endpoints$tokens) %>%
-        httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
-        httr2::req_perform() %>%
-        httr2::resp_body_json() %>%
-        purrr::keep(~ .$active) %>%
-        purrr::map(function(pat) {
-          data.frame(scopes = unlist(pat$scopes), date = pat$last_used_at)
-        }) %>%
-        purrr::list_rbind() %>%
-        dplyr::filter(
-          date == max(date)
-        ) %>%
-        dplyr::select(scopes) %>%
-        unlist()
-      any(private$access_scopes %in% token_scopes)
+      private$token_scopes <- try({
+        httr2::request(private$endpoints$tokens) %>%
+          httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
+          httr2::req_perform() %>%
+          httr2::resp_body_json() %>%
+          purrr::keep(~ .$active) %>%
+          purrr::map(function(pat) {
+            data.frame(scopes = unlist(pat$scopes), date = pat$last_used_at)
+          }) %>%
+          purrr::list_rbind() %>%
+          dplyr::filter(
+            date == max(date)
+          ) %>%
+          dplyr::select(scopes) %>%
+          unlist()
+      },
+      silent = TRUE)
+      any(private$access_scopes %in% private$token_scopes)
     },
 
     # Retrieve only important info from repositories response

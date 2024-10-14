@@ -2,6 +2,7 @@
 
 - Added possibility to get repositories for individual users with `get_repos()` ([#492](https://github.com/r-world-devs/GitStats/issues/492)). Earlier this was only possible for GitHub organizations and GitLab groups.
 - Fixed getting large search responses for GitHub ([#491](https://github.com/r-world-devs/GitStats/issues/491)).
+- Fixed checking token scopes ([#501](https://github.com/r-world-devs/GitStats/issues/501)). If token scopes are insufficient error is returned and `GitHost` is not passed to `GitStats`. This also applies to situation when `GitStats` looks for default tokens (not defined by user). Earlier, if tests for token failed, an empty token was passed and `GitStats` was created, which was misleading for the user.
 
 # GitStats 2.1.0
 

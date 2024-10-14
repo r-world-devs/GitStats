@@ -29,8 +29,12 @@ GitHostGitHub <- R6::R6Class(
     # Default token name
     token_name = "GITHUB_PAT",
 
+    # Minimum access scopes for token
+    min_access_scopes = c("public_repo", "read:org", "read:user"),
+
     # Access scopes for token
-    access_scopes = c("public_repo", "read:org", "read:user"),
+    access_scopes = c("public_repo", "read:org", "read:user",
+                      "repo", "admin:org", "user"),
 
     # Methods for engines
     engine_methods = list(
@@ -124,10 +128,10 @@ GitHostGitHub <- R6::R6Class(
     # Check token scopes
     # token parameter only for need of super method
     check_token_scopes = function(response, token = NULL) {
-      token_scopes <- response$headers$`x-oauth-scopes` %>%
+      private$token_scopes <- response$headers$`x-oauth-scopes` %>%
         stringr::str_split(", ") %>%
         unlist()
-      all(private$access_scopes %in% token_scopes)
+      all(private$access_scopes %in% private$token_scopes)
     },
 
     # Retrieve only important info from repositories response

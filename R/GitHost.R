@@ -265,6 +265,9 @@ GitHost <- R6::R6Class(
     # A token.
     token = NULL,
 
+    # Actual token scopes
+    token_scopes = NULL,
+
     # public A boolean.
     is_public = NULL,
 
@@ -343,8 +346,10 @@ GitHost <- R6::R6Class(
         if (!private$test_token(token)) {
           cli::cli_abort(c(
             "x" = "Token exists but does not grant access.",
-            "i" = "Check if you use correct token. Check scopes your token is using."
-          ))
+            "i" = "Check if you use correct token.",
+            "!" = "Scope that is needed: [{paste0(private$min_access_scopes, collapse = ', ')}]."
+          ),
+          call = NULL)
         } else {
           return(token)
         }
@@ -526,6 +531,14 @@ GitHost <- R6::R6Class(
           }
         }
       }
+      if (token == "") {
+        cli::cli_abort(c(
+          "x" = "No sufficient token found among: [{paste0(pat_names, collapse = ', ')}].",
+          "i" = "Check if you have correct token.",
+          "!" = "Scope that is needed: [{paste0(private$min_access_scopes, collapse = ', ')}]."
+        ),
+        call = NULL)
+      }
       return(token)
     },
 
@@ -537,11 +550,11 @@ GitHost <- R6::R6Class(
             httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
             httr2::req_perform(), silent = TRUE)
       if (!is.null(response)) {
-        private$check_token_scopes(response, token)
-        TRUE
+        check <- private$check_token_scopes(response, token)
       } else {
-        FALSE
+        check <- FALSE
       }
+      return(check)
     },
 
     # Helper to extract organizations and repositories from vector of full names
