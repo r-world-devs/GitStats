@@ -33,8 +33,11 @@ GitHostGitHub <- R6::R6Class(
     min_access_scopes = c("public_repo", "read:org", "read:user"),
 
     # Access scopes for token
-    access_scopes = c("public_repo", "read:org", "read:user",
-                      "repo", "admin:org", "user"),
+    access_scopes = list(
+      org = c("read:org", "admin:org"),
+      repo = c("public_repo", "repo"),
+      user = c("read:user", "user")
+    ),
 
     # Methods for engines
     engine_methods = list(
@@ -131,7 +134,10 @@ GitHostGitHub <- R6::R6Class(
       private$token_scopes <- response$headers$`x-oauth-scopes` %>%
         stringr::str_split(", ") %>%
         unlist()
-      all(private$access_scopes %in% private$token_scopes)
+      org_scopes <- any(private$access_scopes$org %in% private$token_scopes)
+      repo_scopes <- any(private$access_scopes$repo %in% private$token_scopes)
+      user_scopes <- any(private$access_scopes$user %in% private$token_scopes)
+      all(c(org_scopes, repo_scopes, user_scopes))
     },
 
     # Retrieve only important info from repositories response
