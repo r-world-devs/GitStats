@@ -544,14 +544,14 @@ GitHost <- R6::R6Class(
         httr2::request(test_endpoint) |>
           httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
           httr2::req_perform()
-        },
-        error = function(e) {
-          if (!is.null(e$parent) && grepl("Could not resolve host", e$parent$message)) {
-            cli::cli_abort(e$parent$message, call = NULL)
-          } else {
-            NULL
-          }
-        })
+      },
+      error = function(e) {
+        if (!is.null(e$parent) && grepl("Could not resolve host", e$parent$message)) {
+          cli::cli_abort(e$parent$message, call = NULL)
+        } else {
+          NULL
+        }
+      })
       if (!is.null(response)) {
         check <- private$check_token_scopes(response, token)
       } else {
