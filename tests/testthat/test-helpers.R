@@ -128,6 +128,19 @@ test_that("`set_default_token` sets default token for public GitHub", {
   )
 })
 
+test_that("`set_default_token` returns error if none are found", {
+  mockery::stub(
+    github_testhost_priv$set_default_token,
+    "private$test_token",
+    FALSE
+  )
+  expect_snapshot({
+    github_testhost_priv$set_default_token(
+      verbose = TRUE
+    )
+  }, error = TRUE)
+})
+
 test_that("`test_token` works properly", {
   skip_on_cran()
   expect_true(
