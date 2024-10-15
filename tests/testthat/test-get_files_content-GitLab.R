@@ -132,19 +132,19 @@ test_that("Gitlab GraphQL switches to pulling files per repositories when query 
 
 test_that("checker properly identifies gitlab files responses", {
   expect_false(
-    gitlab_testhost_priv$response_prepared_by_iteration(
+    test_graphql_gitlab_priv$response_prepared_by_iteration(
       files_response = test_mocker$use("gitlab_files_response")
     )
   )
   expect_true(
-    gitlab_testhost_priv$response_prepared_by_iteration(
+    test_graphql_gitlab_priv$response_prepared_by_iteration(
       files_response = test_mocker$use("gitlab_files_response_by_repos")
     )
   )
 })
 
 test_that("GitLab prepares table from files response", {
-  gl_files_table <- gitlab_testhost_priv$prepare_files_table(
+  gl_files_table <- test_graphql_gitlab$prepare_files_table(
     files_response = test_mocker$use("gitlab_files_response"),
     org = "mbtests",
     file_path = "meta_data.yaml"
@@ -154,7 +154,7 @@ test_that("GitLab prepares table from files response", {
 })
 
 test_that("GitLab prepares table from files response prepared in alternative way", {
-  gl_files_table <- gitlab_testhost_priv$prepare_files_table(
+  gl_files_table <- test_graphql_gitlab$prepare_files_table(
     files_response = test_mocker$use("gitlab_files_response_by_repos"),
     org = "mbtests",
     file_path = "meta_data.yaml"
@@ -165,7 +165,7 @@ test_that("GitLab prepares table from files response prepared in alternative way
 test_that("get_files_content_from_orgs for GitLab works", {
   mockery::stub(
     gitlab_testhost_priv$get_files_content_from_orgs,
-    "private$prepare_files_table",
+    "graphql_engine$prepare_files_table",
     test_mocker$use("gl_files_table")
   )
   suppressMessages(

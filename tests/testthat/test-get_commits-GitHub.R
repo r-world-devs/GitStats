@@ -68,7 +68,7 @@ test_that("`get_commits_from_repos()` pulls commits from repos", {
 })
 
 test_that("`prepare_commits_table()` prepares commits table", {
-  gh_commits_table <- github_testhost_priv$prepare_commits_table(
+  gh_commits_table <- test_graphql_github$prepare_commits_table(
     repos_list_with_commits = test_mocker$use("commits_from_repos"),
     org = "r-world-devs"
   )
@@ -81,7 +81,7 @@ test_that("`prepare_commits_table()` prepares commits table", {
 test_that("get_commits_from_orgs for GitHub works", {
   mockery::stub(
     github_testhost_repos_priv$get_commits_from_orgs,
-    "private$prepare_commits_table",
+    "graphql_engine$prepare_commits_table",
     test_mocker$use("gh_commits_table")
   )
   suppressMessages(

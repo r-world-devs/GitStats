@@ -833,7 +833,8 @@ GitStats <- R6::R6Class(
           progress = progress
         )
       }) %>%
-        purrr::list_rbind()
+        purrr::list_rbind() %>%
+        dplyr::as_tibble()
       return(commits_table)
     },
 
@@ -843,7 +844,8 @@ GitStats <- R6::R6Class(
         host$get_users(logins)
       }) %>%
         unique() %>%
-        purrr::list_rbind()
+        purrr::list_rbind() %>%
+        dplyr::as_tibble()
     },
 
     # Pull content of a text file in a table form
@@ -879,7 +881,8 @@ GitStats <- R6::R6Class(
           )
         }
       }) %>%
-        purrr::list_rbind()
+        purrr::list_rbind() %>%
+        dplyr::as_tibble()
     },
 
     get_host_files_structure = function(host, verbose) {
@@ -943,7 +946,8 @@ GitStats <- R6::R6Class(
           progress = progress
         )
       }) %>%
-        purrr::list_rbind()
+        purrr::list_rbind() %>%
+        dplyr::as_tibble()
     },
 
     # Pull information on package usage in a table form

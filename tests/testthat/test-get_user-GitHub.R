@@ -21,7 +21,7 @@ test_that("get_user pulls GitHub user response", {
 })
 
 test_that("GitHub prepares user table", {
-  gh_user_table <- github_testhost_priv$prepare_user_table(
+  gh_user_table <- test_graphql_github$prepare_user_table(
     user_response = test_mocker$use("gh_user_response")
   )
   expect_users_table(
@@ -34,7 +34,7 @@ test_that("GitHub prepares user table", {
 test_that("GitHost gets users tables", {
   mockery::stub(
     github_testhost$get_users,
-    "private$prepare_user_table",
+    "graphql_engine$prepare_user_table",
     test_mocker$use("gh_user_table")
   )
   github_users <- github_testhost$get_users(

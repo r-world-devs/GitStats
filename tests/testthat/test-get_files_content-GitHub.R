@@ -108,7 +108,7 @@ test_that("GitHub GraphQL Engine pulls files from organization", {
 })
 
 test_that("GitHubHost prepares table from files response", {
-  gh_files_table <- github_testhost_priv$prepare_files_table(
+  gh_files_table <- test_graphql_github$prepare_files_table(
     files_response = test_mocker$use("github_files_response"),
     org = "r-world-devs",
     file_path = "LICENSE"
@@ -123,7 +123,7 @@ test_that("GitHubHost prepares table from files with no content", {
       test_repo$test_files$file$text <- NULL
       return(test_repo)
     })
-  gh_empty_files_table <- github_testhost_priv$prepare_files_table(
+  gh_empty_files_table <- test_graphql_github$prepare_files_table(
     files_response = empty_files_response,
     org = "test_org",
     file_path = "test_files"
@@ -136,7 +136,7 @@ test_that("GitHubHost prepares table from files with no content", {
 test_that("get_files_content_from_orgs for GitHub works", {
   mockery::stub(
     github_testhost_priv$get_files_content_from_orgs,
-    "private$prepare_files_table",
+    "graphql_engine$prepare_files_table",
     test_mocker$use("gh_files_table")
   )
   gh_files_table <- github_testhost_priv$get_files_content_from_orgs(

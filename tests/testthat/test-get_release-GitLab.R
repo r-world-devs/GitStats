@@ -22,9 +22,9 @@ test_that("`get_releases_from_org()` pulls releases from the repositories", {
 
 
 test_that("`prepare_releases_table()` prepares releases table", {
-  releases_table <- gitlab_testhost_priv$prepare_releases_table(
+  releases_table <- test_graphql_gitlab$prepare_releases_table(
     releases_response = test_mocker$use("releases_from_repos"),
-    org        = "r-world-devs",
+    org        = "test_org",
     date_from  = "2023-08-01",
     date_until = "2024-06-30"
   )
@@ -37,7 +37,7 @@ test_that("`prepare_releases_table()` prepares releases table", {
 test_that("`get_release_logs()` pulls release logs in the table format", {
   mockery::stub(
     gitlab_testhost$get_release_logs,
-    "private$prepare_releases_table",
+    "graphql_engine$prepare_releases_table",
     test_mocker$use("releases_table")
   )
   releases_table <- gitlab_testhost$get_release_logs(

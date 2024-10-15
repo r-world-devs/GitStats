@@ -21,7 +21,7 @@ test_that("`get_releases_from_org()` pulls releases from the repositories", {
 })
 
 test_that("`prepare_releases_table()` prepares releases table", {
-  releases_table <- github_testhost_priv$prepare_releases_table(
+  releases_table <- test_graphql_github$prepare_releases_table(
     releases_response = test_mocker$use("releases_from_repos"),
     org        = "r-world-devs",
     date_from  = "2023-05-01",
@@ -48,7 +48,7 @@ test_that("`set_repositories` works", {
 test_that("`get_release_logs()` pulls release logs in the table format", {
   mockery::stub(
     github_testhost$get_release_logs,
-    "private$prepare_releases_table",
+    "graphql_engine$prepare_releases_table",
     test_mocker$use("releases_table")
   )
   mockery::stub(

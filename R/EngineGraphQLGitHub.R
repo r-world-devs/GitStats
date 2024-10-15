@@ -125,6 +125,45 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(repos_list_with_commits)
     },
 
+    # Parses repositories' list with commits into table of commits.
+    prepare_commits_table = function(repos_list_with_commits,
+                                     org) {
+      commits_table <- purrr::imap(repos_list_with_commits, function(repo, repo_name) {
+        commits_row <- purrr::map_dfr(repo, function(commit) {
+          commit_author <- commit$node$author
+          commit$node$author <- commit_author$name
+          commit$node$author_login <- if (!is.null(commit_author$user$login)) {
+            commit_author$user$login
+          } else {
+            NA
+          }
+          commit$node$author_name <- if (!is.null(commit_author$user$name)) {
+            commit_author$user$name
+          } else {
+            NA
+          }
+          commit$node$committed_date <- gts_to_posixt(commit$node$committed_date)
+          commit$node
+        })
+        commits_row$repository <- repo_name
+        commits_row
+      }) %>%
+        purrr::discard(~ length(.) == 1) %>%
+        purrr::list_rbind()
+      if (nrow(commits_table) > 0) {
+        commits_table <- commits_table %>%
+          dplyr::mutate(
+            organization = org,
+            api_url = self$gql_api_url
+          ) %>%
+          dplyr::relocate(
+            any_of(c("author_login", "author_name")),
+            .after = author
+          )
+      }
+      return(commits_table)
+    },
+
     # Pull all given files from all repositories of an organization.
     get_files_from_org = function(org,
                                   type,
@@ -157,6 +196,30 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(org_files_list)
     },
 
+    # Prepare files table.
+    prepare_files_table = function(files_response, org, file_path) {
+      if (!is.null(files_response)) {
+        files_table <- purrr::map(files_response, function(repository) {
+          purrr::imap(repository, function(file_data, file_name) {
+            data.frame(
+              "repo_name" = file_data$repo_name,
+              "repo_id" = file_data$repo_id,
+              "organization" = org,
+              "file_path" = file_name,
+              "file_content" = file_data$file$text %||% NA,
+              "file_size" = file_data$file$byteSize,
+              "repo_url" = file_data$repo_url
+            )
+          }) %>%
+            purrr::list_rbind()
+        }) %>%
+          purrr::list_rbind()
+      } else {
+        files_table <- NULL
+      }
+      return(files_table)
+    },
+
     # Pull all files from all repositories of an organization.
     get_files_structure_from_org = function(org,
                                             type,
@@ -186,6 +249,29 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(files_structure)
     },
 
+    # Prepare user table.
+    prepare_user_table = function(user_response) {
+      if (!is.null(user_response$data$user)) {
+        user_data <- user_response$data$user
+        user_data[["name"]] <- user_data$name %||% ""
+        user_data[["starred_repos"]] <- user_data$starred_repos$totalCount
+        user_data[["commits"]] <- user_data$contributions$totalCommitContributions
+        user_data[["issues"]] <- user_data$contributions$totalIssueContributions
+        user_data[["pull_requests"]] <- user_data$contributions$totalPullRequestContributions
+        user_data[["reviews"]] <- user_data$contributions$totalPullRequestReviewContributions
+        user_data[["contributions"]] <- NULL
+        user_data[["email"]] <- user_data$email %||% ""
+        user_data[["location"]] <- user_data$location %||% ""
+        user_data[["web_url"]] <- user_data$web_url %||% ""
+        user_table <- tibble::as_tibble(user_data) %>%
+          dplyr::relocate(c(commits, issues, pull_requests, reviews),
+                          .after = starred_repos)
+      } else {
+        user_table <- NULL
+      }
+      return(user_table)
+    },
+
     # Pull release logs from organization
     get_release_logs_from_org = function(repos_names, org) {
       release_responses <- purrr::map(repos_names, function(repository) {
@@ -201,6 +287,47 @@ EngineGraphQLGitHub <- R6::R6Class(
       }) %>%
         purrr::discard(~ length(.$data$repository$releases$nodes) == 0)
       return(release_responses)
+    },
+
+    # Prepare releases table.
+    prepare_releases_table = function(releases_response, org, date_from, date_until) {
+      if (!is.null(releases_response)) {
+        releases_table <-
+          purrr::map(releases_response, function(release) {
+            release_table <- purrr::map(release$data$repository$releases$nodes, function(node) {
+              data.frame(
+                release_name = node$name,
+                release_tag = node$tagName,
+                published_at = gts_to_posixt(node$publishedAt),
+                release_url = node$url,
+                release_log = node$description
+              )
+            }) %>%
+              purrr::list_rbind() %>%
+              dplyr::mutate(
+                repo_name = release$data$repository$name,
+                repo_url = release$data$repository$url
+              ) %>%
+              dplyr::relocate(
+                repo_name, repo_url,
+                .before = release_name
+              )
+            return(release_table)
+          }) %>%
+          purrr::list_rbind() %>%
+          dplyr::filter(
+            published_at <= as.POSIXct(date_until)
+          )
+        if (!is.null(date_from)) {
+          releases_table <- releases_table %>%
+            dplyr::filter(
+              published_at >= as.POSIXct(date_from)
+            )
+        }
+      } else {
+        releases_table <- NULL
+      }
+      return(releases_table)
     }
   ),
   private = list(
