@@ -111,11 +111,7 @@ test_that("`check_if_public` works correctly", {
 })
 
 test_that("`set_default_token` sets default token for public GitHub", {
-  mockery::stub(
-    github_testhost_priv$set_default_token,
-    "private$test_token",
-    TRUE
-  )
+  skip_on_cran()
   expect_snapshot(
     default_token <- github_testhost_priv$set_default_token(
       verbose = TRUE
