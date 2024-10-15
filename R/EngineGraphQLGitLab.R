@@ -77,6 +77,44 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(full_repos_list)
     },
 
+    # Parses repositories list into table.
+    prepare_repos_table = function(repos_list) {
+      if (length(repos_list) > 0) {
+        repos_table <- purrr::map(repos_list, function(repo) {
+          repo <- repo$node
+          repo$default_branch <- repo$repository$rootRef %||% ""
+          repo$repository <- NULL
+          repo$languages <- if (length(repo$languages) > 0) {
+            purrr::map_chr(repo$languages, ~ .$name) %>%
+              paste0(collapse = ", ")
+          } else {
+            ""
+          }
+          repo$created_at <- gts_to_posixt(repo$created_at)
+          repo$issues_open <- repo$issues$opened
+          repo$issues_closed <- repo$issues$closed
+          repo$issues <- NULL
+          repo$last_activity_at <- as.POSIXct(repo$last_activity_at)
+          repo$organization <- repo$namespace$path
+          repo$namespace <- NULL
+          repo$repo_path <- NULL # temporary to close issue 338
+          data.frame(repo)
+        }) %>%
+          purrr::list_rbind() %>%
+          dplyr::relocate(
+            repo_url,
+            .after = organization
+          ) %>%
+          dplyr::relocate(
+            default_branch,
+            .after = repo_name
+          )
+      } else {
+        repos_table <- NULL
+      }
+      return(repos_table)
+    },
+
     # Pull all given files from all repositories of a group.
     # This is a one query way to get all the necessary info.
     # However it may fail if query is too complex (too many files in file_paths).

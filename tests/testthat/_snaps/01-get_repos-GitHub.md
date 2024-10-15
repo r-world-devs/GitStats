@@ -8,8 +8,8 @@
 # `prepare_repos_table()` prepares repos table
 
     Code
-      gh_repos_by_code_table <- github_testhost_priv$prepare_repos_table_from_rest(
-        repos_list = test_mocker$use("gh_repos_by_code_tailored"))
+      gh_repos_by_code_table <- test_rest_github$prepare_repos_table(repos_list = test_mocker$
+        use("gh_repos_by_code_tailored"))
     Message
       i Preparing repositories table...
 

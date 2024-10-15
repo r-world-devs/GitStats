@@ -66,6 +66,27 @@ EngineRestGitLab <- R6::R6Class(
       return(search_output)
     },
 
+    # Retrieve only important info from repositories response
+    tailor_repos_response = function(repos_response) {
+      repos_list <- purrr::map(repos_response, function(project) {
+        list(
+          "repo_id" = project$id,
+          "repo_name" = project$name,
+          "default_branch" = project$default_branch,
+          "stars" = project$star_count,
+          "forks" = project$fork_count,
+          "created_at" = project$created_at,
+          "last_activity_at" = project$last_activity_at,
+          "languages" = paste0(project$languages, collapse = ", "),
+          "issues_open" = project$issues_open,
+          "issues_closed" = project$issues_closed,
+          "organization" = project$namespace$path,
+          "repo_url" = project$web_url
+        )
+      })
+      return(repos_list)
+    },
+
     # Pull all repositories URLs from organization
     get_repos_urls = function(type, org) {
       repos_urls <- self$response(

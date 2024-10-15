@@ -207,64 +207,6 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       any(private$access_scopes %in% private$token_scopes)
     },
 
-    # Retrieve only important info from repositories response
-    tailor_repos_response = function(repos_response) {
-      repos_list <- purrr::map(repos_response, function(project) {
-        list(
-          "repo_id" = project$id,
-          "repo_name" = project$name,
-          "default_branch" = project$default_branch,
-          "stars" = project$star_count,
-          "forks" = project$fork_count,
-          "created_at" = project$created_at,
-          "last_activity_at" = project$last_activity_at,
-          "languages" = paste0(project$languages, collapse = ", "),
-          "issues_open" = project$issues_open,
-          "issues_closed" = project$issues_closed,
-          "organization" = project$namespace$path,
-          "repo_url" = project$web_url
-        )
-      })
-      return(repos_list)
-    },
-
-    # Parses repositories list into table.
-    prepare_repos_table_from_graphql = function(repos_list) {
-      if (length(repos_list) > 0) {
-        repos_table <- purrr::map_dfr(repos_list, function(repo) {
-          repo <- repo$node
-          repo$default_branch <- repo$repository$rootRef %||% ""
-          repo$repository <- NULL
-          repo$languages <- if (length(repo$languages) > 0) {
-            purrr::map_chr(repo$languages, ~ .$name) %>%
-              paste0(collapse = ", ")
-          } else {
-            ""
-          }
-          repo$created_at <- gts_to_posixt(repo$created_at)
-          repo$issues_open <- repo$issues$opened
-          repo$issues_closed <- repo$issues$closed
-          repo$issues <- NULL
-          repo$last_activity_at <- as.POSIXct(repo$last_activity_at)
-          repo$organization <- repo$namespace$path
-          repo$namespace <- NULL
-          repo$repo_path <- NULL # temporary to close issue 338
-          data.frame(repo)
-        }) %>%
-          dplyr::relocate(
-            repo_url,
-            .after = organization
-          ) %>%
-          dplyr::relocate(
-            default_branch,
-            .after = repo_name
-          )
-      } else {
-        repos_table <- NULL
-      }
-      return(repos_table)
-    },
-
     # Add `api_url` column to table.
     add_repo_api_url = function(repos_table) {
       if (!is.null(repos_table) && nrow(repos_table) > 0) {

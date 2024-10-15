@@ -709,7 +709,8 @@ GitStats <- R6::R6Class(
         }
       }) %>%
         purrr::list_rbind() %>%
-        private$add_stats_to_repos()
+        private$add_stats_to_repos() %>%
+        dplyr::as_tibble()
       return(repos_table)
     },
 
@@ -974,7 +975,6 @@ GitStats <- R6::R6Class(
           dplyr::mutate(
             package_usage = ifelse(api_url %in% duplicated_repos, "import, library", package_usage)
           )
-        rownames(package_usage_table) <- seq_len(nrow(package_usage_table))
       }
       return(package_usage_table)
     },

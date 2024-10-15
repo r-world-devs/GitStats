@@ -71,6 +71,40 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(full_repos_list)
     },
 
+    # Parses repositories list into table.
+    prepare_repos_table = function(repos_list) {
+      if (length(repos_list) > 0) {
+        repos_table <- purrr::map(repos_list, function(repo) {
+          repo$default_branch <- if (!is.null(repo$default_branch)) {
+            repo$default_branch$name
+          } else {
+            ""
+          }
+          last_activity_at <- as.POSIXct(repo$last_activity_at)
+          if (length(last_activity_at) == 0) {
+            last_activity_at <- gts_to_posixt(repo$created_at)
+          }
+          repo$languages <- purrr::map_chr(repo$languages$nodes, ~ .$name) %>%
+            paste0(collapse = ", ")
+          repo$created_at <- gts_to_posixt(repo$created_at)
+          repo$issues_open <- repo$issues_open$totalCount
+          repo$issues_closed <- repo$issues_closed$totalCount
+          repo$last_activity_at <- last_activity_at
+          repo$organization <- repo$organization$login
+          repo <- data.frame(repo) %>%
+            dplyr::relocate(
+              default_branch,
+              .after = repo_name
+            )
+          return(repo)
+        }) %>%
+          purrr::list_rbind()
+      } else {
+        repos_table <- NULL
+      }
+      return(repos_table)
+    },
+
     # Iterator over pulling commits from all repositories.
     get_commits_from_repos = function(org,
                                       repos_names,
