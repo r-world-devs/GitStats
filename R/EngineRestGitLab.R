@@ -34,6 +34,29 @@ EngineRestGitLab <- R6::R6Class(
       return(files_list)
     },
 
+    # Prepare files table from REST API.
+    prepare_files_table = function(files_list) {
+      files_table <- NULL
+      if (!is.null(files_list)) {
+        files_table <- purrr::map(files_list, function(file_data) {
+          org_repo <- stringr::str_split_1(file_data$repo_fullname, "/")
+          org <- paste0(org_repo[1:(length(org_repo) - 1)], collapse = "/")
+          data.frame(
+            "repo_name" = file_data$repo_name,
+            "repo_id" = as.character(file_data$repo_id),
+            "organization" = org,
+            "file_path" = file_data$file_path,
+            "file_content" = file_data$content,
+            "file_size" = file_data$size,
+            "repo_url" = file_data$repo_url
+          )
+        }) %>%
+          purrr::list_rbind() %>%
+          unique()
+      }
+      return(files_table)
+    },
+
     # Wrapper for iteration over GitLab search API response
     # @details For the time being there is no possibility to search GitLab with
     #   filtering by language. For more information look here:
@@ -64,6 +87,66 @@ EngineRestGitLab <- R6::R6Class(
           )
       }
       return(search_output)
+    },
+
+    # Retrieve only important info from repositories response
+    tailor_repos_response = function(repos_response) {
+      repos_list <- purrr::map(repos_response, function(project) {
+        list(
+          "repo_id" = project$id,
+          "repo_name" = project$name,
+          "default_branch" = project$default_branch,
+          "stars" = project$star_count,
+          "forks" = project$fork_count,
+          "created_at" = project$created_at,
+          "last_activity_at" = project$last_activity_at,
+          "languages" = paste0(project$languages, collapse = ", "),
+          "issues_open" = project$issues_open,
+          "issues_closed" = project$issues_closed,
+          "organization" = project$namespace$path,
+          "repo_url" = project$web_url
+        )
+      })
+      return(repos_list)
+    },
+
+    # Get only important info on commits.
+    tailor_commits_info = function(repos_list_with_commits,
+                                   org) {
+      repos_list_with_commits_cut <- purrr::map(repos_list_with_commits, function(repo) {
+        purrr::map(repo, function(commit) {
+          list(
+            "id" = commit$id,
+            "committed_date" = gts_to_posixt(commit$committed_date),
+            "author" = commit$author_name,
+            "additions" = commit$stats$additions,
+            "deletions" = commit$stats$deletions,
+            "repository" = gsub(
+              pattern = paste0("/-/commit/", commit$id),
+              replacement = "",
+              x = gsub(paste0("(.*)", org, "/"), "", commit$web_url)
+            ),
+            "organization" = org
+          )
+        })
+      })
+      return(repos_list_with_commits_cut)
+    },
+
+    # A helper to turn list of data.frames into one data.frame
+    prepare_commits_table = function(commits_list) {
+      commits_dt <- purrr::map(commits_list, function(commit) {
+        purrr::map(commit, ~ data.frame(.)) %>%
+          purrr::list_rbind()
+      }) %>%
+        purrr::list_rbind()
+      if (length(commits_dt) > 0) {
+        commits_dt <- dplyr::mutate(
+          commits_dt,
+          api_url = self$rest_api_url
+        )
+      }
+      return(commits_dt)
     },
 
     # Pull all repositories URLs from organization

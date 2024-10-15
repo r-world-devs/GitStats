@@ -144,7 +144,7 @@ GitHost <- R6::R6Class(
       graphql_engine <- private$engines$graphql
       users_table <-  purrr::map(users, function(user) {
         graphql_engine$get_user(user) %>%
-          private$prepare_user_table()
+          graphql_engine$prepare_user_table()
       }) %>%
         purrr::list_rbind()
       return(users_table)
@@ -218,13 +218,13 @@ GitHost <- R6::R6Class(
         repos_names <- private$set_repositories(
           org = org
         )
-        gql_engine <- private$engines$graphql
+        graphql_engine <- private$engines$graphql
         if (length(repos_names) > 0) {
-          release_logs_table_org <- gql_engine$get_release_logs_from_org(
+          release_logs_table_org <- graphql_engine$get_release_logs_from_org(
             org = org,
             repos_names = repos_names
           ) %>%
-            private$prepare_releases_table(org, since, until)
+            graphql_engine$prepare_releases_table(org, since, until)
         } else {
           releases_logs_table_org <- NULL
         }
@@ -626,7 +626,7 @@ GitHost <- R6::R6Class(
           org  = org,
           type = type
         ) %>%
-          private$prepare_repos_table_from_graphql()
+          graphql_engine$prepare_repos_table()
         if (!is.null(repos)) {
           repos_table <- repos_table %>%
             dplyr::filter(repo_name %in% repos)
@@ -725,8 +725,8 @@ GitHost <- R6::R6Class(
       if (!raw_output) {
         rest_engine <- private$engines$rest
         repos_table <- repos_response %>%
-          private$tailor_repos_response() %>%
-          private$prepare_repos_table_from_rest(
+          rest_engine$tailor_repos_response() %>%
+          rest_engine$prepare_repos_table(
             verbose = verbose
           ) %>%
           rest_engine$get_repos_issues(
@@ -767,8 +767,8 @@ GitHost <- R6::R6Class(
         if (!raw_output) {
           rest_engine <- private$engines$rest
           repos_table <- repos_response %>%
-            private$tailor_repos_response() %>%
-            private$prepare_repos_table_from_rest(
+            rest_engine$tailor_repos_response() %>%
+            rest_engine$prepare_repos_table(
               verbose = verbose
             ) %>%
             rest_engine$get_repos_issues(
@@ -842,32 +842,6 @@ GitHost <- R6::R6Class(
       }
     },
 
-    # Prepare table for repositories content
-    prepare_repos_table_from_rest = function(repos_list, verbose = TRUE) {
-      repos_dt <- purrr::map(repos_list, function(repo) {
-        repo <- purrr::map(repo, function(attr) {
-          attr <- attr %||% ""
-        })
-        data.frame(repo)
-      }) %>%
-        purrr::list_rbind()
-      if (verbose) {
-        cli::cli_alert_info("Preparing repositories table...")
-      }
-      if (length(repos_dt) > 0) {
-        repos_dt <- dplyr::mutate(
-          repos_dt,
-          repo_id = as.character(repo_id),
-          created_at = as.POSIXct(created_at),
-          last_activity_at = as.POSIXct(last_activity_at),
-          forks = as.integer(forks),
-          issues_open = as.integer(issues_open),
-          issues_closed = as.integer(issues_closed)
-        )
-      }
-      return(repos_dt)
-    },
-
     # Pull files content from organizations
     get_files_content_from_orgs = function(file_path,
                                            host_files_structure = NULL,
@@ -913,7 +887,7 @@ GitHost <- R6::R6Class(
           verbose              = verbose,
           progress             = progress
         ) %>%
-          private$prepare_files_table(
+          graphql_engine$prepare_files_table(
             org       = org,
             file_path = file_path
           )

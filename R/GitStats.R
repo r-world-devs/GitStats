@@ -709,7 +709,8 @@ GitStats <- R6::R6Class(
         }
       }) %>%
         purrr::list_rbind() %>%
-        private$add_stats_to_repos()
+        private$add_stats_to_repos() %>%
+        dplyr::as_tibble()
       return(repos_table)
     },
 
@@ -832,7 +833,8 @@ GitStats <- R6::R6Class(
           progress = progress
         )
       }) %>%
-        purrr::list_rbind()
+        purrr::list_rbind() %>%
+        dplyr::as_tibble()
       return(commits_table)
     },
 
@@ -842,7 +844,8 @@ GitStats <- R6::R6Class(
         host$get_users(logins)
       }) %>%
         unique() %>%
-        purrr::list_rbind()
+        purrr::list_rbind() %>%
+        dplyr::as_tibble()
     },
 
     # Pull content of a text file in a table form
@@ -878,7 +881,8 @@ GitStats <- R6::R6Class(
           )
         }
       }) %>%
-        purrr::list_rbind()
+        purrr::list_rbind() %>%
+        dplyr::as_tibble()
     },
 
     get_host_files_structure = function(host, verbose) {
@@ -942,7 +946,8 @@ GitStats <- R6::R6Class(
           progress = progress
         )
       }) %>%
-        purrr::list_rbind()
+        purrr::list_rbind() %>%
+        dplyr::as_tibble()
     },
 
     # Pull information on package usage in a table form
@@ -974,7 +979,6 @@ GitStats <- R6::R6Class(
           dplyr::mutate(
             package_usage = ifelse(api_url %in% duplicated_repos, "import, library", package_usage)
           )
-        rownames(package_usage_table) <- seq_len(nrow(package_usage_table))
       }
       return(package_usage_table)
     },

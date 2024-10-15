@@ -18,7 +18,7 @@ test_that("`get_commits_from_repos()` pulls commits from repo", {
 test_that("`tailor_commits_info()` retrieves only necessary info", {
   gl_commits_list <- test_mocker$use("gl_commits_org")
 
-  gl_commits_list_cut <- gitlab_testhost_priv$tailor_commits_info(
+  gl_commits_list_cut <- test_rest_gitlab$tailor_commits_info(
     gl_commits_list,
     org = "mbtests"
   )
@@ -29,7 +29,7 @@ test_that("`tailor_commits_info()` retrieves only necessary info", {
 })
 
 test_that("`prepare_commits_table()` prepares table of commits properly", {
-  gl_commits_table <- gitlab_testhost_priv$prepare_commits_table(
+  gl_commits_table <- test_rest_gitlab$prepare_commits_table(
     commits_list = test_mocker$use("gl_commits_list_cut")
   )
   expect_commits_table(

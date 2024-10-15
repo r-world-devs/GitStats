@@ -183,7 +183,7 @@ test_that("`get_repos_by_code()` for GitHub prepares a raw (raw_output = TRUE) s
 test_that("GitHub tailors precisely `repos_list`", {
   gh_repos_by_code <- test_mocker$use("gh_repos_by_code")
   gh_repos_by_code_tailored <-
-    github_testhost_priv$tailor_repos_response(gh_repos_by_code)
+    test_rest_github$tailor_repos_response(gh_repos_by_code)
   gh_repos_by_code_tailored %>%
     expect_type("list") %>%
     expect_length(length(gh_repos_by_code))
@@ -204,7 +204,7 @@ test_that("GitHub tailors precisely `repos_list`", {
 
 test_that("`prepare_repos_table()` prepares repos table", {
   expect_snapshot(
-    gh_repos_by_code_table <- github_testhost_priv$prepare_repos_table_from_rest(
+    gh_repos_by_code_table <- test_rest_github$prepare_repos_table(
       repos_list = test_mocker$use("gh_repos_by_code_tailored")
     )
   )
@@ -258,7 +258,7 @@ test_that("`get_repos_with_code_from_orgs()` works", {
 })
 
 test_that("GitHub prepares repos table from repositories response", {
-  gh_repos_table <- github_testhost_priv$prepare_repos_table_from_graphql(
+  gh_repos_table <- test_graphql_github$prepare_repos_table(
     repos_list = test_mocker$use("gh_repos_from_org")
   )
   expect_repos_table(
@@ -277,7 +277,7 @@ test_that("GitHost adds `repo_api_url` column to GitHub repos table", {
 test_that("`get_all_repos()` works as expected", {
   mockery::stub(
     github_testhost_priv$get_all_repos,
-    "private$prepare_repos_table_from_graphql",
+    "graphql_engine$prepare_repos_table",
     test_mocker$use("gh_repos_table_with_api_url")
   )
   expect_snapshot(

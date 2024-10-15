@@ -21,7 +21,7 @@ test_that("get_user pulls GitLab user response", {
 })
 
 test_that("GitLab prepares user table", {
-  gl_user_table <- gitlab_testhost_priv$prepare_user_table(
+  gl_user_table <- test_graphql_gitlab$prepare_user_table(
     user_response = test_mocker$use("gl_user_response")
   )
   expect_users_table(
@@ -34,7 +34,7 @@ test_that("GitLab prepares user table", {
 test_that("get_users build users table for GitLab", {
   mockery::stub(
     gitlab_testhost$get_users,
-    "private$prepare_user_table",
+    "graphql_engine$prepare_user_table",
     test_mocker$use("gl_user_table")
   )
   gitlab_users <- gitlab_testhost$get_users(

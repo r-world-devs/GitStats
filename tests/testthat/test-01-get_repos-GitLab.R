@@ -149,7 +149,7 @@ test_that("`get_repos_languages` works", {
 })
 
 test_that("`prepare_repos_table()` prepares repos table", {
-  gl_repos_table <- gitlab_testhost_priv$prepare_repos_table_from_graphql(
+  gl_repos_table <- test_graphql_gitlab$prepare_repos_table(
     repos_list = test_mocker$use("gl_repos_from_org")
   )
   expect_repos_table(
@@ -168,7 +168,7 @@ test_that("GitHost adds `repo_api_url` column to GitLab repos table", {
 test_that("`tailor_repos_response()` tailors precisely `repos_list`", {
   gl_repos_by_code <- test_mocker$use("gl_search_repos_by_code")
   gl_repos_by_code_tailored <-
-    gitlab_testhost_priv$tailor_repos_response(gl_repos_by_code)
+    test_rest_gitlab$tailor_repos_response(gl_repos_by_code)
   gl_repos_by_code_tailored %>%
     expect_type("list") %>%
     expect_length(length(gl_repos_by_code))
@@ -188,9 +188,9 @@ test_that("`tailor_repos_response()` tailors precisely `repos_list`", {
   test_mocker$cache(gl_repos_by_code_tailored)
 })
 
-test_that("GitHost prepares table from GitLab repositories response", {
+test_that("REST client prepares table from GitLab repositories response", {
   expect_snapshot(
-    gl_repos_by_code_table <- gitlab_testhost_priv$prepare_repos_table_from_rest(
+    gl_repos_by_code_table <- test_rest_gitlab$prepare_repos_table(
       repos_list = test_mocker$use("gl_repos_by_code_tailored")
     )
   )

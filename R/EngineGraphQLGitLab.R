@@ -77,6 +77,44 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(full_repos_list)
     },
 
+    # Parses repositories list into table.
+    prepare_repos_table = function(repos_list) {
+      if (length(repos_list) > 0) {
+        repos_table <- purrr::map(repos_list, function(repo) {
+          repo <- repo$node
+          repo$default_branch <- repo$repository$rootRef %||% ""
+          repo$repository <- NULL
+          repo$languages <- if (length(repo$languages) > 0) {
+            purrr::map_chr(repo$languages, ~ .$name) %>%
+              paste0(collapse = ", ")
+          } else {
+            ""
+          }
+          repo$created_at <- gts_to_posixt(repo$created_at)
+          repo$issues_open <- repo$issues$opened
+          repo$issues_closed <- repo$issues$closed
+          repo$issues <- NULL
+          repo$last_activity_at <- as.POSIXct(repo$last_activity_at)
+          repo$organization <- repo$namespace$path
+          repo$namespace <- NULL
+          repo$repo_path <- NULL # temporary to close issue 338
+          data.frame(repo)
+        }) %>%
+          purrr::list_rbind() %>%
+          dplyr::relocate(
+            repo_url,
+            .after = organization
+          ) %>%
+          dplyr::relocate(
+            default_branch,
+            .after = repo_name
+          )
+      } else {
+        repos_table <- NULL
+      }
+      return(repos_table)
+    },
+
     # Pull all given files from all repositories of a group.
     # This is a one query way to get all the necessary info.
     # However it may fail if query is too complex (too many files in file_paths).
@@ -232,6 +270,49 @@ EngineGraphQLGitLab <- R6::R6Class(
       }, .progress = progress)
       return(org_files_list)
     },
+
+    # Prepare files table.
+    prepare_files_table = function(files_response, org, file_path) {
+      if (!is.null(files_response)) {
+        if (private$response_prepared_by_iteration(files_response)) {
+          files_table <- purrr::map(files_response, function(response_data) {
+            purrr::map(response_data$data$project$repository$blobs$nodes, function(file) {
+              data.frame(
+                "repo_name" = response_data$data$project$name,
+                "repo_id" = response_data$data$project$id,
+                "organization" = org,
+                "file_path" = file$name,
+                "file_content" = file$rawBlob,
+                "file_size" = as.integer(file$size),
+                "repo_url" = response_data$data$project$webUrl
+              )
+            }) %>%
+              purrr::list_rbind()
+          }) %>%
+            purrr::list_rbind()
+        } else {
+          files_table <- purrr::map(files_response, function(project) {
+            purrr::map(project$repository$blobs$nodes, function(file) {
+              data.frame(
+                "repo_name" = project$name,
+                "repo_id" = project$id,
+                "organization" = org,
+                "file_path" = file$name,
+                "file_content" = file$rawBlob,
+                "file_size" = as.integer(file$size),
+                "repo_url" = project$webUrl
+              )
+            }) %>%
+              purrr::list_rbind()
+          }) %>%
+            purrr::list_rbind()
+        }
+      } else {
+        files_table <- NULL
+      }
+      return(files_table)
+    },
+
     get_files_structure_from_org = function(org,
                                             type,
                                             repos,
@@ -258,6 +339,28 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(files_structure)
     },
 
+    # Prepare user table.
+    prepare_user_table = function(user_response) {
+      if (!is.null(user_response$data$user)) {
+        user_data <- user_response$data$user
+        user_data$name <- user_data$name %||% ""
+        user_data$starred_repos <- user_data$starred_repos$count
+        user_data$pull_requests <- user_data$pull_requests$count
+        user_data$reviews <- user_data$reviews$count
+        user_data$email <- user_data$email %||% ""
+        user_data$location <- user_data$location %||% ""
+        user_data$web_url <- user_data$web_url %||% ""
+        user_table <- tibble::as_tibble(user_data) %>%
+          dplyr::mutate(commits = NA,
+                        issues = NA) %>%
+          dplyr::relocate(c(commits, issues),
+                          .after = starred_repos)
+      } else {
+        user_table <- NULL
+      }
+      return(user_table)
+    },
+
     # Pull all releases from all repositories of an organization.
     get_release_logs_from_org = function(repos_names, org) {
       release_responses <- purrr::map(repos_names, function(repository) {
@@ -272,6 +375,47 @@ EngineGraphQLGitLab <- R6::R6Class(
       }) %>%
         purrr::discard(~ length(.$data$project$releases$nodes) == 0)
       return(release_responses)
+    },
+
+    # Prepare releases table.
+    prepare_releases_table = function(releases_response, org, date_from, date_until) {
+      if (length(releases_response) > 0) {
+        releases_table <-
+          purrr::map(releases_response, function(release) {
+            release_table <- purrr::map(release$data$project$releases$nodes, function(node) {
+              data.frame(
+                release_name = node$name,
+                release_tag = node$tagName,
+                published_at = gts_to_posixt(node$releasedAt),
+                release_url = node$links$selfUrl,
+                release_log = node$description
+              )
+            }) %>%
+              purrr::list_rbind() %>%
+              dplyr::mutate(
+                repo_name = release$data$project$name,
+                repo_url = release$data$project$webUrl
+              ) %>%
+              dplyr::relocate(
+                repo_name, repo_url,
+                .before = release_name
+              )
+            return(release_table)
+          }) %>%
+          purrr::list_rbind() %>%
+          dplyr::filter(
+            published_at <= as.POSIXct(date_until)
+          )
+        if (!is.null(date_from)) {
+          releases_table <- releases_table %>%
+            dplyr::filter(
+              published_at >= as.POSIXct(date_from)
+            )
+        }
+      } else {
+        releases_table <- NULL
+      }
+      return(releases_table)
     }
   ),
   private = list(
@@ -417,6 +561,10 @@ EngineGraphQLGitLab <- R6::R6Class(
         "files" = files
       )
       return(result)
+    },
+
+    response_prepared_by_iteration = function(files_response) {
+      !all(purrr::map_lgl(files_response, ~ all(c("name", "id", "webUrl", "repository") %in% names(.))))
     }
   )
 )
