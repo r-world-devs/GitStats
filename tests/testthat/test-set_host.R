@@ -98,7 +98,6 @@ test_that("Error shows if organizations are not specified and host is not passed
 
 test_that("Error shows, when wrong input is passed when setting connection and host is not passed", {
   test_gitstats <- create_gitstats()
-
   expect_snapshot_error(
     set_gitlab_host(
       gitstats_object = test_gitstats,
@@ -106,7 +105,6 @@ test_that("Error shows, when wrong input is passed when setting connection and h
       token = Sys.getenv("GITLAB_PAT_PUBLIC")
     )
   )
-
   expect_snapshot({
     create_gitstats() %>%
       set_github_host(

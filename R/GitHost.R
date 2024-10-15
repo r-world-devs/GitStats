@@ -265,6 +265,9 @@ GitHost <- R6::R6Class(
     # A token.
     token = NULL,
 
+    # Actual token scopes
+    token_scopes = NULL,
+
     # public A boolean.
     is_public = NULL,
 
@@ -343,8 +346,10 @@ GitHost <- R6::R6Class(
         if (!private$test_token(token)) {
           cli::cli_abort(c(
             "x" = "Token exists but does not grant access.",
-            "i" = "Check if you use correct token. Check scopes your token is using."
-          ))
+            "i" = "Check if you use correct token.",
+            "!" = "Scope that is needed: [{paste0(private$min_access_scopes, collapse = ', ')}]."
+          ),
+          call = NULL)
         } else {
           return(token)
         }
@@ -477,12 +482,6 @@ GitHost <- R6::R6Class(
           private$engines$rest$response(endpoint = endpoint)
         },
         error = function(e) {
-          if (!is.null(e$parent$message) && grepl("Could not resolve host", e$parent$message)) {
-            cli::cli_abort(
-              cli::col_red(e$parent$message),
-              call = NULL
-            )
-          }
           if (grepl("404", e)) {
             cli::cli_abort(
               c(
@@ -516,14 +515,22 @@ GitHost <- R6::R6Class(
       } else {
         pat_names <- names(Sys.getenv()[grepl(primary_token_name, names(Sys.getenv()))])
         possible_tokens <- pat_names[pat_names != primary_token_name]
-        for (token_name in possible_tokens) {
-          if (private$test_token(Sys.getenv(token_name))) {
-            token <- Sys.getenv(token_name)
-            if (verbose) {
-              cli::cli_alert_info("Using PAT from {token_name} envar.")
-            }
-            break
+        token_checks <- purrr::map_lgl(possible_tokens, function(token_name) {
+          private$test_token(Sys.getenv(token_name))
+        })
+        if (!any(token_checks)) {
+          cli::cli_abort(c(
+            "x" = "No sufficient token found among: [{paste0(pat_names, collapse = ', ')}].",
+            "i" = "Check if you have correct token.",
+            "!" = "Scope that is needed: [{paste0(private$min_access_scopes, collapse = ', ')}]."
+          ),
+          call = NULL)
+        } else {
+          token_name <- possible_tokens[token_checks][1]
+          if (verbose) {
+            cli::cli_alert_info("Using PAT from {token_name} envar.")
           }
+          token <- Sys.getenv(token_name)
         }
       }
       return(token)
@@ -533,15 +540,24 @@ GitHost <- R6::R6Class(
     test_token = function(token) {
       response <- NULL
       test_endpoint <- private$test_endpoint
-      try(response <- httr2::request(test_endpoint) |>
-            httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
-            httr2::req_perform(), silent = TRUE)
+      response <- tryCatch({
+        httr2::request(test_endpoint) |>
+          httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
+          httr2::req_perform()
+      },
+      error = function(e) {
+        if (!is.null(e$parent) && grepl("Could not resolve host", e$parent$message)) {
+          cli::cli_abort(e$parent$message, call = NULL)
+        } else {
+          NULL
+        }
+      })
       if (!is.null(response)) {
-        private$check_token_scopes(response, token)
-        TRUE
+        check <- private$check_token_scopes(response, token)
       } else {
-        FALSE
+        check <- FALSE
       }
+      return(check)
     },
 
     # Helper to extract organizations and repositories from vector of full names

@@ -25,7 +25,8 @@
 # `check_token()` prints error when token exists but does not grant access
 
     x Token exists but does not grant access.
-    i Check if you use correct token. Check scopes your token is using.
+    i Check if you use correct token.
+    ! Scope that is needed: [public_repo, read:org, read:user].
 
 # check_endpoint returns error if they are not correct
 
