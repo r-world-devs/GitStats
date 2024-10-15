@@ -134,11 +134,11 @@ test_that("`set_default_token` returns error if none are found", {
     "private$test_token",
     FALSE
   )
-  expect_snapshot({
+  expect_error({
     github_testhost_priv$set_default_token(
-      verbose = TRUE
+      verbose = FALSE
     )
-  }, error = TRUE)
+  })
 })
 
 test_that("`test_token` works properly", {

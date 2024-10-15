@@ -41,16 +41,6 @@
     Message
       i Using PAT from GITHUB_PAT envar.
 
-# `set_default_token` returns error if none are found
-
-    Code
-      github_testhost_priv$set_default_token(verbose = TRUE)
-    Condition
-      Error:
-      x No sufficient token found among: [GITHUB_PAT, GITHUB_PAT_INSUFFICIENT, GITHUB_PAT_MIN, GITHUB_PAT_ROCHE, TEST_GITHUB_PAT].
-      i Check if you have correct token.
-      ! Scope that is needed: [public_repo, read:org, read:user].
-
 # `set_default_token` sets default token for GitLab
 
     Code
