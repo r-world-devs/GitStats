@@ -21,3 +21,31 @@ test_that("set_owner_types sets attributes to owners list", {
   expect_equal(attr(owner[[1]], "type"), "organization")
   expect_equal(owner[[1]], "test_org", ignore_attr = TRUE)
 })
+
+test_that("set_api_url works for public hosts", {
+  expect_equal({
+    github_testhost_priv$set_api_url(
+      host = "github.com"
+    )
+  }, "https://api.github.com")
+  expect_equal({
+    github_testhost_priv$set_api_url(
+      host = "https://github.com"
+    )
+  }, "https://api.github.com")
+  expect_equal({
+    github_testhost_priv$set_api_url(
+      host = "https://github.company.com"
+    )
+  }, "https://github.company.com/api/v3")
+  expect_equal({
+    gitlab_testhost_priv$set_api_url(
+      host = "https://gitlab.com"
+    )
+  }, "https://gitlab.com/api/v4")
+  expect_equal({
+    gitlab_testhost_priv$set_api_url(
+      host = "gitlab.com"
+    )
+  }, "https://gitlab.com/api/v4")
+})

@@ -1,6 +1,7 @@
 test_gitstats <- create_gitstats()
 
 test_that("Set connection returns appropriate messages", {
+  skip_on_cran()
   expect_snapshot(
     set_github_host(
       gitstats_obj = test_gitstats,
@@ -17,6 +18,7 @@ test_that("Set connection returns appropriate messages", {
 })
 
 test_that("When empty token for GitHub, GitStats pulls default token", {
+  skip_on_cran()
   expect_snapshot(
     test_gitstats <- create_gitstats() %>%
       set_github_host(
@@ -26,6 +28,7 @@ test_that("When empty token for GitHub, GitStats pulls default token", {
 })
 
 test_that("When empty token for GitLab, GitStats pulls default token", {
+  skip_on_cran()
   expect_snapshot(
     withr::with_envvar(new = c("GITLAB_PAT" = Sys.getenv("GITLAB_PAT_PUBLIC")), {
       test_gitstats <- create_gitstats() %>%
@@ -37,6 +40,7 @@ test_that("When empty token for GitLab, GitStats pulls default token", {
 })
 
 test_that("Set GitHub host with particular repos vector instead of orgs", {
+  skip_on_cran()
   test_gitstats <- create_gitstats()
   expect_snapshot(
     test_gitstats %>%
@@ -52,6 +56,7 @@ test_that("Set GitHub host with particular repos vector instead of orgs", {
 })
 
 test_that("Set GitLab host with particular repos vector instead of orgs", {
+  skip_on_cran()
   test_gitstats <- create_gitstats()
   expect_snapshot(
     test_gitstats %>%
@@ -67,6 +72,7 @@ test_that("Set GitLab host with particular repos vector instead of orgs", {
 })
 
 test_that("Set host prints error when repos and orgs are defined and host is not passed to GitStats", {
+  skip_on_cran()
   test_gitstats <- create_gitstats()
   expect_snapshot_error(
     test_gitstats %>%
@@ -83,6 +89,7 @@ test_that("Set host prints error when repos and orgs are defined and host is not
 })
 
 test_that("Error shows if organizations are not specified and host is not passed", {
+  skip_on_cran()
   test_gitstats <- create_gitstats()
   expect_snapshot_error(
     test_gitstats %>%
@@ -97,6 +104,7 @@ test_that("Error shows if organizations are not specified and host is not passed
 })
 
 test_that("Error shows, when wrong input is passed when setting connection and host is not passed", {
+  skip_on_cran()
   test_gitstats <- create_gitstats()
   expect_snapshot_error(
     set_gitlab_host(
@@ -117,8 +125,8 @@ test_that("Error shows, when wrong input is passed when setting connection and h
 })
 
 test_that("Error pops out, when two clients of the same url api are passed as input", {
+  skip_on_cran()
   test_gitstats <- create_gitstats()
-
   expect_snapshot(
     error = TRUE,
     test_gitstats %>%
@@ -134,6 +142,7 @@ test_that("Error pops out, when two clients of the same url api are passed as in
 })
 
 test_that("Error pops out when `org` does not exist", {
+  skip_on_cran()
   expect_snapshot({
     test_gitstats <- create_gitstats() %>%
       set_github_host(
