@@ -207,7 +207,7 @@ GitStats <- R6::R6Class(
                            verbose  = TRUE,
                            progress = TRUE) {
       private$check_for_host()
-      args_list <- list("date_range" = c(since, until))
+      args_list <- list("date_range" = c(since, as.character(until)))
       trigger <- private$trigger_pulling(
         cache     = cache,
         storage   = "commits",
@@ -413,12 +413,12 @@ GitStats <- R6::R6Class(
     #' @param progress A logical, by default set to `verbose` value. If `FALSE`
     #'   no `cli` progress bar will be displayed.
     get_release_logs = function(since,
-                                until,
+                                until    = Sys.Date(),
                                 cache    = TRUE,
                                 verbose  = TRUE,
                                 progress = TRUE) {
       private$check_for_host()
-      args_list <- list("date_range" = c(since, until))
+      args_list <- list("date_range" = c(since, as.character(until)))
       trigger <- private$trigger_pulling(
         storage   = "release_logs",
         cache     = cache,

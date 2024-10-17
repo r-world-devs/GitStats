@@ -239,7 +239,7 @@ get_repos_urls <- function(gitstats_object,
 #' @export
 get_commits <- function(gitstats_object,
                         since    = NULL,
-                        until    = NULL,
+                        until    = Sys.Date() + lubridate::days(1),
                         cache    = TRUE,
                         verbose  = is_verbose(gitstats_object),
                         progress = verbose) {
@@ -501,7 +501,7 @@ get_R_package_usage <- function(gitstats_object,
 #' @export
 get_release_logs <- function(gitstats_object,
                              since = NULL,
-                             until = NULL,
+                             until = Sys.Date() + lubridate::days(1),
                              cache = TRUE,
                              verbose = is_verbose(gitstats_object),
                              progress = verbose) {
