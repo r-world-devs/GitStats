@@ -7,7 +7,7 @@
 get_release_logs(
   gitstats_object,
   since = NULL,
-  until = NULL,
+  until = Sys.Date() + lubridate::days(1),
   cache = TRUE,
   verbose = is_verbose(gitstats_object),
   progress = verbose
