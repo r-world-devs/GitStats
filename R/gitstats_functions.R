@@ -438,16 +438,22 @@ get_files_structure <- function(gitstats_object,
 #' @name get_R_package_usage
 #' @description Wrapper over searching repositories by code blobs related to
 #'   loading package (`library(package)` and `require(package)` in all files) or
-#'   using it as a dependency (`package` in `DESCRIPTION` and `NAMESPACE` files).
+#'   using it as a dependency (`package` in `DESCRIPTION` and `NAMESPACE`
+#'   files).
 #' @param gitstats_object A GitStats object.
-#' @param package_name A character, name of the package.
+#' @param packages A character vector, names of R packages to look for.
 #' @param only_loading A boolean, if `TRUE` function will check only if package
 #'   is loaded in repositories, not used as dependencies.
+#' @param split_output Optional, a boolean. If `TRUE` will return a list of
+#'   tables, where every element of the list stands for the package passed to
+#'   `packages` parameter. If `FALSE`, will return only one table with name of
+#'   the package stored in first column.
 #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
 #'   result from its storage.
-#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
-#'   printing output is switched off.
-#' @return A data.frame.
+#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
+#'   output is switched off.
+#' @return A `tibble` or `list` of `tibbles` depending on `split_output`
+#'   parameter.
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
@@ -456,17 +462,23 @@ get_files_structure <- function(gitstats_object,
 #'     orgs = c("r-world-devs", "openpharma")
 #'   )
 #'
-#'  get_R_package_usage(my_gitstats, "Shiny")
+#'  get_R_package_usage(
+#'    gitstats_object = my_gitstats,
+#'    packages = c("purrr", "shiny"),
+#'    split_output = TRUE
+#'  )
 #' }
 #' @export
 get_R_package_usage <- function(gitstats_object,
-                                package_name,
+                                packages,
                                 only_loading = FALSE,
+                                split_output = FALSE,
                                 cache        = TRUE,
                                 verbose      = is_verbose(gitstats_object)) {
   gitstats_object$get_R_package_usage(
-    package_name = package_name,
+    packages     = packages,
     only_loading = only_loading,
+    split_output = split_output,
     cache        = cache,
     verbose      = verbose
   )

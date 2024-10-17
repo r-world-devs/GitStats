@@ -6,8 +6,9 @@
 \usage{
 get_R_package_usage(
   gitstats_object,
-  package_name,
+  packages,
   only_loading = FALSE,
+  split_output = FALSE,
   cache = TRUE,
   verbose = is_verbose(gitstats_object)
 )
@@ -15,24 +16,31 @@ get_R_package_usage(
 \arguments{
 \item{gitstats_object}{A GitStats object.}
 
-\item{package_name}{A character, name of the package.}
+\item{packages}{A character vector, names of R packages to look for.}
 
 \item{only_loading}{A boolean, if \code{TRUE} function will check only if package
 is loaded in repositories, not used as dependencies.}
 
+\item{split_output}{Optional, a boolean. If \code{TRUE} will return a list of
+tables, where every element of the list stands for the package passed to
+\code{packages} parameter. If \code{FALSE}, will return only one table with name of
+the package stored in first column.}
+
 \item{cache}{A logical, if set to \code{TRUE} GitStats will retrieve the last
 result from its storage.}
 
-\item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and
-printing output is switched off.}
+\item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and printing
+output is switched off.}
 }
 \value{
-A data.frame.
+A \code{tibble} or \code{list} of \code{tibbles} depending on \code{split_output}
+parameter.
 }
 \description{
 Wrapper over searching repositories by code blobs related to
 loading package (\code{library(package)} and \code{require(package)} in all files) or
-using it as a dependency (\code{package} in \code{DESCRIPTION} and \code{NAMESPACE} files).
+using it as a dependency (\code{package} in \code{DESCRIPTION} and \code{NAMESPACE}
+files).
 }
 \examples{
 \dontrun{
@@ -42,6 +50,10 @@ using it as a dependency (\code{package} in \code{DESCRIPTION} and \code{NAMESPA
     orgs = c("r-world-devs", "openpharma")
   )
 
- get_R_package_usage(my_gitstats, "Shiny")
+ get_R_package_usage(
+   gitstats_object = my_gitstats,
+   packages = c("purrr", "shiny"),
+   split_output = TRUE
+ )
 }
 }

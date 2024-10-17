@@ -62,11 +62,11 @@ EngineRestGitLab <- R6::R6Class(
     #   filtering by language. For more information look here:
     #   https://gitlab.com/gitlab-org/gitlab/-/issues/340333
     get_repos_by_code = function(code,
-                                 org = NULL,
+                                 org      = NULL,
                                  filename = NULL,
-                                 in_path = FALSE,
-                                 raw_output = FALSE,
-                                 verbose = TRUE,
+                                 in_path  = FALSE,
+                                 output   = "table_full",
+                                 verbose  = TRUE,
                                  progress = TRUE) {
       search_response <- private$search_for_code(
         code = code,
@@ -75,37 +75,53 @@ EngineRestGitLab <- R6::R6Class(
         org = org,
         verbose = verbose
       )
-      if (raw_output) {
+      if (output == "raw") {
         search_output <- search_response
-      } else {
+      } else if (output == "table_full" || output == "table_min") {
         search_output <- search_response %>%
           private$map_search_into_repos(
             progress = progress
-          ) %>%
-          private$get_repos_languages(
-            progress = progress
           )
+        if (output == "table_full") {
+          search_output <- search_output %>%
+            private$get_repos_languages(
+              progress = progress
+            )
+        }
       }
       return(search_output)
     },
 
     # Retrieve only important info from repositories response
-    tailor_repos_response = function(repos_response) {
+    tailor_repos_response = function(repos_response, output = "table_full") {
       repos_list <- purrr::map(repos_response, function(project) {
-        list(
-          "repo_id" = project$id,
-          "repo_name" = project$name,
-          "default_branch" = project$default_branch,
-          "stars" = project$star_count,
-          "forks" = project$fork_count,
-          "created_at" = project$created_at,
-          "last_activity_at" = project$last_activity_at,
-          "languages" = paste0(project$languages, collapse = ", "),
-          "issues_open" = project$issues_open,
-          "issues_closed" = project$issues_closed,
-          "organization" = project$namespace$path,
-          "repo_url" = project$web_url
-        )
+        if (output == "table_full") {
+          repo_data <- list(
+            "repo_id" = project$id,
+            "repo_name" = project$name,
+            "default_branch" = project$default_branch,
+            "stars" = project$star_count,
+            "forks" = project$fork_count,
+            "created_at" = project$created_at,
+            "last_activity_at" = project$last_activity_at,
+            "languages" = paste0(project$languages, collapse = ", "),
+            "issues_open" = project$issues_open,
+            "issues_closed" = project$issues_closed,
+            "organization" = project$namespace$path,
+            "repo_url" = project$web_url
+          )
+        }
+        if (output == "table_min") {
+          repo_data <- list(
+            "repo_id" = project$id,
+            "repo_name" = project$name,
+            "default_branch" = project$default_branch,
+            "created_at" = project$created_at,
+            "organization" = project$namespace$path,
+            "repo_url" = project$web_url
+          )
+        }
+        return(repo_data)
       })
       return(repos_list)
     },
