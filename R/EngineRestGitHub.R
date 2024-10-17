@@ -29,7 +29,7 @@ EngineRestGitHub <- R6::R6Class(
                                  org        = NULL,
                                  filename   = NULL,
                                  in_path    = FALSE,
-                                 raw_output = FALSE,
+                                 output     = "table_full",
                                  verbose    = TRUE,
                                  progress   = TRUE) {
       user_query <- if (!is.null(org)) {
@@ -53,12 +53,12 @@ EngineRestGitHub <- R6::R6Class(
           search_endpoint = search_endpoint,
           total_n = total_n
         )
-        if (!raw_output) {
+        if (output == "table_full" || output == "table_min") {
           search_output <- private$map_search_into_repos(
             search_response = search_result,
             progress        = progress
           )
-        } else {
+        } else if (output == "raw") {
           search_output <- search_result
         }
       } else {
@@ -68,26 +68,39 @@ EngineRestGitHub <- R6::R6Class(
     },
 
     # Retrieve only important info from repositories response
-    tailor_repos_response = function(repos_response) {
+    tailor_repos_response = function(repos_response, output = "table_full") {
       repos_list <- purrr::map(repos_response, function(repo) {
-        list(
-          "repo_id" = repo$id,
-          "repo_name" = repo$name,
-          "default_branch" = repo$default_branch,
-          "stars" = repo$stargazers_count,
-          "forks" = repo$forks_count,
-          "created_at" = gts_to_posixt(repo$created_at),
-          "last_activity_at" = if (!is.null(repo$pushed_at)) {
-            gts_to_posixt(repo$pushed_at)
-          } else {
-            gts_to_posixt(repo$created_at)
-          },
-          "languages" = repo$language,
-          "issues_open" = repo$issues_open,
-          "issues_closed" = repo$issues_closed,
-          "organization" = repo$owner$login,
-          "repo_url" = repo$html_url
-        )
+        if (output == "table_full") {
+          repo_data <- list(
+            "repo_id" = repo$id,
+            "repo_name" = repo$name,
+            "default_branch" = repo$default_branch,
+            "stars" = repo$stargazers_count,
+            "forks" = repo$forks_count,
+            "created_at" = gts_to_posixt(repo$created_at),
+            "last_activity_at" = if (!is.null(repo$pushed_at)) {
+              gts_to_posixt(repo$pushed_at)
+            } else {
+              gts_to_posixt(repo$created_at)
+            },
+            "languages" = repo$language,
+            "issues_open" = repo$issues_open,
+            "issues_closed" = repo$issues_closed,
+            "organization" = repo$owner$login,
+            "repo_url" = repo$html_url
+          )
+        }
+        if (output == "table_min") {
+          repo_data <- list(
+            "repo_id" = repo$id,
+            "repo_name" = repo$name,
+            "default_branch" = repo$default_branch,
+            "created_at" = gts_to_posixt(repo$created_at),
+            "organization" = repo$owner$login,
+            "repo_url" = repo$html_url
+          )
+        }
+        return(repo_data)
       })
       return(repos_list)
     },

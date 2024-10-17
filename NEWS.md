@@ -1,6 +1,14 @@
 # GitStats (development version)
 
+## Features:
+
+- Optimized `get_R_package_usage()` function: 
+  - you can now pass a vector of packages names (new `packages` parameter replacing old `package_name`) ([#494](https://github.com/r-world-devs/GitStats/issues/494)),
+  - on the other hand, output of the function has been limited to contain only most necessary data (removing all repository stats), making thus process of obtaining package usage faster ([#474](https://github.com/r-world-devs/GitStats/issues/474)).
 - Added possibility to get repositories for individual users with `get_repos()` ([#492](https://github.com/r-world-devs/GitStats/issues/492)). Earlier this was only possible for GitHub organizations and GitLab groups.
+
+## Fixes:
+
 - Fixed getting large search responses for GitHub ([#491](https://github.com/r-world-devs/GitStats/issues/491)).
 - Fixed checking token scopes ([#501](https://github.com/r-world-devs/GitStats/issues/501)). If token scopes are insufficient error is returned and `GitHost` is not passed to `GitStats`. This also applies to situation when `GitStats` looks for default tokens (not defined by user). Earlier, if tests for token failed, an empty token was passed and `GitStats` was created, which was misleading for the user.
 - User can now optionally pass public GitHub host name (`github.com` or `https://github.com`) to `set_github_host()` ([#475](https://github.com/r-world-devs/GitStats/issues/475)).

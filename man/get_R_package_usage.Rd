@@ -6,7 +6,7 @@
 \usage{
 get_R_package_usage(
   gitstats_object,
-  package_name,
+  packages,
   only_loading = FALSE,
   cache = TRUE,
   verbose = is_verbose(gitstats_object)
@@ -15,7 +15,7 @@ get_R_package_usage(
 \arguments{
 \item{gitstats_object}{A GitStats object.}
 
-\item{package_name}{A character, name of the package.}
+\item{packages}{A character vector, names of R packages to look for.}
 
 \item{only_loading}{A boolean, if \code{TRUE} function will check only if package
 is loaded in repositories, not used as dependencies.}

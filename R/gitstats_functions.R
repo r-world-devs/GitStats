@@ -440,7 +440,7 @@ get_files_structure <- function(gitstats_object,
 #'   loading package (`library(package)` and `require(package)` in all files) or
 #'   using it as a dependency (`package` in `DESCRIPTION` and `NAMESPACE` files).
 #' @param gitstats_object A GitStats object.
-#' @param package_name A character, name of the package.
+#' @param packages A character vector, names of R packages to look for.
 #' @param only_loading A boolean, if `TRUE` function will check only if package
 #'   is loaded in repositories, not used as dependencies.
 #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
@@ -460,12 +460,12 @@ get_files_structure <- function(gitstats_object,
 #' }
 #' @export
 get_R_package_usage <- function(gitstats_object,
-                                package_name,
+                                packages,
                                 only_loading = FALSE,
                                 cache        = TRUE,
                                 verbose      = is_verbose(gitstats_object)) {
   gitstats_object$get_R_package_usage(
-    package_name = package_name,
+    packages     = packages,
     only_loading = only_loading,
     cache        = cache,
     verbose      = verbose

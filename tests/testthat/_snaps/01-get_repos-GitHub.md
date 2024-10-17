@@ -13,6 +13,14 @@
     Message
       i Preparing repositories table...
 
+# `prepare_repos_table()` prepares minimum version of repos table
+
+    Code
+      gh_repos_by_code_table_min <- test_rest_github$prepare_repos_table(repos_list = test_mocker$
+        use("gh_repos_by_code_tailored_min"), output = "table_min")
+    Message
+      i Preparing repositories table...
+
 # `get_all_repos()` works as expected
 
     Code
@@ -20,9 +28,12 @@
     Message
       i [Host:GitHub][Engine:GraphQl][Scope:test-org] Pulling repositories...
 
-# `get_repos_contributors()` adds contributors to repos table
+# `get_repos_contributors()` works on GitHost level
 
     Code
-      gh_repos_by_code_table <- test_rest_github$get_repos_contributors(repos_table = test_mocker$
-        use("gh_repos_by_code_table"), progress = FALSE)
+      gh_repos_with_contributors <- github_testhost_priv$get_repos_contributors(
+        repos_table = test_mocker$use("gh_repos_table_with_platform"), verbose = TRUE,
+        progress = FALSE)
+    Message
+      i [Host:GitHub][Engine:REST] Pulling contributors...
 

@@ -4,13 +4,18 @@ repo_gitstats_colnames <- c(
   "languages", "issues_open", "issues_closed"
 )
 
-repo_host_colnames <- c('repo_id', 'repo_name', 'default_branch', 'stars', 'forks',
-                        'created_at', 'last_activity_at', 'languages', 'issues_open',
-                        'issues_closed', 'organization', 'repo_url')
+repo_host_colnames <- c("repo_id", "repo_name", "default_branch", "stars", "forks",
+                        "created_at", "last_activity_at", "languages", "issues_open",
+                        "issues_closed", "organization", "repo_url")
+
+repo_min_colnames <- c("repo_id", "repo_name", "default_branch",
+                       "created_at", "organization", "repo_url")
 
 expect_package_usage_table <- function(object, with_cols = NULL) {
   expect_s3_class(object, "data.frame")
-  expect_named(object, c('repo_name', 'organization', 'fullname', 'platform', 'repo_url', 'api_url', 'package_usage'))
+  expect_named(object, c("package", "package_usage", "repo_id", "repo_fullname",
+                         "repo_name", "default_branch", "created_at", "organization",
+                         "repo_url", "api_url", "platform"))
   expect_gt(nrow(object), 0)
 }
 
