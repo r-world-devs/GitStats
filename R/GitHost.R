@@ -720,16 +720,29 @@ GitHost <- R6::R6Class(
           information = "Pulling repositories"
         )
       }
-      repos_response <- private$get_repos_response_with_code(
-        code     = code,
-        in_files = in_files,
-        in_path  = in_path,
-        output   = output,
-        verbose  = verbose,
-        progress = progress
-      )
+      rest_engine <- private$engines$rest
+      if (is.null(in_files)) {
+        repos_response <- rest_engine$get_repos_by_code(
+          code     = code,
+          in_path  = in_path,
+          output   = output,
+          verbose  = verbose,
+          progress = progress
+        )
+      } else {
+        repos_response <- purrr::map(in_files, function(filename) {
+          rest_engine$get_repos_by_code(
+            code     = code,
+            filename = filename,
+            in_path  = in_path,
+            output   = output,
+            verbose  = verbose,
+            progress = progress
+          )
+        }) %>%
+          purrr::list_flatten()
+      }
       if (output != "raw") {
-        rest_engine <- private$engines$rest
         repos_table <- repos_response %>%
           rest_engine$tailor_repos_response(
             output = output
@@ -792,7 +805,6 @@ GitHost <- R6::R6Class(
             purrr::list_flatten()
         }
         if (output != "raw") {
-          rest_engine <- private$engines$rest
           repos_table <- repos_response %>%
             rest_engine$tailor_repos_response(
               output = output
