@@ -61,6 +61,7 @@ repos_urls <- get_repos_urls(
 ```{r, eval = FALSE}
 package_usage <- get_R_package_usage(
   gitstats_object = github_stats,
-  packages = c("shiny", "purrr")
+  packages = c("shiny", "purrr"),
+  split_output = TRUE
 )
 ```

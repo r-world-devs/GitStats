@@ -452,12 +452,17 @@ GitStats <- R6::R6Class(
     #' @param packages A character vector, names of R packages to look for.
     #' @param only_loading A boolean, if `TRUE` function will check only if
     #'   package is loaded in repositories, not used as dependencies.
+    #' @param split_output Optional, a boolean. If `TRUE` will return a list of
+    #'   tables, where every element of the list stands for the package passed to
+    #'   `packages` parameter. If `FALSE`, will return only one table with name of
+    #'   the package stored in first column.
     #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
     #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
     get_R_package_usage = function(packages,
                                    only_loading = FALSE,
+                                   split_output = FALSE,
                                    cache        = TRUE,
                                    verbose      = TRUE) {
       private$check_for_host()
@@ -478,9 +483,11 @@ GitStats <- R6::R6Class(
         R_package_usage <- private$get_R_package_usage_from_hosts(
           packages     = packages,
           only_loading = only_loading,
+          split_output = split_output,
           verbose      = verbose
         )
-        if (nrow(R_package_usage) > 0) {
+        if ((!split_output && nrow(R_package_usage) > 0) ||
+              (split_output && any(purrr::map_lgl(R_package_usage, ~ nrow(.) > 0)))) {
           R_package_usage <- private$set_object_class(
             object    = R_package_usage,
             class     = "R_package_usage",
@@ -956,8 +963,9 @@ GitStats <- R6::R6Class(
     # Pull information on package usage in a table form
     get_R_package_usage_from_hosts = function(packages,
                                               only_loading,
+                                              split_output = FALSE,
                                               verbose = TRUE) {
-      packages_usage_tables <- purrr::map(packages, function(package_name) {
+      packages_usage_list <- purrr::map(packages, function(package_name) {
         if (!only_loading) {
           repos_with_package_as_dependency <- private$get_R_package_as_dependency(
             package_name = package_name,
@@ -998,16 +1006,27 @@ GitStats <- R6::R6Class(
             )
         }
         return(package_usage_table)
-      }) %>%
-        purrr::list_rbind()
-      if (nrow(packages_usage_tables) == 0 && verbose) {
-        cli::cli_alert_warning(
-          cli::col_yellow(
-            "No usage of R packages found."
+      })
+      if (split_output) {
+        packages_usage_result <- purrr::set_names(packages_usage_list, packages)
+        if (all(purrr::map_lgl(packages_usage_result, ~ nrow(.) == 0)) && verbose) {
+          cli::cli_alert_warning(
+            cli::col_yellow(
+              "No usage of R packages found."
+            )
           )
-        )
+        }
+      } else {
+        packages_usage_result <- purrr::list_rbind(packages_usage_list)
+        if (nrow(packages_usage_result) == 0 && verbose) {
+          cli::cli_alert_warning(
+            cli::col_yellow(
+              "No usage of R packages found."
+            )
+          )
+        }
       }
-      return(packages_usage_tables)
+      return(packages_usage_result)
     },
 
     # Search repositories with `library(package_name)` in code blobs.

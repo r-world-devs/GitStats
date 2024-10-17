@@ -11,3 +11,9 @@ get_R_package_usage(
   test_gitstats,
   packages = c("purrr", "shiny")
 )
+
+get_R_package_usage(
+  test_gitstats,
+  packages = c("dplyr", "shiny"),
+  split_output = TRUE
+)

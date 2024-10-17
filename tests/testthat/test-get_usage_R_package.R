@@ -61,6 +61,28 @@ test_that("get_R_package_usage_from_hosts works as expected", {
   test_mocker$cache(R_package_usage_table)
 })
 
+test_that("get_R_package_usage_from_hosts with split_output works", {
+  test_gitstats <- create_test_gitstats(hosts = 2, priv_mode = TRUE)
+  mockery::stub(
+    test_gitstats$get_R_package_usage_from_hosts,
+    "private$get_R_package_as_dependency",
+    test_mocker$use("R_package_as_dependency")
+  )
+  mockery::stub(
+    test_gitstats$get_R_package_usage_from_hosts,
+    "private$get_R_package_loading",
+    test_mocker$use("R_package_loading")
+  )
+  R_package_usage_list <- test_gitstats$get_R_package_usage_from_hosts(
+    packages = c("shiny", "purrr"),
+    only_loading = FALSE,
+    split_output = TRUE,
+    verbose = FALSE
+  )
+  expect_equal(names(R_package_usage_list), c("shiny", "purrr"))
+  purrr::walk(R_package_usage_list, expect_package_usage_table)
+})
+
 test_that("when get_R_package_usage_from_hosts output is empty return warning", {
   test_gitstats <- create_test_gitstats(hosts = 2, priv_mode = TRUE)
   mockery::stub(
