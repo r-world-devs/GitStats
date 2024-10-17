@@ -33,7 +33,8 @@ result from its storage.}
 output is switched off.}
 }
 \value{
-A data.frame.
+A \code{tibble} or \code{list} of \code{tibbles} depending on \code{split_output}
+parameter.
 }
 \description{
 Wrapper over searching repositories by code blobs related to

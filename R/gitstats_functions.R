@@ -452,7 +452,8 @@ get_files_structure <- function(gitstats_object,
 #'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
 #'   output is switched off.
-#' @return A data.frame.
+#' @return A `tibble` or `list` of `tibbles` depending on `split_output`
+#'   parameter.
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
