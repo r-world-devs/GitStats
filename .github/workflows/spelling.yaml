@@ -1,6 +1,10 @@
 name: 📝 Spelling Check
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [devel, test, master]
 
 jobs:
   spell-check:
@@ -17,6 +21,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libcurl4-openssl-dev
+          sudo apt-get install -y libharfbuzz-dev libfribidi-dev
 
       - name: Install R packages
         run: |
