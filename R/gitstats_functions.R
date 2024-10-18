@@ -239,7 +239,7 @@ get_repos_urls <- function(gitstats_object,
 #' @export
 get_commits <- function(gitstats_object,
                         since    = NULL,
-                        until    = NULL,
+                        until    = Sys.Date() + lubridate::days(1),
                         cache    = TRUE,
                         verbose  = is_verbose(gitstats_object),
                         progress = verbose) {
@@ -501,7 +501,7 @@ get_R_package_usage <- function(gitstats_object,
 #' @export
 get_release_logs <- function(gitstats_object,
                              since = NULL,
-                             until = NULL,
+                             until = Sys.Date() + lubridate::days(1),
                              cache = TRUE,
                              verbose = is_verbose(gitstats_object),
                              progress = verbose) {
@@ -556,4 +556,37 @@ verbose_off <- function(gitstats_object) {
 #' @param gitstats_object A GitStats object.
 is_verbose <- function(gitstats_object) {
   gitstats_object$is_verbose()
+}
+
+#' @title Get data from `GitStats` storage
+#' @name get_storage
+#' @description Retrieves whole or particular data (see `storage` parameter)
+#'   pulled earlier with `GitStats`.
+#' @param gitstats_object A GitStats object.
+#' @param storage A character, type of the data you want to get from storage:
+#'   `commits`, `repositories`, `release_logs`, `users`, `files`,
+#'   `files_structure`, `R_package_usage` or `release_logs`.
+#' @return A list of tibbles (if `storage` set to `NULL`) or a tibble (if
+#'   `storage` defined).
+#' @examples
+#' \dontrun{
+#'  my_gitstats <- create_gitstats() %>%
+#'   set_github_host(
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs", "openpharma")
+#'   )
+#'   get_release_logs(my_gistats, since = "2024-01-01")
+#'   get_repos(my_gitstats)
+#'
+#'   release_logs <- get_storage(
+#'     gitstats_object = my_gitstats,
+#'     storage = "release_logs"
+#'   )
+#' }
+#' @export
+get_storage <- function(gitstats_object,
+                        storage = NULL) {
+  gitstats_object$get_storage(
+    storage = storage
+  )
 }

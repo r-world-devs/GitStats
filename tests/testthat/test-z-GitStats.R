@@ -84,6 +84,21 @@ test_that("check_if_args_changed", {
   )
 })
 
+test_that("print_storage_attribute", {
+  expect_snapshot(
+    test_gitstats_priv$print_storage_attribute(
+      storage_data = test_mocker$use("commits_table"),
+      storage_name = "commits"
+    )
+  )
+  expect_snapshot(
+    test_gitstats_priv$print_storage_attribute(
+      storage_data = test_mocker$use("release_logs_table"),
+      storage_name = "release_logs"
+    )
+  )
+})
+
 test_that("show_orgs print orgs properly", {
   test_gitstats <- create_test_gitstats(hosts = 2)
   expect_equal(

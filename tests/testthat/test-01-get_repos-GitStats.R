@@ -62,7 +62,6 @@ test_that("set_object_class for repos_table works correctly", {
 })
 
 test_that("get_repos works properly and for the second time uses cache", {
-  test_gitstats <- create_test_gitstats(hosts = 2)
   mockery::stub(
     test_gitstats$get_repos,
     "private$get_repos_from_hosts",

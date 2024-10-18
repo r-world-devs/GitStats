@@ -133,9 +133,6 @@ GitHost <- R6::R6Class(
         cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
         private$orgs <- private$engines$graphql$get_orgs()
       }
-      if (is.null(until)) {
-        until <- Sys.time()
-      }
       commits_table <- private$get_commits_from_orgs(
         since    = since,
         until    = until,

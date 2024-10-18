@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [devel, test, master]
 
-name: test-coverage
+name: 🧪 Test coverage
 
 jobs:
   test-coverage:

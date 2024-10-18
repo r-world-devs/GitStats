@@ -207,8 +207,7 @@ GitStats <- R6::R6Class(
                            verbose  = TRUE,
                            progress = TRUE) {
       private$check_for_host()
-      args_list <- list("since" = since,
-                        "until" = until)
+      args_list <- list("date_range" = c(since, as.character(until)))
       trigger <- private$trigger_pulling(
         cache     = cache,
         storage   = "commits",
@@ -226,7 +225,9 @@ GitStats <- R6::R6Class(
             class     = "commits_data",
             attr_list = args_list
           )
-        private$save_to_storage(commits)
+        private$save_to_storage(
+          table = commits
+        )
       } else {
         commits <- private$get_from_storage(
           table = "commits",
@@ -412,15 +413,12 @@ GitStats <- R6::R6Class(
     #' @param progress A logical, by default set to `verbose` value. If `FALSE`
     #'   no `cli` progress bar will be displayed.
     get_release_logs = function(since,
-                                until,
+                                until    = Sys.Date(),
                                 cache    = TRUE,
                                 verbose  = TRUE,
                                 progress = TRUE) {
       private$check_for_host()
-      args_list <- list(
-        "since" = since,
-        "until" = until
-      )
+      args_list <- list("date_range" = c(since, as.character(until)))
       trigger <- private$trigger_pulling(
         storage   = "release_logs",
         cache     = cache,
@@ -525,6 +523,14 @@ GitStats <- R6::R6Class(
 
     is_verbose = function() {
       private$settings$verbose
+    },
+
+    get_storage = function(storage) {
+      if (is.null(storage)) {
+        private$storage
+      } else {
+        private$storage[[storage]]
+      }
     },
 
     #' @description A print method for a GitStats object.
@@ -1242,24 +1248,26 @@ GitStats <- R6::R6Class(
     },
 
     # print storage attribute
-    print_storage_attribute = function(storage_table, storage_name) {
+    print_storage_attribute = function(storage_data, storage_name) {
       if (storage_name != "repositories") {
         storage_attr <- switch(storage_name,
+                               "repos_urls" = "type",
                                "files" = "file_path",
                                "files_structure" = "pattern",
-                               "commits" = "dates_range",
-                               "release_logs" = "dates_range",
+                               "commits" = "date_range",
+                               "release_logs" = "date_range",
                                "users" = "logins",
                                "R_package_usage" = "packages")
-        attr_data <- attr(storage_table, storage_attr)
+        attr_data <- attr(storage_data, storage_attr)
         attr_name <- switch(storage_attr,
+                            "type" = "type",
                             "file_path" = "files",
                             "pattern" = "files matching pattern",
-                            "dates_range" = "date range",
+                            "date_range" = "date range",
                             "packages" = "packages",
                             "logins" = "logins")
         if (length(attr_data) > 1) {
-          separator <- if (storage_attr == "dates_range") {
+          separator <- if (storage_attr == "date_range") {
             " - "
           } else {
             ", "
