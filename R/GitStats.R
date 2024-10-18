@@ -525,6 +525,14 @@ GitStats <- R6::R6Class(
       private$settings$verbose
     },
 
+    get_storage = function(storage) {
+      if (is.null(storage)) {
+        private$storage
+      } else {
+        private$storage[[storage]]
+      }
+    },
+
     #' @description A print method for a GitStats object.
     print = function() {
       cat(paste0("A ", cli::col_blue('GitStats'), " object for ", length(private$hosts), " hosts: \n"))

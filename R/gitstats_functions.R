@@ -557,3 +557,21 @@ verbose_off <- function(gitstats_object) {
 is_verbose <- function(gitstats_object) {
   gitstats_object$is_verbose()
 }
+
+#' @title Get data from `GitStats` storage
+#' @name get_storage
+#' @description Retrieves whole or particular data (see `storage` parameter)
+#'   pulled earlier with `GitStats`.
+#' @param gitstats_object A GitStats object.
+#' @param storage A character, type of the data you want to get from storage:
+#'   `commits`, `repositories`, `release_logs`, `users`, `files`,
+#'   `files_structure`, `R_package_usage` or `release_logs`.
+#' @return A list of tibbles (if `storage` set to `NULL`) or a tibble (if
+#'   `storage` defined).
+#' @export
+get_storage <- function(gitstats_object,
+                        storage = NULL) {
+  gitstats_object$get_storage(
+    storage = storage
+  )
+}

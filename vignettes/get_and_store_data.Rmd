@@ -123,3 +123,18 @@ Finally, have a glimpse at your storage:
 ```{r}
 git_stats
 ```
+
+You can retrieve whole data from your `GitStats` object with:
+
+```{r}
+get_storage(git_stats)
+```
+
+Or particular data set:
+
+```{r}
+get_storage(
+  gitstats_object = git_stats,
+  storage = "repositories"
+)
+```

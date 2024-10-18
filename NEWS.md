@@ -7,6 +7,7 @@
   - on the other hand, output of the function has been limited to contain only most necessary data (removing all repository stats), making thus process of obtaining package usage faster ([#474](https://github.com/r-world-devs/GitStats/issues/474)).
   - new `split_output` parameter has been added - when set to `TRUE` a `list` with `tibbles` (every element of the `list` for every package) instead of one `tibble` is returned.
 - Added possibility to get repositories for individual users with `get_repos()` ([#492](https://github.com/r-world-devs/GitStats/issues/492)). Earlier this was only possible for GitHub organizations and GitLab groups.
+- Added new `get_storage()` function to retrieve data from `GitStats` object - whole or particular datasets (e.g. `commits`, `repositories` or `R_package_usage`) ([#509](https://github.com/r-world-devs/GitStats/issues/509)).
 
 ## Fixes:
 
