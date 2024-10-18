@@ -47,6 +47,13 @@ test_gitstats <- create_test_gitstats(
   inject_commits = "commits_table"
 )
 
+test_that("get_commits_stats returns error when no commits", {
+  test_gitstats <- create_test_gitstats()
+  expect_snapshot_error(
+    get_commits_stats(test_gitstats)
+  )
+})
+
 test_that("get_commits_stats prepares table with statistics on commits", {
   commits_stats <- get_commits_stats(test_gitstats)
   expect_s3_class(commits_stats, "commits_stats")

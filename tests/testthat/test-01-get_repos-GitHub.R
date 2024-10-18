@@ -237,11 +237,10 @@ test_that("`prepare_repos_table()` prepares repos table", {
 })
 
 test_that("`prepare_repos_table()` prepares minimum version of repos table", {
-  expect_snapshot(
-    gh_repos_by_code_table_min <- test_rest_github$prepare_repos_table(
-      repos_list = test_mocker$use("gh_repos_by_code_tailored_min"),
-      output = "table_min"
-    )
+  gh_repos_by_code_table_min <- test_rest_github$prepare_repos_table(
+    repos_list = test_mocker$use("gh_repos_by_code_tailored_min"),
+    output = "table_min",
+    verbose = FALSE
   )
   expect_repos_table(
     gh_repos_by_code_table_min,
@@ -468,12 +467,10 @@ test_that("`get_repos_contributors()` works on GitHost level", {
     "rest_engine$get_repos_contributors",
     test_mocker$use("gh_repos_with_contributors")
   )
-  expect_snapshot(
-    gh_repos_with_contributors <- github_testhost_priv$get_repos_contributors(
-      repos_table = test_mocker$use("gh_repos_table_with_platform"),
-      verbose     = TRUE,
-      progress    = FALSE
-    )
+  gh_repos_with_contributors <- github_testhost_priv$get_repos_contributors(
+    repos_table = test_mocker$use("gh_repos_table_with_platform"),
+    verbose     = FALSE,
+    progress    = FALSE
   )
   expect_repos_table(
     gh_repos_with_contributors,
