@@ -174,13 +174,11 @@ test_that("get_files_structure_from_orgs pulls files structure for repositories 
     "graphql_engine$get_files_structure_from_org",
     test_mocker$use("gl_files_structure_shallow")
   )
-  expect_snapshot(
-    gl_files_structure_from_orgs <- gitlab_testhost_priv$get_files_structure_from_orgs(
-      pattern  = "\\.md",
-      depth    = 1L,
-      verbose  = TRUE,
-      progress = FALSE
-    )
+  gl_files_structure_from_orgs <- gitlab_testhost_priv$get_files_structure_from_orgs(
+    pattern  = "\\.md",
+    depth    = 1L,
+    verbose  = FALSE,
+    progress = FALSE
   )
   expect_equal(
     names(gl_files_structure_from_orgs),

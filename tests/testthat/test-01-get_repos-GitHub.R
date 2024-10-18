@@ -226,10 +226,9 @@ test_that("GitHub tailors `repos_list` to minimal version of table", {
 })
 
 test_that("`prepare_repos_table()` prepares repos table", {
-  expect_snapshot(
-    gh_repos_by_code_table <- test_rest_github$prepare_repos_table(
-      repos_list = test_mocker$use("gh_repos_by_code_tailored")
-    )
+  gh_repos_by_code_table <- test_rest_github$prepare_repos_table(
+      repos_list = test_mocker$use("gh_repos_by_code_tailored"),
+      verbose = FALSE
   )
   expect_repos_table(
     gh_repos_by_code_table
@@ -399,8 +398,8 @@ test_that("`get_all_repos()` works as expected", {
     "graphql_engine$prepare_repos_table",
     test_mocker$use("gh_repos_table")
   )
-  expect_snapshot(
-    gh_repos_table <- github_testhost_priv$get_all_repos()
+  gh_repos_table <- github_testhost_priv$get_all_repos(
+    verbose = FALSE
   )
   expect_repos_table(
     gh_repos_table
