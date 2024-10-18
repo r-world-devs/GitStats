@@ -33,7 +33,7 @@ When setting hosts you need to take into account:
 
 If you connect to public hosts you simply call `set_github_host()` or `set_gitlab_host()` function without specifying `host` parameter.
 
-```{r}
+```{r, eval = FALSE}
 library(GitStats)
 git_stats <- create_gitstats() %>%
   set_github_host(
@@ -72,7 +72,7 @@ When setting hosts you choose what scanning scope of your GitStats will be:
 
 * `organizations/groups` - in this case you need to pass character arguments (names of organizations (in case of GitHub) or groups (in case of GitLab)) to `orgs` parameter.
 
-```{r}
+```{r, eval = FALSE}
 git_stats <- create_gitstats() %>%
   set_github_host(
     orgs = c("r-world-devs", "openpharma"),

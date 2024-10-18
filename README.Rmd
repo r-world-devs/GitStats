@@ -34,6 +34,12 @@ With GitStats you can pull git data in a uniform way (table format) from GitHub 
 ## Installation
 
 ```r
+From CRAN:
+
+install.packages("GitStats")
+
+Or development version:
+
 devtools::install_github("r-world-devs/GitStats")
 ```
 

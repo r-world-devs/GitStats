@@ -189,10 +189,9 @@ test_that("`tailor_repos_response()` tailors precisely `repos_list`", {
 })
 
 test_that("REST client prepares table from GitLab repositories response", {
-  expect_snapshot(
-    gl_repos_by_code_table <- test_rest_gitlab$prepare_repos_table(
-      repos_list = test_mocker$use("gl_repos_by_code_tailored")
-    )
+  gl_repos_by_code_table <- test_rest_gitlab$prepare_repos_table(
+    repos_list = test_mocker$use("gl_repos_by_code_tailored"),
+    verbose = FALSE
   )
   expect_repos_table(
     gl_repos_by_code_table

@@ -13,3 +13,7 @@
 ^pkgdown$
 ^project_metadata.yaml
 ^.lintr
+^CRAN-SUBMISSION$
+^cran-comments\.md$
+^vignettes/get_and_store_data\.Rmd$
+^vignettes/get_files\.Rmd$
