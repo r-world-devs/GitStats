@@ -1,9 +1,11 @@
-# GitStats (development version)
+# GitStats 2.1.1
+
+This is a patch release which introduces some improvements in `get_R_package_usage()` on speed and possibility to pull at once data on multiple R packages, new `get_storage()` function and some fixes for checking token scopes and setting hosts.
 
 ## Features:
 
 - Optimized `get_R_package_usage()` function: 
-  - you can now pass a vector of packages names (new `packages` parameter replacing old `package_name`) ([#494](https://github.com/r-world-devs/GitStats/issues/494)),
+  - it is now possible to pass a vector of packages names (new `packages` parameter replacing old `package_name`) ([#494](https://github.com/r-world-devs/GitStats/issues/494)),
   - on the other hand, output of the function has been limited to contain only most necessary data (removing all repository stats), making thus process of obtaining package usage faster ([#474](https://github.com/r-world-devs/GitStats/issues/474)).
   - new `split_output` parameter has been added - when set to `TRUE` a `list` with `tibbles` (every element of the `list` for every package) instead of one `tibble` is returned.
 - Added possibility to get repositories for individual users with `get_repos()` ([#492](https://github.com/r-world-devs/GitStats/issues/492)). Earlier this was only possible for GitHub organizations and GitLab groups.
@@ -13,10 +15,12 @@
 
 - Fixed getting large search responses for GitHub ([#491](https://github.com/r-world-devs/GitStats/issues/491)).
 - Fixed checking token scopes ([#501](https://github.com/r-world-devs/GitStats/issues/501)). If token scopes are insufficient error is returned and `GitHost` is not passed to `GitStats`. This also applies to situation when `GitStats` looks for default tokens (not defined by user). Earlier, if tests for token failed, an empty token was passed and `GitStats` was created, which was misleading for the user.
-- User can now optionally pass public GitHub host name (`github.com` or `https://github.com`) to `set_github_host()` ([#475](https://github.com/r-world-devs/GitStats/issues/475)).
-- It is possible to pass hosts in more flexible way than before (e.g. `{host_url}`, `http://{host_url}` or `https://{host_url}`) to `host` parameter in `set_*_host() function ([#399](https://github.com/r-world-devs/GitStats/issues/399)).
+- It is now possible to pass public GitHub host name (`github.com` or `https://github.com`) to `set_github_host()` ([#475](https://github.com/r-world-devs/GitStats/issues/475)).
+- It is also possible to pass hosts in more flexible way than before (e.g. `{host_url}`, `http://{host_url}` or `https://{host_url}`) to `host` parameter in `set_*_host() function ([#399](https://github.com/r-world-devs/GitStats/issues/399)).
 
 # GitStats 2.1.0
+
+This minor release comes up with new `get_files_structure()` function and adjustments to `get_files_content()` so user can pull custom (by defining pattern of files and depth of directories) files tree from repository and pull their content.
 
 ## New features:
 
