@@ -297,11 +297,14 @@ GitHost <- R6::R6Class(
 
     # Set API url
     set_custom_api_url = function(host) {
-      private$api_url <- if (!grepl("https://", host)) {
+      private$api_url <- if (!grepl("https|http", host)) {
         glue::glue(
           "https://{host}/api/v{private$api_version}"
         )
       } else {
+        if (grepl("http(?!s)", host, perl = TRUE)) {
+          host <- gsub("http", "https", host)
+        }
         glue::glue(
           "{host}/api/v{private$api_version}"
         )

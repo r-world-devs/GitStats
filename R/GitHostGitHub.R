@@ -56,6 +56,7 @@ GitHostGitHub <- R6::R6Class(
     set_api_url = function(host) {
       if (is.null(host) ||
             host == "https://github.com" ||
+            host == "http://github.com" ||
             host == "github.com") {
         private$api_url <- "https://api.github.com"
       } else {

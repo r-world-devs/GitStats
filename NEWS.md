@@ -14,6 +14,7 @@
 - Fixed getting large search responses for GitHub ([#491](https://github.com/r-world-devs/GitStats/issues/491)).
 - Fixed checking token scopes ([#501](https://github.com/r-world-devs/GitStats/issues/501)). If token scopes are insufficient error is returned and `GitHost` is not passed to `GitStats`. This also applies to situation when `GitStats` looks for default tokens (not defined by user). Earlier, if tests for token failed, an empty token was passed and `GitStats` was created, which was misleading for the user.
 - User can now optionally pass public GitHub host name (`github.com` or `https://github.com`) to `set_github_host()` ([#475](https://github.com/r-world-devs/GitStats/issues/475)).
+- It is possible to pass hosts in more flexible way than before (e.g. `{host_url}`, `http://{host_url}` or `https://{host_url}`) to `host` parameter in `set_*_host() function ([#399](https://github.com/r-world-devs/GitStats/issues/399)).
 
 # GitStats 2.1.0
 
