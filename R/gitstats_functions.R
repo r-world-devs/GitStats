@@ -568,6 +568,21 @@ is_verbose <- function(gitstats_object) {
 #'   `files_structure`, `R_package_usage` or `release_logs`.
 #' @return A list of tibbles (if `storage` set to `NULL`) or a tibble (if
 #'   `storage` defined).
+#' @examples
+#' \dontrun{
+#'  my_gitstats <- create_gitstats() %>%
+#'   set_github_host(
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs", "openpharma")
+#'   )
+#'   get_release_logs(my_gistats, since = "2024-01-01")
+#'   get_repos(my_gitstats)
+#'
+#'   release_logs <- get_storage(
+#'     gitstats_object = my_gitstats,
+#'     storage = "release_logs"
+#'   )
+#' }
 #' @export
 get_storage <- function(gitstats_object,
                         storage = NULL) {

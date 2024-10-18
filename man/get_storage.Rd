@@ -21,3 +21,19 @@ A list of tibbles (if \code{storage} set to \code{NULL}) or a tibble (if
 Retrieves whole or particular data (see \code{storage} parameter)
 pulled earlier with \code{GitStats}.
 }
+\examples{
+\dontrun{
+ my_gitstats <- create_gitstats() \%>\%
+  set_github_host(
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("r-world-devs", "openpharma")
+  )
+  get_release_logs(my_gistats, since = "2024-01-01")
+  get_repos(my_gitstats)
+
+  release_logs <- get_storage(
+    gitstats_object = my_gitstats,
+    storage = "release_logs"
+  )
+}
+}
