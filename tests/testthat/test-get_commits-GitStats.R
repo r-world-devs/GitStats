@@ -42,6 +42,24 @@ test_that("get_commits works properly", {
   test_mocker$cache(commits_table)
 })
 
+test_that("get_commits() works", {
+  mockery::stub(
+    get_commits,
+    "gitstats_object$get_commits",
+    test_mocker$use("commits_table")
+  )
+  commits_table <- get_commits(
+    test_gitstats,
+    since = "2023-06-15",
+    until = "2023-06-30",
+    verbose = FALSE
+  )
+  expect_s3_class(
+    commits_table,
+    "commits_data"
+  )
+})
+
 test_gitstats <- create_test_gitstats(
   hosts = 2,
   inject_commits = "commits_table"
