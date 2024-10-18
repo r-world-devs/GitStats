@@ -17,6 +17,7 @@ jobs:
         run: |
           install.packages('devtools')
           devtools::install_github('ropensci/spelling')
+        shell: Rscript {0}
 
       - name: Run spelling check
         run: |
