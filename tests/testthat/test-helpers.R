@@ -152,6 +152,7 @@ test_that("`test_token` works properly", {
 })
 
 test_that("`set_default_token` sets default token for GitLab", {
+  skip_on_cran()
   expect_snapshot(
     withr::with_envvar(new = c("GITLAB_PAT" = Sys.getenv("GITLAB_PAT_PUBLIC")), {
       default_token <- gitlab_testhost_priv$set_default_token(verbose = TRUE)
