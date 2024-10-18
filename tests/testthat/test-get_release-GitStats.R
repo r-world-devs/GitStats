@@ -26,4 +26,5 @@ test_that("get_release_logs works as expected", {
     verbose = FALSE
   )
   expect_releases_table(release_logs_table)
+  test_mocker$cache(release_logs_table)
 })
