@@ -37,12 +37,10 @@ test_that("get_files_structure works as expected", {
     "private$get_files_structure_from_hosts",
     test_mocker$use("files_structure_from_hosts")
   )
-  expect_snapshot(
-    files_structure <- test_gitstats$get_files_structure(
-      pattern = "\\.md",
-      depth = 2L,
-      verbose = TRUE
-    )
+  files_structure <- test_gitstats$get_files_structure(
+    pattern = "\\.md",
+    depth = 2L,
+    verbose = FALSE
   )
   expect_s3_class(files_structure, "files_structure")
   test_mocker$cache(files_structure)

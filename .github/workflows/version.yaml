@@ -2,8 +2,7 @@ name: ⬆️ Check Version Bump
 
 on:
   pull_request:
-    paths:
-      - DESCRIPTION
+    branches: [devel, test, master]
 
 jobs:
   check-version:
