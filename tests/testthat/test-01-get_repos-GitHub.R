@@ -406,6 +406,19 @@ test_that("`get_all_repos()` works as expected", {
   test_mocker$cache(gh_repos_table)
 })
 
+test_that("`get_all_repos()` prints proper message", {
+  mockery::stub(
+    github_testhost_priv$get_all_repos,
+    "graphql_engine$prepare_repos_table",
+    test_mocker$use("gh_repos_table")
+  )
+  expect_snapshot(
+    gh_repos_table <- github_testhost_priv$get_all_repos(
+      verbose = TRUE
+    )
+  )
+})
+
 test_that("GitHost adds `repo_api_url` column to GitHub repos table", {
   repos_table <- test_mocker$use("gh_repos_table")
   gh_repos_table_with_api_url <- github_testhost_priv$add_repo_api_url(repos_table)
