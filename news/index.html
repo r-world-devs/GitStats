@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,7 +19,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/set_hosts.html">Setting hosts</a></li>
-    <li><a class="dropdown-item" href="../articles/get_data.html">Get data</a></li>
+    <li><a class="dropdown-item" href="../articles/get_and_store_data.html">Get and store your data</a></li>
     <li><a class="dropdown-item" href="../articles/get_repos_with_code.html">Getting repositories with specific code or files</a></li>
     <li><a class="dropdown-item" href="../articles/get_files.html">Get files content</a></li>
   </ul></li>
@@ -36,11 +36,33 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/r-world-devs/GitStats/blob/v2.1.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/r-world-devs/GitStats/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.1.1" id="gitstats-211">GitStats 2.1.1<a class="anchor" aria-label="anchor" href="#gitstats-211"></a></h2><p class="text-muted">CRAN release: 2024-10-25</p>
+<p>This is a patch release which introduces some improvements in <code><a href="../reference/get_R_package_usage.html">get_R_package_usage()</a></code> on speed and possibility to pull at once data on multiple R packages, new <code><a href="../reference/get_storage.html">get_storage()</a></code> function and some fixes for checking token scopes and setting hosts.</p>
+<div class="section level3">
+<h3 id="features-2-1-1">Features:<a class="anchor" aria-label="anchor" href="#features-2-1-1"></a></h3>
+<ul><li>Optimized <code><a href="../reference/get_R_package_usage.html">get_R_package_usage()</a></code> function:
+<ul><li>it is now possible to pass a vector of packages names (new <code>packages</code> parameter replacing old <code>package_name</code>) (<a href="https://github.com/r-world-devs/GitStats/issues/494" class="external-link">#494</a>),</li>
+<li>on the other hand, output of the function has been limited to contain only most necessary data (removing all repository stats), making thus process of obtaining package usage faster (<a href="https://github.com/r-world-devs/GitStats/issues/474" class="external-link">#474</a>).</li>
+<li>new <code>split_output</code> parameter has been added - when set to <code>TRUE</code> a <code>list</code> with <code>tibbles</code> (every element of the <code>list</code> for every package) instead of one <code>tibble</code> is returned.</li>
+</ul></li>
+<li>Added possibility to get repositories for individual users with <code><a href="../reference/get_repos.html">get_repos()</a></code> (<a href="https://github.com/r-world-devs/GitStats/issues/492" class="external-link">#492</a>). Earlier this was only possible for GitHub organizations and GitLab groups.</li>
+<li>Added new <code><a href="../reference/get_storage.html">get_storage()</a></code> function to retrieve data from <code>GitStats</code> object - whole or particular datasets (e.g. <code>commits</code>, <code>repositories</code> or <code>R_package_usage</code>) (<a href="https://github.com/r-world-devs/GitStats/issues/509" class="external-link">#509</a>).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="fixes-2-1-1">Fixes:<a class="anchor" aria-label="anchor" href="#fixes-2-1-1"></a></h3>
+<ul><li>Fixed getting large search responses for GitHub (<a href="https://github.com/r-world-devs/GitStats/issues/491" class="external-link">#491</a>).</li>
+<li>Fixed checking token scopes (<a href="https://github.com/r-world-devs/GitStats/issues/501" class="external-link">#501</a>). If token scopes are insufficient error is returned and <code>GitHost</code> is not passed to <code>GitStats</code>. This also applies to situation when <code>GitStats</code> looks for default tokens (not defined by user). Earlier, if tests for token failed, an empty token was passed and <code>GitStats</code> was created, which was misleading for the user.</li>
+<li>It is now possible to pass public GitHub host name (<code>github.com</code> or <code>https://github.com</code>) to <code><a href="../reference/set_github_host.html">set_github_host()</a></code> (<a href="https://github.com/r-world-devs/GitStats/issues/475" class="external-link">#475</a>).</li>
+<li>It is also possible to pass hosts in more flexible way than before (e.g. <code>{host_url}</code>, <code>http://{host_url}</code> or <code>https://{host_url}</code>) to <code>host</code> parameter in `set_*_host() function (<a href="https://github.com/r-world-devs/GitStats/issues/399" class="external-link">#399</a>).</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.1.0" id="gitstats-210">GitStats 2.1.0<a class="anchor" aria-label="anchor" href="#gitstats-210"></a></h2>
+<p>This minor release comes up with new <code><a href="../reference/get_files_structure.html">get_files_structure()</a></code> function and adjustments to <code><a href="../reference/get_files_content.html">get_files_content()</a></code> so user can pull custom (by defining pattern of files and depth of directories) files tree from repository and pull their content.</p>
 <div class="section level3">
 <h3 id="new-features-2-1-0">New features:<a class="anchor" aria-label="anchor" href="#new-features-2-1-0"></a></h3>
 <ul><li>Added new <code><a href="../reference/get_files_structure.html">get_files_structure()</a></code> function to pull files structure for a given repository with possibility to control level of directories (<code>depth</code> parameter) and to limit output to files matching regex argument passed to <code>pattern</code> parameter (<a href="https://github.com/r-world-devs/GitStats/issues/338" class="external-link">#338</a>). Together with that, <code>get_files()</code> function was renamed to <code><a href="../reference/get_files_content.html">get_files_content()</a></code> to better reflect its purpose.</li>
@@ -95,7 +117,7 @@
 </ul></div>
 <div class="section level3">
 <h3 id="simplifying-workflow-2-0-0">Simplifying workflow:<a class="anchor" aria-label="anchor" href="#simplifying-workflow-2-0-0"></a></h3>
-<ul><li>GitStats workflow is now simplified. To pull data on <code>repositories</code>, <code>commits</code>, <code>R_package_usage</code> or other you should use directly corresponding <code>get_*()</code> functions instead of <code>pull_*()</code> which are deprecated. These <code>get_*()</code> functions pull data from API, parse it into table, add some goodies (additional columns) if needed and return table instead of <code>GitStats</code> object, which in our opinion is more intuitive and user-friendly (<a href="(https://github.com/r-world-devs/GitStats/issues/345)" class="external-link">#345</a>). That means you do not need to run in pipe two or three additional function calls as before, e.g. <code>pull_repos(gitstats_object) %&gt;% get_repos() %&gt;% get_repos_stats()</code>, but you just run <code>get_repos(gitstats_object)</code> to get data you need.</li>
+<ul><li>GitStats workflow is now simplified. To pull data on <code>repositories</code>, <code>commits</code>, <code>R_package_usage</code> or other you should use directly corresponding <code>get_*()</code> functions instead of <code>pull_*()</code> which are deprecated. These <code>get_*()</code> functions pull data from API, parse it into table, add some goodies (additional columns) if needed and return table instead of <code>GitStats</code> object, which in our opinion is more intuitive and user-friendly (<a href="https://github.com/r-world-devs/GitStats/issues/345" class="external-link">#345</a>). That means you do not need to run in pipe two or three additional function calls as before, e.g. <code>pull_repos(gitstats_object) %&gt;% get_repos() %&gt;% get_repos_stats()</code>, but you just run <code>get_repos(gitstats_object)</code> to get data you need.</li>
 <li>Moreover, if you run for the second time <code>get_*()</code> function <code>GitStats</code> will pull the data from its storage and not from API as for the first time, unless you change parameters for the function (e.g. starting date with <code>since</code> in <code><a href="../reference/get_commits.html">get_commits()</a></code>) or change directly the <code>cache</code> parameter in the function. (<a href="https://github.com/r-world-devs/GitStats/issues/333" class="external-link">#333</a>)</li>
 <li>
 <code>pull_repos_contributors()</code> as a separate function is deprecated. The parameter <code>add_contributors</code> is now set by default to <code>TRUE</code> in <code><a href="../reference/get_repos.html">get_repos()</a></code> which seems more reasonable as user gets all the data.</li>
