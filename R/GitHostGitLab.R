@@ -184,27 +184,9 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       )
     },
 
-    # check token scopes
-    # response parameter only for need of super method
+    # An empty method to fullfill call from super class.
     check_token_scopes = function(response = NULL, token) {
-      private$token_scopes <- try({
-        httr2::request(private$endpoints$tokens) %>%
-          httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
-          httr2::req_perform() %>%
-          httr2::resp_body_json() %>%
-          purrr::keep(~ .$active) %>%
-          purrr::map(function(pat) {
-            data.frame(scopes = unlist(pat$scopes), date = pat$last_used_at)
-          }) %>%
-          purrr::list_rbind() %>%
-          dplyr::filter(
-            date == max(date)
-          ) %>%
-          dplyr::select(scopes) %>%
-          unlist()
-      },
-      silent = TRUE)
-      any(private$access_scopes %in% private$token_scopes)
+      TRUE
     },
 
     # Add `api_url` column to table.
