@@ -1,3 +1,5 @@
+# GitStats (development version)
+
 # GitStats 2.1.1
 
 This is a patch release which introduces some improvements in `get_R_package_usage()` on speed and possibility to pull at once data on multiple R packages, new `get_storage()` function and some fixes for checking token scopes and setting hosts.
