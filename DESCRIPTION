@@ -1,15 +1,15 @@
 Package: GitStats
-Title: Get Statistics from 'GitHub' and 'GitLab'
-Version: 2.1.1
+Title: Standardized Git Repository Statistics
+Version: 2.1.1.9000
 Authors@R: c(
     person(given = "Maciej", family = "Banas", email = "banasmaciek@gmail.com", role = c("aut", "cre")),
     person(given = "Kamil", family = "Koziej", email = "koziej.k@gmail.com", role = "aut"),
     person(given = "Karolina", family = "Marcinkowska", email = "karolina_marcinkowska@onet.pl", role = "aut"),
     person(given = "Matt", family = "Secrest", email = "secrestm@gene.com", role = "aut")
   )
-Description: Obtain statistics in a standardized way from multiple 'Git' services: 'GitHub' and 'GitLab' for the time-being. 
-    Its main purpose is to help teams, whose activities are spread across multiple git platforms, get their repository metadata 
-    in a standardized way from all these platforms.
+Description: Obtain standardized statistics from multiple 'Git' services, including 'GitHub' and 'GitLab'. 
+    Designed to be 'Git' service-agnostic, this package assists teams with activities spread across various 
+    'Git' platforms by providing a unified way to access repository metadata.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)

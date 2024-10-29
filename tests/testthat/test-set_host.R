@@ -173,3 +173,20 @@ test_that("Error pops out when `org` does not exist", {
     error = TRUE
   )
 })
+
+test_that("Setting verbose for set_*_host() to FALSE works fine", {
+  expect_no_error(
+    create_gitstats() %>%
+      set_github_host(
+        orgs = c("openpharma", "r-world-devs"),
+        verbose = FALSE
+      )
+  )
+  expect_no_error(
+    create_gitstats() %>%
+      set_gitlab_host(
+        orgs = "mbtests",
+        verbose = FALSE
+      )
+  )
+})

@@ -1,3 +1,7 @@
+# GitStats (development version)
+
+- Fixed setting default tokens when `verbose` mode is set to `FALSE` ([#525](https://github.com/r-world-devs/GitStats/issues/525)) and fixed checking token scopes for GitLab ([#526](https://github.com/r-world-devs/GitStats/issues/526)).
+
 # GitStats 2.1.1
 
 This is a patch release which introduces some improvements in `get_R_package_usage()` on speed and possibility to pull at once data on multiple R packages, new `get_storage()` function and some fixes for checking token scopes and setting hosts.

@@ -151,6 +151,30 @@ test_that("`test_token` works properly", {
   )
 })
 
+test_that("`test_token` works properly", {
+  skip_on_cran()
+  expect_true(
+    gitlab_testhost_priv$test_token(Sys.getenv("GITLAB_PAT_PUBLIC"))
+  )
+  expect_false(
+    gitlab_testhost_priv$test_token("false_token")
+  )
+})
+
+test_that("`check_token_scopes` works for GitHub", {
+  skip_on_cran()
+  github_pat <- Sys.getenv("GITHUB_PAT")
+  github_response <- httr2::request("https://api.github.com") |>
+    httr2::req_headers("Authorization" = paste0("Bearer ", github_pat)) |>
+    httr2::req_perform()
+  expect_true(
+    github_testhost_priv$check_token_scopes(
+      response = github_response,
+      token = github_pat
+    )
+  )
+})
+
 test_that("`set_default_token` sets default token for GitLab", {
   skip_on_cran()
   expect_snapshot(

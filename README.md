@@ -24,13 +24,15 @@ GitHub and GitLab. For the time-being you can get data on:
 
 ## Installation
 
-``` r
 From CRAN:
 
+``` r
 install.packages("GitStats")
+```
 
 Or development version:
 
+``` r
 devtools::install_github("r-world-devs/GitStats")
 ```
 
