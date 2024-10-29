@@ -1,8 +1,3 @@
-test_that("`get_group_id()` gets group's id", {
-  gl_group_id <- test_rest_gitlab_priv$get_group_id("mbtests")
-  expect_equal(gl_group_id, 63684059)
-})
-
 test_that("`set_searching_scope` does not throw error when `orgs` or `repos` are defined", {
   expect_snapshot(
     gitlab_testhost_priv$set_searching_scope(orgs = "mbtests", repos = NULL, verbose = TRUE)
@@ -54,6 +49,17 @@ test_that("`check_token()` prints error when token exists but does not grant acc
 })
 
 test_that("when token is proper token is passed", {
+  skip_on_cran()
+  github_testhost_priv <- create_github_testhost(
+    orgs = "test-org",
+    token = Sys.getenv("GITHUB_PAT"),
+    mode = "private"
+  )
+  mockery::stub(
+    github_testhost_priv$check_token,
+    "private$test_token",
+    TRUE
+  )
   expect_equal(
     github_testhost_priv$check_token(Sys.getenv("GITHUB_PAT")),
     Sys.getenv("GITHUB_PAT")
@@ -61,6 +67,12 @@ test_that("when token is proper token is passed", {
 })
 
 test_that("check_endpoint returns TRUE if they are correct", {
+  skip_on_cran()
+  github_testhost_priv <- create_github_testhost(
+    org = "test-org",
+    token = Sys.getenv("GITHUB_PAT"),
+    mode = "private"
+  )
   expect_true(
     github_testhost_priv$check_endpoint(
       endpoint = "https://api.github.com/repos/r-world-devs/GitStats",
@@ -75,6 +87,12 @@ test_that("check_endpoint returns TRUE if they are correct", {
 })
 
 test_that("check_endpoint returns error if they are not correct", {
+  skip_on_cran()
+  github_testhost_priv <- create_github_testhost(
+    orgs = "test-org",
+    token = Sys.getenv("GITHUB_PAT"),
+    mode = "private"
+  )
   expect_snapshot_error(
     check <- github_testhost_priv$check_endpoint(
       endpoint = "https://api.github.com/repos/r-worlddevs/GitStats",
@@ -93,6 +111,7 @@ test_that("`check_if_public` works correctly", {
 })
 
 test_that("`set_default_token` sets default token for public GitHub", {
+  skip_on_cran()
   expect_snapshot(
     default_token <- github_testhost_priv$set_default_token(
       verbose = TRUE
@@ -109,7 +128,21 @@ test_that("`set_default_token` sets default token for public GitHub", {
   )
 })
 
+test_that("`set_default_token` returns error if none are found", {
+  mockery::stub(
+    github_testhost_priv$set_default_token,
+    "private$test_token",
+    FALSE
+  )
+  expect_error({
+    github_testhost_priv$set_default_token(
+      verbose = FALSE
+    )
+  })
+})
+
 test_that("`test_token` works properly", {
+  skip_on_cran()
   expect_true(
     github_testhost_priv$test_token(Sys.getenv("GITHUB_PAT"))
   )
@@ -119,6 +152,7 @@ test_that("`test_token` works properly", {
 })
 
 test_that("`set_default_token` sets default token for GitLab", {
+  skip_on_cran()
   expect_snapshot(
     withr::with_envvar(new = c("GITLAB_PAT" = Sys.getenv("GITLAB_PAT_PUBLIC")), {
       default_token <- gitlab_testhost_priv$set_default_token(verbose = TRUE)

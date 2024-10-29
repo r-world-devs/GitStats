@@ -45,6 +45,7 @@ GitHost <- R6::R6Class(
                          with_code        = NULL,
                          in_files         = NULL,
                          with_file        = NULL,
+                         output           = "table_full",
                          verbose          = TRUE,
                          progress         = TRUE) {
       if (is.null(with_code) && is.null(with_file)) {
@@ -57,6 +58,7 @@ GitHost <- R6::R6Class(
         repos_table <- private$get_repos_with_code(
           code     = with_code,
           in_files = in_files,
+          output   = output,
           verbose  = verbose,
           progress = progress
         )
@@ -64,17 +66,21 @@ GitHost <- R6::R6Class(
         repos_table <- private$get_repos_with_code(
           code     = with_file,
           in_path  = TRUE,
+          output   = output,
           verbose  = verbose,
           progress = progress
         )
       }
-      repos_table <- private$add_repo_api_url(repos_table)
-      if (add_contributors) {
-        repos_table <- private$get_repos_contributors(
-          repos_table = repos_table,
-          verbose     = verbose,
-          progress    = progress
-        )
+      if (output == "table_full" || output == "table_min") {
+        repos_table <- private$add_repo_api_url(repos_table) %>%
+          private$add_platform()
+        if (add_contributors) {
+          repos_table <- private$get_repos_contributors(
+            repos_table = repos_table,
+            verbose     = verbose,
+            progress    = progress
+          )
+        }
       }
       return(repos_table)
     },
@@ -88,10 +94,10 @@ GitHost <- R6::R6Class(
                               progress  = TRUE) {
       if (!is.null(with_code)) {
         repo_urls <- private$get_repos_with_code(
-          code       = with_code,
-          in_files   = in_files,
-          raw_output = TRUE,
-          verbose    = verbose
+          code     = with_code,
+          in_files = in_files,
+          output   = "raw",
+          verbose  = verbose
         ) %>%
           private$get_repo_url_from_response(
             type     = type,
@@ -99,10 +105,10 @@ GitHost <- R6::R6Class(
           )
       } else if (!is.null(with_file)) {
         repo_urls <- private$get_repos_with_code(
-          code       = with_file,
-          in_path    = TRUE,
-          raw_output = TRUE,
-          verbose    = verbose
+          code    = with_file,
+          in_path = TRUE,
+          output  = "raw",
+          verbose = verbose
         ) %>%
           private$get_repo_url_from_response(
             type     = type,
@@ -127,9 +133,6 @@ GitHost <- R6::R6Class(
         cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
         private$orgs <- private$engines$graphql$get_orgs()
       }
-      if (is.null(until)) {
-        until <- Sys.time()
-      }
       commits_table <- private$get_commits_from_orgs(
         since    = since,
         until    = until,
@@ -144,7 +147,7 @@ GitHost <- R6::R6Class(
       graphql_engine <- private$engines$graphql
       users_table <-  purrr::map(users, function(user) {
         graphql_engine$get_user(user) %>%
-          private$prepare_user_table()
+          graphql_engine$prepare_user_table()
       }) %>%
         purrr::list_rbind()
       return(users_table)
@@ -197,8 +200,10 @@ GitHost <- R6::R6Class(
 
     #' Iterator over pulling release logs from engines
     get_release_logs = function(since, until, verbose, progress) {
-      if (private$scan_all && is.null(private$orgs) && verbose) {
-        cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
+      if (private$scan_all && is.null(private$orgs)) {
+        if (verbose) {
+          cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
+        }
         private$orgs <- private$engines$graphql$get_orgs()
       }
       until <- until %||% Sys.time()
@@ -216,13 +221,13 @@ GitHost <- R6::R6Class(
         repos_names <- private$set_repositories(
           org = org
         )
-        gql_engine <- private$engines$graphql
+        graphql_engine <- private$engines$graphql
         if (length(repos_names) > 0) {
-          release_logs_table_org <- gql_engine$get_release_logs_from_org(
+          release_logs_table_org <- graphql_engine$get_release_logs_from_org(
             org = org,
             repos_names = repos_names
           ) %>%
-            private$prepare_releases_table(org, since, until)
+            graphql_engine$prepare_releases_table(org, since, until)
         } else {
           releases_logs_table_org <- NULL
         }
@@ -263,6 +268,9 @@ GitHost <- R6::R6Class(
     # A token.
     token = NULL,
 
+    # Actual token scopes
+    token_scopes = NULL,
+
     # public A boolean.
     is_public = NULL,
 
@@ -289,11 +297,14 @@ GitHost <- R6::R6Class(
 
     # Set API url
     set_custom_api_url = function(host) {
-      private$api_url <- if (!grepl("https://", host)) {
+      private$api_url <- if (!grepl("https|http", host)) {
         glue::glue(
           "https://{host}/api/v{private$api_version}"
         )
       } else {
+        if (grepl("http(?!s)", host, perl = TRUE)) {
+          host <- gsub("http", "https", host)
+        }
         glue::glue(
           "{host}/api/v{private$api_version}"
         )
@@ -341,8 +352,10 @@ GitHost <- R6::R6Class(
         if (!private$test_token(token)) {
           cli::cli_abort(c(
             "x" = "Token exists but does not grant access.",
-            "i" = "Check if you use correct token. Check scopes your token is using."
-          ))
+            "i" = "Check if you use correct token.",
+            "!" = "Scope that is needed: [{paste0(private$min_access_scopes, collapse = ', ')}]."
+          ),
+          call = NULL)
         } else {
           return(token)
         }
@@ -410,7 +423,9 @@ GitHost <- R6::R6Class(
           )
           private$repos_fullnames <- repos
           orgs_repos <- private$extract_repos_and_orgs(repos)
-          private$orgs <- names(orgs_repos)
+          private$orgs <- private$set_owner_type(
+            owners = names(orgs_repos)
+          )
           private$repos <- unname(unlist(orgs_repos))
           private$orgs_repos <- orgs_repos
         }
@@ -473,12 +488,6 @@ GitHost <- R6::R6Class(
           private$engines$rest$response(endpoint = endpoint)
         },
         error = function(e) {
-          if (!is.null(e$parent$message) && grepl("Could not resolve host", e$parent$message)) {
-            cli::cli_abort(
-              cli::col_red(e$parent$message),
-              call = NULL
-            )
-          }
           if (grepl("404", e)) {
             cli::cli_abort(
               c(
@@ -512,14 +521,22 @@ GitHost <- R6::R6Class(
       } else {
         pat_names <- names(Sys.getenv()[grepl(primary_token_name, names(Sys.getenv()))])
         possible_tokens <- pat_names[pat_names != primary_token_name]
-        for (token_name in possible_tokens) {
-          if (private$test_token(Sys.getenv(token_name))) {
-            token <- Sys.getenv(token_name)
-            if (verbose) {
-              cli::cli_alert_info("Using PAT from {token_name} envar.")
-            }
-            break
+        token_checks <- purrr::map_lgl(possible_tokens, function(token_name) {
+          private$test_token(Sys.getenv(token_name))
+        })
+        if (!any(token_checks)) {
+          cli::cli_abort(c(
+            "x" = "No sufficient token found among: [{paste0(pat_names, collapse = ', ')}].",
+            "i" = "Check if you have correct token.",
+            "!" = "Scope that is needed: [{paste0(private$min_access_scopes, collapse = ', ')}]."
+          ),
+          call = NULL)
+        } else {
+          token_name <- possible_tokens[token_checks][1]
+          if (verbose) {
+            cli::cli_alert_info("Using PAT from {token_name} envar.")
           }
+          token <- Sys.getenv(token_name)
         }
       }
       return(token)
@@ -529,15 +546,24 @@ GitHost <- R6::R6Class(
     test_token = function(token) {
       response <- NULL
       test_endpoint <- private$test_endpoint
-      try(response <- httr2::request(test_endpoint) |>
-            httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
-            httr2::req_perform(), silent = TRUE)
+      response <- tryCatch({
+        httr2::request(test_endpoint) |>
+          httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
+          httr2::req_perform()
+      },
+      error = function(e) {
+        if (!is.null(e$parent) && grepl("Could not resolve host", e$parent$message)) {
+          cli::cli_abort(e$parent$message, call = NULL)
+        } else {
+          NULL
+        }
+      })
       if (!is.null(response)) {
-        private$check_token_scopes(response, token)
-        TRUE
+        check <- private$check_token_scopes(response, token)
       } else {
-        FALSE
+        check <- FALSE
       }
+      return(check)
     },
 
     # Helper to extract organizations and repositories from vector of full names
@@ -591,6 +617,7 @@ GitHost <- R6::R6Class(
       }
       graphql_engine <- private$engines$graphql
       repos_table <- purrr::map(private$orgs, function(org) {
+        type <- attr(org, "type") %||% "organization"
         org <- utils::URLdecode(org)
         if (!private$scan_all && verbose) {
           show_message(
@@ -602,9 +629,10 @@ GitHost <- R6::R6Class(
         }
         repos <- private$set_repos(org)
         repos_table <- graphql_engine$get_repos_from_org(
-          org = org
+          org  = org,
+          type = type
         ) %>%
-          private$prepare_repos_table_from_graphql()
+          graphql_engine$prepare_repos_table()
         if (!is.null(repos)) {
           repos_table <- repos_table %>%
             dplyr::filter(repo_name %in% repos)
@@ -619,27 +647,27 @@ GitHost <- R6::R6Class(
     get_repos_with_code = function(code,
                                    in_files   = NULL,
                                    in_path    = FALSE,
-                                   raw_output = FALSE,
+                                   output     = "table_full",
                                    verbose    = TRUE,
                                    progress   = TRUE) {
       if (private$scan_all) {
         repos_table <- private$get_repos_with_code_from_host(
-          code       = code,
-          in_files   = in_files,
-          in_path    = in_path,
-          raw_output = raw_output,
-          verbose    = verbose,
-          progress   = progress
+          code     = code,
+          in_files = in_files,
+          in_path  = in_path,
+          output   = output,
+          verbose  = verbose,
+          progress = progress
         )
       }
       if (!private$scan_all) {
         repos_table <- private$get_repos_with_code_from_orgs(
-          code       = code,
-          in_files   = in_files,
-          in_path    = in_path,
-          raw_output = raw_output,
-          verbose    = verbose,
-          progress   = progress
+          code     = code,
+          in_files = in_files,
+          in_path  = in_path,
+          output   = output,
+          verbose  = verbose,
+          progress = progress
         )
       }
       return(repos_table)
@@ -668,7 +696,6 @@ GitHost <- R6::R6Class(
             information = "Pulling repositories (URLS)"
           )
         }
-        repos <- private$set_repos(org)
         repos_urls <- rest_engine$get_repos_urls(
           type = type,
           org  = org
@@ -681,11 +708,11 @@ GitHost <- R6::R6Class(
 
     # Pull repositories with code from whole Git Host
     get_repos_with_code_from_host = function(code,
-                                             in_files   = NULL,
-                                             in_path    = FALSE,
-                                             raw_output = FALSE,
-                                             verbose    = TRUE,
-                                             progress   = TRUE) {
+                                             in_files = NULL,
+                                             in_path  = FALSE,
+                                             output   = "table_full",
+                                             verbose  = TRUE,
+                                             progress = TRUE) {
       if (verbose) {
         show_message(
           host        = private$host_name,
@@ -693,24 +720,43 @@ GitHost <- R6::R6Class(
           information = "Pulling repositories"
         )
       }
-      repos_response <- private$get_repos_response_with_code(
-        code = code,
-        in_files   = in_files,
-        in_path    = in_path,
-        raw_output = raw_output,
-        verbose    = verbose,
-        progress   = progress
-      )
-      if (!raw_output) {
-        rest_engine <- private$engines$rest
-        repos_table <- repos_response %>%
-          private$tailor_repos_response() %>%
-          private$prepare_repos_table_from_rest(
-            verbose = verbose
-          ) %>%
-          rest_engine$get_repos_issues(
+      rest_engine <- private$engines$rest
+      if (is.null(in_files)) {
+        repos_response <- rest_engine$get_repos_by_code(
+          code     = code,
+          in_path  = in_path,
+          output   = output,
+          verbose  = verbose,
+          progress = progress
+        )
+      } else {
+        repos_response <- purrr::map(in_files, function(filename) {
+          rest_engine$get_repos_by_code(
+            code     = code,
+            filename = filename,
+            in_path  = in_path,
+            output   = output,
+            verbose  = verbose,
             progress = progress
           )
+        }) %>%
+          purrr::list_flatten()
+      }
+      if (output != "raw") {
+        repos_table <- repos_response %>%
+          rest_engine$tailor_repos_response(
+            output = output
+          ) %>%
+          rest_engine$prepare_repos_table(
+            output  = output,
+            verbose = verbose
+          )
+        if (output == "table_full") {
+          repos_table <- repos_table %>%
+            rest_engine$get_repos_issues(
+              progress = progress
+            )
+        }
         return(repos_table)
       } else {
         return(repos_response)
@@ -719,11 +765,11 @@ GitHost <- R6::R6Class(
 
     # Pull repositories with code from given organizations
     get_repos_with_code_from_orgs = function(code,
-                                             in_files   = NULL,
-                                             in_path    = FALSE,
-                                             raw_output = FALSE,
-                                             verbose    = TRUE,
-                                             progress   = TRUE) {
+                                             in_files = NULL,
+                                             in_path  = FALSE,
+                                             output   = "table_full",
+                                             verbose  = TRUE,
+                                             progress = TRUE) {
       repos_list <- purrr::map(private$orgs, function(org) {
         if (verbose) {
           show_message(
@@ -734,31 +780,51 @@ GitHost <- R6::R6Class(
             information = "Pulling repositories"
           )
         }
-        repos_response <- private$get_repos_response_with_code(
-          org        = org,
-          code       = code,
-          in_files   = in_files,
-          in_path    = in_path,
-          raw_output = raw_output,
-          verbose    = verbose,
-          progress   = progress
-        )
-        if (!raw_output) {
-          rest_engine <- private$engines$rest
-          repos_table <- repos_response %>%
-            private$tailor_repos_response() %>%
-            private$prepare_repos_table_from_rest(
-              verbose = verbose
-            ) %>%
-            rest_engine$get_repos_issues(
+        rest_engine <- private$engines$rest
+        if (is.null(in_files)) {
+          repos_response <- rest_engine$get_repos_by_code(
+            org      = org,
+            code     = code,
+            in_path  = in_path,
+            output   = output,
+            verbose  = verbose,
+            progress = progress
+          )
+        } else {
+          repos_response <- purrr::map(in_files, function(filename) {
+            rest_engine$get_repos_by_code(
+              org      = org,
+              code     = code,
+              filename = filename,
+              in_path  = in_path,
+              output   = output,
+              verbose  = verbose,
               progress = progress
             )
+          }) %>%
+            purrr::list_flatten()
+        }
+        if (output != "raw") {
+          repos_table <- repos_response %>%
+            rest_engine$tailor_repos_response(
+              output = output
+            ) %>%
+            rest_engine$prepare_repos_table(
+              output  = output,
+              verbose = verbose
+            )
+          if (output == "table_full") {
+            repos_table <- repos_table %>%
+              rest_engine$get_repos_issues(
+                progress = progress
+              )
+          }
           return(repos_table)
         } else {
           return(repos_response)
         }
       }, .progress = progress)
-      if (!raw_output) {
+      if (output != "raw") {
         repos_output <- purrr::list_rbind(repos_list)
       } else {
         repos_output <- purrr::list_flatten(repos_list)
@@ -766,39 +832,13 @@ GitHost <- R6::R6Class(
       return(repos_output)
     },
 
-    # Wrapper in case in_files is fed.
-    get_repos_response_with_code = function(org = NULL,
-                                            code,
-                                            in_files,
-                                            in_path,
-                                            raw_output,
-                                            verbose,
-                                            progress) {
-      rest_engine <- private$engines$rest
-      if (is.null(in_files)) {
-        repos_response <- rest_engine$get_repos_by_code(
-          org        = org,
-          code       = code,
-          in_path    = in_path,
-          raw_output = raw_output,
-          verbose    = verbose,
-          progress   = progress
+    add_platform = function(repos_table) {
+      if (nrow(repos_table) > 0) {
+        dplyr::mutate(
+          repos_table,
+          platform = retrieve_platform(api_url)
         )
-      } else {
-        repos_response <- purrr::map(in_files, function(filename) {
-          rest_engine$get_repos_by_code(
-            org        = org,
-            code       = code,
-            filename   = filename,
-            in_path    = in_path,
-            raw_output = raw_output,
-            verbose    = verbose,
-            progress   = progress
-          )
-        }) %>%
-          purrr::list_flatten()
       }
-      return(repos_response)
     },
 
     #' Add information on repository contributors.
@@ -819,32 +859,6 @@ GitHost <- R6::R6Class(
         )
         return(repos_table)
       }
-    },
-
-    # Prepare table for repositories content
-    prepare_repos_table_from_rest = function(repos_list, verbose = TRUE) {
-      repos_dt <- purrr::map(repos_list, function(repo) {
-        repo <- purrr::map(repo, function(attr) {
-          attr <- attr %||% ""
-        })
-        data.frame(repo)
-      }) %>%
-        purrr::list_rbind()
-      if (verbose) {
-        cli::cli_alert_info("Preparing repositories table...")
-      }
-      if (length(repos_dt) > 0) {
-        repos_dt <- dplyr::mutate(
-          repos_dt,
-          repo_id = as.character(repo_id),
-          created_at = as.POSIXct(created_at),
-          last_activity_at = as.POSIXct(last_activity_at),
-          forks = as.integer(forks),
-          issues_open = as.integer(issues_open),
-          issues_closed = as.integer(issues_closed)
-        )
-      }
-      return(repos_dt)
     },
 
     # Pull files content from organizations
@@ -881,8 +895,10 @@ GitHost <- R6::R6Class(
             information = user_msg
           )
         }
+        type <- attr(org, "type") %||% "organization"
         graphql_engine$get_files_from_org(
           org                  = org,
+          type                 = type,
           repos                = repos,
           file_paths           = file_path,
           host_files_structure = host_files_structure,
@@ -890,7 +906,7 @@ GitHost <- R6::R6Class(
           verbose              = verbose,
           progress             = progress
         ) %>%
-          private$prepare_files_table(
+          graphql_engine$prepare_files_table(
             org       = org,
             file_path = file_path
           )
@@ -927,8 +943,10 @@ GitHost <- R6::R6Class(
             information = user_info
           )
         }
+        type <- attr(org, "type") %||% "organization"
         graphql_engine$get_files_structure_from_org(
           org      = org,
+          type     = type,
           repos    = private$repos,
           pattern  = pattern,
           depth    = depth,

@@ -1,8 +1,8 @@
 ---
-title: "Get data"
+title: "Get and store your data"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Get data}
+  %\VignetteIndexEntry{Get and store your data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -67,7 +67,7 @@ Or globally:
 verbose_off(git_stats)
 ```
 
-## Storage
+## Cache
 
 After pulling, the data is saved to `GitStats`.
 
@@ -114,4 +114,27 @@ commits <- get_commits(
   progress        = FALSE
 )
 dplyr::glimpse(commits)
+```
+
+## Storage
+
+Finally, have a glimpse at your storage:
+
+```{r}
+git_stats
+```
+
+You can retrieve whole data from your `GitStats` object with:
+
+```{r}
+get_storage(git_stats)
+```
+
+Or particular data set:
+
+```{r}
+get_storage(
+  gitstats_object = git_stats,
+  storage = "repositories"
+)
 ```

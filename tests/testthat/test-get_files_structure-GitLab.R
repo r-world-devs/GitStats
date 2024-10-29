@@ -70,7 +70,7 @@ test_that("get_files_structure_from_repo() pulls files structure from repo", {
 test_that("only files with certain pattern are retrieved", {
   md_files_structure <- test_graphql_gitlab_priv$filter_files_by_pattern(
     files_structure = test_mocker$use("gl_files_structure"),
-    pattern = "\\.md|\\.qmd|\\.Rmd"
+    pattern = "\\.md"
   )
   files_structure <- test_mocker$use("files_structure")
   expect_true(
@@ -110,6 +110,14 @@ test_that("get_files_structure_from_repo() pulls files structure (files matching
 })
 
 test_that("GitLab GraphQL Engine pulls files structure from repositories", {
+  gl_repos_data <- list(
+    "repositories" = c("tests_repo_1", "tests_repo_2")
+  )
+  mockery::stub(
+    test_graphql_gitlab$get_files_structure_from_org,
+    "private$get_repos_data",
+    gl_repos_data
+  )
   mockery::stub(
     test_graphql_gitlab$get_files_structure_from_org,
     "private$get_files_structure_from_repo",
@@ -117,23 +125,36 @@ test_that("GitLab GraphQL Engine pulls files structure from repositories", {
   )
   gl_files_structure <- test_graphql_gitlab$get_files_structure_from_org(
     org      = "mbtests",
-    repos    = c("graphql_tests"),
+    repos    = c("tests_repo_1", "tests_repo_2"),
     verbose  = FALSE,
     progress = FALSE
   )
   purrr::walk(gl_files_structure, ~ expect_true(length(.) > 0))
   expect_equal(
     names(gl_files_structure),
-    c("graphql_tests")
+    c("tests_repo_1", "tests_repo_2")
   )
   purrr::walk(gl_files_structure, ~ expect_false(all(grepl("/$", .)))) # no empty dirs
-  test_mocker$cache(gl_files_structure)
 })
 
 test_that("GitLab GraphQL Engine pulls files structure from repositories", {
+  gl_repos_data <- list(
+    "repositories" = c("tests_repo_1", "tests_repo_2")
+  )
+  mockery::stub(
+    test_graphql_gitlab$get_files_structure_from_org,
+    "private$get_repos_data",
+    gl_repos_data
+  )
+  mockery::stub(
+    test_graphql_gitlab$get_files_structure_from_org,
+    "private$get_files_structure_from_repo",
+    test_mocker$use("gl_md_files_structure")
+  )
   gl_files_structure_shallow <- test_graphql_gitlab$get_files_structure_from_org(
     org      = "mbtests",
-    repos    = c("gitstatstesting", "graphql_tests"),
+    repos    =  c("tests_repo_1", "tests_repo_2"),
+    pattern  = "\\.md",
     depth    = 1L,
     verbose  = FALSE,
     progress = FALSE
@@ -141,50 +162,30 @@ test_that("GitLab GraphQL Engine pulls files structure from repositories", {
   purrr::walk(gl_files_structure_shallow, ~ expect_true(length(.) > 0))
   expect_equal(
     names(gl_files_structure_shallow),
-    c("graphql_tests", "gitstatstesting")
+    c("tests_repo_1", "tests_repo_2")
   )
   purrr::walk(gl_files_structure_shallow, ~ expect_false(all(grepl("/", .)))) # no dirs
+  test_mocker$cache(gl_files_structure_shallow)
 })
 
 test_that("get_files_structure_from_orgs pulls files structure for repositories in orgs", {
-  gitlab_testhost_priv <- create_gitlab_testhost(
-    repos = c("mbtests/gitstatstesting", "mbtests/graphql_tests"),
-    mode = "private"
-  )
-  expect_snapshot(
-    gl_files_structure_from_orgs <- gitlab_testhost_priv$get_files_structure_from_orgs(
-      pattern  = "\\.md|\\.R",
-      depth    = 1L,
-      verbose  = TRUE,
-      progress = FALSE
-    )
-  )
-  expect_equal(
-    names(gl_files_structure_from_orgs),
-    c("mbtests")
-  )
-  purrr::walk(gl_files_structure_from_orgs[[1]], function(repo_files) {
-    expect_true(all(grepl("\\.md|\\.R", repo_files)))
-  })
-})
-
-test_that("get_files_structure_from_orgs pulls files structure for all repositories in orgs", {
-  gitlab_testhost_priv <- create_gitlab_testhost(
-    orgs = c("mbtests", "mbtestapps"),
-    mode = "private"
+  mockery::stub(
+    gitlab_testhost_priv$get_files_structure_from_orgs,
+    "graphql_engine$get_files_structure_from_org",
+    test_mocker$use("gl_files_structure_shallow")
   )
   gl_files_structure_from_orgs <- gitlab_testhost_priv$get_files_structure_from_orgs(
-    pattern  = "\\.md|\\.R",
+    pattern  = "\\.md",
     depth    = 1L,
     verbose  = FALSE,
     progress = FALSE
   )
   expect_equal(
     names(gl_files_structure_from_orgs),
-    c("mbtests", "mbtestapps")
+    c("mbtests")
   )
   purrr::walk(gl_files_structure_from_orgs[[1]], function(repo_files) {
-    expect_true(all(grepl("\\.md|\\.R", repo_files)))
+    expect_true(all(grepl("\\.md", repo_files)))
   })
   test_mocker$cache(gl_files_structure_from_orgs)
 })
@@ -211,17 +212,17 @@ test_that("get_files_structure pulls files structure for repositories in orgs", 
     test_mocker$use("gl_files_structure_from_orgs")
   )
   gl_files_structure_from_orgs <- gitlab_testhost$get_files_structure(
-    pattern  = "\\.md|\\.R",
-    depth    = 2L,
+    pattern  = "\\.md",
+    depth    = 1L,
     verbose  = FALSE,
     progress = FALSE
   )
   expect_equal(
     names(gl_files_structure_from_orgs),
-    c("mbtests", "mbtestapps")
+    c("mbtests")
   )
   purrr::walk(gl_files_structure_from_orgs[[1]], function(repo_files) {
-    expect_true(all(grepl("\\.md|\\.R", repo_files)))
+    expect_true(all(grepl("\\.md", repo_files)))
   })
   test_mocker$cache(gl_files_structure_from_orgs)
 })

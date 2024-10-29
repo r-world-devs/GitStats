@@ -34,16 +34,39 @@ EngineRestGitLab <- R6::R6Class(
       return(files_list)
     },
 
+    # Prepare files table from REST API.
+    prepare_files_table = function(files_list) {
+      files_table <- NULL
+      if (!is.null(files_list)) {
+        files_table <- purrr::map(files_list, function(file_data) {
+          org_repo <- stringr::str_split_1(file_data$repo_fullname, "/")
+          org <- paste0(org_repo[1:(length(org_repo) - 1)], collapse = "/")
+          data.frame(
+            "repo_name" = file_data$repo_name,
+            "repo_id" = as.character(file_data$repo_id),
+            "organization" = org,
+            "file_path" = file_data$file_path,
+            "file_content" = file_data$content,
+            "file_size" = file_data$size,
+            "repo_url" = file_data$repo_url
+          )
+        }) %>%
+          purrr::list_rbind() %>%
+          unique()
+      }
+      return(files_table)
+    },
+
     # Wrapper for iteration over GitLab search API response
     # @details For the time being there is no possibility to search GitLab with
     #   filtering by language. For more information look here:
     #   https://gitlab.com/gitlab-org/gitlab/-/issues/340333
     get_repos_by_code = function(code,
-                                 org = NULL,
+                                 org      = NULL,
                                  filename = NULL,
-                                 in_path = FALSE,
-                                 raw_output = FALSE,
-                                 verbose = TRUE,
+                                 in_path  = FALSE,
+                                 output   = "table_full",
+                                 verbose  = TRUE,
                                  progress = TRUE) {
       search_response <- private$search_for_code(
         code = code,
@@ -52,18 +75,94 @@ EngineRestGitLab <- R6::R6Class(
         org = org,
         verbose = verbose
       )
-      if (raw_output) {
+      if (output == "raw") {
         search_output <- search_response
-      } else {
+      } else if (output == "table_full" || output == "table_min") {
         search_output <- search_response %>%
           private$map_search_into_repos(
             progress = progress
-          ) %>%
-          private$pull_repos_languages(
-            progress = progress
           )
+        if (output == "table_full") {
+          search_output <- search_output %>%
+            private$get_repos_languages(
+              progress = progress
+            )
+        }
       }
       return(search_output)
+    },
+
+    # Retrieve only important info from repositories response
+    tailor_repos_response = function(repos_response, output = "table_full") {
+      repos_list <- purrr::map(repos_response, function(project) {
+        if (output == "table_full") {
+          repo_data <- list(
+            "repo_id" = project$id,
+            "repo_name" = project$name,
+            "default_branch" = project$default_branch,
+            "stars" = project$star_count,
+            "forks" = project$fork_count,
+            "created_at" = project$created_at,
+            "last_activity_at" = project$last_activity_at,
+            "languages" = paste0(project$languages, collapse = ", "),
+            "issues_open" = project$issues_open,
+            "issues_closed" = project$issues_closed,
+            "organization" = project$namespace$path,
+            "repo_url" = project$web_url
+          )
+        }
+        if (output == "table_min") {
+          repo_data <- list(
+            "repo_id" = project$id,
+            "repo_name" = project$name,
+            "default_branch" = project$default_branch,
+            "created_at" = project$created_at,
+            "organization" = project$namespace$path,
+            "repo_url" = project$web_url
+          )
+        }
+        return(repo_data)
+      })
+      return(repos_list)
+    },
+
+    # Get only important info on commits.
+    tailor_commits_info = function(repos_list_with_commits,
+                                   org) {
+      repos_list_with_commits_cut <- purrr::map(repos_list_with_commits, function(repo) {
+        purrr::map(repo, function(commit) {
+          list(
+            "id" = commit$id,
+            "committed_date" = gts_to_posixt(commit$committed_date),
+            "author" = commit$author_name,
+            "additions" = commit$stats$additions,
+            "deletions" = commit$stats$deletions,
+            "repository" = gsub(
+              pattern = paste0("/-/commit/", commit$id),
+              replacement = "",
+              x = gsub(paste0("(.*)", org, "/"), "", commit$web_url)
+            ),
+            "organization" = org
+          )
+        })
+      })
+      return(repos_list_with_commits_cut)
+    },
+
+    # A helper to turn list of data.frames into one data.frame
+    prepare_commits_table = function(commits_list) {
+      commits_dt <- purrr::map(commits_list, function(commit) {
+        purrr::map(commit, ~ data.frame(.)) %>%
+          purrr::list_rbind()
+      }) %>%
+        purrr::list_rbind()
+      if (length(commits_dt) > 0) {
+        commits_dt <- dplyr::mutate(
+          commits_dt,
+          api_url = self$rest_api_url
+        )
+      }
+      return(commits_dt)
     },
 
     # Pull all repositories URLs from organization
@@ -87,7 +186,6 @@ EngineRestGitLab <- R6::R6Class(
         issues <- purrr::map(repos_table$repo_id, function(repos_id) {
           id <- gsub("gid://gitlab/Project/", "", repos_id)
           issues_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/issues_statistics")
-
           self$response(
             endpoint = issues_endpoint
           )[["statistics"]][["counts"]]
@@ -113,7 +211,7 @@ EngineRestGitLab <- R6::R6Class(
             "/repository/contributors"
           )
           contributors_vec <- tryCatch({
-            private$pull_contributors_from_repo(
+            private$get_contributors_from_repo(
               contributors_endpoint = contributors_endpoint,
               user_name = user_name
             )
@@ -158,46 +256,10 @@ EngineRestGitLab <- R6::R6Class(
         if (verbose) {
           cli::cli_alert_info("Looking up for authors' names and logins...")
         }
-        authors_dict <- purrr::map(unique(commits_table$author), function(author) {
-          author <- url_encode(author)
-          search_endpoint <- paste0(
-            self$rest_api_url,
-            "/search?scope=users&search=%22", author, "%22"
-          )
-          user_response <- list()
-          try({
-            user_response <- self$response(endpoint = search_endpoint)
-          }, silent = TRUE)
-          if (length(user_response) == 0) {
-            author <- stringi::stri_trans_general(author, "Latin-ASCII")
-            search_endpoint <- paste0(
-              self$rest_api_url,
-              "/search?scope=users&search=%22", author, "%22"
-            )
-            try({
-              user_response <- self$response(endpoint = search_endpoint)
-            }, silent = TRUE)
-          }
-          if (!is.null(user_response) && length(user_response) > 1) {
-            user_response <- purrr::keep(user_response, ~ grepl(author, .$name))
-          }
-          if (is.null(user_response) || length(user_response) == 0) {
-            user_tbl <- tibble::tibble(
-              author = URLdecode(author),
-              author_login = NA,
-              author_name = NA
-            )
-          } else {
-            user_tbl <- tibble::tibble(
-              author = URLdecode(author),
-              author_login = user_response[[1]]$username,
-              author_name = user_response[[1]]$name
-            )
-          }
-          return(user_tbl)
-        }, .progress = progress) %>%
-          purrr::list_rbind()
-
+        authors_dict <- private$get_authors_dict(
+          commits_table = commits_table,
+          progress = progress
+        )
         commits_table <- commits_table %>%
           dplyr::mutate(
             author_login = NA,
@@ -273,7 +335,7 @@ EngineRestGitLab <- R6::R6Class(
         endpoint = repo_endpoint
       )
       full_repos_list <- repos_response %>%
-        private$pull_repos_languages(
+        private$get_repos_languages(
           progress = progress
         )
       return(full_repos_list)
@@ -337,7 +399,7 @@ EngineRestGitLab <- R6::R6Class(
     },
 
     # Pull languages of repositories.
-    pull_repos_languages = function(repos_list, progress) {
+    get_repos_languages = function(repos_list, progress) {
       repos_list_with_languages <- purrr::map(repos_list, function(repo) {
         id <- repo$id
         repo$languages <- names(self$response(paste0(private$endpoints[["projects"]], id, "/languages")))
@@ -423,6 +485,48 @@ EngineRestGitLab <- R6::R6Class(
         FALSE
       }) |>
         purrr::discard(is.null)
+    },
+
+    get_authors_dict = function(commits_table, progress) {
+      purrr::map(unique(commits_table$author), function(author) {
+        author <- url_encode(author)
+        search_endpoint <- paste0(
+          self$rest_api_url,
+          "/search?scope=users&search=%22", author, "%22"
+        )
+        user_response <- list()
+        try({
+          user_response <- self$response(endpoint = search_endpoint)
+        }, silent = TRUE)
+        if (length(user_response) == 0) {
+          author <- stringi::stri_trans_general(author, "Latin-ASCII")
+          search_endpoint <- paste0(
+            self$rest_api_url,
+            "/search?scope=users&search=%22", author, "%22"
+          )
+          try({
+            user_response <- self$response(endpoint = search_endpoint)
+          }, silent = TRUE)
+        }
+        if (!is.null(user_response) && length(user_response) > 1) {
+          user_response <- purrr::keep(user_response, ~ grepl(author, .$name))
+        }
+        if (is.null(user_response) || length(user_response) == 0) {
+          user_tbl <- tibble::tibble(
+            author = URLdecode(author),
+            author_login = NA,
+            author_name = NA
+          )
+        } else {
+          user_tbl <- tibble::tibble(
+            author = URLdecode(author),
+            author_login = user_response[[1]]$username,
+            author_name = user_response[[1]]$name
+          )
+        }
+        return(user_tbl)
+      }, .progress = progress) %>%
+        purrr::list_rbind()
     }
   )
 )

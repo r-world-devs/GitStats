@@ -1,4 +1,26 @@
+# GitStats 2.1.1
+
+This is a patch release which introduces some improvements in `get_R_package_usage()` on speed and possibility to pull at once data on multiple R packages, new `get_storage()` function and some fixes for checking token scopes and setting hosts.
+
+## Features:
+
+- Optimized `get_R_package_usage()` function: 
+  - it is now possible to pass a vector of packages names (new `packages` parameter replacing old `package_name`) ([#494](https://github.com/r-world-devs/GitStats/issues/494)),
+  - on the other hand, output of the function has been limited to contain only most necessary data (removing all repository stats), making thus process of obtaining package usage faster ([#474](https://github.com/r-world-devs/GitStats/issues/474)).
+  - new `split_output` parameter has been added - when set to `TRUE` a `list` with `tibbles` (every element of the `list` for every package) instead of one `tibble` is returned.
+- Added possibility to get repositories for individual users with `get_repos()` ([#492](https://github.com/r-world-devs/GitStats/issues/492)). Earlier this was only possible for GitHub organizations and GitLab groups.
+- Added new `get_storage()` function to retrieve data from `GitStats` object - whole or particular datasets (e.g. `commits`, `repositories` or `R_package_usage`) ([#509](https://github.com/r-world-devs/GitStats/issues/509)).
+
+## Fixes:
+
+- Fixed getting large search responses for GitHub ([#491](https://github.com/r-world-devs/GitStats/issues/491)).
+- Fixed checking token scopes ([#501](https://github.com/r-world-devs/GitStats/issues/501)). If token scopes are insufficient error is returned and `GitHost` is not passed to `GitStats`. This also applies to situation when `GitStats` looks for default tokens (not defined by user). Earlier, if tests for token failed, an empty token was passed and `GitStats` was created, which was misleading for the user.
+- It is now possible to pass public GitHub host name (`github.com` or `https://github.com`) to `set_github_host()` ([#475](https://github.com/r-world-devs/GitStats/issues/475)).
+- It is also possible to pass hosts in more flexible way than before (e.g. `{host_url}`, `http://{host_url}` or `https://{host_url}`) to `host` parameter in `set_*_host() function ([#399](https://github.com/r-world-devs/GitStats/issues/399)).
+
 # GitStats 2.1.0
+
+This minor release comes up with new `get_files_structure()` function and adjustments to `get_files_content()` so user can pull custom (by defining pattern of files and depth of directories) files tree from repository and pull their content.
 
 ## New features:
 
@@ -53,7 +75,7 @@ This is a major release with general changes in workflow (simplifying it), chang
 
 ## Simplifying workflow:
 
-- GitStats workflow is now simplified. To pull data on `repositories`, `commits`, `R_package_usage` or other you should use directly corresponding `get_*()` functions instead of `pull_*()` which are deprecated. These `get_*()` functions pull data from API, parse it into table, add some goodies (additional columns) if needed and return table instead of `GitStats` object, which in our opinion is more intuitive and user-friendly ([#345]((https://github.com/r-world-devs/GitStats/issues/345))). That means you do not need to run in pipe two or three additional function calls as before, e.g. `pull_repos(gitstats_object) %>% get_repos() %>% get_repos_stats()`, but you just run
+- GitStats workflow is now simplified. To pull data on `repositories`, `commits`, `R_package_usage` or other you should use directly corresponding `get_*()` functions instead of `pull_*()` which are deprecated. These `get_*()` functions pull data from API, parse it into table, add some goodies (additional columns) if needed and return table instead of `GitStats` object, which in our opinion is more intuitive and user-friendly ([#345](https://github.com/r-world-devs/GitStats/issues/345)). That means you do not need to run in pipe two or three additional function calls as before, e.g. `pull_repos(gitstats_object) %>% get_repos() %>% get_repos_stats()`, but you just run
 `get_repos(gitstats_object)` to get data you need.
 - Moreover, if you run for the second time `get_*()` function `GitStats` will pull the data from its storage and not from API as for the first time, unless you change parameters for the function (e.g. starting date with `since` in `get_commits()`) or change directly the `cache` parameter in the function. ([#333](https://github.com/r-world-devs/GitStats/issues/333))
 - `pull_repos_contributors()` as a separate function is deprecated. The parameter `add_contributors` is now set by  default to `TRUE` in `get_repos()` which seems more reasonable as user gets all the data.

@@ -8,20 +8,26 @@ test_that("file queries for GitHub are built properly", {
 })
 
 test_that("get_repos_data pulls data on repos and branches", {
-  repos_data <- test_graphql_github_priv$get_repos_data(
+  mockery::stub(
+    test_graphql_github_priv$get_repos_data,
+    "self$get_repos_from_org",
+    test_mocker$use("gh_repos_from_org")
+  )
+  gh_repos_data <- test_graphql_github_priv$get_repos_data(
     org = "r-world-devs",
     repos = NULL
   )
   expect_equal(
-    names(repos_data),
+    names(gh_repos_data),
     c("repositories", "def_branches")
   )
   expect_true(
-    length(repos_data$repositories) > 0
+    length(gh_repos_data$repositories) > 0
   )
   expect_true(
-    length(repos_data$def_branches) > 0
+    length(gh_repos_data$def_branches) > 0
   )
+  test_mocker$cache(gh_repos_data)
 })
 
 test_that("GitHub GraphQL Engine pulls file response", {
@@ -58,16 +64,40 @@ test_that("GitHub GraphQL Engine pulls png file response", {
   test_mocker$cache(github_png_file_response)
 })
 
-test_that("GitHub GraphQL Engine pulls files from organization", {
+test_that("get_repositories_with_files works", {
   mockery::stub(
-    test_graphql_github$get_files_from_org,
+    test_graphql_github_priv$get_repositories_with_files,
     "private$get_file_response",
     test_mocker$use("github_file_response")
   )
+  gh_repositories_with_files <- test_graphql_github_priv$get_repositories_with_files(
+    repositories = c("test_repo_1", "test_repo_2", "test_repo_3", "test_repo_4", "test_repo_5"),
+    def_branches = c("test_branch_1", "test_branch_2", "test_branch_3", "test_branch_4", "test_branch_5"),
+    org = "test-org",
+    file_paths   = "test_files",
+    only_text_files      = TRUE,
+    host_files_structure = NULL,
+    progress             = FALSE
+  )
+  expect_type(gh_repositories_with_files, "list")
+  test_mocker$cache(gh_repositories_with_files)
+})
+
+test_that("GitHub GraphQL Engine pulls files from organization", {
+  mockery::stub(
+    test_graphql_github$get_files_from_org,
+    "private$get_repos_data",
+    test_mocker$use("gh_repos_data")
+  )
+  mockery::stub(
+    test_graphql_github$get_files_from_org,
+    "private$get_repositories_with_files",
+    test_mocker$use("gh_repositories_with_files")
+  )
   github_files_response <- test_graphql_github$get_files_from_org(
-    org                  = "r-world-devs",
+    org                  = "test_org",
     repos                = NULL,
-    file_paths           = "LICENSE",
+    file_paths           = "test_files",
     only_text_files      = TRUE,
     host_files_structure = NULL,
     verbose              = FALSE,
@@ -77,71 +107,8 @@ test_that("GitHub GraphQL Engine pulls files from organization", {
   test_mocker$cache(github_files_response)
 })
 
-test_that("GitHub GraphQL Engine pulls .png files from organization", {
-  mockery::stub(
-    test_graphql_github$get_files_from_org,
-    "private$get_file_response",
-    test_mocker$use("github_png_file_response")
-  )
-  github_png_files_response <- test_graphql_github$get_files_from_org(
-    org                  = "r-world-devs",
-    repos                = NULL,
-    file_paths           = "man/figures/logo.png",
-    only_text_files      = FALSE,
-    host_files_structure = NULL,
-    verbose              = FALSE,
-    progress             = FALSE
-  )
-  expect_github_files_response(github_png_files_response)
-  test_mocker$cache(github_png_files_response)
-})
-
-test_that("GitHub GraphQL Engine pulls files from defined repositories", {
-  mockery::stub(
-    test_graphql_github$get_files_from_org,
-    "private$get_file_response",
-    test_mocker$use("github_file_response")
-  )
-  github_files_response <- test_graphql_github$get_files_from_org(
-    org                  = "openpharma",
-    repos                = c("DataFakeR", "visR"),
-    file_paths           = "README.md",
-    host_files_structure = NULL,
-    only_text_files      = TRUE,
-    verbose              = FALSE,
-    progress             = FALSE
-  )
-  expect_github_files_response(github_files_response)
-  expect_equal(length(github_files_response), 2)
-})
-
-test_that("GitHub GraphQL Engine pulls two files from a group", {
-  mockery::stub(
-    test_graphql_github$get_files_from_org,
-    "private$get_file_response",
-    test_mocker$use("github_file_response")
-  )
-  github_files_response <- test_graphql_github$get_files_from_org(
-    org                  = "r-world-devs",
-    repos                = NULL,
-    file_paths           = c("DESCRIPTION", "NAMESPACE"),
-    host_files_structure = NULL,
-    only_text_files      = TRUE,
-    verbose              = FALSE,
-    progress             = FALSE
-  )
-  expect_github_files_response(github_files_response)
-  purrr::walk(github_files_response, ~ {expect_true(
-    all(
-      c("DESCRIPTION", "NAMESPACE") %in%
-        names(.)
-    )
-  )
-  })
-})
-
 test_that("GitHubHost prepares table from files response", {
-  gh_files_table <- github_testhost_priv$prepare_files_table(
+  gh_files_table <- test_graphql_github$prepare_files_table(
     files_response = test_mocker$use("github_files_response"),
     org = "r-world-devs",
     file_path = "LICENSE"
@@ -150,21 +117,26 @@ test_that("GitHubHost prepares table from files response", {
   test_mocker$cache(gh_files_table)
 })
 
-test_that("GitHubHost prepares table from png files (with no content) response", {
-  gh_png_files_table <- github_testhost_priv$prepare_files_table(
-    files_response = test_mocker$use("github_png_files_response"),
-    org = "r-world-devs",
-    file_path = "man/figures/logo.png"
+test_that("GitHubHost prepares table from files with no content", {
+  empty_files_response <- test_mocker$use("github_files_response") %>%
+    purrr::map(function(test_repo) {
+      test_repo$test_files$file$text <- NULL
+      return(test_repo)
+    })
+  gh_empty_files_table <- test_graphql_github$prepare_files_table(
+    files_response = empty_files_response,
+    org = "test_org",
+    file_path = "test_files"
   )
-  expect_files_table(gh_png_files_table)
-  expect_true(all(is.na(gh_png_files_table$file_content)))
-  test_mocker$cache(gh_png_files_table)
+  expect_files_table(gh_empty_files_table)
+  expect_true(all(is.na(gh_empty_files_table$file_content)))
+  test_mocker$cache(gh_empty_files_table)
 })
 
 test_that("get_files_content_from_orgs for GitHub works", {
   mockery::stub(
     github_testhost_priv$get_files_content_from_orgs,
-    "private$prepare_files_table",
+    "graphql_engine$prepare_files_table",
     test_mocker$use("gh_files_table")
   )
   gh_files_table <- github_testhost_priv$get_files_content_from_orgs(

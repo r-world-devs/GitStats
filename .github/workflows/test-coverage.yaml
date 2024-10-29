@@ -1,19 +1,18 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
     branches: [master]
   pull_request:
     branches: [devel, test, master]
 
-name: test-coverage
+name: 🧪 Test coverage
 
 jobs:
   test-coverage:
     runs-on: ubuntu-latest
     env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      GITLAB_PAT_PUBLIC: ${{ secrets.GITLAB_PAT}}
+      GITHUB_PAT: ${{ secrets.TEST_GITHUB_PAT }}
+      GITLAB_PAT_PUBLIC: ${{ secrets.GITLAB_PAT }}
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       USE_RENV: "FALSE"
 
     steps:
@@ -28,7 +27,7 @@ jobs:
           extra-packages: any::covr
           needs: coverage
 
-      - name: Test coverage
+      - name: Code coverage
         run: |
           covr::codecov(
             quiet = FALSE,

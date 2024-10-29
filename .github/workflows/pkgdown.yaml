@@ -9,7 +9,7 @@ on:
     types: [published]
   workflow_dispatch:
 
-name: pkgdown.yaml
+name: 🌐 Build site
 
 permissions: read-all
 
@@ -20,8 +20,8 @@ jobs:
     concurrency:
       group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
     env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      GITLAB_PAT_PUBLIC: ${{ secrets.GITLAB_PAT}}
+      GITHUB_PAT: ${{ secrets.TEST_GITHUB_PAT }}
+      GITLAB_PAT_PUBLIC: ${{ secrets.GITLAB_PAT }}
     permissions:
       contents: write
     steps:

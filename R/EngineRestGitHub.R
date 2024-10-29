@@ -29,7 +29,7 @@ EngineRestGitHub <- R6::R6Class(
                                  org        = NULL,
                                  filename   = NULL,
                                  in_path    = FALSE,
-                                 raw_output = FALSE,
+                                 output     = "table_full",
                                  verbose    = TRUE,
                                  progress   = TRUE) {
       user_query <- if (!is.null(org)) {
@@ -53,18 +53,56 @@ EngineRestGitHub <- R6::R6Class(
           search_endpoint = search_endpoint,
           total_n = total_n
         )
-        if (!raw_output) {
+        if (output == "table_full" || output == "table_min") {
           search_output <- private$map_search_into_repos(
             search_response = search_result,
             progress        = progress
           )
-        } else {
+        } else if (output == "raw") {
           search_output <- search_result
         }
       } else {
         search_output <- list()
       }
       return(search_output)
+    },
+
+    # Retrieve only important info from repositories response
+    tailor_repos_response = function(repos_response, output = "table_full") {
+      repos_list <- purrr::map(repos_response, function(repo) {
+        if (output == "table_full") {
+          repo_data <- list(
+            "repo_id" = repo$id,
+            "repo_name" = repo$name,
+            "default_branch" = repo$default_branch,
+            "stars" = repo$stargazers_count,
+            "forks" = repo$forks_count,
+            "created_at" = gts_to_posixt(repo$created_at),
+            "last_activity_at" = if (!is.null(repo$pushed_at)) {
+              gts_to_posixt(repo$pushed_at)
+            } else {
+              gts_to_posixt(repo$created_at)
+            },
+            "languages" = repo$language,
+            "issues_open" = repo$issues_open,
+            "issues_closed" = repo$issues_closed,
+            "organization" = repo$owner$login,
+            "repo_url" = repo$html_url
+          )
+        }
+        if (output == "table_min") {
+          repo_data <- list(
+            "repo_id" = repo$id,
+            "repo_name" = repo$name,
+            "default_branch" = repo$default_branch,
+            "created_at" = gts_to_posixt(repo$created_at),
+            "organization" = repo$owner$login,
+            "repo_url" = repo$html_url
+          )
+        }
+        return(repo_data)
+      })
+      return(repos_list)
     },
 
     #' Pull all repositories URLS from organization
@@ -114,7 +152,7 @@ EngineRestGitHub <- R6::R6Class(
         repos_table$contributors <- purrr::map_chr(repo_iterator, function(repos_id) {
           tryCatch({
             contributors_endpoint <- paste0(private$endpoints[["repositories"]], repos_id, "/contributors")
-            contributors_vec <- private$pull_contributors_from_repo(
+            contributors_vec <- private$get_contributors_from_repo(
               contributors_endpoint = contributors_endpoint,
               user_name = user_name
             )
@@ -167,16 +205,24 @@ EngineRestGitHub <- R6::R6Class(
                                total_n,
                                byte_max = "384000") {
       if (total_n >= 0 & total_n < 1e3) {
-        resp_list <- list()
-        for (page in 1:(total_n %/% 100)) {
-          resp_list <- self$response(
-            paste0(search_endpoint, "+size:0..", byte_max, "&page=", page, "&per_page=100")
-          )[["items"]] %>%
-            append(resp_list, .)
-        }
-        resp_list
+        page_iterator <- 1:(total_n %/% 100)
+        items_list <- purrr::map(page_iterator, function(page) {
+          response <- self$response(
+            paste0(
+              search_endpoint,
+              "+size:0..",
+              byte_max,
+              "&page=",
+              page,
+              "&per_page=100"
+            )
+          )
+          return(response[["items"]])
+        }) %>%
+          purrr::list_flatten()
+        return(items_list)
       } else if (total_n >= 1e3) {
-        resp_list <- list()
+        items_list <- list()
         index <- c(0, 50)
         spinner <- cli::make_spinner(
           which = "timeTravel",
@@ -187,28 +233,29 @@ EngineRestGitHub <- R6::R6Class(
         while (index[2] < as.numeric(byte_max)) {
           size_formula <- paste0("+size:", as.character(index[1]), "..", as.character(index[2]))
           spinner$spin()
-          n_count <- tryCatch(
-            {
-              self$response(paste0(search_endpoint, size_formula))[["total_count"]]
-            },
-            error = function(e) {
-              NULL
-            }
-          )
+          n_count <- tryCatch({
+            self$response(paste0(search_endpoint, size_formula))[["total_count"]]
+          }, error = function(e) {
+            NULL
+          })
           if (is.null(n_count)) {
             NULL
           } else if ((n_count - 1) %/% 100 > 0) {
-            for (page in (1:(n_count %/% 100) + 1)) {
-              resp_list <- self$response(paste0(search_endpoint,
-                                                size_formula,
-                                                "&page=",
-                                                page,
-                                                "&per_page=100"))[["items"]] |>
-                append(resp_list, .)
-            }
+            total_pages <- 1:(n_count %/% 100) + 1
+            items_part_list <- purrr::map(total_pages, function(page) {
+              self$response(paste0(search_endpoint,
+                                   size_formula,
+                                   "&page=",
+                                   page,
+                                   "&per_page=100"))[["items"]]
+            }) %>%
+              purrr::list_flatten()
+            items_list <- append(items_list, items_part_list)
           } else if ((n_count - 1) %/% 100 == 0) {
-            resp_list <- self$response(paste0(search_endpoint, size_formula, "&page=1&per_page=100"))[["items"]] |>
-              append(resp_list, .)
+            response <- self$response(paste0(search_endpoint,
+                                             size_formula,
+                                             "&page=1&per_page=100"))
+            items_list <- append(items_list, response[["items"]])
           }
           index[1] <- index[2]
           if (index[2] < 1e3) {
@@ -225,7 +272,7 @@ EngineRestGitHub <- R6::R6Class(
           }
         }
         spinner$finish()
-        resp_list
+        return(items_list)
       }
     },
 

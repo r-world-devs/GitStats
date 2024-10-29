@@ -7,24 +7,13 @@ test_that("user query is built properly", {
   test_mocker$cache(gh_user_query)
 })
 
-test_that("`gql_response()` work as expected for GitHub", {
-  gh_user_gql_response <- test_graphql_github$gql_response(
-    test_mocker$use("gh_user_query"),
-    vars = list(user = "maciekbanas")
-  )
-  expect_user_gql_response(
-    gh_user_gql_response
-  )
-  test_mocker$cache(gh_user_gql_response)
-})
-
 test_that("get_user pulls GitHub user response", {
   mockery::stub(
     test_graphql_github$get_user,
     "self$gql_response",
-    test_mocker$use("gh_user_gql_response")
+    test_fixtures$github_user_response
   )
-  gh_user_response <- test_graphql_github$get_user(username = "maciekbanas")
+  gh_user_response <- test_graphql_github$get_user(username = "testuser")
   expect_user_gql_response(
     gh_user_response
   )
@@ -32,7 +21,7 @@ test_that("get_user pulls GitHub user response", {
 })
 
 test_that("GitHub prepares user table", {
-  gh_user_table <- github_testhost_priv$prepare_user_table(
+  gh_user_table <- test_graphql_github$prepare_user_table(
     user_response = test_mocker$use("gh_user_response")
   )
   expect_users_table(
@@ -43,9 +32,14 @@ test_that("GitHub prepares user table", {
 })
 
 test_that("GitHost gets users tables", {
-  users_table <- github_testhost$get_users(
-    users = c("maciekbanas", "kalimu", "galachad")
+  mockery::stub(
+    github_testhost$get_users,
+    "graphql_engine$prepare_user_table",
+    test_mocker$use("gh_user_table")
   )
-  expect_users_table(users_table)
-  test_mocker$cache(users_table)
+  github_users <- github_testhost$get_users(
+    users = c("testuser1", "testuser2")
+  )
+  expect_users_table(github_users)
+  test_mocker$cache(github_users)
 })

@@ -1,0 +1,44 @@
+name: ⬆️ Check Version Bump
+
+on:
+  pull_request:
+    branches: [devel, test, master]
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: source
+
+      - name: Checkout target branch
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: target
+
+      - name: Compare versions
+        id: compare_versions
+        run: |
+          SOURCE_VERSION=$(awk '/^Version:/ { print $2 }' source/DESCRIPTION)
+          TARGET_VERSION=$(awk '/^Version:/ { print $2 }' target/DESCRIPTION)
+          echo "Source package version: $SOURCE_VERSION"
+          echo "Target package version: $TARGET_VERSION"
+
+          if [ "$SOURCE_VERSION" == "$TARGET_VERSION" ]; then
+            echo "Versions are identical"
+            echo "::set-output name=versions_identical::true"
+          else
+            echo "Versions differ"
+            echo "::set-output name=versions_identical::false"
+          fi
+
+      - name: Fail if versions are identical
+        if: steps.compare_versions.outputs.versions_identical == 'true'
+        run: |
+          echo "The package versions are identical between the source and target branches."
+          exit 1

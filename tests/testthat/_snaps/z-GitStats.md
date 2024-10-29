@@ -18,7 +18,7 @@
       A GitStats object for 2 hosts: 
       Hosts: https://api.github.com, https://gitlab.com/api/v4
       Scanning scope: 
-       Organizations: [2] r-world-devs, mbtests
+       Organizations: [2] github_test_org, gitlab_test_group
        Repositories: [0] 
       Storage: <no data in storage>
 
@@ -48,6 +48,24 @@
     x Both `with_code` and `with_files` parameters are defined.
     ! Use either `with_code` of `with_files` parameter.
     i If you want to search for [shiny] code in given files - use `in_files` parameter together with `with_code` instead.
+
+# print_storage_attribute
+
+    Code
+      test_gitstats_priv$print_storage_attribute(storage_data = test_mocker$use(
+        "commits_table"), storage_name = "commits")
+    Output
+      <cli_ansi_string>
+      [1] [date range: 2023-06-15 - 2023-06-30]
+
+---
+
+    Code
+      test_gitstats_priv$print_storage_attribute(storage_data = test_mocker$use(
+        "release_logs_table"), storage_name = "release_logs")
+    Output
+      <cli_ansi_string>
+      [1] [date range: 2023-08-01 - 2023-09-30]
 
 # subgroups are cleanly printed in GitStats
 

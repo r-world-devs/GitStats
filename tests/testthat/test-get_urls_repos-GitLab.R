@@ -1,20 +1,34 @@
 test_that("get_repos_urls() works", {
-  gl_repos_urls <- test_rest_gitlab$get_repos_urls(
+  mockery::stub(
+    test_rest_gitlab$get_repos_urls,
+    "self$response",
+    test_fixtures$gitlab_repositories_rest_response
+  )
+  gl_api_repos_urls <- test_rest_gitlab$get_repos_urls(
     type = "api",
     org = "mbtests"
   )
   expect_gt(
-    length(gl_repos_urls),
+    length(gl_api_repos_urls),
     0
   )
-  test_mocker$cache(gl_repos_urls)
+  test_mocker$cache(gl_api_repos_urls)
+  gl_web_repos_urls <- test_rest_gitlab$get_repos_urls(
+    type = "web",
+    org = "mbtests"
+  )
+  expect_gt(
+    length(gl_web_repos_urls),
+    0
+  )
+  test_mocker$cache(gl_web_repos_urls)
 })
 
 test_that("get_all_repos_urls prepares api repo_urls vector", {
   mockery::stub(
     gitlab_testhost_priv$get_all_repos_urls,
     "rest_engine$get_repos_urls",
-    test_mocker$use("gl_repos_urls")
+    test_mocker$use("gl_api_repos_urls")
   )
   gl_api_repos_urls <- gitlab_testhost_priv$get_all_repos_urls(
     type = "api",
@@ -23,9 +37,25 @@ test_that("get_all_repos_urls prepares api repo_urls vector", {
   expect_gt(length(gl_api_repos_urls), 0)
   expect_true(all(grepl("api", gl_api_repos_urls)))
   test_mocker$cache(gl_api_repos_urls)
+  mockery::stub(
+    gitlab_testhost_priv$get_all_repos_urls,
+    "rest_engine$get_repos_urls",
+    test_mocker$use("gl_web_repos_urls")
+  )
+  gl_web_repos_urls <- gitlab_testhost_priv$get_all_repos_urls(
+    type = "web",
+    verbose = FALSE
+  )
+  expect_gt(length(gl_web_repos_urls), 0)
+  test_mocker$cache(gl_web_repos_urls)
 })
 
 test_that("get_all_repos_urls prepares web repo_urls vector", {
+  mockery::stub(
+    gitlab_testhost_priv$get_all_repos_urls,
+    "rest_engine$get_repos_urls",
+    test_mocker$use("gl_web_repos_urls")
+  )
   gl_repos_urls <- gitlab_testhost_priv$get_all_repos_urls(
     type = "web",
     verbose = FALSE

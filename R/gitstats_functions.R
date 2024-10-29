@@ -89,9 +89,9 @@ set_gitlab_host <- function(gitstats_object,
 
 #' @title Get data on repositories
 #' @name get_repos
-#' @description  Pulls data on all repositories for an organization or those
-#'   with a given text in code blobs (`with_code` parameter) or a file
-#'   (`with_files` parameter) and parse it into table format.
+#' @description  Pulls data on all repositories for an organization, individual
+#'   user or those with a given text in code blobs (`with_code` parameter) or a
+#'   file (`with_files` parameter) and parse it into table format.
 #' @param gitstats_object A GitStats object.
 #' @param add_contributors A logical parameter to decide whether to add
 #'   information about repositories' contributors to the repositories output
@@ -239,7 +239,7 @@ get_repos_urls <- function(gitstats_object,
 #' @export
 get_commits <- function(gitstats_object,
                         since    = NULL,
-                        until    = NULL,
+                        until    = Sys.Date() + lubridate::days(1),
                         cache    = TRUE,
                         verbose  = is_verbose(gitstats_object),
                         progress = verbose) {
@@ -438,16 +438,22 @@ get_files_structure <- function(gitstats_object,
 #' @name get_R_package_usage
 #' @description Wrapper over searching repositories by code blobs related to
 #'   loading package (`library(package)` and `require(package)` in all files) or
-#'   using it as a dependency (`package` in `DESCRIPTION` and `NAMESPACE` files).
+#'   using it as a dependency (`package` in `DESCRIPTION` and `NAMESPACE`
+#'   files).
 #' @param gitstats_object A GitStats object.
-#' @param package_name A character, name of the package.
+#' @param packages A character vector, names of R packages to look for.
 #' @param only_loading A boolean, if `TRUE` function will check only if package
 #'   is loaded in repositories, not used as dependencies.
+#' @param split_output Optional, a boolean. If `TRUE` will return a list of
+#'   tables, where every element of the list stands for the package passed to
+#'   `packages` parameter. If `FALSE`, will return only one table with name of
+#'   the package stored in first column.
 #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
 #'   result from its storage.
-#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
-#'   printing output is switched off.
-#' @return A data.frame.
+#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
+#'   output is switched off.
+#' @return A `tibble` or `list` of `tibbles` depending on `split_output`
+#'   parameter.
 #' @examples
 #' \dontrun{
 #'  my_gitstats <- create_gitstats() %>%
@@ -456,17 +462,23 @@ get_files_structure <- function(gitstats_object,
 #'     orgs = c("r-world-devs", "openpharma")
 #'   )
 #'
-#'  get_R_package_usage(my_gitstats, "Shiny")
+#'  get_R_package_usage(
+#'    gitstats_object = my_gitstats,
+#'    packages = c("purrr", "shiny"),
+#'    split_output = TRUE
+#'  )
 #' }
 #' @export
 get_R_package_usage <- function(gitstats_object,
-                                package_name,
+                                packages,
                                 only_loading = FALSE,
+                                split_output = FALSE,
                                 cache        = TRUE,
                                 verbose      = is_verbose(gitstats_object)) {
   gitstats_object$get_R_package_usage(
-    package_name = package_name,
+    packages     = packages,
     only_loading = only_loading,
+    split_output = split_output,
     cache        = cache,
     verbose      = verbose
   )
@@ -489,7 +501,7 @@ get_R_package_usage <- function(gitstats_object,
 #' @export
 get_release_logs <- function(gitstats_object,
                              since = NULL,
-                             until = NULL,
+                             until = Sys.Date() + lubridate::days(1),
                              cache = TRUE,
                              verbose = is_verbose(gitstats_object),
                              progress = verbose) {
@@ -544,4 +556,37 @@ verbose_off <- function(gitstats_object) {
 #' @param gitstats_object A GitStats object.
 is_verbose <- function(gitstats_object) {
   gitstats_object$is_verbose()
+}
+
+#' @title Get data from `GitStats` storage
+#' @name get_storage
+#' @description Retrieves whole or particular data (see `storage` parameter)
+#'   pulled earlier with `GitStats`.
+#' @param gitstats_object A GitStats object.
+#' @param storage A character, type of the data you want to get from storage:
+#'   `commits`, `repositories`, `release_logs`, `users`, `files`,
+#'   `files_structure`, `R_package_usage` or `release_logs`.
+#' @return A list of tibbles (if `storage` set to `NULL`) or a tibble (if
+#'   `storage` defined).
+#' @examples
+#' \dontrun{
+#'  my_gitstats <- create_gitstats() %>%
+#'   set_github_host(
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs", "openpharma")
+#'   )
+#'   get_release_logs(my_gistats, since = "2024-01-01")
+#'   get_repos(my_gitstats)
+#'
+#'   release_logs <- get_storage(
+#'     gitstats_object = my_gitstats,
+#'     storage = "release_logs"
+#'   )
+#' }
+#' @export
+get_storage <- function(gitstats_object,
+                        storage = NULL) {
+  gitstats_object$get_storage(
+    storage = storage
+  )
 }

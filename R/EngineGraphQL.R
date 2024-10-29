@@ -50,9 +50,9 @@ EngineGraphQL <- R6::R6Class(
   private = list(
 
     # GraphQL method for pulling response from API
-    perform_request = function(gql_query, vars) {
+    perform_request = function(gql_query, vars, token = private$token) {
       response <- httr2::request(paste0(self$gql_api_url, "?")) %>%
-        httr2::req_headers("Authorization" = paste0("Bearer ", private$token)) %>%
+        httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
         httr2::req_body_json(list(query = gql_query, variables = vars)) %>%
         httr2::req_retry(
           is_transient = ~ httr2::resp_status(.x) %in% c(400, 502),

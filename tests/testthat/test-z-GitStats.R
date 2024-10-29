@@ -14,6 +14,7 @@ test_that("GitStats prints the proper info when connections are added.", {
 })
 
 test_that("GitStats prints the proper info when repos are passed instead of orgs.", {
+  skip_on_cran()
   suppressMessages(
     test_gitstats <- create_gitstats() %>%
       set_github_host(
@@ -84,23 +85,38 @@ test_that("check_if_args_changed", {
   )
 })
 
+test_that("print_storage_attribute", {
+  expect_snapshot(
+    test_gitstats_priv$print_storage_attribute(
+      storage_data = test_mocker$use("commits_table"),
+      storage_name = "commits"
+    )
+  )
+  expect_snapshot(
+    test_gitstats_priv$print_storage_attribute(
+      storage_data = test_mocker$use("release_logs_table"),
+      storage_name = "release_logs"
+    )
+  )
+})
+
 test_that("show_orgs print orgs properly", {
   test_gitstats <- create_test_gitstats(hosts = 2)
   expect_equal(
     test_gitstats$show_orgs(),
-    c("r-world-devs", "mbtests")
+    c("github_test_org", "gitlab_test_group")
   )
 })
 
-suppressMessages(
-  test_gitstats <- create_gitstats() %>%
-    set_gitlab_host(
-      token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-      orgs = "mbtests/subgroup"
-    )
-)
-
 test_that("show_orgs print subgroups properly", {
+  skip_on_cran()
+  suppressMessages(
+    test_gitstats <- create_gitstats() %>%
+      set_gitlab_host(
+        token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+        orgs = "mbtests/subgroup"
+      )
+  )
   expect_equal(
     test_gitstats$show_orgs(),
     "mbtests/subgroup"
@@ -108,6 +124,14 @@ test_that("show_orgs print subgroups properly", {
 })
 
 test_that("subgroups are cleanly printed in GitStats", {
+  skip_on_cran()
+  suppressMessages(
+    test_gitstats <- create_gitstats() %>%
+      set_gitlab_host(
+        token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+        orgs = "mbtests/subgroup"
+      )
+  )
   expect_snapshot(
     test_gitstats
   )

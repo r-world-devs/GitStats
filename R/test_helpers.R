@@ -31,16 +31,25 @@ GitHostGitHubTest <- R6::R6Class(
                           token = NA,
                           host = NA) {
       private$set_api_url(host)
+      private$set_web_url(host)
       private$set_endpoints()
       private$check_if_public(host)
-      private$set_token(token, verbose = FALSE)
+      private$token <- token
       private$set_graphql_url()
-      private$set_orgs_and_repos(orgs, repos, verbose = FALSE)
+      private$set_orgs_and_repos_mocked(orgs, repos)
       private$setup_test_engines()
       private$set_searching_scope(orgs, repos, verbose = FALSE)
     }
   ),
   private = list(
+    set_orgs_and_repos_mocked = function(orgs, repos) {
+      private$orgs <- orgs
+      if (!is.null(repos)) {
+        private$repos <- repos
+        orgs_repos <- private$extract_repos_and_orgs(repos)
+        private$orgs <- names(orgs_repos)
+      }
+    },
     setup_test_engines = function() {
       private$engines$rest <- TestEngineRestGitHub$new(
         token = private$token,
@@ -66,16 +75,25 @@ GitHostGitLabTest <- R6::R6Class(
                           token = NA,
                           host = NA) {
       private$set_api_url(host)
+      private$set_web_url(host)
       private$set_endpoints()
       private$check_if_public(host)
-      private$set_token(token, verbose = FALSE)
+      private$token <- token
       private$set_graphql_url()
-      private$set_orgs_and_repos(orgs, repos, verbose = FALSE)
+      private$set_orgs_and_repos_mocked(orgs, repos)
       private$setup_test_engines()
       private$set_searching_scope(orgs, repos, verbose = FALSE)
     }
   ),
   private = list(
+    set_orgs_and_repos_mocked = function(orgs, repos) {
+      private$orgs <- orgs
+      if (!is.null(repos)) {
+        private$repos <- repos
+        orgs_repos <- private$extract_repos_and_orgs(repos)
+        private$orgs <- names(orgs_repos)
+      }
+    },
     setup_test_engines = function() {
       private$engines$rest <- TestEngineRestGitLab$new(
         token = private$token,
@@ -90,15 +108,16 @@ GitHostGitLabTest <- R6::R6Class(
 )
 
 #' @noRd
-create_github_testhost <- function(host = NULL,
-                                   orgs = NULL,
+create_github_testhost <- function(host  = NULL,
+                                   orgs  = NULL,
                                    repos = NULL,
+                                   token = NULL,
                                    mode = "") {
   suppressMessages(
     test_host <- GitHostGitHubTest$new(
-      host = NULL,
-      token = Sys.getenv("GITHUB_PAT"),
-      orgs = orgs,
+      host  = NULL,
+      token = token,
+      orgs  = orgs,
       repos = repos
     )
   )
@@ -109,15 +128,16 @@ create_github_testhost <- function(host = NULL,
 }
 
 #' @noRd
-create_gitlab_testhost <- function(host = NULL,
-                                   orgs = NULL,
+create_gitlab_testhost <- function(host  = NULL,
+                                   orgs  = NULL,
                                    repos = NULL,
+                                   token = NULL,
                                    mode = "") {
   suppressMessages(
     test_host <- GitHostGitLabTest$new(
-      host = NULL,
-      token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-      orgs = orgs,
+      host  = NULL,
+      token = token,
+      orgs  = orgs,
       repos = repos
     )
   )

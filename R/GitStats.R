@@ -207,8 +207,7 @@ GitStats <- R6::R6Class(
                            verbose  = TRUE,
                            progress = TRUE) {
       private$check_for_host()
-      args_list <- list("since" = since,
-                        "until" = until)
+      args_list <- list("date_range" = c(since, as.character(until)))
       trigger <- private$trigger_pulling(
         cache     = cache,
         storage   = "commits",
@@ -226,7 +225,9 @@ GitStats <- R6::R6Class(
             class     = "commits_data",
             attr_list = args_list
           )
-        private$save_to_storage(commits)
+        private$save_to_storage(
+          table = commits
+        )
       } else {
         commits <- private$get_from_storage(
           table = "commits",
@@ -412,15 +413,12 @@ GitStats <- R6::R6Class(
     #' @param progress A logical, by default set to `verbose` value. If `FALSE`
     #'   no `cli` progress bar will be displayed.
     get_release_logs = function(since,
-                                until,
+                                until    = Sys.Date(),
                                 cache    = TRUE,
                                 verbose  = TRUE,
                                 progress = TRUE) {
       private$check_for_host()
-      args_list <- list(
-        "since" = since,
-        "until" = until
-      )
+      args_list <- list("date_range" = c(since, as.character(until)))
       trigger <- private$trigger_pulling(
         storage   = "release_logs",
         cache     = cache,
@@ -449,23 +447,28 @@ GitStats <- R6::R6Class(
     },
 
     #' @description Wrapper over pulling repositories by code.
-    #' @param package_name A character, name of the package.
+    #' @param packages A character vector, names of R packages to look for.
     #' @param only_loading A boolean, if `TRUE` function will check only if
     #'   package is loaded in repositories, not used as dependencies.
+    #' @param split_output Optional, a boolean. If `TRUE` will return a list of
+    #'   tables, where every element of the list stands for the package passed to
+    #'   `packages` parameter. If `FALSE`, will return only one table with name of
+    #'   the package stored in first column.
     #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
     #'   result from its storage.
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
     #'   printing output is switched off.
-    get_R_package_usage = function(package_name,
+    get_R_package_usage = function(packages,
                                    only_loading = FALSE,
+                                   split_output = FALSE,
                                    cache        = TRUE,
                                    verbose      = TRUE) {
       private$check_for_host()
-      if (is.null(package_name)) {
-        cli::cli_abort("You need to define `package_name`.", call = NULL)
+      if (is.null(packages)) {
+        cli::cli_abort("You need to define at least one `package_name`.", call = NULL)
       }
       args_list <- list(
-        "package_name" = package_name,
+        "packages"     = packages,
         "only_loading" = only_loading
       )
       trigger <- private$trigger_pulling(
@@ -476,15 +479,20 @@ GitStats <- R6::R6Class(
       )
       if (trigger) {
         R_package_usage <- private$get_R_package_usage_from_hosts(
-          package_name = package_name,
+          packages     = packages,
           only_loading = only_loading,
+          split_output = split_output,
           verbose      = verbose
-        ) %>%
-          private$set_object_class(
+        )
+        if ((!split_output && nrow(R_package_usage) > 0) ||
+              (split_output && any(purrr::map_lgl(R_package_usage, ~ nrow(.) > 0)))) {
+          R_package_usage <- private$set_object_class(
+            object    = R_package_usage,
             class     = "R_package_usage",
             attr_list = args_list
           )
-        private$save_to_storage(R_package_usage)
+          private$save_to_storage(R_package_usage)
+        }
       } else {
         R_package_usage <- private$get_from_storage(
           table   = "R_package_usage",
@@ -515,6 +523,14 @@ GitStats <- R6::R6Class(
 
     is_verbose = function() {
       private$settings$verbose
+    },
+
+    get_storage = function(storage) {
+      if (is.null(storage)) {
+        private$storage
+      } else {
+        private$storage[[storage]]
+      }
     },
 
     #' @description A print method for a GitStats object.
@@ -669,6 +685,7 @@ GitStats <- R6::R6Class(
                                     with_code,
                                     in_files         = NULL,
                                     with_files,
+                                    output           = "table_full",
                                     verbose          = TRUE,
                                     progress         = TRUE) {
       repos_table <- purrr::map(private$hosts, function(host) {
@@ -678,6 +695,7 @@ GitStats <- R6::R6Class(
             add_contributors = add_contributors,
             with_code        = with_code,
             in_files         = in_files,
+            output           = output,
             verbose          = verbose,
             progress         = progress
           )
@@ -686,6 +704,7 @@ GitStats <- R6::R6Class(
             host             = host,
             add_contributors = add_contributors,
             with_files       = with_files,
+            output           = output,
             verbose          = verbose,
             progress         = progress
           )
@@ -698,7 +717,12 @@ GitStats <- R6::R6Class(
         }
       }) %>%
         purrr::list_rbind() %>%
-        private$add_stats_to_repos()
+        dplyr::as_tibble()
+      if (output == "table_full") {
+        repos_table <- repos_table %>%
+          private$add_stats_to_repos() %>%
+          dplyr::as_tibble()
+      }
       return(repos_table)
     },
 
@@ -707,6 +731,7 @@ GitStats <- R6::R6Class(
                                              add_contributors,
                                              with_code,
                                              in_files,
+                                             output,
                                              verbose,
                                              progress) {
       purrr::map(with_code, function(with_code) {
@@ -714,6 +739,7 @@ GitStats <- R6::R6Class(
           add_contributors = add_contributors,
           with_code        = with_code,
           in_files         = in_files,
+          output           = output,
           verbose          = verbose,
           progress         = progress
         )
@@ -725,12 +751,14 @@ GitStats <- R6::R6Class(
     get_repos_from_host_with_files = function(host,
                                               add_contributors,
                                               with_files,
+                                              output,
                                               verbose,
                                               progress) {
       purrr::map(with_files, function(with_file) {
         host$get_repos(
           add_contributors = add_contributors,
           with_file        = with_file,
+          output           = output,
           verbose          = verbose,
           progress         = progress
         )
@@ -821,7 +849,8 @@ GitStats <- R6::R6Class(
           progress = progress
         )
       }) %>%
-        purrr::list_rbind()
+        purrr::list_rbind() %>%
+        dplyr::as_tibble()
       return(commits_table)
     },
 
@@ -831,7 +860,8 @@ GitStats <- R6::R6Class(
         host$get_users(logins)
       }) %>%
         unique() %>%
-        purrr::list_rbind()
+        purrr::list_rbind() %>%
+        dplyr::as_tibble()
     },
 
     # Pull content of a text file in a table form
@@ -867,7 +897,8 @@ GitStats <- R6::R6Class(
           )
         }
       }) %>%
-        purrr::list_rbind()
+        purrr::list_rbind() %>%
+        dplyr::as_tibble()
     },
 
     get_host_files_structure = function(host, verbose) {
@@ -931,39 +962,77 @@ GitStats <- R6::R6Class(
           progress = progress
         )
       }) %>%
-        purrr::list_rbind()
+        purrr::list_rbind() %>%
+        dplyr::as_tibble()
     },
 
     # Pull information on package usage in a table form
-    get_R_package_usage_from_hosts = function(package_name,
+    get_R_package_usage_from_hosts = function(packages,
                                               only_loading,
-                                              verbose) {
-      if (!only_loading) {
-        repos_with_package_as_dependency <- private$get_R_package_as_dependency(
+                                              split_output = FALSE,
+                                              verbose = TRUE) {
+      packages_usage_list <- purrr::map(packages, function(package_name) {
+        if (!only_loading) {
+          repos_with_package_as_dependency <- private$get_R_package_as_dependency(
+            package_name = package_name,
+            verbose      = verbose
+          )
+        } else {
+          repos_with_package_as_dependency <- NULL
+        }
+        repos_using_package <- private$get_R_package_loading(
           package_name = package_name,
           verbose      = verbose
         )
+        package_usage_table <- purrr::list_rbind(
+          list(
+            repos_with_package_as_dependency,
+            repos_using_package
+          )
+        )
+        if (nrow(package_usage_table) > 0) {
+          duplicated_repos <- package_usage_table$api_url[duplicated(package_usage_table$api_url)]
+          package_usage_table <- package_usage_table[!duplicated(package_usage_table$api_url), ]
+          package_usage_table <- package_usage_table %>%
+            dplyr::mutate(
+              package_usage = ifelse(api_url %in% duplicated_repos, "import, library", package_usage)
+            )
+          package_usage_table <- dplyr::mutate(
+            package_usage_table,
+            package = package_name,
+            repo_fullname = paste0(organization, "/", repo_name)
+          ) %>%
+            dplyr::relocate(
+              package, package_usage,
+              .before = repo_id
+            ) %>%
+            dplyr::relocate(
+              repo_fullname,
+              .after = repo_id
+            )
+        }
+        return(package_usage_table)
+      })
+      if (split_output) {
+        packages_usage_result <- purrr::set_names(packages_usage_list, packages)
+        if (all(purrr::map_lgl(packages_usage_result, ~ nrow(.) == 0)) && verbose) {
+          cli::cli_alert_warning(
+            cli::col_yellow(
+              "No usage of R packages found."
+            )
+          )
+        }
       } else {
-        repos_with_package_as_dependency <- NULL
+        packages_usage_result <- purrr::list_rbind(packages_usage_list)
+        if (nrow(packages_usage_result) == 0 && verbose) {
+          cli::cli_alert_warning(
+            cli::col_yellow(
+              "No usage of R packages found."
+            )
+          )
+        }
       }
-      repos_using_package <- private$get_R_package_loading(
-        package_name = package_name,
-        verbose      = verbose
-      )
-      package_usage_table <- purrr::list_rbind(
-        list(
-          repos_with_package_as_dependency,
-          repos_using_package
-        )
-      )
-      duplicated_repos <- package_usage_table$api_url[duplicated(package_usage_table$api_url)]
-      package_usage_table <- package_usage_table[!duplicated(package_usage_table$api_url), ]
-      package_usage_table <- package_usage_table %>%
-        dplyr::mutate(
-          package_usage = ifelse(api_url %in% duplicated_repos, "import, library", package_usage)
-        )
-      rownames(package_usage_table) <- seq_len(nrow(package_usage_table))
-      return(package_usage_table)
+      return(packages_usage_result)
     },
 
     # Search repositories with `library(package_name)` in code blobs.
@@ -977,14 +1046,13 @@ GitStats <- R6::R6Class(
       )
       repos_using_package <- purrr::map(package_usage_phrases, ~ {
         repos_using_package <- private$get_repos_from_hosts(
-          with_code = .,
-          verbose  = FALSE,
-          progress = FALSE
+          with_code  = .,
+          output     = "table_min",
+          verbose    = FALSE,
+          progress   = FALSE
         )
-        if (!is.null(repos_using_package)) {
+        if (nrow(repos_using_package) > 0) {
           repos_using_package$package_usage <- "library"
-          repos_using_package <- repos_using_package %>%
-            dplyr::select(repo_name, organization, fullname, platform, repo_url, api_url, package_usage)
         }
         return(repos_using_package)
       }) %>%
@@ -1000,17 +1068,16 @@ GitStats <- R6::R6Class(
         cli::cli_alert_info("Checking where [{package_name}] is used as a dependency...")
       }
       repos_with_package <- private$get_repos_from_hosts(
-        with_code = package_name,
-        in_files = c("DESCRIPTION", "NAMESPACE"),
-        verbose = FALSE,
-        progress = FALSE
+        with_code  = package_name,
+        in_files   = c("DESCRIPTION", "NAMESPACE"),
+        output     = "table_min",
+        verbose    = FALSE,
+        progress   = FALSE
       )
       if (nrow(repos_with_package) > 0) {
         repos_with_package <- repos_with_package[!duplicated(repos_with_package$api_url), ]
         repos_with_package$package_usage <- "import"
       }
-      repos_with_package <- repos_with_package %>%
-        dplyr::select(repo_name, organization, fullname, platform, repo_url, api_url, package_usage)
       return(repos_with_package)
     },
 
@@ -1026,8 +1093,7 @@ GitStats <- R6::R6Class(
               Sys.time(),
               last_activity_at,
               units = "days"
-            ) %>% round(2),
-            platform = retrieve_platform(api_url)
+            ) %>% round(2)
           ) %>%
           dplyr::relocate(
             organization, fullname, platform, repo_url, api_url, created_at,
@@ -1182,24 +1248,26 @@ GitStats <- R6::R6Class(
     },
 
     # print storage attribute
-    print_storage_attribute = function(storage_table, storage_name) {
+    print_storage_attribute = function(storage_data, storage_name) {
       if (storage_name != "repositories") {
         storage_attr <- switch(storage_name,
+                               "repos_urls" = "type",
                                "files" = "file_path",
                                "files_structure" = "pattern",
-                               "commits" = "dates_range",
-                               "release_logs" = "dates_range",
+                               "commits" = "date_range",
+                               "release_logs" = "date_range",
                                "users" = "logins",
-                               "R_package_usage" = "package_name")
-        attr_data <- attr(storage_table, storage_attr)
+                               "R_package_usage" = "packages")
+        attr_data <- attr(storage_data, storage_attr)
         attr_name <- switch(storage_attr,
+                            "type" = "type",
                             "file_path" = "files",
                             "pattern" = "files matching pattern",
-                            "dates_range" = "date range",
-                            "package_name" = "package",
+                            "date_range" = "date range",
+                            "packages" = "packages",
                             "logins" = "logins")
         if (length(attr_data) > 1) {
-          separator <- if (storage_attr == "dates_range") {
+          separator <- if (storage_attr == "date_range") {
             " - "
           } else {
             ", "
