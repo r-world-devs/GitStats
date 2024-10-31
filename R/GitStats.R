@@ -700,7 +700,7 @@ GitStats <- R6::R6Class(
             progress         = progress
           )
         } else if (!is.null(with_files)) {
-          privater$get_repos_from_host_with_files(
+          private$get_repos_from_host_with_files(
             host             = host,
             add_contributors = add_contributors,
             with_files       = with_files,
