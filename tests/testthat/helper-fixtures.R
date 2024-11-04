@@ -65,6 +65,13 @@ test_fixtures$github_repositories_rest_response <- list(
   test_fixtures$github_repository_rest_response,
   list(
     "id" = 2222222222222,
+    "name" = "testRepo2",
+    "html_url" = "https://testhost.com/test-org/TestRepo",
+    "url" = "https://testhost.com/api/v4/repos/test-org/TestRepo"
+  ),
+  list(
+    "id" = 2222222222222,
+    "name" = "testRepo3",
     "html_url" = "https://testhost.com/test-org/TestRepo",
     "url" = "https://testhost.com/api/v4/repos/test-org/TestRepo"
   )
@@ -73,10 +80,17 @@ test_fixtures$github_repositories_rest_response <- list(
 
 test_fixtures$gitlab_repositories_rest_response <- list(
   list(
+    "path" = "testRepo1",
     "_links" = list("self" = "https://gitlab.com/api/v4/projects/43400864"),
     "web_url" = "https://gitlab.com/mbtests/gitstats-testing-2"
   ),
   list(
+    "path" = "testRepo2",
+    "_links" = list("self" = "https://gitlab.com/api/v4/projects/43398933"),
+    "web_url" = "https://gitlab.com/mbtests/gitstatstesting"
+  ),
+  list(
+    "path" = "testRepo3",
     "_links" = list("self" = "https://gitlab.com/api/v4/projects/43398933"),
     "web_url" = "https://gitlab.com/mbtests/gitstatstesting"
   )

@@ -1,4 +1,4 @@
-test_that("get_repos_urls() works", {
+test_that("get_repos_urls() works for org", {
   mockery::stub(
     test_rest_gitlab$get_repos_urls,
     "self$response",
@@ -6,20 +6,50 @@ test_that("get_repos_urls() works", {
   )
   gl_api_repos_urls <- test_rest_gitlab$get_repos_urls(
     type = "api",
-    org = "mbtests"
+    org = "mbtests",
+    repos = NULL
   )
-  expect_gt(
-    length(gl_api_repos_urls),
-    0
+  expect_length(
+    gl_api_repos_urls,
+    3
   )
   test_mocker$cache(gl_api_repos_urls)
   gl_web_repos_urls <- test_rest_gitlab$get_repos_urls(
     type = "web",
-    org = "mbtests"
+    org = "mbtests",
+    repos = NULL
   )
-  expect_gt(
-    length(gl_web_repos_urls),
-    0
+  expect_length(
+    gl_web_repos_urls,
+    3
+  )
+  test_mocker$cache(gl_web_repos_urls)
+})
+
+test_that("get_repos_urls() works for individual repos", {
+  mockery::stub(
+    test_rest_gitlab$get_repos_urls,
+    "self$response",
+    test_fixtures$gitlab_repositories_rest_response
+  )
+  gl_api_repos_urls <- test_rest_gitlab$get_repos_urls(
+    type = "api",
+    org = "mbtests",
+    repos = c("testRepo1", "testRepo2")
+  )
+  expect_length(
+    gl_api_repos_urls,
+    2
+  )
+  test_mocker$cache(gl_api_repos_urls)
+  gl_web_repos_urls <- test_rest_gitlab$get_repos_urls(
+    type = "web",
+    org = "mbtests",
+    repos = c("testRepo1", "testRepo2")
+  )
+  expect_length(
+    gl_web_repos_urls,
+    2
   )
   test_mocker$cache(gl_web_repos_urls)
 })

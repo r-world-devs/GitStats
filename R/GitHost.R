@@ -700,7 +700,8 @@ GitHost <- R6::R6Class(
         }
         repos_urls <- rest_engine$get_repos_urls(
           type = type,
-          org  = org
+          org  = org,
+          repos = private$set_repos(org)
         )
         return(repos_urls)
       }, .progress = progress) %>%

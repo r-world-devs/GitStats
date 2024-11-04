@@ -1,4 +1,4 @@
-test_that("get_repos_urls() works", {
+test_that("get_repos_urls() works for whole orgs", {
   mockery::stub(
     test_rest_github$get_repos_urls,
     "self$response",
@@ -6,11 +6,30 @@ test_that("get_repos_urls() works", {
   )
   gh_repos_urls <- test_rest_github$get_repos_urls(
     type = "web",
-    org = "test-org"
+    org = "test-org",
+    repos = NULL
   )
-  expect_gt(
-    length(gh_repos_urls),
-    0
+  expect_length(
+    gh_repos_urls,
+    3
+  )
+  test_mocker$cache(gh_repos_urls)
+})
+
+test_that("get_repos_urls() works for individual repos", {
+  mockery::stub(
+    test_rest_github$get_repos_urls,
+    "self$response",
+    test_fixtures$github_repositories_rest_response
+  )
+  gh_repos_urls <- test_rest_github$get_repos_urls(
+    type = "web",
+    org = "test-org",
+    repos = c("testRepo", "testRepo2")
+  )
+  expect_length(
+    gh_repos_urls,
+    2
   )
   test_mocker$cache(gh_repos_urls)
 })
@@ -24,6 +43,7 @@ test_that("get_all_repos_urls prepares api repo_urls vector", {
     test_fixtures$github_repositories_rest_response
   )
   gh_api_repos_urls <- test_rest_github$get_repos_urls(
+    repos = NULL,
     type = "api"
   )
   expect_gt(length(gh_api_repos_urls), 0)
