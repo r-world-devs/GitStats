@@ -107,7 +107,7 @@ EngineRestGitLab <- R6::R6Class(
             "languages" = paste0(project$languages, collapse = ", "),
             "issues_open" = project$issues_open,
             "issues_closed" = project$issues_closed,
-            "organization" = project$namespace$path,
+            "organization" = project$namespace$full_path,
             "repo_url" = project$web_url
           )
         }
