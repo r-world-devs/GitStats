@@ -101,53 +101,42 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     },
 
     #' @description Prepare query to get commits on GitHub.
-    #' @param org A GitHub organization.
-    #' @param repo Name of a repository.
-    #' @param since Git Time Stamp of starting date of commits.
-    #' @param until Git Time Stamp of end date of commits.
-    #' @param commits_cursor An endCursor.
-    #' @param author_id An Id of an author.
     #' @return A query.
-    commits_by_repo = function(org,
-                               repo,
-                               since,
-                               until,
-                               commits_cursor = "",
-                               author_id = "") {
-      if (nchar(author_id) == 0) {
-        author_filter <- author_id
-      } else {
-        author_filter <- paste0('author: { id: "', author_id, '"}')
-      }
-
-      paste0('{
-          repository(name: "', repo, '", owner: "', org, '") {
-            defaultBranchRef {
-              target {
-                ... on Commit {
-                  history(since: "', since, '"
-                          until: "', until, '"
-                          ', private$add_cursor(commits_cursor), "
-                          ", author_filter, ") {
-                    pageInfo {
-                      hasNextPage
-                      endCursor
-                    }
-                    edges {
-                      node {
-                        ... on Commit {
-                          id
-                          committed_date: committedDate
-                          author {
+    commits_by_repo = function() {
+      paste0('
+        query GetCommitsByRepo($repo: String!
+                               $org: String!
+                               $commitsCursor: String!
+                               $since: GitTimestamp
+                               $until: GitTimestamp) {
+        repository(name: $repo, owner: $org) {
+          defaultBranchRef {
+            target {
+              ... on Commit {
+                history(
+                  since: $since
+                  until: $until,
+                  before: $commitsCursor
+                ) {
+                  pageInfo {
+                    hasNextPage
+                    startCursor
+                    endCursor
+                  }
+                  edges {
+                    node {
+                      ... on Commit {
+                        id
+                        committed_date: committedDate
+                        author {
+                          name
+                          user {
                             name
-                            user {
-                              name
-                              login
-                            }
+                            login
                           }
-                          additions
-                          deletions
                         }
+                        additions
+                        deletions
                       }
                     }
                   }
@@ -155,7 +144,8 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
               }
             }
           }
-        }")
+        }
+      }')
     },
 
     #' @description Prepare query to get files in a standard filepath from
@@ -216,18 +206,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     }
   ),
   private = list(
-    # @description Helper over defining cursor agument for the query.
-    # @param cursor A cursor.
-    # @return A string of cursor argument.
-    add_cursor = function(cursor) {
-      if (nchar(cursor) == 0) {
-        cursor_argument <- cursor
-      } else {
-        cursor_argument <- paste0('after: "', cursor, '"')
-      }
-      return(cursor_argument)
-    },
-
     # @description Helper to prepare repository query.
     repositories_field = function() {
       '

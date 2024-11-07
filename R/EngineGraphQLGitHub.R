@@ -367,12 +367,12 @@ EngineGraphQLGitHub <- R6::R6Class(
           until = until,
           commits_cursor = commits_cursor
         )
-        commits_list <- commits_response$data$repository$defaultBranchRef$target$history$edges
-        next_page <- commits_response$data$repository$defaultBranchRef$target$history$pageInfo$hasNextPage
+        commits_list <- private$get_commits_list(commits_response)
+        next_page <- private$has_next_commits_page(commits_response)
         if (is.null(next_page)) next_page <- FALSE
         if (is.null(commits_list)) commits_list <- list()
         if (next_page) {
-          commits_cursor <- commits_response$data$repository$defaultBranchRef$target$history$pageInfo$endCursor
+          commits_cursor <- private$get_commits_cursor(commits_response)
         } else {
           commits_cursor <- ""
         }
@@ -386,18 +386,17 @@ EngineGraphQLGitHub <- R6::R6Class(
                                           repo,
                                           since,
                                           until,
-                                          commits_cursor = "",
-                                          author_id = "") {
-      commits_by_org_query <- self$gql_query$commits_by_repo(
-        org = org,
-        repo = repo,
-        since = date_to_gts(since),
-        until = date_to_gts(until),
-        commits_cursor = commits_cursor,
-        author_id = author_id
-      )
+                                          commits_cursor = "") {
+      commits_by_org_query <- self$gql_query$commits_by_repo()
       response <- self$gql_response(
-        gql_query = commits_by_org_query
+        gql_query = commits_by_org_query,
+        vars = list(
+          org = org,
+          repo = repo,
+          since = date_to_gts(since),
+          until = date_to_gts(until),
+          commitsCursor = commits_cursor
+        )
       )
       return(response)
     },
@@ -533,6 +532,18 @@ EngineGraphQLGitHub <- R6::R6Class(
         "files" = files
       )
       return(result)
+    },
+
+    has_next_commits_page = function(commits_response) {
+      commits_response$data$repository$defaultBranchRef$target$history$pageInfo$hasNextPage
+    },
+
+    get_commits_cursor = function(commits_response) {
+      commits_response$data$repository$defaultBranchRef$target$history$pageInfo$startCursor
+    },
+
+    get_commits_list = function(commits_response) {
+      commits_response$data$repository$defaultBranchRef$target$history$edges
     }
   )
 )
