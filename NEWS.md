@@ -1,4 +1,6 @@
-# GitStats (development version)
+# GitStats 2.1.2
+
+This is a patch release which introduces some hot fixes.
 
 - Fixed setting default tokens when `verbose` mode is set to `FALSE` ([#525](https://github.com/r-world-devs/GitStats/issues/525)) and fixed checking token scopes for GitLab ([#526](https://github.com/r-world-devs/GitStats/issues/526)).
 - Fixed `get_repos_urls()` output when individual repositories are set in `set_*_host()`([#529](https://github.com/r-world-devs/GitStats/issues/529)). Earlier the function pulled all repositories for an organization, even though, repositories were defined for the host, not whole organizations. This is similar to the solved earlier ([#439](https://github.com/r-world-devs/GitStats/issues/439)).
