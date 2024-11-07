@@ -237,6 +237,17 @@ GitStats <- R6::R6Class(
       return(commits)
     },
 
+    get_commits_graphql = function(since = "2022-01-01", until = "2024-11-01", verbose = TRUE, progress = verbose) {
+      purrr::map(private$hosts, function(host) {
+        host$get_commits_from_orgs_graphql(
+          since    = since,
+          until    = until,
+          verbose  = verbose,
+          progress = progress
+        )
+      })
+    },
+
     #' @title Get statistics on commits
     #' @name get_commits_stats
     #' @description Prepare statistics from the pulled commits data.

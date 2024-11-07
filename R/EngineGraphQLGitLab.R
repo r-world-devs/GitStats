@@ -115,6 +115,60 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(repos_table)
     },
 
+    get_commits_from_repos = function(org,
+                                      repos_names,
+                                      since,
+                                      until,
+                                      progress) {
+      repos_data <- private$get_repos_data(
+        org = org,
+        type = "org"
+      )
+      repos_list_with_commits <- purrr::map2(repos_data[["repositories"]], repos_data[["def_branches"]], function(repo, def_branch) {
+        private$get_commits_from_one_repo(
+          org   = org,
+          repo  = repo,
+          def_branch = def_branch
+        )
+      }, .progress = !private$scan_all && progress)
+      names(repos_list_with_commits) <- repos_names
+      repos_list_with_commits <- repos_list_with_commits %>%
+        purrr::discard(~ length(.) == 0)
+      return(repos_list_with_commits)
+    },
+
+    # Parses repositories' list with commits into table of commits.
+    prepare_commits_table = function(repos_list_with_commits,
+                                     org,
+                                     since,
+                                     until) {
+      commits_table <- purrr::imap(repos_list_with_commits, function(repo, repo_name) {
+        commits_row <- purrr::map(repo, function(commit) {
+          commit$author_name <- commit$author$name
+          commit$author_login <- commit$author$username
+          commit$author <- NULL
+          commit$committed_date <- gts_to_posixt(commit$committed_date)
+          return(data.frame(commit))
+        }) %>%
+          purrr::list_rbind()
+        commits_row$repository <- repo_name
+        commits_row
+      }) %>%
+        purrr::discard(~ length(.) == 1) %>%
+        purrr::list_rbind()
+      if (nrow(commits_table) > 0) {
+        commits_table <- commits_table %>%
+          dplyr::mutate(
+            organization = org,
+            api_url = self$gql_api_url
+          ) %>%
+          dplyr::filter(
+            committed_date >= since & committed_date <= until
+          )
+      }
+      return(commits_table)
+    },
+
     # Pull all given files from all repositories of a group.
     # This is a one query way to get all the necessary info.
     # However it may fail if query is too complex (too many files in file_paths).
@@ -454,6 +508,61 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(repo_name)
     },
 
+    get_commits_from_one_repo = function(org, repo, def_branch) {
+      project_path <- paste0(org, "/", repo)
+      merge_requests <- private$get_merge_requests(
+        project_path = project_path,
+        default_branch = def_branch
+      )
+      if (!is.null(merge_requests)) {
+        full_commits_list <- purrr::map(merge_requests, function(merge_request) {
+          commits_list <- list()
+          commits_page <- private$get_commits_page_from_repo(
+            project_path = project_path,
+            merge_request = merge_request
+          )
+          if (length(commits_page) > 0) {
+            commits_list <- commits_page$data$project$mergeRequest$commits$nodes
+          }
+          return(commits_list)
+        }) %>%
+          purrr::list_flatten()
+      } else {
+        full_commits_list <- list()
+      }
+      return(full_commits_list)
+    },
+
+    get_merge_requests = function(project_path, default_branch) {
+      response <- self$gql_response(
+        gql_query = self$gql_query$merge_request(),
+        vars = list(
+          project_path = project_path,
+          default_branch = default_branch
+        )
+      )
+      merge_requests <- if (length(response$data$project$mergeRequests$nodes) > 0) {
+        purrr::map_vec(response$data$project$mergeRequests$nodes, ~ .$iid)
+      } else {
+        NULL
+      }
+      return(merge_requests)
+    },
+
+    # Wrapper over building GraphQL query and response.
+    get_commits_page_from_repo = function(project_path,
+                                          merge_request) {
+      commits_by_org_query <- self$gql_query$commits_by_repo()
+      response <- self$gql_response(
+        gql_query = commits_by_org_query,
+        vars = list(
+          project_path = project_path,
+          merge_request = merge_request
+        )
+      )
+      return(response)
+    },
+
     get_repos_data = function(org, type, repos = NULL) {
       repos_list <- self$get_repos_from_org(
         org = org,
@@ -463,7 +572,8 @@ EngineGraphQLGitLab <- R6::R6Class(
         repos_list <- purrr::keep(repos_list, ~ .$node$repo_path %in% repos)
       }
       result <- list(
-        "repositories" = purrr::map_vec(repos_list, ~ .$node$repo_path)
+        "repositories" = purrr::map_vec(repos_list, ~ .$node$repo_path),
+        "def_branches" = purrr::map_vec(repos_list, ~ .$node$repository$rootRef %||% "")
       )
       return(result)
     },

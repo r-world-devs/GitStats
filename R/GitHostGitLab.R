@@ -71,6 +71,46 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         )
       }
       return(files_table)
+    },
+
+    get_commits_from_orgs_graphql = function(since,
+                                             until,
+                                             verbose  = TRUE,
+                                             progress = verbose) {
+      graphql_engine <- private$engines$graphql
+      commits_table <- purrr::map(private$orgs, function(org) {
+        commits_table_org <- NULL
+        if (!private$scan_all && verbose) {
+          show_message(
+            host        = private$host_name,
+            engine      = "graphql",
+            scope       = utils::URLdecode(org),
+            information = "Pulling commits"
+          )
+        }
+        repos_names <- private$set_repositories(
+          org = org
+        )
+        commits_table_org <- graphql_engine$get_commits_from_repos(
+          org         = org,
+          repos_names = repos_names,
+          since       = since,
+          until       = until,
+          progress    = progress
+        ) |>
+          graphql_engine$prepare_commits_table(
+            org = org,
+            since = since,
+            until = until
+          )
+        return(commits_table_org)
+      }, .progress = if (private$scan_all && progress) {
+        "[GitHost:GitLab] Pulling commits..."
+      } else {
+        FALSE
+      }) %>%
+      purrr::list_rbind()
+      return(commits_table)
     }
   ),
   private = list(

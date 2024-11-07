@@ -63,6 +63,39 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
         }')
     },
 
+    #' @description Prepare query to get commits on GitHub.
+    #' @return A query.
+    commits_by_repo = function() {
+      paste0('
+        query GetCommitsFromRepo($project_path: ID!
+                                 $merge_request: String!) {
+          project(fullPath: $project_path) {
+            name
+            id
+            webUrl
+            mergeRequest(iid: $merge_request) {
+              title
+              commitCount
+              commits(first: 100) {
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                  startCursor
+                }
+                nodes {
+                  id
+                  committed_date: committedDate
+                  author {
+                    name
+                    username
+                  }
+                }
+              }
+            }
+          }
+        }')
+    },
+
     #' @description Prepare query to get info on a GitLab user.
     #' @return A query.
     user = function() {
@@ -205,6 +238,18 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
                 }
               }
           }'
+    },
+
+    merge_request = function() {
+      'query ($project_path: ID! $default_branch: [String!]) {
+        project(fullPath: $project_path) {
+          mergeRequests(state: merged targetBranches: $default_branch) {
+            nodes {
+              iid
+            }
+          }
+        }
+      }'
     }
   ),
   private = list(
