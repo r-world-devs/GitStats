@@ -101,34 +101,21 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     },
 
     #' @description Prepare query to get commits on GitHub.
-    #' @param org A GitHub organization.
-    #' @param repo Name of a repository.
-    #' @param since Git Time Stamp of starting date of commits.
-    #' @param until Git Time Stamp of end date of commits.
     #' @param commits_cursor An endCursor.
-    #' @param author_id An Id of an author.
     #' @return A query.
-    commits_by_repo = function(org,
-                               repo,
-                               since,
-                               until,
-                               commits_cursor = "",
-                               author_id = "") {
-      if (nchar(author_id) == 0) {
-        author_filter <- author_id
-      } else {
-        author_filter <- paste0('author: { id: "', author_id, '"}')
-      }
-
-      paste0('{
-          repository(name: "', repo, '", owner: "', org, '") {
+    commits_from_repo = function(commits_cursor = "") {
+      paste0('
+      query GetCommitsFromRepo($repo: String!
+                               $org: String!
+                               $since: GitTimestamp
+                               $until: GitTimestamp){
+          repository(name: $repo, owner: $org) {
             defaultBranchRef {
               target {
                 ... on Commit {
-                  history(since: "', since, '"
-                          until: "', until, '"
-                          ', private$add_cursor(commits_cursor), "
-                          ", author_filter, ") {
+                  history(since: $since
+                          until: $until
+                          ', private$add_cursor(commits_cursor), ") {
                     pageInfo {
                       hasNextPage
                       endCursor
@@ -147,6 +134,9 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
                           }
                           additions
                           deletions
+                          repository {
+                            url
+                          }
                         }
                       }
                     }

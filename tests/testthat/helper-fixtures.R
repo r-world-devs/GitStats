@@ -257,7 +257,10 @@ github_commit_edge <- list(
       )
     ),
     "additions" = 5L,
-    "deletions" = 8L
+    "deletions" = 8L,
+    "repository" = list(
+      "url" = "test_url"
+    )
   )
 )
 
@@ -294,7 +297,7 @@ gitlab_commit <- list(
   "committed_date" = "2023-04-05T12:07:50.000+00:00",
   "trailers" = list(),
   "extedned_trailers" = list(),
-  "web_url" = "https://test_url.com",
+  "web_url" = "https://test_url.com/-/commit/sxsxsxsx",
   "stats" = list(
     "additions" = 1L,
     "deletions" = 0L,

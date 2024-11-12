@@ -142,7 +142,8 @@ EngineRestGitLab <- R6::R6Class(
               replacement = "",
               x = gsub(paste0("(.*)", org, "/"), "", commit$web_url)
             ),
-            "organization" = org
+            "organization" = org,
+            "repo_url" = stringr::str_match(commit$web_url, "(.*)/-/commit/.*")[2]
           )
         })
       })

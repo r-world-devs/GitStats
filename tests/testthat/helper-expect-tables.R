@@ -40,12 +40,12 @@ expect_commits_table <- function(get_commits_object, with_stats = TRUE, exp_auth
   commit_cols <- if (exp_author) {
     c(
       "id", "committed_date", "author", "author_login", "author_name", "additions", "deletions",
-      "repository", "organization", "api_url"
+      "repository", "organization", "repo_url", "api_url"
     )
   } else {
     c(
       "id", "committed_date", "author", "additions", "deletions",
-      "repository", "organization", "api_url"
+      "repository", "organization", "repo_url", "api_url"
     )
   }
   expect_s3_class(get_commits_object, "data.frame")
