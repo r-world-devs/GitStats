@@ -143,6 +143,8 @@ EngineGraphQLGitHub <- R6::R6Class(
             NA
           }
           commit$node$committed_date <- gts_to_posixt(commit$node$committed_date)
+          commit$node$repo_url <- commit$node$repository$url
+          commit$node$repository <- NULL
           commit$node
         })
         commits_row$repository <- repo_name
@@ -159,6 +161,10 @@ EngineGraphQLGitHub <- R6::R6Class(
           dplyr::relocate(
             any_of(c("author_login", "author_name")),
             .after = author
+          ) %>%
+          dplyr::relocate(
+            repo_url,
+            .before = api_url
           )
       }
       return(commits_table)

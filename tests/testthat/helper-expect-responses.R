@@ -112,7 +112,7 @@ expect_gh_commit_gql_response <- function(object) {
   )
   expect_list_contains(
     object$node,
-    c("id", "committed_date", "author", "additions", "deletions")
+    c("id", "committed_date", "author", "additions", "deletions", "repository")
   )
 }
 

@@ -147,6 +147,9 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
                           }
                           additions
                           deletions
+                          repository {
+                            url
+                          }
                         }
                       }
                     }
