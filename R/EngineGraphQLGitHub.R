@@ -392,18 +392,18 @@ EngineGraphQLGitHub <- R6::R6Class(
                                           repo,
                                           since,
                                           until,
-                                          commits_cursor = "",
-                                          author_id = "") {
-      commits_by_org_query <- self$gql_query$commits_by_repo(
-        org = org,
-        repo = repo,
-        since = date_to_gts(since),
-        until = date_to_gts(until),
-        commits_cursor = commits_cursor,
-        author_id = author_id
+                                          commits_cursor = "") {
+      commits_by_org_query <- self$gql_query$commits_from_repo(
+        commits_cursor = commits_cursor
       )
       response <- self$gql_response(
-        gql_query = commits_by_org_query
+        gql_query = commits_by_org_query,
+        vars = list(
+          "org" = org,
+          "repo" = repo,
+          "since" = date_to_gts(since),
+          "until" = date_to_gts(until)
+        )
       )
       return(response)
     },
