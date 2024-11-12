@@ -175,6 +175,7 @@ test_that("Error pops out when `org` does not exist", {
 })
 
 test_that("Setting verbose for set_*_host() to FALSE works fine", {
+  skip_on_cran()
   expect_no_error(
     create_gitstats() %>%
       set_github_host(
