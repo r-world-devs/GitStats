@@ -113,14 +113,14 @@ test_that("Error shows, when wrong input is passed when setting connection and h
       token = Sys.getenv("GITLAB_PAT_PUBLIC")
     )
   )
-  expect_snapshot({
+  expect_error({
     create_gitstats() %>%
       set_github_host(
         host = "wrong.url",
         orgs = c("openpharma", "r_world_devs")
       )
     },
-    error = TRUE
+    "Could not resolve host."
   )
 })
 
