@@ -1,4 +1,6 @@
-# GitStats (development version)
+# GitStats 2.1.2
+
+This is a patch release which introduces some hot fixes and new data in `get_commits()` output.
 
 - Added `repo_url` column to output of `get_commits()` function ([#535](https://github.com/r-world-devs/GitStats/issues/535)).
 - Fixed setting default tokens when `verbose` mode is set to `FALSE` ([#525](https://github.com/r-world-devs/GitStats/issues/525)) and fixed checking token scopes for GitLab ([#526](https://github.com/r-world-devs/GitStats/issues/526)).
