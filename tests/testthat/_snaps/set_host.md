@@ -80,15 +80,6 @@
     i Check if you use correct token.
     ! Scope that is needed: [read_api].
 
----
-
-    Code
-      create_gitstats() %>% set_github_host(host = "wrong.url", orgs = c("openpharma",
-        "r_world_devs"))
-    Condition
-      Error:
-      ! Could not resolve host: wrong.url
-
 # Error pops out, when two clients of the same url api are passed as input
 
     Code

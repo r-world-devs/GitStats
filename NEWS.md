@@ -2,6 +2,7 @@
 
 This is a patch release which introduces some hot fixes.
 
+- Added `repo_url` column to output of `get_commits()` function ([#535](https://github.com/r-world-devs/GitStats/issues/535)).
 - Fixed setting default tokens when `verbose` mode is set to `FALSE` ([#525](https://github.com/r-world-devs/GitStats/issues/525)) and fixed checking token scopes for GitLab ([#526](https://github.com/r-world-devs/GitStats/issues/526)).
 - Fixed `get_repos_urls()` output when individual repositories are set in `set_*_host()`([#529](https://github.com/r-world-devs/GitStats/issues/529)). Earlier the function pulled all repositories for an organization, even though, repositories were defined for the host, not whole organizations. This is similar to the solved earlier ([#439](https://github.com/r-world-devs/GitStats/issues/439)).
 - Fixed getting GitLab subgroups as organizations in repositories table output when pulling repositories with code ([#531](https://github.com/r-world-devs/GitStats/issues/531)).
