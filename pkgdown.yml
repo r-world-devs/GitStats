@@ -6,7 +6,7 @@ articles:
   get_files: get_files.html
   get_repos_with_code: get_repos_with_code.html
   set_hosts: set_hosts.html
-last_built: 2024-11-13T10:27Z
+last_built: 2024-11-13T10:41Z
 urls:
   reference: https://r-world-devs.github.io/GitStats/reference
   article: https://r-world-devs.github.io/GitStats/articles
