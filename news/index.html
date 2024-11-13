@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,9 +36,17 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/r-world-devs/GitStats/blob/v2.1.1/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/r-world-devs/GitStats/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.1.2" id="gitstats-212">GitStats 2.1.2<a class="anchor" aria-label="anchor" href="#gitstats-212"></a></h2>
+<p>This is a patch release which introduces some hot fixes and new data in <code><a href="../reference/get_commits.html">get_commits()</a></code> output.</p>
+<ul><li>Added <code>repo_url</code> column to output of <code><a href="../reference/get_commits.html">get_commits()</a></code> function (<a href="https://github.com/r-world-devs/GitStats/issues/535" class="external-link">#535</a>).</li>
+<li>Fixed setting default tokens when <code>verbose</code> mode is set to <code>FALSE</code> (<a href="https://github.com/r-world-devs/GitStats/issues/525" class="external-link">#525</a>) and fixed checking token scopes for GitLab (<a href="https://github.com/r-world-devs/GitStats/issues/526" class="external-link">#526</a>).</li>
+<li>Fixed <code><a href="../reference/get_repos_urls.html">get_repos_urls()</a></code> output when individual repositories are set in <code>set_*_host()</code>(<a href="https://github.com/r-world-devs/GitStats/issues/529" class="external-link">#529</a>). Earlier the function pulled all repositories for an organization, even though, repositories were defined for the host, not whole organizations. This is similar to the solved earlier (<a href="https://github.com/r-world-devs/GitStats/issues/439" class="external-link">#439</a>).</li>
+<li>Fixed getting GitLab subgroups as organizations in repositories table output when pulling repositories with code (<a href="https://github.com/r-world-devs/GitStats/issues/531" class="external-link">#531</a>).</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.1.1" id="gitstats-211">GitStats 2.1.1<a class="anchor" aria-label="anchor" href="#gitstats-211"></a></h2><p class="text-muted">CRAN release: 2024-10-25</p>
 <p>This is a patch release which introduces some improvements in <code><a href="../reference/get_R_package_usage.html">get_R_package_usage()</a></code> on speed and possibility to pull at once data on multiple R packages, new <code><a href="../reference/get_storage.html">get_storage()</a></code> function and some fixes for checking token scopes and setting hosts.</p>
