@@ -516,8 +516,10 @@ GitHost <- R6::R6Class(
     set_default_token = function(verbose) {
       primary_token_name <- private$token_name
       token <- Sys.getenv(primary_token_name)
-      if (private$test_token(token) && verbose) {
-        cli::cli_alert_info("Using PAT from {primary_token_name} envar.")
+      if (private$test_token(token)) {
+        if (verbose) {
+          cli::cli_alert_info("Using PAT from {primary_token_name} envar.")
+        }
       } else {
         pat_names <- names(Sys.getenv()[grepl(primary_token_name, names(Sys.getenv()))])
         possible_tokens <- pat_names[pat_names != primary_token_name]
@@ -698,7 +700,8 @@ GitHost <- R6::R6Class(
         }
         repos_urls <- rest_engine$get_repos_urls(
           type = type,
-          org  = org
+          org  = org,
+          repos = private$set_repos(org)
         )
         return(repos_urls)
       }, .progress = progress) %>%

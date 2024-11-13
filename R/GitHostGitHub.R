@@ -188,7 +188,9 @@ GitHostGitHub <- R6::R6Class(
           until       = until,
           progress    = progress
         ) %>%
-          graphql_engine$prepare_commits_table(org)
+          graphql_engine$prepare_commits_table(
+            org = org
+          )
         return(commits_table_org)
       }, .progress = if (private$scan_all && progress) {
         "[GitHost:GitHub] Pulling commits..."

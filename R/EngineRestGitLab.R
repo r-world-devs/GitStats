@@ -107,7 +107,7 @@ EngineRestGitLab <- R6::R6Class(
             "languages" = paste0(project$languages, collapse = ", "),
             "issues_open" = project$issues_open,
             "issues_closed" = project$issues_closed,
-            "organization" = project$namespace$path,
+            "organization" = project$namespace$full_path,
             "repo_url" = project$web_url
           )
         }
@@ -142,7 +142,8 @@ EngineRestGitLab <- R6::R6Class(
               replacement = "",
               x = gsub(paste0("(.*)", org, "/"), "", commit$web_url)
             ),
-            "organization" = org
+            "organization" = org,
+            "repo_url" = stringr::str_match(commit$web_url, "(.*)/-/commit/.*")[2]
           )
         })
       })
@@ -166,10 +167,15 @@ EngineRestGitLab <- R6::R6Class(
     },
 
     # Pull all repositories URLs from organization
-    get_repos_urls = function(type, org) {
-      repos_urls <- self$response(
+    get_repos_urls = function(type, org, repos) {
+      repos_response <- self$response(
         endpoint = paste0(private$endpoints[["organizations"]], utils::URLencode(org, reserved = TRUE), "/projects")
-      ) %>%
+      )
+      if (!is.null(repos)) {
+        repos_response <- repos_response %>%
+          purrr::keep(~ .$path %in% repos)
+      }
+      repos_urls <- repos_response %>%
         purrr::map_vec(function(project) {
           if (type == "api") {
             project$`_links`$self

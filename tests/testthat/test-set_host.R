@@ -113,14 +113,14 @@ test_that("Error shows, when wrong input is passed when setting connection and h
       token = Sys.getenv("GITLAB_PAT_PUBLIC")
     )
   )
-  expect_snapshot({
+  expect_error({
     create_gitstats() %>%
       set_github_host(
         host = "wrong.url",
         orgs = c("openpharma", "r_world_devs")
       )
     },
-    error = TRUE
+    "Could not resolve host."
   )
 })
 
@@ -171,5 +171,23 @@ test_that("Error pops out when `org` does not exist", {
       )
     },
     error = TRUE
+  )
+})
+
+test_that("Setting verbose for set_*_host() to FALSE works fine", {
+  skip_on_cran()
+  expect_no_error(
+    create_gitstats() %>%
+      set_github_host(
+        orgs = c("openpharma", "r-world-devs"),
+        verbose = FALSE
+      )
+  )
+  expect_no_error(
+    create_gitstats() %>%
+      set_gitlab_host(
+        orgs = "mbtests",
+        verbose = FALSE
+      )
   )
 })

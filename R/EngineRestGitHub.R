@@ -106,10 +106,15 @@ EngineRestGitHub <- R6::R6Class(
     },
 
     #' Pull all repositories URLS from organization
-    get_repos_urls = function(type, org) {
-      repos_urls <- self$response(
+    get_repos_urls = function(type, org, repos) {
+      repos_response <- self$response(
         endpoint = paste0(private$endpoints[["organizations"]], org, "/repos")
-      ) %>%
+      )
+      if (!is.null(repos)) {
+        repos_response <- repos_response %>%
+          purrr::keep(~ .$name %in% repos)
+      }
+      repos_urls <- repos_response %>%
         purrr::map_vec(function(repository) {
           if (type == "api") {
             repository$url
