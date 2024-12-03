@@ -1,3 +1,7 @@
+# GitStats (development version)
+
+- Fixed pulling commits for GitLab subgroups when repositories are set as scope to scan ([#551](https://github.com/r-world-devs/GitStats/issues/551)).
+
 # GitStats 2.1.2
 
 This is a patch release which introduces some hot fixes and new data in `get_commits()` output.
