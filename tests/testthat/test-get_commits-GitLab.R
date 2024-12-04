@@ -39,6 +39,54 @@ test_that("`prepare_commits_table()` prepares table of commits properly", {
   test_mocker$cache(gl_commits_table)
 })
 
+test_authors_dict <- data.frame(
+  author = c("TestFamily, TestName {TestID}", "TestName TestFamily", "testlogin"),
+  author_login = rep(NA, 3),
+  author_name = rep(NA, 3)
+)
+
+test_that("clean_authors_with_comma parses properly authors data", {
+  test_authors_dict <- test_rest_gitlab_priv$clean_authors_with_comma(test_authors_dict)
+  expect_equal(
+    test_authors_dict$author_name[test_authors_dict$author == "TestFamily, TestName {TestID}"],
+    "TestName TestFamily"
+  )
+  test_mocker$cache(test_authors_dict)
+})
+
+test_that("fill_empty_authors fills properly authors data", {
+  test_authors_dict <- test_rest_gitlab_priv$fill_empty_authors(
+    authors_dict = test_mocker$use("test_authors_dict")
+  )
+  expect_equal(
+    test_authors_dict$author_name[test_authors_dict$author == "TestName TestFamily"],
+    "TestName TestFamily"
+  )
+  expect_equal(
+    test_authors_dict$author_login[test_authors_dict$author == "testlogin"],
+    "testlogin"
+  )
+  test_mocker$cache(test_authors_dict)
+})
+
+test_that("clean_authors_dict", {
+  test_authors_dict <- test_rest_gitlab_priv$clean_authors_dict(
+    authors_dict = test_authors_dict
+  )
+  expect_equal(
+    test_authors_dict$author_name[test_authors_dict$author == "TestFamily, TestName {TestID}"],
+    "TestName TestFamily"
+  )
+  expect_equal(
+    test_authors_dict$author_name[test_authors_dict$author == "TestName TestFamily"],
+    "TestName TestFamily"
+  )
+  expect_equal(
+    test_authors_dict$author_login[test_authors_dict$author == "testlogin"],
+    "testlogin"
+  )
+})
+
 test_that("get_authors_dict() prepares dictionary with handles and names", {
   mockery::stub(
     test_rest_gitlab_priv$get_authors_dict,
