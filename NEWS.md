@@ -1,3 +1,8 @@
+# GitStats (development version)
+
+- Fixed pulling commits for GitLab subgroups when repositories are set as scope to scan ([#551](https://github.com/r-world-devs/GitStats/issues/551)).
+- Filled more information on `author_name` and `author_login` if it was missing in `commits_table` ([#550](https://github.com/r-world-devs/GitStats/issues/550)).
+
 # GitStats 2.1.2
 
 This is a patch release which introduces some hot fixes and new data in `get_commits()` output.

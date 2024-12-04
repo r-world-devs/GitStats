@@ -268,7 +268,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     set_repositories = function(org, settings) {
       if (private$searching_scope == "repo") {
         repos <- private$orgs_repos[[org]]
-        repos_names <- paste0(org, "%2f", repos)
+        repos_names <- paste0(utils::URLencode(org, reserved = TRUE), "%2f", repos)
       } else {
         repos_table <- private$get_all_repos(
           verbose = FALSE

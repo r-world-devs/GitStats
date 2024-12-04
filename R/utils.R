@@ -63,3 +63,13 @@ standardize_dates <- function(dates) {
 url_encode <- function(url) {
   URLencode(url, reserved = TRUE)
 }
+
+#' @noRd
+is_name <- function(author) {
+  length(stringr::str_split_1(author, " ")) > 1
+}
+
+#' @noRd
+is_login <- function(author) {
+  length(stringr::str_split_1(author, " ")) == 1 && identical(author, tolower(author))
+}

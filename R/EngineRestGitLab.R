@@ -276,7 +276,7 @@ EngineRestGitLab <- R6::R6Class(
             .after = author
           )
 
-        empty_dict <- all(is.na(authors_dict[, c("author_login", "author_name")] %>%
+        empty_dict <- all(is.na(authors_dict[, c("author_login", "author_name")] |>
                                   unlist()))
         if (!empty_dict) {
           commits_table <- dplyr::mutate(
@@ -494,7 +494,7 @@ EngineRestGitLab <- R6::R6Class(
     },
 
     get_authors_dict = function(commits_table, progress) {
-      purrr::map(unique(commits_table$author), function(author) {
+      authors_dict <- purrr::map(unique(commits_table$author), function(author) {
         author <- url_encode(author)
         search_endpoint <- paste0(
           self$rest_api_url,
@@ -533,6 +533,65 @@ EngineRestGitLab <- R6::R6Class(
         return(user_tbl)
       }, .progress = progress) %>%
         purrr::list_rbind()
+      authors_dict <- private$clean_authors_dict(authors_dict)
+      return(authors_dict)
+    },
+
+    clean_authors_dict = function(authors_dict) {
+      authors_dict <- private$clean_authors_with_comma(
+        authors_dict = authors_dict
+      )
+      authors_dict <- private$fill_empty_authors(
+        authors_dict = authors_dict
+      )
+      return(authors_dict)
+    },
+
+    clean_authors_with_comma = function(authors_dict) {
+      authors_to_clean <- authors_dict$author[is.na(authors_dict$author_name)]
+      if (any(grepl(",", authors_to_clean))) {
+        authors_with_comma <- authors_to_clean[grepl(",", authors_to_clean)]
+        clean_authors <- purrr::map(authors_with_comma, function(author) {
+          split_author <- stringr::str_split_1(author, ",")
+          split_author <- purrr::map(split_author, function(x) {
+            stringr::str_replace(x, "\\{.*?\\}", "") |>
+              stringr::str_replace_all(" ", "")
+          })
+          source_author <- unlist(split_author)
+          clean_author <- paste(source_author[2], source_author[1])
+          dplyr::tibble(
+            author = author,
+            author_login = NA_character_,
+            author_name = clean_author
+          )
+        }) |>
+          purrr::list_rbind()
+        authors_dict <- authors_dict |>
+          dplyr::filter(!author %in% authors_with_comma)
+        authors_dict <- rbind(authors_dict, clean_authors)
+      }
+      return(authors_dict)
+    },
+
+    fill_empty_authors = function(authors_dict) {
+      authors_to_clean <- authors_dict$author[is.na(authors_dict$author_name)]
+      authors_to_clean <- authors_to_clean[!grepl(",", authors_to_clean)]
+      author_names <- purrr::keep(authors_to_clean, function(author) {
+        length(stringr::str_split_1(author, " ")) > 1
+      })
+      author_logins <- purrr::keep(authors_to_clean, function(author) {
+        length(stringr::str_split_1(author, " ")) == 1
+      })
+      authors_dict <- authors_dict |>
+        dplyr::mutate(
+          author_name = ifelse(author %in% author_names,
+                               author,
+                               author_name),
+          author_login = ifelse(author %in% author_logins,
+                                author,
+                                author_login)
+        )
+      return(authors_dict)
     }
   )
 )
