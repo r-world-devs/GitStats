@@ -167,6 +167,7 @@ EngineGraphQLGitHub <- R6::R6Class(
             .before = api_url
           )
       }
+      commits_table <- private$fill_empty_authors(commits_table)
       return(commits_table)
     },
 
@@ -539,6 +540,15 @@ EngineGraphQLGitHub <- R6::R6Class(
         "files" = files
       )
       return(result)
+    },
+
+    fill_empty_authors = function(commits_table) {
+      commits_table <- commits_table |>
+        dplyr::rowwise() |>
+        dplyr::mutate(
+          author_name = ifelse(is.na(author_name) & is_name(author), author, author_name),
+          author_login = ifelse(is.na(author_login) & is_login(author), author, author_login)
+        )
     }
   )
 )
