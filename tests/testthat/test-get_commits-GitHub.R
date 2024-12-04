@@ -72,6 +72,18 @@ test_that("`prepare_commits_table()` prepares commits table", {
   test_mocker$cache(gh_commits_table)
 })
 
+test_that("fill_empty_authors() works as expected", {
+  commits_table <- test_mocker$use("gh_commits_table")
+  commits_table$author_name <- NA
+  commits_table <- test_graphql_github_priv$fill_empty_authors(
+    commits_table = commits_table
+  )
+  expect_equal(
+    commits_table$author_name,
+    "Maciej Banas"
+  )
+})
+
 test_that("get_commits_from_orgs for GitHub works", {
   mockery::stub(
     github_testhost_repos_priv$get_commits_from_orgs,
