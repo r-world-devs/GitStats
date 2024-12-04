@@ -538,19 +538,17 @@ EngineRestGitLab <- R6::R6Class(
     },
 
     clean_authors_dict = function(authors_dict) {
-      authors_to_clean <- authors_dict$author[is.na(authors_dict$author_name)]
       authors_dict <- private$clean_authors_with_comma(
-        authors_to_clean = authors_to_clean,
         authors_dict = authors_dict
       )
       authors_dict <- private$fill_empty_authors(
-        authors_to_clean = authors_to_clean,
         authors_dict = authors_dict
       )
       return(authors_dict)
     },
 
-    clean_authors_with_comma = function(authors_dict, authors_to_clean) {
+    clean_authors_with_comma = function(authors_dict) {
+      authors_to_clean <- authors_dict$author[is.na(authors_dict$author_name)]
       if (any(grepl(",", authors_to_clean))) {
         authors_with_comma <- authors_to_clean[grepl(",", authors_to_clean)]
         clean_authors <- purrr::map(authors_with_comma, function(author) {
@@ -571,11 +569,12 @@ EngineRestGitLab <- R6::R6Class(
         authors_dict <- authors_dict |>
           dplyr::filter(!author %in% authors_with_comma)
         authors_dict <- rbind(authors_dict, clean_authors)
-        return(authors_dict)
       }
+      return(authors_dict)
     },
 
-    fill_empty_authors = function(authors_dict, authors_to_clean) {
+    fill_empty_authors = function(authors_dict) {
+      authors_to_clean <- authors_dict$author[is.na(authors_dict$author_name)]
       authors_to_clean <- authors_to_clean[!grepl(",", authors_to_clean)]
       author_names <- purrr::keep(authors_to_clean, function(author) {
         length(stringr::str_split_1(author, " ")) > 1
