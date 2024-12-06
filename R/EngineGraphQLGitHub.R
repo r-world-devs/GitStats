@@ -135,12 +135,12 @@ EngineGraphQLGitHub <- R6::R6Class(
           commit$node$author_login <- if (!is.null(commit_author$user$login)) {
             commit_author$user$login
           } else {
-            NA
+            NA_character_
           }
           commit$node$author_name <- if (!is.null(commit_author$user$name)) {
             commit_author$user$name
           } else {
-            NA
+            NA_character_
           }
           commit$node$committed_date <- gts_to_posixt(commit$node$committed_date)
           commit$node$repo_url <- commit$node$repository$url
@@ -344,15 +344,18 @@ EngineGraphQLGitHub <- R6::R6Class(
                               type = c("organization", "user"),
                               repo_cursor = "") {
       repos_query <- if (type == "organization") {
-        self$gql_query$repos_by_org()
+        self$gql_query$repos_by_org(
+          repo_cursor = repo_cursor
+        )
       } else {
-        self$gql_query$repos_by_user()
+        self$gql_query$repos_by_user(
+          repo_cursor = repo_cursor
+        )
       }
       response <- self$gql_response(
         gql_query = repos_query,
         vars = list(
-          "login" = login,
-          "repoCursor" = repo_cursor
+          "login" = login
         )
       )
       private$handle_gql_response_error(response)
@@ -360,7 +363,7 @@ EngineGraphQLGitHub <- R6::R6Class(
     },
 
     handle_gql_response_error = function(response) {
-      if (any(names(response) %in% "errors")) {
+      if (private$is_query_error(response)) {
         cli::cli_abort(c(
           "i" = "GraphQL response error",
           "x" = response$errors[[1]]$message
@@ -407,15 +410,27 @@ EngineGraphQLGitHub <- R6::R6Class(
       commits_by_org_query <- self$gql_query$commits_from_repo(
         commits_cursor = commits_cursor
       )
-      response <- self$gql_response(
-        gql_query = commits_by_org_query,
-        vars = list(
-          "org" = org,
-          "repo" = repo,
-          "since" = date_to_gts(since),
-          "until" = date_to_gts(until)
+      response <- tryCatch({
+        self$gql_response(
+          gql_query = commits_by_org_query,
+          vars = list(
+            "org" = org,
+            "repo" = repo,
+            "since" = date_to_gts(since),
+            "until" = date_to_gts(until)
+          )
         )
-      )
+      }, error = function(e) {
+        self$gql_response(
+          gql_query = commits_by_org_query,
+          vars = list(
+            "org" = org,
+            "repo" = repo,
+            "since" = date_to_gts(since),
+            "until" = date_to_gts(until)
+          )
+        )
+      })
       return(response)
     },
 
