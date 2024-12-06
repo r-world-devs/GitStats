@@ -51,12 +51,12 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
 
     #' @description Prepare query to get repositories from GitHub.
     #' @return A query.
-    repos_by_org = function() {
+    repos_by_org = function(repo_cursor) {
       paste0('
-        query GetReposByOrg($login: String! $repoCursor: String!) {
+        query GetReposByOrg($login: String!) {
           repositoryOwner(login: $login) {
             ... on Organization {
-              ', private$repositories_field(), '
+              ', private$repositories_field(repo_cursor), '
             }
           }
         }')
@@ -64,11 +64,11 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
 
     #' @description Prepare query to get repositories from GitHub.
     #' @return A query.
-    repos_by_user = function() {
+    repos_by_user = function(repo_cursor) {
       paste0('
-        query GetUsersRepos($login: String! $repoCursor: String!){
+        query GetUsersRepos($login: String!){
           user(login: $login) {
-            ', private$repositories_field(), '
+            ', private$repositories_field(repo_cursor), '
           }
         }'
       )
@@ -206,7 +206,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     }
   ),
   private = list(
-    # @description Helper over defining cursor agument for the query.
+    # @description Helper over defining cursor argument for the query.
     # @param cursor A cursor.
     # @return A string of cursor argument.
     add_cursor = function(cursor) {
@@ -219,9 +219,9 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     },
 
     # @description Helper to prepare repository query.
-    repositories_field = function() {
-      '
-      repositories(first: 100 after: $repoCursor) {
+    repositories_field = function(repo_cursor) {
+      paste0('
+      repositories(first: 100', private$add_cursor(repo_cursor), ') {
         totalCount
         pageInfo {
           endCursor
@@ -250,7 +250,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
           repo_url: url
         }
       }
-      '
+      ')
     }
   )
 )
