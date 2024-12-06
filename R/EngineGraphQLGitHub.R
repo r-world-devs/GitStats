@@ -355,7 +355,17 @@ EngineGraphQLGitHub <- R6::R6Class(
           "repoCursor" = repo_cursor
         )
       )
+      private$handle_gql_response_error(response)
       return(response)
+    },
+
+    handle_gql_response_error = function(response) {
+      if (any(names(response) %in% "errors")) {
+        cli::cli_abort(c(
+          "i" = "GraphQL response error",
+          "x" = response$errors[[1]]$message
+        ), call = NULL)
+      }
     },
 
     # An iterator over pulling commit pages from one repository.
@@ -543,12 +553,15 @@ EngineGraphQLGitHub <- R6::R6Class(
     },
 
     fill_empty_authors = function(commits_table) {
-      commits_table <- commits_table |>
-        dplyr::rowwise() |>
-        dplyr::mutate(
-          author_name = ifelse(is.na(author_name) & is_name(author), author, author_name),
-          author_login = ifelse(is.na(author_login) & is_login(author), author, author_login)
-        )
+      if (length(commits_table) > 0) {
+        commits_table <- commits_table |>
+          dplyr::rowwise() |>
+          dplyr::mutate(
+            author_name = ifelse(is.na(author_name) & is_name(author), author, author_name),
+            author_login = ifelse(is.na(author_login) & is_login(author), author, author_login)
+          )
+      }
+      return(commits_table)
     }
   )
 )
