@@ -2,6 +2,7 @@
 
 - Fixed pulling commits for GitLab subgroups when repositories are set as scope to scan ([#551](https://github.com/r-world-devs/GitStats/issues/551)).
 - Filled more information on `author_name` and `author_login` if it was missing in `commits_table` ([#550](https://github.com/r-world-devs/GitStats/issues/550)).
+- Handled a `GraphQL` response error when pulling repositories with R error. Earlier, `GitStats` just returned empty table with no clue on what has happened, as errors from `GraphQL` are returned as list outputs (they do not break code).
 
 # GitStats 2.1.2
 
