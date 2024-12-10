@@ -74,6 +74,19 @@ test_that("get_commits() returns error when since is not defined", {
   )
 })
 
+test_that("prepare_commits_stats prepares commits statistics", {
+  commits_stats <- test_gitstats_priv$prepare_commits_stats(
+    commits = test_mocker$use("commits_table"),
+    time_interval = "week",
+    author,
+    stats = dplyr::n()
+  )
+  expect_equal(
+    colnames(commits_stats),
+    c("stats_date", "githost", "author", "stats")
+  )
+})
+
 test_gitstats <- create_test_gitstats(
   hosts = 2,
   inject_commits = "commits_table"
@@ -89,35 +102,39 @@ test_that("get_commits_stats returns error when no commits", {
 test_that("get_commits_stats prepares table with statistics on commits", {
   commits_stats <- get_commits_stats(
     gitstats_obj = test_gitstats,
-    time_interval = "month"
+    time_interval = "month",
+    organization
   )
   expect_s3_class(commits_stats, "commits_stats")
   expect_equal(
     colnames(commits_stats),
-    c("stats_date", "platform", "organization", "commits_n")
+    c("stats_date", "githost", "organization", "stats")
   )
   expect_true(
-    "github" %in% commits_stats$platform
+    "github" %in% commits_stats$githost
   )
   test_mocker$cache(commits_stats)
 
   commits_stats_daily <- get_commits_stats(
     gitstats_obj = test_gitstats,
-    time_interval = "day")
+    time_interval = "day",
+    organization,
+  )
   expect_s3_class(commits_stats_daily, "commits_stats")
   expect_equal(
     colnames(commits_stats_daily),
-    c("stats_date", "platform", "organization", "commits_n")
+    c("stats_date", "githost", "organization", "stats")
   )
 
   commits_stats_yearly <- get_commits_stats(
     gitstats_obj = test_gitstats,
-    time_interval = "year")
+    time_interval = "year"
+  )
   expect_equal(commits_stats_yearly$stats_date,
                as.POSIXct(c(rep("2023-01-01", 2), "2024-01-01"), tz = 'UTC'))
   expect_s3_class(commits_stats_yearly, "commits_stats")
   expect_equal(
     colnames(commits_stats_yearly),
-    c("stats_date", "platform", "organization", "commits_n")
+    c("stats_date", "githost", "stats")
   )
 })

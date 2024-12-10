@@ -260,9 +260,14 @@ get_commits <- function(gitstats_object,
 #' @description Prepare statistics from the pulled commits data.
 #' @details To make function work, you need first to get commits data with
 #'   `GitStats`. See examples section.
-#' @param gitstats_object A GitStats class object.
+#' @param gitstats_object A `GitStats` object.
 #' @param time_interval A character, specifying time interval to show
 #'   statistics.
+#' @param ... Other grouping variables to be passed to `dplyr::group_by()`
+#'   function apart from `stats_date` and `githost`. Could be: `author`,
+#'   `author_login`, `author_name`, `repository` or `organization`. Should be
+#'   passed without quotation marks.
+#' @param stats Customize statistics.
 #' @return A table of `commits_stats` class.
 #' @examples
 #' \dontrun{
@@ -272,13 +277,17 @@ get_commits <- function(gitstats_object,
 #'      repos = c("r-world-devs/GitStats", "openpharma/visR")
 #'    )
 #'  get_commits(my_gitstats, since = "2022-01-01")
-#'  get_commits_stats(my_gitstats, time_interval = "week")
+#'  get_commits_stats(my_gitstats, author, time_interval = "year")
 #' }
 #' @export
 get_commits_stats <- function(gitstats_object,
-                              time_interval = c("year", "month", "day", "week")) {
+                              time_interval = c("year", "month", "day", "week"),
+                              ...,
+                              stats = dplyr::n()) {
   gitstats_object$get_commits_stats(
-    time_interval = time_interval
+    time_interval = time_interval,
+    ... = ...,
+    stats = stats
   )
 }
 

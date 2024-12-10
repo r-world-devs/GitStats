@@ -242,8 +242,14 @@ GitStats <- R6::R6Class(
     #' @description Prepare statistics from the pulled commits data.
     #' @param time_interval A character, specifying time interval to show
     #'   statistics.
+    #' @param ... Other grouping variables to be passed to `dplyr::group_by()`
+    #'   function apart from `stats_date` and `githost`. Could be: `author`,
+    #'   `author_login`, `author_name`, `repository` or `organization`. Should be
+    #'   passed without quotation marks.
     #' @return A table of `commits_stats` class.
-    get_commits_stats = function(time_interval = c("year", "month", "day", "week")) {
+    get_commits_stats = function(time_interval = c("year", "month", "day", "week"),
+                                 ...,
+                                 stats) {
       commits <- private$storage[["commits"]]
       if (is.null(commits)) {
         cli::cli_abort(c(
@@ -256,7 +262,9 @@ GitStats <- R6::R6Class(
 
       commits_stats <- private$prepare_commits_stats(
         commits = commits,
-        time_interval = time_interval
+        time_interval = time_interval,
+        ... = ...,
+        stats = stats
       )
       return(commits_stats)
     },
@@ -1115,19 +1123,20 @@ GitStats <- R6::R6Class(
     },
 
     # Prepare stats out of commits table
-    prepare_commits_stats = function(commits, time_interval) {
-      commits_stats <- commits %>%
+    prepare_commits_stats = function(commits, time_interval, ..., stats) {
+      commits <- commits |>
         dplyr::mutate(
           stats_date = lubridate::floor_date(
             committed_date,
             unit = time_interval
           ),
-          platform = retrieve_platform(api_url)
-        ) %>%
-        dplyr::group_by(stats_date, platform, organization) %>%
+          githost = retrieve_platform(api_url)
+        )
+      commits_stats <- commits |>
+        dplyr::group_by(stats_date, githost, ...) |>
         dplyr::summarise(
-          commits_n = dplyr::n()
-        ) %>%
+          stats = stats
+        ) |>
         dplyr::arrange(
           stats_date
         )
