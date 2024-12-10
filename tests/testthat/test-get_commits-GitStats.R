@@ -92,6 +92,23 @@ test_gitstats <- create_test_gitstats(
   inject_commits = "commits_table"
 )
 
+test_that("get_commits_stats method works", {
+  commits_stats <- test_gitstats$get_commits_stats(
+    time_aggregation = "month",
+    organization,
+    stats = dplyr::n()
+  )
+  expect_s3_class(commits_stats, "commits_stats")
+  expect_equal(
+    colnames(commits_stats),
+    c("stats_date", "githost", "organization", "stats")
+  )
+  expect_true(
+    all(c("gitlab", "github") %in% commits_stats$githost)
+  )
+  test_mocker$cache(commits_stats)
+})
+
 test_that("get_commits_stats returns error when no commits", {
   test_gitstats <- create_test_gitstats()
   expect_snapshot_error(
@@ -100,21 +117,6 @@ test_that("get_commits_stats returns error when no commits", {
 })
 
 test_that("get_commits_stats prepares table with statistics on commits", {
-  commits_stats <- get_commits_stats(
-    gitstats_obj = test_gitstats,
-    time_aggregation = "month",
-    organization
-  )
-  expect_s3_class(commits_stats, "commits_stats")
-  expect_equal(
-    colnames(commits_stats),
-    c("stats_date", "githost", "organization", "stats")
-  )
-  expect_true(
-    "github" %in% commits_stats$githost
-  )
-  test_mocker$cache(commits_stats)
-
   commits_stats_daily <- get_commits_stats(
     gitstats_obj = test_gitstats,
     time_aggregation = "day",
