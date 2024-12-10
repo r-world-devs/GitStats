@@ -42,6 +42,11 @@ To make function work, you need first to get commits data with
      repos = c("r-world-devs/GitStats", "openpharma/visR")
    )
  get_commits(my_gitstats, since = "2022-01-01")
- get_commits_stats(my_gitstats, author, time_interval = "year")
+ get_commits_stats(
+   gitstats_object = my_gitstats,
+   author,
+   organization,
+   time_interval = "year"
+ )
 }
 }
