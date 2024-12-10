@@ -6,9 +6,9 @@
 \usage{
 get_commits_stats(
   gitstats_object,
-  time_aggregation = c("year", "month", "day", "week"),
-  ...,
-  stats = dplyr::n()
+  time_aggregation = c("year", "month", "week", "day"),
+  group_var,
+  stats = "count"
 )
 }
 \arguments{
@@ -17,10 +17,10 @@ get_commits_stats(
 \item{time_aggregation}{A character, specifying time aggregation of
 statistics.}
 
-\item{...}{Other grouping variables to be passed to \code{dplyr::group_by()}
+\item{group_var}{Other grouping variable to be passed to \code{dplyr::group_by()}
 function apart from \code{stats_date} and \code{githost}. Could be: \code{author},
-\code{author_login}, \code{author_name}, \code{repository} or \code{organization}. Should be
-passed without quotation marks.}
+\code{author_login}, \code{author_name} or \code{organization}. Should be passed without
+quotation marks.}
 
 \item{stats}{Customize statistics.}
 }
@@ -44,8 +44,7 @@ To make function work, you need first to get commits data with
  get_commits(my_gitstats, since = "2022-01-01")
  get_commits_stats(
    gitstats_object = my_gitstats,
-   author,
-   organization,
+   group_var = author,
    time_interval = "year"
  )
 }
