@@ -261,7 +261,7 @@ get_commits <- function(gitstats_object,
 #' @details To make function work, you need first to get commits data with
 #'   `GitStats`. See examples section.
 #' @param gitstats_object A `GitStats` object.
-#' @param time_interval A character, specifying time interval to show
+#' @param time_aggregation A character, specifying time aggregation of
 #'   statistics.
 #' @param ... Other grouping variables to be passed to `dplyr::group_by()`
 #'   function apart from `stats_date` and `githost`. Could be: `author`,
@@ -281,11 +281,11 @@ get_commits <- function(gitstats_object,
 #' }
 #' @export
 get_commits_stats <- function(gitstats_object,
-                              time_interval = c("year", "month", "day", "week"),
+                              time_aggregation = c("year", "month", "day", "week"),
                               ...,
                               stats = dplyr::n()) {
   gitstats_object$get_commits_stats(
-    time_interval = time_interval,
+    time_aggregation = time_aggregation,
     ... = ...,
     stats = stats
   )

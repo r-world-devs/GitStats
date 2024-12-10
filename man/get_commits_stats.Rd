@@ -6,7 +6,7 @@
 \usage{
 get_commits_stats(
   gitstats_object,
-  time_interval = c("year", "month", "day", "week"),
+  time_aggregation = c("year", "month", "day", "week"),
   ...,
   stats = dplyr::n()
 )
@@ -14,7 +14,7 @@ get_commits_stats(
 \arguments{
 \item{gitstats_object}{A \code{GitStats} object.}
 
-\item{time_interval}{A character, specifying time interval to show
+\item{time_aggregation}{A character, specifying time aggregation of
 statistics.}
 
 \item{...}{Other grouping variables to be passed to \code{dplyr::group_by()}

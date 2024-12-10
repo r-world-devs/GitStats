@@ -77,7 +77,7 @@ test_that("get_commits() returns error when since is not defined", {
 test_that("prepare_commits_stats prepares commits statistics", {
   commits_stats <- test_gitstats_priv$prepare_commits_stats(
     commits = test_mocker$use("commits_table"),
-    time_interval = "week",
+    time_aggregation = "week",
     author,
     stats = dplyr::n()
   )
@@ -102,7 +102,7 @@ test_that("get_commits_stats returns error when no commits", {
 test_that("get_commits_stats prepares table with statistics on commits", {
   commits_stats <- get_commits_stats(
     gitstats_obj = test_gitstats,
-    time_interval = "month",
+    time_aggregation = "month",
     organization
   )
   expect_s3_class(commits_stats, "commits_stats")
@@ -117,7 +117,7 @@ test_that("get_commits_stats prepares table with statistics on commits", {
 
   commits_stats_daily <- get_commits_stats(
     gitstats_obj = test_gitstats,
-    time_interval = "day",
+    time_aggregation = "day",
     organization,
   )
   expect_s3_class(commits_stats_daily, "commits_stats")
@@ -128,7 +128,7 @@ test_that("get_commits_stats prepares table with statistics on commits", {
 
   commits_stats_yearly <- get_commits_stats(
     gitstats_obj = test_gitstats,
-    time_interval = "year"
+    time_aggregation = "year"
   )
   expect_equal(commits_stats_yearly$stats_date,
                as.POSIXct(c(rep("2023-01-01", 2), "2024-01-01"), tz = 'UTC'))
