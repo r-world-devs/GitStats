@@ -7,8 +7,7 @@
 get_commits_stats(
   gitstats_object,
   time_aggregation = c("year", "month", "week", "day"),
-  group_var,
-  stats = "count"
+  group_var
 )
 }
 \arguments{
@@ -21,8 +20,6 @@ statistics.}
 function apart from \code{stats_date} and \code{githost}. Could be: \code{author},
 \code{author_login}, \code{author_name} or \code{organization}. Should be passed without
 quotation marks.}
-
-\item{stats}{Customize statistics.}
 }
 \value{
 A table of \code{commits_stats} class.

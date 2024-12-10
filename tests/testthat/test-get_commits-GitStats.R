@@ -78,8 +78,7 @@ test_that("prepare_commits_stats prepares commits statistics", {
   commits_stats <- test_gitstats_priv$prepare_commits_stats(
     commits = test_mocker$use("commits_table"),
     time_aggregation = "week",
-    group_var = author,
-    stats = "count"
+    group_var = author
   )
   expect_equal(
     colnames(commits_stats),
@@ -95,8 +94,7 @@ test_gitstats <- create_test_gitstats(
 test_that("get_commits_stats method works", {
   commits_stats <- test_gitstats$get_commits_stats(
     time_aggregation = "month",
-    group_var = "organization",
-    stats = "count"
+    group_var = "organization"
   )
   expect_s3_class(commits_stats, "commits_stats")
   expect_true(
@@ -116,8 +114,7 @@ test_that("get_commits_stats prepares table with statistics on commits", {
   commits_stats_daily <- get_commits_stats(
     gitstats_obj = test_gitstats,
     time_aggregation = "day",
-    group_var = organization,
-    stats = "count"
+    group_var = organization
   )
   expect_s3_class(commits_stats_daily, "commits_stats")
   expect_equal(

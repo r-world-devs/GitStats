@@ -267,7 +267,6 @@ get_commits <- function(gitstats_object,
 #'   function apart from `stats_date` and `githost`. Could be: `author`,
 #'   `author_login`, `author_name` or `organization`. Should be passed without
 #'   quotation marks.
-#' @param stats Customize statistics.
 #' @return A table of `commits_stats` class.
 #' @examples
 #' \dontrun{
@@ -286,13 +285,11 @@ get_commits <- function(gitstats_object,
 #' @export
 get_commits_stats <- function(gitstats_object,
                               time_aggregation = c("year", "month", "week", "day"),
-                              group_var,
-                              stats = "count") {
+                              group_var) {
   time_aggregation <- match.arg(time_aggregation)
   gitstats_object$get_commits_stats(
     time_aggregation = time_aggregation,
-    group_var =  rlang::enquo(group_var),
-    stats = stats
+    group_var = rlang::enquo(group_var)
   )
 }
 

@@ -3,9 +3,8 @@
 ## Features:
 
 - Improved `get_commits_stats()` function ([#556](https://github.com/r-world-devs/GitStats/issues/556)) with:
-  - giving possibility to customize grouping variables by passing them in a `dplyr` way with `...` parameter,
-  - adding `stats` parameter to customize statistics,
-  - changing name of `time_interval` parameter to `time_aggregation`,
+  - giving possibility to customize grouping variable by passing it with the `group_var` parameter,
+  - changing name of the `time_interval` parameter to `time_aggregation`,
   - adding `yearly` aggregation to `time_aggregation` parameter.
 
 ## Fixes:
