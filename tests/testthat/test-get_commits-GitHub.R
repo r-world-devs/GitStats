@@ -91,9 +91,10 @@ test_that("fill_empty_authors() works as expected", {
   commits_table <- test_graphql_github_priv$fill_empty_authors(
     commits_table = commits_table
   )
-  expect_equal(
-    commits_table$author_name,
-    "Maciej Banas"
+  expect_true(
+    all(
+      c("Bob Test", "Barbara Check", "John Test") %in% commits_table$author_name
+    )
   )
 })
 

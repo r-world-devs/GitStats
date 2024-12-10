@@ -243,7 +243,7 @@ GitStats <- R6::R6Class(
     #' @param time_interval A character, specifying time interval to show
     #'   statistics.
     #' @return A table of `commits_stats` class.
-    get_commits_stats = function(time_interval = c("month", "day", "week")) {
+    get_commits_stats = function(time_interval = c("year", "month", "day", "week")) {
       commits <- private$storage[["commits"]]
       if (is.null(commits)) {
         cli::cli_abort(c(

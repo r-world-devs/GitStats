@@ -87,7 +87,10 @@ test_that("get_commits_stats returns error when no commits", {
 })
 
 test_that("get_commits_stats prepares table with statistics on commits", {
-  commits_stats <- get_commits_stats(test_gitstats)
+  commits_stats <- get_commits_stats(
+    gitstats_obj = test_gitstats,
+    time_interval = "month"
+  )
   expect_s3_class(commits_stats, "commits_stats")
   expect_equal(
     colnames(commits_stats),
@@ -104,6 +107,17 @@ test_that("get_commits_stats prepares table with statistics on commits", {
   expect_s3_class(commits_stats_daily, "commits_stats")
   expect_equal(
     colnames(commits_stats_daily),
+    c("stats_date", "platform", "organization", "commits_n")
+  )
+
+  commits_stats_yearly <- get_commits_stats(
+    gitstats_obj = test_gitstats,
+    time_interval = "year")
+  expect_equal(commits_stats_yearly$stats_date,
+               as.POSIXct(c(rep("2023-01-01", 2), "2024-01-01"), tz = 'UTC'))
+  expect_s3_class(commits_stats_yearly, "commits_stats")
+  expect_equal(
+    colnames(commits_stats_yearly),
     c("stats_date", "platform", "organization", "commits_n")
   )
 })

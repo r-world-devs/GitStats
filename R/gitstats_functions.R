@@ -276,7 +276,7 @@ get_commits <- function(gitstats_object,
 #' }
 #' @export
 get_commits_stats <- function(gitstats_object,
-                              time_interval = c("month", "day", "week")) {
+                              time_interval = c("year", "month", "day", "week")) {
   gitstats_object$get_commits_stats(
     time_interval = time_interval
   )
