@@ -263,10 +263,10 @@ get_commits <- function(gitstats_object,
 #' @param gitstats_object A `GitStats` object.
 #' @param time_aggregation A character, specifying time aggregation of
 #'   statistics.
-#' @param ... Other grouping variables to be passed to `dplyr::group_by()`
+#' @param group_var Other grouping variable to be passed to `dplyr::group_by()`
 #'   function apart from `stats_date` and `githost`. Could be: `author`,
-#'   `author_login`, `author_name`, `repository` or `organization`. Should be
-#'   passed without quotation marks.
+#'   `author_login`, `author_name` or `organization`. Should be passed without
+#'   quotation marks.
 #' @param stats Customize statistics.
 #' @return A table of `commits_stats` class.
 #' @examples
@@ -279,19 +279,19 @@ get_commits <- function(gitstats_object,
 #'  get_commits(my_gitstats, since = "2022-01-01")
 #'  get_commits_stats(
 #'    gitstats_object = my_gitstats,
-#'    author,
-#'    organization,
+#'    group_var = author,
 #'    time_interval = "year"
 #'  )
 #' }
 #' @export
 get_commits_stats <- function(gitstats_object,
-                              time_aggregation = c("year", "month", "day", "week"),
-                              ...,
-                              stats = dplyr::n()) {
+                              time_aggregation = c("year", "month", "week", "day"),
+                              group_var,
+                              stats = "count") {
+  time_aggregation <- match.arg(time_aggregation)
   gitstats_object$get_commits_stats(
     time_aggregation = time_aggregation,
-    ... = ...,
+    group_var =  rlang::enquo(group_var),
     stats = stats
   )
 }

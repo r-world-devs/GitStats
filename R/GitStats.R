@@ -237,8 +237,8 @@ GitStats <- R6::R6Class(
       return(commits)
     },
 
-    get_commits_stats = function(time_aggregation = c("year", "month", "day", "week"),
-                                 ...,
+    get_commits_stats = function(time_aggregation,
+                                 group_var,
                                  stats) {
       commits <- private$storage[["commits"]]
       if (is.null(commits)) {
@@ -248,12 +248,10 @@ GitStats <- R6::R6Class(
         ),
         call = NULL)
       }
-      time_aggregation <- match.arg(time_aggregation)
-
       commits_stats <- private$prepare_commits_stats(
         commits = commits,
         time_aggregation = time_aggregation,
-        ... = ...,
+        group_var = !!group_var,
         stats = stats
       )
       return(commits_stats)
@@ -1113,7 +1111,7 @@ GitStats <- R6::R6Class(
     },
 
     # Prepare stats out of commits table
-    prepare_commits_stats = function(commits, time_aggregation, ..., stats) {
+    prepare_commits_stats = function(commits, time_aggregation, group_var, stats) {
       commits <- commits |>
         dplyr::mutate(
           stats_date = lubridate::floor_date(
@@ -1122,11 +1120,15 @@ GitStats <- R6::R6Class(
           ),
           githost = retrieve_platform(api_url)
         )
-      commits_stats <- commits |>
-        dplyr::group_by(stats_date, githost, ...) |>
-        dplyr::summarise(
-          stats = stats
-        ) |>
+      commits_grouped <- commits |>
+        dplyr::group_by(stats_date, githost, {{ group_var }})
+      if (stats == "count") {
+        commits_stats <- commits_grouped |>
+          dplyr::summarise(
+            stats = dplyr::n()
+          )
+      }
+      commits_stats <- commits_stats |>
         dplyr::arrange(
           stats_date
         )
