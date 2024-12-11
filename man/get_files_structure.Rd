@@ -5,16 +5,16 @@
 \title{Get structure of files}
 \usage{
 get_files_structure(
-  gitstats_object,
+  gitstats,
   pattern = NULL,
   depth = Inf,
   cache = TRUE,
-  verbose = is_verbose(gitstats_object),
+  verbose = is_verbose(gitstats),
   progress = verbose
 )
 }
 \arguments{
-\item{gitstats_object}{A GitStats object.}
+\item{gitstats}{A GitStats object.}
 
 \item{pattern}{An optional regular expression. If defined, it pulls file
 structure for a repository matching this pattern.}

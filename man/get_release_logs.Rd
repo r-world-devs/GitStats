@@ -5,16 +5,16 @@
 \title{Get release logs}
 \usage{
 get_release_logs(
-  gitstats_object,
+  gitstats,
   since = NULL,
   until = Sys.Date() + lubridate::days(1),
   cache = TRUE,
-  verbose = is_verbose(gitstats_object),
+  verbose = is_verbose(gitstats),
   progress = verbose
 )
 }
 \arguments{
-\item{gitstats_object}{A GitStats object.}
+\item{gitstats}{A GitStats object.}
 
 \item{since}{A starting date.}
 

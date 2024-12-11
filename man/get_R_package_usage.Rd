@@ -5,16 +5,16 @@
 \title{Get data on package usage across repositories}
 \usage{
 get_R_package_usage(
-  gitstats_object,
+  gitstats,
   packages,
   only_loading = FALSE,
   split_output = FALSE,
   cache = TRUE,
-  verbose = is_verbose(gitstats_object)
+  verbose = is_verbose(gitstats)
 )
 }
 \arguments{
-\item{gitstats_object}{A GitStats object.}
+\item{gitstats}{A GitStats object.}
 
 \item{packages}{A character vector, names of R packages to look for.}
 
@@ -51,7 +51,7 @@ files).
   )
 
  get_R_package_usage(
-   gitstats_object = my_gitstats,
+   gitstats = my_gitstats,
    packages = c("purrr", "shiny"),
    split_output = TRUE
  )

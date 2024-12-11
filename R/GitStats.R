@@ -4,19 +4,6 @@ GitStats <- R6::R6Class(
   classname = "GitStats",
   public = list(
 
-    #' @description Method to set connections to Git platforms.
-    #' @param host A character, optional, URL name of the host. If not passed, a
-    #'   public host will be used (api.github.com).
-    #' @param token A token.
-    #' @param orgs An optional character vector of organisations (owners of
-    #'   repositories in case of GitHub). If you pass it, `repos` parameter
-    #'   should stay `NULL`.
-    #' @param repos An optional character vector of repositories full names
-    #'   (organization and repository name, e.g. "r-world-devs/GitStats"). If
-    #'   you pass it, `orgs` parameter should stay `NULL`.
-    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
-    #'   output is switched off.
-    #' @return Nothing, puts connection information into `$hosts` slot.
     set_github_host = function(host,
                                token = NULL,
                                orgs = NULL,
@@ -33,19 +20,6 @@ GitStats <- R6::R6Class(
       private$add_new_host(new_host)
     },
 
-    #' @description Method to set connections to Git platforms.
-    #' @param host A character, optional, URL name of the host. If not passed, a
-    #'   public host will be used (gitlab.com/api/v4).
-    #' @param token A token.
-    #' @param orgs An optional character vector of organisations (groups of
-    #'   projects in case of GitLab). If you pass it, `repos` parameter should
-    #'   stay `NULL`.
-    #' @param repos An optional character vector of repositories full names
-    #'   (organization and repository name, e.g. "r-world-devs/GitStats"). If
-    #'   you pass it, `orgs` parameter should stay `NULL`.
-    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
-    #'   output is switched off.
-    #' @return Nothing, puts connection information into `$hosts` slot.
     set_gitlab_host = function(host,
                                token = NULL,
                                orgs = NULL,
@@ -62,23 +36,6 @@ GitStats <- R6::R6Class(
       private$add_new_host(new_host)
     },
 
-    #' @description  A method to list all repositories for an organization or by
-    #'   a keyword.
-    #' @param add_contributors A boolean to decide whether to add contributors
-    #'   information to repositories.
-    #' @param with_code A character vector, if defined, GitStats will pull
-    #'   repositories with specified code phrases in code blobs.
-    #' @param in_files A character vector of file names. Works when `with_code` is
-    #'   set - then it searches code blobs only in files passed to `in_files`
-    #'   parameter.
-    #' @param with_files A character vector, if defined, GitStats will pull
-    #'   repositories with specified files.
-    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
-    #'   result from its storage.
-    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
-    #'   printing output is switched off.
-    #' @param progress A logical, by default set to `verbose` value. If `FALSE` no
-    #'   `cli` progress bar will be displayed.
     get_repos = function(add_contributors = FALSE,
                          with_code        = NULL,
                          in_files         = NULL,
@@ -126,24 +83,6 @@ GitStats <- R6::R6Class(
       return(repositories)
     },
 
-    #' @description A wrapper over search API endpoints to list repositories
-    #'   URLS.
-    #' @param type A character, choose if `api` or `web` (`html`) URLs should be
-    #'   returned.
-    #' @param with_code A character vector, if defined, GitStats will pull
-    #'   repositories with specified code phrases in code blobs.
-    #' @param in_files A character vector of file names. Works when `with_code`
-    #'   is set - then it searches code blobs only in files passed to `in_files`
-    #'   parameter.
-    #' @param with_files A character vector, if defined, GitStats will pull
-    #'   repositories with specified files.
-    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
-    #'   result from its storage.
-    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
-    #'   printing output is switched off.
-    #' @param progress A logical, by default set to `verbose` value. If `FALSE`
-    #'   no `cli` progress bar will be displayed.
-    #' @return A character vector.
     get_repos_urls = function(type       = "web",
                               with_code  = NULL,
                               in_files   = NULL,
@@ -192,15 +131,6 @@ GitStats <- R6::R6Class(
       return(repos_urls)
     },
 
-    #' @description A method to get information on commits.
-    #' @param since A starting date for commits.
-    #' @param until An end date for commits.
-    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
-    #'   result from its storage.
-    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
-    #'   printing output is switched off.
-    #' @param progress A logical, by default set to `verbose` value. If `FALSE`
-    #'   no `cli` progress bar will be displayed.
     get_commits = function(since,
                            until,
                            cache    = TRUE,
@@ -237,30 +167,6 @@ GitStats <- R6::R6Class(
       return(commits)
     },
 
-    get_commits_stats = function(time_aggregation,
-                                 group_var) {
-      commits <- private$storage[["commits"]]
-      if (is.null(commits)) {
-        cli::cli_abort(c(
-          "x" = "No commits found in GitStats storage.",
-          "i" = "Run first `get_commits()`."
-        ),
-        call = NULL)
-      }
-      commits_stats <- private$prepare_commits_stats(
-        commits = commits,
-        time_aggregation = time_aggregation,
-        group_var = !!group_var
-      )
-      return(commits_stats)
-    },
-
-    #' @description Get information on users.
-    #' @param logins Character vector of logins.
-    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
-    #'   result from its storage.
-    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
-    #'   printing output is switched off.
     get_users = function(logins, cache = TRUE, verbose = TRUE) {
       private$check_for_host()
       args_list <- list("logins" = logins)
@@ -286,26 +192,6 @@ GitStats <- R6::R6Class(
       return(users)
     },
 
-    #' @description Pull text content of a file from all repositories.
-    #' @param file_path Optional. A standardized path to file(s) in
-    #'   repositories. May be a character vector if multiple files are to be
-    #'   pulled. If set to `NULL` and `use_files_structure` parameter is set to
-    #'   `TRUE`, `GitStats` will try to pull data from `files_structure` (see
-    #'   below).
-    #' @param use_files_structure Logical. If `TRUE` and `file_path` is set to
-    #'   `NULL`, will iterate over `files_structure` pulled by
-    #'   `get_files_structure()` function and kept in storage. If there is no
-    #'   `files_structure` in storage, an error will be returned. If `file_path`
-    #'   is defined, it will override `use_files_structure` parameter.
-    #' @param only_text_files A logical, `TRUE` by default. If set to `FALSE`,
-    #'   apart from files with text content shows in table output also non-text
-    #'   files with `NA` value for text content.
-    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
-    #'   result from its storage.
-    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
-    #'   printing output is switched off.
-    #' @param progress A logical, by default set to `verbose` value. If `FALSE`
-    #'   no `cli` progress bar will be displayed.
     get_files_content = function(file_path = NULL,
                                  use_files_structure = TRUE,
                                  only_text_files = TRUE,
@@ -344,21 +230,6 @@ GitStats <- R6::R6Class(
       return(files)
     },
 
-    #' @name get_files_structure
-    #' @description Pulls file structure for a given repository.
-    #' @param gitstats_object A GitStats object.
-    #' @param pattern An optional regular expression. If defined, it pulls file
-    #'   structure for a repository matching this pattern.
-    #' @param depth An optional integer. Defines level of directories to retrieve
-    #'   files from. E.g. if set to `0`, it will pull files only from root, if `1`,
-    #'   will take data from `root` directory and directories visible in `root`
-    #'   directory. If left with no argument, will pull files from all directories.
-    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
-    #'   result from its storage.
-    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
-    #'   output is switched off.
-    #' @param progress A logical, by default set to `verbose` value. If `FALSE`
-    #'   no `cli` progress bar will be displayed.
     get_files_structure = function(pattern,
                                    depth,
                                    cache = TRUE,
@@ -397,15 +268,6 @@ GitStats <- R6::R6Class(
       return(files_structure)
     },
 
-    #' @description Get release logs of repositories.
-    #' @param since A starting date for release logs.
-    #' @param until An end date for release logs.
-    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
-    #'   result from its storage.
-    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
-    #'   printing output is switched off.
-    #' @param progress A logical, by default set to `verbose` value. If `FALSE`
-    #'   no `cli` progress bar will be displayed.
     get_release_logs = function(since,
                                 until    = Sys.Date(),
                                 cache    = TRUE,
@@ -440,18 +302,6 @@ GitStats <- R6::R6Class(
       return(release_logs)
     },
 
-    #' @description Wrapper over pulling repositories by code.
-    #' @param packages A character vector, names of R packages to look for.
-    #' @param only_loading A boolean, if `TRUE` function will check only if
-    #'   package is loaded in repositories, not used as dependencies.
-    #' @param split_output Optional, a boolean. If `TRUE` will return a list of
-    #'   tables, where every element of the list stands for the package passed to
-    #'   `packages` parameter. If `FALSE`, will return only one table with name of
-    #'   the package stored in first column.
-    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
-    #'   result from its storage.
-    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
-    #'   printing output is switched off.
     get_R_package_usage = function(packages,
                                    only_loading = FALSE,
                                    split_output = FALSE,
@@ -496,7 +346,6 @@ GitStats <- R6::R6Class(
       return(R_package_usage)
     },
 
-    #' @description Return organizations vector from GitStats.
     show_orgs = function() {
       purrr::map(private$hosts, function(host) {
         orgs <- host$.__enclos_env__$private$orgs
@@ -505,12 +354,10 @@ GitStats <- R6::R6Class(
         unlist()
     },
 
-    #' @description switch on verbose mode
     verbose_on = function() {
       private$settings$verbose <- TRUE
     },
 
-    #' @description switch off verbose mode
     verbose_off = function() {
       private$settings$verbose <- FALSE
     },
@@ -527,7 +374,6 @@ GitStats <- R6::R6Class(
       }
     },
 
-    #' @description A print method for a GitStats object.
     print = function() {
       cat(paste0("A ", cli::col_blue('GitStats'), " object for ", length(private$hosts), " hosts: \n"))
       private$print_hosts()
@@ -1106,31 +952,6 @@ GitStats <- R6::R6Class(
         repos_table <- NULL
       }
       return(repos_table)
-    },
-
-    # Prepare stats out of commits table
-    prepare_commits_stats = function(commits, time_aggregation, group_var) {
-      commits <- commits |>
-        dplyr::mutate(
-          stats_date = lubridate::floor_date(
-            committed_date,
-            unit = time_aggregation
-          ),
-          githost = retrieve_platform(api_url)
-        )
-      commits_stats <- commits |>
-        dplyr::group_by(stats_date, githost, {{ group_var }}) |>
-        dplyr::summarise(
-          stats = dplyr::n()
-        ) |>
-        dplyr::arrange(
-          stats_date
-        )
-      commits_stats <- commits_stats(
-        object = commits_stats,
-        time_aggregation = time_aggregation
-      )
-      return(commits_stats)
     },
 
     # @description Check whether the urls do not repeat in input.

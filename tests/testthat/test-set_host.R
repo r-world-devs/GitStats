@@ -4,7 +4,7 @@ test_that("Set connection returns appropriate messages", {
   skip_on_cran()
   expect_snapshot(
     set_github_host(
-      gitstats_obj = test_gitstats,
+      gitstats = test_gitstats,
       token = Sys.getenv("GITHUB_PAT"),
       orgs = c("openpharma", "r-world-devs")
     )
@@ -108,7 +108,7 @@ test_that("Error shows, when wrong input is passed when setting connection and h
   test_gitstats <- create_gitstats()
   expect_snapshot_error(
     set_gitlab_host(
-      gitstats_object = test_gitstats,
+      gitstats = test_gitstats,
       host = "https://avengers.com",
       token = Sys.getenv("GITLAB_PAT_PUBLIC")
     )

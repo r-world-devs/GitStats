@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 ```
 
 
-To make `GitStats` work you need to set hosts after creating `gitstats_object`.
+To make `GitStats` work you need to set hosts after creating `gitstats`.
 
 You can set GitLab host with `set_gitlab_host()` and GitHub host with `set_github_host()` or both.
 

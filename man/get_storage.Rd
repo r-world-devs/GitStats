@@ -4,10 +4,10 @@
 \alias{get_storage}
 \title{Get data from \code{GitStats} storage}
 \usage{
-get_storage(gitstats_object, storage = NULL)
+get_storage(gitstats, storage = NULL)
 }
 \arguments{
-\item{gitstats_object}{A GitStats object.}
+\item{gitstats}{A GitStats object.}
 
 \item{storage}{A character, type of the data you want to get from storage:
 \code{commits}, \code{repositories}, \code{release_logs}, \code{users}, \code{files},
@@ -32,7 +32,7 @@ pulled earlier with \code{GitStats}.
   get_repos(my_gitstats)
 
   release_logs <- get_storage(
-    gitstats_object = my_gitstats,
+    gitstats = my_gitstats,
     storage = "release_logs"
   )
 }

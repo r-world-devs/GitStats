@@ -5,17 +5,17 @@
 \title{Get content of files}
 \usage{
 get_files_content(
-  gitstats_object,
+  gitstats,
   file_path = NULL,
   use_files_structure = TRUE,
   only_text_files = TRUE,
   cache = TRUE,
-  verbose = is_verbose(gitstats_object),
+  verbose = is_verbose(gitstats),
   progress = verbose
 )
 }
 \arguments{
-\item{gitstats_object}{A GitStats object.}
+\item{gitstats}{A GitStats object.}
 
 \item{file_path}{Optional. A standardized path to file(s) in repositories.
 May be a character vector if multiple files are to be pulled. If set to
