@@ -11,7 +11,7 @@ git_stats <- create_gitstats() %>%
   )
 
 release_logs <- get_release_logs(
-  gitstats_object = git_stats,
+  gitstats = git_stats,
   since = "2024-01-01",
   verbose = FALSE
 )
@@ -22,7 +22,7 @@ release_logs
 test_gitstats
 
 get_commits(
-  git_stats,
+  gitstats = git_stats,
   since = "2024-01-01"
 )
 

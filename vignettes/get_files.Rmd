@@ -38,10 +38,10 @@ With `GitStats` you can get the content of all text files in repo that are of yo
 
 ```{r}
 files_structure <- get_files_structure(
-  gitstats_object = git_stats,
-  pattern         = "\\.md",
-  depth           = 1L,
-  progress        = FALSE
+  gitstats = git_stats,
+  pattern = "\\.md",
+  depth = 1L,
+  progress = FALSE
 )
 dplyr::glimpse(files_structure)
 ```
@@ -50,8 +50,8 @@ Once you pull the files structure, `GitStats` will store it. If you run then `ge
 
 ```{r}
 files_content <- get_files_content(
-  gitstats_object = git_stats,
-  progress        = FALSE
+  gitstats = git_stats,
+  progress = FALSE
 )
 dplyr::glimpse(files_content)
 ```
