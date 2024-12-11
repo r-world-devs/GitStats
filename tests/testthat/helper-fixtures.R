@@ -245,24 +245,30 @@ test_fixtures$gitlab_repos_by_user_response <- list(
   )
 )
 
-github_commit_edge <- list(
-  "node" = list(
-    "id" = "xxx",
-    "committed_date" = "2023-01-25T10:26:41Z",
-    "author" = list(
-      "name" = "Maciej Banas",
-      "user" = list(
-        "name" = "Maciej Banas",
-        "login" = "maciekbanas"
+github_commit_edge <- function(timestamp, author) {
+  list(
+    "node" = list(
+      "id" = "xxx",
+      "committed_date" = timestamp,
+      "author" = list(
+        "name" = author,
+        "user" = list(
+          "name" = "Maciej Banas",
+          "login" = "maciekbanas"
+        )
+      ),
+      "additions" = 5L,
+      "deletions" = 8L,
+      "repository" = list(
+        "url" = "test_url"
       )
-    ),
-    "additions" = 5L,
-    "deletions" = 8L,
-    "repository" = list(
-      "url" = "test_url"
     )
   )
-)
+}
+
+set.seed(123)
+commit_timestamps <- generate_random_timestamps(25, 2023, 2024)
+commit_authors <- generate_random_names(25, c("John Test", "Barbara Check", "Bob Test"))
 
 test_fixtures$github_commits_response <- list(
   "data" = list(
@@ -270,9 +276,7 @@ test_fixtures$github_commits_response <- list(
       "defaultBranchRef" = list(
         "target" = list(
           "history" = list(
-            "edges" = list(
-              rep(github_commit_edge, 5)
-            )
+            "edges" = purrr::map2(commit_timestamps, commit_authors, github_commit_edge)
           )
         )
       )

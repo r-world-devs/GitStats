@@ -42,11 +42,11 @@ retrieve_platform <- function(api_url) {
 
 #' @noRd
 #' @description A constructor for `commits_stats` class.
-commits_stats <- function(object, time_interval) {
+commits_stats <- function(object, time_aggregation) {
   stopifnot(inherits(object, "grouped_df"))
   object <- dplyr::ungroup(object)
   class(object) <- append(class(object), "commits_stats")
-  attr(object, "time_interval") <- time_interval
+  attr(object, "time_aggregation") <- time_aggregation
   object
 }
 

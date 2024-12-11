@@ -237,13 +237,8 @@ GitStats <- R6::R6Class(
       return(commits)
     },
 
-    #' @title Get statistics on commits
-    #' @name get_commits_stats
-    #' @description Prepare statistics from the pulled commits data.
-    #' @param time_interval A character, specifying time interval to show
-    #'   statistics.
-    #' @return A table of `commits_stats` class.
-    get_commits_stats = function(time_interval = c("month", "day", "week")) {
+    get_commits_stats = function(time_aggregation,
+                                 group_var) {
       commits <- private$storage[["commits"]]
       if (is.null(commits)) {
         cli::cli_abort(c(
@@ -252,11 +247,10 @@ GitStats <- R6::R6Class(
         ),
         call = NULL)
       }
-      time_interval <- match.arg(time_interval)
-
       commits_stats <- private$prepare_commits_stats(
         commits = commits,
-        time_interval = time_interval
+        time_aggregation = time_aggregation,
+        group_var = !!group_var
       )
       return(commits_stats)
     },
@@ -1115,25 +1109,26 @@ GitStats <- R6::R6Class(
     },
 
     # Prepare stats out of commits table
-    prepare_commits_stats = function(commits, time_interval) {
-      commits_stats <- commits %>%
+    prepare_commits_stats = function(commits, time_aggregation, group_var) {
+      commits <- commits |>
         dplyr::mutate(
           stats_date = lubridate::floor_date(
             committed_date,
-            unit = time_interval
+            unit = time_aggregation
           ),
-          platform = retrieve_platform(api_url)
-        ) %>%
-        dplyr::group_by(stats_date, platform, organization) %>%
+          githost = retrieve_platform(api_url)
+        )
+      commits_stats <- commits |>
+        dplyr::group_by(stats_date, githost, {{ group_var }}) |>
         dplyr::summarise(
-          commits_n = dplyr::n()
-        ) %>%
+          stats = dplyr::n()
+        ) |>
         dplyr::arrange(
           stats_date
         )
       commits_stats <- commits_stats(
         object = commits_stats,
-        time_interval = time_interval
+        time_aggregation = time_aggregation
       )
       return(commits_stats)
     },

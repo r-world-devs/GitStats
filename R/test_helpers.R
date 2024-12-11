@@ -201,3 +201,20 @@ create_testrest <- function(rest_api_url = "https://api.github.com",
   }
   return(test_rest)
 }
+
+generate_random_timestamps <- function(n, start_year, end_year) {
+  start_date <- as.POSIXct(paste0(start_year, "-01-01 00:00:00"), tz = "UTC")
+  end_date <- as.POSIXct(paste0(end_year, "-12-31 23:59:59"), tz = "UTC")
+
+  random_times <- runif(n, min = as.numeric(start_date), max = as.numeric(end_date))
+  random_datetimes <- as.POSIXct(random_times, origin = "1970-01-01", tz = "UTC")
+
+  formatted_dates <- format(random_datetimes, "%Y-%m-%dT%H:%M:%SZ")
+
+  return(formatted_dates)
+}
+
+generate_random_names <- function(n, names) {
+  random_names <- sample(names, size = n, replace = TRUE)
+  return(random_names)
+}

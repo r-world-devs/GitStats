@@ -4,13 +4,22 @@
 \alias{get_commits_stats}
 \title{Get commits statistics}
 \usage{
-get_commits_stats(gitstats_object, time_interval = c("month", "day", "week"))
+get_commits_stats(
+  gitstats_object,
+  time_aggregation = c("year", "month", "week", "day"),
+  group_var
+)
 }
 \arguments{
-\item{gitstats_object}{A GitStats class object.}
+\item{gitstats_object}{A \code{GitStats} object.}
 
-\item{time_interval}{A character, specifying time interval to show
+\item{time_aggregation}{A character, specifying time aggregation of
 statistics.}
+
+\item{group_var}{Other grouping variable to be passed to \code{dplyr::group_by()}
+function apart from \code{stats_date} and \code{githost}. Could be: \code{author},
+\code{author_login}, \code{author_name} or \code{organization}. Should be passed without
+quotation marks.}
 }
 \value{
 A table of \code{commits_stats} class.
@@ -30,6 +39,10 @@ To make function work, you need first to get commits data with
      repos = c("r-world-devs/GitStats", "openpharma/visR")
    )
  get_commits(my_gitstats, since = "2022-01-01")
- get_commits_stats(my_gitstats, time_interval = "week")
+ get_commits_stats(
+   gitstats_object = my_gitstats,
+   group_var = author,
+   time_interval = "year"
+ )
 }
 }
