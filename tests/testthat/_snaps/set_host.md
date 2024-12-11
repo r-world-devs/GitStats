@@ -1,7 +1,7 @@
 # Set connection returns appropriate messages
 
     Code
-      set_github_host(gitstats_obj = test_gitstats, token = Sys.getenv("GITHUB_PAT"),
+      set_github_host(gitstats = test_gitstats, token = Sys.getenv("GITHUB_PAT"),
       orgs = c("openpharma", "r-world-devs"))
     Message
       i Searching scope set to [org].

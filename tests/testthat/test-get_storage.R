@@ -36,7 +36,7 @@ test_that("get_storage retrieves one table", {
 
 test_that("get_storage retrieves one table", {
   gitstats_storage <- get_storage(
-    gitstats_object = test_gitstats,
+    gitstats = test_gitstats,
     storage = "files_structure"
   )
   expect_type(

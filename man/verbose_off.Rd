@@ -4,10 +4,10 @@
 \alias{verbose_off}
 \title{Switch off verbose mode}
 \usage{
-verbose_off(gitstats_object)
+verbose_off(gitstats)
 }
 \arguments{
-\item{gitstats_object}{A GitStats object.}
+\item{gitstats}{A GitStats object.}
 }
 \value{
 A GitStats object.

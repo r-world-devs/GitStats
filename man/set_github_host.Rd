@@ -5,16 +5,16 @@
 \title{Set GitHub host}
 \usage{
 set_github_host(
-  gitstats_object,
+  gitstats,
   host = NULL,
   token = NULL,
   orgs = NULL,
   repos = NULL,
-  verbose = is_verbose(gitstats_object)
+  verbose = is_verbose(gitstats)
 )
 }
 \arguments{
-\item{gitstats_object}{A GitStats object.}
+\item{gitstats}{A GitStats object.}
 
 \item{host}{A character, optional, URL name of the host. If not passed, a
 public host will be used.}

@@ -4,15 +4,10 @@
 \alias{get_users}
 \title{Get users data}
 \usage{
-get_users(
-  gitstats_object,
-  logins,
-  cache = TRUE,
-  verbose = is_verbose(gitstats_object)
-)
+get_users(gitstats, logins, cache = TRUE, verbose = is_verbose(gitstats))
 }
 \arguments{
-\item{gitstats_object}{A GitStats object.}
+\item{gitstats}{A GitStats object.}
 
 \item{logins}{A character vector of logins.}
 

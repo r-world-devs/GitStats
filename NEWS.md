@@ -2,10 +2,11 @@
 
 ## Features:
 
-- Improved `get_commits_stats()` function ([#556](https://github.com/r-world-devs/GitStats/issues/556)) with:
+- Improved `get_commits_stats()` function ([#556](https://github.com/r-world-devs/GitStats/issues/556), [#557](https://github.com/r-world-devs/GitStats/issues/557)) with:
   - giving possibility to customize grouping variable by passing it with the `group_var` parameter,
   - changing name of the `time_interval` parameter to `time_aggregation`,
-  - adding `yearly` aggregation to `time_aggregation` parameter.
+  - adding `yearly` aggregation to `time_aggregation` parameter,
+  - changing basic input from `GitStats` to `commits_data` object which allows to build workflow in one pipeline (`create_gitstats() |> set_*_host() |> get_commits() |> get_commits_stats()`).
 
 ## Fixes:
 

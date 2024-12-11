@@ -28,3 +28,20 @@ get_commits(
 
 # Check printing in storage
 test_gitstats
+
+commits_stats <- create_gitstats() %>%
+  set_github_host(
+    orgs = c("r-world-devs", "openpharma"),
+    token = Sys.getenv("GITHUB_PAT")
+  ) %>%
+  set_gitlab_host(
+    orgs = c("mbtests"),
+    token = Sys.getenv("GITLAB_PAT_PUBLIC")
+  ) |>
+  get_commits(
+    since = "2024-01-01"
+  ) |>
+  get_commits_stats(
+    time_aggregation = "year",
+    group_var = author_name
+  )

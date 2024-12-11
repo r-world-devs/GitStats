@@ -5,18 +5,18 @@
 \title{Get repository URLS}
 \usage{
 get_repos_urls(
-  gitstats_object,
+  gitstats,
   type = "web",
   with_code = NULL,
   in_files = NULL,
   with_files = NULL,
   cache = TRUE,
-  verbose = is_verbose(gitstats_object),
+  verbose = is_verbose(gitstats),
   progress = verbose
 )
 }
 \arguments{
-\item{gitstats_object}{A GitStats object.}
+\item{gitstats}{A GitStats object.}
 
 \item{type}{A character, choose if \code{api} or \code{web} (\code{html}) URLs should be
 returned.}
