@@ -133,12 +133,23 @@ GitHost <- R6::R6Class(
         cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
         private$orgs <- private$engines$graphql$get_orgs()
       }
-      commits_table <- private$get_commits_from_orgs(
+      commits_from_orgs <- private$get_commits_from_orgs(
         since    = since,
         until    = until,
         verbose  = verbose,
         progress = progress
       )
+      commits_from_repos <- private$get_commits_from_repos(
+        since    = since,
+        until    = until,
+        verbose  = verbose,
+        progress = progress
+      )
+      commits_table <- list(
+        commits_from_orgs,
+        commits_from_repos
+      ) |>
+        purrr::list_rbind()
       return(commits_table)
     },
 

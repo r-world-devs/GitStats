@@ -167,50 +167,85 @@ GitHostGitHub <- R6::R6Class(
 
     # Pull commits from GitHub
     get_commits_from_orgs = function(since, until, verbose, progress) {
-      graphql_engine <- private$engines$graphql
-      commits_table <- purrr::map(private$orgs, function(org) {
-        commits_table_org <- NULL
-        if (!private$scan_all && verbose) {
-          show_message(
-            host        = private$host_name,
-            engine      = "graphql",
-            scope       = org,
-            information = "Pulling commits"
-          )
-        }
-        repos_names <- private$set_repositories(
-          org = org
-        )
-        commits_table_org <- graphql_engine$get_commits_from_repos(
-          org         = org,
-          repos_names = repos_names,
-          since       = since,
-          until       = until,
-          progress    = progress
-        ) %>%
-          graphql_engine$prepare_commits_table(
-            org = org
-          )
-        return(commits_table_org)
-      }, .progress = if (private$scan_all && progress) {
-        "[GitHost:GitHub] Pulling commits..."
-      } else {
-        FALSE
-      }) %>%
-        purrr::list_rbind()
-      return(commits_table)
+      if ("org" %in% private$searching_scope) {
+        graphql_engine <- private$engines$graphql
+        commits_table <- purrr::map(private$orgs, function(org) {
+          commits_table_org <- NULL
+          if (!private$scan_all && verbose) {
+            show_message(
+              host = private$host_name,
+              engine = "graphql",
+              scope = org,
+              information = "Pulling commits"
+            )
+          }
+          commits_table_org <- graphql_engine$get_commits_from_repos(
+            org = org,
+            repos_names = private$get_repos_names(org),
+            since = since,
+            until = until,
+            progress = progress
+          ) %>%
+            graphql_engine$prepare_commits_table(
+              org = org
+            )
+          return(commits_table_org)
+        }, .progress = if (private$scan_all && progress) {
+          "[GitHost:GitHub] Pulling commits..."
+        } else {
+          FALSE
+        }) %>%
+          purrr::list_rbind()
+        return(commits_table)
+      }
+    },
+
+    # Pull commits from GitHub
+    get_commits_from_repos = function(since, until, verbose, progress) {
+      if ("repo" %in% private$searching_scope) {
+        graphql_engine <- private$engines$graphql
+        orgs <- names(private$orgs_repos)
+        commits_table <- purrr::map(orgs, function(org) {
+          commits_table_org <- NULL
+          if (!private$scan_all && verbose) {
+            show_message(
+              host = private$host_name,
+              engine = "graphql",
+              scope = org,
+              information = "Pulling commits"
+            )
+          }
+          commits_table_org <- graphql_engine$get_commits_from_repos(
+            org = org,
+            repos_names = private$orgs_repos[[org]],
+            since = since,
+            until = until,
+            progress = progress
+          ) %>%
+            graphql_engine$prepare_commits_table(
+              org = org
+            )
+          return(commits_table_org)
+        }, .progress = if (private$scan_all && progress) {
+          "[GitHost:GitHub] Pulling commits..."
+        } else {
+          FALSE
+        }) %>%
+          purrr::list_rbind()
+        return(commits_table)
+      }
     },
 
     # Use repositories either from parameter or, if not set, pull them from API
-    set_repositories = function(org) {
-      if ("repo" %in% private$searching_scope) {
-        repos_names <- private$orgs_repos[[org]]
-      } else {
-        repos_table <- private$get_all_repos(
-          verbose = FALSE
-        )
-        repos_names <- repos_table$repo_name
-      }
+    get_repos_names = function(org) {
+      type <- attr(org, "type") %||% "organization"
+      org <- utils::URLdecode(org)
+      graphql_engine <- private$engines$graphql
+      repos_names <- graphql_engine$get_repos_from_org(
+        org = org,
+        type = type
+      ) |>
+        purrr::map_vec(~ .$repo_name)
       return(repos_names)
     },
 

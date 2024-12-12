@@ -223,61 +223,101 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       })
     },
 
-    # Pull commits from GitHub
     get_commits_from_orgs = function(since,
                                      until,
                                      verbose  = TRUE,
                                      progress = verbose) {
-      rest_engine <- private$engines$rest
-      commits_table <- purrr::map(private$orgs, function(org) {
-        commits_table_org <- NULL
-        if (!private$scan_all && verbose) {
-          show_message(
-            host        = private$host_name,
-            engine      = "rest",
-            scope       = utils::URLdecode(org),
-            information = "Pulling commits"
+      if ("org" %in% private$searching_scope) {
+        rest_engine <- private$engines$rest
+        commits_table <- purrr::map(private$orgs, function(org) {
+          commits_table_org <- NULL
+          if (!private$scan_all && verbose) {
+            show_message(
+              host = private$host_name,
+              engine = "rest",
+              scope = utils::URLdecode(org),
+              information = "Pulling commits"
+            )
+          }
+          repos_names <- private$get_repos_names(
+            org = org
           )
-        }
-        repos_names <- private$set_repositories(
-          org = org
-        )
-        commits_table_org <- rest_engine$get_commits_from_repos(
-          repos_names = repos_names,
-          since       = since,
-          until       = until,
-          progress    = progress
-        ) %>%
-          rest_engine$tailor_commits_info(org = org) %>%
-          rest_engine$prepare_commits_table() %>%
-          rest_engine$get_commits_authors_handles_and_names(
-            verbose  = verbose,
+          commits_table_org <- rest_engine$get_commits_from_repos(
+            repos_names = repos_names,
+            since = since,
+            until = until,
             progress = progress
-          )
-        return(commits_table_org)
-      }, .progress = if (private$scan_all && progress) {
-        "[GitHost:GitLab] Pulling commits..."
-      } else {
-        FALSE
-      }) %>%
-        purrr::list_rbind()
-      return(commits_table)
+          ) %>%
+            rest_engine$tailor_commits_info(org = org) %>%
+            rest_engine$prepare_commits_table() %>%
+            rest_engine$get_commits_authors_handles_and_names(
+              verbose = verbose,
+              progress = progress
+            )
+          return(commits_table_org)
+        }, .progress = if (private$scan_all && progress) {
+          "[GitHost:GitLab] Pulling commits..."
+        } else {
+          FALSE
+        }) %>%
+          purrr::list_rbind()
+        return(commits_table)
+      }
+    },
+
+    get_commits_from_repos = function(since,
+                                      until,
+                                      verbose  = TRUE,
+                                      progress = verbose) {
+      if ("repo" %in% private$searching_scope) {
+        rest_engine <- private$engines$rest
+        orgs <- names(private$orgs_repos)
+        commits_table <- purrr::map(orgs, function(org) {
+          commits_table_org <- NULL
+          if (!private$scan_all && verbose) {
+            show_message(
+              host        = private$host_name,
+              engine      = "rest",
+              scope       = utils::URLdecode(org),
+              information = "Pulling commits"
+            )
+          }
+          repos <- private$orgs_repos[[org]]
+          repos_names <- paste0(utils::URLencode(org, reserved = TRUE), "%2f", repos)
+          commits_table_org <- rest_engine$get_commits_from_repos(
+            repos_names = repos_names,
+            since = since,
+            until = until,
+            progress = progress
+          ) %>%
+            rest_engine$tailor_commits_info(org = org) %>%
+            rest_engine$prepare_commits_table() %>%
+            rest_engine$get_commits_authors_handles_and_names(
+              verbose  = verbose,
+              progress = progress
+            )
+          return(commits_table_org)
+        }, .progress = if (private$scan_all && progress) {
+          "[GitHost:GitLab] Pulling commits..."
+        } else {
+          FALSE
+        }) %>%
+          purrr::list_rbind()
+        return(commits_table)
+      }
     },
 
     # Use repositories either from parameter or, if not set, pull them from API
-    set_repositories = function(org, settings) {
-      if ("repo" %in% private$searching_scope) {
-        repos <- private$orgs_repos[[org]]
-        repos_names <- paste0(utils::URLencode(org, reserved = TRUE), "%2f", repos)
-      } else {
-        repos_table <- private$get_all_repos(
-          verbose = FALSE
-        )
-        gitlab_web_url <- stringr::str_extract(private$api_url, "^.*?(?=api)")
-        repos <- stringr::str_remove(repos_table$repo_url, gitlab_web_url)
-        repos_names <- utils::URLencode(repos, reserved = TRUE)
-      }
-      return(repos_names)
+    get_repos_names = function(org) {
+      graphql_engine <- private$engines$graphql
+      type <- attr(org, "type") %||% "organization"
+      repos_names <- graphql_engine$get_repos_from_org(
+        org = utils::URLdecode(org),
+        type = type
+      ) |>
+        purrr::map_vec(~ .$node$repo_path)
+      org <- utils::URLencode(org, reserved = TRUE)
+      return(paste0(org, "%2f", repos_names))
     },
 
     are_non_text_files = function(file_path, host_files_structure) {
