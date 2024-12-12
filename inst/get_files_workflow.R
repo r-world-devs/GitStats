@@ -9,12 +9,12 @@ test_gitstats <- create_gitstats() |>
   )
 
 get_files_content(
-  gitstats_obj = test_gitstats,
+  gitstats = test_gitstats,
   file_path = c("LICENSE", "DESCRIPTION")
 )
 
 md_files_structure <- get_files_structure(
-  gitstats_obj = test_gitstats,
+  gitstats = test_gitstats,
   pattern = "\\.md|.R",
   depth = 2L
 )
@@ -22,8 +22,8 @@ md_files_structure <- get_files_structure(
 get_files_content(test_gitstats)
 
 md_files_structure <- get_files_structure(
-  gitstats_obj = test_gitstats,
-  pattern = "\\.md|\\.qmd|\\.Rmd",
+  gitstats = test_gitstats,
+  pattern = "DESCRIPTION|\\.md|\\.qmd|\\.Rmd",
   depth = 2L,
   verbose = FALSE
 )
