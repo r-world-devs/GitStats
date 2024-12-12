@@ -3,16 +3,12 @@
     Code
       gitlab_testhost_priv$set_searching_scope(orgs = "mbtests", repos = NULL,
         verbose = TRUE)
-    Message
-      i Searching scope set to [org].
 
 ---
 
     Code
       gitlab_testhost_priv$set_searching_scope(orgs = NULL, repos = "mbtests/GitStatsTesting",
         verbose = TRUE)
-    Message
-      i Searching scope set to [repo].
 
 # When token is empty throw error
 
@@ -49,10 +45,4 @@
       })
     Message
       i Using PAT from GITLAB_PAT envar.
-
-# `set_searching_scope` throws error when both `orgs` and `repos` are defined
-
-    Do not specify `orgs` while specifing `repos`.
-    x Host will not be added.
-    i Specify `orgs` or `repos`.
 

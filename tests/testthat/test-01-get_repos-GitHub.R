@@ -391,32 +391,64 @@ test_that("GitHub prepares repos table from repositories response", {
   test_mocker$cache(gh_repos_table)
 })
 
-test_that("`get_all_repos()` works as expected", {
+test_that("get_repos_from_org works", {
   mockery::stub(
-    github_testhost_priv$get_all_repos,
+    github_testhost_priv$get_repos_from_orgs,
     "graphql_engine$prepare_repos_table",
     test_mocker$use("gh_repos_table")
   )
+  gh_repos_from_orgs <- github_testhost_priv$get_repos_from_orgs(
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_repos_table(
+    gh_repos_from_orgs
+  )
+  test_mocker$cache(gh_repos_from_orgs)
+})
+
+test_that("get_repos_individual works", {
+  mockery::stub(
+    github_testhost_priv$get_repos_individual,
+    "graphql_engine$prepare_repos_table",
+    test_mocker$use("gh_repos_table")
+  )
+  github_testhost_priv$searching_scope <- c("org", "repo")
+  github_testhost_priv$repos_fullnames <- c("test_org/TestRepo")
+  github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
+  test_org <- "test_org"
+  attr(test_org, "type") <- "organization"
+  github_testhost_priv$orgs <- test_org
+
+  gh_repos_individual <- github_testhost_priv$get_repos_individual(
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_repos_table(
+    gh_repos_individual
+  )
+  test_mocker$cache(gh_repos_individual)
+})
+
+test_that("`get_all_repos()` works as expected", {
+  mockery::stub(
+    github_testhost_priv$get_all_repos,
+    "private$get_repos_from_orgs",
+    test_mocker$use("gh_repos_from_orgs")
+  )
+  mockery::stub(
+    github_testhost_priv$get_all_repos,
+    "private$get_repos_individual",
+    test_mocker$use("gh_repos_individual")
+  )
   gh_repos_table <- github_testhost_priv$get_all_repos(
-    verbose = FALSE
+    verbose = FALSE,
+    progress = FALSE
   )
   expect_repos_table(
     gh_repos_table
   )
   test_mocker$cache(gh_repos_table)
-})
-
-test_that("`get_all_repos()` prints proper message", {
-  mockery::stub(
-    github_testhost_priv$get_all_repos,
-    "graphql_engine$prepare_repos_table",
-    test_mocker$use("gh_repos_table")
-  )
-  expect_snapshot(
-    gh_repos_table <- github_testhost_priv$get_all_repos(
-      verbose = TRUE
-    )
-  )
 })
 
 test_that("GitHost adds `repo_api_url` column to GitHub repos table", {

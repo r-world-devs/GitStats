@@ -4,7 +4,6 @@
       set_github_host(gitstats = test_gitstats, token = Sys.getenv("GITHUB_PAT"),
       orgs = c("openpharma", "r-world-devs"))
     Message
-      i Searching scope set to [org].
       i Checking organizations...
       v Set connection to GitHub.
 
@@ -14,7 +13,6 @@
       test_gitstats %>% set_gitlab_host(token = Sys.getenv("GITLAB_PAT_PUBLIC"),
       orgs = c("mbtests"))
     Message
-      i Searching scope set to [org].
       i Checking organizations...
       v Set connection to GitLab.
 
@@ -25,7 +23,6 @@
         "r-world-devs"))
     Message
       i Using PAT from GITHUB_PAT envar.
-      i Searching scope set to [org].
       i Checking organizations...
       v Set connection to GitHub.
 
@@ -37,7 +34,6 @@
       })
     Message
       i Using PAT from GITLAB_PAT envar.
-      i Searching scope set to [org].
       i Checking organizations...
       v Set connection to GitLab.
 
@@ -48,7 +44,6 @@
         "r-world-devs/GitStats", "r-world-devs/shinyCohortBuilder",
         "openpharma/GithubMetrics", "openpharma/DataFakeR"))
     Message
-      i Searching scope set to [repo].
       i Checking repositories...
       v Set connection to GitHub.
 
@@ -58,21 +53,14 @@
       test_gitstats %>% set_gitlab_host(token = Sys.getenv("GITLAB_PAT_PUBLIC"),
       repos = c("mbtests/gitstatstesting", "mbtests/gitstats-testing-2"))
     Message
-      i Searching scope set to [repo].
       i Checking repositories...
       v Set connection to GitLab.
 
-# Set host prints error when repos and orgs are defined and host is not passed to GitStats
-
-    Do not specify `orgs` while specifing `repos`.
-    x Host will not be added.
-    i Specify `orgs` or `repos`.
-
 # Error shows if organizations are not specified and host is not passed
 
-    You need to specify `orgs` for public Git Host.
+    You need to specify `orgs` or/and `repos` for public Git Host.
     x Host will not be added.
-    i Add organizations to your `orgs` parameter.
+    i Add organizations to your `orgs` and/or repositories to `repos` parameter.
 
 # Error shows, when wrong input is passed when setting connection and host is not passed
 
@@ -86,10 +74,8 @@
       test_gitstats %>% set_github_host(token = Sys.getenv("GITHUB_PAT"), orgs = "pharmaverse") %>%
         set_github_host(token = Sys.getenv("GITHUB_PAT"), orgs = "openpharma")
     Message
-      i Searching scope set to [org].
       i Checking organizations...
       v Set connection to GitHub.
-      i Searching scope set to [org].
       i Checking organizations...
       v Set connection to GitHub.
     Condition
@@ -102,7 +88,6 @@
       test_gitstats <- create_gitstats() %>% set_github_host(token = Sys.getenv(
         "GITHUB_PAT"), orgs = c("openparma"))
     Message
-      i Searching scope set to [org].
       i Checking organizations...
     Condition
       Error in `purrr::map()`:
@@ -118,7 +103,6 @@
       test_gitstats <- create_gitstats() %>% set_gitlab_host(token = Sys.getenv(
         "GITLAB_PAT_PUBLIC"), orgs = c("openparma", "mbtests"))
     Message
-      i Searching scope set to [org].
       i Checking organizations...
     Condition
       Error in `purrr::map()`:
@@ -134,7 +118,6 @@
       test_gitstats <- create_gitstats() %>% set_github_host(token = Sys.getenv(
         "GITHUB_PAT"), orgs = c("openpharma", "r_world_devs"))
     Message
-      i Searching scope set to [org].
       i Checking organizations...
     Condition
       Error in `purrr::map()`:

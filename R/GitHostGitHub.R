@@ -203,7 +203,7 @@ GitHostGitHub <- R6::R6Class(
 
     # Use repositories either from parameter or, if not set, pull them from API
     set_repositories = function(org) {
-      if (private$searching_scope == "repo") {
+      if ("repo" %in% private$searching_scope) {
         repos_names <- private$orgs_repos[[org]]
       } else {
         repos_table <- private$get_all_repos(

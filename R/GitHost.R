@@ -367,9 +367,10 @@ GitHost <- R6::R6Class(
       if (is.null(repos) && is.null(orgs)) {
         if (private$is_public) {
           cli::cli_abort(c(
-            "You need to specify `orgs` for public Git Host.",
+            "You need to specify `orgs` or/and `repos` for public Git Host.",
             "x" = "Host will not be added.",
-            "i" = "Add organizations to your `orgs` parameter."
+            "i" = "Add organizations to your `orgs` and/or repositories to
+            `repos` parameter."
           ),
           call = NULL)
         } else {
@@ -385,25 +386,11 @@ GitHost <- R6::R6Class(
           private$scan_all <- TRUE
         }
       }
-      if (!is.null(repos) && is.null(orgs)) {
-        if (verbose) {
-          cli::cli_alert_info(cli::col_grey("Searching scope set to [repo]."))
-        }
-        private$searching_scope <- "repo"
+      if (!is.null(repos)) {
+        private$searching_scope <- c(private$searching_scope, "repo")
       }
-      if (is.null(repos) && !is.null(orgs)) {
-        if (verbose) {
-          cli::cli_alert_info(cli::col_grey("Searching scope set to [org]."))
-        }
-        private$searching_scope <- "org"
-      }
-      if (!is.null(repos) && !is.null(orgs)) {
-        cli::cli_abort(c(
-          "Do not specify `orgs` while specifing `repos`.",
-          "x" = "Host will not be added.",
-          "i" = "Specify `orgs` or `repos`."
-        ),
-        call = NULL)
+      if (!is.null(orgs)) {
+        private$searching_scope <- c(private$searching_scope, "org")
       }
     },
 
@@ -422,8 +409,8 @@ GitHost <- R6::R6Class(
             verbose = verbose
           )
           private$repos_fullnames <- repos
-          orgs_repos <- private$extract_repos_and_orgs(repos)
-          private$orgs <- private$set_owner_type(
+          orgs_repos <- private$extract_repos_and_orgs(private$repos_fullnames)
+          orgs <- private$set_owner_type(
             owners = names(orgs_repos)
           )
           private$repos <- unname(unlist(orgs_repos))
@@ -589,7 +576,7 @@ GitHost <- R6::R6Class(
 
     # Set repositories
     set_repos = function(org) {
-      if (private$searching_scope == "repo") {
+      if ("repo" %in% private$searching_scope) {
         repos <- private$orgs_repos[[org]]
       } else {
         repos <- NULL
@@ -605,7 +592,6 @@ GitHost <- R6::R6Class(
       )
     },
 
-    #' Retrieve all repositories for an organization in a table format.
     get_all_repos = function(verbose = TRUE, progress = TRUE) {
       if (private$scan_all && is.null(private$orgs)) {
         if (verbose) {
@@ -617,32 +603,65 @@ GitHost <- R6::R6Class(
         }
         private$orgs <- private$engines$graphql$get_orgs()
       }
-      graphql_engine <- private$engines$graphql
-      repos_table <- purrr::map(private$orgs, function(org) {
-        type <- attr(org, "type") %||% "organization"
-        org <- utils::URLdecode(org)
-        if (!private$scan_all && verbose) {
-          show_message(
-            host        = private$host_name,
-            engine      = "graphql",
-            scope       = org,
-            information = "Pulling repositories"
-          )
-        }
-        repos <- private$set_repos(org)
-        repos_table <- graphql_engine$get_repos_from_org(
-          org  = org,
-          type = type
-        ) %>%
-          graphql_engine$prepare_repos_table()
-        if (!is.null(repos)) {
-          repos_table <- repos_table %>%
-            dplyr::filter(repo_name %in% repos)
-        }
-        return(repos_table)
-      }, .progress = progress) %>%
-        purrr::list_rbind()
+      repos_table <- purrr::list_rbind(
+        list(
+          private$get_repos_from_orgs(verbose, progress),
+          private$get_repos_individual(verbose, progress)
+        )
+      )
       return(repos_table)
+    },
+
+    get_repos_from_orgs = function(verbose, progress) {
+      if ("org" %in% private$searching_scope) {
+        graphql_engine <- private$engines$graphql
+        purrr::map(private$orgs, function(org) {
+          type <- attr(org, "type") %||% "organization"
+          org <- utils::URLdecode(org)
+          if (!private$scan_all && verbose) {
+            show_message(
+              host        = private$host_name,
+              engine      = "graphql",
+              scope       = org,
+              information = "Pulling repositories"
+            )
+          }
+          repos_table <- graphql_engine$get_repos_from_org(
+            org  = org,
+            type = type
+          ) |>
+            graphql_engine$prepare_repos_table()
+          return(repos_table)
+        }, .progress = progress) |>
+          purrr::list_rbind()
+      }
+    },
+
+    get_repos_individual = function(verbose, progress) {
+      if ("repo" %in% private$searching_scope) {
+        graphql_engine <- private$engines$graphql
+        orgs <- names(private$orgs_repos)
+        purrr::map(orgs, function(org) {
+          type <- attr(org, "type") %||% "organization"
+          org <- utils::URLdecode(org)
+          if (!private$scan_all && verbose) {
+            show_message(
+              host        = private$host_name,
+              engine      = "graphql",
+              scope       = org,
+              information = "Pulling repositories"
+            )
+          }
+          repos_table <- graphql_engine$get_repos_from_org(
+            org  = org,
+            type = type
+          ) |>
+            graphql_engine$prepare_repos_table() |>
+            dplyr::filter(repo_name == private$orgs_repos[[org]])
+          return(repos_table)
+        }, .progress = progress) |>
+          purrr::list_rbind()
+      }
     },
 
     # Pull repositories with specific code

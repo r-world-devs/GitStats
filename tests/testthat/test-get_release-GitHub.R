@@ -33,12 +33,27 @@ test_that("`prepare_releases_table()` prepares releases table", {
   test_mocker$cache(releases_table)
 })
 
-test_that("`set_repositories` works", {
+test_that("`set_repositories` works when searching scope set to repo", {
   mockery::stub(
     github_testhost_priv$set_repositories,
     "private$get_all_repos",
     test_mocker$use("gh_repos_table")
   )
+  github_testhost_priv$searching_scope <- "repo"
+  github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
+  repos_names <- github_testhost_priv$set_repositories(org = "test_org")
+  expect_type(repos_names, "character")
+  expect_gt(length(repos_names), 0)
+})
+
+test_that("`set_repositories` works for whole orgs", {
+  mockery::stub(
+    github_testhost_priv$set_repositories,
+    "private$get_all_repos",
+    test_mocker$use("gh_repos_table")
+  )
+  github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
+  github_testhost_priv$searching_scope <- "org"
   repos_names <- github_testhost_priv$set_repositories()
   expect_type(repos_names, "character")
   expect_gt(length(repos_names), 0)

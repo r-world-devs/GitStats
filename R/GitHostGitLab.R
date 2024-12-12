@@ -266,7 +266,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
 
     # Use repositories either from parameter or, if not set, pull them from API
     set_repositories = function(org, settings) {
-      if (private$searching_scope == "repo") {
+      if ("repo" %in% private$searching_scope) {
         repos <- private$orgs_repos[[org]]
         repos_names <- paste0(utils::URLencode(org, reserved = TRUE), "%2f", repos)
       } else {

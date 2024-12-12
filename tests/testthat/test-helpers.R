@@ -192,13 +192,3 @@ test_that("`set_default_token` sets default token for GitLab", {
     200
   )
 })
-
-test_that("`set_searching_scope` throws error when both `orgs` and `repos` are defined", {
-  expect_snapshot_error(
-    gitlab_testhost_priv$set_searching_scope(
-      orgs    = "mbtests",
-      repos   = "mbtests/GitStatsTesting",
-      verbose = TRUE
-    )
-  )
-})

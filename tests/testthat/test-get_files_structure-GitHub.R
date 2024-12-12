@@ -127,12 +127,12 @@ test_that("GitHub GraphQL Engine pulls files structure from repositories", {
   )
   gh_files_structure <- test_graphql_github$get_files_structure_from_org(
     org = "test_org",
-    repos = rep("TestRepo", 5)
+    repos = c("TestRepo", "TestRepo1", "TestRepo2", "TestRepo3", "TestRepo4")
   )
   purrr::walk(gh_files_structure, ~ expect_true(length(.) > 0))
   expect_equal(
     names(gh_files_structure),
-    rep("TestRepo", 5)
+    c("TestRepo", "TestRepo1", "TestRepo2", "TestRepo3", "TestRepo4")
   )
   test_mocker$cache(gh_files_structure)
 })
@@ -174,7 +174,7 @@ test_that("get_files_structure_from_orgs", {
   )
   expect_equal(
     names(gh_files_structure_from_orgs),
-    "test-org"
+    "test_org"
   )
   test_mocker$cache(gh_files_structure_from_orgs)
 })
@@ -219,7 +219,7 @@ test_that("get_path_from_files_structure gets file path from files structure", {
   file_path <- test_graphql_github$get_path_from_files_structure(
     host_files_structure = test_mocker$use("gh_files_structure_from_orgs"),
     only_text_files = FALSE,
-    org = "test-org",
+    org = "test_org",
     repo = "TestRepo"
   )
   expect_equal(typeof(file_path), "character")
@@ -239,7 +239,7 @@ test_that("get_files_structure pulls files structure for repositories in orgs", 
   )
   expect_equal(
     names(gh_files_structure_from_orgs),
-    "test-org"
+    "test_org"
   )
   purrr::walk(gh_files_structure_from_orgs[[1]], function(repo_files) {
     expect_true(any(grepl("\\.md|\\.Rmd", repo_files)))
