@@ -104,10 +104,55 @@ test_that("get_commits_from_orgs for GitHub works", {
     "graphql_engine$prepare_commits_table",
     test_mocker$use("gh_commits_table")
   )
+  github_testhost_repos_priv$searching_scope <- "org"
+  gh_commits_from_orgs <- github_testhost_repos_priv$get_commits_from_orgs(
+    since    = "2023-03-01",
+    until    = "2023-04-01",
+    verbose  = FALSE,
+    progress = FALSE
+  )
+  expect_commits_table(
+    gh_commits_from_orgs
+  )
+  test_mocker$cache(gh_commits_from_orgs)
+})
+
+
+test_that("get_commits_from_repos for GitHub works", {
+  mockery::stub(
+    github_testhost_repos_priv$get_commits_from_repos,
+    "graphql_engine$prepare_commits_table",
+    test_mocker$use("gh_commits_table")
+  )
+  github_testhost_repos_priv$searching_scope <- "repo"
+  github_testhost_repos_priv$orgs_repos <- list("test_org" = "TestRepo")
+  gh_commits_from_repos <- github_testhost_repos_priv$get_commits_from_repos(
+    since    = "2023-03-01",
+    until    = "2023-04-01",
+    verbose  = FALSE,
+    progress = FALSE
+  )
+  expect_commits_table(
+    gh_commits_from_repos
+  )
+  test_mocker$cache(gh_commits_from_repos)
+})
+
+test_that("`get_commits()` retrieves commits in the table format", {
+  mockery::stub(
+    github_testhost$get_commits,
+    "private$get_commits_from_orgs",
+    test_mocker$use("gh_commits_from_orgs")
+  )
+  mockery::stub(
+    github_testhost$get_commits,
+    "private$get_commits_from_repos",
+    test_mocker$use("gh_commits_from_repos")
+  )
   suppressMessages(
-    gh_commits_table <- github_testhost_repos_priv$get_commits_from_orgs(
-      since    = "2023-03-01",
-      until    = "2023-04-01",
+    gh_commits_table <- github_testhost$get_commits(
+      since    = "2023-01-01",
+      until    = "2023-02-28",
       verbose  = FALSE,
       progress = FALSE
     )
@@ -116,25 +161,6 @@ test_that("get_commits_from_orgs for GitHub works", {
     gh_commits_table
   )
   test_mocker$cache(gh_commits_table)
-})
-
-test_that("`get_commits()` retrieves commits in the table format", {
-  mockery::stub(
-    github_testhost$get_commits,
-    "private$get_commits_from_orgs",
-    test_mocker$use("gh_commits_table")
-  )
-  suppressMessages(
-    commits_table <- github_testhost$get_commits(
-      since    = "2023-01-01",
-      until    = "2023-02-28",
-      verbose  = FALSE,
-      progress = FALSE
-    )
-  )
-  expect_commits_table(
-    commits_table
-  )
 })
 
 test_that("get_commits for GitHub repositories works", {

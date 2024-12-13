@@ -33,43 +33,72 @@ test_that("`prepare_releases_table()` prepares releases table", {
   test_mocker$cache(releases_table)
 })
 
-test_that("`set_repositories` works when searching scope set to repo", {
+test_that("`get_repos_names` works", {
   mockery::stub(
-    github_testhost_priv$set_repositories,
-    "private$get_all_repos",
-    test_mocker$use("gh_repos_table")
-  )
-  github_testhost_priv$searching_scope <- "repo"
-  github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
-  repos_names <- github_testhost_priv$set_repositories(org = "test_org")
-  expect_type(repos_names, "character")
-  expect_gt(length(repos_names), 0)
-})
-
-test_that("`set_repositories` works for whole orgs", {
-  mockery::stub(
-    github_testhost_priv$set_repositories,
-    "private$get_all_repos",
-    test_mocker$use("gh_repos_table")
+    github_testhost_priv$get_repos_names,
+    "graphql_engine$get_repos_from_org",
+    test_mocker$use("gh_repos_from_org")
   )
   github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
   github_testhost_priv$searching_scope <- "org"
-  repos_names <- github_testhost_priv$set_repositories()
+  repos_names <- github_testhost_priv$get_repos_names(
+    org = "test_org"
+  )
   expect_type(repos_names, "character")
   expect_gt(length(repos_names), 0)
   test_mocker$cache(repos_names)
 })
 
-test_that("`get_release_logs()` pulls release logs in the table format", {
+test_that("`get_release_logs_from_orgs()` works", {
   mockery::stub(
-    github_testhost$get_release_logs,
+    github_testhost_priv$get_release_logs_from_orgs,
     "graphql_engine$prepare_releases_table",
     test_mocker$use("releases_table")
   )
   mockery::stub(
-    github_testhost$get_release_logs,
-    "private$set_repositories",
+    github_testhost_priv$get_release_logs_from_orgs,
+    "private$get_repos_names",
     test_mocker$use("repos_names")
+  )
+  github_testhost_priv$searching_scope <- "org"
+  releases_from_orgs <- github_testhost_priv$get_release_logs_from_orgs(
+    since    = "2023-05-01",
+    until    = "2023-09-30",
+    verbose  = FALSE,
+    progress = FALSE
+  )
+  expect_releases_table(releases_from_orgs)
+  test_mocker$cache(releases_from_orgs)
+})
+
+test_that("`get_release_logs_from_repos()` works", {
+  mockery::stub(
+    github_testhost_priv$get_release_logs_from_repos,
+    "graphql_engine$prepare_releases_table",
+    test_mocker$use("releases_table")
+  )
+  github_testhost_priv$searching_scope <- "repo"
+  github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
+  releases_from_repos <- github_testhost_priv$get_release_logs_from_repos(
+    since    = "2023-05-01",
+    until    = "2023-09-30",
+    verbose  = FALSE,
+    progress = FALSE
+  )
+  expect_releases_table(releases_from_repos)
+  test_mocker$cache(releases_from_repos)
+})
+
+test_that("`get_release_logs()` pulls release logs in the table format", {
+  mockery::stub(
+    github_testhost$get_release_logs,
+    "private$get_release_logs_from_repos",
+    test_mocker$use("releases_from_repos")
+  )
+  mockery::stub(
+    github_testhost$get_release_logs,
+    "private$get_release_logs_from_orgs",
+    test_mocker$use("releases_from_orgs")
   )
   releases_table <- github_testhost$get_release_logs(
     since    = "2023-05-01",
@@ -81,25 +110,4 @@ test_that("`get_release_logs()` pulls release logs in the table format", {
   expect_gt(min(releases_table$published_at), as.POSIXct("2023-05-01"))
   expect_lt(max(releases_table$published_at), as.POSIXct("2023-09-30"))
   test_mocker$cache(releases_table)
-})
-
-test_that("`get_release_logs()` prints proper message when running", {
-  mockery::stub(
-    github_testhost$get_release_logs,
-    "graphql_engine$prepare_releases_table",
-    test_mocker$use("releases_table")
-  )
-  mockery::stub(
-    github_testhost$get_release_logs,
-    "private$set_repositories",
-    test_mocker$use("repos_names")
-  )
-  expect_snapshot(
-    releases_table <- github_testhost$get_release_logs(
-      since    = "2023-05-01",
-      until    = "2023-09-30",
-      verbose  = TRUE,
-      progress = FALSE
-    )
-  )
 })

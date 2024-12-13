@@ -218,36 +218,22 @@ GitHost <- R6::R6Class(
         private$orgs <- private$engines$graphql$get_orgs()
       }
       until <- until %||% Sys.time()
-      release_logs_table <- purrr::map(private$orgs, function(org) {
-        org <- utils::URLdecode(org)
-        release_logs_table_org <- NULL
-        if (!private$scan_all && verbose) {
-          show_message(
-            host = private$host_name,
-            engine = "graphql",
-            scope = org,
-            information = "Pulling release logs"
-          )
-        }
-        repos_names <- private$set_repositories(
-          org = org
-        )
-        graphql_engine <- private$engines$graphql
-        if (length(repos_names) > 0) {
-          release_logs_table_org <- graphql_engine$get_release_logs_from_org(
-            org = org,
-            repos_names = repos_names
-          ) %>%
-            graphql_engine$prepare_releases_table(org, since, until)
-        } else {
-          releases_logs_table_org <- NULL
-        }
-        return(release_logs_table_org)
-      }, .progress = if (progress) {
-        glue::glue("[GitHost:{private$host_name}] Pulling release logs...")
-      } else {
-        FALSE
-      }) %>%
+      release_logs_from_orgs <- private$get_release_logs_from_orgs(
+        since = since,
+        until = until,
+        verbose = verbose,
+        progress= progress
+      )
+      release_logs_from_repos <- private$get_release_logs_from_repos(
+        since = since,
+        until = until,
+        verbose = verbose,
+        progress= progress
+      )
+      release_logs_table <- list(
+        release_logs_from_orgs,
+        release_logs_from_repos
+      ) |>
         purrr::list_rbind()
       return(release_logs_table)
     }
@@ -1020,6 +1006,82 @@ GitHost <- R6::R6Class(
         private$prepare_files_table_from_rest() %>%
         private$add_repo_api_url()
       return(files_table)
+    },
+
+    get_release_logs_from_orgs = function(since, until, verbose, progress) {
+      if ("org" %in% private$searching_scope) {
+        release_logs_table <- purrr::map(private$orgs, function(org) {
+          org <- utils::URLdecode(org)
+          release_logs_table_org <- NULL
+          if (!private$scan_all && verbose) {
+            show_message(
+              host = private$host_name,
+              engine = "graphql",
+              scope = org,
+              information = "Pulling release logs"
+            )
+          }
+          repos_names <- private$get_repos_names(
+            org = org
+          )
+          graphql_engine <- private$engines$graphql
+          if (length(repos_names) > 0) {
+            release_logs_table_org <- graphql_engine$get_release_logs_from_org(
+              org = org,
+              repos_names = repos_names
+            ) %>%
+              graphql_engine$prepare_releases_table(
+                org = org,
+                since = since,
+                until = until
+              )
+          } else {
+            releases_logs_table_org <- NULL
+          }
+          return(release_logs_table_org)
+        }, .progress = if (progress) {
+          glue::glue("[GitHost:{private$host_name}] Pulling release logs...")
+        } else {
+          FALSE
+        }) %>%
+          purrr::list_rbind()
+        return(release_logs_table)
+      }
+    },
+
+    get_release_logs_from_repos = function(since, until, verbose, progress) {
+      if ("repo" %in% private$searching_scope) {
+        orgs <- names(private$orgs_repos)
+        release_logs_table <- purrr::map(orgs, function(org) {
+          org <- utils::URLdecode(org)
+          release_logs_table_org <- NULL
+          if (!private$scan_all && verbose) {
+            show_message(
+              host = private$host_name,
+              engine = "graphql",
+              scope = org,
+              information = "Pulling release logs"
+            )
+          }
+          graphql_engine <- private$engines$graphql
+          release_logs_table_org <- graphql_engine$get_release_logs_from_org(
+            org = org,
+            repos_names = private$orgs_repos[[org]]
+          ) %>%
+            graphql_engine$prepare_releases_table(
+              org = org,
+              since = since,
+              until = until
+            )
+          return(release_logs_table_org)
+        }, .progress = if (progress) {
+          glue::glue("[GitHost:{private$host_name}] Pulling release logs...")
+        } else {
+          FALSE
+        }) %>%
+          purrr::list_rbind()
+        return(release_logs_table)
+      }
     }
   )
 )
