@@ -222,13 +222,13 @@ GitHost <- R6::R6Class(
         since = since,
         until = until,
         verbose = verbose,
-        progress= progress
+        progress = progress
       )
       release_logs_from_repos <- private$get_release_logs_from_repos(
         since = since,
         until = until,
         verbose = verbose,
-        progress= progress
+        progress = progress
       )
       release_logs_table <- list(
         release_logs_from_orgs,
