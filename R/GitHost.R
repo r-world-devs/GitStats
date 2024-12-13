@@ -407,9 +407,6 @@ GitHost <- R6::R6Class(
           )
           private$repos_fullnames <- repos
           orgs_repos <- private$extract_repos_and_orgs(private$repos_fullnames)
-          orgs <- private$set_owner_type(
-            owners = names(orgs_repos)
-          )
           private$repos <- unname(unlist(orgs_repos))
           private$orgs_repos <- orgs_repos
         }
@@ -571,16 +568,6 @@ GitHost <- R6::R6Class(
       return(orgs_repo_list)
     },
 
-    # Set repositories
-    set_repos = function(org) {
-      if ("repo" %in% private$searching_scope) {
-        repos <- private$orgs_repos[[org]]
-      } else {
-        repos <- NULL
-      }
-      return(repos)
-    },
-
     # Filter repositories table by host
     filter_repos_by_host = function(repos_table) {
       dplyr::filter(
@@ -603,7 +590,7 @@ GitHost <- R6::R6Class(
       repos_table <- purrr::list_rbind(
         list(
           private$get_repos_from_orgs(verbose, progress),
-          private$get_repos_individual(verbose, progress)
+          private$get_repos_from_repos(verbose, progress)
         )
       )
       return(repos_table)
@@ -634,10 +621,12 @@ GitHost <- R6::R6Class(
       }
     },
 
-    get_repos_individual = function(verbose, progress) {
+    get_repos_from_repos = function(verbose, progress) {
       if ("repo" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
-        orgs <- names(private$orgs_repos)
+        orgs <- private$set_owner_type(
+          owners = names(private$orgs_repos)
+        )
         purrr::map(orgs, function(org) {
           type <- attr(org, "type") %||% "organization"
           org <- utils::URLdecode(org)
@@ -703,26 +692,60 @@ GitHost <- R6::R6Class(
         }
         private$orgs <- private$engines$graphql$get_orgs()
       }
-      rest_engine <- private$engines$rest
-      repos_vector <- purrr::map(private$orgs, function(org) {
-        org <- utils::URLdecode(org)
-        if (!private$scan_all && verbose) {
-          show_message(
-            host        = private$host_name,
-            engine      = "rest",
-            scope       = org,
-            information = "Pulling repositories (URLS)"
-          )
-        }
-        repos_urls <- rest_engine$get_repos_urls(
-          type = type,
-          org  = org,
-          repos = private$set_repos(org)
-        )
-        return(repos_urls)
-      }, .progress = progress) %>%
-        unlist()
+      repos_vector <- c(
+        private$get_repos_urls_from_orgs(type, verbose, progress),
+        private$get_repos_urls_from_repos(type, verbose, progress)
+      )
       return(repos_vector)
+    },
+
+    get_repos_urls_from_orgs = function(type, verbose, progress) {
+      if ("org" %in% private$searching_scope) {
+        rest_engine <- private$engines$rest
+        repos_vector <- purrr::map(private$orgs, function(org) {
+          org <- utils::URLdecode(org)
+          if (!private$scan_all && verbose) {
+            show_message(
+              host        = private$host_name,
+              engine      = "rest",
+              scope       = org,
+              information = "Pulling repositories (URLS)"
+            )
+          }
+          repos_urls <- rest_engine$get_repos_urls(
+            type = type,
+            org  = org,
+            repos = NULL
+          )
+          return(repos_urls)
+        }, .progress = progress) %>%
+          unlist()
+      }
+    },
+
+    get_repos_urls_from_repos = function(type, verbose, progress) {
+      if ("repo" %in% private$searching_scope) {
+        rest_engine <- private$engines$rest
+        orgs <- names(private$orgs_repos)
+        repos_vector <- purrr::map(orgs, function(org) {
+          org <- utils::URLdecode(org)
+          if (!private$scan_all && verbose) {
+            show_message(
+              host        = private$host_name,
+              engine      = "rest",
+              scope       = org,
+              information = "Pulling repositories (URLS)"
+            )
+          }
+          repos_urls <- rest_engine$get_repos_urls(
+            type = type,
+            org  = org,
+            repos = private$orgs_repos[[org]]
+          )
+          return(repos_urls)
+        }, .progress = progress) %>%
+          unlist()
+      }
     },
 
     # Pull repositories with code from whole Git Host
@@ -1051,7 +1074,9 @@ GitHost <- R6::R6Class(
 
     get_release_logs_from_repos = function(since, until, verbose, progress) {
       if ("repo" %in% private$searching_scope) {
-        orgs <- names(private$orgs_repos)
+        orgs <- private$set_owner_type(
+          owners = names(private$orgs_repos)
+        )
         release_logs_table <- purrr::map(orgs, function(org) {
           org <- utils::URLdecode(org)
           release_logs_table_org <- NULL

@@ -298,7 +298,7 @@ EngineGraphQLGitHub <- R6::R6Class(
 
     # Prepare releases table.
     prepare_releases_table = function(releases_response, org, since, until) {
-      if (!is.null(releases_response)) {
+      if (length(releases_response) > 0) {
         releases_table <-
           purrr::map(releases_response, function(release) {
             release_table <- purrr::map(release$data$repository$releases$nodes, function(node) {

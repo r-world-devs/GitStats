@@ -407,9 +407,9 @@ test_that("get_repos_from_org works", {
   test_mocker$cache(gh_repos_from_orgs)
 })
 
-test_that("get_repos_individual works", {
+test_that("get_repos_from_repos works", {
   mockery::stub(
-    github_testhost_priv$get_repos_individual,
+    github_testhost_priv$get_repos_from_repos,
     "graphql_engine$prepare_repos_table",
     test_mocker$use("gh_repos_table")
   )
@@ -420,7 +420,7 @@ test_that("get_repos_individual works", {
   attr(test_org, "type") <- "organization"
   github_testhost_priv$orgs <- test_org
 
-  gh_repos_individual <- github_testhost_priv$get_repos_individual(
+  gh_repos_individual <- github_testhost_priv$get_repos_from_repos(
     verbose = FALSE,
     progress = FALSE
   )
@@ -438,7 +438,7 @@ test_that("`get_all_repos()` works as expected", {
   )
   mockery::stub(
     github_testhost_priv$get_all_repos,
-    "private$get_repos_individual",
+    "private$get_repos_from_repos",
     test_mocker$use("gh_repos_individual")
   )
   gh_repos_table <- github_testhost_priv$get_all_repos(

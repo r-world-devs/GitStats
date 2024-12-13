@@ -205,7 +205,9 @@ GitHostGitHub <- R6::R6Class(
     get_commits_from_repos = function(since, until, verbose, progress) {
       if ("repo" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
-        orgs <- names(private$orgs_repos)
+        orgs <- private$set_owner_type(
+          owners = names(private$orgs_repos)
+        )
         commits_table <- purrr::map(orgs, function(org) {
           commits_table_org <- NULL
           if (!private$scan_all && verbose) {

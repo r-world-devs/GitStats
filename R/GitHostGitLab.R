@@ -271,7 +271,9 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
                                       progress = verbose) {
       if ("repo" %in% private$searching_scope) {
         rest_engine <- private$engines$rest
-        orgs <- names(private$orgs_repos)
+        orgs <- private$set_owner_type(
+          owners = names(private$orgs_repos)
+        )
         commits_table <- purrr::map(orgs, function(org) {
           commits_table_org <- NULL
           repos <- private$orgs_repos[[org]]

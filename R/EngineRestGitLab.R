@@ -168,8 +168,10 @@ EngineRestGitLab <- R6::R6Class(
 
     # Pull all repositories URLs from organization
     get_repos_urls = function(type, org, repos) {
-      repos_response <- self$response(
-        endpoint = paste0(private$endpoints[["organizations"]], utils::URLencode(org, reserved = TRUE), "/projects")
+      repos_response <- private$paginate_results(
+        endpoint = paste0(private$endpoints[["organizations"]],
+                          utils::URLencode(org, reserved = TRUE),
+                          "/projects")
       )
       if (!is.null(repos)) {
         repos_response <- repos_response %>%
