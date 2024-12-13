@@ -2,6 +2,7 @@
 
 ## Features:
 
+- From now on it is possible to pass `orgs` and `repos` in `set_*_host()` functions ([#400](https://github.com/r-world-devs/GitStats/issues/400)).
 - Improved `get_commits_stats()` function ([#556](https://github.com/r-world-devs/GitStats/issues/556), [#557](https://github.com/r-world-devs/GitStats/issues/557)) with:
   - giving possibility to customize grouping variable by passing it with the `group_var` parameter,
   - changing name of the `time_interval` parameter to `time_aggregation`,
