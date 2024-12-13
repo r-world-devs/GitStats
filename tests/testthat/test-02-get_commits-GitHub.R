@@ -98,11 +98,32 @@ test_that("fill_empty_authors() works as expected", {
   )
 })
 
+test_that("`get_repos_names` works", {
+  mockery::stub(
+    github_testhost_priv$get_repos_names,
+    "graphql_engine$get_repos_from_org",
+    test_mocker$use("gh_repos_from_org")
+  )
+  github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
+  github_testhost_priv$searching_scope <- "org"
+  gh_repos_names <- github_testhost_priv$get_repos_names(
+    org = "test_org"
+  )
+  expect_type(gh_repos_names, "character")
+  expect_gt(length(gh_repos_names), 0)
+  test_mocker$cache(gh_repos_names)
+})
+
 test_that("get_commits_from_orgs for GitHub works", {
   mockery::stub(
     github_testhost_repos_priv$get_commits_from_orgs,
     "graphql_engine$prepare_commits_table",
     test_mocker$use("gh_commits_table")
+  )
+  mockery::stub(
+    github_testhost_repos_priv$get_commits_from_orgs,
+    "private$get_repos_names",
+    test_mocker$use("gh_repos_names")
   )
   github_testhost_repos_priv$searching_scope <- "org"
   gh_commits_from_orgs <- github_testhost_repos_priv$get_commits_from_orgs(

@@ -23,30 +23,14 @@ test_that("`get_releases_from_org()` pulls releases from the repositories", {
 test_that("`prepare_releases_table()` prepares releases table", {
   releases_table <- test_graphql_github$prepare_releases_table(
     releases_response = test_mocker$use("releases_from_repos"),
-    org        = "r-world-devs",
-    date_from  = "2023-05-01",
-    date_until = "2023-09-30"
+    org = "r-world-devs",
+    since = "2023-05-01",
+    until = "2023-09-30"
   )
   expect_releases_table(releases_table)
   expect_gt(min(releases_table$published_at), as.POSIXct("2023-05-01"))
   expect_lt(max(releases_table$published_at), as.POSIXct("2023-09-30"))
   test_mocker$cache(releases_table)
-})
-
-test_that("`get_repos_names` works", {
-  mockery::stub(
-    github_testhost_priv$get_repos_names,
-    "graphql_engine$get_repos_from_org",
-    test_mocker$use("gh_repos_from_org")
-  )
-  github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
-  github_testhost_priv$searching_scope <- "org"
-  repos_names <- github_testhost_priv$get_repos_names(
-    org = "test_org"
-  )
-  expect_type(repos_names, "character")
-  expect_gt(length(repos_names), 0)
-  test_mocker$cache(repos_names)
 })
 
 test_that("`get_release_logs_from_orgs()` works", {
@@ -58,7 +42,7 @@ test_that("`get_release_logs_from_orgs()` works", {
   mockery::stub(
     github_testhost_priv$get_release_logs_from_orgs,
     "private$get_repos_names",
-    test_mocker$use("repos_names")
+    test_mocker$use("gh_repos_names")
   )
   github_testhost_priv$searching_scope <- "org"
   releases_from_orgs <- github_testhost_priv$get_release_logs_from_orgs(

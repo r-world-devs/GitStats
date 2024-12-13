@@ -297,7 +297,7 @@ EngineGraphQLGitHub <- R6::R6Class(
     },
 
     # Prepare releases table.
-    prepare_releases_table = function(releases_response, org, date_from, date_until) {
+    prepare_releases_table = function(releases_response, org, since, until) {
       if (!is.null(releases_response)) {
         releases_table <-
           purrr::map(releases_response, function(release) {
@@ -310,7 +310,7 @@ EngineGraphQLGitHub <- R6::R6Class(
                 release_log = node$description
               )
             }) %>%
-              purrr::list_rbind() %>%
+              purrr::list_rbind() |>
               dplyr::mutate(
                 repo_name = release$data$repository$name,
                 repo_url = release$data$repository$url
@@ -321,14 +321,14 @@ EngineGraphQLGitHub <- R6::R6Class(
               )
             return(release_table)
           }) %>%
-          purrr::list_rbind() %>%
+          purrr::list_rbind() |>
           dplyr::filter(
-            published_at <= as.POSIXct(date_until)
+            published_at <= as.POSIXct(until)
           )
-        if (!is.null(date_from)) {
+        if (!is.null(since)) {
           releases_table <- releases_table %>%
             dplyr::filter(
-              published_at >= as.POSIXct(date_from)
+              published_at >= as.POSIXct(since)
             )
         }
       } else {

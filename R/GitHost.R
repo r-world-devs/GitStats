@@ -1027,8 +1027,8 @@ GitHost <- R6::R6Class(
           graphql_engine <- private$engines$graphql
           if (length(repos_names) > 0) {
             release_logs_table_org <- graphql_engine$get_release_logs_from_org(
-              org = org,
-              repos_names = repos_names
+              repos_names = repos_names,
+              org = org
             ) %>%
               graphql_engine$prepare_releases_table(
                 org = org,
@@ -1059,14 +1059,14 @@ GitHost <- R6::R6Class(
             show_message(
               host = private$host_name,
               engine = "graphql",
-              scope = org,
+              scope = paste0(org, "/", private$orgs_repos[[org]]),
               information = "Pulling release logs"
             )
           }
           graphql_engine <- private$engines$graphql
           release_logs_table_org <- graphql_engine$get_release_logs_from_org(
-            org = org,
-            repos_names = private$orgs_repos[[org]]
+            repos_names = private$orgs_repos[[org]],
+            org = org
           ) %>%
             graphql_engine$prepare_releases_table(
               org = org,

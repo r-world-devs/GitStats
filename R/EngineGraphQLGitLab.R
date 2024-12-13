@@ -368,7 +368,7 @@ EngineGraphQLGitLab <- R6::R6Class(
         response <- self$gql_response(
           gql_query = releases_from_repo_query,
           vars = list(
-            "project_path" = utils::URLdecode(repository)
+            "project_path" = paste0(org, "/", utils::URLdecode(repository))
           )
         )
         return(response)
@@ -378,7 +378,7 @@ EngineGraphQLGitLab <- R6::R6Class(
     },
 
     # Prepare releases table.
-    prepare_releases_table = function(releases_response, org, date_from, date_until) {
+    prepare_releases_table = function(releases_response, org, since, until) {
       if (length(releases_response) > 0) {
         releases_table <-
           purrr::map(releases_response, function(release) {
@@ -404,12 +404,12 @@ EngineGraphQLGitLab <- R6::R6Class(
           }) %>%
           purrr::list_rbind() %>%
           dplyr::filter(
-            published_at <= as.POSIXct(date_until)
+            published_at <= as.POSIXct(until)
           )
-        if (!is.null(date_from)) {
+        if (!is.null(since)) {
           releases_table <- releases_table %>%
             dplyr::filter(
-              published_at >= as.POSIXct(date_from)
+              published_at >= as.POSIXct(since)
             )
         }
       } else {

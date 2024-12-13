@@ -243,7 +243,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             org = org
           )
           commits_table_org <- rest_engine$get_commits_from_repos(
-            repos_names = repos_names,
+            repos_names = paste0(org, "%2f", repos_names),
             since = since,
             until = until,
             progress = progress
@@ -274,16 +274,16 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         orgs <- names(private$orgs_repos)
         commits_table <- purrr::map(orgs, function(org) {
           commits_table_org <- NULL
+          repos <- private$orgs_repos[[org]]
+          repos_names <- paste0(utils::URLencode(org, reserved = TRUE), "%2f", repos)
           if (!private$scan_all && verbose) {
             show_message(
               host        = private$host_name,
               engine      = "rest",
-              scope       = utils::URLdecode(org),
+              scope       = utils::URLdecode(paste0(repos_names, collapse = "|")),
               information = "Pulling commits"
             )
           }
-          repos <- private$orgs_repos[[org]]
-          repos_names <- paste0(utils::URLencode(org, reserved = TRUE), "%2f", repos)
           commits_table_org <- rest_engine$get_commits_from_repos(
             repos_names = repos_names,
             since = since,
@@ -316,8 +316,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         type = type
       ) |>
         purrr::map_vec(~ .$node$repo_path)
-      org <- utils::URLencode(org, reserved = TRUE)
-      return(paste0(org, "%2f", repos_names))
+      return(repos_names)
     },
 
     are_non_text_files = function(file_path, host_files_structure) {

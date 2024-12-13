@@ -179,9 +179,10 @@ GitHostGitHub <- R6::R6Class(
               information = "Pulling commits"
             )
           }
+          repos_names <- private$get_repos_names(org)
           commits_table_org <- graphql_engine$get_commits_from_repos(
             org = org,
-            repos_names = private$get_repos_names(org),
+            repos_names = repos_names,
             since = since,
             until = until,
             progress = progress
@@ -211,7 +212,7 @@ GitHostGitHub <- R6::R6Class(
             show_message(
               host = private$host_name,
               engine = "graphql",
-              scope = org,
+              scope = paste0(org, "/", private$orgs_repos[[org]], collapse = ", "),
               information = "Pulling commits"
             )
           }
