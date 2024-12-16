@@ -34,10 +34,10 @@ test_fixtures$github_repository_rest_response <- list(
   "id" = 627452680,
   "node_id" = "R_kgDOJWYrCA",
   "name" = "testRepo",
-  "full_name" = "test-org/TestRepo",
+  "full_name" = "test_org/TestRepo",
   "private" = FALSE,
   "owner" = list(
-    "login" = "test-org",
+    "login" = "test_org",
     "id" = 103638913,
     "node_id" = "O_kgDOBi1ngQ",
     "avatar_url" = "https://avatars.githubusercontent.com/u/103638913?v=4"
@@ -529,7 +529,7 @@ test_fixtures$github_files_tree_response <- list(
     "repository" = list(
       "id"     = "R_kgD0Ivtxsg",
       "name"   = "TestRepo",
-      "url"    = "https://github.com/test-org/TestRepo",
+      "url"    = "https://github.com/test_org/TestRepo",
       "object" = list(
         "entries" = list(
           list(

@@ -408,18 +408,20 @@ test_that("get_repos_from_org works", {
 })
 
 test_that("get_repos_from_repos works", {
+  test_org <- "test_org"
+  attr(test_org, "type") <- "organization"
+  mockery::stub(
+    github_testhost_priv$get_repos_from_repos,
+    "private$set_owner_type",
+    test_org
+  )
   mockery::stub(
     github_testhost_priv$get_repos_from_repos,
     "graphql_engine$prepare_repos_table",
     test_mocker$use("gh_repos_table")
   )
   github_testhost_priv$searching_scope <- c("org", "repo")
-  github_testhost_priv$repos_fullnames <- c("test_org/TestRepo")
   github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
-  test_org <- "test_org"
-  attr(test_org, "type") <- "organization"
-  github_testhost_priv$orgs <- test_org
-
   gh_repos_individual <- github_testhost_priv$get_repos_from_repos(
     verbose = FALSE,
     progress = FALSE

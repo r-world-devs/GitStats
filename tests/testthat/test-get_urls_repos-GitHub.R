@@ -34,7 +34,7 @@ test_that("get_repos_urls() works for individual repos", {
   test_mocker$cache(gh_repos_urls)
 })
 
-test_that("get_all_repos_urls prepares api repo_urls vector", {
+test_that("get_repos_urls prepares api repo_urls vector", {
   github_testhost_priv <- create_github_testhost(orgs = "test-org",
                                                  mode = "private")
   mockery::stub(
@@ -52,12 +52,62 @@ test_that("get_all_repos_urls prepares api repo_urls vector", {
   test_mocker$cache(gh_api_repos_urls)
 })
 
-test_that("get_all_repos_urls prepares web repo_urls vector", {
+test_that("get_repos_urls_from_orgs prepares web repo_urls vector", {
   mockery::stub(
-    github_testhost_priv$get_all_repos_urls,
+    github_testhost_priv$get_repos_urls_from_orgs,
+    "rest_engine$get_repos_urls",
+    test_mocker$use("gh_repos_urls")
+  )
+  github_testhost_priv$searching_scope <- "org"
+  github_testhost_priv$orgs <- "test_org"
+  gh_repos_urls_from_orgs <- github_testhost_priv$get_repos_urls_from_orgs(
+    type = "web",
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_gt(length(gh_repos_urls_from_orgs), 0)
+  expect_true(any(grepl("test-org", gh_repos_urls_from_orgs)))
+  expect_true(all(grepl("https://testhost.com/", gh_repos_urls_from_orgs)))
+  test_mocker$cache(gh_repos_urls_from_orgs)
+})
+
+test_that("get_repos_urls_from_repos prepares web repo_urls vector", {
+  test_org <- "test_org"
+  attr(test_org, "type") <- "organization"
+  mockery::stub(
+    github_testhost_priv$get_repos_urls_from_repos,
+    "private$set_owner_type",
+    test_org
+  )
+  mockery::stub(
+    github_testhost_priv$get_repos_urls_from_repos,
     "rest_engine$get_repos_urls",
     test_mocker$use("gh_repos_urls"),
     depth = 2L
+  )
+  github_testhost_priv$searching_scope <- c("repo")
+  github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
+  gh_repos_urls <- github_testhost_priv$get_repos_urls_from_repos(
+    type = "web",
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_gt(length(gh_repos_urls), 0)
+  expect_true(any(grepl("test-org", gh_repos_urls)))
+  expect_true(all(grepl("https://testhost.com/", gh_repos_urls)))
+  test_mocker$cache(gh_repos_urls)
+})
+
+test_that("get_all_repos_urls prepares web repo_urls vector", {
+  mockery::stub(
+    github_testhost_priv$get_all_repos_urls,
+    "private$get_repos_urls_from_orgs",
+    test_mocker$use("gh_repos_urls_from_orgs")
+  )
+  mockery::stub(
+    github_testhost_priv$get_all_repos_urls,
+    "private$get_repos_urls_from_repos",
+    test_mocker$use("gh_repos_urls")
   )
   gh_repos_urls <- github_testhost_priv$get_all_repos_urls(
     type = "web",

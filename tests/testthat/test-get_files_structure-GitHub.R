@@ -14,7 +14,7 @@ test_that("get_file_response works", {
     test_fixtures$github_files_tree_response
   )
   gh_files_tree_response <- test_graphql_github_priv$get_file_response(
-    org = "test-org",
+    org = "test_org",
     repo = "TestRepo",
     def_branch = "master",
     file_path = "",
@@ -55,7 +55,7 @@ test_that("get_files_structure_from_repo returns list with files and dirs vector
     files_and_dirs
   )
   files_structure <- test_graphql_github_priv$get_files_structure_from_repo(
-    org = "test-org",
+    org = "test_org",
     repo = "TestRepo",
     def_branch = "master"
   )
@@ -77,13 +77,13 @@ test_that("get_files_structure_from_repo returns list of files up to 2 tier of d
     files_and_dirs <- test_mocker$use("files_and_dirs_list")
   )
   files_structure_very_shallow <- test_graphql_github_priv$get_files_structure_from_repo(
-    org = "test-org",
+    org = "test_org",
     repo = "TestRepo",
     def_branch = "master",
     depth = 1L
   )
   files_structure_shallow <- test_graphql_github_priv$get_files_structure_from_repo(
-    org = "test-org",
+    org = "test_org",
     repo = "TestRepo",
     def_branch = "master",
     depth = 2L
@@ -149,7 +149,7 @@ test_that("GitHub GraphQL Engine pulls files structure with pattern from reposit
     test_mocker$use("md_files_structure")
   )
   gh_md_files_structure <- test_graphql_github$get_files_structure_from_org(
-    org = "test-org",
+    org = "test_org",
     repos = "TestRepo",
     pattern = "\\.md|\\.qmd|\\.Rmd"
   )

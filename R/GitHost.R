@@ -692,9 +692,19 @@ GitHost <- R6::R6Class(
         }
         private$orgs <- private$engines$graphql$get_orgs()
       }
+      repos_urls_from_orgs <- private$get_repos_urls_from_orgs(
+        type = type,
+        verbose = verbose,
+        progress = progress
+      )
+      repos_urls_from_repos <- private$get_repos_urls_from_repos(
+        type = type,
+        verbose = verbose,
+        progress = progress
+      )
       repos_vector <- c(
-        private$get_repos_urls_from_orgs(type, verbose, progress),
-        private$get_repos_urls_from_repos(type, verbose, progress)
+        repos_urls_from_orgs,
+        repos_urls_from_repos
       )
       return(repos_vector)
     },

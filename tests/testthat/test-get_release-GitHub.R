@@ -61,6 +61,13 @@ test_that("`get_release_logs_from_repos()` works", {
     "graphql_engine$prepare_releases_table",
     test_mocker$use("releases_table")
   )
+  test_org <- "test_org"
+  attr(test_org, "type") <- "organization"
+  mockery::stub(
+    github_testhost_priv$get_release_logs_from_repos,
+    "private$set_owner_type",
+    test_org
+  )
   github_testhost_priv$searching_scope <- "repo"
   github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
   releases_from_repos <- github_testhost_priv$get_release_logs_from_repos(
