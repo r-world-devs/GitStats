@@ -709,7 +709,7 @@ GitHost <- R6::R6Class(
               host        = private$host_name,
               engine      = "rest",
               scope       = org,
-              information = "Pulling repositories (URLS)"
+              information = "Pulling repositories (URLs)"
             )
           }
           repos_urls <- rest_engine$get_repos_urls(
@@ -734,7 +734,7 @@ GitHost <- R6::R6Class(
               host        = private$host_name,
               engine      = "rest",
               scope       = org,
-              information = "Pulling repositories (URLS)"
+              information = "Pulling repositories (URLs)"
             )
           }
           repos_urls <- rest_engine$get_repos_urls(
