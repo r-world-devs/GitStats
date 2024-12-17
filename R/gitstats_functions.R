@@ -380,7 +380,7 @@ get_files_content <- function(gitstats,
 #'     orgs = "mbtests"
 #'   )
 #'  get_files_structure(
-#'    gitstats_obj = my_gitstats,
+#'    gitstats = my_gitstats,
 #'    pattern = "\\.md"
 #'  )
 #' }

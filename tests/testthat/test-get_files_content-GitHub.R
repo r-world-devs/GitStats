@@ -91,8 +91,7 @@ test_that("GitHub GraphQL Engine pulls files from organization", {
 test_that("GitHubHost prepares table from files response", {
   gh_files_table <- test_graphql_github$prepare_files_table(
     files_response = test_mocker$use("github_files_response"),
-    org = "r-world-devs",
-    file_path = "LICENSE"
+    org = "r-world-devs"
   )
   expect_files_table(gh_files_table)
   test_mocker$cache(gh_files_table)

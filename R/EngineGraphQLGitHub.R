@@ -202,7 +202,7 @@ EngineGraphQLGitHub <- R6::R6Class(
     },
 
     # Prepare files table.
-    prepare_files_table = function(files_response, org, file_path) {
+    prepare_files_table = function(files_response, org) {
       if (!is.null(files_response)) {
         files_table <- purrr::map(files_response, function(repository) {
           purrr::imap(repository, function(file_data, file_name) {

@@ -220,7 +220,6 @@ test_that("get_path_from_files_structure gets file path from files structure", {
   test_graphql_github <- environment(test_graphql_github$initialize)$private
   file_path <- test_graphql_github$get_path_from_files_structure(
     host_files_structure = test_mocker$use("gh_files_structure_from_orgs"),
-    only_text_files = FALSE,
     org = "test_org",
     repo = "TestRepo"
   )

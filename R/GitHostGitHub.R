@@ -252,35 +252,6 @@ GitHostGitHub <- R6::R6Class(
       return(repos_names)
     },
 
-    # Prepare files table from REST API.
-    prepare_files_table_from_rest = function(files_list) {
-      files_table <- NULL
-      if (!is.null(files_list)) {
-        files_table <- purrr::map(files_list, function(file_data) {
-          repo_fullname <- private$get_repo_fullname(file_data$url)
-          org_repo <- stringr::str_split_1(repo_fullname, "/")
-          data.frame(
-            "repo_name" = org_repo[2],
-            "repo_id" = NA_character_,
-            "organization" = org_repo[1],
-            "file_path" = file_data$path,
-            "file_content" = file_data$content,
-            "file_size" = file_data$size,
-            "repo_url" = private$set_repo_url(file_data$url)
-          )
-        }) %>%
-          purrr::list_rbind()
-      }
-      return(files_table)
-    },
-
-    # Get repository full name
-    get_repo_fullname = function(file_url) {
-      stringr::str_remove_all(file_url,
-                              paste0(private$endpoints$repositories, "/")) %>%
-        stringr::str_replace_all("/contents.*", "")
-    },
-
     # Get repository url
     set_repo_url = function(repo_fullname) {
       paste0(private$endpoints$repositories, "/", repo_fullname)

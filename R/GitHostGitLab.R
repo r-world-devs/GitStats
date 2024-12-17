@@ -309,8 +309,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             progress = progress
           ) |>
             graphql_engine$prepare_files_table(
-              org = org,
-              file_path = file_path
+              org = org
             )
         }) |>
           purrr::list_rbind() |>
@@ -352,8 +351,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           progress = progress
         ) |>
           graphql_engine$prepare_files_table(
-            org = org,
-            file_path = file_path
+            org = org
           )
       }) |>
         purrr::list_rbind() |>

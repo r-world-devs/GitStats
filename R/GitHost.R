@@ -963,8 +963,7 @@ GitHost <- R6::R6Class(
             progress = progress
           ) |>
             graphql_engine$prepare_files_table(
-              org = org,
-              file_path = file_path
+              org = org
             )
         }) |>
           purrr::list_rbind() |>
@@ -1001,8 +1000,7 @@ GitHost <- R6::R6Class(
             progress = progress
           ) |>
             graphql_engine$prepare_files_table(
-              org = org,
-              file_path = file_path
+              org = org
             )
         }) |>
           purrr::list_rbind() |>
@@ -1044,8 +1042,7 @@ GitHost <- R6::R6Class(
           progress = progress
         ) |>
           graphql_engine$prepare_files_table(
-            org = org,
-            file_path = file_path
+            org = org
           )
       }) |>
         purrr::list_rbind() |>
@@ -1170,7 +1167,7 @@ GitHost <- R6::R6Class(
         verbose    = verbose,
         progress   = progress
       ) %>%
-        private$prepare_files_table_from_rest() %>%
+        rest_engine$prepare_files_table() %>%
         private$add_repo_api_url()
       return(files_table)
     },

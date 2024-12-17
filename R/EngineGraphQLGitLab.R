@@ -136,7 +136,6 @@ EngineGraphQLGitLab <- R6::R6Class(
       if (!is.null(host_files_structure)) {
         file_paths <- private$get_path_from_files_structure(
           host_files_structure = host_files_structure,
-          only_text_files = only_text_files,
           org = org
         )
       } else if (only_text_files) {
@@ -250,7 +249,6 @@ EngineGraphQLGitLab <- R6::R6Class(
         if (!is.null(host_files_structure)) {
           file_paths <- private$get_path_from_files_structure(
             host_files_structure = host_files_structure,
-            only_text_files = only_text_files,
             org = org,
             repo = repo
           )

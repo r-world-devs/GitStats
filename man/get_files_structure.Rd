@@ -51,7 +51,7 @@ Pulls file structure for a given repository.
     orgs = "mbtests"
   )
  get_files_structure(
-   gitstats_obj = my_gitstats,
+   gitstats = my_gitstats,
    pattern = "\\\\.md"
  )
 }
