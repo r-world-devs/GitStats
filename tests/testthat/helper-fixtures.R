@@ -419,20 +419,6 @@ test_fixtures$gitlab_file_repo_response <- list(
   )
 )
 
-test_fixtures$github_png_file_response <- list(
-  "data" = list(
-    "repository" = list(
-      "repo_id"   = "01010101",
-      "repo_name" = "TestProject",
-      "repo_url"  = "https://github.com/r-world-devs/GitStats",
-      "file" = list(
-        "text" = NULL,
-        "byteSize" = 50L
-      )
-    )
-  )
-)
-
 test_fixtures$gitlab_search_response <- list(
   list(
     "basename"   = "test",

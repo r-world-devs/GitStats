@@ -21,56 +21,6 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       if (verbose) {
         cli::cli_alert_success("Set connection to GitLab.")
       }
-    },
-
-    # Retrieve content of given text files from all repositories for a host in
-    # a table format.
-    get_files_content = function(file_path,
-                                 host_files_structure = NULL,
-                                 only_text_files      = TRUE,
-                                 verbose              = TRUE,
-                                 progress             = TRUE) {
-      if (!private$scan_all && private$are_non_text_files(file_path, host_files_structure)) {
-        if (only_text_files) {
-          files_table <- private$get_files_content_from_orgs(
-            file_path            = file_path,
-            host_files_structure = host_files_structure,
-            only_text_files      = only_text_files,
-            verbose              = verbose,
-            progress             = progress
-          )
-        } else {
-          text_files_table <- private$get_files_content_from_orgs(
-            file_path            = file_path,
-            host_files_structure = host_files_structure,
-            only_text_files      = TRUE,
-            verbose              = verbose,
-            progress             = progress
-          )
-          non_text_files_table <- private$get_files_content_from_orgs_via_rest(
-            file_path = file_path,
-            host_files_structure = host_files_structure,
-            clean_files_content  = FALSE,
-            only_non_text_files  = TRUE,
-            verbose              = verbose,
-            progress             = progress
-          )
-          files_table <- purrr::list_rbind(
-            list(
-              text_files_table,
-              non_text_files_table
-            )
-          )
-        }
-      } else {
-        files_table <- super$get_files_content(
-          file_path            = file_path,
-          host_files_structure = host_files_structure,
-          verbose              = verbose,
-          progress             = progress
-        )
-      }
-      return(files_table)
     }
   ),
   private = list(
@@ -331,56 +281,82 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       }
     },
 
-    # Pull files from orgs via rest
-    get_files_content_from_orgs_via_rest = function(file_path,
-                                                    host_files_structure,
-                                                    only_non_text_files,
-                                                    clean_files_content,
-                                                    verbose,
-                                                    progress) {
-      rest_engine <- private$engines$rest
-      if (!is.null(host_files_structure)) {
-        if (verbose) {
-          cli::cli_alert_info(cli::col_green("I will make use of files structure stored in GitStats."))
-        }
-        result <- private$get_orgs_and_repos_from_files_structure(
-          host_files_structure = host_files_structure
+    # Pull files content from organizations
+    get_files_content_from_repos = function(file_path,
+                                            verbose = TRUE,
+                                            progress = TRUE) {
+      if ("repo" %in% private$searching_scope) {
+        graphql_engine <- private$engines$graphql
+        orgs <- private$set_owner_type(
+          owners = names(private$orgs_repos)
         )
-        orgs <- result$orgs
-        repos <- result$repos
-      } else {
-        orgs <- private$orgs
-        repos <- private$repos
+        files_table <- purrr::map(orgs, function(org) {
+          if (verbose) {
+            show_message(
+              host = private$host_name,
+              engine = "graphql",
+              scope = org,
+              information = glue::glue("Pulling files content: [{paste0(file_path, collapse = ', ')}]")
+            )
+          }
+          type <- attr(org, "type") %||% "organization"
+          graphql_engine$get_files_from_org_per_repo(
+            org = org,
+            type = type,
+            repos = private$orgs_repos[[org]],
+            file_paths = file_path,
+            verbose = verbose,
+            progress = progress
+          ) |>
+            graphql_engine$prepare_files_table(
+              org = org,
+              file_path = file_path
+            )
+        }) |>
+          purrr::list_rbind() |>
+          private$add_repo_api_url()
+        return(files_table)
       }
+    },
+
+    get_files_content_from_files_structure = function(host_files_structure,
+                                                      verbose = TRUE,
+                                                      progress = TRUE) {
+      graphql_engine <- private$engines$graphql
       if (verbose) {
-        user_msg <- if (!is.null(host_files_structure)) {
-          "Pulling files from files structure"
-        } else {
-          glue::glue("Pulling files content: [{paste0(file_path, collapse = ', ')}]")
-        }
-        show_message(
-          host = private$host_name,
-          engine = "rest",
-          information = user_msg
+        cli::cli_alert_info(
+          cli::col_green("I will make use of files structure stored in GitStats.")
         )
       }
+      result <- private$get_orgs_and_repos_from_files_structure(
+        host_files_structure = host_files_structure
+      )
+      orgs <- result$orgs
+      repos <- result$repos
       files_table <- purrr::map(orgs, function(org) {
-        if (!is.null(host_files_structure)) {
-          file_path <- host_files_structure[[org]] %>% unlist(use.names = FALSE) %>% unique()
+        if (verbose) {
+          show_message(
+            host = private$host_name,
+            engine = "graphql",
+            scope = org,
+            information = "Pulling files from files structure"
+          )
         }
-        if (only_non_text_files) {
-          file_path <- file_path[grepl(non_text_files_pattern, file_path)]
-        }
-        files_table <- rest_engine$get_files(
-          file_paths          = file_path,
-          clean_files_content = clean_files_content,
-          org                 = org,
-          verbose             = FALSE,
-          progress            = progress
-        ) %>%
-          rest_engine$prepare_files_table()
-      }, .progress = progress) %>%
-        purrr::list_rbind() %>%
+        type <- attr(org, "type") %||% "organization"
+        graphql_engine$get_files_from_org_per_repo(
+          org = org,
+          type = type,
+          repos = repos,
+          host_files_structure = host_files_structure,
+          verbose = verbose,
+          progress = progress
+        ) |>
+          graphql_engine$prepare_files_table(
+            org = org,
+            file_path = file_path
+          )
+      }) |>
+        purrr::list_rbind() |>
         private$add_repo_api_url()
       return(files_table)
     }

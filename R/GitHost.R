@@ -168,20 +168,35 @@ GitHost <- R6::R6Class(
     #' a table format.
     get_files_content = function(file_path,
                                  host_files_structure = NULL,
-                                 only_text_files      = TRUE,
-                                 verbose              = TRUE,
-                                 progress             = TRUE) {
-      files_table <- if (!private$scan_all) {
-        private$get_files_content_from_orgs(
-          file_path            = file_path,
+                                 verbose = TRUE,
+                                 progress = TRUE) {
+      if (is.null(host_files_structure)) {
+        if (!private$scan_all) {
+          files_content_from_orgs <- private$get_files_content_from_orgs(
+            file_path = file_path,
+            verbose = verbose,
+            progress = progress
+          )
+          files_content_from_repos <- private$get_files_content_from_repos(
+            file_path = file_path,
+            verbose = verbose,
+            progress = progress
+          )
+          files_table <- rbind(
+            files_content_from_orgs,
+            files_content_from_repos
+          )
+        } else {
+          files_table <- private$get_files_content_from_host(
+            file_path = file_path,
+            verbose = verbose,
+            progress = progress
+          )
+        }
+      }
+      if (!is.null(host_files_structure)) {
+        files_table <- private$get_files_content_from_files_structure(
           host_files_structure = host_files_structure,
-          only_text_files      = only_text_files,
-          verbose              = verbose,
-          progress             = progress
-        )
-      } else {
-        private$get_files_content_from_host(
-          file_path = file_path,
           verbose = verbose,
           progress = progress
         )
@@ -200,11 +215,21 @@ GitHost <- R6::R6Class(
           "i" = "Set `orgs` or `repos` arguments in `set_*_host()` if you wish to run this function."
         ), call = NULL)
       }
-      files_structure <- private$get_files_structure_from_orgs(
-        pattern  = pattern,
-        depth    = depth,
-        verbose  = verbose,
+      files_structure_from_orgs <- private$get_files_structure_from_orgs(
+        pattern = pattern,
+        depth = depth,
+        verbose = verbose,
         progress = progress
+      )
+      files_structure_from_repos <- private$get_files_structure_from_repos(
+        pattern = pattern,
+        depth = depth,
+        verbose = verbose,
+        progress = progress
+      )
+      files_structure <- append(
+        files_structure_from_orgs %||% list(),
+        files_structure_from_repos %||% list()
       )
       return(files_structure)
     },
@@ -473,7 +498,7 @@ GitHost <- R6::R6Class(
             cli::cli_abort(
               c(
                 "x" = "{type} you provided does not exist or its name was passed
-                in a wrong way: {cli::col_red({endpoint})}",
+                in a wrong way: {cli::col_red({utils::URLdecode(endpoint)})}",
                 "!" = "Please type your {tolower(type)} name as you see it in
                 web URL.",
                 "i" = "E.g. do not use spaces. {type} names as you see on the
@@ -915,55 +940,115 @@ GitHost <- R6::R6Class(
 
     # Pull files content from organizations
     get_files_content_from_orgs = function(file_path,
-                                           host_files_structure = NULL,
-                                           only_text_files      = TRUE,
-                                           verbose              = TRUE,
-                                           progress             = TRUE) {
-      graphql_engine <- private$engines$graphql
-      if (!is.null(host_files_structure)) {
-        if (verbose) {
-          cli::cli_alert_info(cli::col_green("I will make use of files structure stored in GitStats."))
-        }
-        result <- private$get_orgs_and_repos_from_files_structure(
-          host_files_structure = host_files_structure
-        )
-        orgs <- result$orgs
-        repos <- result$repos
-      } else {
-        orgs <- private$orgs
-        repos <- private$repos
+                                           verbose = TRUE,
+                                           progress = TRUE) {
+      if ("org" %in% private$searching_scope) {
+        graphql_engine <- private$engines$graphql
+        files_table <- purrr::map(private$orgs, function(org) {
+          if (verbose) {
+            show_message(
+              host = private$host_name,
+              engine = "graphql",
+              scope = org,
+              information = glue::glue("Pulling files content: [{paste0(file_path, collapse = ', ')}]")
+            )
+          }
+          type <- attr(org, "type") %||% "organization"
+          graphql_engine$get_files_from_org(
+            org = org,
+            type = type,
+            repos = NULL,
+            file_paths = file_path,
+            verbose = verbose,
+            progress = progress
+          ) |>
+            graphql_engine$prepare_files_table(
+              org = org,
+              file_path = file_path
+            )
+        }) |>
+          purrr::list_rbind() |>
+          private$add_repo_api_url()
+        return(files_table)
       }
+    },
+
+    # Pull files content from organizations
+    get_files_content_from_repos = function(file_path,
+                                            verbose = TRUE,
+                                            progress = TRUE) {
+      if ("repo" %in% private$searching_scope) {
+        graphql_engine <- private$engines$graphql
+        orgs <- private$set_owner_type(
+          owners = names(private$orgs_repos)
+        )
+        files_table <- purrr::map(orgs, function(org) {
+          if (verbose) {
+            show_message(
+              host = private$host_name,
+              engine = "graphql",
+              scope = org,
+              information = glue::glue("Pulling files content: [{paste0(file_path, collapse = ', ')}]")
+            )
+          }
+          type <- attr(org, "type") %||% "organization"
+          graphql_engine$get_files_from_org(
+            org = org,
+            type = type,
+            repos = private$orgs_repos[[org]],
+            file_paths = file_path,
+            verbose = verbose,
+            progress = progress
+          ) |>
+            graphql_engine$prepare_files_table(
+              org = org,
+              file_path = file_path
+            )
+        }) |>
+          purrr::list_rbind() |>
+          private$add_repo_api_url()
+        return(files_table)
+      }
+    },
+
+    get_files_content_from_files_structure = function(host_files_structure,
+                                                      verbose = TRUE,
+                                                      progress = TRUE) {
+      graphql_engine <- private$engines$graphql
+      if (verbose) {
+        cli::cli_alert_info(
+          cli::col_green("I will make use of files structure stored in GitStats.")
+        )
+      }
+      result <- private$get_orgs_and_repos_from_files_structure(
+        host_files_structure = host_files_structure
+      )
+      orgs <- result$orgs
+      repos <- result$repos
       files_table <- purrr::map(orgs, function(org) {
         if (verbose) {
-          user_msg <- if (!is.null(host_files_structure)) {
-            "Pulling files from files structure"
-          } else {
-            glue::glue("Pulling files content: [{paste0(file_path, collapse = ', ')}]")
-          }
           show_message(
-            host        = private$host_name,
-            engine      = "graphql",
-            scope       = org,
-            information = user_msg
+            host = private$host_name,
+            engine = "graphql",
+            scope = org,
+            information = "Pulling files from files structure"
           )
         }
         type <- attr(org, "type") %||% "organization"
         graphql_engine$get_files_from_org(
-          org                  = org,
-          type                 = type,
-          repos                = repos,
-          file_paths           = file_path,
+          org = org,
+          type = type,
+          repos = repos,
           host_files_structure = host_files_structure,
-          only_text_files      = only_text_files,
-          verbose              = verbose,
-          progress             = progress
-        ) %>%
+          verbose = verbose,
+          progress = progress
+        ) |>
           graphql_engine$prepare_files_table(
-            org       = org,
+            org = org,
             file_path = file_path
           )
-      }) %>%
-        purrr::list_rbind() %>%
+      }) |>
+        purrr::list_rbind() |>
         private$add_repo_api_url()
       return(files_table)
     },
@@ -980,43 +1065,92 @@ GitHost <- R6::R6Class(
                                              depth,
                                              verbose  = TRUE,
                                              progress = TRUE) {
-      graphql_engine <- private$engines$graphql
-      files_structure_list <- purrr::map(private$orgs, function(org) {
-        if (verbose) {
-          user_info <- if (!is.null(pattern)) {
-            glue::glue("Pulling files structure...[files matching pattern: '{pattern}']")
-          } else {
-            glue::glue("Pulling files structure...")
+      if ("org" %in% private$searching_scope) {
+        graphql_engine <- private$engines$graphql
+        files_structure_list <- purrr::map(private$orgs, function(org) {
+          if (verbose) {
+            user_info <- if (!is.null(pattern)) {
+              glue::glue("Pulling files structure...[files matching pattern: '{pattern}']")
+            } else {
+              glue::glue("Pulling files structure...")
+            }
+            show_message(
+              host = private$host_name,
+              engine = "graphql",
+              scope = org,
+              information = user_info
+            )
           }
-          show_message(
-            host = private$host_name,
-            engine = "graphql",
-            scope = org,
-            information = user_info
+          type <- attr(org, "type") %||% "organization"
+          graphql_engine$get_files_structure_from_org(
+            org = org,
+            type = type,
+            pattern = pattern,
+            depth = depth,
+            verbose = verbose,
+            progress = progress
+          )
+        })
+        names(files_structure_list) <- private$orgs
+        files_structure_list <- files_structure_list %>%
+          purrr::discard(~ length(.) == 0)
+        if (length(files_structure_list) == 0 && verbose) {
+          cli::cli_alert_warning(
+            cli::col_yellow(
+              "For {private$host_name} no files structure found."
+            )
           )
         }
-        type <- attr(org, "type") %||% "organization"
-        graphql_engine$get_files_structure_from_org(
-          org      = org,
-          type     = type,
-          repos    = private$repos,
-          pattern  = pattern,
-          depth    = depth,
-          verbose  = verbose,
-          progress = progress
-        )
-      })
-      names(files_structure_list) <- private$orgs
-      files_structure_list <- files_structure_list %>%
-        purrr::discard(~ length(.) == 0)
-      if (length(files_structure_list) == 0 && verbose) {
-        cli::cli_alert_warning(
-          cli::col_yellow(
-            "For {private$host_name} no files structure found."
-          )
-        )
+        return(files_structure_list)
       }
-      return(files_structure_list)
+    },
+
+    get_files_structure_from_repos = function(pattern,
+                                              depth,
+                                              verbose  = TRUE,
+                                              progress = TRUE) {
+      if ("repo" %in% private$searching_scope) {
+        graphql_engine <- private$engines$graphql
+        orgs <- private$set_owner_type(
+          owners = names(private$orgs_repos)
+        )
+        files_structure_list <- purrr::map(orgs, function(org) {
+          if (verbose) {
+            user_info <- if (!is.null(pattern)) {
+              glue::glue("Pulling files structure...[files matching pattern: '{pattern}']")
+            } else {
+              glue::glue("Pulling files structure...")
+            }
+            show_message(
+              host = private$host_name,
+              engine = "graphql",
+              scope = org,
+              information = user_info
+            )
+          }
+          type <- attr(org, "type") %||% "organization"
+          graphql_engine$get_files_structure_from_org(
+            org = org,
+            type = type,
+            repos = private$repos,
+            pattern = pattern,
+            depth = depth,
+            verbose = verbose,
+            progress = progress
+          )
+        })
+        names(files_structure_list) <- orgs
+        files_structure_list <- files_structure_list %>%
+          purrr::discard(~ length(.) == 0)
+        if (length(files_structure_list) == 0 && verbose) {
+          cli::cli_alert_warning(
+            cli::col_yellow(
+              "For {private$host_name} no files structure found."
+            )
+          )
+        }
+        return(files_structure_list)
+      }
     },
 
     # Pull files from host

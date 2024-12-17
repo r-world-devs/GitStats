@@ -163,6 +163,7 @@ test_that("get_files_structure_from_orgs", {
     "graphql_engine$get_files_structure_from_org",
     test_mocker$use("gh_md_files_structure")
   )
+  github_testhost_priv$searching_scope <- "org"
   gh_files_structure_from_orgs <- github_testhost_priv$get_files_structure_from_orgs(
     pattern = "\\.md|\\.qmd|\\.Rmd",
     depth   = Inf,
@@ -196,13 +197,14 @@ test_that("when files_structure is empty, appropriate message is returned", {
     mode = "private"
   )
   mockery::stub(
-    github_testhost_priv$get_files_structure_from_orgs,
+    github_testhost_priv$get_files_structure_from_repos,
     "graphql_engine$get_files_structure_from_org",
     list() |>
       purrr::set_names()
   )
+  github_testhost_priv$searching_scope <- "repo"
   expect_snapshot(
-    github_testhost_priv$get_files_structure_from_orgs(
+    github_testhost_priv$get_files_structure_from_repos(
       pattern = "\\.png",
       depth = 1L,
       verbose = TRUE
@@ -249,13 +251,12 @@ test_that("get_files_structure pulls files structure for repositories in orgs", 
 
 test_that("get_files_content makes use of files_structure", {
   mockery::stub(
-    github_testhost_priv$get_files_content_from_orgs,
+    github_testhost_priv$get_files_content_from_files_structure,
     "private$add_repo_api_url",
     test_mocker$use("gh_files_table")
   )
   expect_snapshot(
-    files_content <- github_testhost_priv$get_files_content_from_orgs(
-      file_path = NULL,
+    files_content <- github_testhost_priv$get_files_content_from_files_structure(
       host_files_structure = test_mocker$use("gh_files_structure_from_orgs")
     )
   )

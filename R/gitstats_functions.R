@@ -283,16 +283,15 @@ get_users <- function(gitstats,
                       cache   = TRUE,
                       verbose = is_verbose(gitstats)) {
   gitstats$get_users(
-    logins  = logins,
-    cache   = cache,
+    logins = logins,
+    cache = cache,
     verbose = verbose
   )
 }
 
 #' @title Get content of files
 #' @name get_files_content
-#' @description Pull text files content for a given scope (orgs, repos or whole
-#'   git hosts).
+#' @description Pulls content of text files.
 #' @param gitstats A GitStats object.
 #' @param file_path Optional. A standardized path to file(s) in repositories.
 #'   May be a character vector if multiple files are to be pulled. If set to
@@ -303,9 +302,6 @@ get_users <- function(gitstats,
 #'   `get_files_structure()` function and kept in storage. If there is no
 #'   `files_structure` in storage, an error will be returned. If `file_path` is
 #'   defined, it will override `use_files_structure` parameter.
-#' @param only_text_files A logical, `TRUE` by default. If set to `FALSE`, apart
-#'   from files with text content shows in table output also non-text files with
-#'   `NA` value for text content.
 #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
 #'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
@@ -324,37 +320,35 @@ get_users <- function(gitstats,
 #'     orgs = "mbtests"
 #'   )
 #'  get_files_content(
-#'    gitstats_obj = my_gitstats,
+#'    gitstats = my_gitstats,
 #'    file_path = c("LICENSE", "DESCRIPTION")
 #'  )
 #'
 #'  # example with files structure
 #'  files_structure <- get_files_structure(
-#'    gitstats_obj = my_gitstats,
+#'    gitstats = my_gitstats,
 #'    pattern = "\\.Rmd",
 #'    depth = 2L
 #'  )
 #'  # get_files_content() will make use of pulled earlier files structure
 #'  files_content <- get_files_content(
-#'    gitstats_obj = my_gitstats
+#'    gitstats = my_gitstats
 #'  )
 #' }
 #' @return A data.frame.
 #' @export
 get_files_content <- function(gitstats,
-                              file_path           = NULL,
+                              file_path = NULL,
                               use_files_structure = TRUE,
-                              only_text_files     = TRUE,
-                              cache               = TRUE,
-                              verbose             = is_verbose(gitstats),
-                              progress            = verbose) {
+                              cache = TRUE,
+                              verbose = is_verbose(gitstats),
+                              progress = verbose) {
   gitstats$get_files_content(
-    file_path           = file_path,
+    file_path = file_path,
     use_files_structure = use_files_structure,
-    only_text_files     = only_text_files,
-    cache               = cache,
-    verbose             = verbose,
-    progress            = progress
+    cache = cache,
+    verbose = verbose,
+    progress = progress
   )
 }
 
@@ -393,16 +387,16 @@ get_files_content <- function(gitstats,
 #' @return A list of vectors.
 #' @export
 get_files_structure <- function(gitstats,
-                                pattern  = NULL,
-                                depth    = Inf,
-                                cache    = TRUE,
-                                verbose  = is_verbose(gitstats),
+                                pattern = NULL,
+                                depth = Inf,
+                                cache = TRUE,
+                                verbose = is_verbose(gitstats),
                                 progress = verbose) {
   gitstats$get_files_structure(
-    pattern  = pattern,
-    depth    = depth,
-    cache    = cache,
-    verbose  = verbose,
+    pattern = pattern,
+    depth = depth,
+    cache = cache,
+    verbose = verbose,
     progress = progress
   )
 }

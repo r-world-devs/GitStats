@@ -194,14 +194,12 @@ GitStats <- R6::R6Class(
 
     get_files_content = function(file_path = NULL,
                                  use_files_structure = TRUE,
-                                 only_text_files = TRUE,
                                  cache = TRUE,
                                  verbose = TRUE,
                                  progress = verbose) {
       private$check_for_host()
       args_list <- list("file_path" = file_path,
-                        "use_files_structure" = use_files_structure,
-                        "only_text_files" = only_text_files)
+                        "use_files_structure" = use_files_structure)
       trigger <- private$trigger_pulling(
         cache = cache,
         storage = "files",
@@ -212,7 +210,6 @@ GitStats <- R6::R6Class(
         files <- private$get_files_content_from_hosts(
           file_path = file_path,
           use_files_structure = use_files_structure,
-          only_text_files = only_text_files,
           verbose = verbose,
           progress = progress
         ) %>%
@@ -707,7 +704,6 @@ GitStats <- R6::R6Class(
     # Pull content of a text file in a table form
     get_files_content_from_hosts = function(file_path,
                                             use_files_structure,
-                                            only_text_files,
                                             verbose,
                                             progress) {
       purrr::map(private$hosts, function(host) {
@@ -729,11 +725,10 @@ GitStats <- R6::R6Class(
           NULL
         } else {
           host$get_files_content(
-            file_path            = file_path,
+            file_path = file_path,
             host_files_structure = host_files_structure,
-            only_text_files      = only_text_files,
-            verbose              = verbose,
-            progress             = progress
+            verbose = verbose,
+            progress = progress
           )
         }
       }) %>%
@@ -1021,13 +1016,13 @@ GitStats <- R6::R6Class(
     print_orgs_and_repos = function() {
       orgs <- purrr::map(private$hosts, function(host) {
         host_priv <- environment(host$initialize)$private
-        if (host_priv$searching_scope == "org") {
+        if ("org" %in% host_priv$searching_scope) {
           orgs <- host_priv$orgs
         }
       })
       repos <- purrr::map(private$hosts, function(host) {
         host_priv <- environment(host$initialize)$private
-        if (host_priv$searching_scope == "repo") {
+        if ("repo" %in% host_priv$searching_scope) {
           repos <- host_priv$repos_fullnames
         }
       })

@@ -124,8 +124,8 @@ EngineGraphQLGitLab <- R6::R6Class(
     get_files_from_org = function(org,
                                   type,
                                   repos,
-                                  file_paths,
-                                  host_files_structure,
+                                  file_paths = NULL,
+                                  host_files_structure = NULL,
                                   only_text_files,
                                   verbose = FALSE,
                                   progress = FALSE) {
@@ -139,8 +139,8 @@ EngineGraphQLGitLab <- R6::R6Class(
           only_text_files = only_text_files,
           org = org
         )
-      } else if (is.null(host_files_structure) && only_text_files) {
-        file_paths <- file_paths[!grepl(non_text_files_pattern, file_paths)]
+      } else if (only_text_files) {
+        file_paths <- file_paths[grepl(text_files_pattern, file_paths)]
       }
       if (type == "organization") {
         while (next_page) {
@@ -194,13 +194,13 @@ EngineGraphQLGitLab <- R6::R6Class(
             purrr::discard(~ length(.$repository$blobs$nodes) == 0)
           if (is.null(files_list)) files_list <- list()
           if (length(files_list) > 0) {
-            next_page <- files_response$pageInfo$hasNextPage
+            next_page <- projects$pageInfo$hasNextPage
           } else {
             next_page <- FALSE
           }
           if (is.null(next_page)) next_page <- FALSE
           if (next_page) {
-            end_cursor <- files_response$pageInfo$endCursor
+            end_cursor <- projects$pageInfo$endCursor
           } else {
             end_cursor <- ""
           }
@@ -250,16 +250,16 @@ EngineGraphQLGitLab <- R6::R6Class(
         if (!is.null(host_files_structure)) {
           file_paths <- private$get_path_from_files_structure(
             host_files_structure = host_files_structure,
-            only_text_files      = only_text_files,
-            org                  = org,
-            repo                 = repo
+            only_text_files = only_text_files,
+            org = org,
+            repo = repo
           )
         }
         files_response <- tryCatch(
           {
             private$get_file_blobs_response(
-              org        = org,
-              repo       = repo,
+              org = org,
+              repo = repo,
               file_paths = file_paths
             )
           },
@@ -272,7 +272,7 @@ EngineGraphQLGitLab <- R6::R6Class(
     },
 
     # Prepare files table.
-    prepare_files_table = function(files_response, org, file_path) {
+    prepare_files_table = function(files_response, org) {
       if (!is.null(files_response)) {
         if (private$response_prepared_by_iteration(files_response)) {
           files_table <- purrr::map(files_response, function(response_data) {
@@ -315,7 +315,7 @@ EngineGraphQLGitLab <- R6::R6Class(
 
     get_files_structure_from_org = function(org,
                                             type,
-                                            repos,
+                                            repos = NULL,
                                             pattern = NULL,
                                             depth = Inf,
                                             verbose = TRUE,

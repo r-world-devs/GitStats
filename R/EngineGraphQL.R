@@ -86,7 +86,7 @@ EngineGraphQL <- R6::R6Class(
         file_path <- host_files_structure[[org]][[repo]]
       }
       if (only_text_files) {
-        file_path <- file_path[!grepl(non_text_files_pattern, file_path)]
+        file_path <- file_path[grepl(text_files_pattern, file_path)]
       }
       return(file_path)
     }
