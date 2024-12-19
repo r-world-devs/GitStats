@@ -196,3 +196,22 @@ test_that("get_repos_urls_with_code_from_repos returns repositories URLS", {
   expect_gt(length(gh_repos_urls_with_code_in_files), 0)
   test_mocker$cache(gh_repos_urls_with_code_in_files)
 })
+
+test_that("get_repos_urls_with_code_from_repos returns repositories URLS", {
+  mockery::stub(
+    github_testhost$get_repos_urls,
+    "private$get_repos_urls_with_code",
+    test_mocker$use("gh_repos_urls_with_code_in_files")
+  )
+  gh_repos_urls_with_code_in_files <- github_testhost$get_repos_urls(
+    type = "web",
+    with_code = "shiny",
+    in_files = "DESCRIPTION",
+    with_file = NULL,
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_type(gh_repos_urls_with_code_in_files, "character")
+  expect_gt(length(gh_repos_urls_with_code_in_files), 0)
+  test_mocker$cache(gh_repos_urls_with_code_in_files)
+})
