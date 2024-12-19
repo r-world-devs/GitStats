@@ -155,7 +155,11 @@ GitHostGitHub <- R6::R6Class(
     },
 
     # Get projects URL from search response
-    get_repo_url_from_response = function(search_response, type, progress = TRUE) {
+    get_repo_url_from_response = function(search_response, repos_fullnames = NULL, type, progress = TRUE) {
+      if (!is.null(repos_fullnames)) {
+        search_response <- search_response |>
+          purrr::keep(~ .$repository$full_name %in% repos_fullnames)
+      }
       purrr::map_vec(search_response, function(project) {
         if (type == "api") {
           project$repository$url

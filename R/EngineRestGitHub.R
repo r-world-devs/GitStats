@@ -48,33 +48,34 @@ EngineRestGitHub <- R6::R6Class(
 
     # Pulling repositories where code appears
     get_repos_by_code = function(code,
-                                 org        = NULL,
-                                 filename   = NULL,
-                                 in_path    = FALSE,
-                                 output     = "table_full",
-                                 verbose    = TRUE,
-                                 progress   = TRUE) {
-      user_query <- if (!is.null(org)) {
-        paste0('+user:', org)
-      } else {
-        ''
-      }
-      query <- if (!in_path) {
-        paste0('"', code, '"', user_query)
-      } else {
-        paste0('"', code, '"+in:path', user_query)
-      }
-      if (!is.null(filename)) {
-        query <- paste0(query, '+in:file+filename:', filename)
-      }
-      search_endpoint <- paste0(private$endpoints[["search"]], query)
-      if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
-      total_n <- self$response(search_endpoint)[["total_count"]]
-      if (length(total_n) > 0) {
-        search_result <- private$search_response(
-          search_endpoint = search_endpoint,
-          total_n = total_n
+                                 org = NULL,
+                                 repos = NULL,
+                                 filename = NULL,
+                                 in_path = FALSE,
+                                 output = "table_full",
+                                 verbose = TRUE,
+                                 progress = TRUE) {
+      if (!is.null(org)) {
+        search_result <- private$search_for_code(
+          code = code,
+          org = org,
+          filename = filename,
+          in_path = in_path,
+          verbose = verbose,
+          progress = progress
         )
+      }
+      if (!is.null(repos)) {
+        search_result <- private$search_repos_for_code(
+          code = code,
+          repos = repos,
+          filename = filename,
+          in_path = in_path,
+          verbose = verbose,
+          progress = progress
+        )
+      }
+      if (length(search_result) > 0) {
         if (output == "table_full" || output == "table_min") {
           search_output <- private$map_search_into_repos(
             search_response = search_result,
@@ -129,8 +130,14 @@ EngineRestGitHub <- R6::R6Class(
 
     #' Pull all repositories URLS from organization
     get_repos_urls = function(type, org, repos) {
-      repos_response <- self$response(
-        endpoint = paste0(private$endpoints[["organizations"]], org, "/repos")
+      owner_type <- attr(org, "type") %||% "organization"
+      if (owner_type == "user") {
+        repo_endpoint <- paste0(private$endpoints[["users"]], org, "/repos")
+      } else {
+        repo_endpoint <- paste0(private$endpoints[["organizations"]], org, "/repos")
+      }
+      repos_response <- private$paginate_results(
+        endpoint = repo_endpoint
       )
       if (!is.null(repos)) {
         repos_response <- repos_response %>%
@@ -216,10 +223,80 @@ EngineRestGitHub <- R6::R6Class(
         self$rest_api_url,
         "/orgs/"
       )
+      private$endpoints[["users"]] <- paste0(
+        self$rest_api_url,
+        "/users/"
+      )
       private$endpoints[["repositories"]] <- paste0(
         self$rest_api_url,
         "/repos/"
       )
+    },
+
+    search_for_code = function(code,
+                               org,
+                               filename,
+                               in_path,
+                               verbose,
+                               progress) {
+      user_query <- if (!is.null(org)) {
+        paste0('+user:', org)
+      } else {
+        ''
+      }
+      query <- if (!in_path) {
+        paste0('"', code, '"', user_query)
+      } else {
+        paste0('"', code, '"+in:path', user_query)
+      }
+      if (!is.null(filename)) {
+        query <- paste0(query, '+in:file+filename:', filename)
+      }
+      search_endpoint <- paste0(private$endpoints[["search"]], query)
+      if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
+      total_n <- self$response(search_endpoint)[["total_count"]]
+      search_result <- if (length(total_n) > 0) {
+        private$search_response(
+          search_endpoint = search_endpoint,
+          total_n = total_n
+        )
+      } else {
+        list()
+      }
+      return(search_result)
+    },
+
+    search_repos_for_code = function(code,
+                                     repos,
+                                     filename,
+                                     in_path,
+                                     verbose,
+                                     progress) {
+      if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
+      search_result <- purrr::map(repos, function(repo) {
+        repo_query <- paste0('+repo:', repo)
+        query <- if (!in_path) {
+          paste0('"', code, '"', repo_query)
+        } else {
+          paste0('"', code, '"+in:path', repo_query)
+        }
+        if (!is.null(filename)) {
+          query <- paste0(query, '+in:file+filename:', filename)
+        }
+        search_endpoint <- paste0(private$endpoints[["search"]], query)
+        total_n <- self$response(search_endpoint)[["total_count"]]
+        result <- if (length(total_n) > 0) {
+          private$search_response(
+            search_endpoint = search_endpoint,
+            total_n = total_n
+          )
+        } else {
+          list()
+        }
+        return(result)
+      }) |>
+        purrr::list_flatten()
+      return(search_result)
     },
 
     # A wrapper for proper pagination of GitHub search REST API

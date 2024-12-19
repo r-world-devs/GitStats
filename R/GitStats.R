@@ -114,14 +114,21 @@ GitStats <- R6::R6Class(
           with_files = with_files,
           verbose    = verbose,
           progress   = progress
-        ) %>%
-          private$set_object_class(
+        )
+        if (!is.null(repos_urls)) {
+          repos_urls <- private$set_object_class(
+            object = repos_urls,
             class = "repos_urls",
             attr_list = args_list
           )
-        private$save_to_storage(
-          table = repos_urls
-        )
+          private$save_to_storage(
+            table = repos_urls
+          )
+        } else if (verbose) {
+          cli::cli_alert_warning(
+            cli::col_yellow("No findings.")
+          )
+        }
       } else {
         repos_urls <- private$get_from_storage(
           table = "repos_urls",
