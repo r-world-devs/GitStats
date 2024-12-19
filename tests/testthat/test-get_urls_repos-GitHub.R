@@ -1,12 +1,12 @@
 test_that("get_repos_urls() works for whole orgs", {
   mockery::stub(
     test_rest_github$get_repos_urls,
-    "self$response",
+    "private$paginate_results",
     test_fixtures$github_repositories_rest_response
   )
   gh_repos_urls <- test_rest_github$get_repos_urls(
     type = "web",
-    org = "test-org",
+    org = "test_org",
     repos = NULL
   )
   expect_length(
@@ -19,12 +19,12 @@ test_that("get_repos_urls() works for whole orgs", {
 test_that("get_repos_urls() works for individual repos", {
   mockery::stub(
     test_rest_github$get_repos_urls,
-    "self$response",
+    "private$paginate_results",
     test_fixtures$github_repositories_rest_response
   )
   gh_repos_urls <- test_rest_github$get_repos_urls(
     type = "web",
-    org = "test-org",
+    org = "test_org",
     repos = c("testRepo", "testRepo2")
   )
   expect_length(
@@ -35,14 +35,13 @@ test_that("get_repos_urls() works for individual repos", {
 })
 
 test_that("get_repos_urls prepares api repo_urls vector", {
-  github_testhost_priv <- create_github_testhost(orgs = "test-org",
-                                                 mode = "private")
   mockery::stub(
     test_rest_github$get_repos_urls,
-    "self$response",
+    "private$paginate_results",
     test_fixtures$github_repositories_rest_response
   )
   gh_api_repos_urls <- test_rest_github$get_repos_urls(
+    org = "test_org",
     repos = NULL,
     type = "api"
   )
@@ -136,17 +135,62 @@ test_that("get_repo_url_from_response retrieves repositories URLS", {
   test_mocker$cache(gh_repo_web_urls)
 })
 
-test_that("get_repos_urls returns repositories URLS", {
+test_that("get_repos_urls_with_code_from_orgs returns repositories URLS", {
   mockery::stub(
-    github_testhost$get_repos_urls,
+    github_testhost_priv$get_repos_urls_with_code_from_orgs,
     "private$get_repo_url_from_response",
     test_mocker$use("gh_repo_web_urls")
   )
-  gh_repos_urls_with_code_in_files <- github_testhost$get_repos_urls(
+  gh_repos_urls_with_code_from_orgs <- github_testhost_priv$get_repos_urls_with_code_from_orgs(
     type = "web",
-    with_code = "shiny",
+    code = "shiny",
     in_files = "DESCRIPTION",
-    verbose = FALSE
+    in_path = FALSE,
+    verbose = FALSE,
+    progress= FALSE
+  )
+  expect_type(gh_repos_urls_with_code_from_orgs, "character")
+  expect_gt(length(gh_repos_urls_with_code_from_orgs), 0)
+  test_mocker$cache(gh_repos_urls_with_code_from_orgs)
+})
+
+test_that("get_repos_urls_with_code_from_repos returns repositories URLS", {
+  mockery::stub(
+    github_testhost_priv$get_repos_urls_with_code_from_repos,
+    "private$get_repo_url_from_response",
+    test_mocker$use("gh_repo_web_urls")
+  )
+  gh_repos_urls_with_code_from_repos <- github_testhost_priv$get_repos_urls_with_code_from_repos(
+    type = "web",
+    code = "shiny",
+    in_files = "DESCRIPTION",
+    in_path = FALSE,
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_type(gh_repos_urls_with_code_from_repos, "character")
+  expect_gt(length(gh_repos_urls_with_code_from_repos), 0)
+  test_mocker$cache(gh_repos_urls_with_code_from_repos)
+})
+
+test_that("get_repos_urls_with_code_from_repos returns repositories URLS", {
+  mockery::stub(
+    github_testhost_priv$get_repos_urls_with_code,
+    "private$get_repos_urls_with_code_from_orgs",
+    test_mocker$use("gh_repos_urls_with_code_from_orgs")
+  )
+  mockery::stub(
+    github_testhost_priv$get_repos_urls_with_code,
+    "private$get_repos_urls_with_code_from_repos",
+    test_mocker$use("gh_repos_urls_with_code_from_repos")
+  )
+  gh_repos_urls_with_code_in_files <- github_testhost_priv$get_repos_urls_with_code(
+    type = "web",
+    code = "shiny",
+    in_files = "DESCRIPTION",
+    in_path = FALSE,
+    verbose = FALSE,
+    progress = FALSE
   )
   expect_type(gh_repos_urls_with_code_in_files, "character")
   expect_gt(length(gh_repos_urls_with_code_in_files), 0)
