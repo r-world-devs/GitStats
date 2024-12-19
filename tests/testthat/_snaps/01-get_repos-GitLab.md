@@ -13,9 +13,3 @@
     Message
       i [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling repositories...
 
-# get_repos_from_repos prints proper message
-
-    Code
-      gl_repos_from_repos <- gitlab_testhost_priv$get_repos_from_repos(verbose = TRUE,
-        progress = FALSE)
-

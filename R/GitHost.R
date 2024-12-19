@@ -125,7 +125,8 @@ GitHost <- R6::R6Class(
                            progress = TRUE) {
       if (private$scan_all && is.null(private$orgs) && verbose) {
         cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
-        private$orgs <- private$engines$graphql$get_orgs()
+        graphql_engine <- private$engines$graphql
+        private$orgs <- graphql_engine$get_orgs()
       }
       commits_from_orgs <- private$get_commits_from_orgs(
         since    = since,
@@ -234,7 +235,8 @@ GitHost <- R6::R6Class(
         if (verbose) {
           cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
         }
-        private$orgs <- private$engines$graphql$get_orgs()
+        graphql_engine <- private$engines$graphql
+        private$orgs <- graphql_engine$get_orgs()
       }
       until <- until %||% Sys.time()
       release_logs_from_orgs <- private$get_release_logs_from_orgs(
@@ -604,7 +606,8 @@ GitHost <- R6::R6Class(
             information = "Pulling all organizations"
           )
         }
-        private$orgs <- private$engines$graphql$get_orgs()
+        graphql_engine <- private$engines$graphql
+        private$orgs <- graphql_engine$get_orgs()
       }
       repos_table <- purrr::list_rbind(
         list(

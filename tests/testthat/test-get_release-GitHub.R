@@ -102,3 +102,30 @@ test_that("`get_release_logs()` pulls release logs in the table format", {
   expect_lt(max(releases_table$published_at), as.POSIXct("2023-09-30"))
   test_mocker$cache(releases_table)
 })
+
+test_that("`get_release_logs()` is set to scan whole git host", {
+  github_testhost_all <- create_github_testhost_all(orgs = "test_org")
+  mockery::stub(
+    github_testhost_all$get_release_logs,
+    "graphql_engine$get_orgs",
+    "test_org"
+  )
+  mockery::stub(
+    github_testhost_all$get_release_logs,
+    "private$get_release_logs_from_repos",
+    test_mocker$use("releases_from_repos")
+  )
+  mockery::stub(
+    github_testhost_all$get_release_logs,
+    "private$get_release_logs_from_orgs",
+    test_mocker$use("releases_from_orgs")
+  )
+  expect_snapshot(
+    gh_releases_table <- github_testhost_all$get_release_logs(
+      since    = "2023-01-01",
+      until    = "2023-02-28",
+      verbose  = TRUE,
+      progress = FALSE
+    )
+  )
+})

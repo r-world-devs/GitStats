@@ -395,6 +395,7 @@ test_that("`get_repos_with_code_from_host()` pulls raw response", {
   )
   expect_type(repos_with_code_from_host_raw, "list")
   expect_gt(length(repos_with_code_from_host_raw), 0)
+  test_mocker$cache(repos_with_code_from_host_raw)
 })
 
 test_that("get_repos_with_code() works", {
@@ -430,6 +431,25 @@ test_that("get_repos_with_code() works", {
     repo_cols = repo_min_colnames
   )
   test_mocker$cache(github_repos_with_code_min)
+})
+
+
+test_that("get_repos_with_code() scans whole host", {
+  mockery::stub(
+    github_testhost_priv$get_repos_with_code,
+    "private$get_repos_with_code_from_host",
+    test_mocker$use("repos_with_code_from_host_raw")
+  )
+  github_testhost_priv$scan_all <- TRUE
+  github_repos_with_code_raw <- github_testhost_priv$get_repos_with_code(
+    code = "test-code",
+    output = "raw",
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_type(github_repos_with_code_raw, "list")
+  expect_gt(length(github_repos_with_code_raw), 0)
+  github_testhost_priv$scan_all <- FALSE
 })
 
 test_that("GitHub prepares repos table from repositories response", {
@@ -502,6 +522,34 @@ test_that("`get_all_repos()` works as expected", {
     gh_repos_table
   )
   test_mocker$cache(gh_repos_table)
+})
+
+test_that("`get_all_repos()` is set to scan whole git host", {
+  github_testhost_all_priv <- create_github_testhost_all(
+    orgs = "test_org",
+    mode = "private"
+  )
+  mockery::stub(
+    github_testhost_all_priv$get_all_repos,
+    "graphql_engine$get_orgs",
+    "test_org"
+  )
+  mockery::stub(
+    github_testhost_all_priv$get_all_repos,
+    "private$get_repos_from_orgs",
+    test_mocker$use("gh_repos_from_orgs")
+  )
+  mockery::stub(
+    github_testhost_all_priv$get_all_repos,
+    "private$get_repos_from_repos",
+    test_mocker$use("gh_repos_individual")
+  )
+  expect_snapshot(
+    gh_repos <- github_testhost_all_priv$get_all_repos(
+      verbose  = TRUE,
+      progress = FALSE
+    )
+  )
 })
 
 test_that("GitHost adds `repo_api_url` column to GitHub repos table", {
