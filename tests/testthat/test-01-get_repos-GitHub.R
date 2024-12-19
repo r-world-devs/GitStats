@@ -128,47 +128,72 @@ test_that("Mapping search result to repositories works", {
   test_mocker$cache(gh_mapped_repos)
 })
 
-test_that("`get_repos_by_code()` returns repos output for code search in files", {
+test_that("`search_for_code()` returns repos output for code search in files", {
   mockery::stub(
-    test_rest_github$get_repos_by_code,
+    test_rest_github_priv$search_for_code,
     "self$response",
     list("total_count" = 3L)
   )
   mockery::stub(
-    test_rest_github$get_repos_by_code,
+    test_rest_github_priv$search_for_code,
     "private$search_response",
     test_fixtures$github_search_response
   )
   mockery::stub(
-    test_rest_github$get_repos_by_code,
+    test_rest_github_priv$search_for_code,
     "private$map_search_into_repos",
     test_mocker$use("gh_mapped_repos")
   )
-  gh_repos_by_code <- test_rest_github$get_repos_by_code(
+  gh_search_for_code <- test_rest_github_priv$search_for_code(
     code     = "test_code",
     filename = "test_file",
+    in_path  = FALSE,
     org      = "test_org",
-    verbose  = FALSE
+    verbose  = FALSE,
+    progress = FALSE
   )
-  expect_gh_repos_rest_response(gh_repos_by_code)
-  test_mocker$cache(gh_repos_by_code)
+  expect_gh_search_response(gh_search_for_code$items)
+  test_mocker$cache(gh_search_for_code)
+})
+
+test_that("`search_repos_for_code()` returns repos output for code search in files", {
+  mockery::stub(
+    test_rest_github_priv$search_repos_for_code,
+    "self$response",
+    list("total_count" = 3L)
+  )
+  mockery::stub(
+    test_rest_github_priv$search_repos_for_code,
+    "private$search_response",
+    test_fixtures$github_search_response
+  )
+  mockery::stub(
+    test_rest_github_priv$search_repos_for_code,
+    "private$map_search_into_repos",
+    test_mocker$use("gh_mapped_repos")
+  )
+  gh_search_repos_for_code <- test_rest_github_priv$search_repos_for_code(
+    code     = "test_code",
+    filename = "test_file",
+    in_path  = FALSE,
+    repos    = c("TestRepo", "TestRepo1"),
+    verbose  = FALSE,
+    progress = FALSE
+  )
+  expect_gh_search_response(gh_search_repos_for_code$items)
+  test_mocker$cache(gh_search_repos_for_code)
 })
 
 test_that("`get_repos_by_code()` for GitHub prepares a raw search response", {
   mockery::stub(
     test_rest_github$get_repos_by_code,
-    "self$response",
-    list("total_count" = 3L)
+    "private$search_for_code",
+    test_mocker$use("gh_search_for_code")
   )
   mockery::stub(
     test_rest_github$get_repos_by_code,
-    "private$search_response",
-    test_fixtures$github_search_response
-  )
-  mockery::stub(
-    test_rest_github$get_repos_by_code,
-    "private$map_search_into_repos",
-    test_mocker$use("gh_mapped_repos")
+    "private$search_repos_for_code",
+    test_mocker$use("gh_search_repos_for_code")
   )
   gh_repos_by_code_raw <- test_rest_github$get_repos_by_code(
     code    = "test_code",
@@ -178,6 +203,32 @@ test_that("`get_repos_by_code()` for GitHub prepares a raw search response", {
   )
   expect_gh_search_response(gh_repos_by_code_raw$items)
   test_mocker$cache(gh_repos_by_code_raw)
+})
+
+test_that("`get_repos_by_code()` for GitHub prepares a repository output", {
+  mockery::stub(
+    test_rest_github$get_repos_by_code,
+    "private$search_for_code",
+    test_mocker$use("gh_search_for_code")
+  )
+  mockery::stub(
+    test_rest_github$get_repos_by_code,
+    "private$search_repos_for_code",
+    test_mocker$use("gh_search_repos_for_code")
+  )
+  mockery::stub(
+    test_rest_github$get_repos_by_code,
+    "private$map_search_into_repos",
+    test_mocker$use("gh_mapped_repos")
+  )
+  gh_repos_by_code <- test_rest_github$get_repos_by_code(
+    code    = "test_code",
+    org     = "test_org",
+    output  = "table_min",
+    verbose = FALSE
+  )
+  expect_gh_repos_rest_response(gh_repos_by_code)
+  test_mocker$cache(gh_repos_by_code)
 })
 
 test_that("GitHub tailors precisely `repos_list`", {
@@ -344,6 +395,7 @@ test_that("`get_repos_with_code_from_host()` pulls raw response", {
   )
   expect_type(repos_with_code_from_host_raw, "list")
   expect_gt(length(repos_with_code_from_host_raw), 0)
+  test_mocker$cache(repos_with_code_from_host_raw)
 })
 
 test_that("get_repos_with_code() works", {
@@ -381,6 +433,25 @@ test_that("get_repos_with_code() works", {
   test_mocker$cache(github_repos_with_code_min)
 })
 
+
+test_that("get_repos_with_code() scans whole host", {
+  mockery::stub(
+    github_testhost_priv$get_repos_with_code,
+    "private$get_repos_with_code_from_host",
+    test_mocker$use("repos_with_code_from_host_raw")
+  )
+  github_testhost_priv$scan_all <- TRUE
+  github_repos_with_code_raw <- github_testhost_priv$get_repos_with_code(
+    code = "test-code",
+    output = "raw",
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_type(github_repos_with_code_raw, "list")
+  expect_gt(length(github_repos_with_code_raw), 0)
+  github_testhost_priv$scan_all <- FALSE
+})
+
 test_that("GitHub prepares repos table from repositories response", {
   gh_repos_table <- test_graphql_github$prepare_repos_table(
     repos_list = test_mocker$use("gh_repos_from_org")
@@ -391,14 +462,61 @@ test_that("GitHub prepares repos table from repositories response", {
   test_mocker$cache(gh_repos_table)
 })
 
-test_that("`get_all_repos()` works as expected", {
+test_that("get_repos_from_org works", {
   mockery::stub(
-    github_testhost_priv$get_all_repos,
+    github_testhost_priv$get_repos_from_orgs,
     "graphql_engine$prepare_repos_table",
     test_mocker$use("gh_repos_table")
   )
+  gh_repos_from_orgs <- github_testhost_priv$get_repos_from_orgs(
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_repos_table(
+    gh_repos_from_orgs
+  )
+  test_mocker$cache(gh_repos_from_orgs)
+})
+
+test_that("get_repos_from_repos works", {
+  test_org <- "test_org"
+  attr(test_org, "type") <- "organization"
+  mockery::stub(
+    github_testhost_priv$get_repos_from_repos,
+    "private$set_owner_type",
+    test_org
+  )
+  mockery::stub(
+    github_testhost_priv$get_repos_from_repos,
+    "graphql_engine$prepare_repos_table",
+    test_mocker$use("gh_repos_table")
+  )
+  github_testhost_priv$searching_scope <- c("org", "repo")
+  github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
+  gh_repos_individual <- github_testhost_priv$get_repos_from_repos(
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_repos_table(
+    gh_repos_individual
+  )
+  test_mocker$cache(gh_repos_individual)
+})
+
+test_that("`get_all_repos()` works as expected", {
+  mockery::stub(
+    github_testhost_priv$get_all_repos,
+    "private$get_repos_from_orgs",
+    test_mocker$use("gh_repos_from_orgs")
+  )
+  mockery::stub(
+    github_testhost_priv$get_all_repos,
+    "private$get_repos_from_repos",
+    test_mocker$use("gh_repos_individual")
+  )
   gh_repos_table <- github_testhost_priv$get_all_repos(
-    verbose = FALSE
+    verbose = FALSE,
+    progress = FALSE
   )
   expect_repos_table(
     gh_repos_table
@@ -406,15 +524,30 @@ test_that("`get_all_repos()` works as expected", {
   test_mocker$cache(gh_repos_table)
 })
 
-test_that("`get_all_repos()` prints proper message", {
+test_that("`get_all_repos()` is set to scan whole git host", {
+  github_testhost_all_priv <- create_github_testhost_all(
+    orgs = "test_org",
+    mode = "private"
+  )
   mockery::stub(
-    github_testhost_priv$get_all_repos,
-    "graphql_engine$prepare_repos_table",
-    test_mocker$use("gh_repos_table")
+    github_testhost_all_priv$get_all_repos,
+    "graphql_engine$get_orgs",
+    "test_org"
+  )
+  mockery::stub(
+    github_testhost_all_priv$get_all_repos,
+    "private$get_repos_from_orgs",
+    test_mocker$use("gh_repos_from_orgs")
+  )
+  mockery::stub(
+    github_testhost_all_priv$get_all_repos,
+    "private$get_repos_from_repos",
+    test_mocker$use("gh_repos_individual")
   )
   expect_snapshot(
-    gh_repos_table <- github_testhost_priv$get_all_repos(
-      verbose = TRUE
+    gh_repos <- github_testhost_all_priv$get_all_repos(
+      verbose  = TRUE,
+      progress = FALSE
     )
   )
 })
@@ -544,6 +677,17 @@ test_that("`get_repos()` pulls table in minimalist version", {
   gh_repos_table_min <- github_testhost$get_repos(
     add_contributors = FALSE,
     with_code = "test_code",
+    output = "table_min",
+    verbose = FALSE
+  )
+  expect_repos_table(
+    gh_repos_table_min,
+    repo_cols = repo_min_colnames,
+    with_cols = c("api_url", "platform")
+  )
+  gh_repos_table_min <- github_testhost$get_repos(
+    add_contributors = FALSE,
+    with_file = "test_file",
     output = "table_min",
     verbose = FALSE
   )

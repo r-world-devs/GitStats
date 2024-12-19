@@ -75,7 +75,6 @@ EngineGraphQL <- R6::R6Class(
     },
 
     get_path_from_files_structure = function(host_files_structure,
-                                             only_text_files,
                                              org,
                                              repo = NULL) {
       if (is.null(repo)) {
@@ -85,9 +84,7 @@ EngineGraphQL <- R6::R6Class(
       } else {
         file_path <- host_files_structure[[org]][[repo]]
       }
-      if (only_text_files) {
-        file_path <- file_path[!grepl(non_text_files_pattern, file_path)]
-      }
+      file_path <- file_path[grepl(text_files_pattern, file_path)]
       return(file_path)
     }
   )

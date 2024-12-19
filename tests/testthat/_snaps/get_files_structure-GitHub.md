@@ -8,19 +8,22 @@
 # when files_structure is empty, appropriate message is returned
 
     Code
-      github_testhost_priv$get_files_structure_from_orgs(pattern = "\\.png", depth = 1L,
+      github_testhost_priv$get_files_structure_from_repos(pattern = "\\.png", depth = 1L,
         verbose = TRUE)
     Message
-      i [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling files structure...[files matching pattern: '\.png']...
-      i [Host:GitHub][Engine:GraphQl][Scope:openpharma] Pulling files structure...[files matching pattern: '\.png']...
       ! For GitHub no files structure found.
     Output
       named list()
 
+# get_files_structure aborts when scope to scan whole host
+
+    x This feature is not applicable to scan whole Git Host (time consuming).
+    i Set `orgs` or `repos` arguments in `set_*_host()` if you wish to run this function.
+
 # get_files_content makes use of files_structure
 
     Code
-      files_content <- github_testhost_priv$get_files_content_from_orgs(file_path = NULL,
+      files_content <- github_testhost_priv$get_files_content_from_files_structure(
         host_files_structure = test_mocker$use("gh_files_structure_from_orgs"))
     Message
       i I will make use of files structure stored in GitStats.
