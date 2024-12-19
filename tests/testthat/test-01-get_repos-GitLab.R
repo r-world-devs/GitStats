@@ -158,6 +158,24 @@ test_that("`prepare_repos_table()` prepares repos table", {
   test_mocker$cache(gl_repos_table)
 })
 
+test_that("get_repos_from_org prints proper message", {
+  mockery::stub(
+    gitlab_testhost_priv$get_repos_from_orgs,
+    "graphql_engine$prepare_repos_table",
+    test_mocker$use("gl_repos_table")
+  )
+  expect_snapshot(
+    gl_repos_from_orgs <- gitlab_testhost_priv$get_repos_from_orgs(
+      verbose = TRUE,
+      progress = FALSE
+    )
+  )
+  expect_repos_table(
+    gl_repos_from_orgs
+  )
+  test_mocker$cache(gl_repos_from_orgs)
+})
+
 test_that("GitHost adds `repo_api_url` column to GitLab repos table", {
   repos_table <- test_mocker$use("gl_repos_table")
   gl_repos_table_with_api_url <- gitlab_testhost_priv$add_repo_api_url(repos_table)

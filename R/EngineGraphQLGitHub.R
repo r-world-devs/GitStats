@@ -49,7 +49,7 @@ EngineGraphQLGitHub <- R6::R6Class(
       while (next_page) {
         repos_response <- private$get_repos_page(
           login = org,
-          type  = type,
+          type = type,
           repo_cursor = repo_cursor
         )
         repositories <- if (type == "organization") {
@@ -175,9 +175,8 @@ EngineGraphQLGitHub <- R6::R6Class(
     get_files_from_org = function(org,
                                   type,
                                   repos,
-                                  file_paths,
-                                  host_files_structure,
-                                  only_text_files,
+                                  file_paths = NULL,
+                                  host_files_structure = NULL,
                                   verbose  = TRUE,
                                   progress = TRUE) {
       repo_data <- private$get_repos_data(
@@ -193,7 +192,6 @@ EngineGraphQLGitHub <- R6::R6Class(
         org = org,
         file_paths = file_paths,
         host_files_structure = host_files_structure,
-        only_text_files = only_text_files,
         progress = progress
       )
       names(org_files_list) <- repositories
@@ -204,7 +202,7 @@ EngineGraphQLGitHub <- R6::R6Class(
     },
 
     # Prepare files table.
-    prepare_files_table = function(files_response, org, file_path) {
+    prepare_files_table = function(files_response, org) {
       if (!is.null(files_response)) {
         files_table <- purrr::map(files_response, function(repository) {
           purrr::imap(repository, function(file_data, file_name) {
@@ -230,10 +228,10 @@ EngineGraphQLGitHub <- R6::R6Class(
     # Pull all files from all repositories of an organization.
     get_files_structure_from_org = function(org,
                                             type,
-                                            repos,
-                                            pattern  = NULL,
-                                            depth    = Inf,
-                                            verbose  = FALSE,
+                                            repos = NULL,
+                                            pattern = NULL,
+                                            depth = Inf,
+                                            verbose = FALSE,
                                             progress = TRUE) {
       repo_data <- private$get_repos_data(
         org = org,
@@ -297,8 +295,8 @@ EngineGraphQLGitHub <- R6::R6Class(
     },
 
     # Prepare releases table.
-    prepare_releases_table = function(releases_response, org, date_from, date_until) {
-      if (!is.null(releases_response)) {
+    prepare_releases_table = function(releases_response, org, since, until) {
+      if (length(releases_response) > 0) {
         releases_table <-
           purrr::map(releases_response, function(release) {
             release_table <- purrr::map(release$data$repository$releases$nodes, function(node) {
@@ -310,7 +308,7 @@ EngineGraphQLGitHub <- R6::R6Class(
                 release_log = node$description
               )
             }) %>%
-              purrr::list_rbind() %>%
+              purrr::list_rbind() |>
               dplyr::mutate(
                 repo_name = release$data$repository$name,
                 repo_url = release$data$repository$url
@@ -321,14 +319,14 @@ EngineGraphQLGitHub <- R6::R6Class(
               )
             return(release_table)
           }) %>%
-          purrr::list_rbind() %>%
+          purrr::list_rbind() |>
           dplyr::filter(
-            published_at <= as.POSIXct(date_until)
+            published_at <= as.POSIXct(until)
           )
-        if (!is.null(date_from)) {
+        if (!is.null(since)) {
           releases_table <- releases_table %>%
             dplyr::filter(
-              published_at >= as.POSIXct(date_from)
+              published_at >= as.POSIXct(since)
             )
         }
       } else {
@@ -453,19 +451,17 @@ EngineGraphQLGitHub <- R6::R6Class(
                                            def_branches,
                                            org,
                                            host_files_structure,
-                                           only_text_files,
                                            file_paths,
                                            progress) {
       purrr::map2(repositories, def_branches, function(repo, def_branch) {
         if (!is.null(host_files_structure)) {
           file_paths <- private$get_path_from_files_structure(
             host_files_structure = host_files_structure,
-            only_text_files = only_text_files,
             org = org,
             repo = repo
           )
-        } else if (is.null(host_files_structure) && only_text_files) {
-          file_paths <- file_paths[!grepl(non_text_files_pattern, file_paths)]
+        } else if (is.null(host_files_structure)) {
+          file_paths <- file_paths[grepl(text_files_pattern, file_paths)]
         }
         repo_files_list <- purrr::map(file_paths, function(file_path) {
           private$get_file_response(

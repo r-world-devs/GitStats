@@ -7,17 +7,17 @@ git_stats <- create_gitstats() %>%
   )
 
 release_logs <- get_release_logs(
-  gitstats_object = git_stats,
+  gitstats = git_stats,
   since = "2024-01-01"
 )
 
 repos_urls <- get_repos_urls(
-  gitstats_object = git_stats,
+  gitstats = git_stats,
   with_code = "shiny"
 )
 
 files_structure <- get_files_structure(
-  gitstats_object = git_stats,
+  gitstats = git_stats,
   pattern = "\\.md",
   depth = 1L
 )
