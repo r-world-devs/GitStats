@@ -49,7 +49,7 @@ EngineGraphQLGitHub <- R6::R6Class(
       while (next_page) {
         repos_response <- private$get_repos_page(
           login = org,
-          type  = type,
+          type = type,
           repo_cursor = repo_cursor
         )
         repositories <- if (type == "organization") {
