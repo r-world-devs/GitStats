@@ -637,5 +637,16 @@ test_that("`get_repos()` pulls table in minimalist version", {
     repo_cols = repo_min_colnames,
     with_cols = c("api_url", "platform")
   )
+  gh_repos_table_min <- github_testhost$get_repos(
+    add_contributors = FALSE,
+    with_file = "test_file",
+    output = "table_min",
+    verbose = FALSE
+  )
+  expect_repos_table(
+    gh_repos_table_min,
+    repo_cols = repo_min_colnames,
+    with_cols = c("api_url", "platform")
+  )
   test_mocker$cache(gh_repos_table_min)
 })
