@@ -82,23 +82,24 @@ EngineGraphQLGitLab <- R6::R6Class(
       if (length(repos_list) > 0) {
         repos_table <- purrr::map(repos_list, function(repo) {
           repo <- repo$node
-          repo$default_branch <- repo$repository$rootRef %||% ""
+          repo[["repo_id"]] <- sub(".*/(\\d+)$", "\\1", repo$repo_id)
+          repo[["default_branch"]] <- repo$repository$rootRef %||% ""
           repo$repository <- NULL
-          repo$languages <- if (length(repo$languages) > 0) {
+          repo[["languages"]] <- if (length(repo$languages) > 0) {
             purrr::map_chr(repo$languages, ~ .$name) %>%
               paste0(collapse = ", ")
           } else {
             ""
           }
-          repo$created_at <- gts_to_posixt(repo$created_at)
-          repo$issues_open <- repo$issues$opened
-          repo$issues_closed <- repo$issues$closed
+          repo[["created_at"]] <- gts_to_posixt(repo$created_at)
+          repo[["issues_open"]] <- repo$issues$opened
+          repo[["issues_closed"]] <- repo$issues$closed
           repo$issues <- NULL
-          repo$last_activity_at <- as.POSIXct(repo$last_activity_at)
-          repo$organization <- repo$namespace$path
+          repo[["last_activity_at"]] <- as.POSIXct(repo$last_activity_at)
+          repo[["organization"]] <- repo$namespace$path
           repo$namespace <- NULL
           repo$repo_path <- NULL # temporary to close issue 338
-          data.frame(repo)
+          return(data.frame(repo))
         }) %>%
           purrr::list_rbind() %>%
           dplyr::relocate(
