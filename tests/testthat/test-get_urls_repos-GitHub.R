@@ -173,7 +173,7 @@ test_that("get_repos_urls_with_code_from_repos returns repositories URLS", {
   test_mocker$cache(gh_repos_urls_with_code_from_repos)
 })
 
-test_that("get_repos_urls_with_code_from_repos returns repositories URLS", {
+test_that("get_repos_urls_with_code returns repositories URLS", {
   mockery::stub(
     github_testhost_priv$get_repos_urls_with_code,
     "private$get_repos_urls_with_code_from_orgs",
@@ -197,7 +197,7 @@ test_that("get_repos_urls_with_code_from_repos returns repositories URLS", {
   test_mocker$cache(gh_repos_urls_with_code_in_files)
 })
 
-test_that("get_repos_urls_with_code_from_repos returns repositories URLS", {
+test_that("get_repos_urls returns repositories URLS", {
   mockery::stub(
     github_testhost$get_repos_urls,
     "private$get_repos_urls_with_code",
@@ -214,4 +214,37 @@ test_that("get_repos_urls_with_code_from_repos returns repositories URLS", {
   expect_type(gh_repos_urls_with_code_in_files, "character")
   expect_gt(length(gh_repos_urls_with_code_in_files), 0)
   test_mocker$cache(gh_repos_urls_with_code_in_files)
+})
+
+test_that("get_repos_urls returns repositories URLS", {
+  mockery::stub(
+    github_testhost$get_repos_urls,
+    "private$get_repos_urls_with_code",
+    test_mocker$use("gh_repos_urls_with_code_in_files")
+  )
+  gh_repos_urls_with_code_in_files <- github_testhost$get_repos_urls(
+    type = "web",
+    with_file = "DESCRIPTION",
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_type(gh_repos_urls_with_code_in_files, "character")
+  expect_gt(length(gh_repos_urls_with_code_in_files), 0)
+  test_mocker$cache(gh_repos_urls_with_code_in_files)
+})
+
+test_that("get_repos_urls_with_code_from_repos returns repositories URLS", {
+  mockery::stub(
+    github_testhost$get_repos_urls,
+    "private$get_all_repos_urls",
+    test_mocker$use("gh_repos_urls")
+  )
+  gh_repos_urls <- github_testhost$get_repos_urls(
+    type = "web",
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_type(gh_repos_urls, "character")
+  expect_gt(length(gh_repos_urls), 0)
+  test_mocker$cache(gh_repos_urls)
 })

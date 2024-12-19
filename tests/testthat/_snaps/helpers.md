@@ -10,6 +10,14 @@
       gitlab_testhost_priv$set_searching_scope(orgs = NULL, repos = "mbtests/GitStatsTesting",
         verbose = TRUE)
 
+# `set_searching_scope` sets scope to whole host
+
+    Code
+      gitlab_testhost_priv$set_searching_scope(orgs = NULL, repos = NULL, verbose = TRUE)
+    Message
+      i No `orgs` nor `repos` specified.
+      i Searching scope set to [all].
+
 # When token is empty throw error
 
     Code
