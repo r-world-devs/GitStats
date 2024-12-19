@@ -127,7 +127,6 @@ EngineGraphQLGitLab <- R6::R6Class(
                                   repos,
                                   file_paths = NULL,
                                   host_files_structure = NULL,
-                                  only_text_files,
                                   verbose = FALSE,
                                   progress = FALSE) {
       org <- URLdecode(org)
@@ -139,7 +138,7 @@ EngineGraphQLGitLab <- R6::R6Class(
           host_files_structure = host_files_structure,
           org = org
         )
-      } else if (only_text_files) {
+      } else {
         file_paths <- file_paths[grepl(text_files_pattern, file_paths)]
       }
       if (type == "organization") {
@@ -177,7 +176,6 @@ EngineGraphQLGitLab <- R6::R6Class(
                 repos = repos,
                 file_paths = file_paths,
                 host_files_structure = host_files_structure,
-                only_text_files = only_text_files,
                 verbose = verbose,
                 progress = progress
               )
@@ -219,7 +217,6 @@ EngineGraphQLGitLab <- R6::R6Class(
           repos = repos,
           file_paths = file_paths,
           host_files_structure = host_files_structure,
-          only_text_files = only_text_files,
           verbose = verbose,
           progress = progress
         )
@@ -235,7 +232,6 @@ EngineGraphQLGitLab <- R6::R6Class(
                                            repos,
                                            file_paths = NULL,
                                            host_files_structure = NULL,
-                                           only_text_files = TRUE,
                                            verbose = FALSE,
                                            progress = FALSE) {
       if (is.null(repos)) {

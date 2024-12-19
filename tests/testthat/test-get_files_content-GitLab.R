@@ -60,7 +60,6 @@ test_that("GitLab GraphQL Engine pulls files from a group", {
     type = "organization",
     repos = NULL,
     file_paths = "meta_data.yaml",
-    only_text_files = TRUE,
     host_files_structure = NULL
   )
   expect_gitlab_files_from_org_response(gitlab_files_response)
@@ -123,7 +122,6 @@ test_that("Gitlab GraphQL switches to pulling files per repositories when query 
     repos = NULL,
     file_paths = c("project_metadata.yaml", "README.md"),
     host_files_structure = NULL,
-    only_text_files = TRUE,
     verbose = FALSE,
     progress = FALSE
   )
