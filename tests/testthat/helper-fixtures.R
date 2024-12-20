@@ -34,10 +34,10 @@ test_fixtures$github_repository_rest_response <- list(
   "id" = 627452680,
   "node_id" = "R_kgDOJWYrCA",
   "name" = "testRepo",
-  "full_name" = "test-org/TestRepo",
+  "full_name" = "test_org/TestRepo",
   "private" = FALSE,
   "owner" = list(
-    "login" = "test-org",
+    "login" = "test_org",
     "id" = 103638913,
     "node_id" = "O_kgDOBi1ngQ",
     "avatar_url" = "https://avatars.githubusercontent.com/u/103638913?v=4"
@@ -96,40 +96,42 @@ test_fixtures$gitlab_repositories_rest_response <- list(
   )
 )
 
-github_repository_node <- list(
-  "repo_id" = "xyz",
-  "repo_name" = "TestRepo",
-  "default_branch" = list(
-    "name" = "main"
-  ),
-  "stars" = 10,
-  "forks" = 2,
-  "created_at" = "2022-04-20T00:00:00Z",
-  "last_activity_at" = "2023-04-20T00:00:00Z",
-  "languages" = list(
-    "nodes" = list(
-      list(
-        "name" = "R"
-      ),
-      list(
-        "name" = "CSS"
-      ),
-      list(
-        "name" = "JavaScript"
+github_repository_node <- function(repo_name) {
+  list(
+    "repo_id" = "xyz",
+    "repo_name" = repo_name,
+    "default_branch" = list(
+      "name" = "main"
+    ),
+    "stars" = 10,
+    "forks" = 2,
+    "created_at" = "2022-04-20T00:00:00Z",
+    "last_activity_at" = "2023-04-20T00:00:00Z",
+    "languages" = list(
+      "nodes" = list(
+        list(
+          "name" = "R"
+        ),
+        list(
+          "name" = "CSS"
+        ),
+        list(
+          "name" = "JavaScript"
+        )
       )
-    )
-  ),
-  "issues_open" = list(
-    "totalCount" = 10
-  ),
-  "issues_closed" = list(
-    "totalCount" = 5
-  ),
-  "organization" = list(
-    "login" = "test_org"
-  ),
-  "repo_url" = "https://test_url"
-)
+    ),
+    "issues_open" = list(
+      "totalCount" = 10
+    ),
+    "issues_closed" = list(
+      "totalCount" = 5
+    ),
+    "organization" = list(
+      "login" = "test_org"
+    ),
+    "repo_url" = "https://test_url"
+  )
+}
 
 test_fixtures$github_repos_by_org_response <- list(
   "data" = list(
@@ -141,11 +143,11 @@ test_fixtures$github_repos_by_org_response <- list(
           "hasNextPage" = FALSE
         ),
         "nodes" = list(
-          github_repository_node,
-          github_repository_node,
-          github_repository_node,
-          github_repository_node,
-          github_repository_node
+          github_repository_node("TestRepo"),
+          github_repository_node("TestRepo1"),
+          github_repository_node("TestRepo2"),
+          github_repository_node("TestRepo3"),
+          github_repository_node("TestRepo4")
         )
       )
     )
@@ -162,11 +164,11 @@ test_fixtures$github_repos_by_user_response <- list(
           "hasNextPage" = FALSE
         ),
         "nodes" = list(
-          github_repository_node,
-          github_repository_node,
-          github_repository_node,
-          github_repository_node,
-          github_repository_node
+          github_repository_node("TestRepo"),
+          github_repository_node("TestRepo1"),
+          github_repository_node("TestRepo2"),
+          github_repository_node("TestRepo3"),
+          github_repository_node("TestRepo4")
         )
       )
     )
@@ -309,9 +311,7 @@ gitlab_commit <- list(
   )
 )
 
-test_fixtures$gitlab_commits_response <- list(
-  rep(gitlab_commit, 5)
-)
+test_fixtures$gitlab_commits_response <- rep(list(gitlab_commit), 5)
 
 test_fixtures$github_file_response <- list(
   "data" = list(
@@ -417,20 +417,6 @@ test_fixtures$gitlab_file_repo_response <- list(
   )
 )
 
-test_fixtures$github_png_file_response <- list(
-  "data" = list(
-    "repository" = list(
-      "repo_id"   = "01010101",
-      "repo_name" = "TestProject",
-      "repo_url"  = "https://github.com/r-world-devs/GitStats",
-      "file" = list(
-        "text" = NULL,
-        "byteSize" = 50L
-      )
-    )
-  )
-)
-
 test_fixtures$gitlab_search_response <- list(
   list(
     "basename"   = "test",
@@ -527,7 +513,7 @@ test_fixtures$github_files_tree_response <- list(
     "repository" = list(
       "id"     = "R_kgD0Ivtxsg",
       "name"   = "TestRepo",
-      "url"    = "https://github.com/test-org/TestRepo",
+      "url"    = "https://github.com/test_org/TestRepo",
       "object" = list(
         "entries" = list(
           list(

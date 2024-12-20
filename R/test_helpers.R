@@ -128,6 +128,28 @@ create_github_testhost <- function(host  = NULL,
 }
 
 #' @noRd
+create_github_testhost_all <- function(host  = NULL,
+                                       orgs  = NULL,
+                                       repos = NULL,
+                                       token = NULL,
+                                       mode = "") {
+  suppressMessages(
+    test_host <- GitHostGitHubTest$new(
+      host  = NULL,
+      token = token,
+      orgs  = orgs,
+      repos = repos
+    )
+  )
+  test_host$.__enclos_env__$private$orgs <- NULL
+  test_host$.__enclos_env__$private$scan_all <- TRUE
+  if (mode == "private") {
+    test_host <- environment(test_host$initialize)$private
+  }
+  return(test_host)
+}
+
+#' @noRd
 create_gitlab_testhost <- function(host  = NULL,
                                    orgs  = NULL,
                                    repos = NULL,

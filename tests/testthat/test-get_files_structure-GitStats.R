@@ -11,7 +11,7 @@ test_that("get_files_structure_from_hosts works as expected", {
   )
   expect_equal(names(files_structure_from_hosts),
                c("github.com", "gitlab.com"))
-  expect_equal(names(files_structure_from_hosts[[1]]), c("test-org"))
+  expect_equal(names(files_structure_from_hosts[[1]]), c("test_org"))
   files_structure_from_hosts[[2]] <- test_mocker$use("gl_files_structure_from_orgs")
   test_mocker$cache(files_structure_from_hosts)
 })

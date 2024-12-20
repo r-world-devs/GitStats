@@ -238,7 +238,7 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
             opened
           }
           namespace {
-            path
+            path: fullPath
           }
           repo_url: webUrl
         }
