@@ -721,7 +721,8 @@ GitHost <- R6::R6Class(
             information = "Pulling all organizations"
           )
         }
-        private$orgs <- private$engines$graphql$get_orgs()
+        graphql_engine <- private$engines$graphql
+        private$orgs <- graphql_engine$get_orgs()
       }
       repos_urls_from_orgs <- private$get_repos_urls_from_orgs(
         type = type,
@@ -823,14 +824,14 @@ GitHost <- R6::R6Class(
             verbose  = verbose,
             progress = progress
           )
-        }) %>%
+        }) |>
           purrr::list_flatten()
       }
       if (output != "raw") {
         repos_table <- repos_response %>%
           rest_engine$tailor_repos_response(
             output = output
-          ) %>%
+          ) |>
           rest_engine$prepare_repos_table(
             output  = output,
             verbose = verbose

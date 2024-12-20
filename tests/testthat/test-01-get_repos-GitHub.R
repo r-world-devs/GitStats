@@ -371,14 +371,97 @@ test_that("`get_repos_with_code_from_orgs()` pulls raw response", {
     "rest_engine$get_repos_by_code",
     test_mocker$use("gh_repos_by_code_raw")
   )
-  repos_with_code_from_orgs_raw <- github_testhost_priv$get_repos_with_code_from_orgs(
-    code = "shiny",
-    in_files = c("DESCRIPTION", "NAMESPACE"),
-    output = "raw",
-    verbose = FALSE
+  expect_snapshot(
+    repos_with_code_from_orgs_raw <- github_testhost_priv$get_repos_with_code_from_orgs(
+      code = "shiny",
+      in_files = c("DESCRIPTION", "NAMESPACE"),
+      output = "raw",
+      verbose = TRUE
+    )
   )
   expect_type(repos_with_code_from_orgs_raw, "list")
   expect_gt(length(repos_with_code_from_orgs_raw), 0)
+})
+
+test_that("`get_repos_with_code_from_host()` pulls and parses output into table", {
+  mockery::stub(
+    github_testhost_priv$get_repos_with_code_from_host,
+    "rest_engine$get_repos_by_code",
+    test_mocker$use("gh_repos_by_code_raw")
+  )
+  mockery::stub(
+    github_testhost_priv$get_repos_with_code_from_host,
+    "rest_engine$prepare_repos_table",
+    test_mocker$use("gh_repos_by_code_table")
+  )
+  mockery::stub(
+    github_testhost_priv$get_repos_with_code_from_host,
+    "rest_engine$get_repos_issues",
+    test_mocker$use("gh_repos_by_code_table")
+  )
+  expect_snapshot(
+    repos_with_code_from_host_table <- github_testhost_priv$get_repos_with_code_from_host(
+      code = "DESCRIPTION",
+      in_path = TRUE,
+      output = "table_full",
+      verbose = TRUE
+    )
+  )
+  expect_repos_table(repos_with_code_from_host_table)
+})
+
+test_that("`get_repos_with_code_from_repos()` works", {
+  github_testhost_priv <- create_github_testhost(
+    repos = c("TestRepo1", "TestRepo2"),
+    mode = "private"
+  )
+  mockery::stub(
+    github_testhost_priv$get_repos_with_code_from_repos,
+    "rest_engine$get_repos_by_code",
+    test_mocker$use("gh_repos_by_code")
+  )
+  mockery::stub(
+    github_testhost_priv$get_repos_with_code_from_repos,
+    "rest_engine$get_repos_issues",
+    test_mocker$use("gh_repos_by_code_table")
+  )
+  github_testhost_priv$searching_scope <- c("repo")
+  expect_snapshot(
+    repos_with_code_from_repos_full <- github_testhost_priv$get_repos_with_code_from_repos(
+      code = "tests",
+      output = "table_full",
+      verbose = TRUE
+    )
+  )
+  expect_repos_table(repos_with_code_from_repos_full)
+})
+
+test_that("`get_repos_with_code_from_repos()` pulls minimum version of table", {
+  github_testhost_priv <- create_github_testhost(
+    repos = c("TestRepo1", "TestRepo2"),
+    mode = "private"
+  )
+  mockery::stub(
+    github_testhost_priv$get_repos_with_code_from_repos,
+    "rest_engine$get_repos_by_code",
+    test_mocker$use("gh_repos_by_code")
+  )
+  mockery::stub(
+    github_testhost_priv$get_repos_with_code_from_repos,
+    "rest_engine$get_repos_issues",
+    test_mocker$use("gh_repos_by_code_table")
+  )
+  github_testhost_priv$searching_scope <- c("org", "repo")
+  expect_snapshot(
+    repos_with_code_from_repos_min <- github_testhost_priv$get_repos_with_code_from_repos(
+      code = "tests",
+      in_files = "DESCRIPTION",
+      output = "table_min",
+      verbose = TRUE
+    )
+  )
+  expect_repos_table(repos_with_code_from_repos_min,
+                     repo_cols = repo_min_colnames)
 })
 
 test_that("`get_repos_with_code_from_host()` pulls raw response", {
@@ -387,11 +470,13 @@ test_that("`get_repos_with_code_from_host()` pulls raw response", {
     "rest_engine$get_repos_by_code",
     test_mocker$use("gh_repos_by_code_raw")
   )
-  repos_with_code_from_host_raw <- github_testhost_priv$get_repos_with_code_from_host(
-    code = "shiny",
-    in_files = c("DESCRIPTION", "NAMESPACE"),
-    output = "raw",
-    verbose = FALSE
+  expect_snapshot(
+    repos_with_code_from_host_raw <- github_testhost_priv$get_repos_with_code_from_host(
+      code = "shiny",
+      in_files = c("DESCRIPTION", "NAMESPACE"),
+      output = "raw",
+      verbose = TRUE
+    )
   )
   expect_type(repos_with_code_from_host_raw, "list")
   expect_gt(length(repos_with_code_from_host_raw), 0)

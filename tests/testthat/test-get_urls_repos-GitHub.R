@@ -59,10 +59,12 @@ test_that("get_repos_urls_from_orgs prepares web repo_urls vector", {
   )
   github_testhost_priv$searching_scope <- "org"
   github_testhost_priv$orgs <- "test_org"
-  gh_repos_urls_from_orgs <- github_testhost_priv$get_repos_urls_from_orgs(
-    type = "web",
-    verbose = FALSE,
-    progress = FALSE
+  expect_snapshot(
+    gh_repos_urls_from_orgs <- github_testhost_priv$get_repos_urls_from_orgs(
+      type = "web",
+      verbose = TRUE,
+      progress = FALSE
+    )
   )
   expect_gt(length(gh_repos_urls_from_orgs), 0)
   expect_true(any(grepl("test-org", gh_repos_urls_from_orgs)))
@@ -116,6 +118,35 @@ test_that("get_all_repos_urls prepares web repo_urls vector", {
   expect_true(any(grepl("test-org", gh_repos_urls)))
   expect_true(all(grepl("https://testhost.com/", gh_repos_urls)))
   test_mocker$cache(gh_repos_urls)
+})
+
+test_that("get_all_repos_urls is set to scan whole host", {
+  github_testhost_all_priv <- create_github_testhost_all(
+    orgs = "test_org",
+    mode = "private"
+  )
+  mockery::stub(
+    github_testhost_all_priv$get_all_repos_urls,
+    "graphql_engine$get_orgs",
+    "test_org"
+  )
+  mockery::stub(
+    github_testhost_all_priv$get_all_repos_urls,
+    "private$get_repos_urls_from_orgs",
+    test_mocker$use("gh_repos_urls_from_orgs")
+  )
+  mockery::stub(
+    github_testhost_all_priv$get_all_repos_urls,
+    "private$get_repos_urls_from_repos",
+    test_mocker$use("gh_repos_urls")
+  )
+  gh_repos_urls <- github_testhost_all_priv$get_all_repos_urls(
+    type = "web",
+    verbose = FALSE
+  )
+  expect_gt(length(gh_repos_urls), 0)
+  expect_true(any(grepl("test-org", gh_repos_urls)))
+  expect_true(all(grepl("https://testhost.com/", gh_repos_urls)))
 })
 
 test_that("get_repo_url_from_response retrieves repositories URLS", {
