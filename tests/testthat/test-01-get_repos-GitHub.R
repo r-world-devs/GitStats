@@ -578,9 +578,11 @@ test_that("get_repos_from_repos works", {
   )
   github_testhost_priv$searching_scope <- c("org", "repo")
   github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
-  gh_repos_individual <- github_testhost_priv$get_repos_from_repos(
-    verbose = FALSE,
-    progress = FALSE
+  expect_snapshot(
+    gh_repos_individual <- github_testhost_priv$get_repos_from_repos(
+      verbose = TRUE,
+      progress = FALSE
+    )
   )
   expect_repos_table(
     gh_repos_individual
@@ -679,7 +681,7 @@ test_that("`get_repos_contributors()` adds contributors to repos table", {
   )
   gh_repos_with_contributors <- test_rest_github$get_repos_contributors(
     repos_table = test_mocker$use("gh_repos_table_with_platform"),
-    progress    = FALSE
+    progress = FALSE
   )
   expect_repos_table(
     gh_repos_with_contributors,
@@ -698,10 +700,12 @@ test_that("`get_repos_contributors()` works on GitHost level", {
     "rest_engine$get_repos_contributors",
     test_mocker$use("gh_repos_with_contributors")
   )
-  gh_repos_with_contributors <- github_testhost_priv$get_repos_contributors(
-    repos_table = test_mocker$use("gh_repos_table_with_platform"),
-    verbose     = FALSE,
-    progress    = FALSE
+  expect_snapshot(
+    gh_repos_with_contributors <- github_testhost_priv$get_repos_contributors(
+      repos_table = test_mocker$use("gh_repos_table_with_platform"),
+      verbose     = TRUE,
+      progress    = FALSE
+    )
   )
   expect_repos_table(
     gh_repos_with_contributors,

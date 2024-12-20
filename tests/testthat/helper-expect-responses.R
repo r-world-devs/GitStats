@@ -96,7 +96,7 @@ expect_gl_commit_rest_response <- function(object) {
     "list"
   )
   expect_list_contains(
-    object[[1]],
+    object,
     c(
       "id", "short_id", "created_at", "parent_ids", "title", "message",
       "author_name", "author_email", "authored_date", "committer_name",

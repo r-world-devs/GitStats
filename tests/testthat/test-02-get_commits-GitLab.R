@@ -1,17 +1,34 @@
-test_that("`get_commits_from_repos()` pulls commits from repo", {
+test_that("`get_commits_from_one_repo()` pulls commits from repository", {
+  mockery::stub(
+    test_rest_gitlab_priv$get_commits_from_one_repo,
+    "private$paginate_results",
+    test_fixtures$gitlab_commits_response
+  )
+  gl_commits_repo <- test_rest_gitlab_priv$get_commits_from_one_repo(
+    repo_path = "TestRepo",
+    since     = "2023-01-01",
+    until     = "2023-04-20"
+  )
+  expect_gt(length(gl_commits_repo), 1)
+  purrr::walk(gl_commits_repo, ~ expect_gl_commit_rest_response(.))
+  test_mocker$cache(gl_commits_repo)
+})
+
+test_that("`get_commits_from_repos()` pulls commits from repositories", {
   mockery::stub(
     test_rest_gitlab$get_commits_from_repos,
     "private$get_commits_from_one_repo",
-    test_fixtures$gitlab_commits_response
+    test_mocker$use("gl_commits_repo")
   )
-  repos_names <- c("mbtests%2Fgitstatstesting", "mbtests%2Fgitstats-testing-2")
+  repos_names <- c("test_org/TestRepo1", "test_org/TestRepo2")
   gl_commits_org <- test_rest_gitlab$get_commits_from_repos(
     repos_names = repos_names,
     since       = "2023-01-01",
     until       = "2023-04-20",
     progress    = FALSE
   )
-  purrr::walk(gl_commits_org, ~ expect_gl_commit_rest_response(.))
+  expect_equal(names(gl_commits_org), c("test_org/TestRepo1", "test_org/TestRepo2"))
+  purrr::walk(gl_commits_org[[1]], ~ expect_gl_commit_rest_response(.))
   test_mocker$cache(gl_commits_org)
 })
 
@@ -126,11 +143,11 @@ test_that("get_commits_from_orgs works", {
     "rest_engine$get_commits_authors_handles_and_names",
     test_mocker$use("gl_commits_table")
   )
-  suppressMessages(
+  expect_snapshot(
     gl_commits_table <- gitlab_testhost_priv$get_commits_from_orgs(
       since    = "2023-03-01",
       until    = "2023-04-01",
-      verbose  = FALSE,
+      verbose  = TRUE,
       progress = FALSE
     )
   )
@@ -138,4 +155,36 @@ test_that("get_commits_from_orgs works", {
     gl_commits_table
   )
   test_mocker$cache(gl_commits_table)
+})
+
+test_that("get_commits_from_repos works", {
+  gitlab_testhost_priv <- create_gitlab_testhost(
+    repos = "TestRepo",
+    mode = "private"
+  )
+  test_org <- "test_org"
+  attr(test_org, "type") <- "organization"
+  mockery::stub(
+    gitlab_testhost_priv$get_repos_from_repos,
+    "private$set_owner_type",
+    test_org
+  )
+  mockery::stub(
+    gitlab_testhost_priv$get_commits_from_repos,
+    "rest_engine$get_commits_authors_handles_and_names",
+    test_mocker$use("gl_commits_table")
+  )
+  gitlab_testhost_priv$searching_scope <- "repo"
+  gitlab_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
+  expect_snapshot(
+    gl_commits_table <- gitlab_testhost_priv$get_commits_from_repos(
+      since    = "2023-03-01",
+      until    = "2023-04-01",
+      verbose  = TRUE,
+      progress = FALSE
+    )
+  )
+  expect_commits_table(
+    gl_commits_table
+  )
 })

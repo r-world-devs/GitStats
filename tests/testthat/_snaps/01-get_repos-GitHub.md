@@ -33,7 +33,7 @@
       i [Host:GitHub][Engine:REST][Scope:] Pulling repositories...
       i Preparing repositories table...
 
-# `get_repos_with_code_from_orgs()` pulls minimum version of table
+# `get_repos_with_code_from_repos()` pulls minimum version of table
 
     Code
       repos_with_code_from_repos_min <- github_testhost_priv$
@@ -52,10 +52,27 @@
     Message
       i [Host:GitHub][Engine:REST] Pulling repositories...
 
+# get_repos_from_repos works
+
+    Code
+      gh_repos_individual <- github_testhost_priv$get_repos_from_repos(verbose = TRUE,
+        progress = FALSE)
+    Message
+      i [Host:GitHub][Engine:GraphQl][Scope:test_org] Pulling repositories...
+
 # `get_all_repos()` is set to scan whole git host
 
     Code
       gh_repos <- github_testhost_all_priv$get_all_repos(verbose = TRUE, progress = FALSE)
     Message
       i [Host:GitHub][Engine:GraphQl] Pulling all organizations...
+
+# `get_repos_contributors()` works on GitHost level
+
+    Code
+      gh_repos_with_contributors <- github_testhost_priv$get_repos_contributors(
+        repos_table = test_mocker$use("gh_repos_table_with_platform"), verbose = TRUE,
+        progress = FALSE)
+    Message
+      i [Host:GitHub][Engine:REST] Pulling contributors...
 

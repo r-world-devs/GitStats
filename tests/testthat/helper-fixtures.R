@@ -311,9 +311,7 @@ gitlab_commit <- list(
   )
 )
 
-test_fixtures$gitlab_commits_response <- list(
-  rep(gitlab_commit, 5)
-)
+test_fixtures$gitlab_commits_response <- rep(list(gitlab_commit), 5)
 
 test_fixtures$github_file_response <- list(
   "data" = list(
