@@ -6,7 +6,8 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
                           repos = NA,
                           token = NA,
                           host = NA,
-                          verbose = NA) {
+                          verbose = NA,
+                          .error = TRUE) {
       repos <- if (!is.null(repos)) {
         url_encode(repos)
       }
@@ -17,7 +18,8 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
                        repos = repos,
                        token = token,
                        host = host,
-                       verbose = verbose)
+                       verbose = verbose,
+                       .error = .error)
       if (verbose) {
         cli::cli_alert_success("Set connection to GitLab.")
       }

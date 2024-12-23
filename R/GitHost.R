@@ -17,7 +17,8 @@ GitHost <- R6::R6Class(
                           repos   = NA,
                           token   = NA,
                           host    = NA,
-                          verbose = NA) {
+                          verbose = NA,
+                          .error  = TRUE) {
       private$set_api_url(host)
       private$set_web_url(host)
       private$set_endpoints()
@@ -36,7 +37,8 @@ GitHost <- R6::R6Class(
       private$set_orgs_and_repos(
         orgs    = orgs,
         repos   = repos,
-        verbose = verbose
+        verbose = verbose,
+        .error  = .error
       )
     },
 
@@ -413,18 +415,20 @@ GitHost <- R6::R6Class(
     },
 
     # Set organization or repositories
-    set_orgs_and_repos = function(orgs, repos, verbose) {
+    set_orgs_and_repos = function(orgs, repos, verbose, .error) {
       if (!private$scan_all) {
         if (!is.null(orgs)) {
           private$orgs <- private$check_organizations(
             orgs    = orgs,
-            verbose = verbose
+            verbose = verbose,
+            .error  = .error
           )
         }
         if (!is.null(repos)) {
           repos <- private$check_repositories(
             repos   = repos,
-            verbose = verbose
+            verbose = verbose,
+            .error  = .error
           )
           private$repos_fullnames <- repos
           orgs_repos <- private$extract_repos_and_orgs(private$repos_fullnames)
@@ -435,7 +439,7 @@ GitHost <- R6::R6Class(
     },
 
     # Check if repositories exist
-    check_repositories = function(repos, verbose) {
+    check_repositories = function(repos, verbose, .error) {
       if (verbose) {
         cli::cli_alert_info(cli::col_grey("Checking repositories..."))
       }
@@ -443,7 +447,9 @@ GitHost <- R6::R6Class(
         repo_endpoint <- glue::glue("{private$endpoints$repositories}/{repo}")
         check <- private$check_endpoint(
           endpoint = repo_endpoint,
-          type = "Repository"
+          type     = "Repository",
+          verbose  = verbose,
+          .error   = .error
         )
         if (!check) {
           repo <- NULL
@@ -459,7 +465,7 @@ GitHost <- R6::R6Class(
     },
 
     # Check if organizations exist
-    check_organizations = function(orgs, verbose) {
+    check_organizations = function(orgs, verbose, .error) {
       if (verbose) {
         cli::cli_alert_info(cli::col_grey("Checking organizations..."))
       }
@@ -467,7 +473,9 @@ GitHost <- R6::R6Class(
         org_endpoint <- glue::glue("{private$endpoints$orgs}/{org}")
         check <- private$check_endpoint(
           endpoint = org_endpoint,
-          type = "Organization"
+          type     = "Organization",
+          verbose  = verbose,
+          .error   = .error
         )
         if (!check) {
           org <- NULL
@@ -483,7 +491,7 @@ GitHost <- R6::R6Class(
     },
 
     # Check whether the endpoint exists.
-    check_endpoint = function(endpoint, type) {
+    check_endpoint = function(endpoint, type, verbose, .error) {
       check <- TRUE
       tryCatch(
         {
@@ -491,17 +499,29 @@ GitHost <- R6::R6Class(
         },
         error = function(e) {
           if (grepl("404", e)) {
-            cli::cli_abort(
-              c(
-                "x" = "{type} you provided does not exist or its name was passed
+            if (.error) {
+              cli::cli_abort(
+                c(
+                  "x" = "{type} you provided does not exist or its name was passed
                 in a wrong way: {cli::col_red({utils::URLdecode(endpoint)})}",
-                "!" = "Please type your {tolower(type)} name as you see it in
+                  "!" = "Please type your {tolower(type)} name as you see it in
                 web URL.",
-                "i" = "E.g. do not use spaces. {type} names as you see on the
+                  "i" = "E.g. do not use spaces. {type} names as you see on the
                 page may differ from their web 'address'."
-              ),
-              call = NULL
-            )
+                ),
+                call = NULL
+              )
+            } else {
+              if (verbose) {
+                cli::cli_alert_warning(
+                  cli::col_yellow(
+                    "{type} you provided does not exist: {cli::col_red({utils::URLdecode(endpoint)})}"
+                  )
+                )
+              }
+              check <<- FALSE
+            }
+
           }
         }
       )
