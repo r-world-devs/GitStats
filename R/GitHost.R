@@ -469,11 +469,18 @@ GitHost <- R6::R6Class(
       if (verbose) {
         cli::cli_alert_info(cli::col_grey("Checking organizations..."))
       }
+      orgs <- private$set_owner_type(
+        owners = orgs
+      )
       orgs <- purrr::map(orgs, function(org) {
-        org_endpoint <- glue::glue("{private$endpoints$orgs}/{org}")
+        owner_endpoint <- if (attr(org, "type") == "organization") {
+          private$endpoints$orgs
+        } else {
+          private$endpoints$users
+        }
         check <- private$check_endpoint(
-          endpoint = org_endpoint,
-          type     = "Organization",
+          endpoint = glue::glue("{owner_endpoint}/{org}"),
+          type     = attr(org, "type"),
           verbose  = verbose,
           .error   = .error
         )

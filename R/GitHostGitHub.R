@@ -93,6 +93,7 @@ GitHostGitHub <- R6::R6Class(
     # Set groups endpoint
     set_orgs_endpoint = function() {
       private$endpoints$orgs <- glue::glue("{private$api_url}/orgs")
+      private$endpoints$users <- glue::glue("{private$api_url}/users")
     },
 
     # Set projects endpoint

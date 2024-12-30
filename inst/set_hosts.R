@@ -12,3 +12,11 @@ git_stats <- create_gitstats() |>
   )
 
 git_stats
+
+# Setting users instead of orgs
+
+git_stats <- create_gitstats() |>
+  set_github_host(
+    orgs = c("maciekbanas"),
+    token = Sys.getenv("GITHUB_PAT")
+  )

@@ -95,6 +95,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     # Set groups endpoint
     set_orgs_endpoint = function() {
       private$endpoints$orgs <- glue::glue("{private$api_url}/groups")
+      private$endpoints$users <- glue::glue("{private$api_url}/groups")
     },
 
     # Set projects endpoint
