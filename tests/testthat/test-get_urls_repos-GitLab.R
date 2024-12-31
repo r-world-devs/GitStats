@@ -4,9 +4,11 @@ test_that("get_repos_urls() works for org", {
     "private$paginate_results",
     test_fixtures$gitlab_repositories_rest_response
   )
+  test_org <- "test_org"
+  attr(test_org, "type") <- "organization"
   gl_api_repos_urls <- test_rest_gitlab$get_repos_urls(
     type = "api",
-    org = "test_org",
+    org = test_org,
     repos = NULL
   )
   expect_length(
@@ -14,9 +16,11 @@ test_that("get_repos_urls() works for org", {
     3
   )
   test_mocker$cache(gl_api_repos_urls)
+  test_user <- "test_user"
+  attr(test_user, "type") <- "user"
   gl_web_repos_urls <- test_rest_gitlab$get_repos_urls(
     type = "web",
-    org = "test_org",
+    org = test_user,
     repos = NULL
   )
   expect_length(
@@ -32,9 +36,11 @@ test_that("get_repos_urls() works for individual repos", {
     "private$paginate_results",
     test_fixtures$gitlab_repositories_rest_response
   )
+  test_group <- "test_group"
+  attr(test_group, "type") <- "organization"
   gl_api_repos_urls <- test_rest_gitlab$get_repos_urls(
     type = "api",
-    org = "test_org",
+    org = test_group,
     repos = c("testRepo1", "testRepo2")
   )
   expect_length(
@@ -42,9 +48,11 @@ test_that("get_repos_urls() works for individual repos", {
     2
   )
   test_mocker$cache(gl_api_repos_urls)
+  test_user <- "test_user"
+  attr(test_user, "type") <- "user"
   gl_web_repos_urls <- test_rest_gitlab$get_repos_urls(
     type = "web",
-    org = "mbtests",
+    org = test_user,
     repos = c("testRepo1", "testRepo2")
   )
   expect_length(

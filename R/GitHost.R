@@ -455,8 +455,8 @@ GitHost <- R6::R6Class(
           repo <- NULL
         }
         return(repo)
-      }, .progress = verbose) %>%
-        purrr::keep(~ length(.) > 0) %>%
+      }, .progress = verbose) |>
+        purrr::keep(~ length(.) > 0) |>
         unlist()
       if (length(repos) == 0) {
         return(NULL)
@@ -464,33 +464,40 @@ GitHost <- R6::R6Class(
       repos
     },
 
-    # Check if organizations exist
+    # Check if organizations or users exist
     check_organizations = function(orgs, verbose, .error) {
       if (verbose) {
-        cli::cli_alert_info(cli::col_grey("Checking organizations..."))
+        cli::cli_alert_info(cli::col_grey("Checking owners..."))
       }
-      orgs <- private$set_owner_type(
-        owners = orgs
-      )
-      orgs <- purrr::map(orgs, function(org) {
-        owner_endpoint <- if (attr(org, "type") == "organization") {
-          private$endpoints$orgs
-        } else {
-          private$endpoints$users
-        }
-        check <- private$check_endpoint(
-          endpoint = glue::glue("{owner_endpoint}/{org}"),
-          type     = attr(org, "type"),
-          verbose  = verbose,
-          .error   = .error
-        )
-        if (!check) {
-          org <- NULL
-        }
-        return(org)
-      }) %>%
-        purrr::keep(~ length(.) > 0) %>%
-        unlist()
+      orgs <- private$engines$graphql$set_owner_type(
+        owners = utils::URLdecode(orgs)
+      ) |>
+        purrr::map(function(org) {
+          if (attr(org, "type") == "not found") {
+            if (.error) {
+              cli::cli_abort(
+                c(
+                  "x" = "Org/user you provided does not exist or its name was passed
+                  in a wrong way: {cli::col_red({utils::URLdecode(org)})}",
+                  "!" = "Please type your org/user name the way you see it in
+                  web URL."
+                ),
+                call = NULL
+              )
+            } else {
+              if (verbose) {
+                cli::cli_alert_warning(
+                  cli::col_yellow(
+                    "Org/user you provided does not exist: {cli::col_red({org})}"
+                  )
+                )
+              }
+              org <- NULL
+            }
+          }
+          return(org)
+        }) |>
+        purrr::keep(~ length(.) > 0)
       if (length(orgs) == 0) {
         return(NULL)
       }
@@ -663,7 +670,10 @@ GitHost <- R6::R6Class(
             org  = org,
             type = type
           ) |>
-            graphql_engine$prepare_repos_table()
+            graphql_engine$prepare_repos_table(
+              org = unclass(org)
+            ) |>
+            dplyr::filter(organization == unclass(org))
           return(repos_table)
         }, .progress = progress) |>
           purrr::list_rbind()
@@ -673,7 +683,7 @@ GitHost <- R6::R6Class(
     get_repos_from_repos = function(verbose, progress) {
       if ("repo" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
-        orgs <- private$set_owner_type(
+        orgs <- graphql_engine$set_owner_type(
           owners = names(private$orgs_repos)
         )
         purrr::map(orgs, function(org) {
@@ -772,12 +782,11 @@ GitHost <- R6::R6Class(
       if ("org" %in% private$searching_scope) {
         rest_engine <- private$engines$rest
         repos_vector <- purrr::map(private$orgs, function(org) {
-          org <- utils::URLdecode(org)
           if (!private$scan_all && verbose) {
             show_message(
               host = private$host_name,
               engine = "rest",
-              scope = org,
+              scope = utils::URLdecode(org),
               information = "Pulling repositories (URLs)"
             )
           }
@@ -795,7 +804,8 @@ GitHost <- R6::R6Class(
     get_repos_urls_from_repos = function(type, verbose, progress) {
       if ("repo" %in% private$searching_scope) {
         rest_engine <- private$engines$rest
-        orgs <- private$set_owner_type(
+        graphql_engine <- private$engines$graphql
+        orgs <- graphql_engine$set_owner_type(
           owners = names(private$orgs_repos)
         )
         repos_vector <- purrr::map(orgs, function(org) {
@@ -1132,7 +1142,7 @@ GitHost <- R6::R6Class(
                                             progress = TRUE) {
       if ("repo" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
-        orgs <- private$set_owner_type(
+        orgs <- graphql_engine$set_owner_type(
           owners = names(private$orgs_repos)
         )
         files_table <- purrr::map(orgs, function(org) {
@@ -1262,7 +1272,7 @@ GitHost <- R6::R6Class(
                                               progress = TRUE) {
       if ("repo" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
-        orgs <- private$set_owner_type(
+        orgs <- graphql_engine$set_owner_type(
           owners = names(private$orgs_repos)
         )
         files_structure_list <- purrr::map(orgs, function(org) {
@@ -1369,7 +1379,8 @@ GitHost <- R6::R6Class(
 
     get_release_logs_from_repos = function(since, until, verbose, progress) {
       if ("repo" %in% private$searching_scope) {
-        orgs <- private$set_owner_type(
+        graphql_engine <- private$engines$graphql
+        orgs <- graphql_engine$set_owner_type(
           owners = names(private$orgs_repos)
         )
         release_logs_table <- purrr::map(orgs, function(org) {
@@ -1383,7 +1394,6 @@ GitHost <- R6::R6Class(
               information = "Pulling release logs"
             )
           }
-          graphql_engine <- private$engines$graphql
           release_logs_table_org <- graphql_engine$get_release_logs_from_org(
             repos_names = private$orgs_repos[[org]],
             org = org

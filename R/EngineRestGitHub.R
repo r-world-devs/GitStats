@@ -132,9 +132,9 @@ EngineRestGitHub <- R6::R6Class(
     get_repos_urls = function(type, org, repos) {
       owner_type <- attr(org, "type") %||% "organization"
       if (owner_type == "user") {
-        repo_endpoint <- paste0(private$endpoints[["users"]], org, "/repos")
+        repo_endpoint <- paste0(private$endpoints[["users"]], utils::URLdecode(org), "/repos")
       } else {
-        repo_endpoint <- paste0(private$endpoints[["organizations"]], org, "/repos")
+        repo_endpoint <- paste0(private$endpoints[["organizations"]], utils::URLdecode(org), "/repos")
       }
       repos_response <- private$paginate_results(
         endpoint = repo_endpoint

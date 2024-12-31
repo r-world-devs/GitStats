@@ -120,7 +120,7 @@ test_that("get_files_content_from_repos for GitHub works", {
   attr(test_org, "type") <- "organization"
   mockery::stub(
     github_testhost_priv$get_files_content_from_repos,
-    "private$set_owner_type",
+    "graphql_engine$set_owner_type",
     test_org
   )
   mockery::stub(
