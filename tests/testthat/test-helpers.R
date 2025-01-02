@@ -106,7 +106,9 @@ test_that("check_endpoint returns error if they are not correct", {
   expect_snapshot_error(
     check <- github_testhost_priv$check_endpoint(
       endpoint = "https://api.github.com/repos/r-worlddevs/GitStats",
-      type = "Repository"
+      type = "Repository",
+      verbose = TRUE,
+      .error = TRUE
     )
   )
 })

@@ -7,12 +7,14 @@ GitHostGitHub <- R6::R6Class(
                           repos = NA,
                           token = NA,
                           host = NA,
-                          verbose = NA) {
+                          verbose = NA,
+                          .error = TRUE) {
       super$initialize(orgs = orgs,
                        repos = repos,
                        token = token,
                        host = host,
-                       verbose = verbose)
+                       verbose = verbose,
+                       .error = .error)
       if (verbose) {
         cli::cli_alert_success("Set connection to GitHub.")
       }

@@ -127,3 +127,17 @@
       ! Please type your organization name as you see it in web URL.
       i E.g. do not use spaces. Organization names as you see on the page may differ from their web 'address'.
 
+# When wrong orgs and repos are passed they are excluded but host is created
+
+    Code
+      test_gitstats <- create_gitstats() %>% set_github_host(orgs = c("openpharma",
+        "r_world_devs"), repos = c("r-world-devs/GitStats", "r-world-devs/GitMetrics"),
+      verbose = TRUE, .show_error = FALSE)
+    Message
+      i Using PAT from GITHUB_PAT envar.
+      i Checking organizations...
+      ! Organization you provided does not exist: https://api.github.com/orgs/r_world_devs
+      i Checking repositories...
+      ! Repository you provided does not exist: https://api.github.com/repos/r-world-devs/GitMetrics
+      v Set connection to GitHub.
+

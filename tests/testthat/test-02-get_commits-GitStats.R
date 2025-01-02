@@ -45,7 +45,7 @@ test_that("get_commits works properly", {
 test_that("get_commits() works", {
   mockery::stub(
     get_commits,
-    "gitstats_object$get_commits",
+    "gitstats$get_commits",
     test_mocker$use("commits_table")
   )
   commits_data <- get_commits(
@@ -64,7 +64,7 @@ test_that("get_commits() works", {
 test_that("get_commits() returns error when since is not defined", {
   mockery::stub(
     get_commits,
-    "gitstats_object$get_commits",
+    "gitstats$get_commits",
     test_mocker$use("commits_table")
   )
   expect_snapshot_error(

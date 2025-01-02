@@ -8,6 +8,7 @@
   - changing name of the `time_interval` parameter to `time_aggregation`,
   - adding `yearly` aggregation to `time_aggregation` parameter,
   - changing basic input from `GitStats` to `commits_data` object which allows to build workflow in one pipeline (`create_gitstats() |> set_*_host() |> get_commits() |> get_commits_stats()`).
+- Add `.show_error` parameter to the `set_*_host()` functins to control if error should pop up when wrong input is passed ([#547](https://github.com/r-world-devs/GitStats/issues/547)).
 
 ## Fixes:
 

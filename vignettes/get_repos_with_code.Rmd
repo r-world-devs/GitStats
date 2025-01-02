@@ -30,7 +30,7 @@ github_stats <- create_gitstats() %>%
   verbose_off()
 
 repos_urls <- get_repos_urls(
-  gitstats_object = github_stats,
+  gitstats = github_stats,
   with_code = "shiny"
 )
 ```

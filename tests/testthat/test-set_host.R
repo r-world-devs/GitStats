@@ -157,6 +157,19 @@ test_that("Error pops out when `org` does not exist", {
   )
 })
 
+test_that("When wrong orgs and repos are passed they are excluded but host is created", {
+  skip_on_cran()
+  expect_snapshot(
+    test_gitstats <- create_gitstats() %>%
+      set_github_host(
+        orgs = c("openpharma", "r_world_devs"),
+        repos = c("r-world-devs/GitStats", "r-world-devs/GitMetrics"),
+        verbose = TRUE,
+        .show_error = FALSE
+      )
+  )
+})
+
 test_that("Setting verbose for set_*_host() to FALSE works fine", {
   skip_on_cran()
   expect_no_error(
