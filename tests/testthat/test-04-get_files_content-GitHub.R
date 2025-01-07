@@ -7,29 +7,6 @@ test_that("file queries for GitHub are built properly", {
   test_mocker$cache(gh_file_blobs_from_repo_query)
 })
 
-test_that("get_repos_data pulls data on repos and branches", {
-  mockery::stub(
-    test_graphql_github_priv$get_repos_data,
-    "self$get_repos_from_org",
-    test_mocker$use("gh_repos_from_org")
-  )
-  gh_repos_data <- test_graphql_github_priv$get_repos_data(
-    org = "r-world-devs",
-    repos = NULL
-  )
-  expect_equal(
-    names(gh_repos_data),
-    c("repositories", "def_branches")
-  )
-  expect_true(
-    length(gh_repos_data$repositories) > 0
-  )
-  expect_true(
-    length(gh_repos_data$def_branches) > 0
-  )
-  test_mocker$cache(gh_repos_data)
-})
-
 test_that("GitHub GraphQL Engine pulls file response", {
   mockery::stub(
     test_graphql_github_priv$get_file_response,
@@ -115,6 +92,23 @@ test_that("get_files_content_from_orgs for GitHub works", {
   test_mocker$cache(gh_files_from_orgs)
 })
 
+test_that("get_files_content makes use of files_structure", {
+  mockery::stub(
+    github_testhost_priv$get_files_content_from_files_structure,
+    "private$add_repo_api_url",
+    test_mocker$use("gh_files_from_orgs")
+  )
+  expect_snapshot(
+    files_content <- github_testhost_priv$get_files_content_from_files_structure(
+      files_structure = test_mocker$use("gh_files_structure_from_orgs")
+    )
+  )
+  expect_files_table(
+    files_content,
+    with_cols = "api_url"
+  )
+})
+
 test_that("get_files_content_from_repos for GitHub works", {
   test_org <- "test_org"
   attr(test_org, "type") <- "organization"
@@ -141,6 +135,7 @@ test_that("get_files_content_from_repos for GitHub works", {
 })
 
 test_that("`get_files_content()` pulls files in the table format", {
+  github_testhost <- create_github_testhost(orgs = "test_org")
   mockery::stub(
     github_testhost$get_files_content,
     "private$get_files_content_from_orgs",

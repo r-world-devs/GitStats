@@ -1322,11 +1322,9 @@ GitHost <- R6::R6Class(
         )
       }
       files_table <- rest_engine$get_files(
-        file_paths = file_path,
-        verbose    = verbose,
-        progress   = progress
-      ) %>%
-        rest_engine$prepare_files_table() %>%
+        files = file_path
+      ) |>
+        rest_engine$prepare_files_table() |>
         private$add_repo_api_url()
       return(files_table)
     },

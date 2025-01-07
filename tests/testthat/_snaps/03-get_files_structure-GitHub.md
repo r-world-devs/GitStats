@@ -20,11 +20,3 @@
     x This feature is not applicable to scan whole Git Host (time consuming).
     i Set `orgs` or `repos` arguments in `set_*_host()` if you wish to run this function.
 
-# get_files_content makes use of files_structure
-
-    Code
-      files_content <- github_testhost_priv$get_files_content_from_files_structure(
-        host_files_structure = test_mocker$use("gh_files_structure_from_orgs"))
-    Message
-      i I will make use of files structure stored in GitStats.
-
