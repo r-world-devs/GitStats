@@ -228,12 +228,29 @@ GitStats <- R6::R6Class(
           file_path = file_path,
           verbose = verbose,
           progress = progress
-        ) |>
-          private$set_object_class(
+        )
+        if (nrow(files) > 0) {
+          if (!is.null(pattern)) {
+            attr_list <- list(
+              "file_path" = pattern
+            )
+          }
+          if (!is.null(file_path)) {
+            attr_list <- list(
+              "file_path" = file_path
+            )
+          }
+          files <- private$set_object_class(
+            object = files,
             class = "files_data",
-            attr_list = args_list
+            attr_list = attr_list
           )
-        private$save_to_storage(files)
+          private$save_to_storage(files)
+        } else {
+          if (verbose) {
+            cli::cli_alert_warning("No files found.")
+          }
+        }
       } else {
         files <- private$get_from_storage(
           table = "files",
