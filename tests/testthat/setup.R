@@ -34,6 +34,6 @@ github_testhost <- create_github_testhost(orgs = "test_org")
 
 github_testhost_priv <- create_github_testhost(orgs = "test_org", mode = "private")
 
-gitlab_testhost <- create_gitlab_testhost(orgs = "mbtests")
+gitlab_testhost <- create_gitlab_testhost(orgs = "test_group")
 
-gitlab_testhost_priv <- create_gitlab_testhost(orgs = "mbtests", mode = "private")
+gitlab_testhost_priv <- create_gitlab_testhost(orgs = "test_group", mode = "private")

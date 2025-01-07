@@ -15,6 +15,28 @@ EngineGraphQLGitHub <- R6::R6Class(
       self$gql_query <- GQLQueryGitHub$new()
     },
 
+    # Set owner type
+    set_owner_type = function(owners) {
+      user_or_org_query <- self$gql_query$user_or_org_query
+      login_types <- purrr::map(owners, function(owner) {
+        response <- self$gql_response(
+          gql_query = user_or_org_query,
+          vars = list(
+            "login" = owner
+          )
+        )
+        if (length(response$errors) < 2) {
+          type <- purrr::discard(response$data, is.null) |>
+            names()
+          attr(owner, "type") <- type
+        } else {
+          attr(owner, "type") <- "not found"
+        }
+        return(owner)
+      })
+      return(login_types)
+    },
+
     #' Get all orgs from GitHub.
     get_orgs = function() {
       end_cursor <- NULL
@@ -72,7 +94,8 @@ EngineGraphQLGitHub <- R6::R6Class(
     },
 
     # Parses repositories list into table.
-    prepare_repos_table = function(repos_list) {
+    # org parameter is empty for GitHub but is needed for GitLab class.
+    prepare_repos_table = function(repos_list, org) {
       if (length(repos_list) > 0) {
         repos_table <- purrr::map(repos_list, function(repo) {
           repo$default_branch <- if (!is.null(repo$default_branch)) {

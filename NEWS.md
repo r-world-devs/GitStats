@@ -16,6 +16,7 @@
 - Filled more information on `author_name` and `author_login` if it was missing in `commits_table` ([#550](https://github.com/r-world-devs/GitStats/issues/550)).
 - Handled a `GraphQL` response error when pulling repositories with R error. Earlier, `GitStats` just returned empty table with no clue on what has happened, as errors from `GraphQL` are returned as list outputs (they do not break code).
 - Fixed getting R package usage when repositories are set ([#548](https://github.com/r-world-devs/GitStats/issues/548)).
+- Added possibility to pass GitHub users to `orgs` parameter in `set_github_host()` ([#562](https://github.com/r-world-devs/GitStats/issues/562)).
 
 # GitStats 2.1.2
 

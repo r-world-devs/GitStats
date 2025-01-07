@@ -4,7 +4,7 @@
       set_github_host(gitstats = test_gitstats, token = Sys.getenv("GITHUB_PAT"),
       orgs = c("openpharma", "r-world-devs"))
     Message
-      i Checking organizations...
+      i Checking owners...
       v Set connection to GitHub.
 
 ---
@@ -13,7 +13,7 @@
       test_gitstats %>% set_gitlab_host(token = Sys.getenv("GITLAB_PAT_PUBLIC"),
       orgs = c("mbtests"))
     Message
-      i Checking organizations...
+      i Checking owners...
       v Set connection to GitLab.
 
 # When empty token for GitHub, GitStats pulls default token
@@ -23,7 +23,7 @@
         "r-world-devs"))
     Message
       i Using PAT from GITHUB_PAT envar.
-      i Checking organizations...
+      i Checking owners...
       v Set connection to GitHub.
 
 # When empty token for GitLab, GitStats pulls default token
@@ -34,7 +34,7 @@
       })
     Message
       i Using PAT from GITLAB_PAT envar.
-      i Checking organizations...
+      i Checking owners...
       v Set connection to GitLab.
 
 # Set GitHub host with particular repos vector instead of orgs
@@ -74,9 +74,9 @@
       test_gitstats %>% set_github_host(token = Sys.getenv("GITHUB_PAT"), orgs = "pharmaverse") %>%
         set_github_host(token = Sys.getenv("GITHUB_PAT"), orgs = "openpharma")
     Message
-      i Checking organizations...
+      i Checking owners...
       v Set connection to GitHub.
-      i Checking organizations...
+      i Checking owners...
       v Set connection to GitHub.
     Condition
       Error:
@@ -88,14 +88,13 @@
       test_gitstats <- create_gitstats() %>% set_github_host(token = Sys.getenv(
         "GITHUB_PAT"), orgs = c("openparma"))
     Message
-      i Checking organizations...
+      i Checking owners...
     Condition
       Error in `purrr::map()`:
       i In index: 1.
       Caused by error:
-      x Organization you provided does not exist or its name was passed in a wrong way: https://api.github.com/orgs/openparma
-      ! Please type your organization name as you see it in web URL.
-      i E.g. do not use spaces. Organization names as you see on the page may differ from their web 'address'.
+      x Org/user you provided does not exist or its name was passed in a wrong way: openparma
+      ! Please type your org/user name the way you see it in web URL.
 
 ---
 
@@ -103,14 +102,13 @@
       test_gitstats <- create_gitstats() %>% set_gitlab_host(token = Sys.getenv(
         "GITLAB_PAT_PUBLIC"), orgs = c("openparma", "mbtests"))
     Message
-      i Checking organizations...
+      i Checking owners...
     Condition
       Error in `purrr::map()`:
       i In index: 1.
       Caused by error:
-      x Organization you provided does not exist or its name was passed in a wrong way: https://gitlab.com/api/v4/groups/openparma
-      ! Please type your organization name as you see it in web URL.
-      i E.g. do not use spaces. Organization names as you see on the page may differ from their web 'address'.
+      x Org/user you provided does not exist or its name was passed in a wrong way: openparma
+      ! Please type your org/user name the way you see it in web URL.
 
 ---
 
@@ -118,14 +116,13 @@
       test_gitstats <- create_gitstats() %>% set_github_host(token = Sys.getenv(
         "GITHUB_PAT"), orgs = c("openpharma", "r_world_devs"))
     Message
-      i Checking organizations...
+      i Checking owners...
     Condition
       Error in `purrr::map()`:
       i In index: 2.
       Caused by error:
-      x Organization you provided does not exist or its name was passed in a wrong way: https://api.github.com/orgs/r_world_devs
-      ! Please type your organization name as you see it in web URL.
-      i E.g. do not use spaces. Organization names as you see on the page may differ from their web 'address'.
+      x Org/user you provided does not exist or its name was passed in a wrong way: r_world_devs
+      ! Please type your org/user name the way you see it in web URL.
 
 # When wrong orgs and repos are passed they are excluded but host is created
 
@@ -135,8 +132,8 @@
       verbose = TRUE, .show_error = FALSE)
     Message
       i Using PAT from GITHUB_PAT envar.
-      i Checking organizations...
-      ! Organization you provided does not exist: https://api.github.com/orgs/r_world_devs
+      i Checking owners...
+      ! Org/user you provided does not exist: r_world_devs
       i Checking repositories...
       ! Repository you provided does not exist: https://api.github.com/repos/r-world-devs/GitMetrics
       v Set connection to GitHub.

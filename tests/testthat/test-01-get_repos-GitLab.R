@@ -234,7 +234,8 @@ test_that("`get_repos_by_code()` works", {
 
 test_that("`prepare_repos_table()` prepares repos table", {
   gl_repos_table <- test_graphql_gitlab$prepare_repos_table(
-    repos_list = test_mocker$use("gl_repos_from_org")
+    repos_list = test_mocker$use("gl_repos_from_org"),
+    org = "test_group"
   )
   expect_repos_table(
     gl_repos_table

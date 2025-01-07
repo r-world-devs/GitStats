@@ -27,5 +27,5 @@
       gl_repos_from_orgs <- gitlab_testhost_priv$get_repos_from_orgs(verbose = TRUE,
         progress = FALSE)
     Message
-      i [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling repositories...
+      i [Host:GitLab][Engine:GraphQl][Scope:test_group] Pulling repositories...
 

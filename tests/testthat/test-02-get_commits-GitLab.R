@@ -166,7 +166,7 @@ test_that("get_commits_from_repos works", {
   attr(test_org, "type") <- "organization"
   mockery::stub(
     gitlab_testhost_priv$get_repos_from_repos,
-    "private$set_owner_type",
+    "graphql_engine$set_owner_type",
     test_org
   )
   mockery::stub(

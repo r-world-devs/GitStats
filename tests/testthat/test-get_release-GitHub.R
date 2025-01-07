@@ -65,7 +65,7 @@ test_that("`get_release_logs_from_repos()` works", {
   attr(test_org, "type") <- "organization"
   mockery::stub(
     github_testhost_priv$get_release_logs_from_repos,
-    "private$set_owner_type",
+    "graphql_engine$set_owner_type",
     test_org
   )
   github_testhost_priv$searching_scope <- "repo"

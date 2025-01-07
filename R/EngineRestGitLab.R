@@ -180,8 +180,14 @@ EngineRestGitLab <- R6::R6Class(
 
     # Pull all repositories URLs from organization
     get_repos_urls = function(type, org, repos) {
+      owner_type <- attr(org, "type")
+      owner_endpoint <- if (owner_type == "organization") {
+        private$endpoints[["organizations"]]
+      } else {
+        private$endpoints[["users"]]
+      }
       repos_response <- private$paginate_results(
-        endpoint = paste0(private$endpoints[["organizations"]],
+        endpoint = paste0(owner_endpoint,
                           utils::URLencode(org, reserved = TRUE),
                           "/projects")
       )
@@ -326,6 +332,10 @@ EngineRestGitLab <- R6::R6Class(
       private$endpoints[["organizations"]] <- paste0(
         self$rest_api_url,
         "/groups/"
+      )
+      private$endpoints[["users"]] <- paste0(
+        self$rest_api_url,
+        "/users/"
       )
     },
 

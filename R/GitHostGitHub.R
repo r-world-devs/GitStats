@@ -93,30 +93,12 @@ GitHostGitHub <- R6::R6Class(
     # Set groups endpoint
     set_orgs_endpoint = function() {
       private$endpoints$orgs <- glue::glue("{private$api_url}/orgs")
+      private$endpoints$users <- glue::glue("{private$api_url}/users")
     },
 
     # Set projects endpoint
     set_repositories_endpoint = function() {
       private$endpoints$repositories <- glue::glue("{private$api_url}/repos")
-    },
-
-    # Set owner type
-    set_owner_type = function(owners) {
-      graphql_engine <- private$engines$graphql
-      user_or_org_query <- graphql_engine$gql_query$user_or_org_query
-      login_types <- purrr::map(owners, function(owner) {
-        response <- graphql_engine$gql_response(
-          gql_query = user_or_org_query,
-          vars = list(
-            "login" = owner
-          )
-        )
-        type <- purrr::discard(response$data, is.null) %>%
-          names()
-        attr(owner, "type") <- type
-        return(owner)
-      })
-      return(login_types)
     },
 
     # Setup REST and GraphQL engines
@@ -211,7 +193,7 @@ GitHostGitHub <- R6::R6Class(
     get_commits_from_repos = function(since, until, verbose, progress) {
       if ("repo" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
-        orgs <- private$set_owner_type(
+        orgs <- graphql_engine$set_owner_type(
           owners = names(private$orgs_repos)
         )
         commits_table <- purrr::map(orgs, function(org) {

@@ -17,6 +17,29 @@ EngineGraphQLGitLab <- R6::R6Class(
       self$gql_query <- GQLQueryGitLab$new()
     },
 
+    # Set owner type
+    set_owner_type = function(owners) {
+      user_or_org_query <- self$gql_query$user_or_org_query
+      login_types <- purrr::map(owners, function(owner) {
+        response <- self$gql_response(
+          gql_query = user_or_org_query,
+          vars = list(
+            "username"  = owner,
+            "grouppath" = owner
+          )
+        )
+        if (!all(purrr::map_lgl(response$data, is.null))) {
+          type <- purrr::discard(response$data, is.null) |>
+            names()
+          attr(owner, "type") <- type
+        } else {
+          attr(owner, "type") <- "not found"
+        }
+        return(owner)
+      })
+      return(login_types)
+    },
+
     #' Get all groups from GitLab.
     get_orgs = function() {
       group_cursor <- ""
@@ -78,7 +101,7 @@ EngineGraphQLGitLab <- R6::R6Class(
     },
 
     # Parses repositories list into table.
-    prepare_repos_table = function(repos_list) {
+    prepare_repos_table = function(repos_list, org) {
       if (length(repos_list) > 0) {
         repos_table <- purrr::map(repos_list, function(repo) {
           repo <- repo$node
@@ -86,7 +109,7 @@ EngineGraphQLGitLab <- R6::R6Class(
           repo[["default_branch"]] <- repo$repository$rootRef %||% ""
           repo$repository <- NULL
           repo[["languages"]] <- if (length(repo$languages) > 0) {
-            purrr::map_chr(repo$languages, ~ .$name) %>%
+            purrr::map_chr(repo$languages, ~ .$name) |>
               paste0(collapse = ", ")
           } else {
             ""
@@ -96,16 +119,19 @@ EngineGraphQLGitLab <- R6::R6Class(
           repo[["issues_closed"]] <- repo$issues$closed
           repo$issues <- NULL
           repo[["last_activity_at"]] <- as.POSIXct(repo$last_activity_at)
-          repo[["organization"]] <- repo$namespace$path
+          if (!is.null(repo$namespace)) {
+            org <- repo$namespace$path
+          }
+          repo[["organization"]] <- org
           repo$namespace <- NULL
           repo$repo_path <- NULL # temporary to close issue 338
           return(data.frame(repo))
-        }) %>%
-          purrr::list_rbind() %>%
+        }) |>
+          purrr::list_rbind() |>
           dplyr::relocate(
             repo_url,
             .after = organization
-          ) %>%
+          ) |>
           dplyr::relocate(
             default_branch,
             .after = repo_name
