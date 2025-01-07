@@ -9,7 +9,7 @@
   - adding `yearly` aggregation to `time_aggregation` parameter,
   - changing basic input from `GitStats` to `commits_data` object which allows to build workflow in one pipeline (`create_gitstats() |> set_*_host() |> get_commits() |> get_commits_stats()`).
 - Merged two functions `get_files_content()` and `get_files_structure()` into one `get_files()` ([#564](https://github.com/r-world-devs/GitStats/issues/564)).
-- Add `.show_error` parameter to the `set_*_host()` functins to control if error should pop up when wrong input is passed ([#547](https://github.com/r-world-devs/GitStats/issues/547)).
+- Add `.show_error` parameter to the `set_*_host()` functions to control if error should pop up when wrong input is passed ([#547](https://github.com/r-world-devs/GitStats/issues/547)).
 
 ## Fixes:
 
