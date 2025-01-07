@@ -164,10 +164,10 @@ GitHost <- R6::R6Class(
     #' Retrieve content of given text files from all repositories for a host in
     #' a table format.
     get_files_content = function(file_path,
-                                 host_files_structure = NULL,
+                                 files_structure = NULL,
                                  verbose = TRUE,
                                  progress = TRUE) {
-      if (is.null(host_files_structure)) {
+      if (is.null(files_structure)) {
         if (!private$scan_all) {
           files_content_from_orgs <- private$get_files_content_from_orgs(
             file_path = file_path,
@@ -191,9 +191,9 @@ GitHost <- R6::R6Class(
           )
         }
       }
-      if (!is.null(host_files_structure)) {
+      if (!is.null(files_structure)) {
         files_table <- private$get_files_content_from_files_structure(
-          host_files_structure = host_files_structure,
+          files_structure = files_structure,
           verbose = verbose,
           progress = progress
         )
@@ -1173,17 +1173,12 @@ GitHost <- R6::R6Class(
       }
     },
 
-    get_files_content_from_files_structure = function(host_files_structure,
+    get_files_content_from_files_structure = function(files_structure,
                                                       verbose = TRUE,
                                                       progress = TRUE) {
       graphql_engine <- private$engines$graphql
-      if (verbose) {
-        cli::cli_alert_info(
-          cli::col_green("I will make use of files structure stored in GitStats.")
-        )
-      }
       result <- private$get_orgs_and_repos_from_files_structure(
-        host_files_structure = host_files_structure
+        files_structure = files_structure
       )
       orgs <- result$orgs
       repos <- result$repos
@@ -1201,7 +1196,7 @@ GitHost <- R6::R6Class(
           org = org,
           type = type,
           repos = repos,
-          host_files_structure = host_files_structure,
+          host_files_structure = files_structure,
           verbose = verbose,
           progress = progress
         ) |>
@@ -1214,10 +1209,10 @@ GitHost <- R6::R6Class(
       return(files_table)
     },
 
-    get_orgs_and_repos_from_files_structure = function(host_files_structure) {
+    get_orgs_and_repos_from_files_structure = function(files_structure) {
       result <- list(
-        "orgs"  = names(host_files_structure),
-        "repos" = purrr::map(host_files_structure, ~names(.)) %>% unlist() %>% unname()
+        "orgs"  = names(files_structure),
+        "repos" = purrr::map(files_structure, ~names(.)) %>% unlist() %>% unname()
       )
       return(result)
     },
