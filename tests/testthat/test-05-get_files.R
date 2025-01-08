@@ -23,6 +23,36 @@ test_that("get_files_from_hosts works properly", {
   test_mocker$cache(files_table)
 })
 
+test_that("get_files_from_hosts works properly", {
+  mockery::stub(
+    test_gitstats_priv$get_files_from_hosts,
+    "host$get_files_structure",
+    test_mocker$use("gh_files_structure_from_orgs")
+  )
+  mockery::stub(
+    test_gitstats_priv$get_files_from_hosts,
+    "host$get_files_content",
+    purrr::list_rbind(
+      list(
+        test_mocker$use("gh_files_table"),
+        test_mocker$use("gl_files_table")
+      )
+    )
+  )
+  files_table <- test_gitstats_priv$get_files_from_hosts(
+    pattern = "\\.md",
+    depth = Inf,
+    file_path = NULL,
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_files_table(
+    files_table,
+    with_cols = "api_url"
+  )
+  test_mocker$cache(files_table)
+})
+
 test_that("get_files works properly", {
   mockery::stub(
     test_gitstats$get_files,
