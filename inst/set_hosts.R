@@ -5,13 +5,13 @@ git_stats <- create_gitstats() |>
     orgs = c("r-world-devs", "openparma"),
     repos = c("openpharma/DataFakR", "r-world-devs/GitAI"),
     token = Sys.getenv("GITHUB_PAT"),
-    .show_error = FALSE
+    .error = FALSE
   ) |>
   set_gitlab_host(
     orgs = c("mbtests", "makbest"),
     repos = c("makbest/something", "mbtests/gitstatstesting", "krystianigras/gitlab-test"),
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-    .show_error = FALSE
+    .error = FALSE
   )
 
 git_stats

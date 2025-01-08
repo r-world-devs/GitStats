@@ -129,7 +129,7 @@
     Code
       test_gitstats <- create_gitstats() %>% set_github_host(orgs = c("openpharma",
         "r_world_devs"), repos = c("r-world-devs/GitStats", "r-world-devs/GitMetrics"),
-      verbose = TRUE, .show_error = FALSE)
+      verbose = TRUE, .error = FALSE)
     Message
       i Using PAT from GITHUB_PAT envar.
       i Checking owners...

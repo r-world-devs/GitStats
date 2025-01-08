@@ -9,7 +9,7 @@ GitStats <- R6::R6Class(
                                orgs = NULL,
                                repos = NULL,
                                verbose = TRUE,
-                               .show_error = TRUE) {
+                               .error = TRUE) {
       new_host <- NULL
       new_host <- GitHostGitHub$new(
         orgs = orgs,
@@ -17,7 +17,7 @@ GitStats <- R6::R6Class(
         token = token,
         host = host,
         verbose = verbose,
-        .error = .show_error
+        .error = .error
       )
       private$add_new_host(new_host)
     },
@@ -27,7 +27,7 @@ GitStats <- R6::R6Class(
                                orgs = NULL,
                                repos = NULL,
                                verbose = TRUE,
-                               .show_error = TRUE) {
+                               .error = TRUE) {
       new_host <- NULL
       new_host <- GitHostGitLab$new(
         orgs = orgs,
@@ -35,7 +35,7 @@ GitStats <- R6::R6Class(
         token = token,
         host = host,
         verbose = verbose,
-        .error = .show_error
+        .error = .error
       )
       private$add_new_host(new_host)
     },

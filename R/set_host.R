@@ -11,7 +11,7 @@
 #'   pass it, `orgs` parameter should stay `NULL`.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
 #'   output is switched off.
-#' @param .show_error A logical to control if passing wrong input
+#' @param .error A logical to control if passing wrong input
 #'   (`repositories` and `organizations`) should end with an error or not.
 #' @details If you do not define `orgs` and `repos`, `GitStats` will be set to
 #'   scan whole Git platform (such as enterprise version of GitHub or GitLab),
@@ -33,14 +33,14 @@ set_github_host <- function(gitstats,
                             orgs = NULL,
                             repos = NULL,
                             verbose = is_verbose(gitstats),
-                            .show_error = TRUE) {
+                            .error = TRUE) {
   gitstats$set_github_host(
     host = host,
     token = token,
     orgs = orgs,
     repos = repos,
     verbose = verbose,
-    .show_error = .show_error
+    .error = .error
   )
 
   return(invisible(gitstats))
@@ -70,14 +70,14 @@ set_gitlab_host <- function(gitstats,
                             orgs = NULL,
                             repos = NULL,
                             verbose = is_verbose(gitstats),
-                            .show_error = TRUE) {
+                            .error = TRUE) {
   gitstats$set_gitlab_host(
     host = host,
     token = token,
     orgs = orgs,
     repos = repos,
     verbose = verbose,
-    .show_error = .show_error
+    .error = .error
   )
 
   return(invisible(gitstats))
