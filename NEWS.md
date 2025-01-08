@@ -1,4 +1,4 @@
-# GitStats (development version)
+# GitStats 2.2.0
 
 ## Features:
 
