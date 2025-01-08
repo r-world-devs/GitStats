@@ -496,7 +496,7 @@ GitHost <- R6::R6Class(
             }
           }
           return(org)
-        }) |>
+        }, .progress = verbose) |>
         purrr::keep(~ length(.) > 0)
       if (length(orgs) == 0) {
         return(NULL)
