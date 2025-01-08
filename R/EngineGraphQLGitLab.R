@@ -31,6 +31,9 @@ EngineGraphQLGitLab <- R6::R6Class(
         if (!all(purrr::map_lgl(response$data, is.null))) {
           type <- purrr::discard(response$data, is.null) |>
             names()
+          if (type == "group") {
+            type <- "organization"
+          }
           attr(owner, "type") <- type
         } else {
           attr(owner, "type") <- "not found"

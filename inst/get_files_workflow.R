@@ -41,7 +41,7 @@ get_files(
 
 md_files <- get_files(
   gitstats = test_gitstats,
-  pattern = "\\.md|.R",
+  pattern = "\\.md|\\.Rmd",
   depth = 2L
 )
 
