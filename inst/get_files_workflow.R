@@ -8,7 +8,7 @@ test_gitstats <- create_gitstats() |>
     orgs = c("mbtests", "mbtestapps")
   )
 
-get_files_content(
+get_files(
   gitstats = test_gitstats,
   file_path = c("LICENSE", "DESCRIPTION")
 )
@@ -24,7 +24,7 @@ github_stats <- create_gitstats() |>
 
 github_stats
 
-get_files_content(
+get_files(
   gitstats = github_stats,
   file_path = "DESCRIPTION"
 )
@@ -34,20 +34,18 @@ datafaker_stats <- create_gitstats() |>
     repos = "openpharma/DataFakeR"
   )
 
-get_files_content(
+get_files(
   gitstats = datafaker_stats,
   file_path = "DESCRIPTION"
 )
 
-md_files_structure <- get_files_structure(
+md_files <- get_files(
   gitstats = test_gitstats,
   pattern = "\\.md|.R",
   depth = 2L
 )
 
-get_files_content(test_gitstats)
-
-md_files_structure <- get_files_structure(
+get_files(
   gitstats = test_gitstats,
   pattern = "DESCRIPTION|\\.md|\\.qmd|\\.Rmd",
   depth = 2L,

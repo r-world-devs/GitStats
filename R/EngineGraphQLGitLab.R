@@ -302,7 +302,7 @@ EngineGraphQLGitLab <- R6::R6Class(
                 "repo_name" = response_data$data$project$name,
                 "repo_id" = response_data$data$project$id,
                 "organization" = org,
-                "file_path" = file$name,
+                "file_path" = file$path,
                 "file_content" = file$rawBlob,
                 "file_size" = as.integer(file$size),
                 "repo_url" = response_data$data$project$webUrl
@@ -318,7 +318,7 @@ EngineGraphQLGitLab <- R6::R6Class(
                 "repo_name" = project$name,
                 "repo_id" = project$id,
                 "organization" = org,
-                "file_path" = file$name,
+                "file_path" = file$path,
                 "file_content" = file$rawBlob,
                 "file_size" = as.integer(file$size),
                 "repo_url" = project$webUrl

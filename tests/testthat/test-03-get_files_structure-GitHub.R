@@ -114,6 +114,29 @@ test_that("only files with certain pattern are retrieved", {
   test_mocker$cache(md_files_structure)
 })
 
+test_that("get_repos_data pulls data on repos and branches", {
+  mockery::stub(
+    test_graphql_github_priv$get_repos_data,
+    "self$get_repos_from_org",
+    test_mocker$use("gh_repos_from_org")
+  )
+  gh_repos_data <- test_graphql_github_priv$get_repos_data(
+    org = "r-world-devs",
+    repos = NULL
+  )
+  expect_equal(
+    names(gh_repos_data),
+    c("repositories", "def_branches")
+  )
+  expect_true(
+    length(gh_repos_data$repositories) > 0
+  )
+  expect_true(
+    length(gh_repos_data$def_branches) > 0
+  )
+  test_mocker$cache(gh_repos_data)
+})
+
 test_that("GitHub GraphQL Engine pulls files structure from repositories", {
   mockery::stub(
     test_graphql_github$get_files_structure_from_org,
@@ -182,7 +205,7 @@ test_that("get_files_structure_from_orgs", {
 
 test_that("get_orgs_and_repos_from_files_structure", {
   result <- github_testhost_priv$get_orgs_and_repos_from_files_structure(
-    host_files_structure = test_mocker$use("gh_files_structure_from_orgs")
+    files_structure = test_mocker$use("gh_files_structure_from_orgs")
   )
   expect_equal(
     names(result),
@@ -256,22 +279,5 @@ test_that("get_files_structure aborts when scope to scan whole host", {
       depth = 1L,
       verbose = FALSE
     )
-  )
-})
-
-test_that("get_files_content makes use of files_structure", {
-  mockery::stub(
-    github_testhost_priv$get_files_content_from_files_structure,
-    "private$add_repo_api_url",
-    test_mocker$use("gh_files_table")
-  )
-  expect_snapshot(
-    files_content <- github_testhost_priv$get_files_content_from_files_structure(
-      host_files_structure = test_mocker$use("gh_files_structure_from_orgs")
-    )
-  )
-  expect_files_table(
-    files_content,
-    with_cols = "api_url"
   )
 })

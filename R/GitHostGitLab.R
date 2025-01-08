@@ -303,17 +303,12 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       }
     },
 
-    get_files_content_from_files_structure = function(host_files_structure,
+    get_files_content_from_files_structure = function(files_structure,
                                                       verbose = TRUE,
                                                       progress = TRUE) {
       graphql_engine <- private$engines$graphql
-      if (verbose) {
-        cli::cli_alert_info(
-          cli::col_green("I will make use of files structure stored in GitStats.")
-        )
-      }
       result <- private$get_orgs_and_repos_from_files_structure(
-        host_files_structure = host_files_structure
+        files_structure = files_structure
       )
       orgs <- result$orgs
       repos <- result$repos
@@ -331,7 +326,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           org = org,
           type = type,
           repos = repos,
-          host_files_structure = host_files_structure,
+          host_files_structure = files_structure,
           verbose = verbose,
           progress = progress
         ) |>

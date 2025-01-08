@@ -27,7 +27,6 @@ test_that("get_file_blobs_response() works", {
   test_mocker$cache(gl_file_blobs_response)
 })
 
-
 test_that("get_repos_data pulls data on repositories", {
   mockery::stub(
     test_graphql_gitlab_priv$get_repos_data,
@@ -178,4 +177,21 @@ test_that("get_files_content_from_orgs for GitLab works", {
     gl_files_table, with_cols = "api_url"
   )
   test_mocker$cache(gl_files_table)
+})
+
+test_that("get_files_content makes use of files_structure", {
+  mockery::stub(
+    gitlab_testhost_priv$get_files_content_from_files_structure,
+    "private$add_repo_api_url",
+    test_mocker$use("gl_files_table")
+  )
+  expect_snapshot(
+    files_content <- gitlab_testhost_priv$get_files_content_from_files_structure(
+      files_structure = test_mocker$use("gl_files_structure_from_orgs")
+    )
+  )
+  expect_files_table(
+    files_content,
+    with_cols = "api_url"
+  )
 })

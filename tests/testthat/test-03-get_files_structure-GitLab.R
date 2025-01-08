@@ -225,20 +225,3 @@ test_that("get_files_structure pulls files structure for repositories in orgs", 
   })
   test_mocker$cache(gl_files_structure_from_orgs)
 })
-
-test_that("get_files_content makes use of files_structure", {
-  mockery::stub(
-    gitlab_testhost_priv$get_files_content_from_files_structure,
-    "private$add_repo_api_url",
-    test_mocker$use("gl_files_table")
-  )
-  expect_snapshot(
-    files_content <- gitlab_testhost_priv$get_files_content_from_files_structure(
-      host_files_structure = test_mocker$use("gl_files_structure_from_orgs")
-    )
-  )
-  expect_files_table(
-    files_content,
-    with_cols = "api_url"
-  )
-})

@@ -37,14 +37,14 @@ test_that("get_storage retrieves one table", {
 test_that("get_storage retrieves one table", {
   gitstats_storage <- get_storage(
     gitstats = test_gitstats,
-    storage = "files_structure"
-  )
-  expect_type(
-    gitstats_storage,
-    "list"
+    storage = "files"
   )
   expect_s3_class(
     gitstats_storage,
-    "files_structure"
+    "tbl"
+  )
+  expect_s3_class(
+    gitstats_storage,
+    "files_data"
   )
 })

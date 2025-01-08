@@ -358,7 +358,7 @@ test_fixtures$gitlab_file_org_response <- list(
                 "blobs" = list(
                   "nodes" = list(
                     list(
-                      "name" = "meta_data.yaml",
+                      "path" = "meta_data.yaml",
                       "rawBlob" = "Some interesting text",
                       "size" = 4
                     )
@@ -376,7 +376,7 @@ test_fixtures$gitlab_file_org_response <- list(
                 "blobs" = list(
                   "nodes" = list(
                     list(
-                      "name" = "meta_data.yaml",
+                      "path" = "meta_data.yaml",
                       "rawBlob" = "Some interesting text",
                       "size" = 5
                     )
@@ -401,12 +401,12 @@ test_fixtures$gitlab_file_repo_response <- list(
         "blobs" = list(
           "nodes" = list(
             list(
-              "name" = "README.md",
+              "path" = "README.md",
               "rawBlob" = "# graphql_tests\n\nThis project is for testing GraphQL capabilities.\n",
               "size" =  "67"
             ),
             list(
-              "name" = "project_metadata.yaml",
+              "path" = "project_metadata.yaml",
               "rawBlob" = "Name: GraphQL Tests",
               "size" = "19"
             )

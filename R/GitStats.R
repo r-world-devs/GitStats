@@ -203,14 +203,17 @@ GitStats <- R6::R6Class(
       return(users)
     },
 
-    get_files_content = function(file_path = NULL,
-                                 use_files_structure = TRUE,
-                                 cache = TRUE,
-                                 verbose = TRUE,
-                                 progress = verbose) {
+    get_files = function(pattern,
+                         depth,
+                         file_path = NULL,
+                         cache = TRUE,
+                         verbose = TRUE,
+                         progress = verbose) {
       private$check_for_host()
-      args_list <- list("file_path" = file_path,
-                        "use_files_structure" = use_files_structure)
+      args_list <- list(
+        "file_pattern" = paste0(file_path, pattern),
+        "depth" = depth
+      )
       trigger <- private$trigger_pulling(
         cache = cache,
         storage = "files",
@@ -218,17 +221,25 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        files <- private$get_files_content_from_hosts(
+        files <- private$get_files_from_hosts(
+          pattern = pattern,
+          depth = depth,
           file_path = file_path,
-          use_files_structure = use_files_structure,
           verbose = verbose,
           progress = progress
-        ) %>%
-          private$set_object_class(
+        )
+        if (nrow(files) > 0) {
+          files <- private$set_object_class(
+            object = files,
             class = "files_data",
             attr_list = args_list
           )
-        private$save_to_storage(files)
+          private$save_to_storage(files)
+        } else {
+          if (verbose) {
+            cli::cli_alert_warning("No files found.")
+          }
+        }
       } else {
         files <- private$get_from_storage(
           table = "files",
@@ -236,44 +247,6 @@ GitStats <- R6::R6Class(
         )
       }
       return(files)
-    },
-
-    get_files_structure = function(pattern,
-                                   depth,
-                                   cache = TRUE,
-                                   verbose = TRUE,
-                                   progress = verbose) {
-      private$check_for_host()
-      args_list <- list("pattern" = pattern,
-                        "depth" = depth)
-      trigger <- private$trigger_pulling(
-        cache = cache,
-        storage = "files_structure",
-        args_list = args_list,
-        verbose = verbose
-      )
-      if (trigger) {
-        files_structure <- private$get_files_structure_from_hosts(
-          pattern = pattern,
-          depth = depth,
-          verbose = verbose,
-          progress = progress
-        )
-        if (!is.null(files_structure)) {
-          files_structure <- private$set_object_class(
-            object = files_structure,
-            class = "files_structure",
-            attr_list = args_list
-          )
-          private$save_to_storage(files_structure)
-        }
-      } else {
-        files_structure <- private$get_from_storage(
-          table = "files_structure",
-          verbose = verbose
-        )
-      }
-      return(files_structure)
     },
 
     get_release_logs = function(since,
@@ -713,89 +686,35 @@ GitStats <- R6::R6Class(
     },
 
     # Pull content of a text file in a table form
-    get_files_content_from_hosts = function(file_path,
-                                            use_files_structure,
-                                            verbose,
-                                            progress) {
+    get_files_from_hosts = function(pattern,
+                                    depth,
+                                    file_path,
+                                    verbose,
+                                    progress) {
       purrr::map(private$hosts, function(host) {
-        if (is.null(file_path) && use_files_structure) {
-          host_files_structure <- private$get_host_files_structure(
-            host    = host,
-            verbose = FALSE
-          )
-        } else {
-          host_files_structure <- NULL
-        }
-        if (is.null(file_path) && is.null(host_files_structure)) {
-          host_name <- host$.__enclos_env__$private$host_name
-          if (verbose) {
-            cli::cli_alert_warning(
-              cli::col_yellow("I will skip pulling data for {host_name}: files structure is empty.")
-            )
-          }
-          NULL
-        } else {
-          host$get_files_content(
-            file_path = file_path,
-            host_files_structure = host_files_structure,
-            verbose = verbose,
+        if (is.null(file_path)) {
+          files_structure <- host$get_files_structure(
+            pattern  = pattern,
+            depth    = depth,
+            verbose  = verbose,
             progress = progress
-          )
+          ) |>
+            purrr::discard(~ length(.) == 0)
+          if (length(files_structure) == 0) {
+            files_structure <- NULL
+          }
+        } else {
+          files_structure <- NULL
         }
-      }) %>%
-        purrr::list_rbind() %>%
-        dplyr::as_tibble()
-    },
-
-    get_host_files_structure = function(host, verbose) {
-      files_structure <- private$get_from_storage(
-        table = "files_structure",
-        verbose = verbose
-      )
-      if (is.null(files_structure)) {
-        cli::cli_abort(c(
-          "x" = "No files_structure object found in GitStats.",
-          "i" = "Run `get_files_structure()` function first, then `get_files_content()`."
-        ),
-        call = NULL
-        )
-      }
-      host_name <- host$.__enclos_env__$private$web_url
-      return(files_structure[[gsub("https://", "", host_name)]])
-    },
-
-    get_files_structure_from_hosts = function(pattern, depth, verbose, progress) {
-      files_structure_from_hosts <- purrr::map(private$hosts, function(host) {
-        host$get_files_structure(
-          pattern  = pattern,
-          depth    = depth,
-          verbose  = verbose,
+        host$get_files_content(
+          file_path = file_path,
+          files_structure = files_structure,
+          verbose = verbose,
           progress = progress
         )
-      })
-      names(files_structure_from_hosts) <- private$get_host_urls()
-      files_structure_from_hosts <- files_structure_from_hosts %>%
-        purrr::discard(~ length(.) == 0)
-      if (length(files_structure_from_hosts) == 0) {
-        files_structure_from_hosts <- NULL
-        if (verbose) {
-          cli::cli_alert_warning(
-            cli::col_yellow(
-              "No files structure found for matching pattern {pattern} in {depth} level of dirs."
-            )
-          )
-          cli::cli_alert_warning(
-            cli::col_yellow(
-              "Files structure will not be saved in GitStats."
-            )
-          )
-        }
-      }
-      return(files_structure_from_hosts)
-    },
-
-    get_host_urls = function() {
-      purrr::map_vec(private$hosts, ~ gsub("https://", "", .$.__enclos_env__$private$web_url))
+      }) |>
+        purrr::list_rbind() |>
+        dplyr::as_tibble()
     },
 
     # Pull release logs tables from hosts and bind them into one
@@ -1074,8 +993,7 @@ GitStats <- R6::R6Class(
       if (storage_name != "repositories") {
         storage_attr <- switch(storage_name,
                                "repos_urls" = "type",
-                               "files" = "file_path",
-                               "files_structure" = "pattern",
+                               "files" = "file_pattern",
                                "commits" = "date_range",
                                "release_logs" = "date_range",
                                "users" = "logins",
@@ -1083,8 +1001,7 @@ GitStats <- R6::R6Class(
         attr_data <- attr(storage_data, storage_attr)
         attr_name <- switch(storage_attr,
                             "type" = "type",
-                            "file_path" = "files",
-                            "pattern" = "files matching pattern",
+                            "file_pattern" = "file pattern",
                             "date_range" = "date range",
                             "packages" = "packages",
                             "logins" = "logins")
