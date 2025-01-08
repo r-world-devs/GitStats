@@ -211,9 +211,8 @@ GitStats <- R6::R6Class(
                          progress = verbose) {
       private$check_for_host()
       args_list <- list(
-        "pattern" = pattern,
-        "depth" = depth,
-        "file_path" = file_path
+        "file_pattern" = paste0(file_path, pattern),
+        "depth" = depth
       )
       trigger <- private$trigger_pulling(
         cache = cache,
@@ -230,20 +229,10 @@ GitStats <- R6::R6Class(
           progress = progress
         )
         if (nrow(files) > 0) {
-          if (!is.null(pattern)) {
-            attr_list <- list(
-              "file_path" = pattern
-            )
-          }
-          if (!is.null(file_path)) {
-            attr_list <- list(
-              "file_path" = file_path
-            )
-          }
           files <- private$set_object_class(
             object = files,
             class = "files_data",
-            attr_list = attr_list
+            attr_list = args_list
           )
           private$save_to_storage(files)
         } else {
@@ -1004,7 +993,7 @@ GitStats <- R6::R6Class(
       if (storage_name != "repositories") {
         storage_attr <- switch(storage_name,
                                "repos_urls" = "type",
-                               "files" = "file_path",
+                               "files" = "file_pattern",
                                "commits" = "date_range",
                                "release_logs" = "date_range",
                                "users" = "logins",
@@ -1012,7 +1001,7 @@ GitStats <- R6::R6Class(
         attr_data <- attr(storage_data, storage_attr)
         attr_name <- switch(storage_attr,
                             "type" = "type",
-                            "file_path" = "files",
+                            "file_pattern" = "file pattern",
                             "date_range" = "date range",
                             "packages" = "packages",
                             "logins" = "logins")
