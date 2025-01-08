@@ -29,7 +29,7 @@ From CRAN:
 install.packages("GitStats")
 ```
 
-Or development version:
+From GitHub:
 
 ``` r
 devtools::install_github("r-world-devs/GitStats")
