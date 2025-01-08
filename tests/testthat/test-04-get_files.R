@@ -42,7 +42,7 @@ test_that("get_files works properly", {
   test_mocker$cache(files_table)
   mockery::stub(
     get_files,
-    "git_stats$get_files",
+    "gitstats$get_files",
     test_mocker$use("files_table")
   )
   get_files(test_gitstats,
