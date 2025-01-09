@@ -33,5 +33,3 @@ articles:
   - set_hosts
   - get_and_store_data
   - get_repos_with_code
-  - get_files
-

@@ -45,19 +45,27 @@ From GitHub:
 devtools::install_github("r-world-devs/GitStats")
 ```
 
-## Start
+## Examples:
+
+Setup your `GitStats`:
 
 ```{r}
 library(GitStats)
 
-commits <- create_gitstats() |>
+git_stats <- create_gitstats() |>
   set_gitlab_host(
     repos = "mbtests/gitstatstesting"
   ) |>
   set_github_host(
     orgs = "r-world-devs",
     repos = "openpharma/DataFakeR"
-  ) |>
+  ) 
+```
+
+Get commits:
+
+```{r}
+commits <- git_stats |>
   get_commits(
     since = "2022-01-01"
   )
@@ -69,6 +77,42 @@ commits |>
     time_aggregation = "month",
     group_var = author
   )
+```
+
+Get repositories with specific code:
+
+```{r}
+git_stats |>
+  get_repos(
+    with_code = "shiny",
+    add_contributors = FALSE
+  )
+```
+
+Get files:
+
+```{r}
+git_stats |>
+  get_files(
+    pattern = "\\.md",
+    depth = 2L
+  )
+```
+
+Get package usage:
+
+```{r}
+git_stats |>
+  get_R_package_usage(
+    packages = c("shiny", "purrr"),
+    split_output = TRUE
+  )
+```
+
+Print `GitStats` to see what it stores:
+
+```{r}
+git_stats
 ```
 
 ## Acknowledgement
