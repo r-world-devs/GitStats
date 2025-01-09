@@ -27,7 +27,7 @@ test_that("get_storage retrieves one table", {
   )
   expect_s3_class(
     gitstats_storage,
-    "commits_data"
+    "gitstats_commits"
   )
   expect_commits_table(
     gitstats_storage
@@ -45,6 +45,6 @@ test_that("get_storage retrieves one table", {
   )
   expect_s3_class(
     gitstats_storage,
-    "files_data"
+    "gitstats_files"
   )
 })

@@ -72,7 +72,7 @@ GitStats <- R6::R6Class(
           progress         = progress
         ) %>%
           private$set_object_class(
-            class     = "repos_table",
+            class     = "gitstats_repos",
             attr_list = args_list
           )
         private$save_to_storage(
@@ -122,7 +122,7 @@ GitStats <- R6::R6Class(
         if (!is.null(repos_urls)) {
           repos_urls <- private$set_object_class(
             object = repos_urls,
-            class = "repos_urls",
+            class = "gitstats_repos_urls",
             attr_list = args_list
           )
           private$save_to_storage(
@@ -163,7 +163,7 @@ GitStats <- R6::R6Class(
           progress = progress
         ) %>%
           private$set_object_class(
-            class     = "commits_data",
+            class     = "gitstats_commits",
             attr_list = args_list
           )
         private$save_to_storage(
@@ -190,7 +190,7 @@ GitStats <- R6::R6Class(
       if (trigger) {
         users <- private$get_users_from_hosts(logins) %>%
           private$set_object_class(
-            class = "users_data",
+            class = "gitstats_users",
             attr_list = args_list
           )
         private$save_to_storage(users)
@@ -231,7 +231,7 @@ GitStats <- R6::R6Class(
         if (nrow(files) > 0) {
           files <- private$set_object_class(
             object = files,
-            class = "files_data",
+            class = "gitstats_files",
             attr_list = args_list
           )
           private$save_to_storage(files)
@@ -270,7 +270,7 @@ GitStats <- R6::R6Class(
           progress = progress
         ) %>%
           private$set_object_class(
-            class     = "release_logs",
+            class     = "gitstats_releases",
             attr_list = args_list
           )
         private$save_to_storage(release_logs)
@@ -313,7 +313,7 @@ GitStats <- R6::R6Class(
               (split_output && any(purrr::map_lgl(R_package_usage, ~ nrow(.) > 0)))) {
           R_package_usage <- private$set_object_class(
             object    = R_package_usage,
-            class     = "R_package_usage",
+            class     = "gitstats_package_usage",
             attr_list = args_list
           )
           private$save_to_storage(R_package_usage)

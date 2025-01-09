@@ -28,9 +28,9 @@
 get_commits_stats <- function(commits,
                               time_aggregation = c("year", "month", "week", "day"),
                               group_var) {
-  if (!inherits(commits, "commits_data")) {
+  if (!inherits(commits, "gitstats_commits")) {
     cli::cli_abort(c(
-      "x" = "`commits` must be a `commits_data` object.",
+      "x" = "`commits` must be a `gitstats_commits` object.",
       "i" = "Pull first your commits with `get_commits()` function."
     ))
   }
@@ -62,7 +62,7 @@ get_commits_stats <- function(commits,
 set_commits_stats_class <- function(object, time_aggregation) {
   stopifnot(inherits(object, "grouped_df"))
   object <- dplyr::ungroup(object)
-  class(object) <- append(class(object), "commits_stats")
+  class(object) <- append(class(object), "gitstats_commits_stats")
   attr(object, "time_aggregation") <- time_aggregation
   object
 }
