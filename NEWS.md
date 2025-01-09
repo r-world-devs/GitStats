@@ -1,5 +1,7 @@
 # GitStats 2.2.0
 
+This release brings some substantial improvements with making it possible to scan whole organizations and particular repositories for one host at the same time, boosting function to prepare commits statistics and simplifying workflow for getting files.
+
 ## Features:
 
 - From now on it is possible to pass `orgs` and `repos` in `set_*_host()` functions ([#400](https://github.com/r-world-devs/GitStats/issues/400)).
