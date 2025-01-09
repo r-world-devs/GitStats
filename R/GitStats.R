@@ -915,13 +915,7 @@ GitStats <- R6::R6Class(
         item_to_print <- purrr::map_vec(item_to_print, function(element) {
           URLdecode(element)
         })
-        if (length(item_to_print) < 10) {
-          list_items <- paste0(item_to_print, collapse = ", ")
-        } else {
-          item_to_print_cut <- item_to_print[1:10]
-          list_items <- paste0(item_to_print_cut, collapse = ", ") %>%
-            paste0("... and ", length(item_to_print) - 10, " more")
-        }
+        list_items <- cut_item_to_print(item_to_print)
         item_to_print <- paste0("[", cli::col_green(length(item_to_print)), "] ", list_items)
       }
       cat(paste0(
