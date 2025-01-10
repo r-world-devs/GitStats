@@ -56,7 +56,7 @@ test_that("get_commits() works", {
   )
   expect_s3_class(
     commits_data,
-    "commits_data"
+    "gitstats_commits"
   )
   test_mocker$cache(commits_data)
 })

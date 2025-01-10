@@ -246,11 +246,7 @@ EngineRestGitLab <- R6::R6Class(
             NA
           })
           return(contributors_vec)
-        }, .progress = if (progress) {
-          "[GitHost:GitLab] Pulling contributors..."
-        } else {
-          FALSE
-        })
+        }, .progress = progress)
       }
       return(repos_table)
     },

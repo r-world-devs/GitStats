@@ -24,7 +24,7 @@ EngineGraphQLGitLab <- R6::R6Class(
         response <- self$gql_response(
           gql_query = user_or_org_query,
           vars = list(
-            "username"  = owner,
+            "username" = owner,
             "grouppath" = owner
           )
         )
@@ -352,10 +352,10 @@ EngineGraphQLGitLab <- R6::R6Class(
       repositories <- repo_data[["repositories"]]
       files_structure <- purrr::map(repositories, function(repo) {
         private$get_files_structure_from_repo(
-          org     = org,
-          repo    = repo,
+          org = org,
+          repo = repo,
           pattern = pattern,
-          depth   = depth
+          depth = depth
         )
       }, .progress = progress)
       names(files_structure) <- repositories
@@ -367,18 +367,20 @@ EngineGraphQLGitLab <- R6::R6Class(
     prepare_user_table = function(user_response) {
       if (!is.null(user_response$data$user)) {
         user_data <- user_response$data$user
-        user_data$name <- user_data$name %||% ""
-        user_data$starred_repos <- user_data$starred_repos$count
-        user_data$pull_requests <- user_data$pull_requests$count
-        user_data$reviews <- user_data$reviews$count
-        user_data$email <- user_data$email %||% ""
-        user_data$location <- user_data$location %||% ""
-        user_data$web_url <- user_data$web_url %||% ""
-        user_table <- tibble::as_tibble(user_data) %>%
+        user_data[["name"]] <- user_data$name %||% ""
+        user_data[["starred_repos"]] <- user_data$starred_repos$count
+        user_data[["pull_requests"]] <- user_data$pull_requests$count
+        user_data[["reviews"]] <- user_data$reviews$count
+        user_data[["email"]] <- user_data$email %||% ""
+        user_data[["location"]] <- user_data$location %||% ""
+        user_data[["web_url"]] <- user_data$web_url %||% ""
+        user_table <- tibble::as_tibble(user_data) |>
           dplyr::mutate(commits = NA,
-                        issues = NA) %>%
-          dplyr::relocate(c(commits, issues),
-                          .after = starred_repos)
+                        issues = NA) |>
+          dplyr::relocate(
+            c(commits, issues),
+            .after = starred_repos
+          )
       } else {
         user_table <- NULL
       }

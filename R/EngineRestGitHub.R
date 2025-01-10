@@ -195,11 +195,7 @@ EngineRestGitHub <- R6::R6Class(
           error = function(e) {
             NA
           })
-        }, .progress = if (progress) {
-          "[GitHost:GitHub] Pulling contributors..."
-        } else {
-          FALSE
-        })
+        }, .progress = progress)
       }
       return(repos_table)
     }

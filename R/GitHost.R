@@ -496,7 +496,7 @@ GitHost <- R6::R6Class(
             }
           }
           return(org)
-        }) |>
+        }, .progress = verbose) |>
         purrr::keep(~ length(.) > 0)
       if (length(orgs) == 0) {
         return(NULL)
@@ -693,7 +693,7 @@ GitHost <- R6::R6Class(
             show_message(
               host        = private$host_name,
               engine      = "graphql",
-              scope       = org,
+              scope       = set_repo_scope(org, private),
               information = "Pulling repositories"
             )
           }
@@ -813,7 +813,7 @@ GitHost <- R6::R6Class(
             show_message(
               host = private$host_name,
               engine = "rest",
-              scope = org,
+              scope = paste0(org, "/", private$orgs_repos[[org]], collapse = ", "),
               information = "Pulling repositories (URLs)"
             )
           }
@@ -1150,7 +1150,7 @@ GitHost <- R6::R6Class(
             show_message(
               host = private$host_name,
               engine = "graphql",
-              scope = org,
+              scope = paste0(org, "/", private$orgs_repos[[org]], collapse = ", "),
               information = glue::glue("Pulling files content: [{paste0(file_path, collapse = ', ')}]")
             )
           }
@@ -1280,7 +1280,7 @@ GitHost <- R6::R6Class(
             show_message(
               host = private$host_name,
               engine = "graphql",
-              scope = org,
+              scope = paste0(org, "/", private$orgs_repos[[org]], collapse = ", "),
               information = user_info
             )
           }
@@ -1383,7 +1383,7 @@ GitHost <- R6::R6Class(
             show_message(
               host = private$host_name,
               engine = "graphql",
-              scope = paste0(org, "/", private$orgs_repos[[org]]),
+              scope = paste0(org, "/", private$orgs_repos[[org]], collapse = ", "),
               information = "Pulling release logs"
             )
           }

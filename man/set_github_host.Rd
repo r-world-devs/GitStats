@@ -11,7 +11,7 @@ set_github_host(
   orgs = NULL,
   repos = NULL,
   verbose = is_verbose(gitstats),
-  .show_error = TRUE
+  .error = TRUE
 )
 }
 \arguments{
@@ -32,7 +32,7 @@ pass it, \code{orgs} parameter should stay \code{NULL}.}
 \item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and printing
 output is switched off.}
 
-\item{.show_error}{A logical to control if passing wrong input
+\item{.error}{A logical to control if passing wrong input
 (\code{repositories} and \code{organizations}) should end with an error or not.}
 }
 \value{

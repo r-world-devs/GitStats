@@ -9,9 +9,23 @@ reference:
   - starts_with("set_")
   - matches("verbose")
   - matches("show_orgs")
-- title: Get data
+  - matches("get_storage")
+- title: Get git data
+  desc: >
+      Functions pulling git data in a tibble format.
+  contents:
+  - get_repos
+  - get_repos_urls
+  - get_commits
+  - get_release_logs
+  - get_files
+  - get_users
+- title: Get statistics
+  desc: >
+      Functions summarizing git data.
 - contents:
-  - starts_with("get_")
+  - get_commits_stats
+  - get_R_package_usage
 articles:
 - title: Articles
   navbar: ~
@@ -19,5 +33,3 @@ articles:
   - set_hosts
   - get_and_store_data
   - get_repos_with_code
-  - get_files
-

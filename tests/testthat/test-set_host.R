@@ -165,7 +165,7 @@ test_that("When wrong orgs and repos are passed they are excluded but host is cr
         orgs = c("openpharma", "r_world_devs"),
         repos = c("r-world-devs/GitStats", "r-world-devs/GitMetrics"),
         verbose = TRUE,
-        .show_error = FALSE
+        .error = FALSE
       )
   )
 })
