@@ -33,7 +33,7 @@ GitHostGitHubTest <- R6::R6Class(
       private$set_api_url(host)
       private$set_web_url(host)
       private$set_endpoints()
-      private$check_if_public(host)
+      private$is_public <- FALSE
       private$token <- token
       private$set_graphql_url()
       private$set_orgs_and_repos_mocked(orgs, repos)
@@ -43,7 +43,11 @@ GitHostGitHubTest <- R6::R6Class(
   ),
   private = list(
     set_orgs_and_repos_mocked = function(orgs, repos) {
-      private$orgs <- orgs
+      if (is.null(orgs) && is.null(repos)) {
+        private$scan_all <- TRUE
+      } else {
+        private$orgs <- orgs
+      }
       if (!is.null(repos)) {
         private$repos <- repos
         orgs_repos <- private$extract_repos_and_orgs(repos)

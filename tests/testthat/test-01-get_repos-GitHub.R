@@ -478,6 +478,20 @@ test_that("`get_repos_with_code_from_host()` pulls raw response", {
       verbose = TRUE
     )
   )
+})
+
+test_that("`get_repos_with_code_from_host()` pulls raw response", {
+  mockery::stub(
+    github_testhost_priv$get_repos_with_code_from_host,
+    "rest_engine$get_repos_by_code",
+    test_mocker$use("gh_repos_by_code_raw")
+  )
+  repos_with_code_from_host_raw <- github_testhost_priv$get_repos_with_code_from_host(
+    code = "shiny",
+    in_files = c("DESCRIPTION", "NAMESPACE"),
+    output = "raw",
+    verbose = FALSE
+  )
   expect_type(repos_with_code_from_host_raw, "list")
   expect_gt(length(repos_with_code_from_host_raw), 0)
   test_mocker$cache(repos_with_code_from_host_raw)
@@ -520,12 +534,14 @@ test_that("get_repos_with_code() works", {
 
 
 test_that("get_repos_with_code() scans whole host", {
+  github_testhost_priv <- create_github_testhost(
+    mode = "private"
+  )
   mockery::stub(
     github_testhost_priv$get_repos_with_code,
     "private$get_repos_with_code_from_host",
     test_mocker$use("repos_with_code_from_host_raw")
   )
-  github_testhost_priv$scan_all <- TRUE
   github_repos_with_code_raw <- github_testhost_priv$get_repos_with_code(
     code = "test-code",
     output = "raw",
