@@ -27,7 +27,6 @@ test_that("get_file_blobs_response() works", {
   test_mocker$cache(gl_file_blobs_response)
 })
 
-
 test_that("get_repos_data pulls data on repositories", {
   mockery::stub(
     test_graphql_gitlab_priv$get_repos_data,
@@ -60,7 +59,6 @@ test_that("GitLab GraphQL Engine pulls files from a group", {
     type = "organization",
     repos = NULL,
     file_paths = "meta_data.yaml",
-    only_text_files = TRUE,
     host_files_structure = NULL
   )
   expect_gitlab_files_from_org_response(gitlab_files_response)
@@ -78,15 +76,16 @@ test_that("GitLab GraphQL Engine pulls files from org by iterating over repos", 
     "private$get_file_blobs_response",
     test_mocker$use("gl_file_blobs_response")
   )
-  gl_files_from_org <- test_graphql_gitlab$get_files_from_org_per_repo(
-    org = "mbtests",
-    repos = "graphql_tests",
+  gl_files_from_org_per_repo <- test_graphql_gitlab$get_files_from_org_per_repo(
+    org = "test_org",
+    repos = "TestProject",
     file_paths = c("project_metadata.yaml", "README.md")
   )
   expect_gitlab_files_from_org_by_repos_response(
-    response = gl_files_from_org,
+    response = gl_files_from_org_per_repo,
     expected_files = c("project_metadata.yaml", "README.md")
   )
+  test_mocker$cache(gl_files_from_org_per_repo)
 })
 
 test_that("is query error is FALSE when response is empty (non query error)", {
@@ -111,19 +110,23 @@ test_that("Gitlab GraphQL switches to pulling files per repositories when query 
     "private$is_complexity_error",
     TRUE
   )
+  mockery::stub(
+    test_graphql_gitlab$get_files_from_org,
+    "self$get_files_from_org_per_repo",
+    test_mocker$use("gl_files_from_org_per_repo")
+  )
   gitlab_files_response_by_repos <- test_graphql_gitlab$get_files_from_org(
     org = "mbtests",
     type = "organization",
     repos = NULL,
-    file_paths = c("DESCRIPTION", "project_metadata.yaml", "README.md"),
+    file_paths = c("project_metadata.yaml", "README.md"),
     host_files_structure = NULL,
-    only_text_files = TRUE,
     verbose = FALSE,
     progress = FALSE
   )
   expect_gitlab_files_from_org_by_repos_response(
     response = gitlab_files_response_by_repos,
-    expected_files = c("DESCRIPTION", "project_metadata.yaml", "README.md")
+    expected_files = c("project_metadata.yaml", "README.md")
   )
   test_mocker$cache(gitlab_files_response_by_repos)
 })
@@ -144,8 +147,7 @@ test_that("checker properly identifies gitlab files responses", {
 test_that("GitLab prepares table from files response", {
   gl_files_table <- test_graphql_gitlab$prepare_files_table(
     files_response = test_mocker$use("gitlab_files_response"),
-    org = "mbtests",
-    file_path = "meta_data.yaml"
+    org = "mbtests"
   )
   expect_files_table(gl_files_table)
   test_mocker$cache(gl_files_table)
@@ -154,8 +156,7 @@ test_that("GitLab prepares table from files response", {
 test_that("GitLab prepares table from files response prepared in alternative way", {
   gl_files_table <- test_graphql_gitlab$prepare_files_table(
     files_response = test_mocker$use("gitlab_files_response_by_repos"),
-    org = "mbtests",
-    file_path = "meta_data.yaml"
+    org = "mbtests"
   )
   expect_files_table(gl_files_table)
 })
@@ -178,15 +179,19 @@ test_that("get_files_content_from_orgs for GitLab works", {
   test_mocker$cache(gl_files_table)
 })
 
-test_that("`get_files_content()` pulls files in the table format", {
+test_that("get_files_content makes use of files_structure", {
   mockery::stub(
-    gitlab_testhost$get_files_content,
-    "super$get_files_content",
+    gitlab_testhost_priv$get_files_content_from_files_structure,
+    "private$add_repo_api_url",
     test_mocker$use("gl_files_table")
   )
-  gl_files_table <- gitlab_testhost$get_files_content(
-    file_path = "README.md"
+  expect_snapshot(
+    files_content <- gitlab_testhost_priv$get_files_content_from_files_structure(
+      files_structure = test_mocker$use("gl_files_structure_from_orgs")
+    )
   )
-  expect_files_table(gl_files_table, with_cols = "api_url")
-  test_mocker$cache(gl_files_table)
+  expect_files_table(
+    files_content,
+    with_cols = "api_url"
+  )
 })

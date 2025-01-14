@@ -62,19 +62,31 @@ EngineRestGitLab <- R6::R6Class(
     #   filtering by language. For more information look here:
     #   https://gitlab.com/gitlab-org/gitlab/-/issues/340333
     get_repos_by_code = function(code,
-                                 org      = NULL,
+                                 org = NULL,
+                                 repos = NULL,
                                  filename = NULL,
-                                 in_path  = FALSE,
-                                 output   = "table_full",
-                                 verbose  = TRUE,
+                                 in_path = FALSE,
+                                 output = "table_full",
+                                 verbose = TRUE,
                                  progress = TRUE) {
-      search_response <- private$search_for_code(
-        code = code,
-        filename = filename,
-        in_path = in_path,
-        org = org,
-        verbose = verbose
-      )
+      if (!is.null(org)) {
+        search_response <- private$search_for_code(
+          code = code,
+          filename = filename,
+          in_path = in_path,
+          org = utils::URLencode(org, reserved = TRUE),
+          verbose = verbose
+        )
+      }
+      if (!is.null(repos)) {
+        search_response <- private$search_repos_for_code(
+          code = code,
+          filename = filename,
+          in_path = in_path,
+          repos = repos,
+          verbose = verbose
+        )
+      }
       if (output == "raw") {
         search_output <- search_response
       } else if (output == "table_full" || output == "table_min") {
@@ -168,8 +180,16 @@ EngineRestGitLab <- R6::R6Class(
 
     # Pull all repositories URLs from organization
     get_repos_urls = function(type, org, repos) {
-      repos_response <- self$response(
-        endpoint = paste0(private$endpoints[["organizations"]], utils::URLencode(org, reserved = TRUE), "/projects")
+      owner_type <- attr(org, "type")
+      owner_endpoint <- if (owner_type == "organization") {
+        private$endpoints[["organizations"]]
+      } else {
+        private$endpoints[["users"]]
+      }
+      repos_response <- private$paginate_results(
+        endpoint = paste0(owner_endpoint,
+                          utils::URLencode(org, reserved = TRUE),
+                          "/projects")
       )
       if (!is.null(repos)) {
         repos_response <- repos_response %>%
@@ -226,11 +246,7 @@ EngineRestGitLab <- R6::R6Class(
             NA
           })
           return(contributors_vec)
-        }, .progress = if (progress) {
-          "[GitHost:GitLab] Pulling contributors..."
-        } else {
-          FALSE
-        })
+        }, .progress = progress)
       }
       return(repos_table)
     },
@@ -276,7 +292,7 @@ EngineRestGitLab <- R6::R6Class(
             .after = author
           )
 
-        empty_dict <- all(is.na(authors_dict[, c("author_login", "author_name")] %>%
+        empty_dict <- all(is.na(authors_dict[, c("author_login", "author_name")] |>
                                   unlist()))
         if (!empty_dict) {
           commits_table <- dplyr::mutate(
@@ -313,25 +329,33 @@ EngineRestGitLab <- R6::R6Class(
         self$rest_api_url,
         "/groups/"
       )
+      private$endpoints[["users"]] <- paste0(
+        self$rest_api_url,
+        "/users/"
+      )
     },
 
     # Set search endpoint
     set_search_endpoint = function(org = NULL) {
-      groups_search <- if (!private$scan_all) {
-        private$set_groups_search_endpoint(org)
+      scope_endpoint <- if (!is.null(org)) {
+        paste0("/groups/", private$get_group_id(org))
       } else {
         ""
       }
-      private$endpoints[["search"]] <- paste0(
+      paste0(
         self$rest_api_url,
-        groups_search,
+        scope_endpoint,
         "/search?scope=blobs&search="
       )
     },
 
-    # set groups search endpoint
-    set_groups_search_endpoint = function(org) {
-      paste0("/groups/", private$get_group_id(org))
+    set_projects_search_endpoint = function(repo) {
+      paste0(
+        self$rest_api_url,
+        "/projects/",
+        utils::URLencode(repo, reserved = TRUE),
+        "/search?scope=blobs&search="
+      )
     },
 
     # Iterator over pulling pages of repositories.
@@ -357,7 +381,7 @@ EngineRestGitLab <- R6::R6Class(
       page <- 1
       still_more_hits <- TRUE
       full_repos_list <- list()
-      private$set_search_endpoint(org)
+      search_endpoint <- private$set_search_endpoint(org)
       if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
       if (!in_path) {
         query <- paste0("%22", code, "%22")
@@ -370,7 +394,7 @@ EngineRestGitLab <- R6::R6Class(
       while (still_more_hits | page < page_max) {
         search_result <- self$response(
           paste0(
-            private$endpoints[["search"]],
+            search_endpoint,
             query,
             "&per_page=100&page=",
             page
@@ -387,11 +411,53 @@ EngineRestGitLab <- R6::R6Class(
       return(full_repos_list)
     },
 
+    search_repos_for_code = function(code,
+                                     repos,
+                                     filename = NULL,
+                                     in_path = FALSE,
+                                     page_max = 1e6,
+                                     verbose = TRUE) {
+      if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
+      if (!in_path) {
+        query <- paste0("%22", code, "%22")
+      } else {
+        query <- paste0("path:", code)
+      }
+      if (!is.null(filename)) {
+        query <- paste0(query, "%20filename:", filename)
+      }
+      search_response <- purrr::map(repos, function(repo) {
+        page <- 1
+        still_more_hits <- TRUE
+        full_repos_list <- list()
+        search_endpoint <- private$set_projects_search_endpoint(repo)
+        while (still_more_hits | page < page_max) {
+          search_result <- self$response(
+            paste0(
+              search_endpoint,
+              query,
+              "&per_page=100&page=",
+              page
+            )
+          )
+          if (length(search_result) == 0) {
+            still_more_hits <- FALSE
+            break()
+          } else {
+            full_repos_list <- append(full_repos_list, search_result)
+            page <- page + 1
+          }
+        }
+        return(full_repos_list)
+      }) |>
+        purrr::list_flatten()
+      return(search_response)
+    },
+
     # Parse search response into repositories output
     map_search_into_repos = function(search_response, progress) {
       repos_ids <- purrr::map_chr(search_response, ~ as.character(.$project_id)) %>%
         unique()
-
       repos_list <- purrr::map(repos_ids, function(repo_id) {
         content <- self$response(
           endpoint = paste0(private$endpoints[["projects"]], repo_id)
@@ -494,7 +560,7 @@ EngineRestGitLab <- R6::R6Class(
     },
 
     get_authors_dict = function(commits_table, progress) {
-      purrr::map(unique(commits_table$author), function(author) {
+      authors_dict <- purrr::map(unique(commits_table$author), function(author) {
         author <- url_encode(author)
         search_endpoint <- paste0(
           self$rest_api_url,
@@ -533,6 +599,65 @@ EngineRestGitLab <- R6::R6Class(
         return(user_tbl)
       }, .progress = progress) %>%
         purrr::list_rbind()
+      authors_dict <- private$clean_authors_dict(authors_dict)
+      return(authors_dict)
+    },
+
+    clean_authors_dict = function(authors_dict) {
+      authors_dict <- private$clean_authors_with_comma(
+        authors_dict = authors_dict
+      )
+      authors_dict <- private$fill_empty_authors(
+        authors_dict = authors_dict
+      )
+      return(authors_dict)
+    },
+
+    clean_authors_with_comma = function(authors_dict) {
+      authors_to_clean <- authors_dict$author[is.na(authors_dict$author_name)]
+      if (any(grepl(",", authors_to_clean))) {
+        authors_with_comma <- authors_to_clean[grepl(",", authors_to_clean)]
+        clean_authors <- purrr::map(authors_with_comma, function(author) {
+          split_author <- stringr::str_split_1(author, ",")
+          split_author <- purrr::map(split_author, function(x) {
+            stringr::str_replace(x, "\\{.*?\\}", "") |>
+              stringr::str_replace_all(" ", "")
+          })
+          source_author <- unlist(split_author)
+          clean_author <- paste(source_author[2], source_author[1])
+          dplyr::tibble(
+            author = author,
+            author_login = NA_character_,
+            author_name = clean_author
+          )
+        }) |>
+          purrr::list_rbind()
+        authors_dict <- authors_dict |>
+          dplyr::filter(!author %in% authors_with_comma)
+        authors_dict <- rbind(authors_dict, clean_authors)
+      }
+      return(authors_dict)
+    },
+
+    fill_empty_authors = function(authors_dict) {
+      authors_to_clean <- authors_dict$author[is.na(authors_dict$author_name)]
+      authors_to_clean <- authors_to_clean[!grepl(",", authors_to_clean)]
+      author_names <- purrr::keep(authors_to_clean, function(author) {
+        length(stringr::str_split_1(author, " ")) > 1
+      })
+      author_logins <- purrr::keep(authors_to_clean, function(author) {
+        length(stringr::str_split_1(author, " ")) == 1
+      })
+      authors_dict <- authors_dict |>
+        dplyr::mutate(
+          author_name = ifelse(author %in% author_names,
+                               author,
+                               author_name),
+          author_login = ifelse(author %in% author_logins,
+                                author,
+                                author_login)
+        )
+      return(authors_dict)
     }
   )
 )

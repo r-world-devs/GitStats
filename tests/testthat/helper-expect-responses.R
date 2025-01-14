@@ -96,7 +96,7 @@ expect_gl_commit_rest_response <- function(object) {
     "list"
   )
   expect_list_contains(
-    object[[1]],
+    object,
     c(
       "id", "short_id", "created_at", "parent_ids", "title", "message",
       "author_name", "author_email", "authored_date", "committer_name",
@@ -144,7 +144,7 @@ expect_gitlab_files_blob_response <- function(object) {
   purrr::walk(object$data$project$repository$blobs$nodes, function(node) {
     expect_equal(
       names(node),
-      c("name", "rawBlob", "size")
+      c("path", "rawBlob", "size")
     )
   })
 }
@@ -194,13 +194,13 @@ expect_gitlab_files_from_org_response <- function(object) {
     expect_list_contains(
       project,
       c(
-        "name", "id", "repository"
+        "path", "id", "repository"
       )
     )
     expect_list_contains(
       project$repository$blobs$nodes[[1]],
       c(
-        "name", "rawBlob", "size"
+        "path", "rawBlob", "size"
       )
     )
   })
@@ -219,11 +219,11 @@ expect_gitlab_files_from_org_by_repos_response <- function(response, expected_fi
     purrr::walk(repo$data$project$repository$blobs$nodes, function(file) {
       expect_equal(
         names(file),
-        c("name", "rawBlob", "size")
+        c("path", "rawBlob", "size")
       )
     })
   })
-  files_vec <- purrr::map(response, ~ purrr::map_vec(.$data$project$repository$blobs$nodes, ~ .$name)) %>%
+  files_vec <- purrr::map(response, ~ purrr::map_vec(.$data$project$repository$blobs$nodes, ~ .$path)) %>%
     unlist() %>%
     unique()
   expect_true(

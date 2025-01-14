@@ -54,7 +54,7 @@ If messages overwhelm you, you can switch them off in the function:
 
 ```{r}
 release_logs <- get_release_logs(
-  gitstats_object = git_stats,
+  gitstats = git_stats,
   since = "2024-01-01",
   verbose = FALSE
 )
@@ -73,10 +73,10 @@ After pulling, the data is saved to `GitStats`.
 
 ```{r}
 commits <- get_commits(
-  gitstats_object = git_stats,
-  since           = "2024-06-01",
-  until           = "2024-06-30",
-  progress        = FALSE
+  gitstats = git_stats,
+  since = "2024-06-01",
+  until = "2024-06-30",
+  progress = FALSE
 )
 dplyr::glimpse(commits)
 ```
@@ -85,9 +85,9 @@ Caching feature is by default turned on. If you run the `get_*()` function once 
 
 ```{r}
 commits <- get_commits(
-  gitstats_object = git_stats,
-  since           = "2024-06-01",
-  until           = "2024-06-30"
+  gitstats = git_stats,
+  since = "2024-06-01",
+  until = "2024-06-30"
 )
 dplyr::glimpse(commits)
 ```
@@ -96,10 +96,10 @@ Unless, you switch off the cache:
 
 ```{r}
 commits <- get_commits(
-  gitstats_object = git_stats,
-  since    = "2024-06-01",
-  until    = "2024-06-30",
-  cache    = FALSE,
+  gitstats = git_stats,
+  since = "2024-06-01",
+  until = "2024-06-30",
+  cache = FALSE,
   progress = FALSE
 )
 dplyr::glimpse(commits)
@@ -109,9 +109,9 @@ Or simply change the parameters for the function:
 
 ```{r}
 commits <- get_commits(
-  gitstats_object = git_stats,
-  since           = "2024-07-01",
-  progress        = FALSE
+  gitstats = git_stats,
+  since = "2024-07-01",
+  progress = FALSE
 )
 dplyr::glimpse(commits)
 ```
@@ -134,7 +134,25 @@ Or particular data set:
 
 ```{r}
 get_storage(
-  gitstats_object = git_stats,
+  gitstats = git_stats,
   storage = "repositories"
 )
+```
+
+## Commits statistics
+
+Pull statistics in one pipe:
+
+```{r}
+commits_stats <- get_commits(
+  gitstats = git_stats,
+  since = "2024-06-01",
+  until = "2024-06-30",
+  verbose = FALSE
+) |>
+  get_commits_stats(
+    time_aggregation = "year",
+    group_var = author_name
+  )
+dplyr::glimpse(commits_stats)
 ```

@@ -56,23 +56,25 @@ EngineGraphQL <- R6::R6Class(
         httr2::req_body_json(list(query = gql_query, variables = vars)) %>%
         httr2::req_retry(
           is_transient = ~ httr2::resp_status(.x) %in% c(400, 502),
-          max_seconds = 30
+          max_seconds = 60
         ) %>%
         httr2::req_perform()
       return(response)
     },
+
     is_query_error = function(response) {
       check <- FALSE
       if (length(response) > 0) {
-        check <- names(response) == "errors"
+        check <- any(names(response) == "errors")
       }
       return(check)
     },
+
     filter_files_by_pattern = function(files_structure, pattern) {
-      files_structure[grepl(pattern, files_structure)]
+      files_structure[grepl(paste0(pattern, collapse = "|"), files_structure)]
     },
+
     get_path_from_files_structure = function(host_files_structure,
-                                             only_text_files,
                                              org,
                                              repo = NULL) {
       if (is.null(repo)) {
@@ -82,9 +84,7 @@ EngineGraphQL <- R6::R6Class(
       } else {
         file_path <- host_files_structure[[org]][[repo]]
       }
-      if (only_text_files) {
-        file_path <- file_path[!grepl(non_text_files_pattern, file_path)]
-      }
+      file_path <- file_path[grepl(text_files_pattern, file_path)]
       return(file_path)
     }
   )

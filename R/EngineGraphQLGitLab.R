@@ -17,6 +17,32 @@ EngineGraphQLGitLab <- R6::R6Class(
       self$gql_query <- GQLQueryGitLab$new()
     },
 
+    # Set owner type
+    set_owner_type = function(owners) {
+      user_or_org_query <- self$gql_query$user_or_org_query
+      login_types <- purrr::map(owners, function(owner) {
+        response <- self$gql_response(
+          gql_query = user_or_org_query,
+          vars = list(
+            "username" = owner,
+            "grouppath" = owner
+          )
+        )
+        if (!all(purrr::map_lgl(response$data, is.null))) {
+          type <- purrr::discard(response$data, is.null) |>
+            names()
+          if (type == "group") {
+            type <- "organization"
+          }
+          attr(owner, "type") <- type
+        } else {
+          attr(owner, "type") <- "not found"
+        }
+        return(owner)
+      })
+      return(login_types)
+    },
+
     #' Get all groups from GitLab.
     get_orgs = function() {
       group_cursor <- ""
@@ -78,33 +104,37 @@ EngineGraphQLGitLab <- R6::R6Class(
     },
 
     # Parses repositories list into table.
-    prepare_repos_table = function(repos_list) {
+    prepare_repos_table = function(repos_list, org) {
       if (length(repos_list) > 0) {
         repos_table <- purrr::map(repos_list, function(repo) {
           repo <- repo$node
-          repo$default_branch <- repo$repository$rootRef %||% ""
+          repo[["repo_id"]] <- sub(".*/(\\d+)$", "\\1", repo$repo_id)
+          repo[["default_branch"]] <- repo$repository$rootRef %||% ""
           repo$repository <- NULL
-          repo$languages <- if (length(repo$languages) > 0) {
-            purrr::map_chr(repo$languages, ~ .$name) %>%
+          repo[["languages"]] <- if (length(repo$languages) > 0) {
+            purrr::map_chr(repo$languages, ~ .$name) |>
               paste0(collapse = ", ")
           } else {
             ""
           }
-          repo$created_at <- gts_to_posixt(repo$created_at)
-          repo$issues_open <- repo$issues$opened
-          repo$issues_closed <- repo$issues$closed
+          repo[["created_at"]] <- gts_to_posixt(repo$created_at)
+          repo[["issues_open"]] <- repo$issues$opened
+          repo[["issues_closed"]] <- repo$issues$closed
           repo$issues <- NULL
-          repo$last_activity_at <- as.POSIXct(repo$last_activity_at)
-          repo$organization <- repo$namespace$path
+          repo[["last_activity_at"]] <- as.POSIXct(repo$last_activity_at)
+          if (!is.null(repo$namespace)) {
+            org <- repo$namespace$path
+          }
+          repo[["organization"]] <- org
           repo$namespace <- NULL
           repo$repo_path <- NULL # temporary to close issue 338
-          data.frame(repo)
-        }) %>%
-          purrr::list_rbind() %>%
+          return(data.frame(repo))
+        }) |>
+          purrr::list_rbind() |>
           dplyr::relocate(
             repo_url,
             .after = organization
-          ) %>%
+          ) |>
           dplyr::relocate(
             default_branch,
             .after = repo_name
@@ -124,9 +154,8 @@ EngineGraphQLGitLab <- R6::R6Class(
     get_files_from_org = function(org,
                                   type,
                                   repos,
-                                  file_paths,
-                                  host_files_structure,
-                                  only_text_files,
+                                  file_paths = NULL,
+                                  host_files_structure = NULL,
                                   verbose = FALSE,
                                   progress = FALSE) {
       org <- URLdecode(org)
@@ -136,11 +165,10 @@ EngineGraphQLGitLab <- R6::R6Class(
       if (!is.null(host_files_structure)) {
         file_paths <- private$get_path_from_files_structure(
           host_files_structure = host_files_structure,
-          only_text_files = only_text_files,
           org = org
         )
-      } else if (is.null(host_files_structure) && only_text_files) {
-        file_paths <- file_paths[!grepl(non_text_files_pattern, file_paths)]
+      } else {
+        file_paths <- file_paths[grepl(text_files_pattern, file_paths)]
       }
       if (type == "organization") {
         while (next_page) {
@@ -177,7 +205,6 @@ EngineGraphQLGitLab <- R6::R6Class(
                 repos = repos,
                 file_paths = file_paths,
                 host_files_structure = host_files_structure,
-                only_text_files = only_text_files,
                 verbose = verbose,
                 progress = progress
               )
@@ -194,13 +221,13 @@ EngineGraphQLGitLab <- R6::R6Class(
             purrr::discard(~ length(.$repository$blobs$nodes) == 0)
           if (is.null(files_list)) files_list <- list()
           if (length(files_list) > 0) {
-            next_page <- files_response$pageInfo$hasNextPage
+            next_page <- projects$pageInfo$hasNextPage
           } else {
             next_page <- FALSE
           }
           if (is.null(next_page)) next_page <- FALSE
           if (next_page) {
-            end_cursor <- files_response$pageInfo$endCursor
+            end_cursor <- projects$pageInfo$endCursor
           } else {
             end_cursor <- ""
           }
@@ -219,7 +246,6 @@ EngineGraphQLGitLab <- R6::R6Class(
           repos = repos,
           file_paths = file_paths,
           host_files_structure = host_files_structure,
-          only_text_files = only_text_files,
           verbose = verbose,
           progress = progress
         )
@@ -235,7 +261,6 @@ EngineGraphQLGitLab <- R6::R6Class(
                                            repos,
                                            file_paths = NULL,
                                            host_files_structure = NULL,
-                                           only_text_files = TRUE,
                                            verbose = FALSE,
                                            progress = FALSE) {
       if (is.null(repos)) {
@@ -250,16 +275,15 @@ EngineGraphQLGitLab <- R6::R6Class(
         if (!is.null(host_files_structure)) {
           file_paths <- private$get_path_from_files_structure(
             host_files_structure = host_files_structure,
-            only_text_files      = only_text_files,
-            org                  = org,
-            repo                 = repo
+            org = org,
+            repo = repo
           )
         }
         files_response <- tryCatch(
           {
             private$get_file_blobs_response(
-              org        = org,
-              repo       = repo,
+              org = org,
+              repo = repo,
               file_paths = file_paths
             )
           },
@@ -272,7 +296,7 @@ EngineGraphQLGitLab <- R6::R6Class(
     },
 
     # Prepare files table.
-    prepare_files_table = function(files_response, org, file_path) {
+    prepare_files_table = function(files_response, org) {
       if (!is.null(files_response)) {
         if (private$response_prepared_by_iteration(files_response)) {
           files_table <- purrr::map(files_response, function(response_data) {
@@ -281,7 +305,7 @@ EngineGraphQLGitLab <- R6::R6Class(
                 "repo_name" = response_data$data$project$name,
                 "repo_id" = response_data$data$project$id,
                 "organization" = org,
-                "file_path" = file$name,
+                "file_path" = file$path,
                 "file_content" = file$rawBlob,
                 "file_size" = as.integer(file$size),
                 "repo_url" = response_data$data$project$webUrl
@@ -297,7 +321,7 @@ EngineGraphQLGitLab <- R6::R6Class(
                 "repo_name" = project$name,
                 "repo_id" = project$id,
                 "organization" = org,
-                "file_path" = file$name,
+                "file_path" = file$path,
                 "file_content" = file$rawBlob,
                 "file_size" = as.integer(file$size),
                 "repo_url" = project$webUrl
@@ -315,7 +339,7 @@ EngineGraphQLGitLab <- R6::R6Class(
 
     get_files_structure_from_org = function(org,
                                             type,
-                                            repos,
+                                            repos = NULL,
                                             pattern = NULL,
                                             depth = Inf,
                                             verbose = TRUE,
@@ -328,10 +352,10 @@ EngineGraphQLGitLab <- R6::R6Class(
       repositories <- repo_data[["repositories"]]
       files_structure <- purrr::map(repositories, function(repo) {
         private$get_files_structure_from_repo(
-          org     = org,
-          repo    = repo,
+          org = org,
+          repo = repo,
           pattern = pattern,
-          depth   = depth
+          depth = depth
         )
       }, .progress = progress)
       names(files_structure) <- repositories
@@ -343,18 +367,20 @@ EngineGraphQLGitLab <- R6::R6Class(
     prepare_user_table = function(user_response) {
       if (!is.null(user_response$data$user)) {
         user_data <- user_response$data$user
-        user_data$name <- user_data$name %||% ""
-        user_data$starred_repos <- user_data$starred_repos$count
-        user_data$pull_requests <- user_data$pull_requests$count
-        user_data$reviews <- user_data$reviews$count
-        user_data$email <- user_data$email %||% ""
-        user_data$location <- user_data$location %||% ""
-        user_data$web_url <- user_data$web_url %||% ""
-        user_table <- tibble::as_tibble(user_data) %>%
+        user_data[["name"]] <- user_data$name %||% ""
+        user_data[["starred_repos"]] <- user_data$starred_repos$count
+        user_data[["pull_requests"]] <- user_data$pull_requests$count
+        user_data[["reviews"]] <- user_data$reviews$count
+        user_data[["email"]] <- user_data$email %||% ""
+        user_data[["location"]] <- user_data$location %||% ""
+        user_data[["web_url"]] <- user_data$web_url %||% ""
+        user_table <- tibble::as_tibble(user_data) |>
           dplyr::mutate(commits = NA,
-                        issues = NA) %>%
-          dplyr::relocate(c(commits, issues),
-                          .after = starred_repos)
+                        issues = NA) |>
+          dplyr::relocate(
+            c(commits, issues),
+            .after = starred_repos
+          )
       } else {
         user_table <- NULL
       }
@@ -368,7 +394,7 @@ EngineGraphQLGitLab <- R6::R6Class(
         response <- self$gql_response(
           gql_query = releases_from_repo_query,
           vars = list(
-            "project_path" = utils::URLdecode(repository)
+            "project_path" = paste0(org, "/", utils::URLdecode(repository))
           )
         )
         return(response)
@@ -378,7 +404,7 @@ EngineGraphQLGitLab <- R6::R6Class(
     },
 
     # Prepare releases table.
-    prepare_releases_table = function(releases_response, org, date_from, date_until) {
+    prepare_releases_table = function(releases_response, org, since, until) {
       if (length(releases_response) > 0) {
         releases_table <-
           purrr::map(releases_response, function(release) {
@@ -404,12 +430,12 @@ EngineGraphQLGitLab <- R6::R6Class(
           }) %>%
           purrr::list_rbind() %>%
           dplyr::filter(
-            published_at <= as.POSIXct(date_until)
+            published_at <= as.POSIXct(until)
           )
-        if (!is.null(date_from)) {
+        if (!is.null(since)) {
           releases_table <- releases_table %>%
             dplyr::filter(
-              published_at >= as.POSIXct(date_from)
+              published_at >= as.POSIXct(since)
             )
         }
       } else {

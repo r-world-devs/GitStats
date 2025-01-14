@@ -119,7 +119,7 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
               repository {
                 blobs(paths: $file_paths) {
                   nodes {
-                    name
+                    path
                     rawBlob
                     size
                   }
@@ -143,7 +143,7 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
           repository {
             blobs(paths: $file_paths) {
               nodes {
-                name
+                path
                 rawBlob
                 size
               }
@@ -238,7 +238,7 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
             opened
           }
           namespace {
-            path
+            path: fullPath
           }
           repo_url: webUrl
         }

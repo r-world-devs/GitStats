@@ -7,6 +7,7 @@ output: github_document
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   message = FALSE,
+  warning = FALSE,
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-"
@@ -27,7 +28,6 @@ With GitStats you can pull git data in a uniform way (table format) from GitHub 
 * commits,
 * users,
 * release logs,
-* repository files structure,
 * text files content,
 * R package usage.
 
@@ -39,15 +39,81 @@ From CRAN:
 install.packages("GitStats")
 ```
 
-Or development version:
+From GitHub:
 
 ```r
 devtools::install_github("r-world-devs/GitStats")
 ```
 
-## GitStats workflow
+## Examples:
 
-On how to use GitStats, refer to the [documentation](https://r-world-devs.github.io/GitStats/index.html).
+Setup your `GitStats`:
+
+```{r}
+library(GitStats)
+
+git_stats <- create_gitstats() |>
+  set_gitlab_host(
+    repos = "mbtests/gitstatstesting"
+  ) |>
+  set_github_host(
+    orgs = "r-world-devs",
+    repos = "openpharma/DataFakeR"
+  ) 
+```
+
+Get commits:
+
+```{r}
+commits <- git_stats |>
+  get_commits(
+    since = "2022-01-01"
+  )
+
+commits
+
+commits |>
+  get_commits_stats(
+    time_aggregation = "month",
+    group_var = author
+  )
+```
+
+Get repositories with specific code:
+
+```{r}
+git_stats |>
+  get_repos(
+    with_code = "shiny",
+    add_contributors = FALSE
+  )
+```
+
+Get files:
+
+```{r}
+git_stats |>
+  get_files(
+    pattern = "\\.md",
+    depth = 2L
+  )
+```
+
+Get package usage:
+
+```{r}
+git_stats |>
+  get_R_package_usage(
+    packages = c("shiny", "purrr"),
+    split_output = TRUE
+  )
+```
+
+Print `GitStats` to see what it stores:
+
+```{r}
+git_stats
+```
 
 ## Acknowledgement
 

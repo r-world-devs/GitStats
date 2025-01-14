@@ -41,16 +41,6 @@ retrieve_platform <- function(api_url) {
 }
 
 #' @noRd
-#' @description A constructor for `commits_stats` class.
-commits_stats <- function(object, time_interval) {
-  stopifnot(inherits(object, "grouped_df"))
-  object <- dplyr::ungroup(object)
-  class(object) <- append(class(object), "commits_stats")
-  attr(object, "time_interval") <- time_interval
-  object
-}
-
-#' @noRd
 standardize_dates <- function(dates) {
   purrr::discard(dates, is.null) %>%
     purrr::map_vec(lubridate::as_datetime)
@@ -62,4 +52,14 @@ standardize_dates <- function(dates) {
 #' @description Apply url encoding to string
 url_encode <- function(url) {
   URLencode(url, reserved = TRUE)
+}
+
+#' @noRd
+is_name <- function(author) {
+  length(stringr::str_split_1(author, " ")) > 1
+}
+
+#' @noRd
+is_login <- function(author) {
+  length(stringr::str_split_1(author, " ")) == 1 && identical(author, tolower(author))
 }

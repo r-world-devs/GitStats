@@ -117,6 +117,6 @@ test_that("get_R_package_usage works", {
   expect_package_usage_table(R_package_usage_table)
   expect_s3_class(
     R_package_usage_table,
-    "R_package_usage"
+    "gitstats_package_usage"
   )
 })

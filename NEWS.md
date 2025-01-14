@@ -1,3 +1,26 @@
+# GitStats 2.2.0
+
+This release brings some substantial improvements with making it possible to scan whole organizations and particular repositories for one host at the same time, boosting function to prepare commits statistics and simplifying workflow for getting files.
+
+## Features:
+
+- From now on it is possible to pass `orgs` and `repos` in `set_*_host()` functions ([#400](https://github.com/r-world-devs/GitStats/issues/400)).
+- Improved `get_commits_stats()` function ([#556](https://github.com/r-world-devs/GitStats/issues/556), [#557](https://github.com/r-world-devs/GitStats/issues/557)) with:
+  - giving possibility to customize grouping variable by passing it with the `group_var` parameter,
+  - changing name of the `time_interval` parameter to `time_aggregation`,
+  - adding `yearly` aggregation to `time_aggregation` parameter,
+  - changing basic input from `GitStats` to `commits_data` object which allows to build workflow in one pipeline (`create_gitstats() |> set_*_host() |> get_commits() |> get_commits_stats()`).
+- Merged two functions `get_files_content()` and `get_files_structure()` into one `get_files()` ([#564](https://github.com/r-world-devs/GitStats/issues/564)).
+- Add `.error` parameter to the `set_*_host()` functions to control if error should pop up when wrong input is passed ([#547](https://github.com/r-world-devs/GitStats/issues/547)).
+
+## Fixes:
+
+- Fixed pulling commits for GitLab subgroups when repositories are set as scope to scan ([#551](https://github.com/r-world-devs/GitStats/issues/551)).
+- Filled more information on `author_name` and `author_login` if it was missing in `commits_table` ([#550](https://github.com/r-world-devs/GitStats/issues/550)).
+- Handled a `GraphQL` response error when pulling repositories with R error. Earlier, `GitStats` just returned empty table with no clue on what has happened, as errors from `GraphQL` are returned as list outputs (they do not break code).
+- Fixed getting R package usage when repositories are set ([#548](https://github.com/r-world-devs/GitStats/issues/548)).
+- Added possibility to pass GitHub users to `orgs` parameter in `set_github_host()` ([#562](https://github.com/r-world-devs/GitStats/issues/562)).
+
 # GitStats 2.1.2
 
 This is a patch release which introduces some hot fixes and new data in `get_commits()` output.

@@ -119,6 +119,39 @@ test_that("`get_repos_from_org()` does not fail when GraphQL response is not com
   )
 })
 
+test_that("`search_for_code()` works", {
+  mockery::stub(
+    test_rest_gitlab_priv$search_for_code,
+    "self$response",
+    list()
+  )
+  expect_snapshot(
+    gl_search_repos_by_code <- test_rest_gitlab_priv$search_for_code(
+      code = "test",
+      filename = "TESTFILE",
+      verbose = TRUE,
+      page_max = 2
+    )
+  )
+})
+
+test_that("`search_repos_for_code()` works", {
+  mockery::stub(
+    test_rest_gitlab_priv$search_repos_for_code,
+    "self$response",
+    list()
+  )
+  expect_snapshot(
+    gl_search_repos_by_code <- test_rest_gitlab_priv$search_repos_for_code(
+      code = "test",
+      repos = "TestRepo",
+      filename = "TESTFILE",
+      verbose = TRUE,
+      page_max = 2
+    )
+  )
+})
+
 test_that("`map_search_into_repos()` works", {
   gl_search_response <- test_fixtures$gitlab_search_response
   test_mocker$cache(gl_search_response)
@@ -132,7 +165,7 @@ test_that("`map_search_into_repos()` works", {
   test_mocker$cache(gl_search_repos_by_code)
 })
 
-test_that("`get_repos_languages` works", {
+test_that("`get_repos_languages()` works", {
   repos_list <- test_mocker$use("gl_search_repos_by_code")
   repos_list[[1]]$id <- "45300912"
   mockery::stub(
@@ -140,22 +173,92 @@ test_that("`get_repos_languages` works", {
     "self$response",
     test_fixtures$gitlab_languages_response
   )
-  repos_list_with_languages <- test_rest_gitlab_priv$get_repos_languages(
+  gl_repos_list_with_languages <- test_rest_gitlab_priv$get_repos_languages(
     repos_list = repos_list,
     progress   = FALSE
   )
-  purrr::walk(repos_list_with_languages, ~ expect_list_contains(., "languages"))
-  expect_equal(repos_list_with_languages[[1]]$languages, c("Python", "R"))
+  purrr::walk(gl_repos_list_with_languages, ~ expect_list_contains(., "languages"))
+  expect_equal(gl_repos_list_with_languages[[1]]$languages, c("Python", "R"))
+  test_mocker$cache(gl_repos_list_with_languages)
+})
+
+test_that("`get_repos_by_code()` works", {
+  mockery::stub(
+    test_rest_gitlab$get_repos_by_code,
+    "private$search_for_code",
+    test_fixtures$gitlab_search_response
+  )
+  mockery::stub(
+    test_rest_gitlab$get_repos_by_code,
+    "private$map_search_into_repos",
+    test_mocker$use("gl_search_repos_by_code")
+  )
+  mockery::stub(
+    test_rest_gitlab$get_repos_by_code,
+    "private$get_repos_languages",
+    test_mocker$use("gl_repos_list_with_languages")
+  )
+  gl_repos_by_code <- test_rest_gitlab$get_repos_by_code(
+    code = "test",
+    org = "test_org"
+  )
+  expect_gl_repos_rest_response(
+    gl_repos_by_code
+  )
+})
+
+test_that("`get_repos_by_code()` works", {
+  mockery::stub(
+    test_rest_gitlab$get_repos_by_code,
+    "private$search_repos_for_code",
+    test_fixtures$gitlab_search_response
+  )
+  mockery::stub(
+    test_rest_gitlab$get_repos_by_code,
+    "private$map_search_into_repos",
+    test_mocker$use("gl_search_repos_by_code")
+  )
+  mockery::stub(
+    test_rest_gitlab$get_repos_by_code,
+    "private$get_repos_languages",
+    test_mocker$use("gl_repos_list_with_languages")
+  )
+  gl_repos_by_code <- test_rest_gitlab$get_repos_by_code(
+    code = "test",
+    repos = c("TestRepo1", "TestRepo2")
+  )
+  expect_gl_repos_rest_response(
+    gl_repos_by_code
+  )
 })
 
 test_that("`prepare_repos_table()` prepares repos table", {
   gl_repos_table <- test_graphql_gitlab$prepare_repos_table(
-    repos_list = test_mocker$use("gl_repos_from_org")
+    repos_list = test_mocker$use("gl_repos_from_org"),
+    org = "test_group"
   )
   expect_repos_table(
     gl_repos_table
   )
   test_mocker$cache(gl_repos_table)
+})
+
+test_that("get_repos_from_org prints proper message", {
+  mockery::stub(
+    gitlab_testhost_priv$get_repos_from_orgs,
+    "graphql_engine$prepare_repos_table",
+    test_mocker$use("gl_repos_table")
+  )
+  expect_snapshot(
+    gl_repos_from_orgs <- gitlab_testhost_priv$get_repos_from_orgs(
+      verbose = TRUE,
+      progress = FALSE
+    )
+  )
+  expect_repos_table(
+    gl_repos_from_orgs
+  )
+  test_mocker$cache(gl_repos_from_orgs)
 })
 
 test_that("GitHost adds `repo_api_url` column to GitLab repos table", {
@@ -168,7 +271,10 @@ test_that("GitHost adds `repo_api_url` column to GitLab repos table", {
 test_that("`tailor_repos_response()` tailors precisely `repos_list`", {
   gl_repos_by_code <- test_mocker$use("gl_search_repos_by_code")
   gl_repos_by_code_tailored <-
-    test_rest_gitlab$tailor_repos_response(gl_repos_by_code)
+    test_rest_gitlab$tailor_repos_response(
+      repos_response = gl_repos_by_code,
+      output = "table_full"
+    )
   gl_repos_by_code_tailored %>%
     expect_type("list") %>%
     expect_length(length(gl_repos_by_code))
@@ -186,6 +292,27 @@ test_that("`tailor_repos_response()` tailors precisely `repos_list`", {
     length(gl_repos_by_code[[1]])
   )
   test_mocker$cache(gl_repos_by_code_tailored)
+})
+
+test_that("`tailor_repos_response()` tailors precisely to minimal `repos_list`", {
+  gl_repos_by_code <- test_mocker$use("gl_search_repos_by_code")
+  gl_repos_by_code_tailored <-
+    test_rest_gitlab$tailor_repos_response(
+      repos_response = gl_repos_by_code,
+      output = "table_min"
+    )
+  gl_repos_by_code_tailored %>%
+    expect_type("list") %>%
+    expect_length(length(gl_repos_by_code))
+
+  expect_list_contains_only(
+    gl_repos_by_code_tailored[[1]],
+    c("repo_id", "repo_name", "created_at", "default_branch", "organization")
+  )
+  expect_lt(
+    length(gl_repos_by_code_tailored[[1]]),
+    length(gl_repos_by_code[[1]])
+  )
 })
 
 test_that("REST client prepares table from GitLab repositories response", {

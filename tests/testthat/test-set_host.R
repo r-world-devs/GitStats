@@ -4,7 +4,7 @@ test_that("Set connection returns appropriate messages", {
   skip_on_cran()
   expect_snapshot(
     set_github_host(
-      gitstats_obj = test_gitstats,
+      gitstats = test_gitstats,
       token = Sys.getenv("GITHUB_PAT"),
       orgs = c("openpharma", "r-world-devs")
     )
@@ -71,23 +71,6 @@ test_that("Set GitLab host with particular repos vector instead of orgs", {
   )
 })
 
-test_that("Set host prints error when repos and orgs are defined and host is not passed to GitStats", {
-  skip_on_cran()
-  test_gitstats <- create_gitstats()
-  expect_snapshot_error(
-    test_gitstats %>%
-      set_github_host(
-        token = Sys.getenv("GITHUB_PAT"),
-        orgs = c('r-world-devs', "openpharma"),
-        repos = c("r-world-devs/GitStats", "r-world-devs/shinyCohortBuilder", "openpharma/GithubMetrics", "openpharma/DataFakeR")
-      )
-  )
-  expect_length(
-    test_gitstats$.__enclos_env__$private$hosts,
-    0
-  )
-})
-
 test_that("Error shows if organizations are not specified and host is not passed", {
   skip_on_cran()
   test_gitstats <- create_gitstats()
@@ -108,7 +91,7 @@ test_that("Error shows, when wrong input is passed when setting connection and h
   test_gitstats <- create_gitstats()
   expect_snapshot_error(
     set_gitlab_host(
-      gitstats_object = test_gitstats,
+      gitstats = test_gitstats,
       host = "https://avengers.com",
       token = Sys.getenv("GITLAB_PAT_PUBLIC")
     )
@@ -171,6 +154,19 @@ test_that("Error pops out when `org` does not exist", {
       )
     },
     error = TRUE
+  )
+})
+
+test_that("When wrong orgs and repos are passed they are excluded but host is created", {
+  skip_on_cran()
+  expect_snapshot(
+    test_gitstats <- create_gitstats() %>%
+      set_github_host(
+        orgs = c("openpharma", "r_world_devs"),
+        repos = c("r-world-devs/GitStats", "r-world-devs/GitMetrics"),
+        verbose = TRUE,
+        .error = FALSE
+      )
   )
 })
 

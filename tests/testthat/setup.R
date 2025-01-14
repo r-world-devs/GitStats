@@ -30,24 +30,10 @@ test_graphql_gitlab <- EngineGraphQLGitLab$new(
 )
 test_graphql_gitlab_priv <- environment(test_graphql_gitlab$initialize)$private
 
-github_testhost <- create_github_testhost(orgs = "test-org")
+github_testhost <- create_github_testhost(orgs = "test_org")
 
-github_testhost_priv <- create_github_testhost(orgs = "test-org", mode = "private")
+github_testhost_priv <- create_github_testhost(orgs = "test_org", mode = "private")
 
-github_testhost_repos <- create_github_testhost(
-  repos = c("openpharma/DataFakeR", "r-world-devs/GitStats", "r-world-devs/cohortBuilder")
-)
+gitlab_testhost <- create_gitlab_testhost(orgs = "test_group")
 
-github_testhost_repos_priv <- create_github_testhost(
-  repos = c("openpharma/DataFakeR", "r-world-devs/GitStats", "r-world-devs/cohortBuilder"),
-  mode = "private"
-)
-
-gitlab_testhost <- create_gitlab_testhost(orgs = "mbtests")
-
-gitlab_testhost_priv <- create_gitlab_testhost(orgs = "mbtests", mode = "private")
-
-gitlab_testhost_repos <- create_gitlab_testhost(
-  repos = c("mbtests/gitstatstesting", "mbtests/gitstats-testing-2")
-)
-
+gitlab_testhost_priv <- create_gitlab_testhost(orgs = "test_group", mode = "private")

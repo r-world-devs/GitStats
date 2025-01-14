@@ -30,7 +30,7 @@ github_stats <- create_gitstats() %>%
   verbose_off()
 
 repos_urls <- get_repos_urls(
-  gitstats_object = github_stats,
+  gitstats = github_stats,
   with_code = "shiny"
 )
 ```
@@ -39,7 +39,7 @@ You can limit your search, as it is allowed with GitLab and GitHub API search en
 
 ```{r, eval = FALSE}
 repos_urls <- get_repos_urls(
-  gitstats_object = github_stats,
+  gitstats = github_stats,
   with_code =  c("purrr", "shiny"),
   in_files = c("DESCRIPTION", "NAMESPACE", "renv.lock")
 )
@@ -49,7 +49,7 @@ You can also search for repositories with certain files (do not confuse `with_fi
 
 ```{r, eval = FALSE}
 repos_urls <- get_repos_urls(
-  gitstats_object = github_stats,
+  gitstats = github_stats,
   with_files = c("renv.lock", "DESCRIPTION")
 )
 ```
@@ -60,7 +60,7 @@ repos_urls <- get_repos_urls(
 
 ```{r, eval = FALSE}
 package_usage <- get_R_package_usage(
-  gitstats_object = github_stats,
+  gitstats = github_stats,
   packages = c("shiny", "purrr"),
   split_output = TRUE
 )

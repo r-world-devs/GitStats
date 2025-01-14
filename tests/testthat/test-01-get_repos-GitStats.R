@@ -67,16 +67,32 @@ test_that("get_repos works properly and for the second time uses cache", {
     "private$get_repos_from_hosts",
     test_mocker$use("repos_table")
   )
-  repos_table <- test_gitstats$get_repos(verbose = FALSE)
+  repos_data <- test_gitstats$get_repos(verbose = FALSE)
   expect_repos_table_object(
-    repos_object = repos_table,
+    repos_object = repos_data,
     with_cols = c("contributors", "contributors_n")
   )
-  repos_table <- test_gitstats$get_repos(
+  repos_data <- test_gitstats$get_repos(
     verbose = FALSE
   )
   expect_repos_table_object(
-    repos_object = repos_table,
+    repos_object = repos_data,
+    with_cols = c("contributors", "contributors_n")
+  )
+  test_mocker$cache(repos_data)
+})
+
+test_that("get_repos works", {
+  mockery::stub(
+    get_repos,
+    "gitstats$get_repos",
+    test_mocker$use("repos_data")
+  )
+  repos_data <- get_repos(
+    gitstats = test_gitstats
+  )
+  expect_repos_table_object(
+    repos_object = repos_data,
     with_cols = c("contributors", "contributors_n")
   )
 })

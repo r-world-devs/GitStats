@@ -7,6 +7,16 @@ test_that("`set_searching_scope` does not throw error when `orgs` or `repos` are
   )
 })
 
+test_that("`set_searching_scope` sets scope to whole host", {
+  gitlab_testhost_priv$is_public <- FALSE
+  expect_snapshot(
+    gitlab_testhost_priv$set_searching_scope(orgs = NULL, repos = NULL, verbose = TRUE)
+  )
+  expect_true(
+    gitlab_testhost_priv$scan_all
+  )
+})
+
 test_that("`extract_repos_and_orgs` extracts fullnames vector into a list of GitLab organizations with assigned repositories", {
   repos_fullnames <- c(
     "mbtests/gitstatstesting", "mbtests/gitstats-testing-2", "mbtests/subgroup/test-project-in-subgroup"
@@ -96,7 +106,9 @@ test_that("check_endpoint returns error if they are not correct", {
   expect_snapshot_error(
     check <- github_testhost_priv$check_endpoint(
       endpoint = "https://api.github.com/repos/r-worlddevs/GitStats",
-      type = "Repository"
+      type = "Repository",
+      verbose = TRUE,
+      .error = TRUE
     )
   )
 })
@@ -190,15 +202,5 @@ test_that("`set_default_token` sets default token for GitLab", {
       token = default_token
     )$status,
     200
-  )
-})
-
-test_that("`set_searching_scope` throws error when both `orgs` and `repos` are defined", {
-  expect_snapshot_error(
-    gitlab_testhost_priv$set_searching_scope(
-      orgs    = "mbtests",
-      repos   = "mbtests/GitStatsTesting",
-      verbose = TRUE
-    )
   )
 })

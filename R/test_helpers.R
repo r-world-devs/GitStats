@@ -33,7 +33,7 @@ GitHostGitHubTest <- R6::R6Class(
       private$set_api_url(host)
       private$set_web_url(host)
       private$set_endpoints()
-      private$check_if_public(host)
+      private$is_public <- FALSE
       private$token <- token
       private$set_graphql_url()
       private$set_orgs_and_repos_mocked(orgs, repos)
@@ -43,7 +43,11 @@ GitHostGitHubTest <- R6::R6Class(
   ),
   private = list(
     set_orgs_and_repos_mocked = function(orgs, repos) {
-      private$orgs <- orgs
+      if (is.null(orgs) && is.null(repos)) {
+        private$scan_all <- TRUE
+      } else {
+        private$orgs <- orgs
+      }
       if (!is.null(repos)) {
         private$repos <- repos
         orgs_repos <- private$extract_repos_and_orgs(repos)
@@ -128,6 +132,28 @@ create_github_testhost <- function(host  = NULL,
 }
 
 #' @noRd
+create_github_testhost_all <- function(host  = NULL,
+                                       orgs  = NULL,
+                                       repos = NULL,
+                                       token = NULL,
+                                       mode = "") {
+  suppressMessages(
+    test_host <- GitHostGitHubTest$new(
+      host  = NULL,
+      token = token,
+      orgs  = orgs,
+      repos = repos
+    )
+  )
+  test_host$.__enclos_env__$private$orgs <- NULL
+  test_host$.__enclos_env__$private$scan_all <- TRUE
+  if (mode == "private") {
+    test_host <- environment(test_host$initialize)$private
+  }
+  return(test_host)
+}
+
+#' @noRd
 create_gitlab_testhost <- function(host  = NULL,
                                    orgs  = NULL,
                                    repos = NULL,
@@ -200,4 +226,21 @@ create_testrest <- function(rest_api_url = "https://api.github.com",
     test_rest <- environment(test_rest$initialize)$private
   }
   return(test_rest)
+}
+
+generate_random_timestamps <- function(n, start_year, end_year) {
+  start_date <- as.POSIXct(paste0(start_year, "-01-01 00:00:00"), tz = "UTC")
+  end_date <- as.POSIXct(paste0(end_year, "-12-31 23:59:59"), tz = "UTC")
+
+  random_times <- runif(n, min = as.numeric(start_date), max = as.numeric(end_date))
+  random_datetimes <- as.POSIXct(random_times, origin = "1970-01-01", tz = "UTC")
+
+  formatted_dates <- format(random_datetimes, "%Y-%m-%dT%H:%M:%SZ")
+
+  return(formatted_dates)
+}
+
+generate_random_names <- function(n, names) {
+  random_names <- sample(names, size = n, replace = TRUE)
+  return(random_names)
 }

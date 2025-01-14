@@ -4,81 +4,42 @@ GitStats <- R6::R6Class(
   classname = "GitStats",
   public = list(
 
-    #' @description Method to set connections to Git platforms.
-    #' @param host A character, optional, URL name of the host. If not passed, a
-    #'   public host will be used (api.github.com).
-    #' @param token A token.
-    #' @param orgs An optional character vector of organisations (owners of
-    #'   repositories in case of GitHub). If you pass it, `repos` parameter
-    #'   should stay `NULL`.
-    #' @param repos An optional character vector of repositories full names
-    #'   (organization and repository name, e.g. "r-world-devs/GitStats"). If
-    #'   you pass it, `orgs` parameter should stay `NULL`.
-    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
-    #'   output is switched off.
-    #' @return Nothing, puts connection information into `$hosts` slot.
     set_github_host = function(host,
                                token = NULL,
                                orgs = NULL,
                                repos = NULL,
-                               verbose = TRUE) {
+                               verbose = TRUE,
+                               .error = TRUE) {
       new_host <- NULL
       new_host <- GitHostGitHub$new(
         orgs = orgs,
         repos = repos,
         token = token,
         host = host,
-        verbose = verbose
+        verbose = verbose,
+        .error = .error
       )
       private$add_new_host(new_host)
     },
 
-    #' @description Method to set connections to Git platforms.
-    #' @param host A character, optional, URL name of the host. If not passed, a
-    #'   public host will be used (gitlab.com/api/v4).
-    #' @param token A token.
-    #' @param orgs An optional character vector of organisations (groups of
-    #'   projects in case of GitLab). If you pass it, `repos` parameter should
-    #'   stay `NULL`.
-    #' @param repos An optional character vector of repositories full names
-    #'   (organization and repository name, e.g. "r-world-devs/GitStats"). If
-    #'   you pass it, `orgs` parameter should stay `NULL`.
-    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
-    #'   output is switched off.
-    #' @return Nothing, puts connection information into `$hosts` slot.
     set_gitlab_host = function(host,
                                token = NULL,
                                orgs = NULL,
                                repos = NULL,
-                               verbose = TRUE) {
+                               verbose = TRUE,
+                               .error = TRUE) {
       new_host <- NULL
       new_host <- GitHostGitLab$new(
         orgs = orgs,
         repos = repos,
         token = token,
         host = host,
-        verbose = verbose
+        verbose = verbose,
+        .error = .error
       )
       private$add_new_host(new_host)
     },
 
-    #' @description  A method to list all repositories for an organization or by
-    #'   a keyword.
-    #' @param add_contributors A boolean to decide whether to add contributors
-    #'   information to repositories.
-    #' @param with_code A character vector, if defined, GitStats will pull
-    #'   repositories with specified code phrases in code blobs.
-    #' @param in_files A character vector of file names. Works when `with_code` is
-    #'   set - then it searches code blobs only in files passed to `in_files`
-    #'   parameter.
-    #' @param with_files A character vector, if defined, GitStats will pull
-    #'   repositories with specified files.
-    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
-    #'   result from its storage.
-    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
-    #'   printing output is switched off.
-    #' @param progress A logical, by default set to `verbose` value. If `FALSE` no
-    #'   `cli` progress bar will be displayed.
     get_repos = function(add_contributors = FALSE,
                          with_code        = NULL,
                          in_files         = NULL,
@@ -111,7 +72,7 @@ GitStats <- R6::R6Class(
           progress         = progress
         ) %>%
           private$set_object_class(
-            class     = "repos_table",
+            class     = "gitstats_repos",
             attr_list = args_list
           )
         private$save_to_storage(
@@ -126,24 +87,6 @@ GitStats <- R6::R6Class(
       return(repositories)
     },
 
-    #' @description A wrapper over search API endpoints to list repositories
-    #'   URLS.
-    #' @param type A character, choose if `api` or `web` (`html`) URLs should be
-    #'   returned.
-    #' @param with_code A character vector, if defined, GitStats will pull
-    #'   repositories with specified code phrases in code blobs.
-    #' @param in_files A character vector of file names. Works when `with_code`
-    #'   is set - then it searches code blobs only in files passed to `in_files`
-    #'   parameter.
-    #' @param with_files A character vector, if defined, GitStats will pull
-    #'   repositories with specified files.
-    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
-    #'   result from its storage.
-    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
-    #'   printing output is switched off.
-    #' @param progress A logical, by default set to `verbose` value. If `FALSE`
-    #'   no `cli` progress bar will be displayed.
-    #' @return A character vector.
     get_repos_urls = function(type       = "web",
                               with_code  = NULL,
                               in_files   = NULL,
@@ -175,14 +118,21 @@ GitStats <- R6::R6Class(
           with_files = with_files,
           verbose    = verbose,
           progress   = progress
-        ) %>%
-          private$set_object_class(
-            class = "repos_urls",
+        )
+        if (!is.null(repos_urls)) {
+          repos_urls <- private$set_object_class(
+            object = repos_urls,
+            class = "gitstats_repos_urls",
             attr_list = args_list
           )
-        private$save_to_storage(
-          table = repos_urls
-        )
+          private$save_to_storage(
+            table = repos_urls
+          )
+        } else if (verbose) {
+          cli::cli_alert_warning(
+            cli::col_yellow("No findings.")
+          )
+        }
       } else {
         repos_urls <- private$get_from_storage(
           table = "repos_urls",
@@ -192,15 +142,6 @@ GitStats <- R6::R6Class(
       return(repos_urls)
     },
 
-    #' @description A method to get information on commits.
-    #' @param since A starting date for commits.
-    #' @param until An end date for commits.
-    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
-    #'   result from its storage.
-    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
-    #'   printing output is switched off.
-    #' @param progress A logical, by default set to `verbose` value. If `FALSE`
-    #'   no `cli` progress bar will be displayed.
     get_commits = function(since,
                            until,
                            cache    = TRUE,
@@ -222,7 +163,7 @@ GitStats <- R6::R6Class(
           progress = progress
         ) %>%
           private$set_object_class(
-            class     = "commits_data",
+            class     = "gitstats_commits",
             attr_list = args_list
           )
         private$save_to_storage(
@@ -237,36 +178,6 @@ GitStats <- R6::R6Class(
       return(commits)
     },
 
-    #' @title Get statistics on commits
-    #' @name get_commits_stats
-    #' @description Prepare statistics from the pulled commits data.
-    #' @param time_interval A character, specifying time interval to show
-    #'   statistics.
-    #' @return A table of `commits_stats` class.
-    get_commits_stats = function(time_interval = c("month", "day", "week")) {
-      commits <- private$storage[["commits"]]
-      if (is.null(commits)) {
-        cli::cli_abort(c(
-          "x" = "No commits found in GitStats storage.",
-          "i" = "Run first `get_commits()`."
-        ),
-        call = NULL)
-      }
-      time_interval <- match.arg(time_interval)
-
-      commits_stats <- private$prepare_commits_stats(
-        commits = commits,
-        time_interval = time_interval
-      )
-      return(commits_stats)
-    },
-
-    #' @description Get information on users.
-    #' @param logins Character vector of logins.
-    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
-    #'   result from its storage.
-    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
-    #'   printing output is switched off.
     get_users = function(logins, cache = TRUE, verbose = TRUE) {
       private$check_for_host()
       args_list <- list("logins" = logins)
@@ -279,7 +190,7 @@ GitStats <- R6::R6Class(
       if (trigger) {
         users <- private$get_users_from_hosts(logins) %>%
           private$set_object_class(
-            class = "users_data",
+            class = "gitstats_users",
             attr_list = args_list
           )
         private$save_to_storage(users)
@@ -292,36 +203,17 @@ GitStats <- R6::R6Class(
       return(users)
     },
 
-    #' @description Pull text content of a file from all repositories.
-    #' @param file_path Optional. A standardized path to file(s) in
-    #'   repositories. May be a character vector if multiple files are to be
-    #'   pulled. If set to `NULL` and `use_files_structure` parameter is set to
-    #'   `TRUE`, `GitStats` will try to pull data from `files_structure` (see
-    #'   below).
-    #' @param use_files_structure Logical. If `TRUE` and `file_path` is set to
-    #'   `NULL`, will iterate over `files_structure` pulled by
-    #'   `get_files_structure()` function and kept in storage. If there is no
-    #'   `files_structure` in storage, an error will be returned. If `file_path`
-    #'   is defined, it will override `use_files_structure` parameter.
-    #' @param only_text_files A logical, `TRUE` by default. If set to `FALSE`,
-    #'   apart from files with text content shows in table output also non-text
-    #'   files with `NA` value for text content.
-    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
-    #'   result from its storage.
-    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
-    #'   printing output is switched off.
-    #' @param progress A logical, by default set to `verbose` value. If `FALSE`
-    #'   no `cli` progress bar will be displayed.
-    get_files_content = function(file_path = NULL,
-                                 use_files_structure = TRUE,
-                                 only_text_files = TRUE,
-                                 cache = TRUE,
-                                 verbose = TRUE,
-                                 progress = verbose) {
+    get_files = function(pattern,
+                         depth,
+                         file_path = NULL,
+                         cache = TRUE,
+                         verbose = TRUE,
+                         progress = verbose) {
       private$check_for_host()
-      args_list <- list("file_path" = file_path,
-                        "use_files_structure" = use_files_structure,
-                        "only_text_files" = only_text_files)
+      args_list <- list(
+        "file_pattern" = paste(file_path, pattern),
+        "depth" = depth
+      )
       trigger <- private$trigger_pulling(
         cache = cache,
         storage = "files",
@@ -329,18 +221,25 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        files <- private$get_files_content_from_hosts(
+        files <- private$get_files_from_hosts(
+          pattern = pattern,
+          depth = depth,
           file_path = file_path,
-          use_files_structure = use_files_structure,
-          only_text_files = only_text_files,
           verbose = verbose,
           progress = progress
-        ) %>%
-          private$set_object_class(
-            class = "files_data",
+        )
+        if (nrow(files) > 0) {
+          files <- private$set_object_class(
+            object = files,
+            class = "gitstats_files",
             attr_list = args_list
           )
-        private$save_to_storage(files)
+          private$save_to_storage(files)
+        } else {
+          if (verbose) {
+            cli::cli_alert_warning("No files found.")
+          }
+        }
       } else {
         files <- private$get_from_storage(
           table = "files",
@@ -350,68 +249,6 @@ GitStats <- R6::R6Class(
       return(files)
     },
 
-    #' @name get_files_structure
-    #' @description Pulls file structure for a given repository.
-    #' @param gitstats_object A GitStats object.
-    #' @param pattern An optional regular expression. If defined, it pulls file
-    #'   structure for a repository matching this pattern.
-    #' @param depth An optional integer. Defines level of directories to retrieve
-    #'   files from. E.g. if set to `0`, it will pull files only from root, if `1`,
-    #'   will take data from `root` directory and directories visible in `root`
-    #'   directory. If left with no argument, will pull files from all directories.
-    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
-    #'   result from its storage.
-    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
-    #'   output is switched off.
-    #' @param progress A logical, by default set to `verbose` value. If `FALSE`
-    #'   no `cli` progress bar will be displayed.
-    get_files_structure = function(pattern,
-                                   depth,
-                                   cache = TRUE,
-                                   verbose = TRUE,
-                                   progress = verbose) {
-      private$check_for_host()
-      args_list <- list("pattern" = pattern,
-                        "depth" = depth)
-      trigger <- private$trigger_pulling(
-        cache = cache,
-        storage = "files_structure",
-        args_list = args_list,
-        verbose = verbose
-      )
-      if (trigger) {
-        files_structure <- private$get_files_structure_from_hosts(
-          pattern = pattern,
-          depth = depth,
-          verbose = verbose,
-          progress = progress
-        )
-        if (!is.null(files_structure)) {
-          files_structure <- private$set_object_class(
-            object = files_structure,
-            class = "files_structure",
-            attr_list = args_list
-          )
-          private$save_to_storage(files_structure)
-        }
-      } else {
-        files_structure <- private$get_from_storage(
-          table = "files_structure",
-          verbose = verbose
-        )
-      }
-      return(files_structure)
-    },
-
-    #' @description Get release logs of repositories.
-    #' @param since A starting date for release logs.
-    #' @param until An end date for release logs.
-    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
-    #'   result from its storage.
-    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
-    #'   printing output is switched off.
-    #' @param progress A logical, by default set to `verbose` value. If `FALSE`
-    #'   no `cli` progress bar will be displayed.
     get_release_logs = function(since,
                                 until    = Sys.Date(),
                                 cache    = TRUE,
@@ -433,7 +270,7 @@ GitStats <- R6::R6Class(
           progress = progress
         ) %>%
           private$set_object_class(
-            class     = "release_logs",
+            class     = "gitstats_releases",
             attr_list = args_list
           )
         private$save_to_storage(release_logs)
@@ -446,18 +283,6 @@ GitStats <- R6::R6Class(
       return(release_logs)
     },
 
-    #' @description Wrapper over pulling repositories by code.
-    #' @param packages A character vector, names of R packages to look for.
-    #' @param only_loading A boolean, if `TRUE` function will check only if
-    #'   package is loaded in repositories, not used as dependencies.
-    #' @param split_output Optional, a boolean. If `TRUE` will return a list of
-    #'   tables, where every element of the list stands for the package passed to
-    #'   `packages` parameter. If `FALSE`, will return only one table with name of
-    #'   the package stored in first column.
-    #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
-    #'   result from its storage.
-    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and
-    #'   printing output is switched off.
     get_R_package_usage = function(packages,
                                    only_loading = FALSE,
                                    split_output = FALSE,
@@ -488,7 +313,7 @@ GitStats <- R6::R6Class(
               (split_output && any(purrr::map_lgl(R_package_usage, ~ nrow(.) > 0)))) {
           R_package_usage <- private$set_object_class(
             object    = R_package_usage,
-            class     = "R_package_usage",
+            class     = "gitstats_package_usage",
             attr_list = args_list
           )
           private$save_to_storage(R_package_usage)
@@ -502,7 +327,6 @@ GitStats <- R6::R6Class(
       return(R_package_usage)
     },
 
-    #' @description Return organizations vector from GitStats.
     show_orgs = function() {
       purrr::map(private$hosts, function(host) {
         orgs <- host$.__enclos_env__$private$orgs
@@ -511,12 +335,10 @@ GitStats <- R6::R6Class(
         unlist()
     },
 
-    #' @description switch on verbose mode
     verbose_on = function() {
       private$settings$verbose <- TRUE
     },
 
-    #' @description switch off verbose mode
     verbose_off = function() {
       private$settings$verbose <- FALSE
     },
@@ -533,7 +355,6 @@ GitStats <- R6::R6Class(
       }
     },
 
-    #' @description A print method for a GitStats object.
     print = function() {
       cat(paste0("A ", cli::col_blue('GitStats'), " object for ", length(private$hosts), " hosts: \n"))
       private$print_hosts()
@@ -865,91 +686,35 @@ GitStats <- R6::R6Class(
     },
 
     # Pull content of a text file in a table form
-    get_files_content_from_hosts = function(file_path,
-                                            use_files_structure,
-                                            only_text_files,
-                                            verbose,
-                                            progress) {
+    get_files_from_hosts = function(pattern,
+                                    depth,
+                                    file_path,
+                                    verbose,
+                                    progress) {
       purrr::map(private$hosts, function(host) {
-        if (is.null(file_path) && use_files_structure) {
-          host_files_structure <- private$get_host_files_structure(
-            host    = host,
-            verbose = FALSE
-          )
-        } else {
-          host_files_structure <- NULL
-        }
-        if (is.null(file_path) && is.null(host_files_structure)) {
-          host_name <- host$.__enclos_env__$private$host_name
-          if (verbose) {
-            cli::cli_alert_warning(
-              cli::col_yellow("I will skip pulling data for {host_name}: files structure is empty.")
-            )
+        if (is.null(file_path)) {
+          files_structure <- host$get_files_structure(
+            pattern  = pattern,
+            depth    = depth,
+            verbose  = verbose,
+            progress = progress
+          ) |>
+            purrr::discard(~ length(.) == 0)
+          if (length(files_structure) == 0) {
+            files_structure <- NULL
           }
-          NULL
         } else {
-          host$get_files_content(
-            file_path            = file_path,
-            host_files_structure = host_files_structure,
-            only_text_files      = only_text_files,
-            verbose              = verbose,
-            progress             = progress
-          )
+          files_structure <- NULL
         }
-      }) %>%
-        purrr::list_rbind() %>%
-        dplyr::as_tibble()
-    },
-
-    get_host_files_structure = function(host, verbose) {
-      files_structure <- private$get_from_storage(
-        table = "files_structure",
-        verbose = verbose
-      )
-      if (is.null(files_structure)) {
-        cli::cli_abort(c(
-          "x" = "No files_structure object found in GitStats.",
-          "i" = "Run `get_files_structure()` function first, then `get_files_content()`."
-        ),
-        call = NULL
-        )
-      }
-      host_name <- host$.__enclos_env__$private$web_url
-      return(files_structure[[gsub("https://", "", host_name)]])
-    },
-
-    get_files_structure_from_hosts = function(pattern, depth, verbose, progress) {
-      files_structure_from_hosts <- purrr::map(private$hosts, function(host) {
-        host$get_files_structure(
-          pattern  = pattern,
-          depth    = depth,
-          verbose  = verbose,
+        host$get_files_content(
+          file_path = file_path,
+          files_structure = files_structure,
+          verbose = verbose,
           progress = progress
         )
-      })
-      names(files_structure_from_hosts) <- private$get_host_urls()
-      files_structure_from_hosts <- files_structure_from_hosts %>%
-        purrr::discard(~ length(.) == 0)
-      if (length(files_structure_from_hosts) == 0) {
-        files_structure_from_hosts <- NULL
-        if (verbose) {
-          cli::cli_alert_warning(
-            cli::col_yellow(
-              "No files structure found for matching pattern {pattern} in {depth} level of dirs."
-            )
-          )
-          cli::cli_alert_warning(
-            cli::col_yellow(
-              "Files structure will not be saved in GitStats."
-            )
-          )
-        }
-      }
-      return(files_structure_from_hosts)
-    },
-
-    get_host_urls = function() {
-      purrr::map_vec(private$hosts, ~ gsub("https://", "", .$.__enclos_env__$private$web_url))
+      }) |>
+        purrr::list_rbind() |>
+        dplyr::as_tibble()
     },
 
     # Pull release logs tables from hosts and bind them into one
@@ -1114,30 +879,6 @@ GitStats <- R6::R6Class(
       return(repos_table)
     },
 
-    # Prepare stats out of commits table
-    prepare_commits_stats = function(commits, time_interval) {
-      commits_stats <- commits %>%
-        dplyr::mutate(
-          stats_date = lubridate::floor_date(
-            committed_date,
-            unit = time_interval
-          ),
-          platform = retrieve_platform(api_url)
-        ) %>%
-        dplyr::group_by(stats_date, platform, organization) %>%
-        dplyr::summarise(
-          commits_n = dplyr::n()
-        ) %>%
-        dplyr::arrange(
-          stats_date
-        )
-      commits_stats <- commits_stats(
-        object = commits_stats,
-        time_interval = time_interval
-      )
-      return(commits_stats)
-    },
-
     # @description Check whether the urls do not repeat in input.
     # @param host An object of GitPlatform class.
     # @return A GitPlatform object.
@@ -1174,13 +915,7 @@ GitStats <- R6::R6Class(
         item_to_print <- purrr::map_vec(item_to_print, function(element) {
           URLdecode(element)
         })
-        if (length(item_to_print) < 10) {
-          list_items <- paste0(item_to_print, collapse = ", ")
-        } else {
-          item_to_print_cut <- item_to_print[1:10]
-          list_items <- paste0(item_to_print_cut, collapse = ", ") %>%
-            paste0("... and ", length(item_to_print) - 10, " more")
-        }
+        list_items <- cut_item_to_print(item_to_print)
         item_to_print <- paste0("[", cli::col_green(length(item_to_print)), "] ", list_items)
       }
       cat(paste0(
@@ -1205,13 +940,13 @@ GitStats <- R6::R6Class(
     print_orgs_and_repos = function() {
       orgs <- purrr::map(private$hosts, function(host) {
         host_priv <- environment(host$initialize)$private
-        if (host_priv$searching_scope == "org") {
+        if ("org" %in% host_priv$searching_scope) {
           orgs <- host_priv$orgs
         }
       })
       repos <- purrr::map(private$hosts, function(host) {
         host_priv <- environment(host$initialize)$private
-        if (host_priv$searching_scope == "repo") {
+        if ("repo" %in% host_priv$searching_scope) {
           repos <- host_priv$repos_fullnames
         }
       })
@@ -1252,8 +987,7 @@ GitStats <- R6::R6Class(
       if (storage_name != "repositories") {
         storage_attr <- switch(storage_name,
                                "repos_urls" = "type",
-                               "files" = "file_path",
-                               "files_structure" = "pattern",
+                               "files" = "file_pattern",
                                "commits" = "date_range",
                                "release_logs" = "date_range",
                                "users" = "logins",
@@ -1261,8 +995,7 @@ GitStats <- R6::R6Class(
         attr_data <- attr(storage_data, storage_attr)
         attr_name <- switch(storage_attr,
                             "type" = "type",
-                            "file_path" = "files",
-                            "pattern" = "files matching pattern",
+                            "file_pattern" = "file pattern",
                             "date_range" = "date range",
                             "packages" = "packages",
                             "logins" = "logins")
@@ -1274,7 +1007,7 @@ GitStats <- R6::R6Class(
           }
           attr_data <- attr_data %>% paste0(collapse = separator)
         }
-        return(cli::col_grey(glue::glue("[{attr_name}: {attr_data}]")))
+        return(cli::col_grey(glue::glue("[{attr_name}: {trimws(attr_data)}]")))
       } else {
         return("")
       }

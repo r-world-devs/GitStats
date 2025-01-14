@@ -182,7 +182,7 @@ test_that("get_files_structure_from_orgs pulls files structure for repositories 
   )
   expect_equal(
     names(gl_files_structure_from_orgs),
-    c("mbtests")
+    c("test_group")
   )
   purrr::walk(gl_files_structure_from_orgs[[1]], function(repo_files) {
     expect_true(all(grepl("\\.md", repo_files)))
@@ -198,8 +198,7 @@ test_that("get_path_from_files_structure gets file path from files structure", {
   test_graphql_gitlab <- environment(test_graphql_gitlab$initialize)$private
   file_path <- test_graphql_gitlab$get_path_from_files_structure(
     host_files_structure = test_mocker$use("gl_files_structure_from_orgs"),
-    only_text_files = TRUE,
-    org = "mbtests" # this will need fixing and repo parameter must come back
+    org = "test_group" # this will need fixing and repo parameter must come back
   )
   expect_equal(typeof(file_path), "character")
   expect_true(length(file_path) > 0)
@@ -219,28 +218,10 @@ test_that("get_files_structure pulls files structure for repositories in orgs", 
   )
   expect_equal(
     names(gl_files_structure_from_orgs),
-    c("mbtests")
+    c("test_group")
   )
   purrr::walk(gl_files_structure_from_orgs[[1]], function(repo_files) {
     expect_true(all(grepl("\\.md", repo_files)))
   })
   test_mocker$cache(gl_files_structure_from_orgs)
-})
-
-test_that("get_files_content makes use of files_structure", {
-  mockery::stub(
-    gitlab_testhost_priv$get_files_content_from_orgs,
-    "private$add_repo_api_url",
-    test_mocker$use("gl_files_table")
-  )
-  expect_snapshot(
-    files_content <- gitlab_testhost_priv$get_files_content_from_orgs(
-      file_path = NULL,
-      host_files_structure = test_mocker$use("gl_files_structure_from_orgs")
-    )
-  )
-  expect_files_table(
-    files_content,
-    with_cols = "api_url"
-  )
 })
