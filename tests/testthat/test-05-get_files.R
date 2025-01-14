@@ -94,3 +94,12 @@ test_that("error shows when file_path and pattern are defined at the same time",
               progress = FALSE)
   )
 })
+
+test_that("error shows when pattern is defined as vector", {
+  expect_snapshot_error(
+    get_files(test_gitstats,
+              pattern = c("\\.md", "meta_data.yaml"),
+              verbose = FALSE,
+              progress = FALSE)
+  )
+})
