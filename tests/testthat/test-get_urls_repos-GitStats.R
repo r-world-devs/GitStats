@@ -82,17 +82,41 @@ test_that("get_repos_urls gets vector of repository URLS", {
     "private$get_repos_urls_from_hosts",
     test_mocker$use("repos_urls_from_hosts_with_code_in_files")
   )
-  repo_urls <- test_gitstats$get_repos_urls(
+  repos_urls <- test_gitstats$get_repos_urls(
     with_code = "shiny",
     in_files = "DESCRIPTION",
     verbose = FALSE
   )
   expect_type(
-    repo_urls,
+    repos_urls,
     "character"
   )
   expect_gt(
-    length(repo_urls),
+    length(repos_urls),
+    1
+  )
+  test_mocker$cache(repos_urls)
+})
+
+test_that("get_repos_urls gets vector of repository URLS", {
+  test_gitstats <- create_test_gitstats(hosts = 2)
+  mockery::stub(
+    get_repos_urls,
+    "gitstats$get_repos_urls",
+    test_mocker$use("repos_urls")
+  )
+  repos_urls <- get_repos_urls(
+    gitstats = test_gitstats,
+    with_code = "shiny",
+    in_files = "DESCRIPTION",
+    verbose = FALSE
+  )
+  expect_type(
+    repos_urls,
+    "character"
+  )
+  expect_gt(
+    length(repos_urls),
     1
   )
 })
