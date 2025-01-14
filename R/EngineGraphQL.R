@@ -71,7 +71,7 @@ EngineGraphQL <- R6::R6Class(
     },
 
     filter_files_by_pattern = function(files_structure, pattern) {
-      files_structure[grepl(pattern, files_structure)]
+      files_structure[grepl(paste0(pattern, collapse = "|"), files_structure)]
     },
 
     get_path_from_files_structure = function(host_files_structure,

@@ -33,11 +33,15 @@
 #'   seems to more reasonable, a it is a faster way (it omits pulling the whole
 #'   file structure from the repo).
 #'
-#'   On the other hand, if user wants to pull specific type of files (e.g. `.md`
-#'   or `.Rmd` files), without knowing their path, it is recommended to use a
-#'   `pattern` approach, which will trigger `GitStats` to find all the files in
-#'   the repository on the given level of directories (`pattern` argument) and
-#'   afterwards pull their content.
+#'   For example, if user wants to pull content of `README.md` and/or `NEWS.md`
+#'   files placed in the `root` directories of the repositories, he should take
+#'   the `file_path` approach as he already knows precisely paths of the files.
+#'
+#'   On the other hand, if user wants to pull specific type of files (e.g. all
+#'   `.md` or `.Rmd` files in the repository), without knowing their path, it is
+#'   recommended to use a `pattern` approach, which will trigger `GitStats` to
+#'   find all the files in the repository on the given level of directories
+#'   (`pattern` argument) and afterwards pull their content.
 #'
 #'   The latter approach is slower than the former but may be more useful
 #'   depending on users' goals. Both approaches return data in the same format:
@@ -79,12 +83,6 @@ get_files <- function(gitstats,
   if (!is.null(pattern) && !is.null(file_path)) {
     cli::cli_abort(
       "Please choose either `pattern` or `file_path`.",
-      call = NULL
-    )
-  }
-  if (!is.null(pattern) && length(pattern) > 1) {
-    cli::cli_abort(
-      "Please define regex in one string.",
       call = NULL
     )
   }

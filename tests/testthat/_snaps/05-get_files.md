@@ -2,7 +2,3 @@
 
     Please choose either `pattern` or `file_path`.
 
-# error shows when pattern is defined as vector
-
-    Please define regex in one string.
-

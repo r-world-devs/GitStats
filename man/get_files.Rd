@@ -61,11 +61,15 @@ If user wants to pull a particular file or files, a \code{file_path} approach
 seems to more reasonable, a it is a faster way (it omits pulling the whole
 file structure from the repo).
 
-On the other hand, if user wants to pull specific type of files (e.g. \code{.md}
-or \code{.Rmd} files), without knowing their path, it is recommended to use a
-\code{pattern} approach, which will trigger \code{GitStats} to find all the files in
-the repository on the given level of directories (\code{pattern} argument) and
-afterwards pull their content.
+For example, if user wants to pull content of \code{README.md} and/or \code{NEWS.md}
+files placed in the \code{root} directories of the repositories, he should take
+the \code{file_path} approach as he already knows precisely paths of the files.
+
+On the other hand, if user wants to pull specific type of files (e.g. all
+\code{.md} or \code{.Rmd} files in the repository), without knowing their path, it is
+recommended to use a \code{pattern} approach, which will trigger \code{GitStats} to
+find all the files in the repository on the given level of directories
+(\code{pattern} argument) and afterwards pull their content.
 
 The latter approach is slower than the former but may be more useful
 depending on users' goals. Both approaches return data in the same format:
