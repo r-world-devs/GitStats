@@ -19,7 +19,7 @@ release_logs <- get_release_logs(
 release_logs
 
 # Check printing in storage
-test_gitstats
+git_stats
 
 get_commits(
   gitstats = git_stats,
@@ -27,7 +27,7 @@ get_commits(
 )
 
 # Check printing in storage
-test_gitstats
+git_stats
 
 commits_stats <- create_gitstats() %>%
   set_github_host(

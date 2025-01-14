@@ -72,6 +72,6 @@ get_release_logs(
 
 get_release_logs(
   gitstats = git_stats,
-  sinces = "2024-06-01",
+  since = "2024-06-01",
   verbose = TRUE
 )

@@ -1226,7 +1226,9 @@ GitHost <- R6::R6Class(
         files_structure_list <- purrr::map(private$orgs, function(org) {
           if (verbose) {
             user_info <- if (!is.null(pattern)) {
-              glue::glue("Pulling files structure...[files matching pattern: '{pattern}']")
+              glue::glue(
+                "Pulling files structure...[files matching pattern: '{paste0(pattern, collapse = '|')}']"
+              )
             } else {
               glue::glue("Pulling files structure...")
             }
@@ -1273,7 +1275,9 @@ GitHost <- R6::R6Class(
         files_structure_list <- purrr::map(orgs, function(org) {
           if (verbose) {
             user_info <- if (!is.null(pattern)) {
-              glue::glue("Pulling files structure...[files matching pattern: '{pattern}']")
+              glue::glue(
+                "Pulling files structure...[files matching pattern: '{paste0(pattern, collapse = '|')}']"
+              )
             } else {
               glue::glue("Pulling files structure...")
             }

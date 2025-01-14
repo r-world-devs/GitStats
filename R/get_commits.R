@@ -1,3 +1,49 @@
+#' @title Get data on commits
+#' @name get_commits
+#' @description List all commits from all repositories for an organization or a
+#'   vector of repositories.
+#' @param gitstats A GitStats object.
+#' @param since A starting date.
+#' @param until An end date.
+#' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+#'   result from its storage.
+#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
+#'   output is switched off.
+#' @param progress A logical, by default set to `verbose` value. If `FALSE` no
+#'   `cli` progress bar will be displayed.
+#' @return A data.frame.
+#' @examples
+#' \dontrun{
+#' my_gitstats <- create_gitstats() %>%
+#'   set_github_host(
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     repos = c("openpharma/DataFakeR", "openpharma/visR")
+#'   ) %>%
+#'   set_gitlab_host(
+#'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+#'     orgs = "mbtests"
+#'   )
+#'  get_commits(my_gitstats, since = "2018-01-01")
+#' }
+#' @export
+get_commits <- function(gitstats,
+                        since    = NULL,
+                        until    = Sys.Date() + lubridate::days(1),
+                        cache    = TRUE,
+                        verbose  = is_verbose(gitstats),
+                        progress = verbose) {
+  if (is.null(since)) {
+    cli::cli_abort(cli::col_red("You need to pass date to `since` parameter."), call = NULL)
+  }
+  gitstats$get_commits(
+    since    = since,
+    until    = until,
+    cache    = cache,
+    verbose  = verbose,
+    progress = progress
+  )
+}
+
 #' @title Get commits statistics
 #' @name get_commits_stats
 #' @description Prepare statistics from the pulled commits data.
