@@ -211,7 +211,7 @@ GitStats <- R6::R6Class(
                          progress = verbose) {
       private$check_for_host()
       args_list <- list(
-        "file_pattern" = paste0(file_path, pattern),
+        "file_pattern" = paste(file_path, pattern),
         "depth" = depth
       )
       trigger <- private$trigger_pulling(
@@ -1007,7 +1007,7 @@ GitStats <- R6::R6Class(
           }
           attr_data <- attr_data %>% paste0(collapse = separator)
         }
-        return(cli::col_grey(glue::glue("[{attr_name}: {attr_data}]")))
+        return(cli::col_grey(glue::glue("[{attr_name}: {trimws(attr_data)}]")))
       } else {
         return("")
       }
