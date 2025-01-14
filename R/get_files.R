@@ -23,15 +23,15 @@
 #' @details `get_files()` may be used in two ways: either with `pattern` (with
 #'   optional `depth`) or `file_path` argument defined.
 #'
-#'   In the first scenario `GitStats` will pull first a files structure
+#'   In the first scenario, `GitStats` will pull first a files structure
 #'   responding to the passed `pattern` and `depth` arguments and afterwards
-#'   files content for all of these files. In the second scenario `GitStats`
-#'   will pull only the content of files for the given `file_path` of the
+#'   files content for all of these files. In the second scenario, `GitStats`
+#'   will pull only the content of files for the specific `file_path` of the
 #'   repository.
 #'
 #'   If user wants to pull a particular file or files, a `file_path` approach
-#'   seems to more reasonable, a it is a faster way (it omits pulling the whole
-#'   file structure from the repo).
+#'   seems more reasonable, as it is a faster since it omits pulling the whole
+#'   file structure from the repo.
 #'
 #'   For example, if user wants to pull content of `README.md` and/or `NEWS.md`
 #'   files placed in the `root` directories of the repositories, he should take
