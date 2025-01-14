@@ -7,14 +7,16 @@
 #'   directories defined by `depth` parameter. Works only if `file_path` stays
 #'   `NULL`.
 #' @param depth Defines level of directories to retrieve files from. E.g. if set
-#'   to `0`, it will pull files only from root, if `1L`, will take data from
+#'   to `0`, it will pull files only from `root`, if `1L`, will take data from
 #'   `root` directory and directories visible in `root` directory. If left with
 #'   no argument, will pull files from all directories.
 #' @param file_path A specific path to file(s) in repositories. If defined, the
 #'   function pulls content of this specific `file_path`. May be a character
 #'   vector if multiple files are to be pulled. Can be defined only if `pattern`
-#'   stays `NULL`.
-#' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+#'   stays `NULL`. It is more efficient to use `file_path` if we know exact file
+#'   from the repository we want to get, e.g. `DESCRIPTION` from `root`
+#'   directory or `R/app.R`.
+#' @param cache A logical, if set to `TRUE` `GitStats` will retrieve the last
 #'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
 #'   output is switched off.

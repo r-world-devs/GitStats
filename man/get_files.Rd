@@ -23,16 +23,18 @@ directories defined by \code{depth} parameter. Works only if \code{file_path} st
 \code{NULL}.}
 
 \item{depth}{Defines level of directories to retrieve files from. E.g. if set
-to \code{0}, it will pull files only from root, if \code{1L}, will take data from
+to \code{0}, it will pull files only from \code{root}, if \code{1L}, will take data from
 \code{root} directory and directories visible in \code{root} directory. If left with
 no argument, will pull files from all directories.}
 
 \item{file_path}{A specific path to file(s) in repositories. If defined, the
 function pulls content of this specific \code{file_path}. May be a character
 vector if multiple files are to be pulled. Can be defined only if \code{pattern}
-stays \code{NULL}.}
+stays \code{NULL}. It is more efficient to use \code{file_path} if we know exact file
+from the repository we want to get, e.g. \code{DESCRIPTION} from \code{root}
+directory or \code{R/app.R}.}
 
-\item{cache}{A logical, if set to \code{TRUE} GitStats will retrieve the last
+\item{cache}{A logical, if set to \code{TRUE} \code{GitStats} will retrieve the last
 result from its storage.}
 
 \item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and printing
