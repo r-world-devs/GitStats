@@ -51,15 +51,15 @@ Pulls text files and their content.
 \code{get_files()} may be used in two ways: either with \code{pattern} (with
 optional \code{depth}) or \code{file_path} argument defined.
 
-In the first scenario \code{GitStats} will pull first a files structure
+In the first scenario, \code{GitStats} will pull first a files structure
 responding to the passed \code{pattern} and \code{depth} arguments and afterwards
-files content for all of these files. In the second scenario \code{GitStats}
-will pull only the content of files for the given \code{file_path} of the
+files content for all of these files. In the second scenario, \code{GitStats}
+will pull only the content of files for the specific \code{file_path} of the
 repository.
 
 If user wants to pull a particular file or files, a \code{file_path} approach
-seems to more reasonable, a it is a faster way (it omits pulling the whole
-file structure from the repo).
+seems more reasonable, as it is a faster way since it omits pulling the
+whole file structure from the repo.
 
 For example, if user wants to pull content of \code{README.md} and/or \code{NEWS.md}
 files placed in the \code{root} directories of the repositories, he should take

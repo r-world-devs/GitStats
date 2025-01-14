@@ -30,8 +30,8 @@
 #'   repository.
 #'
 #'   If user wants to pull a particular file or files, a `file_path` approach
-#'   seems more reasonable, as it is a faster since it omits pulling the whole
-#'   file structure from the repo.
+#'   seems more reasonable, as it is a faster way since it omits pulling the
+#'   whole file structure from the repo.
 #'
 #'   For example, if user wants to pull content of `README.md` and/or `NEWS.md`
 #'   files placed in the `root` directories of the repositories, he should take
