@@ -17,18 +17,20 @@ get_files(
 \arguments{
 \item{gitstats}{A \code{GitStats} object.}
 
-\item{pattern}{A regular expression. If defined, it pulls file structure for
-a repository matching this pattern. Can be defined if \code{file_path} stays
+\item{pattern}{A regular expression. If defined, it pulls content of all
+files in a repository matching this pattern reaching to the level of
+directories defined by \code{depth} parameter. Works only if \code{file_path} stays
 \code{NULL}.}
 
-\item{depth}{An optional integer. Defines level of directories to retrieve
-files from. E.g. if set to \code{0}, it will pull files only from root, if \code{1L},
-will take data from \code{root} directory and directories visible in \code{root}
-directory. If left with no argument, will pull files from all directories.}
+\item{depth}{Defines level of directories to retrieve files from. E.g. if set
+to \code{0}, it will pull files only from root, if \code{1L}, will take data from
+\code{root} directory and directories visible in \code{root} directory. If left with
+no argument, will pull files from all directories.}
 
-\item{file_path}{Optional. A standardized path to file(s) in repositories.
-May be a character vector if multiple files are to be pulled. Can be
-defined if \code{pattern} stays \code{NULL}.}
+\item{file_path}{A specific path to file(s) in repositories. If defined, the
+function pulls content of this specific \code{file_path}. May be a character
+vector if multiple files are to be pulled. Can be defined only if \code{pattern}
+stays \code{NULL}.}
 
 \item{cache}{A logical, if set to \code{TRUE} GitStats will retrieve the last
 result from its storage.}
@@ -47,18 +49,25 @@ Pulls text files and their content.
 }
 \examples{
 \dontrun{
- rmd_files <- create_gitstats() |>
+ git_stats <- create_gitstats() |>
   set_github_host(
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs")
-  ) \%>\%
+  ) |>
   set_gitlab_host(
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "mbtests"
-  ) |>
- get_files(
+  )
+
+ rmd_files <- get_files(
+   gitstats = git_stats,
    pattern = "\\\\.Rmd",
    depth = 2L
+ )
+
+ app_files <- get_files(
+   gitstats = git_stats,
+   file_path = "R/app.R"
  )
 
 }

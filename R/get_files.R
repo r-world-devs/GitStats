@@ -2,16 +2,18 @@
 #' @name get_files
 #' @description Pulls text files and their content.
 #' @param gitstats A `GitStats` object.
-#' @param pattern A regular expression. If defined, it pulls file structure for
-#'   a repository matching this pattern. Can be defined if `file_path` stays
+#' @param pattern A regular expression. If defined, it pulls content of all
+#'   files in a repository matching this pattern reaching to the level of
+#'   directories defined by `depth` parameter. Works only if `file_path` stays
 #'   `NULL`.
-#' @param depth An optional integer. Defines level of directories to retrieve
-#'   files from. E.g. if set to `0`, it will pull files only from root, if `1L`,
-#'   will take data from `root` directory and directories visible in `root`
-#'   directory. If left with no argument, will pull files from all directories.
-#' @param file_path Optional. A standardized path to file(s) in repositories.
-#'   May be a character vector if multiple files are to be pulled. Can be
-#'   defined if `pattern` stays `NULL`.
+#' @param depth Defines level of directories to retrieve files from. E.g. if set
+#'   to `0`, it will pull files only from root, if `1L`, will take data from
+#'   `root` directory and directories visible in `root` directory. If left with
+#'   no argument, will pull files from all directories.
+#' @param file_path A specific path to file(s) in repositories. If defined, the
+#'   function pulls content of this specific `file_path`. May be a character
+#'   vector if multiple files are to be pulled. Can be defined only if `pattern`
+#'   stays `NULL`.
 #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
 #'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
@@ -20,18 +22,25 @@
 #'   `cli` progress bar will be displayed.
 #' @examples
 #' \dontrun{
-#'  rmd_files <- create_gitstats() |>
+#'  git_stats <- create_gitstats() |>
 #'   set_github_host(
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs")
-#'   ) %>%
+#'   ) |>
 #'   set_gitlab_host(
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
-#'   ) |>
-#'  get_files(
+#'   )
+#'
+#'  rmd_files <- get_files(
+#'    gitstats = git_stats,
 #'    pattern = "\\.Rmd",
 #'    depth = 2L
+#'  )
+#'
+#'  app_files <- get_files(
+#'    gitstats = git_stats,
+#'    file_path = "R/app.R"
 #'  )
 #'
 #' }
