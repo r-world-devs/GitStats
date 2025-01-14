@@ -3,7 +3,6 @@
 <url><loc>https://r-world-devs.github.io/GitStats/LICENSE-text.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/LICENSE.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/articles/get_and_store_data.html</loc></url>
-<url><loc>https://r-world-devs.github.io/GitStats/articles/get_files.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/articles/get_repos_with_code.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/articles/index.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/articles/set_hosts.html</loc></url>
@@ -14,8 +13,7 @@
 <url><loc>https://r-world-devs.github.io/GitStats/reference/get_R_package_usage.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/reference/get_commits.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/reference/get_commits_stats.html</loc></url>
-<url><loc>https://r-world-devs.github.io/GitStats/reference/get_files_content.html</loc></url>
-<url><loc>https://r-world-devs.github.io/GitStats/reference/get_files_structure.html</loc></url>
+<url><loc>https://r-world-devs.github.io/GitStats/reference/get_files.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/reference/get_release_logs.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/reference/get_repos.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/reference/get_repos_urls.html</loc></url>

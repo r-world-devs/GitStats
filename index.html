@@ -8,8 +8,8 @@
 <title>Standardized Git Repository Data • GitStats</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Standardized Git Repository Data">
 <meta name="description" content="Obtain standardized data from multiple Git services, including GitHub and GitLab. Designed to be Git service-agnostic, this package assists teams with activities spread across various Git platforms by providing a unified way to access repository data.">
 <meta property="og:description" content="Obtain standardized data from multiple Git services, including GitHub and GitLab. Designed to be Git service-agnostic, this package assists teams with activities spread across various Git platforms by providing a unified way to access repository data.">
@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,6 @@
 <li><a class="dropdown-item" href="articles/set_hosts.html">Setting hosts</a></li>
     <li><a class="dropdown-item" href="articles/get_and_store_data.html">Get and store your data</a></li>
     <li><a class="dropdown-item" href="articles/get_repos_with_code.html">Getting repositories with specific code or files</a></li>
-    <li><a class="dropdown-item" href="articles/get_files.html">Get files content</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -66,7 +65,6 @@
 <li>commits,</li>
 <li>users,</li>
 <li>release logs,</li>
-<li>repository files structure,</li>
 <li>text files content,</li>
 <li>R package usage.</li>
 </ul>
@@ -76,14 +74,161 @@
 <p>From CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"GitStats"</span><span class="op">)</span></span></code></pre></div>
-<p>Or development version:</p>
+<p>From GitHub:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"r-world-devs/GitStats"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="gitstats-workflow">GitStats workflow<a class="anchor" aria-label="anchor" href="#gitstats-workflow"></a>
+<h2 id="examples">Examples:<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h2>
-<p>On how to use GitStats, refer to the <a href="https://r-world-devs.github.io/GitStats/index.html">documentation</a>.</p>
+<p>Setup your <code>GitStats</code>:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-world-devs.github.io/GitStats/">GitStats</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">git_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/create_gitstats.html">create_gitstats</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/set_gitlab_host.html">set_gitlab_host</a></span><span class="op">(</span></span>
+<span>    repos <span class="op">=</span> <span class="st">"mbtests/gitstatstesting"</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/set_github_host.html">set_github_host</a></span><span class="op">(</span></span>
+<span>    orgs <span class="op">=</span> <span class="st">"r-world-devs"</span>,</span>
+<span>    repos <span class="op">=</span> <span class="st">"openpharma/DataFakeR"</span></span>
+<span>  <span class="op">)</span> </span></code></pre></div>
+<p>Get commits:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">commits</span> <span class="op">&lt;-</span> <span class="va">git_stats</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/get_commits.html">get_commits</a></span><span class="op">(</span></span>
+<span>    since <span class="op">=</span> <span class="st">"2022-01-01"</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="va">commits</span></span>
+<span><span class="co">#&gt; # A tibble: 2,178 × 11</span></span>
+<span><span class="co">#&gt;    id    committed_date      author author_login author_name additions deletions</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt; &lt;dttm&gt;              &lt;chr&gt;  &lt;chr&gt;        &lt;chr&gt;           &lt;int&gt;     &lt;int&gt;</span></span>
+<span><span class="co">#&gt;  1 7f48… 2024-09-10 11:12:59 Macie… maciekbanas  Maciej Ban…         0         0</span></span>
+<span><span class="co">#&gt;  2 9c66… 2024-09-10 10:35:37 Macie… maciekbanas  Maciej Ban…         0         0</span></span>
+<span><span class="co">#&gt;  3 fca2… 2024-09-10 10:31:24 Macie… maciekbanas  Maciej Ban…         0         0</span></span>
+<span><span class="co">#&gt;  4 e8f2… 2023-03-30 14:15:33 Macie… maciekbanas  Maciej Ban…         1         0</span></span>
+<span><span class="co">#&gt;  5 7e87… 2023-02-10 09:48:55 Macie… maciekbanas  Maciej Ban…         1         1</span></span>
+<span><span class="co">#&gt;  6 62c4… 2023-02-10 09:17:24 Macie… maciekbanas  Maciej Ban…         2        87</span></span>
+<span><span class="co">#&gt;  7 55cf… 2023-02-10 09:07:54 Macie… maciekbanas  Maciej Ban…        92         0</span></span>
+<span><span class="co">#&gt;  8 C_kw… 2023-05-08 09:43:31 Kryst… krystian8207 Krystian I…        18         0</span></span>
+<span><span class="co">#&gt;  9 C_kw… 2023-04-28 12:30:40 Kamil… &lt;NA&gt;         Kamil Kozi…        18         0</span></span>
+<span><span class="co">#&gt; 10 C_kw… 2023-03-01 15:05:10 Kryst… krystian8207 Krystian I…       296       153</span></span>
+<span><span class="co">#&gt; # ℹ 2,168 more rows</span></span>
+<span><span class="co">#&gt; # ℹ 4 more variables: repository &lt;chr&gt;, organization &lt;chr&gt;, repo_url &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   api_url &lt;glue&gt;</span></span>
+<span></span>
+<span><span class="va">commits</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/get_commits_stats.html">get_commits_stats</a></span><span class="op">(</span></span>
+<span>    time_aggregation <span class="op">=</span> <span class="st">"month"</span>,</span>
+<span>    group_var <span class="op">=</span> <span class="va">author</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 228 × 4</span></span>
+<span><span class="co">#&gt;    stats_date          githost author             stats</span></span>
+<span><span class="co">#&gt;    &lt;dttm&gt;              &lt;chr&gt;   &lt;chr&gt;              &lt;int&gt;</span></span>
+<span><span class="co">#&gt;  1 2022-01-01 00:00:00 github  Admin_mschuemi         1</span></span>
+<span><span class="co">#&gt;  2 2022-01-01 00:00:00 github  Gowtham Rao            5</span></span>
+<span><span class="co">#&gt;  3 2022-01-01 00:00:00 github  Krystian Igras         1</span></span>
+<span><span class="co">#&gt;  4 2022-01-01 00:00:00 github  Martijn Schuemie       1</span></span>
+<span><span class="co">#&gt;  5 2022-02-01 00:00:00 github  Hadley Wickham         3</span></span>
+<span><span class="co">#&gt;  6 2022-02-01 00:00:00 github  Martijn Schuemie       2</span></span>
+<span><span class="co">#&gt;  7 2022-02-01 00:00:00 github  Maximilian Girlich    13</span></span>
+<span><span class="co">#&gt;  8 2022-02-01 00:00:00 github  Reijo Sund             1</span></span>
+<span><span class="co">#&gt;  9 2022-02-01 00:00:00 github  eitsupi                1</span></span>
+<span><span class="co">#&gt; 10 2022-03-01 00:00:00 github  Maximilian Girlich    14</span></span>
+<span><span class="co">#&gt; # ℹ 218 more rows</span></span></code></pre></div>
+<p>Get repositories:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">git_stats</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/get_repos.html">get_repos</a></span><span class="op">(</span></span>
+<span>    with_code <span class="op">=</span> <span class="st">"shiny"</span>,</span>
+<span>    add_contributors <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 6 × 16</span></span>
+<span><span class="co">#&gt;   repo_id   repo_name          organization fullname   platform repo_url api_url</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;              &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;  </span></span>
+<span><span class="co">#&gt; 1 627452680 hypothesis         r-world-devs r-world-d… github   https:/… https:…</span></span>
+<span><span class="co">#&gt; 2 604718884 shinyTimelines     r-world-devs r-world-d… github   https:/… https:…</span></span>
+<span><span class="co">#&gt; 3 495151911 shinyCohortBuilder r-world-devs r-world-d… github   https:/… https:…</span></span>
+<span><span class="co">#&gt; 4 495144469 cohortBuilder      r-world-devs r-world-d… github   https:/… https:…</span></span>
+<span><span class="co">#&gt; 5 884789327 GitAI              r-world-devs r-world-d… github   https:/… https:…</span></span>
+<span><span class="co">#&gt; 6 586903986 GitStats           r-world-devs r-world-d… github   https:/… https:…</span></span>
+<span><span class="co">#&gt; # ℹ 9 more variables: created_at &lt;dttm&gt;, last_activity_at &lt;dttm&gt;,</span></span>
+<span><span class="co">#&gt; #   last_activity &lt;drtn&gt;, default_branch &lt;chr&gt;, stars &lt;int&gt;, forks &lt;int&gt;,</span></span>
+<span><span class="co">#&gt; #   languages &lt;chr&gt;, issues_open &lt;int&gt;, issues_closed &lt;int&gt;</span></span></code></pre></div>
+<p>Get files:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">git_stats</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/get_files.html">get_files</a></span><span class="op">(</span></span>
+<span>    pattern <span class="op">=</span> <span class="st">"\\.md"</span>,</span>
+<span>    depth <span class="op">=</span> <span class="fl">2L</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 51 × 8</span></span>
+<span><span class="co">#&gt;    repo_name      repo_id organization file_path file_content file_size repo_url</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;          &lt;chr&gt;   &lt;chr&gt;        &lt;chr&gt;     &lt;chr&gt;            &lt;int&gt; &lt;chr&gt;   </span></span>
+<span><span class="co">#&gt;  1 GitStats Test… gid://… mbtests      README.md "# GitStats…       122 https:/…</span></span>
+<span><span class="co">#&gt;  2 shinyGizmo     R_kgDO… r-world-devs NEWS.md   "# shinyGiz…      2186 https:/…</span></span>
+<span><span class="co">#&gt;  3 shinyGizmo     R_kgDO… r-world-devs README.md "\n# shinyG…      2337 https:/…</span></span>
+<span><span class="co">#&gt;  4 shinyGizmo     R_kgDO… r-world-devs cran-com… "## Test en…      1700 https:/…</span></span>
+<span><span class="co">#&gt;  5 cohortBuilder  R_kgDO… r-world-devs NEWS.md   "# cohortBu…       917 https:/…</span></span>
+<span><span class="co">#&gt;  6 cohortBuilder  R_kgDO… r-world-devs README.md "\n# cohort…     15828 https:/…</span></span>
+<span><span class="co">#&gt;  7 shinyCohortBu… R_kgDO… r-world-devs NEWS.md   "# shinyCoh…      2018 https:/…</span></span>
+<span><span class="co">#&gt;  8 shinyCohortBu… R_kgDO… r-world-devs README.md "\n# shinyC…      3355 https:/…</span></span>
+<span><span class="co">#&gt;  9 cohortBuilder… R_kgDO… r-world-devs README.md "\n# cohort…      3472 https:/…</span></span>
+<span><span class="co">#&gt; 10 GitStats       R_kgDO… r-world-devs LICENSE.… "# MIT Lice…      1075 https:/…</span></span>
+<span><span class="co">#&gt; # ℹ 41 more rows</span></span>
+<span><span class="co">#&gt; # ℹ 1 more variable: api_url &lt;chr&gt;</span></span></code></pre></div>
+<p>Get package usage:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">git_stats</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/get_R_package_usage.html">get_R_package_usage</a></span><span class="op">(</span></span>
+<span>    packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"shiny"</span>, <span class="st">"purrr"</span><span class="op">)</span>,</span>
+<span>    split_output <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="co">#&gt; $shiny</span></span>
+<span><span class="co">#&gt; # A tibble: 5 × 11</span></span>
+<span><span class="co">#&gt;   package package_usage   repo_id   repo_fullname       repo_name default_branch</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;   &lt;chr&gt;           &lt;chr&gt;     &lt;chr&gt;               &lt;chr&gt;     &lt;chr&gt;         </span></span>
+<span><span class="co">#&gt; 1 shiny   import          495144469 r-world-devs/cohor… cohortBu… dev           </span></span>
+<span><span class="co">#&gt; 2 shiny   import, library 495151911 r-world-devs/shiny… shinyCoh… dev           </span></span>
+<span><span class="co">#&gt; 3 shiny   import, library 604718884 r-world-devs/shiny… shinyTim… master        </span></span>
+<span><span class="co">#&gt; 4 shiny   import, library 884789327 r-world-devs/GitAI  GitAI     main          </span></span>
+<span><span class="co">#&gt; 5 shiny   import, library 627452680 r-world-devs/hypot… hypothes… master        </span></span>
+<span><span class="co">#&gt; # ℹ 5 more variables: created_at &lt;dttm&gt;, organization &lt;chr&gt;, repo_url &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   api_url &lt;chr&gt;, platform &lt;chr&gt;</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $purrr</span></span>
+<span><span class="co">#&gt; # A tibble: 6 × 11</span></span>
+<span><span class="co">#&gt;   package package_usage repo_id   repo_fullname         repo_name default_branch</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;   &lt;chr&gt;         &lt;chr&gt;     &lt;chr&gt;                 &lt;chr&gt;     &lt;chr&gt;         </span></span>
+<span><span class="co">#&gt; 1 purrr   import        495144469 r-world-devs/cohortB… cohortBu… dev           </span></span>
+<span><span class="co">#&gt; 2 purrr   import        495151911 r-world-devs/shinyCo… shinyCoh… dev           </span></span>
+<span><span class="co">#&gt; 3 purrr   import        586903986 r-world-devs/GitStats GitStats  master        </span></span>
+<span><span class="co">#&gt; 4 purrr   import        884789327 r-world-devs/GitAI    GitAI     main          </span></span>
+<span><span class="co">#&gt; 5 purrr   import        627452680 r-world-devs/hypothe… hypothes… master        </span></span>
+<span><span class="co">#&gt; 6 purrr   import        402384343 openpharma/DataFakeR  DataFakeR master        </span></span>
+<span><span class="co">#&gt; # ℹ 5 more variables: created_at &lt;dttm&gt;, organization &lt;chr&gt;, repo_url &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   api_url &lt;chr&gt;, platform &lt;chr&gt;</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attr(,"class")</span></span>
+<span><span class="co">#&gt; [1] "R_package_usage" "list"           </span></span>
+<span><span class="co">#&gt; attr(,"packages")</span></span>
+<span><span class="co">#&gt; [1] "shiny" "purrr"</span></span>
+<span><span class="co">#&gt; attr(,"only_loading")</span></span>
+<span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
+<p>Print <code>GitStats</code> to see what it stores:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">git_stats</span></span>
+<span><span class="co">#&gt; A GitStats object for 2 hosts: </span></span>
+<span><span class="co">#&gt; Hosts: https://gitlab.com/api/v4, https://api.github.com</span></span>
+<span><span class="co">#&gt; Scanning scope: </span></span>
+<span><span class="co">#&gt;  Organizations: [1] r-world-devs</span></span>
+<span><span class="co">#&gt;  Repositories: [2] mbtests/gitstatstesting, openpharma/DataFakeR</span></span>
+<span><span class="co">#&gt; Storage: </span></span>
+<span><span class="co">#&gt;  Repositories: 6 </span></span>
+<span><span class="co">#&gt;  Commits: 2178 [date range: 2022-01-01 - 2025-01-10]</span></span>
+<span><span class="co">#&gt;  Files: 51 [file pattern: \.md]</span></span>
+<span><span class="co">#&gt;  R_package_usage: 2 [packages: shiny, purrr]</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="acknowledgement">Acknowledgement<a class="anchor" aria-label="anchor" href="#acknowledgement"></a>
