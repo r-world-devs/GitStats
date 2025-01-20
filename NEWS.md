@@ -1,3 +1,5 @@
+# GitStats (development version)
+
 # GitStats 2.2.0
 
 This release brings some substantial improvements with making it possible to scan whole organizations and particular repositories for one host at the same time, boosting function to prepare commits statistics and simplifying workflow for getting files.
