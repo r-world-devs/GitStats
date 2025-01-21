@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,7 +61,7 @@
       <h1>Get and store your data</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/r-world-devs/GitStats/blob/v2.2.0/vignettes/get_and_store_data.Rmd" class="external-link"><code>vignettes/get_and_store_data.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/r-world-devs/GitStats/blob/master/vignettes/get_and_store_data.Rmd" class="external-link"><code>vignettes/get_and_store_data.Rmd</code></a></small>
       <div class="d-none name"><code>get_and_store_data.Rmd</code></div>
     </div>
 
@@ -112,14 +112,14 @@ organizations.</p>
 <span><span class="co">#&gt; $ repo_url         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/shinyGizmo", "https:…</span></span>
 <span><span class="co">#&gt; $ api_url          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://api.github.com/repos/r-world-devs/shinyGizmo…</span></span>
 <span><span class="co">#&gt; $ created_at       <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2022-04-20 10:04:32, 2022-05-22 18:31:55, 2022-05-22…</span></span>
-<span><span class="co">#&gt; $ last_activity_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-07-12, 2025-01-14, 2024-11-18, 2024-06-13, 2025…</span></span>
-<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 186.61 days, 0.61 days, 57.61 days, 215.61 days, 0.6…</span></span>
+<span><span class="co">#&gt; $ last_activity_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-07-12, 2025-01-20, 2024-11-18, 2024-06-13, 2025…</span></span>
+<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 193.39 days, 1.39 days, 64.39 days, 222.39 days, 0.3…</span></span>
 <span><span class="co">#&gt; $ default_branch   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "dev", "dev", "dev", "master", "master", "master", "m…</span></span>
 <span><span class="co">#&gt; $ stars            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 19, 6, 6, 0, 3, 3, 0, 2, 1, 0, 0, 0, 0, 1, 2, 3, 10, …</span></span>
 <span><span class="co">#&gt; $ forks            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5, 10…</span></span>
 <span><span class="co">#&gt; $ languages        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R, CSS, JavaScript", "R", "R, CSS, JavaScript, SCSS"…</span></span>
-<span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 6, 28, 33, 3, 92, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 19, 6…</span></span>
-<span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 12, 3, 13, 0, 286, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 35, …</span></span>
+<span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 6, 30, 33, 3, 88, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 19, 6…</span></span>
+<span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 12, 4, 13, 0, 291, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 35, …</span></span>
 <span><span class="co">#&gt; $ contributors     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "krystian8207, stla, galachad, stlagsk", "krystian820…</span></span>
 <span><span class="co">#&gt; $ contributors_n   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 4, 3, 3, 1, 4, 1, 6, 2, 1, 142, 2, 3, 1, 1, 1, 3, 5, …</span></span></code></pre></div>
 <p>You can always go for the lighter version of <code>get_repos</code>,
@@ -251,7 +251,7 @@ function:</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> [Host:GitLab][Engine:<span style="color: #00BB00;">REST</span>][Scope:mbtests] <span style="color: #5555FF;">Pulling commits</span>...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Looking up for authors' names and logins...</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Rows: 1,279</span></span>
+<span><span class="co">#&gt; Rows: 1,300</span></span>
 <span><span class="co">#&gt; Columns: 11</span></span>
 <span><span class="co">#&gt; $ id             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "C_kwDOHYNOFdoAKDU5YTVhMTljNWZhZTliNGY5YWRiNDBlM2ZlZmE2…</span></span>
 <span><span class="co">#&gt; $ committed_date <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2025-01-14 09:24:11, 2025-01-14 09:18:53, 2025-01-14 0…</span></span>
@@ -278,8 +278,8 @@ function:</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;"> Repositories: </span>[<span style="color: #00BB00;">0</span>] </span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Storage: </span></span></span>
 <span><span class="co"><span style="color: #0000BB;">#&gt; </span> Repositories: 88 </span></span>
-<span><span class="co">#&gt;  Commits: 1279 <span style="color: #555555;">[date range: 2024-07-01 - 2025-01-15]</span></span></span>
-<span><span class="co">#&gt;  Release_logs: 39 <span style="color: #555555;">[date range: 2024-01-01 - 2025-01-15]</span></span></span>
+<span><span class="co">#&gt;  Commits: 1300 <span style="color: #555555;">[date range: 2024-07-01 - 2025-01-22]</span></span></span>
+<span><span class="co">#&gt;  Release_logs: 39 <span style="color: #555555;">[date range: 2024-01-01 - 2025-01-22]</span></span></span>
 <span><span class="co">#&gt;  Repos_urls: 88 <span style="color: #555555;">[type: web]</span></span></span></code></pre></div>
 <p>You can retrieve whole data from your <code>GitStats</code> object
 with:</p>
@@ -306,7 +306,7 @@ with:</p>
 <span><span class="co">#&gt; <span style="color: #949494;">#   contributors &lt;chr&gt;, contributors_n &lt;int&gt;</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $commits</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1,279 × 11</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1,300 × 11</span></span></span>
 <span><span class="co">#&gt;    id    committed_date      author author_login author_name additions deletions</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> C_kw… 2025-01-14 <span style="color: #949494;">09:24:11</span> Adam … galachad     Adam Foryś         31         1</span></span>
@@ -319,7 +319,7 @@ with:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> C_kw… 2025-01-09 <span style="color: #949494;">10:21:05</span> Adam … galachad     Adam Foryś         16         3</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> C_kw… 2025-01-09 <span style="color: #949494;">10:19:30</span> Adam … galachad     Adam Foryś          6         1</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> C_kw… 2025-01-09 <span style="color: #949494;">10:19:12</span> Adam … galachad     Adam Foryś         58         0</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1,269 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1,290 more rows</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4 more variables: repository &lt;chr&gt;, organization &lt;chr&gt;, repo_url &lt;chr&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   api_url &lt;glue&gt;</span></span></span>
 <span><span class="co">#&gt; </span></span>
