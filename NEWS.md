@@ -1,4 +1,4 @@
-# GitStats (development version)
+# GitStats 2.2.1
 
 - Fixed pulling repositories by code when `GitStats` is set to scan whole hosts ([#583](https://github.com/r-world-devs/GitStats/issues/583)).
 
