@@ -1,3 +1,7 @@
+# GitStats 2.2.1
+
+- Fixed pulling repositories by code when `GitStats` is set to scan whole hosts ([#583](https://github.com/r-world-devs/GitStats/issues/583)).
+
 # GitStats 2.2.0
 
 This release brings some substantial improvements with making it possible to scan whole organizations and particular repositories for one host at the same time, boosting function to prepare commits statistics and simplifying workflow for getting files.

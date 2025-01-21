@@ -70,15 +70,17 @@ EngineRestGitLab <- R6::R6Class(
                                  verbose = TRUE,
                                  progress = TRUE) {
       if (!is.null(org)) {
+        org <- utils::URLencode(org, reserved = TRUE)
+      }
+      if (is.null(repos)) {
         search_response <- private$search_for_code(
           code = code,
           filename = filename,
           in_path = in_path,
-          org = utils::URLencode(org, reserved = TRUE),
+          org = org,
           verbose = verbose
         )
-      }
-      if (!is.null(repos)) {
+      } else {
         search_response <- private$search_repos_for_code(
           code = code,
           filename = filename,

@@ -55,7 +55,7 @@ EngineRestGitHub <- R6::R6Class(
                                  output = "table_full",
                                  verbose = TRUE,
                                  progress = TRUE) {
-      if (!is.null(org)) {
+      if (is.null(repos)) {
         search_result <- private$search_for_code(
           code = code,
           org = org,
@@ -64,8 +64,7 @@ EngineRestGitHub <- R6::R6Class(
           verbose = verbose,
           progress = progress
         )
-      }
-      if (!is.null(repos)) {
+      } else {
         search_result <- private$search_repos_for_code(
           code = code,
           repos = repos,
