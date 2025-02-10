@@ -1024,24 +1024,49 @@ GitHost <- R6::R6Class(
                                         in_path = FALSE,
                                         verbose,
                                         progress) {
-      repos_urls_from_orgs <- private$get_repos_urls_with_code_from_orgs(
-        type = type,
-        code = code,
-        in_files = in_files,
-        in_path = in_path,
-        verbose = verbose,
-        progress = progress
-      )
-      repos_urls_from_repos <- private$get_repos_urls_with_code_from_repos(
-        type = type,
-        code = code,
-        in_files = in_files,
-        in_path = in_path,
-        verbose = verbose,
-        progress = progress
-      )
-      repos_urls <- c(repos_urls_from_orgs, repos_urls_from_repos)
+      if (private$scan_all) {
+        repos_urls <- private$get_repos_urls_with_code_from_host(
+          type = type,
+          code = code,
+          in_files = in_files,
+          in_path = in_path,
+          verbose = verbose,
+          progress = progress
+        )
+      } else {
+        repos_urls_from_orgs <- private$get_repos_urls_with_code_from_orgs(
+          type = type,
+          code = code,
+          in_files = in_files,
+          in_path = in_path,
+          verbose = verbose,
+          progress = progress
+        )
+        repos_urls_from_repos <- private$get_repos_urls_with_code_from_repos(
+          type = type,
+          code = code,
+          in_files = in_files,
+          in_path = in_path,
+          verbose = verbose,
+          progress = progress
+        )
+        repos_urls <- c(repos_urls_from_orgs, repos_urls_from_repos)
+      }
       return(repos_urls)
+    },
+
+    get_repos_urls_with_code_from_host = function(type, code, in_files, in_path, verbose, progress) {
+      private$get_repos_with_code_from_host(
+        code = code,
+        in_files = in_files,
+        in_path = in_path,
+        output = "raw",
+        verbose = verbose
+      ) |>
+        private$get_repo_url_from_response(
+          type = type,
+          progress = progress
+        )
     },
 
     get_repos_urls_with_code_from_orgs = function(type, code, in_files, in_path, verbose, progress) {
