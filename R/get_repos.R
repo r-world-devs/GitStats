@@ -71,8 +71,9 @@ get_repos <- function(gitstats,
 #'   parameter) or a file (`with_files` parameter).
 #' @param gitstats A GitStats object.
 #' @param type A character, choose if `api` or `web` (`html`) URLs should be
-#'   returned.
-#' @param with_code A character vector, if defined, GitStats will pull
+#'   returned. `api` type is set by default as setting `web` results in parsing
+#'   which may be time consuming in case of large number of repositories.
+#' @param with_code A character vector, if defined, `GitStats` will pull
 #'   repositories with specified code phrases in code blobs.
 #' @param in_files A character vector of file names. Works when `with_code` is
 #'   set - then it searches code blobs only in files passed to `in_files`
@@ -97,12 +98,11 @@ get_repos <- function(gitstats,
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
 #'   )
-#' get_repos_urls(my_gitstats, type = "api")
 #' get_repos_urls(my_gitstats, with_files = c("DESCRIPTION", "LICENSE"))
 #' }
 #' @export
 get_repos_urls <- function(gitstats,
-                           type       = "web",
+                           type       = "api",
                            with_code  = NULL,
                            in_files   = NULL,
                            with_files = NULL,
