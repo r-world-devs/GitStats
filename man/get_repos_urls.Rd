@@ -6,7 +6,7 @@
 \usage{
 get_repos_urls(
   gitstats,
-  type = "web",
+  type = "api",
   with_code = NULL,
   in_files = NULL,
   with_files = NULL,
@@ -19,9 +19,10 @@ get_repos_urls(
 \item{gitstats}{A GitStats object.}
 
 \item{type}{A character, choose if \code{api} or \code{web} (\code{html}) URLs should be
-returned.}
+returned. \code{api} type is set by default as setting \code{web} results in parsing
+which may be time consuming in case of large number of repositories.}
 
-\item{with_code}{A character vector, if defined, GitStats will pull
+\item{with_code}{A character vector, if defined, \code{GitStats} will pull
 repositories with specified code phrases in code blobs.}
 
 \item{in_files}{A character vector of file names. Works when \code{with_code} is
@@ -59,7 +60,6 @@ my_gitstats <- create_gitstats() \%>\%
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "mbtests"
   )
-get_repos_urls(my_gitstats, type = "api")
 get_repos_urls(my_gitstats, with_files = c("DESCRIPTION", "LICENSE"))
 }
 }
