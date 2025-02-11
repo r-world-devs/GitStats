@@ -1,3 +1,7 @@
+# GitStats 2.2.2
+
+- Fixed pulling repositories URLS by code when `GitStats` is set to scan whole hosts ([#589](https://github.com/r-world-devs/GitStats/issues/589)). Set `type` parameter to `api` by default. Setting `type` to `web` results in parsing GitLab `api` URLs which may be time consuming and it should not be a default option.
+
 # GitStats 2.2.1
 
 - Fixed pulling repositories by code when `GitStats` is set to scan whole hosts ([#583](https://github.com/r-world-devs/GitStats/issues/583)).
