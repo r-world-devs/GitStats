@@ -61,7 +61,7 @@
       <h1>Get and store your data</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/r-world-devs/GitStats/blob/master/vignettes/get_and_store_data.Rmd" class="external-link"><code>vignettes/get_and_store_data.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/r-world-devs/GitStats/blob/v2.2.2/vignettes/get_and_store_data.Rmd" class="external-link"><code>vignettes/get_and_store_data.Rmd</code></a></small>
       <div class="d-none name"><code>get_and_store_data.Rmd</code></div>
     </div>
 
@@ -113,7 +113,7 @@ organizations.</p>
 <span><span class="co">#&gt; $ api_url          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://api.github.com/repos/r-world-devs/shinyGizmo…</span></span>
 <span><span class="co">#&gt; $ created_at       <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2022-04-20 10:04:32, 2022-05-22 18:31:55, 2022-05-22…</span></span>
 <span><span class="co">#&gt; $ last_activity_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-07-12, 2025-02-10, 2025-02-07, 2024-06-13, 2025…</span></span>
-<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 214.44 days, 1.44 days, 4.44 days, 243.44 days, 0.44…</span></span>
+<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 214.48 days, 1.48 days, 4.48 days, 243.48 days, 0.48…</span></span>
 <span><span class="co">#&gt; $ default_branch   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "dev", "dev", "dev", "master", "master", "master", "m…</span></span>
 <span><span class="co">#&gt; $ stars            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 19, 7, 6, 0, 3, 3, 0, 2, 1, 0, 0, 0, 0, 1, 2, 3, 10, …</span></span>
 <span><span class="co">#&gt; $ forks            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5, 10…</span></span>
@@ -145,12 +145,12 @@ function:</p>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">release_logs</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Rows: 40</span></span>
+<span><span class="co">#&gt; Rows: 41</span></span>
 <span><span class="co">#&gt; Columns: 7</span></span>
 <span><span class="co">#&gt; $ repo_name    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "cohortBuilder", "shinyCohortBuilder", "shinyCohortBuilde…</span></span>
 <span><span class="co">#&gt; $ repo_url     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/cohortBuilder", "https:/…</span></span>
 <span><span class="co">#&gt; $ release_name <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "cohortBuilder 0.3.0", "v0.3.1", "v0.3.0", "GitStats 2.2.…</span></span>
-<span><span class="co">#&gt; $ release_tag  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "v0.3.0", "v0.3.1", "v0.3.0", "v2.2.1", "v2.2.0", "v2.1.2…</span></span>
+<span><span class="co">#&gt; $ release_tag  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "v0.3.0", "v0.3.1", "v0.3.0", "v2.2.2", "v2.2.1", "v2.2.0…</span></span>
 <span><span class="co">#&gt; $ published_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-09-27 11:35:06, 2024-10-24 08:21:19, 2024-10-24 08:…</span></span>
 <span><span class="co">#&gt; $ release_url  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/cohortBuilder/releases/t…</span></span>
 <span><span class="co">#&gt; $ release_log  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "* Add new filter of type `\"query\"` that allows to conf…</span></span></code></pre></div>
@@ -279,7 +279,7 @@ function:</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Storage: </span></span></span>
 <span><span class="co"><span style="color: #0000BB;">#&gt; </span> Repositories: 88 </span></span>
 <span><span class="co">#&gt;  Commits: 1355 <span style="color: #555555;">[date range: 2024-07-01 - 2025-02-12]</span></span></span>
-<span><span class="co">#&gt;  Release_logs: 40 <span style="color: #555555;">[date range: 2024-01-01 - 2025-02-12]</span></span></span>
+<span><span class="co">#&gt;  Release_logs: 41 <span style="color: #555555;">[date range: 2024-01-01 - 2025-02-12]</span></span></span>
 <span><span class="co">#&gt;  Repos_urls: 88 <span style="color: #555555;">[type: api]</span></span></span></code></pre></div>
 <p>You can retrieve whole data from your <code>GitStats</code> object
 with:</p>
@@ -336,20 +336,20 @@ with:</p>
 <span><span class="co">#&gt; NULL</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $release_logs</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 40 × 7</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 41 × 7</span></span></span>
 <span><span class="co">#&gt;    repo_name   repo_url release_name release_tag published_at        release_url</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> cohortBuil… https:/… cohortBuild… v0.3.0      2024-09-27 <span style="color: #949494;">11:35:06</span> https://gi…</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> shinyCohor… https:/… v0.3.1       v0.3.1      2024-10-24 <span style="color: #949494;">08:21:19</span> https://gi…</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> shinyCohor… https:/… v0.3.0       v0.3.0      2024-10-24 <span style="color: #949494;">08:20:32</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> GitStats    https:/… GitStats 2.… v2.2.1      2025-01-21 <span style="color: #949494;">11:04:20</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> GitStats    https:/… GitStats 2.… v2.2.0      2025-01-14 <span style="color: #949494;">14:34:26</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> GitStats    https:/… GitStats 2.… v2.1.2      2024-11-13 <span style="color: #949494;">10:27:51</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> GitStats    https:/… GitStats 2.… v2.1.1      2024-10-29 <span style="color: #949494;">07:46:43</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> GitStats    https:/… 2.1.0        v2.1.0      2024-10-01 <span style="color: #949494;">07:29:43</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> GitStats    https:/… 2.0.2        v2.0.2      2024-07-19 <span style="color: #949494;">07:59:12</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> GitStats    https:/… 2.0.1        v2.0.1      2024-05-14 <span style="color: #949494;">10:22:52</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 30 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> GitStats    https:/… GitStats 2.… v2.2.2      2025-02-11 <span style="color: #949494;">11:22:35</span> https://gi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> GitStats    https:/… GitStats 2.… v2.2.1      2025-01-21 <span style="color: #949494;">11:04:20</span> https://gi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> GitStats    https:/… GitStats 2.… v2.2.0      2025-01-14 <span style="color: #949494;">14:34:26</span> https://gi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> GitStats    https:/… GitStats 2.… v2.1.2      2024-11-13 <span style="color: #949494;">10:27:51</span> https://gi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> GitStats    https:/… GitStats 2.… v2.1.1      2024-10-29 <span style="color: #949494;">07:46:43</span> https://gi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> GitStats    https:/… 2.1.0        v2.1.0      2024-10-01 <span style="color: #949494;">07:29:43</span> https://gi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> GitStats    https:/… 2.0.2        v2.0.2      2024-07-19 <span style="color: #949494;">07:59:12</span> https://gi…</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 31 more rows</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: release_log &lt;chr&gt;</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $repos_urls</span></span>
