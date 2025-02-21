@@ -115,7 +115,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
                 ... on Commit {
                   history(since: $since
                           until: $until
-                          ', private$add_cursor(commits_cursor), ") {
+                          ', private$add_cursor(commits_cursor), ') {
                     pageInfo {
                       hasNextPage
                       endCursor
@@ -145,7 +145,29 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
               }
             }
           }
-        }")
+        }')
+    },
+
+    issues_from_repo = function(issues_cursor = "") {
+      paste0('
+      query getIssuesFromRepo ($repo: String!
+                               $org: String!
+                               $since: GitTimestamp
+                               $until: GitTimestamp) {
+          repository(name: $repo, owner: $org) {
+            issues(first: 100
+                   ', private$add_cursor(issues_cursor), ') {
+              edges {
+                node {
+                  title
+                  body
+                  state
+                }
+              }
+            }
+          }
+        }
+      ')
     },
 
     #' @description Prepare query to get files in a standard filepath from

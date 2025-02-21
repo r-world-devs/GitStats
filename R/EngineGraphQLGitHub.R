@@ -431,13 +431,13 @@ EngineGraphQLGitHub <- R6::R6Class(
                                           since,
                                           until,
                                           commits_cursor = "") {
-      commits_by_org_query <- self$gql_query$commits_from_repo(
+      commits_from_repo_query <- self$gql_query$commits_from_repo(
         commits_cursor = commits_cursor
       )
       response <- tryCatch(
         {
           self$gql_response(
-            gql_query = commits_by_org_query,
+            gql_query = commits_from_repo_query,
             vars = list(
               "org" = org,
               "repo" = repo,
@@ -448,7 +448,43 @@ EngineGraphQLGitHub <- R6::R6Class(
         },
         error = function(e) {
           self$gql_response(
-            gql_query = commits_by_org_query,
+            gql_query = commits_from_repo_query,
+            vars = list(
+              "org" = org,
+              "repo" = repo,
+              "since" = date_to_gts(since),
+              "until" = date_to_gts(until)
+            )
+          )
+        }
+      )
+      return(response)
+    },
+
+    # Wrapper over building GraphQL query and response.
+    get_issues_page_from_repo = function(org,
+                                         repo,
+                                         since,
+                                         until,
+                                         issues_cursor = "") {
+      issues_from_repo_query <- self$gql_query$issues_from_repo(
+        issues_cursor = issues_cursor
+      )
+      response <- tryCatch(
+        {
+          self$gql_response(
+            gql_query = issues_from_repo_query,
+            vars = list(
+              "org" = org,
+              "repo" = repo,
+              "since" = date_to_gts(since),
+              "until" = date_to_gts(until)
+            )
+          )
+        },
+        error = function(e) {
+          self$gql_response(
+            gql_query = issues_from_repo_query,
             vars = list(
               "org" = org,
               "repo" = repo,

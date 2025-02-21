@@ -1,3 +1,6 @@
+integration_tests_skipped <- Sys.getenv("GITSTATS_INTEGRATION_TEST_SKIPPED", unset = "true") |>
+  as.logical()
+
 test_mocker <- Mocker$new()
 
 test_gitstats <- create_test_gitstats(hosts = 2)
