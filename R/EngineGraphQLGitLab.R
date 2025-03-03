@@ -505,6 +505,48 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(file_blobs_response)
     },
 
+    # An iterator over pulling commit pages from one repository.
+    get_issues_from_one_repo = function(org,
+                                        repo) {
+      next_page <- TRUE
+      full_issues_list <- list()
+      issues_cursor <- ""
+      while (next_page) {
+        issues_response <- private$get_issues_page_from_repo(
+          org = org,
+          repo = repo,
+          issues_cursor = issues_cursor
+        )
+        issues_list <- issues_response$data$project$issues$edges
+        next_page <- issues_response$data$project$issues$pageInfo$hasNextPage
+        if (is.null(next_page)) next_page <- FALSE
+        if (is.null(issues_list)) issues_list <- list()
+        if (next_page) {
+          issues_cursor <- issues_response$data$project$issues$pageInfo$endCursor
+        } else {
+          issues_cursor <- ""
+        }
+        full_issues_list <- append(full_issues_list, issues_list)
+      }
+      return(full_issues_list)
+    },
+
+    # Wrapper over building GraphQL query and response.
+    get_issues_page_from_repo = function(org,
+                                         repo,
+                                         issues_cursor = "") {
+      issues_from_repo_query <- self$gql_query$issues_from_repo(
+        issues_cursor = issues_cursor
+      )
+      response <- self$gql_response(
+        gql_query = issues_from_repo_query,
+        vars = list(
+          "fullPath" = paste0(org, "/", repo)
+        )
+      )
+      return(response)
+    },
+
     get_files_tree_response = function(org, repo, file_path) {
       files_tree_response <- self$gql_response(
         gql_query = self$gql_query$files_tree_from_repo(),

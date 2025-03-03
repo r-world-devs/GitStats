@@ -151,16 +151,21 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     issues_from_repo = function(issues_cursor = "") {
       paste0('
       query getIssuesFromRepo ($repo: String!
-                               $org: String!
-                               $since: GitTimestamp
-                               $until: GitTimestamp) {
+                               $org: String!) {
           repository(name: $repo, owner: $org) {
             issues(first: 100
                    ', private$add_cursor(issues_cursor), ') {
+              pageInfo {
+                hasNextPage
+      				  endCursor
+      				  startCursor
+      				}
               edges {
                 node {
                   title
-                  body
+                  description: body
+                  created_at: createdAt
+                  closed_at: closedAt
                   state
                 }
               }
@@ -228,9 +233,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     }
   ),
   private = list(
-    # @description Helper over defining cursor argument for the query.
-    # @param cursor A cursor.
-    # @return A string of cursor argument.
     add_cursor = function(cursor) {
       if (nchar(cursor) == 0) {
         cursor_argument <- cursor

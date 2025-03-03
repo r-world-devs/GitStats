@@ -63,6 +63,32 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
         }')
     },
 
+    issues_from_repo = function(issues_cursor = "") {
+      paste0('
+      query getIssuesFromRepo ($fullPath: ID!) {
+          project(fullPath: $fullPath) {
+            issues(first: 100
+                   ', private$add_cursor(issues_cursor), ') {
+              pageInfo {
+                hasNextPage
+      				  endCursor
+      				  startCursor
+      				}
+              edges {
+                node {
+                  title
+                  description
+                  created_at: createdAt
+                  closed_at: closedAt
+                  state
+                }
+              }
+            }
+          }
+        }
+      ')
+    },
+
     #' @description Prepare query to get info on a GitLab user.
     #' @return A query.
     user = function() {
@@ -95,16 +121,11 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
     #' @param end_cursor An endCursor.
     #' @return A query.
     files_by_org = function(end_cursor = "") {
-      if (nchar(end_cursor) == 0) {
-        after_cursor <- end_cursor
-      } else {
-        after_cursor <- paste0('after: "', end_cursor, '" ')
-      }
       paste0(
         'query GetFilesByOrg($org: ID!, $file_paths: [String!]!) {
             group(fullPath: $org) {
               projects(first: 100',
-        after_cursor,
+        private$add_cursor(end_cursor),
         ') {
           count
           pageInfo {
@@ -208,6 +229,15 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
     }
   ),
   private = list(
+    add_cursor = function(cursor) {
+      if (nchar(cursor) == 0) {
+        cursor_argument <- cursor
+      } else {
+        cursor_argument <- paste0('after: "', cursor, '"')
+      }
+      return(cursor_argument)
+    },
+
     projects_field_content =
       '
       count

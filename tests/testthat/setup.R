@@ -1,6 +1,12 @@
 integration_tests_skipped <- Sys.getenv("GITSTATS_INTEGRATION_TEST_SKIPPED", unset = "true") |>
   as.logical()
 
+github_token <- if (integration_tests_skipped) {
+  NULL
+} else {
+  Sys.getenv("GITHUB_PAT")
+}
+
 test_mocker <- Mocker$new()
 
 test_gitstats <- create_test_gitstats(hosts = 2)
@@ -17,7 +23,7 @@ test_rest_github_priv <- environment(test_rest_github$initialize)$private
 
 test_graphql_github <- EngineGraphQLGitHub$new(
   gql_api_url = "https://api.github.com/graphql",
-  token = NULL
+  token = github_token
 )
 test_graphql_github_priv <- environment(test_graphql_github$initialize)$private
 

@@ -461,11 +461,35 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(response)
     },
 
+    # An iterator over pulling commit pages from one repository.
+    get_issues_from_one_repo = function(org,
+                                        repo) {
+      next_page <- TRUE
+      full_issues_list <- list()
+      issues_cursor <- ""
+      while (next_page) {
+        issues_response <- private$get_issues_page_from_repo(
+          org = org,
+          repo = repo,
+          issues_cursor = issues_cursor
+        )
+        issues_list <- issues_response$data$repository$issues$edges
+        next_page <- issues_response$data$repository$issues$pageInfo$hasNextPage
+        if (is.null(next_page)) next_page <- FALSE
+        if (is.null(issues_list)) issues_list <- list()
+        if (next_page) {
+          issues_cursor <- issues_response$data$repository$issues$pageInfo$endCursor
+        } else {
+          issues_cursor <- ""
+        }
+        full_issues_list <- append(full_issues_list, issues_list)
+      }
+      return(full_issues_list)
+    },
+
     # Wrapper over building GraphQL query and response.
     get_issues_page_from_repo = function(org,
                                          repo,
-                                         since,
-                                         until,
                                          issues_cursor = "") {
       issues_from_repo_query <- self$gql_query$issues_from_repo(
         issues_cursor = issues_cursor
@@ -476,9 +500,7 @@ EngineGraphQLGitHub <- R6::R6Class(
             gql_query = issues_from_repo_query,
             vars = list(
               "org" = org,
-              "repo" = repo,
-              "since" = date_to_gts(since),
-              "until" = date_to_gts(until)
+              "repo" = repo
             )
           )
         },
@@ -487,9 +509,7 @@ EngineGraphQLGitHub <- R6::R6Class(
             gql_query = issues_from_repo_query,
             vars = list(
               "org" = org,
-              "repo" = repo,
-              "since" = date_to_gts(since),
-              "until" = date_to_gts(until)
+              "repo" = repo
             )
           )
         }

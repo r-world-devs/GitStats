@@ -270,3 +270,50 @@ expect_gitlab_releases_response <- function(object) {
     })
   })
 }
+
+issue_fields <- c("title", "description", "created_at", "closed_at", "state")
+
+expect_github_issues_page <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  if (names(object) == "errors") {
+    cli::cli_alert_danger(object$errors)
+    cli::cli_abort("Errors in GraphQL response.")
+  }
+  expect_named(
+    object$data$repository$issues,
+    c("pageInfo", "edges")
+  )
+  expect_named(
+    object$data$repository$issues$edges[[1]]$node,
+    issue_fields
+  )
+}
+
+expect_gitlab_issues_page <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  if (names(object) == "errors") {
+    cli::cli_alert_danger(object$errors)
+    cli::cli_abort("Errors in GraphQL response.")
+  }
+  expect_named(
+    object$data$project$issues,
+    c("pageInfo", "edges")
+  )
+  expect_named(
+    object$data$project$issues$edges[[1]]$node,
+    issue_fields
+  )
+}
+
+expect_issues_full_list <- function(object) {
+  expect_named(
+    object[[1]]$node,
+    issue_fields
+  )
+}
