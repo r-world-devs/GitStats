@@ -70,6 +70,10 @@ EngineGraphQL <- R6::R6Class(
         issues_row <- purrr::map_dfr(repo, function(issue_data) {
           issue_data[["node"]][["created_at"]] <- lubridate::as_datetime(issue_data[["node"]][["created_at"]])
           issue_data[["node"]][["closed_at"]] <- lubridate::as_datetime(issue_data[["node"]][["closed_at"]] %||% "")
+          issue_data[["node"]][["state"]] <- tolower(issue_data[["node"]][["state"]])
+          if (issue_data[["node"]][["state"]] == "opened") {
+            issue_data[["node"]][["state"]] <- "open"
+          }
           data.frame(issue_data$node)
         })
         issues_row$repository <- repo_name
