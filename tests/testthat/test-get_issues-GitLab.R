@@ -39,3 +39,33 @@ test_that("`get_issues_from_one_repo()` prepares formatted list", {
   )
   test_mocker$cache(issues_from_repo)
 })
+
+test_that("`get_issues_from_repos()` pulls issues from repos", {
+  if (integration_tests_skipped) {
+    mockery::stub(
+      test_graphql_gitlab$get_issues_from_repos,
+      "private$get_issues_from_one_repo",
+      test_mocker$use("issues_from_repo")
+    )
+  }
+  issues_from_repos <- test_graphql_gitlab$get_issues_from_repos(
+    org = "mbtests",
+    repo = c("gitstatstesting", "graphql_tests"),
+    progress = FALSE
+  )
+  expect_issues_full_list(
+    issues_from_repos[[1]]
+  )
+  test_mocker$cache(issues_from_repos)
+})
+
+test_that("`prepare_issues_table()` prepares issues table", {
+  gl_issues_table <- test_graphql_gitlab$prepare_issues_table(
+    repos_list_with_issues = test_mocker$use("issues_from_repos"),
+    org = "r-world-devs"
+  )
+  expect_issues_table(
+    gl_issues_table
+  )
+  test_mocker$cache(gl_issues_table)
+})

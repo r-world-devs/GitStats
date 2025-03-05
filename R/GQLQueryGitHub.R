@@ -167,6 +167,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
                   created_at: createdAt
                   closed_at: closedAt
                   state
+                  url
                 }
               }
             }

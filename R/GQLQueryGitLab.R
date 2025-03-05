@@ -81,6 +81,7 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
                   created_at: createdAt
                   closed_at: closedAt
                   state
+                  url: webUrl
                 }
               }
             }

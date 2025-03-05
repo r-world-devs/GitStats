@@ -3,5 +3,5 @@
     Code
       gl_issues_from_repo_query
     Output
-      [1] "\n      query getIssuesFromRepo ($fullPath: ID!) {\n          project(fullPath: $fullPath) {\n            issues(first: 100\n                   ) {\n              pageInfo {\n                hasNextPage\n      \t\t\t\t  endCursor\n      \t\t\t\t  startCursor\n      \t\t\t\t}\n              edges {\n                node {\n                  title\n                  description\n                  created_at: createdAt\n                  closed_at: closedAt\n                  state\n                }\n              }\n            }\n          }\n        }\n      "
+      [1] "\n      query getIssuesFromRepo ($fullPath: ID!) {\n          project(fullPath: $fullPath) {\n            issues(first: 100\n                   ) {\n              pageInfo {\n                hasNextPage\n      \t\t\t\t  endCursor\n      \t\t\t\t  startCursor\n      \t\t\t\t}\n              edges {\n                node {\n                  title\n                  description\n                  created_at: createdAt\n                  closed_at: closedAt\n                  state\n                  url: webUrl\n                }\n              }\n            }\n          }\n        }\n      "
 

@@ -36,6 +36,18 @@ expect_repos_table <- function(repos_object, repo_cols = repo_host_colnames, wit
   expect_gt(nrow(repos_object), 0)
 }
 
+expect_issues_table <- function(get_issues_object, with_stats = TRUE, exp_author = TRUE) {
+  issue_cols <- c("title", "description", "created_at", "closed_at", "state", "url",
+                  "repository", "organization", "api_url")
+
+  expect_s3_class(get_issues_object, "data.frame")
+  expect_named(get_issues_object, issue_cols)
+  expect_gt(nrow(get_issues_object), 0)
+  expect_s3_class(get_issues_object$created_at, "POSIXt")
+  expect_s3_class(get_issues_object$closed_at, "POSIXt")
+}
+
+
 expect_commits_table <- function(get_commits_object, with_stats = TRUE, exp_author = TRUE) {
   commit_cols <- if (exp_author) {
     c(
