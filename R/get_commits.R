@@ -11,7 +11,7 @@
 #'   output is switched off.
 #' @param progress A logical, by default set to `verbose` value. If `FALSE` no
 #'   `cli` progress bar will be displayed.
-#' @return A data.frame.
+#' @return A table of `tibble` and `gitstats_commits` classes.
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
