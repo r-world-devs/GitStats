@@ -289,12 +289,16 @@ test_fixtures$github_commits_response <- list(
 github_open_issue_edge <- function(created_at) {
   list(
     "node" = list(
+      "number" = 1,
       "title" = "test",
       "description" = "test",
       "created_at" = created_at,
       "closed_at" = "",
       "state" = "open",
-      "url" = "test"
+      "url" = "test",
+      "author" = list(
+        "login" = "test"
+      )
     )
   )
 }
@@ -302,12 +306,16 @@ github_open_issue_edge <- function(created_at) {
 github_closed_issue_edge <- function(created_at) {
   list(
     "node" = list(
+      "number" = 1,
       "title" = "test",
       "description" = "test",
       "created_at" = created_at,
       "closed_at" = "2025-01-01T00:00:00Z",
       "state" = "closed",
-      "url" = "test"
+      "url" = "test",
+      "author" = list(
+        "login" = "test"
+      )
     )
   )
 }

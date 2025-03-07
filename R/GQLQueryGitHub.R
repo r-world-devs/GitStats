@@ -161,12 +161,16 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       				}
               edges {
                 node {
+                  number
                   title
                   description: body
                   created_at: createdAt
                   closed_at: closedAt
                   state
                   url
+                  author {
+                    login
+                  }
                 }
               }
             }

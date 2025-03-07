@@ -37,8 +37,8 @@ expect_repos_table <- function(repos_object, repo_cols = repo_host_colnames, wit
 }
 
 expect_issues_table <- function(get_issues_object, with_stats = TRUE, exp_author = TRUE) {
-  issue_cols <- c("title", "description", "created_at", "closed_at", "state", "url",
-                  "repository", "organization", "api_url")
+  issue_cols <- c("number", "title", "description", "created_at", "closed_at", "state", "url",
+                  "author", "repository", "organization", "api_url")
 
   expect_s3_class(get_issues_object, "data.frame")
   expect_named(get_issues_object, issue_cols)

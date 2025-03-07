@@ -49,6 +49,6 @@ issues_stats <- create_gitstats() %>%
     since = "2024-01-01"
   ) |>
   get_issues_stats(
-    time_aggregation = "year",
-    group_var = state
+    time_aggregation = "month",
+    group_var = author
   )

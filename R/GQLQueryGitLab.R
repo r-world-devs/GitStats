@@ -75,12 +75,16 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
       				}
               edges {
                 node {
+                  number: iid
                   title
                   description
                   created_at: createdAt
                   closed_at: closedAt
                   state
                   url: webUrl
+                  author {
+                    login: username
+                  }
                 }
               }
             }

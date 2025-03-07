@@ -271,7 +271,8 @@ expect_gitlab_releases_response <- function(object) {
   })
 }
 
-issue_fields <- c("title", "description", "created_at", "closed_at", "state", "url")
+issue_fields <- c("number", "title", "description", "created_at", "closed_at",
+                  "state", "url", "author")
 
 expect_github_issues_page <- function(object) {
   expect_type(
