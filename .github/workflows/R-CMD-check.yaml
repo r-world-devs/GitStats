@@ -27,6 +27,7 @@ jobs:
       GITLAB_PAT_PUBLIC: ${{ secrets.GITLAB_PAT }}
       R_KEEP_PKG_SOURCE: yes
       USE_RENV: "FALSE"
+      GITSTATS_INTEGRATION_TEST_SKIPPED: "TRUE"
 
     steps:
       - uses: actions/checkout@v3
