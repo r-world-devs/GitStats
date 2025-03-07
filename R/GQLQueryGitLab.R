@@ -72,7 +72,6 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
               pageInfo {
                 hasNextPage
       				  endCursor
-      				  startCursor
       				}
               edges {
                 node {

@@ -158,7 +158,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
               pageInfo {
                 hasNextPage
       				  endCursor
-      				  startCursor
       				}
               edges {
                 node {
