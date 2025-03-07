@@ -14,7 +14,7 @@ get_release_logs(
 )
 }
 \arguments{
-\item{gitstats}{A GitStats object.}
+\item{gitstats}{A \code{GitStats} object.}
 
 \item{since}{A starting date.}
 

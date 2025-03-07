@@ -178,6 +178,47 @@ GitStats <- R6::R6Class(
       return(commits)
     },
 
+    get_issues = function(since,
+                          until,
+                          state,
+                          cache    = TRUE,
+                          verbose  = TRUE,
+                          progress = TRUE) {
+      private$check_for_host()
+      args_list <- list(
+        "state" = state,
+        "date_range" = c(since, as.character(until))
+      )
+      trigger <- private$trigger_pulling(
+        cache     = cache,
+        storage   = "issues",
+        args_list = args_list,
+        verbose   = verbose
+      )
+      if (trigger) {
+        issues <- private$get_issues_from_hosts(
+          since    = since,
+          until    = until,
+          state    = state,
+          verbose  = verbose,
+          progress = progress
+        ) %>%
+          private$set_object_class(
+            class     = "gitstats_issues",
+            attr_list = args_list
+          )
+        private$save_to_storage(
+          table = issues
+        )
+      } else {
+        issues <- private$get_from_storage(
+          table = "issues",
+          verbose = verbose
+        )
+      }
+      return(issues)
+    },
+
     get_users = function(logins, cache = TRUE, verbose = TRUE) {
       private$check_for_host()
       args_list <- list("logins" = logins)

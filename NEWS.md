@@ -1,6 +1,6 @@
 # GitStats (development version)
 
-- Added `get_issues()` function ([#569](https://github.com/r-world-devs/GitStats/issues/569)).
+- Added `get_issues()` and `get_issues_stats()` functions ([#569](https://github.com/r-world-devs/GitStats/issues/569)).
 
 # GitStats 2.2.1
 
