@@ -114,14 +114,14 @@
     },
     "cli": {
       "Package": "cli",
-      "Version": "3.6.3",
+      "Version": "3.6.4",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "utils"
       ],
-      "Hash": "b21916dd77a27642b447374a5d30ecf3"
+      "Hash": "491c34d3d9dd0d2fe13d9f278bb90795"
     },
     "clipr": {
       "Package": "clipr",
@@ -565,7 +565,7 @@
     },
     "knitr": {
       "Package": "knitr",
-      "Version": "1.48",
+      "Version": "1.49",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -577,7 +577,7 @@
         "xfun",
         "yaml"
       ],
-      "Hash": "acf380f300c721da9fde7df115a5f86f"
+      "Hash": "9fcb189926d93c636dea94fbe4f44480"
     },
     "later": {
       "Package": "later",
@@ -938,14 +938,14 @@
     },
     "rlang": {
       "Package": "rlang",
-      "Version": "1.1.4",
+      "Version": "1.1.5",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "utils"
       ],
-      "Hash": "3eec01f8b1dee337674b2e34ab1f9bc1"
+      "Hash": "724dcc1490cd7071ee75ca2994a5446e"
     },
     "rmarkdown": {
       "Package": "rmarkdown",
