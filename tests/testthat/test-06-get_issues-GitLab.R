@@ -11,12 +11,17 @@ test_that("issues page is pulled from repository", {
     mockery::stub(
       test_graphql_gitlab_priv$get_issues_page_from_repo,
       "self$gql_response",
-      test_fixtures$gitlab_issues_response
+      test_fixtures$gitlab_graphql_issues_response
     )
+    org <- "test_org"
+    repo <- "TestRepo"
+  } else {
+    org <- "mbtests"
+    repo <- "gitstatstesting"
   }
   issues_page <- test_graphql_gitlab_priv$get_issues_page_from_repo(
-    org = "mbtests",
-    repo = "gitstatstesting"
+    org = org,
+    repo = repo
   )
   expect_gitlab_issues_page(issues_page)
   test_mocker$cache(issues_page)
@@ -73,12 +78,12 @@ test_that("`prepare_issues_table()` prepares issues table", {
 test_that("get_issues_from_orgs for GitLab works", {
   if (integration_tests_skipped) {
     mockery::stub(
-      GitLab_testhost_priv$get_issues_from_orgs,
+      gitlab_testhost_priv$get_issues_from_orgs,
       "graphql_engine$prepare_issues_table",
       test_mocker$use("gl_issues_table")
     )
     mockery::stub(
-      GitLab_testhost_priv$get_issues_from_orgs,
+      gitlab_testhost_priv$get_issues_from_orgs,
       "private$get_repos_names",
       test_mocker$use("gl_repos_names")
     )

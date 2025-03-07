@@ -3,5 +3,5 @@
     Code
       gh_issues_from_repo_query
     Output
-      [1] "\n      query getIssuesFromRepo ($repo: String!\n                               $org: String!) {\n          repository(name: $repo, owner: $org) {\n            issues(first: 100\n                   ) {\n              pageInfo {\n                hasNextPage\n      \t\t\t\t  endCursor\n      \t\t\t\t  startCursor\n      \t\t\t\t}\n              edges {\n                node {\n                  title\n                  description: body\n                  created_at: createdAt\n                  closed_at: closedAt\n                  state\n                  url\n                }\n              }\n            }\n          }\n        }\n      "
+      [1] "\n      query getIssuesFromRepo ($repo: String!\n                               $org: String!) {\n          repository(name: $repo, owner: $org) {\n            issues(first: 100\n                   ) {\n              pageInfo {\n                hasNextPage\n      \t\t\t\t  endCursor\n      \t\t\t\t}\n              edges {\n                node {\n                  title\n                  description: body\n                  created_at: createdAt\n                  closed_at: closedAt\n                  state\n                  url\n                }\n              }\n            }\n          }\n        }\n      "
 

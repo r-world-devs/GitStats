@@ -11,12 +11,17 @@ test_that("issues page is pulled from repository", {
     mockery::stub(
       test_graphql_github_priv$get_issues_page_from_repo,
       "self$gql_response",
-      test_fixtures$github_issues_response
+      test_fixtures$github_graphql_issues_response
     )
+    org <- "test_org"
+    repo <- "TestRepo"
+  } else {
+    org <- "r-world-devs"
+    repo <- "GitStats"
   }
   issues_page <- test_graphql_github_priv$get_issues_page_from_repo(
-    org = "r-world-devs",
-    repo = "GitStats"
+    org = org,
+    repo = repo
   )
   expect_github_issues_page(issues_page)
   test_mocker$cache(issues_page)
@@ -147,7 +152,7 @@ test_that("`get_issues()` retrieves issues in the table format in a certain time
   )
   gh_issues_table <- github_testhost$get_issues(
     since = "2023-01-01",
-    until = "2025-02-28",
+    until = "2025-03-06",
     verbose = FALSE,
     progress = FALSE
   )

@@ -675,6 +675,22 @@ GitStats <- R6::R6Class(
       return(commits_table)
     },
 
+    # Get issues tables from hosts and bind them into one
+    get_issues_from_hosts = function(since, until, state, verbose, progress) {
+      issues_table <- purrr::map(private$hosts, function(host) {
+        host$get_issues(
+          since    = since,
+          until    = until,
+          state    = state,
+          verbose  = verbose,
+          progress = progress
+        )
+      }) %>%
+        purrr::list_rbind() %>%
+        dplyr::as_tibble()
+      return(issues_table)
+    },
+
     # Pull information on unique users in a table form
     get_users_from_hosts = function(logins) {
       purrr::map(private$hosts, function(host) {
