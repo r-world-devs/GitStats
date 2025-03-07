@@ -1046,6 +1046,7 @@ GitStats <- R6::R6Class(
                                "repos_urls" = "type",
                                "files" = "file_pattern",
                                "commits" = "date_range",
+                               "issues" = "date_range",
                                "release_logs" = "date_range",
                                "users" = "logins",
                                "R_package_usage" = "packages")
