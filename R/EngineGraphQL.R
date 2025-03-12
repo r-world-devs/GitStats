@@ -47,7 +47,7 @@ EngineGraphQL <- R6::R6Class(
       return(response)
     },
 
-    # Iterator over pulling commits from all repositories.
+    # Iterator over pulling issues from all repositories.
     get_issues_from_repos = function(org,
                                      repos_names,
                                      progress) {
@@ -63,7 +63,7 @@ EngineGraphQL <- R6::R6Class(
       return(repos_list_with_issues)
     },
 
-    # Parses repositories' list with commits into table of commits.
+    # Parses repositories' list with issues into table of issues.
     prepare_issues_table = function(repos_list_with_issues,
                                     org) {
       issues_table <- purrr::imap(repos_list_with_issues, function(repo, repo_name) {

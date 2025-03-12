@@ -505,7 +505,7 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(file_blobs_response)
     },
 
-    # An iterator over pulling commit pages from one repository.
+    # An iterator over pulling issues pages from one repository.
     get_issues_from_one_repo = function(org,
                                         repo) {
       next_page <- TRUE
