@@ -1,3 +1,15 @@
+skip_integration_tests <- function() {
+  Sys.setenv(GITSTATS_INTEGRATION_TEST_SKIPPED = "true")
+}
+
+unskip_integration_tests <- function() {
+  Sys.setenv(GITSTATS_INTEGRATION_TEST_SKIPPED = "false")
+}
+
+are_integrations_tests_skipped <- function() {
+  as.logical(Sys.getenv("GITSTATS_INTEGRATION_TEST_SKIPPED"))
+}
+
 #' @noRd
 #' @description A helper class to cache and mock results.
 Mocker <- R6::R6Class("Mocker",

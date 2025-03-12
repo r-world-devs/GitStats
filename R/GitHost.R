@@ -150,6 +150,44 @@ GitHost <- R6::R6Class(
       return(commits_table)
     },
 
+    #' Get issues method
+    get_issues = function(since,
+                          until = Sys.Date(),
+                          state = NULL,
+                          verbose = TRUE,
+                          progress = TRUE) {
+      if (private$scan_all && is.null(private$orgs) && verbose) {
+        cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
+        graphql_engine <- private$engines$graphql
+        private$orgs <- graphql_engine$get_orgs()
+      }
+      issues_from_orgs <- private$get_issues_from_orgs(
+        verbose = verbose,
+        progress = progress
+      )
+      issues_from_repos <- private$get_issues_from_repos(
+        verbose = verbose,
+        progress = progress
+      )
+      issues_table <- list(
+        issues_from_orgs,
+        issues_from_repos
+      ) |>
+        purrr::list_rbind() |>
+        dplyr::distinct() |>
+        dplyr::filter(
+          created_at >= since & created_at <= until
+        )
+      if (!is.null(state)) {
+        type <- state
+        issues_table <- issues_table |>
+          dplyr::filter(
+            state == type
+          )
+      }
+      return(issues_table)
+    },
+
     #' Pull information about users.
     get_users = function(users) {
       graphql_engine <- private$engines$graphql
@@ -1124,6 +1162,75 @@ GitHost <- R6::R6Class(
           progress    = progress
         )
         return(repos_table)
+      }
+    },
+
+    get_issues_from_orgs = function(verbose, progress) {
+      if ("org" %in% private$searching_scope) {
+        graphql_engine <- private$engines$graphql
+        issues_table <- purrr::map(private$orgs, function(org) {
+          issues_table_org <- NULL
+          if (!private$scan_all && verbose) {
+            show_message(
+              host = private$host_name,
+              engine = "graphql",
+              scope = org,
+              information = "Pulling issues"
+            )
+          }
+          repos_names <- private$get_repos_names(org)
+          issues_table_org <- graphql_engine$get_issues_from_repos(
+            org = org,
+            repos_names = repos_names,
+            progress = progress
+          ) |>
+            graphql_engine$prepare_issues_table(
+              org = org
+            )
+          return(issues_table_org)
+        }, .progress = if (private$scan_all && progress) {
+          "[GitHost:GitHub] Pulling issues..."
+        } else {
+          FALSE
+        }) |>
+          purrr::list_rbind()
+        return(issues_table)
+      }
+    },
+
+    # Get issues from GitHub
+    get_issues_from_repos = function(verbose, progress) {
+      if ("repo" %in% private$searching_scope) {
+        graphql_engine <- private$engines$graphql
+        orgs <- graphql_engine$set_owner_type(
+          owners = names(private$orgs_repos)
+        )
+        issues_table <- purrr::map(orgs, function(org) {
+          issues_table_org <- NULL
+          if (!private$scan_all && verbose) {
+            show_message(
+              host = private$host_name,
+              engine = "graphql",
+              scope = paste0(org, "/", private$orgs_repos[[org]], collapse = ", "),
+              information = "Pulling issues"
+            )
+          }
+          issues_table_org <- graphql_engine$get_issues_from_repos(
+            org = org,
+            repos_names = private$orgs_repos[[org]],
+            progress = progress
+          ) |>
+            graphql_engine$prepare_issues_table(
+              org = org
+            )
+          return(issues_table_org)
+        }, .progress = if (private$scan_all && progress) {
+          "[GitHost:GitHub] Pulling issues..."
+        } else {
+          FALSE
+        }) %>%
+          purrr::list_rbind()
+        return(issues_table)
       }
     },
 

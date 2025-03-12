@@ -115,7 +115,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
                 ... on Commit {
                   history(since: $since
                           until: $until
-                          ', private$add_cursor(commits_cursor), ") {
+                          ', private$add_cursor(commits_cursor), ') {
                     pageInfo {
                       hasNextPage
                       endCursor
@@ -145,7 +145,38 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
               }
             }
           }
-        }")
+        }')
+    },
+
+    issues_from_repo = function(issues_cursor = "") {
+      paste0('
+      query getIssuesFromRepo ($repo: String!
+                               $org: String!) {
+          repository(name: $repo, owner: $org) {
+            issues(first: 100
+                   ', private$add_cursor(issues_cursor), ') {
+              pageInfo {
+                hasNextPage
+      				  endCursor
+      				}
+              edges {
+                node {
+                  number
+                  title
+                  description: body
+                  created_at: createdAt
+                  closed_at: closedAt
+                  state
+                  url
+                  author {
+                    login
+                  }
+                }
+              }
+            }
+          }
+        }
+      ')
     },
 
     #' @description Prepare query to get files in a standard filepath from
@@ -206,9 +237,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     }
   ),
   private = list(
-    # @description Helper over defining cursor argument for the query.
-    # @param cursor A cursor.
-    # @return A string of cursor argument.
     add_cursor = function(cursor) {
       if (nchar(cursor) == 0) {
         cursor_argument <- cursor

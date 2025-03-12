@@ -11,15 +11,19 @@
 coverage](https://codecov.io/gh/r-world-devs/GitStats/branch/devel/graph/badge.svg)](https://app.codecov.io/gh/r-world-devs/GitStats?branch=devel)
 <!-- badges: end -->
 
-With GitStats you can pull git data in a uniform way (table format) from
-GitHub and GitLab. For the time-being you can get data on:
+With `GitStats` you can pull git data in a uniform way (table format)
+from GitHub and GitLab. For the time-being you can get data on:
 
 - repositories,
 - commits,
+- issues,
 - users,
 - release logs,
 - text files content,
 - R package usage.
+
+You can also prepare basic statistics with `get_*_stats()` functions for
+commits and issues.
 
 ## Installation
 
@@ -61,7 +65,7 @@ commits <- git_stats |>
   )
 
 commits
-#> # A tibble: 2,178 × 11
+#> # A tibble: 2,392 × 11
 #>    id    committed_date      author author_login author_name additions deletions
 #>    <chr> <dttm>              <chr>  <chr>        <chr>           <int>     <int>
 #>  1 7f48… 2024-09-10 11:12:59 Macie… maciekbanas  Maciej Ban…         0         0
@@ -74,7 +78,7 @@ commits
 #>  8 C_kw… 2023-05-08 09:43:31 Kryst… krystian8207 Krystian I…        18         0
 #>  9 C_kw… 2023-04-28 12:30:40 Kamil… <NA>         Kamil Kozi…        18         0
 #> 10 C_kw… 2023-03-01 15:05:10 Kryst… krystian8207 Krystian I…       296       153
-#> # ℹ 2,168 more rows
+#> # ℹ 2,382 more rows
 #> # ℹ 4 more variables: repository <chr>, organization <chr>, repo_url <chr>,
 #> #   api_url <glue>
 
@@ -83,7 +87,7 @@ commits |>
     time_aggregation = "month",
     group_var = author
   )
-#> # A tibble: 228 × 4
+#> # A tibble: 238 × 4
 #>    stats_date          githost author             stats
 #>    <dttm>              <chr>   <chr>              <int>
 #>  1 2022-01-01 00:00:00 github  Admin_mschuemi         1
@@ -96,10 +100,10 @@ commits |>
 #>  8 2022-02-01 00:00:00 github  Reijo Sund             1
 #>  9 2022-02-01 00:00:00 github  eitsupi                1
 #> 10 2022-03-01 00:00:00 github  Maximilian Girlich    14
-#> # ℹ 218 more rows
+#> # ℹ 228 more rows
 ```
 
-Get repositories:
+Get repositories with specific code:
 
 ``` r
 git_stats |>
@@ -107,15 +111,17 @@ git_stats |>
     with_code = "shiny",
     add_contributors = FALSE
   )
-#> # A tibble: 6 × 16
+#> # A tibble: 8 × 16
 #>   repo_id   repo_name          organization fullname   platform repo_url api_url
 #>   <chr>     <chr>              <chr>        <chr>      <chr>    <chr>    <chr>  
 #> 1 627452680 hypothesis         r-world-devs r-world-d… github   https:/… https:…
-#> 2 604718884 shinyTimelines     r-world-devs r-world-d… github   https:/… https:…
-#> 3 495151911 shinyCohortBuilder r-world-devs r-world-d… github   https:/… https:…
-#> 4 495144469 cohortBuilder      r-world-devs r-world-d… github   https:/… https:…
-#> 5 884789327 GitAI              r-world-devs r-world-d… github   https:/… https:…
-#> 6 586903986 GitStats           r-world-devs r-world-d… github   https:/… https:…
+#> 2 884789327 GitAI              r-world-devs r-world-d… github   https:/… https:…
+#> 3 604718884 shinyTimelines     r-world-devs r-world-d… github   https:/… https:…
+#> 4 860607920 shinyQueryBuilder  r-world-devs r-world-d… github   https:/… https:…
+#> 5 495144469 cohortBuilder      r-world-devs r-world-d… github   https:/… https:…
+#> 6 495151911 shinyCohortBuilder r-world-devs r-world-d… github   https:/… https:…
+#> 7 586903986 GitStats           r-world-devs r-world-d… github   https:/… https:…
+#> 8 860501404 queryBuilder       r-world-devs r-world-d… github   https:/… https:…
 #> # ℹ 9 more variables: created_at <dttm>, last_activity_at <dttm>,
 #> #   last_activity <drtn>, default_branch <chr>, stars <int>, forks <int>,
 #> #   languages <chr>, issues_open <int>, issues_closed <int>
@@ -129,20 +135,20 @@ git_stats |>
     pattern = "\\.md",
     depth = 2L
   )
-#> # A tibble: 51 × 8
+#> # A tibble: 52 × 8
 #>    repo_name      repo_id organization file_path file_content file_size repo_url
 #>    <chr>          <chr>   <chr>        <chr>     <chr>            <int> <chr>   
 #>  1 GitStats Test… gid://… mbtests      README.md "# GitStats…       122 https:/…
 #>  2 shinyGizmo     R_kgDO… r-world-devs NEWS.md   "# shinyGiz…      2186 https:/…
 #>  3 shinyGizmo     R_kgDO… r-world-devs README.md "\n# shinyG…      2337 https:/…
 #>  4 shinyGizmo     R_kgDO… r-world-devs cran-com… "## Test en…      1700 https:/…
-#>  5 cohortBuilder  R_kgDO… r-world-devs NEWS.md   "# cohortBu…       917 https:/…
-#>  6 cohortBuilder  R_kgDO… r-world-devs README.md "\n# cohort…     15828 https:/…
+#>  5 cohortBuilder  R_kgDO… r-world-devs NEWS.md   "# cohortBu…      1072 https:/…
+#>  6 cohortBuilder  R_kgDO… r-world-devs README.md "\n# cohort…     15830 https:/…
 #>  7 shinyCohortBu… R_kgDO… r-world-devs NEWS.md   "# shinyCoh…      2018 https:/…
 #>  8 shinyCohortBu… R_kgDO… r-world-devs README.md "\n# shinyC…      3355 https:/…
 #>  9 cohortBuilder… R_kgDO… r-world-devs README.md "\n# cohort…      3472 https:/…
 #> 10 GitStats       R_kgDO… r-world-devs LICENSE.… "# MIT Lice…      1075 https:/…
-#> # ℹ 41 more rows
+#> # ℹ 42 more rows
 #> # ℹ 1 more variable: api_url <chr>
 ```
 
@@ -155,27 +161,30 @@ git_stats |>
     split_output = TRUE
   )
 #> $shiny
-#> # A tibble: 5 × 11
+#> # A tibble: 6 × 11
 #>   package package_usage   repo_id   repo_fullname       repo_name default_branch
 #>   <chr>   <chr>           <chr>     <chr>               <chr>     <chr>         
 #> 1 shiny   import          495144469 r-world-devs/cohor… cohortBu… dev           
 #> 2 shiny   import, library 495151911 r-world-devs/shiny… shinyCoh… dev           
 #> 3 shiny   import, library 604718884 r-world-devs/shiny… shinyTim… master        
-#> 4 shiny   import, library 884789327 r-world-devs/GitAI  GitAI     main          
-#> 5 shiny   import, library 627452680 r-world-devs/hypot… hypothes… master        
+#> 4 shiny   import, library 860607920 r-world-devs/shiny… shinyQue… master        
+#> 5 shiny   import, library 884789327 r-world-devs/GitAI  GitAI     main          
+#> 6 shiny   import, library 627452680 r-world-devs/hypot… hypothes… master        
 #> # ℹ 5 more variables: created_at <dttm>, organization <chr>, repo_url <chr>,
 #> #   api_url <chr>, platform <chr>
 #> 
 #> $purrr
-#> # A tibble: 6 × 11
+#> # A tibble: 8 × 11
 #>   package package_usage repo_id   repo_fullname         repo_name default_branch
 #>   <chr>   <chr>         <chr>     <chr>                 <chr>     <chr>         
 #> 1 purrr   import        495144469 r-world-devs/cohortB… cohortBu… dev           
 #> 2 purrr   import        495151911 r-world-devs/shinyCo… shinyCoh… dev           
-#> 3 purrr   import        586903986 r-world-devs/GitStats GitStats  master        
-#> 4 purrr   import        884789327 r-world-devs/GitAI    GitAI     main          
-#> 5 purrr   import        627452680 r-world-devs/hypothe… hypothes… master        
-#> 6 purrr   import        402384343 openpharma/DataFakeR  DataFakeR master        
+#> 3 purrr   import        884789327 r-world-devs/GitAI    GitAI     main          
+#> 4 purrr   import        586903986 r-world-devs/GitStats GitStats  master        
+#> 5 purrr   import        860607920 r-world-devs/shinyQu… shinyQue… master        
+#> 6 purrr   import        860501404 r-world-devs/queryBu… queryBui… master        
+#> 7 purrr   import        627452680 r-world-devs/hypothe… hypothes… master        
+#> 8 purrr   import        402384343 openpharma/DataFakeR  DataFakeR master        
 #> # ℹ 5 more variables: created_at <dttm>, organization <chr>, repo_url <chr>,
 #> #   api_url <chr>, platform <chr>
 #> 
@@ -197,11 +206,17 @@ git_stats
 #>  Organizations: [1] r-world-devs
 #>  Repositories: [2] mbtests/gitstatstesting, openpharma/DataFakeR
 #> Storage: 
-#>  Repositories: 6 
-#>  Commits: 2178 [date range: 2022-01-01 - 2025-01-10]
-#>  Files: 51 [file pattern: \.md]
+#>  Repositories: 8 
+#>  Commits: 2392 [date range: 2022-01-01 - 2025-03-08]
+#>  Files: 52 [file pattern: \.md]
 #>  R_package_usage: 2 [packages: shiny, purrr]
 ```
+
+## See also
+
+`GitStats` is used to facilitate workflow of the `GitAI` R package, a
+tool for gathering AI-based knowledge about git repositories:
+<https://r-world-devs.github.io/GitAI/>
 
 ## Acknowledgement
 

@@ -178,6 +178,47 @@ GitStats <- R6::R6Class(
       return(commits)
     },
 
+    get_issues = function(since,
+                          until,
+                          state,
+                          cache    = TRUE,
+                          verbose  = TRUE,
+                          progress = TRUE) {
+      private$check_for_host()
+      args_list <- list(
+        "state" = state,
+        "date_range" = c(since, as.character(until))
+      )
+      trigger <- private$trigger_pulling(
+        cache     = cache,
+        storage   = "issues",
+        args_list = args_list,
+        verbose   = verbose
+      )
+      if (trigger) {
+        issues <- private$get_issues_from_hosts(
+          since    = since,
+          until    = until,
+          state    = state,
+          verbose  = verbose,
+          progress = progress
+        ) %>%
+          private$set_object_class(
+            class     = "gitstats_issues",
+            attr_list = args_list
+          )
+        private$save_to_storage(
+          table = issues
+        )
+      } else {
+        issues <- private$get_from_storage(
+          table = "issues",
+          verbose = verbose
+        )
+      }
+      return(issues)
+    },
+
     get_users = function(logins, cache = TRUE, verbose = TRUE) {
       private$check_for_host()
       args_list <- list("logins" = logins)
@@ -675,6 +716,22 @@ GitStats <- R6::R6Class(
       return(commits_table)
     },
 
+    # Get issues tables from hosts and bind them into one
+    get_issues_from_hosts = function(since, until, state, verbose, progress) {
+      issues_table <- purrr::map(private$hosts, function(host) {
+        host$get_issues(
+          since    = since,
+          until    = until,
+          state    = state,
+          verbose  = verbose,
+          progress = progress
+        )
+      }) %>%
+        purrr::list_rbind() %>%
+        dplyr::as_tibble()
+      return(issues_table)
+    },
+
     # Pull information on unique users in a table form
     get_users_from_hosts = function(logins) {
       purrr::map(private$hosts, function(host) {
@@ -989,6 +1046,7 @@ GitStats <- R6::R6Class(
                                "repos_urls" = "type",
                                "files" = "file_pattern",
                                "commits" = "date_range",
+                               "issues" = "date_range",
                                "release_logs" = "date_range",
                                "users" = "logins",
                                "R_package_usage" = "packages")
