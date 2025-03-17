@@ -35,6 +35,20 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       )
     },
 
+    org = '
+      query GetOrg($org: String!) {
+        organization(login: $org) {
+          name
+          description
+          login
+          url
+          repositories(first: 100) {
+            totalCount
+          }
+          avatarUrl
+        }
+      }',
+
     #' @description Query to check if a given string is user or organization.
     user_or_org_query =
       '

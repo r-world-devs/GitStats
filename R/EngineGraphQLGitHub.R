@@ -87,6 +87,15 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(orgs_table)
     },
 
+    # This method is for pulling orgs when host has set orgs
+    get_org = function(org) {
+      response <- self$gql_response(
+        gql_query = self$gql_query$org,
+        vars = list("org" = org)
+      )
+      return(response$data$organization)
+    },
+
     # Pull all repositories from organization
     get_repos_from_org = function(org = NULL,
                                   type = c("organization", "user")) {

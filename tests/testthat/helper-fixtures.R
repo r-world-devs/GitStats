@@ -59,6 +59,12 @@ test_fixtures$graphql_gh_orgs_response <- list(
   )
 )
 
+test_fixtures$graphql_gh_org_response <- list(
+  "data" = list(
+    "organization" = github_org_edge$node
+  )
+)
+
 gitlab_org_edge <- list(
   "node" = list(
     "name" = "test_name",

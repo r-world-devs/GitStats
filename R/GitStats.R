@@ -575,7 +575,6 @@ GitStats <- R6::R6Class(
     get_orgs_from_hosts = function(verbose) {
       purrr::map(private$hosts, function(host) {
         host$get_orgs(
-          output = "full_table",
           verbose = verbose
         )
       }) |>
