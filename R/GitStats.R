@@ -1080,7 +1080,7 @@ GitStats <- R6::R6Class(
 
     # print storage attribute
     print_storage_attribute = function(storage_data, storage_name) {
-      if (storage_name != "repositories") {
+      if (!storage_name %in% c("repositories", "organizations")) {
         storage_attr <- switch(storage_name,
                                "repos_urls" = "type",
                                "files" = "file_pattern",
