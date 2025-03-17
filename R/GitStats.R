@@ -40,6 +40,32 @@ GitStats <- R6::R6Class(
       private$add_new_host(new_host)
     },
 
+    get_orgs = function(cache = TRUE, verbose = TRUE) {
+      private$check_for_host()
+      trigger <- private$trigger_pulling(
+        cache   = cache,
+        storage = "organizations",
+        verbose = verbose
+      )
+      if (trigger) {
+        organizations <- private$get_orgs_from_hosts(
+          verbose = verbose
+        ) %>%
+          private$set_object_class(
+            class     = "gitstats_orgs"
+          )
+        private$save_to_storage(
+          table = organizations
+        )
+      } else {
+        organizations <- private$get_from_storage(
+          table   = "organizations",
+          verbose = verbose
+        )
+      }
+      return(organizations)
+    },
+
     get_repos = function(add_contributors = FALSE,
                          with_code        = NULL,
                          in_files         = NULL,
@@ -497,29 +523,31 @@ GitStats <- R6::R6Class(
     },
 
     # Decide if repositories data will be pulled from API
-    trigger_pulling = function(cache, storage, args_list, verbose) {
+    trigger_pulling = function(cache, storage, args_list = NULL, verbose) {
       trigger <- FALSE
       if (private$storage_is_empty(storage)) {
         trigger <- TRUE
       } else {
-        repos_parameters_changed <- private$check_if_args_changed(
-          storage = storage,
-          args_list = args_list
-        )
-        if (repos_parameters_changed) {
-          if (verbose) {
-            cli::cli_alert_info(cli::col_blue(
-              "Parameters changed, I will pull data from API."
-            ))
+        if (!is.null(args_list)) {
+          repos_parameters_changed <- private$check_if_args_changed(
+            storage = storage,
+            args_list = args_list
+          )
+          if (repos_parameters_changed) {
+            if (verbose) {
+              cli::cli_alert_info(cli::col_blue(
+                "Parameters changed, I will pull data from API."
+              ))
+            }
+            trigger <- TRUE
+          } else if (!repos_parameters_changed && !cache) {
+            if (verbose) {
+              cli::cli_alert_info(cli::col_blue(
+                "Cache set to FALSE, I will pull data from API."
+              ))
+            }
+            trigger <- TRUE
           }
-          trigger <- TRUE
-        } else if (!repos_parameters_changed && !cache) {
-          if (verbose) {
-            cli::cli_alert_info(cli::col_blue(
-              "Cache set to FALSE, I will pull data from API."
-            ))
-          }
-          trigger <- TRUE
         }
       }
       return(trigger)
@@ -534,12 +562,24 @@ GitStats <- R6::R6Class(
     },
 
     # Set object class with attributes
-    set_object_class = function(object, class, attr_list) {
+    set_object_class = function(object, class, attr_list = NULL) {
       class(object) <- append(class, class(object))
-      purrr::iwalk(attr_list, function(attrib, attrib_name)  {
-        attr(object, attrib_name) <<- attrib
-      })
+      if (!is.null(attr_list)) {
+        purrr::iwalk(attr_list, function(attrib, attrib_name)  {
+          attr(object, attrib_name) <<- attrib
+        })
+      }
       return(object)
+    },
+
+    get_orgs_from_hosts = function(verbose) {
+      purrr::map(private$hosts, function(host) {
+        host$get_orgs(
+          output = "full_table",
+          verbose = verbose
+        )
+      }) |>
+        purrr::list_rbind()
     },
 
     # Pull repositories tables from hosts and bind them into one

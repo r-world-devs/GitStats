@@ -40,8 +40,8 @@ EngineGraphQLGitHub <- R6::R6Class(
     },
 
     #' Get all orgs from GitHub.
-    get_orgs = function() {
-      end_cursor <- NULL
+    get_orgs = function(output = c("only_names", "full_table")) {
+      end_cursor <- ""
       has_next_page <- TRUE
       full_orgs_list <- list()
       while (has_next_page) {
@@ -55,13 +55,36 @@ EngineGraphQLGitHub <- R6::R6Class(
             response$errors[[1]]$message
           )
         }
-        orgs_list <- purrr::map(response$data$search$edges, ~ stringr::str_match(.$node$url, "[^\\/]*$"))
+        if (output == "only_names") {
+          orgs_list <- purrr::map(response$data$search$edges, ~ .$node$login)
+        } else {
+          orgs_list <- purrr::map(response$data$search$edges, ~ .$node)
+        }
         full_orgs_list <- append(full_orgs_list, orgs_list)
         has_next_page <- response$data$search$pageInfo$hasNextPage
         end_cursor <- response$data$search$pageInfo$endCursor
       }
-      all_orgs <- unlist(full_orgs_list)
+      all_orgs <- if (output == "only_names") {
+        unlist(full_orgs_list)
+      } else {
+        full_orgs_list
+      }
       return(all_orgs)
+    },
+
+    prepare_orgs_table = function(full_orgs_list) {
+      orgs_table <- purrr::map(full_orgs_list, function(orgs_node) {
+        orgs_node$description <- orgs_node$description %||% ""
+        orgs_node$repos_count <- orgs_node$repositories$totalCount
+        orgs_node$repositories <- NULL
+        data.frame(orgs_node)
+      }) |>
+        purrr::list_rbind() |>
+        dplyr::rename(path = login,
+                      avatar_url = avatarUrl) |>
+        dplyr::relocate(description, .after = name) |>
+        tibble::as_tibble()
+      return(orgs_table)
     },
 
     # Pull all repositories from organization

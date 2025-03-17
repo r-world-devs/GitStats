@@ -42,7 +42,25 @@ GitHost <- R6::R6Class(
       )
     },
 
-    # Pull repositories method
+    get_orgs = function(output, verbose) {
+      if (verbose) {
+        cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling organizations...")
+      }
+      graphql_engine <- private$engines$graphql
+      orgs <- graphql_engine$get_orgs(
+        output = output
+      )
+      if (output == "full_table") {
+        orgs <- orgs |>
+          graphql_engine$prepare_orgs_table() |>
+          dplyr::mutate(
+            host_url = private$api_url,
+            host_name = private$host_name
+          )
+      }
+      return(orgs)
+    },
+
     get_repos = function(add_contributors = TRUE,
                          with_code        = NULL,
                          in_files         = NULL,

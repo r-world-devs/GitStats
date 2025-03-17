@@ -16,7 +16,12 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
               }
               edges {
                 node {
+                  name
+                  description
                   fullPath
+                  webUrl
+                  projectsCount
+                  avatarUrl
                 }
               }
             }

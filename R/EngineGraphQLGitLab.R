@@ -44,7 +44,7 @@ EngineGraphQLGitLab <- R6::R6Class(
     },
 
     #' Get all groups from GitLab.
-    get_orgs = function() {
+    get_orgs = function(output = c("only_names", "full_table")) {
       group_cursor <- ""
       has_next_page <- TRUE
       full_orgs_list <- list()
@@ -62,13 +62,36 @@ EngineGraphQLGitLab <- R6::R6Class(
             )
           )
         }
-        orgs_list <- purrr::map(response$data$groups$edges, ~ .$node$fullPath)
+        if (output == "only_names") {
+          orgs_list <- purrr::map(response$data$groups$edges, ~ .$node$fullPath)
+        } else {
+          orgs_list <- purrr::map(response$data$groups$edges, ~ .$node)
+        }
         full_orgs_list <- append(full_orgs_list, orgs_list)
         has_next_page <- response$data$groups$pageInfo$hasNextPage
         group_cursor <- response$data$groups$pageInfo$endCursor
       }
-      all_orgs <- unlist(full_orgs_list)
+      if (output == "only_names") {
+        all_orgs <- unlist(full_orgs_list)
+      } else {
+        all_orgs <- full_orgs_list
+      }
       return(all_orgs)
+    },
+
+    prepare_orgs_table = function(full_orgs_list) {
+      orgs_table <- purrr::map(full_orgs_list, function(org_node) {
+        org_node$avatarUrl <- org_node$avatarUrl %||% ""
+        data.frame(org_node)
+      }) |>
+        purrr::list_rbind() |>
+        dplyr::rename(path = fullPath,
+                      url = webUrl,
+                      repos_count = projectsCount,
+                      avatar_url = avatarUrl) |>
+        dplyr::relocate(avatar_url, .before = repos_count) |>
+        tibble::as_tibble()
+      return(orgs_table)
     },
 
     # Iterator over pulling pages of repositories.

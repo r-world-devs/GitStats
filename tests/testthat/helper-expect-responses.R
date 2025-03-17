@@ -318,3 +318,21 @@ expect_issues_full_list <- function(object) {
     issue_fields
   )
 }
+
+github_orgs_fields <- c("name", "description", "login", "url", "repositories", "avatarUrl")
+
+expect_github_orgs_full_list <- function(object) {
+  expect_named(
+    object[[1]],
+    github_orgs_fields
+  )
+}
+
+gitlab_orgs_fields <- c("name", "description", "fullPath", "webUrl", "projectsCount", "avatarUrl")
+
+expect_gitlab_orgs_full_list <- function(object) {
+  expect_named(
+    object[[1]],
+    gitlab_orgs_fields
+  )
+}

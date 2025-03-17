@@ -9,14 +9,9 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     #' @param end_cursor An end cursor to paginate.
     #' @return A query.
     orgs = function(end_cursor) {
-      if (is.null(end_cursor)) {
-        pagination_phrase <- ''
-      } else {
-        pagination_phrase <- paste0('after: "', end_cursor, '"')
-      }
       paste0(
         'query {
-          search(first: 100, type: USER, query: "type:org" ', pagination_phrase, ') {
+          search(first: 100, type: USER, query: "type:org" ', private$add_cursor(end_cursor), ') {
             pageInfo {
                hasNextPage
                endCursor
@@ -25,7 +20,13 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
               node{
                 ... on Organization {
                   name
+                  description
+                  login
                   url
+                  repositories (first: 100) {
+                    totalCount
+                  }
+                  avatarUrl
                 }
               }
             }
