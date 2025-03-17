@@ -92,6 +92,11 @@ test_fixtures$graphql_gl_orgs_response <- list(
   )
 )
 
+test_fixtures$graphql_gl_org_response <- list(
+  "data" = list(
+    "group" = gitlab_org_edge$node
+  )
+)
 
 test_fixtures$github_repository_rest_response <- list(
   "id" = 627452680,

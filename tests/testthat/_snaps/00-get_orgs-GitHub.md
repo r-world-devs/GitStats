@@ -15,8 +15,7 @@
 # get_orgs_from_host prints message
 
     Code
-      github_orgs_table <- github_testhost_priv$get_orgs_from_host(output = "full_table",
-        verbose = TRUE)
+      github_orgs_table <- github_testhost_priv$get_orgs_from_host(verbose = TRUE)
     Message
       i [GitHub][Engine:GraphQL] Pulling organizations...
 

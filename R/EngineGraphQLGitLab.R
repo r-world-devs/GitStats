@@ -79,6 +79,14 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(all_orgs)
     },
 
+    get_org = function(org) {
+      response <- self$gql_response(
+        gql_query = self$gql_query$group,
+        vars = list("org" = org)
+      )
+      return(response$data$group)
+    },
+
     prepare_orgs_table = function(full_orgs_list) {
       orgs_table <- purrr::map(full_orgs_list, function(org_node) {
         org_node$avatarUrl <- org_node$avatarUrl %||% ""

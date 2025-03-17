@@ -28,6 +28,19 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
         }'
     },
 
+    group = '
+      query GetGroup($org: ID!) {
+        group(fullPath: $org) {
+          name
+          description
+          fullPath
+          webUrl
+          projectsCount
+          avatarUrl
+        }
+      }
+    ',
+
     #' @field user_or_org_query Query to check if a given string is user or
     #'   organization.
     user_or_org_query =

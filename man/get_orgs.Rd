@@ -26,11 +26,11 @@ into table format. Works only for internal hosts.
 \dontrun{
 my_gitstats <- create_gitstats() \%>\%
   set_github_host(
-    host = "internal.host", # define your host
+    orgs = c("r-world-devs", "openpharma"),
     token = Sys.getenv("GITHUB_PAT")
   ) \%>\%
   set_gitlab_host(
-    host = "interna.host", # define your host
+    host = "mbtests",
     token = Sys.getenv("GITLAB_PAT_PUBLIC")
   )
 get_orgs(my_gitstats)

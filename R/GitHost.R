@@ -45,12 +45,10 @@ GitHost <- R6::R6Class(
     get_orgs = function(verbose) {
       if (private$scan_all) {
         orgs_table <- private$get_orgs_from_host(
-          output = "full_table",
           verbose = verbose
         )
       } else {
         orgs_table <- private$get_orgs_from_orgs_and_repos(
-          output = "full_table",
           verbose = verbose
         )
       }
@@ -688,7 +686,7 @@ GitHost <- R6::R6Class(
       )
     },
 
-    get_orgs_from_host = function(output, verbose) {
+    get_orgs_from_host = function(verbose) {
       if (verbose) {
         cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling organizations...")
       }
@@ -701,7 +699,7 @@ GitHost <- R6::R6Class(
       return(orgs)
     },
 
-    get_orgs_from_orgs_and_repos = function(output, verbose) {
+    get_orgs_from_orgs_and_repos = function(verbose) {
       graphql_engine <- private$engines$graphql
       orgs_names <- NULL
       orgs_names_from_repos <- NULL
