@@ -23,6 +23,17 @@ test_that("set_object_class for repos_table works correctly", {
     class = "gitstats_orgs"
   )
   expect_s3_class(orgs_table, "gitstats_orgs")
+})
+
+test_that("get_orgs works", {
+  mockery::stub(
+    test_gitstats$get_orgs,
+    "private$get_orgs_from_hosts",
+    test_mocker$use("orgs_from_hosts")
+  )
+  orgs_table <- test_gitstats$get_orgs()
+  expect_s3_class(orgs_table, "gitstats_orgs")
+  expect_orgs_table(orgs_table, add_cols = c("host_url", "host_name"))
   test_mocker$cache(orgs_table)
 })
 
@@ -38,4 +49,3 @@ test_that("get_orgs works", {
   expect_s3_class(orgs_table, "gitstats_orgs")
   test_mocker$cache(orgs_table)
 })
-
