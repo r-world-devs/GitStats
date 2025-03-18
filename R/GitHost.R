@@ -720,12 +720,12 @@ GitHost <- R6::R6Class(
       }
       total_orgs_names <- c(orgs_names, orgs_names_from_repos)
       orgs_table <- purrr::map(total_orgs_names, function(org) {
-          type <- attr(org, "type") %||% "organization"
-          org <- utils::URLdecode(org)
-          graphql_engine$get_org(
-            org = org
-          )
-        }) |>
+        type <- attr(org, "type") %||% "organization"
+        org <- utils::URLdecode(org)
+        graphql_engine$get_org(
+          org = org
+        )
+      }) |>
         graphql_engine$prepare_orgs_table()
       return(orgs_table)
     },
