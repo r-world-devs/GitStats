@@ -319,7 +319,8 @@ expect_issues_full_list <- function(object) {
   )
 }
 
-github_orgs_fields <- c("name", "description", "login", "url", "repositories", "avatarUrl")
+github_orgs_fields <- c("name", "description", "login", "url", "repositories",
+                        "membersWithRole", "avatarUrl")
 
 expect_github_orgs_full_list <- function(object) {
   expect_named(
@@ -328,7 +329,8 @@ expect_github_orgs_full_list <- function(object) {
   )
 }
 
-gitlab_orgs_fields <- c("name", "description", "fullPath", "webUrl", "projectsCount", "avatarUrl")
+gitlab_orgs_fields <- c("name", "description", "fullPath", "webUrl", "projectsCount",
+                        "groupMembersCount", "avatarUrl")
 
 expect_gitlab_orgs_full_list <- function(object) {
   expect_named(

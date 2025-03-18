@@ -39,6 +39,9 @@ github_org_edge <- list(
     "repositories" = list(
       "totalCount" = 5L
     ),
+    "membersWithRole" = list(
+      "totalCount" = 3L
+    ),
     "avatarUrl" = "test_url"
   )
 )
@@ -72,6 +75,7 @@ gitlab_org_edge <- list(
     "fullPath" = "test_path",
     "webUrl" = "web_url",
     "projectsCount" = 5L,
+    "groupMembersCount" = 3L,
     "avatarUrl" = "test_url"
   )
 )

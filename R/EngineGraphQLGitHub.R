@@ -76,6 +76,8 @@ EngineGraphQLGitHub <- R6::R6Class(
       orgs_table <- purrr::map(full_orgs_list, function(orgs_node) {
         orgs_node$description <- orgs_node$description %||% ""
         orgs_node$repos_count <- orgs_node$repositories$totalCount
+        orgs_node$members_count <- orgs_node$membersWithRole$totalCount
+        orgs_node$membersWithRole <- NULL
         orgs_node$repositories <- NULL
         data.frame(orgs_node)
       }) |>
@@ -90,7 +92,7 @@ EngineGraphQLGitHub <- R6::R6Class(
     # This method is for pulling orgs when host has set orgs
     get_org = function(org) {
       response <- self$gql_response(
-        gql_query = self$gql_query$org,
+        gql_query = self$gql_query$org(),
         vars = list("org" = org)
       )
       return(response$data$organization)

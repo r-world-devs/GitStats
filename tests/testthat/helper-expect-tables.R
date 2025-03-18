@@ -21,7 +21,8 @@ expect_package_usage_table <- function(object, with_cols = NULL) {
 
 expect_orgs_table <- function(object, add_cols = NULL) {
   expect_s3_class(object, "data.frame")
-  expect_named(object, c("name", "description", "path", "url", "avatar_url", "repos_count", add_cols))
+  expect_named(object, c("name", "description", "path", "url", "avatar_url",
+                         "repos_count", "members_count", add_cols))
   expect_gt(nrow(object), 0)
 }
 

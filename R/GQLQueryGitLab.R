@@ -5,44 +5,48 @@
 GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
   public = list(
 
-    #' @description Prepare query to list groups from GitLab.
-    #' @return A query.
     groups = function() {
-      'query GetGroups($groupCursor: String!) {
+      paste0(
+        'query GetGroups($groupCursor: String!) {
             groups (after: $groupCursor) {
               pageInfo {
                 endCursor
                 hasNextPage
               }
               edges {
-                node {
-                  name
-                  description
-                  fullPath
-                  webUrl
-                  projectsCount
-                  avatarUrl
-                }
+                node {', private$group_fields, '}
               }
             }
         }'
+      )
     },
 
-    group = '
-      query GetGroup($org: ID!) {
-        group(fullPath: $org) {
-          name
-          description
-          fullPath
-          webUrl
-          projectsCount
-          avatarUrl
-        }
-      }
-    ',
+    groups_without_members = function() {
+      paste0(
+        'query GetGroups($groupCursor: String!) {
+            groups (after: $groupCursor) {
+              pageInfo {
+                endCursor
+                hasNextPage
+              }
+              edges {
+                node {', private$group_fields_no_members, '}
+              }
+            }
+        }'
+      )
+    },
 
-    #' @field user_or_org_query Query to check if a given string is user or
-    #'   organization.
+    group = function() {
+      paste0('
+      query GetGroup($org: ID!) {
+        group(fullPath: $org) {',
+             private$group_fields
+             ,'}
+      }
+    ')
+    },
+
     user_or_org_query =
       '
       query ($username: String! $grouppath: ID!) {
@@ -57,8 +61,6 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
       }'
     ,
 
-    #' @description Prepare query to get repositories from GitLab.
-    #' @return A query.
     repos_by_org = function() {
       paste0('
         query GetReposByOrg($org: ID! $repo_cursor: String!) {
@@ -70,8 +72,6 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
         }')
     },
 
-    #' @description Prepare query to get repositories from GitLab.
-    #' @return A query.
     repos_by_user = function() {
       paste0('
         query GetUserRepos ($username: String! $repo_cursor: String!) {
@@ -111,8 +111,6 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
       ')
     },
 
-    #' @description Prepare query to get info on a GitLab user.
-    #' @return A query.
     user = function() {
       paste0('
         query GetUser($user: String!) {
@@ -138,10 +136,6 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
       ')
     },
 
-    #' @description Prepare query to get files in a standard filepath from
-    #'   GitLab repositories.
-    #' @param end_cursor An endCursor.
-    #' @return A query.
     files_by_org = function(end_cursor = "") {
       paste0(
         'query GetFilesByOrg($org: ID!, $file_paths: [String!]!) {
@@ -228,8 +222,6 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
       '
     },
 
-    #' @description Prepare query to get releases from GitHub repositories.
-    #' @return A query.
     releases_from_repo = function() {
       'query GetReleasesFromRepo($project_path: ID!) {
               project(fullPath: $project_path) {
@@ -259,6 +251,37 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
       }
       return(cursor_argument)
     },
+
+    group_fields =
+      '
+      name
+      description
+      fullPath
+      webUrl
+      projectsCount
+      groupMembersCount
+      groupMembers {
+        edges {
+          node {
+            user {
+              username
+            }
+          }
+        }
+      }
+      avatarUrl
+    ',
+
+    group_fields_no_members =
+      '
+      name
+      description
+      fullPath
+      webUrl
+      projectsCount
+      groupMembersCount
+      avatarUrl
+    ',
 
     projects_field_content =
       '

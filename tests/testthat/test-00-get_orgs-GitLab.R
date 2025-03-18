@@ -8,7 +8,7 @@ test_that("groups GitLab query is built properly", {
 
 test_that("group GitLab query is built properly", {
   gl_org_query <-
-    test_gqlquery_gl$group
+    test_gqlquery_gl$group()
   expect_snapshot(
     gl_org_query
   )

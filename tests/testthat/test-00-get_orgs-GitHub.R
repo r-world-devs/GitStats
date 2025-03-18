@@ -10,7 +10,7 @@ test_that("orgs GitHub query is built properly", {
 
 test_that("org GitHub query is built properly", {
   gh_org_query <-
-    test_gqlquery_gh$org
+    test_gqlquery_gh$org()
   expect_snapshot(
     gh_org_query
   )
