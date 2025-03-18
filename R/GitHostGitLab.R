@@ -135,6 +135,19 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       return(repos_table)
     },
 
+    get_orgs_from_host = function(verbose) {
+      rest_engine <- private$engines$rest
+      orgs_count <- rest_engine$get_orgs_count(verbose)
+      graphql_engine <- private$engines$graphql
+      orgs <- graphql_engine$get_orgs(
+        orgs_count = as.integer(orgs_count),
+        output = "full_table",
+        verbose = verbose
+      ) |>
+        graphql_engine$prepare_orgs_table()
+      return(orgs)
+    },
+
     # Get projects API URL from search response
     get_repo_url_from_response = function(search_response, type, repos_fullnames = NULL, progress = TRUE) {
       repo_urls <- purrr::map_vec(search_response, function(response) {

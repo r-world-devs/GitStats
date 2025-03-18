@@ -686,19 +686,6 @@ GitHost <- R6::R6Class(
       )
     },
 
-    get_orgs_from_host = function(verbose) {
-      if (verbose) {
-        cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling organizations...")
-      }
-      graphql_engine <- private$engines$graphql
-      orgs <- graphql_engine$get_orgs(
-        output = "full_table"
-      ) |>
-        graphql_engine$prepare_orgs_table()
-
-      return(orgs)
-    },
-
     get_orgs_from_orgs_and_repos = function(verbose) {
       graphql_engine <- private$engines$graphql
       orgs_names <- NULL

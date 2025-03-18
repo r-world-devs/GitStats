@@ -138,6 +138,16 @@ GitHostGitHub <- R6::R6Class(
       return(repos_table)
     },
 
+    get_orgs_from_host = function(verbose) {
+      graphql_engine <- private$engines$graphql
+      orgs <- graphql_engine$get_orgs(
+        output = "full_table",
+        verbose = verbose
+      ) |>
+        graphql_engine$prepare_orgs_table()
+      return(orgs)
+    },
+
     # Get projects URL from search response
     get_repo_url_from_response = function(search_response, repos_fullnames = NULL, type, progress = TRUE) {
       if (!is.null(repos_fullnames)) {

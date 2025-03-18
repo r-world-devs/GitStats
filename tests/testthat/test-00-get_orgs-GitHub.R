@@ -23,7 +23,8 @@ test_that("get_orgs pulls responses from GraphQL", {
     test_fixtures$graphql_gh_orgs_response
   )
   gh_orgs_raw_response <- test_graphql_github$get_orgs(
-    output = "only_names"
+    output = "only_names",
+    verbose = FALSE
   )
   expect_type(
     gh_orgs_raw_response,
@@ -31,7 +32,8 @@ test_that("get_orgs pulls responses from GraphQL", {
   )
   test_mocker$cache(gh_orgs_raw_response)
   gh_orgs_full_response <- test_graphql_github$get_orgs(
-    output = "full_table"
+    output = "full_table",
+    verbose = FALSE
   )
   expect_type(
     gh_orgs_full_response,
@@ -39,6 +41,20 @@ test_that("get_orgs pulls responses from GraphQL", {
   )
   expect_github_orgs_full_list(gh_orgs_full_response)
   test_mocker$cache(gh_orgs_full_response)
+})
+
+test_that("get_orgs prints message", {
+  mockery::stub(
+    test_graphql_github$get_orgs,
+    "self$gql_response",
+    test_fixtures$graphql_gh_orgs_response
+  )
+  expect_snapshot(
+    gh_orgs_full_response <- test_graphql_github$get_orgs(
+      output = "full_table",
+      verbose = TRUE
+    )
+  )
 })
 
 test_that("prepare_orgs_table works", {
@@ -82,19 +98,6 @@ test_that("get_orgs_from_host works on GitHost level", {
     github_orgs_table
   )
   test_mocker$cache(github_orgs_table)
-})
-
-test_that("get_orgs_from_host prints message", {
-  mockery::stub(
-    github_testhost_priv$get_orgs_from_host,
-    "graphql_engine$get_orgs",
-    test_mocker$use("gh_orgs_full_response")
-  )
-  expect_snapshot(
-    github_orgs_table <- github_testhost_priv$get_orgs_from_host(
-      verbose = TRUE
-    )
-  )
 })
 
 test_that("get_orgs_from_orgs_and_repos works on GitHost level", {

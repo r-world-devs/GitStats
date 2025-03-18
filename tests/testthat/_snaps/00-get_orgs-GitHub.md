@@ -12,10 +12,11 @@
     Output
       [1] "\n        query GetOrg($org: String!) {\n          organization(login: $org) {\n      name\n      description\n      login\n      url\n      repositories (first: 100) {\n        totalCount\n      }\n      membersWithRole(first: 100) {\n        totalCount\n      }\n      avatarUrl\n    }\n        }"
 
-# get_orgs_from_host prints message
+# get_orgs prints message
 
     Code
-      github_orgs_table <- github_testhost_priv$get_orgs_from_host(verbose = TRUE)
+      gh_orgs_full_response <- test_graphql_github$get_orgs(output = "full_table",
+        verbose = TRUE)
     Message
-      i [GitHub][Engine:GraphQL] Pulling organizations...
+      i [Host:GitHub][Engine:GraphQL] Pulling organizations...
 

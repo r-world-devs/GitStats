@@ -14,6 +14,34 @@ test_that("group GitLab query is built properly", {
   )
 })
 
+test_that("get_orgs_count works", {
+  mockery::stub(
+    test_rest_gitlab$get_orgs_count,
+    "private$perform_request",
+    test_fixtures$rest_gl_orgs_response
+  )
+  orgs_count <- test_rest_gitlab$get_orgs_count(verbose = FALSE)
+  expect_type(
+    orgs_count,
+    "character"
+  )
+  expect_type(
+    as.integer(orgs_count),
+    "integer"
+  )
+})
+
+test_that("get_orgs_count prints message", {
+  mockery::stub(
+    test_rest_gitlab$get_orgs_count,
+    "private$perform_request",
+    test_fixtures$rest_gl_orgs_response
+  )
+  expect_snapshot(
+    orgs_count <- test_rest_gitlab$get_orgs_count(verbose = TRUE)
+  )
+})
+
 test_that("get_orgs pulls responses from GraphQL", {
   mockery::stub(
     test_graphql_gitlab$get_orgs,
@@ -21,7 +49,9 @@ test_that("get_orgs pulls responses from GraphQL", {
     test_fixtures$graphql_gl_orgs_response
   )
   gl_orgs_raw_response <- test_graphql_gitlab$get_orgs(
-    output = "only_names"
+    orgs_count = 3L,
+    output = "only_names",
+    verbose = FALSE
   )
   expect_type(
     gl_orgs_raw_response,
@@ -29,7 +59,9 @@ test_that("get_orgs pulls responses from GraphQL", {
   )
   test_mocker$cache(gl_orgs_raw_response)
   gl_orgs_full_response <- test_graphql_gitlab$get_orgs(
-    output = "full_table"
+    orgs_count = 3L,
+    output = "full_table",
+    verbose = FALSE
   )
   expect_type(
     gl_orgs_full_response,
@@ -37,6 +69,22 @@ test_that("get_orgs pulls responses from GraphQL", {
   )
   expect_gitlab_orgs_full_list(gl_orgs_full_response)
   test_mocker$cache(gl_orgs_full_response)
+})
+
+test_that("get_orgs prints message", {
+  mockery::stub(
+    test_graphql_gitlab$get_orgs,
+    "self$gql_response",
+    test_fixtures$graphql_gl_orgs_response
+  )
+  expect_snapshot(
+    gl_orgs_full_response <- test_graphql_gitlab$get_orgs(
+      orgs_count = 3L,
+      output = "full_table",
+      verbose = TRUE,
+      progress = FALSE
+    )
+  )
 })
 
 test_that("prepare_orgs_table works", {
@@ -81,19 +129,6 @@ test_that("get_orgs works on GitHost level", {
   test_mocker$cache(gitlab_orgs_table)
 })
 
-test_that("get_orgs prints message", {
-  mockery::stub(
-    gitlab_testhost_priv$get_orgs_from_host,
-    "graphql_engine$get_orgs",
-    test_mocker$use("gl_orgs_full_response")
-  )
-  expect_snapshot(
-    gitlab_orgs_table <- gitlab_testhost_priv$get_orgs_from_host(
-      verbose = TRUE
-    )
-  )
-})
-
 test_that("get_orgs_from_orgs_and_repos works on GitHost level", {
   mockery::stub(
     gitlab_testhost_priv$get_orgs_from_orgs_and_repos,
@@ -108,6 +143,29 @@ test_that("get_orgs_from_orgs_and_repos works on GitHost level", {
   )
   test_mocker$cache(gitlab_orgs_from_orgs_table)
 })
+
+test_that("get_orgs_from_orgs_and_repos works on GitHost level", {
+  mockery::stub(
+    gitlab_testhost_priv$get_orgs_from_orgs_and_repos,
+    "graphql_engine$get_org",
+    test_mocker$use("gl_org_response")
+  )
+  test_org <- "test_org"
+  attr(test_org, "type") <- "organization"
+  mockery::stub(
+    gitlab_testhost_priv$get_orgs_from_orgs_and_repos,
+    "graphql_engine$set_owner_type",
+    test_org
+  )
+  gitlab_orgs_from_orgs_table <- gitlab_testhost_priv$get_orgs_from_orgs_and_repos(
+    verbose = FALSE
+  )
+  expect_orgs_table(
+    gitlab_orgs_from_orgs_table
+  )
+  test_mocker$cache(gitlab_orgs_from_orgs_table)
+})
+
 
 test_that("get_orgs works on GitHost level", {
   mockery::stub(

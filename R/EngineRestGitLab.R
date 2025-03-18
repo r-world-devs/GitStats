@@ -5,6 +5,15 @@ EngineRestGitLab <- R6::R6Class(
   inherit = EngineRest,
   public = list(
 
+    get_orgs_count = function(verbose) {
+      if (verbose) {
+        cli::cli_alert_info("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling number of all organizations...")
+      }
+      orgs_response <- private$perform_request(paste0(private$endpoints$organizations, "?all_available=True"),
+                                               token = private$token)
+      return(orgs_response$headers$`x-total`)
+    },
+
     # Pull repositories with files
     get_files = function(file_paths          = NULL,
                          org                 = NULL,

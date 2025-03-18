@@ -12,10 +12,18 @@
     Output
       [1] "\n      query GetGroup($org: ID!) {\n        group(fullPath: $org) {\n      name\n      description\n      fullPath\n      webUrl\n      projectsCount\n      groupMembersCount\n      avatarUrl\n    }\n      }\n    "
 
+# get_orgs_count prints message
+
+    Code
+      orgs_count <- test_rest_gitlab$get_orgs_count(verbose = TRUE)
+    Message
+      i [Host:GitLab][Engine:REST] Pulling number of all organizations...
+
 # get_orgs prints message
 
     Code
-      gitlab_orgs_table <- gitlab_testhost_priv$get_orgs_from_host(verbose = TRUE)
+      gl_orgs_full_response <- test_graphql_gitlab$get_orgs(orgs_count = 3L, output = "full_table",
+        verbose = TRUE, progress = FALSE)
     Message
-      i [GitLab][Engine:GraphQL] Pulling organizations...
+      i [Host:GitLab][Engine:GraphQL] Pulling organizations...
 

@@ -68,6 +68,12 @@ test_fixtures$graphql_gh_org_response <- list(
   )
 )
 
+test_fixtures$rest_gl_orgs_response <- list(
+  "headers" = list(
+    "x-total" = "3"
+  )
+)
+
 gitlab_org_edge <- list(
   "node" = list(
     "name" = "test_name",
