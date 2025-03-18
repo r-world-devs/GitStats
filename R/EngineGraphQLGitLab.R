@@ -52,7 +52,7 @@ EngineGraphQLGitLab <- R6::R6Class(
         cli::cli_alert_info("[Host:GitLab][Engine:{cli::col_yellow('GraphQL')}] Pulling organizations...")
       }
       group_cursor <- ""
-      iterations_number <- round(orgs_count/100)
+      iterations_number <- round(orgs_count / 100)
       orgs_list <- purrr::map(1:iterations_number, function(x) {
         response <- self$gql_response(
           gql_query = self$gql_query$groups(),
