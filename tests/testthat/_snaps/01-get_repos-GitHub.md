@@ -60,13 +60,6 @@
     Message
       i [Host:GitHub][Engine:GraphQl][Scope:test_org/TestRepo] Pulling repositories...
 
-# `get_all_repos()` is set to scan whole git host
-
-    Code
-      gh_repos <- github_testhost_all_priv$get_all_repos(verbose = TRUE, progress = FALSE)
-    Message
-      i [Host:GitHub][Engine:GraphQl] Pulling all organizations...
-
 # `get_repos_contributors()` works on GitHost level
 
     Code

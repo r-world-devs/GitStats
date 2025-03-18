@@ -634,7 +634,7 @@ test_that("`get_all_repos()` is set to scan whole git host", {
   )
   mockery::stub(
     github_testhost_all_priv$get_all_repos,
-    "graphql_engine$get_orgs",
+    "private$get_orgs_from_host",
     "test_org"
   )
   mockery::stub(
@@ -647,8 +647,8 @@ test_that("`get_all_repos()` is set to scan whole git host", {
     "private$get_repos_from_repos",
     test_mocker$use("gh_repos_individual")
   )
-  expect_snapshot(
-    gh_repos <- github_testhost_all_priv$get_all_repos(
+  expect_repos_table(
+    github_testhost_all_priv$get_all_repos(
       verbose  = TRUE,
       progress = FALSE
     )

@@ -193,7 +193,7 @@ test_that("`get_commits()` is set to scan whole git host", {
   github_testhost_all <- create_github_testhost_all(orgs = "test_org")
   mockery::stub(
     github_testhost_all$get_commits,
-    "graphql_engine$get_orgs",
+    "private$get_orgs_from_host",
     "test_org"
   )
   mockery::stub(
@@ -206,8 +206,8 @@ test_that("`get_commits()` is set to scan whole git host", {
     "private$get_commits_from_repos",
     test_mocker$use("gh_commits_from_repos")
   )
-  expect_snapshot(
-    gh_commits_table <- github_testhost_all$get_commits(
+  expect_commits_table(
+    github_testhost_all$get_commits(
       since    = "2023-01-01",
       until    = "2023-02-28",
       verbose  = TRUE,

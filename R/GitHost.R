@@ -142,10 +142,8 @@ GitHost <- R6::R6Class(
                            until    = Sys.Date(),
                            verbose  = TRUE,
                            progress = TRUE) {
-      if (private$scan_all && is.null(private$orgs) && verbose) {
-        cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
-        graphql_engine <- private$engines$graphql
-        private$orgs <- graphql_engine$get_orgs()
+      if (private$scan_all && is.null(private$orgs)) {
+        private$orgs <- private$get_orgs_from_host(vebose)
       }
       commits_from_orgs <- private$get_commits_from_orgs(
         since    = since,
@@ -173,10 +171,8 @@ GitHost <- R6::R6Class(
                           state = NULL,
                           verbose = TRUE,
                           progress = TRUE) {
-      if (private$scan_all && is.null(private$orgs) && verbose) {
-        cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
-        graphql_engine <- private$engines$graphql
-        private$orgs <- graphql_engine$get_orgs()
+      if (private$scan_all && is.null(private$orgs)) {
+        private$orgs <- private$get_orgs_from_host(vebose)
       }
       issues_from_orgs <- private$get_issues_from_orgs(
         verbose = verbose,
@@ -289,11 +285,7 @@ GitHost <- R6::R6Class(
     #' Iterator over pulling release logs from engines
     get_release_logs = function(since, until, verbose, progress) {
       if (private$scan_all && is.null(private$orgs)) {
-        if (verbose) {
-          cli::cli_alert_info("[{private$host_name}][Engine:{cli::col_yellow('GraphQL')}] Pulling all organizations...")
-        }
-        graphql_engine <- private$engines$graphql
-        private$orgs <- graphql_engine$get_orgs()
+        private$orgs <- private$get_orgs_from_host(vebose)
       }
       until <- until %||% Sys.time()
       release_logs_from_orgs <- private$get_release_logs_from_orgs(
@@ -719,15 +711,7 @@ GitHost <- R6::R6Class(
 
     get_all_repos = function(verbose = TRUE, progress = TRUE) {
       if (private$scan_all && is.null(private$orgs)) {
-        if (verbose) {
-          show_message(
-            host        = private$host_name,
-            engine      = "graphql",
-            information = "Pulling all organizations"
-          )
-        }
-        graphql_engine <- private$engines$graphql
-        private$orgs <- graphql_engine$get_orgs()
+        private$orgs <- private$get_orgs_from_host(vebose)
       }
       repos_table <- purrr::list_rbind(
         list(
