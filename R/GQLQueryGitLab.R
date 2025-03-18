@@ -21,22 +21,6 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
       )
     },
 
-    groups_without_members = function() {
-      paste0(
-        'query GetGroups($groupCursor: String!) {
-            groups (after: $groupCursor) {
-              pageInfo {
-                endCursor
-                hasNextPage
-              }
-              edges {
-                node {', private$group_fields_no_members, '}
-              }
-            }
-        }'
-      )
-    },
-
     group = function() {
       paste0('
       query GetGroup($org: ID!) {
@@ -253,26 +237,6 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
     },
 
     group_fields =
-      '
-      name
-      description
-      fullPath
-      webUrl
-      projectsCount
-      groupMembersCount
-      groupMembers {
-        edges {
-          node {
-            user {
-              username
-            }
-          }
-        }
-      }
-      avatarUrl
-    ',
-
-    group_fields_no_members =
       '
       name
       description

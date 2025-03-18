@@ -3,14 +3,14 @@
     Code
       gl_orgs_query
     Output
-      [1] "query GetGroups($groupCursor: String!) {\n            groups (after: $groupCursor) {\n              pageInfo {\n                endCursor\n                hasNextPage\n              }\n              edges {\n                node {\n      name\n      description\n      fullPath\n      webUrl\n      projectsCount\n      groupMembersCount\n      groupMembers {\n        edges {\n          node {\n            user {\n              username\n            }\n          }\n        }\n      }\n      avatarUrl\n    }\n              }\n            }\n        }"
+      [1] "query GetGroups($groupCursor: String!) {\n            groups (after: $groupCursor) {\n              pageInfo {\n                endCursor\n                hasNextPage\n              }\n              edges {\n                node {\n      name\n      description\n      fullPath\n      webUrl\n      projectsCount\n      groupMembersCount\n      avatarUrl\n    }\n              }\n            }\n        }"
 
 # group GitLab query is built properly
 
     Code
       gl_org_query
     Output
-      [1] "\n      query GetGroup($org: ID!) {\n        group(fullPath: $org) {\n      name\n      description\n      fullPath\n      webUrl\n      projectsCount\n      groupMembersCount\n      groupMembers {\n        edges {\n          node {\n            user {\n              username\n            }\n          }\n        }\n      }\n      avatarUrl\n    }\n      }\n    "
+      [1] "\n      query GetGroup($org: ID!) {\n        group(fullPath: $org) {\n      name\n      description\n      fullPath\n      webUrl\n      projectsCount\n      groupMembersCount\n      avatarUrl\n    }\n      }\n    "
 
 # get_orgs prints message
 

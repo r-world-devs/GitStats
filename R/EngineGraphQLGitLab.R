@@ -49,18 +49,10 @@ EngineGraphQLGitLab <- R6::R6Class(
       has_next_page <- TRUE
       full_orgs_list <- list()
       while (has_next_page) {
-        response <- tryCatch({
-          self$gql_response(
-            gql_query = self$gql_query$groups(),
-            vars = list("groupCursor" = group_cursor)
-          )
-        },
-        error = function(e) {
-          self$gql_response(
-            gql_query = self$gql_query$groups_without_members(),
-            vars = list("groupCursor" = group_cursor)
-          )
-        })
+        response <- self$gql_response(
+          gql_query = self$gql_query$groups(),
+          vars = list("groupCursor" = group_cursor)
+        )
         if (length(response$data$groups$edges) == 0) {
           cli::cli_abort(
             c(
@@ -98,7 +90,6 @@ EngineGraphQLGitLab <- R6::R6Class(
     prepare_orgs_table = function(full_orgs_list) {
       orgs_table <- purrr::map(full_orgs_list, function(org_node) {
         org_node$avatarUrl <- org_node$avatarUrl %||% ""
-        org_node$groupMembers <- NULL
         data.frame(org_node)
       }) |>
         purrr::list_rbind() |>

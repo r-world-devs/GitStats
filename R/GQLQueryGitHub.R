@@ -239,11 +239,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       }
       membersWithRole(first: 100) {
         totalCount
-        edges {
-          node {
-            login
-          }
-        }
       }
       avatarUrl
     ',
