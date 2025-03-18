@@ -10,7 +10,7 @@
     Code
       gh_org_query
     Output
-      [1] "\n      query GetOrg($org: String!) {\n        organization(login: $org) {\n      name\n      description\n      login\n      url\n      repositories (first: 100) {\n        totalCount\n      }\n      membersWithRole(first: 100) {\n        totalCount\n      }\n      avatarUrl\n    }\n      }"
+      [1] "\n        query GetOrg($org: String!) {\n          organization(login: $org) {\n      name\n      description\n      login\n      url\n      repositories (first: 100) {\n        totalCount\n      }\n      membersWithRole(first: 100) {\n        totalCount\n      }\n      avatarUrl\n    }\n        }"
 
 # get_orgs_from_host prints message
 
