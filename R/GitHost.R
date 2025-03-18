@@ -692,7 +692,7 @@ GitHost <- R6::R6Class(
       }
       graphql_engine <- private$engines$graphql
       orgs <- graphql_engine$get_orgs(
-        output == "full_table"
+        output = "full_table"
       ) |>
         graphql_engine$prepare_orgs_table()
 
