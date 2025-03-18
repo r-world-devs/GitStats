@@ -25,10 +25,10 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
 
     org = function() {
       paste0(
-      '
-      query GetOrg($org: String!) {
-        organization(login: $org) {', private$org_fields, '}
-      }'
+        '
+        query GetOrg($org: String!) {
+          organization(login: $org) {', private$org_fields, '}
+        }'
       )
     },
 

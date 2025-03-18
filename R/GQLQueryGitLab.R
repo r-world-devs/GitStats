@@ -26,7 +26,7 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
       query GetGroup($org: ID!) {
         group(fullPath: $org) {',
              private$group_fields
-             ,'}
+             , '}
       }
     ')
     },
