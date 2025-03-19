@@ -27,3 +27,10 @@
     Message
       i [Host:GitLab][Engine:GraphQL] Pulling organizations...
 
+# get_orgs_from_host prints message on number of organizations
+
+    Code
+      gitlab_orgs_table <- gitlab_testhost_priv$get_orgs_from_host(verbose = TRUE)
+    Message
+      i 3 organizations found.
+

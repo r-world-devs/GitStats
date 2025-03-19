@@ -114,7 +114,7 @@ test_that("get_org pulls response for one org from GraphQL", {
   test_mocker$cache(gl_org_response)
 })
 
-test_that("get_orgs works on GitHost level", {
+test_that("get_orgs_from_host works on GitHost level", {
   mockery::stub(
     gitlab_testhost_priv$get_orgs_from_host,
     "graphql_engine$get_orgs",
@@ -127,6 +127,25 @@ test_that("get_orgs works on GitHost level", {
     gitlab_orgs_table
   )
   test_mocker$cache(gitlab_orgs_table)
+})
+
+
+test_that("get_orgs_from_host prints message on number of organizations", {
+  mockery::stub(
+    gitlab_testhost_priv$get_orgs_from_host,
+    "rest_engine$get_orgs_count",
+    3L
+  )
+  mockery::stub(
+    gitlab_testhost_priv$get_orgs_from_host,
+    "graphql_engine$get_orgs",
+    test_mocker$use("gl_orgs_full_response")
+  )
+  expect_snapshot(
+    gitlab_orgs_table <- gitlab_testhost_priv$get_orgs_from_host(
+      verbose = TRUE
+    )
+  )
 })
 
 test_that("get_orgs_from_orgs_and_repos works on GitHost level", {

@@ -138,6 +138,9 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     get_orgs_from_host = function(verbose) {
       rest_engine <- private$engines$rest
       orgs_count <- rest_engine$get_orgs_count(verbose)
+      if (verbose) {
+        cli::cli_alert_info("{orgs_count} organizations found.")
+      }
       graphql_engine <- private$engines$graphql
       orgs <- graphql_engine$get_orgs(
         orgs_count = as.integer(orgs_count),
