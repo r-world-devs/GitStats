@@ -92,6 +92,7 @@ test_that("get_orgs_from_host works on GitHost level", {
     test_mocker$use("gh_orgs_full_response")
   )
   github_orgs_table <- github_testhost_priv$get_orgs_from_host(
+    output = "full_table",
     verbose = FALSE
   )
   expect_orgs_table(

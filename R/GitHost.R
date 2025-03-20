@@ -143,7 +143,10 @@ GitHost <- R6::R6Class(
                            verbose  = TRUE,
                            progress = TRUE) {
       if (private$scan_all && is.null(private$orgs)) {
-        private$orgs <- private$get_orgs_from_host(vebose)
+        private$orgs <- private$get_orgs_from_host(
+          output = "only_names",
+          verbose = verbose
+        )
       }
       commits_from_orgs <- private$get_commits_from_orgs(
         since    = since,
@@ -172,7 +175,10 @@ GitHost <- R6::R6Class(
                           verbose = TRUE,
                           progress = TRUE) {
       if (private$scan_all && is.null(private$orgs)) {
-        private$orgs <- private$get_orgs_from_host(vebose)
+        private$orgs <- private$get_orgs_from_host(
+          output = "only_names",
+          verbose = verbose
+        )
       }
       issues_from_orgs <- private$get_issues_from_orgs(
         verbose = verbose,
@@ -285,7 +291,10 @@ GitHost <- R6::R6Class(
     #' Iterator over pulling release logs from engines
     get_release_logs = function(since, until, verbose, progress) {
       if (private$scan_all && is.null(private$orgs)) {
-        private$orgs <- private$get_orgs_from_host(vebose)
+        private$orgs <- private$get_orgs_from_host(
+          output = "only_names",
+          verbose = verbose
+        )
       }
       until <- until %||% Sys.time()
       release_logs_from_orgs <- private$get_release_logs_from_orgs(
@@ -711,7 +720,10 @@ GitHost <- R6::R6Class(
 
     get_all_repos = function(verbose = TRUE, progress = TRUE) {
       if (private$scan_all && is.null(private$orgs)) {
-        private$orgs <- private$get_orgs_from_host(vebose)
+        private$orgs <- private$get_orgs_from_host(
+          output = "only_names",
+          verbose = verbose
+        )
       }
       repos_table <- purrr::list_rbind(
         list(
@@ -723,7 +735,7 @@ GitHost <- R6::R6Class(
     },
 
     get_repos_from_orgs = function(verbose, progress) {
-      if ("org" %in% private$searching_scope) {
+      if (any(c("all", "org") %in% private$searching_scope)) {
         graphql_engine <- private$engines$graphql
         purrr::map(private$orgs, function(org) {
           type <- attr(org, "type") %||% "organization"
@@ -736,14 +748,19 @@ GitHost <- R6::R6Class(
               information = "Pulling repositories"
             )
           }
-          repos_table <- graphql_engine$get_repos_from_org(
+          repos_from_org <- graphql_engine$get_repos_from_org(
             org  = org,
             type = type
-          ) |>
-            graphql_engine$prepare_repos_table(
-              org = unclass(org)
-            ) |>
-            dplyr::filter(organization == unclass(org))
+          )
+          if (length(repos_from_org) > 0) {
+            repos_table <- repos_from_org |>
+              graphql_engine$prepare_repos_table(
+                org = unclass(org)
+              ) |>
+              dplyr::filter(organization == unclass(org))
+          } else {
+            repos_table <- NULL
+          }
           return(repos_table)
         }, .progress = progress) |>
           purrr::list_rbind()
@@ -821,15 +838,10 @@ GitHost <- R6::R6Class(
     # Pull all repositories URLs from organizations
     get_all_repos_urls = function(type, verbose = TRUE, progress = TRUE) {
       if (private$scan_all && is.null(private$orgs)) {
-        if (verbose) {
-          show_message(
-            host = private$host_name,
-            engine = "graphql",
-            information = "Pulling all organizations"
-          )
-        }
-        graphql_engine <- private$engines$graphql
-        private$orgs <- graphql_engine$get_orgs()
+        private$orgs <- private$get_orgs_from_host(
+          output = "only_names",
+          verbose = verbose
+        )
       }
       repos_urls_from_orgs <- private$get_repos_urls_from_orgs(
         type = type,
@@ -849,7 +861,7 @@ GitHost <- R6::R6Class(
     },
 
     get_repos_urls_from_orgs = function(type, verbose, progress) {
-      if ("org" %in% private$searching_scope) {
+      if (any(c("all", "org") %in% private$searching_scope)) {
         rest_engine <- private$engines$rest
         repos_vector <- purrr::map(private$orgs, function(org) {
           if (!private$scan_all && verbose) {

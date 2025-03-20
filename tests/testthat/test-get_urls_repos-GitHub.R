@@ -131,7 +131,7 @@ test_that("get_all_repos_urls is set to scan whole host", {
   )
   mockery::stub(
     github_testhost_all_priv$get_all_repos_urls,
-    "graphql_engine$get_orgs",
+    "private$get_orgs_from_host",
     "test_org"
   )
   mockery::stub(

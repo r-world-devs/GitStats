@@ -566,8 +566,8 @@ test_that("GitHub prepares repos table from repositories response", {
 test_that("get_repos_from_org works", {
   mockery::stub(
     github_testhost_priv$get_repos_from_orgs,
-    "graphql_engine$prepare_repos_table",
-    test_mocker$use("gh_repos_table")
+    "graphql_engine$get_repos_from_org",
+    test_mocker$use("gh_repos_from_org")
   )
   gh_repos_from_orgs <- github_testhost_priv$get_repos_from_orgs(
     verbose = FALSE,

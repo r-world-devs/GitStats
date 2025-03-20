@@ -135,7 +135,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       return(repos_table)
     },
 
-    get_orgs_from_host = function(verbose) {
+    get_orgs_from_host = function(output, verbose) {
       rest_engine <- private$engines$rest
       orgs_count <- rest_engine$get_orgs_count(verbose)
       if (verbose) {
@@ -144,10 +144,13 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       graphql_engine <- private$engines$graphql
       orgs <- graphql_engine$get_orgs(
         orgs_count = as.integer(orgs_count),
-        output = "full_table",
+        output = output,
         verbose = verbose
-      ) |>
-        graphql_engine$prepare_orgs_table()
+      )
+      if (output == "full_table") {
+        orgs <- orgs |>
+          graphql_engine$prepare_orgs_table()
+      }
       return(orgs)
     },
 

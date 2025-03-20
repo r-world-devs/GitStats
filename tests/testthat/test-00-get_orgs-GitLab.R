@@ -121,6 +121,7 @@ test_that("get_orgs_from_host works on GitHost level", {
     test_mocker$use("gl_orgs_full_response")
   )
   gitlab_orgs_table <- gitlab_testhost_priv$get_orgs_from_host(
+    output = "full_table",
     verbose = FALSE
   )
   expect_orgs_table(
@@ -143,6 +144,7 @@ test_that("get_orgs_from_host prints message on number of organizations", {
   )
   expect_snapshot(
     gitlab_orgs_table <- gitlab_testhost_priv$get_orgs_from_host(
+      output = "full_table",
       verbose = TRUE
     )
   )

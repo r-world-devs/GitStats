@@ -138,13 +138,16 @@ GitHostGitHub <- R6::R6Class(
       return(repos_table)
     },
 
-    get_orgs_from_host = function(verbose) {
+    get_orgs_from_host = function(output, verbose) {
       graphql_engine <- private$engines$graphql
       orgs <- graphql_engine$get_orgs(
-        output = "full_table",
+        output = output,
         verbose = verbose
-      ) |>
-        graphql_engine$prepare_orgs_table()
+      )
+      if (output == "full_table") {
+        orgs <- orgs |>
+          graphql_engine$prepare_orgs_table()
+      }
       return(orgs)
     },
 
