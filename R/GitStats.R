@@ -49,7 +49,6 @@ GitStats <- R6::R6Class(
       )
       if (trigger) {
         organizations <- private$get_orgs_from_hosts(
-          output = "full_table",
           verbose = verbose
         ) %>%
           private$set_object_class(

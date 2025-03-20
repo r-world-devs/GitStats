@@ -45,6 +45,7 @@ GitHost <- R6::R6Class(
     get_orgs = function(verbose) {
       if (private$scan_all) {
         orgs_table <- private$get_orgs_from_host(
+          output = "full_table",
           verbose = verbose
         )
       } else {
