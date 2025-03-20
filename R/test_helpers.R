@@ -131,7 +131,7 @@ create_github_testhost <- function(host  = NULL,
                                    mode = "") {
   suppressMessages(
     test_host <- GitHostGitHubTest$new(
-      host  = NULL,
+      host  = host,
       token = token,
       orgs  = orgs,
       repos = repos

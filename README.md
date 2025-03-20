@@ -14,6 +14,7 @@ coverage](https://codecov.io/gh/r-world-devs/GitStats/branch/devel/graph/badge.s
 With `GitStats` you can pull git data in a uniform way (table format)
 from GitHub and GitLab. For the time-being you can get data on:
 
+- organizations,
 - repositories,
 - commits,
 - issues,
@@ -65,7 +66,7 @@ commits <- git_stats |>
   )
 
 commits
-#> # A tibble: 2,392 × 11
+#> # A tibble: 2,393 × 11
 #>    id    committed_date      author author_login author_name additions deletions
 #>    <chr> <dttm>              <chr>  <chr>        <chr>           <int>     <int>
 #>  1 7f48… 2024-09-10 11:12:59 Macie… maciekbanas  Maciej Ban…         0         0
@@ -78,7 +79,7 @@ commits
 #>  8 C_kw… 2023-05-08 09:43:31 Kryst… krystian8207 Krystian I…        18         0
 #>  9 C_kw… 2023-04-28 12:30:40 Kamil… <NA>         Kamil Kozi…        18         0
 #> 10 C_kw… 2023-03-01 15:05:10 Kryst… krystian8207 Krystian I…       296       153
-#> # ℹ 2,382 more rows
+#> # ℹ 2,383 more rows
 #> # ℹ 4 more variables: repository <chr>, organization <chr>, repo_url <chr>,
 #> #   api_url <glue>
 
@@ -87,7 +88,7 @@ commits |>
     time_aggregation = "month",
     group_var = author
   )
-#> # A tibble: 238 × 4
+#> # A tibble: 239 × 4
 #>    stats_date          githost author             stats
 #>    <dttm>              <chr>   <chr>              <int>
 #>  1 2022-01-01 00:00:00 github  Admin_mschuemi         1
@@ -100,7 +101,7 @@ commits |>
 #>  8 2022-02-01 00:00:00 github  Reijo Sund             1
 #>  9 2022-02-01 00:00:00 github  eitsupi                1
 #> 10 2022-03-01 00:00:00 github  Maximilian Girlich    14
-#> # ℹ 228 more rows
+#> # ℹ 229 more rows
 ```
 
 Get repositories with specific code:
@@ -118,8 +119,8 @@ git_stats |>
 #> 2 884789327 GitAI              r-world-devs r-world-d… github   https:/… https:…
 #> 3 604718884 shinyTimelines     r-world-devs r-world-d… github   https:/… https:…
 #> 4 860607920 shinyQueryBuilder  r-world-devs r-world-d… github   https:/… https:…
-#> 5 495144469 cohortBuilder      r-world-devs r-world-d… github   https:/… https:…
-#> 6 495151911 shinyCohortBuilder r-world-devs r-world-d… github   https:/… https:…
+#> 5 495151911 shinyCohortBuilder r-world-devs r-world-d… github   https:/… https:…
+#> 6 495144469 cohortBuilder      r-world-devs r-world-d… github   https:/… https:…
 #> 7 586903986 GitStats           r-world-devs r-world-d… github   https:/… https:…
 #> 8 860501404 queryBuilder       r-world-devs r-world-d… github   https:/… https:…
 #> # ℹ 9 more variables: created_at <dttm>, last_activity_at <dttm>,
@@ -207,7 +208,7 @@ git_stats
 #>  Repositories: [2] mbtests/gitstatstesting, openpharma/DataFakeR
 #> Storage: 
 #>  Repositories: 8 
-#>  Commits: 2392 [date range: 2022-01-01 - 2025-03-08]
+#>  Commits: 2393 [date range: 2022-01-01 - 2025-03-18]
 #>  Files: 52 [file pattern: \.md]
 #>  R_package_usage: 2 [packages: shiny, purrr]
 ```

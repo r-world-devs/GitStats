@@ -5,28 +5,17 @@
 GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
   public = list(
 
-    #' @description Prepare query to list organizations from GitHub.
-    #' @param end_cursor An end cursor to paginate.
-    #' @return A query.
     orgs = function(end_cursor) {
-      if (is.null(end_cursor)) {
-        pagination_phrase <- ''
-      } else {
-        pagination_phrase <- paste0('after: "', end_cursor, '"')
-      }
       paste0(
         'query {
-          search(first: 100, type: USER, query: "type:org" ', pagination_phrase, ') {
+          search(first: 100, type: USER, query: "type:org" ', private$add_cursor(end_cursor), ') {
             pageInfo {
                hasNextPage
                endCursor
             }
             edges {
               node{
-                ... on Organization {
-                  name
-                  url
-                }
+                ... on Organization {', private$org_fields, '}
               }
             }
           }
@@ -34,7 +23,15 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       )
     },
 
-    #' @description Query to check if a given string is user or organization.
+    org = function() {
+      paste0(
+        '
+        query GetOrg($org: String!) {
+          organization(login: $org) {', private$org_fields, '}
+        }'
+      )
+    },
+
     user_or_org_query =
       '
       query ($login: String!) {
@@ -49,8 +46,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       }'
     ,
 
-    #' @description Prepare query to get repositories from GitHub.
-    #' @return A query.
     repos_by_org = function(repo_cursor) {
       paste0('
         query GetReposByOrg($login: String!) {
@@ -62,8 +57,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
         }')
     },
 
-    #' @description Prepare query to get repositories from GitHub.
-    #' @return A query.
     repos_by_user = function(repo_cursor) {
       paste0('
         query GetUsersRepos($login: String!){
@@ -74,8 +67,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       )
     },
 
-    #' @description Prepare query to get info on a GitHub user.
-    #' @return A query.
     user = function() {
       paste0('
         query GetUser($user: String!) {
@@ -100,9 +91,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
         }')
     },
 
-    #' @description Prepare query to get commits on GitHub.
-    #' @param commits_cursor An endCursor.
-    #' @return A query.
     commits_from_repo = function(commits_cursor = "") {
       paste0('
       query GetCommitsFromRepo($repo: String!
@@ -179,9 +167,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       ')
     },
 
-    #' @description Prepare query to get files in a standard filepath from
-    #'   GitHub repositories.
-    #' @return A query.
     file_blob_from_repo = function() {
       'query GetFileBlobFromRepo($org: String!, $repo: String!, $expression: String!) {
           repository(owner: $org, name: $repo) {
@@ -216,8 +201,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       }'
     },
 
-    #' @description Prepare query to get releases from GitHub repositories.
-    #' @return A query.
     releases_from_repo = function() {
       'query GetReleasesFromRepo ($org: String!, $repo: String!) {
           repository(owner:$org, name:$repo){
@@ -245,6 +228,20 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       }
       return(cursor_argument)
     },
+
+    org_fields = '
+      name
+      description
+      login
+      url
+      repositories (first: 100) {
+        totalCount
+      }
+      membersWithRole(first: 100) {
+        totalCount
+      }
+      avatarUrl
+    ',
 
     # @description Helper to prepare repository query.
     repositories_field = function(repo_cursor) {

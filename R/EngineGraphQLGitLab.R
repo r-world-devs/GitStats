@@ -44,11 +44,16 @@ EngineGraphQLGitLab <- R6::R6Class(
     },
 
     #' Get all groups from GitLab.
-    get_orgs = function() {
+    get_orgs = function(orgs_count,
+                        output = c("only_names", "full_table"),
+                        verbose,
+                        progress = verbose) {
+      if (verbose) {
+        cli::cli_alert_info("[Host:GitLab][Engine:{cli::col_yellow('GraphQL')}] Pulling organizations...")
+      }
       group_cursor <- ""
-      has_next_page <- TRUE
-      full_orgs_list <- list()
-      while (has_next_page) {
+      iterations_number <- round(orgs_count / 100)
+      orgs_list <- purrr::map(1:iterations_number, function(x) {
         response <- self$gql_response(
           gql_query = self$gql_query$groups(),
           vars = list("groupCursor" = group_cursor)
@@ -62,13 +67,45 @@ EngineGraphQLGitLab <- R6::R6Class(
             )
           )
         }
-        orgs_list <- purrr::map(response$data$groups$edges, ~ .$node$fullPath)
-        full_orgs_list <- append(full_orgs_list, orgs_list)
-        has_next_page <- response$data$groups$pageInfo$hasNextPage
-        group_cursor <- response$data$groups$pageInfo$endCursor
+        if (output == "only_names") {
+          orgs_list <- purrr::map(response$data$groups$edges, ~ .$node$fullPath)
+        } else {
+          orgs_list <- purrr::map(response$data$groups$edges, ~ .$node)
+        }
+        group_cursor <<- response$data$groups$pageInfo$endCursor
+        return(orgs_list)
+      }, .progress = TRUE) |>
+        purrr::list_flatten()
+      if (output == "only_names") {
+        all_orgs <- unlist(orgs_list)
+      } else {
+        all_orgs <- orgs_list
       }
-      all_orgs <- unlist(full_orgs_list)
       return(all_orgs)
+    },
+
+    get_org = function(org) {
+      response <- self$gql_response(
+        gql_query = self$gql_query$group(),
+        vars = list("org" = org)
+      )
+      return(response$data$group)
+    },
+
+    prepare_orgs_table = function(full_orgs_list) {
+      orgs_table <- purrr::map(full_orgs_list, function(org_node) {
+        org_node$avatarUrl <- org_node$avatarUrl %||% ""
+        data.frame(org_node)
+      }) |>
+        purrr::list_rbind() |>
+        dplyr::rename(path = fullPath,
+                      url = webUrl,
+                      repos_count = projectsCount,
+                      members_count = groupMembersCount,
+                      avatar_url = avatarUrl) |>
+        dplyr::relocate(avatar_url, .before = repos_count) |>
+        tibble::as_tibble()
+      return(orgs_table)
     },
 
     # Iterator over pulling pages of repositories.

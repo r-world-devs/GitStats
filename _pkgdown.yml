@@ -14,6 +14,7 @@ reference:
   desc: >
       Functions to get git data in a tibble format.
   contents:
+  - get_orgs
   - get_repos
   - get_repos_urls
   - get_commits

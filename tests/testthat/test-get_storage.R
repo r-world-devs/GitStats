@@ -11,7 +11,8 @@ test_that("get_storage works", {
     "tbl"
   )
   expect_true(
-    all(names(gitstats_storage) %in% c("repositories", "commits", "issues",
+    all(names(gitstats_storage) %in% c("organizations", "repositories",
+                                       "commits", "issues",
                                        "users", "files", "files_structure",
                                        "release_logs", "R_package_usage"))
   )
