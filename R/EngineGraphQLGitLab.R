@@ -328,6 +328,31 @@ EngineGraphQLGitLab <- R6::R6Class(
             list()
           }
         )
+        if (private$is_complexity_error(files_response)) {
+          if (verbose) {
+            cli::cli_alert("Encountered query complexity error (too many files). I will divide input data into chunks...")
+          }
+          files_response <- list()
+          iterations_number <- round(length(file_paths)/100)
+          x <- 1
+          for (i in 1:iterations_number) {
+            files_part_response <- private$get_file_blobs_response(
+              org = org,
+              repo = repo,
+              file_paths = file_paths[x:(i * 100)]
+            )
+            if (i == 1) {
+              files_response <- append(files_response, files_part_response)
+            } else {
+              files_response$data$project$repository$blobs$nodes <- append(
+                files_response$data$project$repository$blobs$nodes,
+                files_part_response$data$project$repository$blobs$nodes
+              )
+            }
+            x <- x + 100
+          }
+        }
+        return(files_response)
       }, .progress = progress)
       return(org_files_list)
     },
