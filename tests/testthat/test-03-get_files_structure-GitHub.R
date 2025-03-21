@@ -52,18 +52,20 @@ test_that("get_dirs_and_files returns list with directories and files", {
 })
 
 test_that("get_files_structure_from_repo returns list with files and dirs vectors", {
-  mockery::stub(
-    test_graphql_github_priv$get_files_structure_from_repo,
-    "private$get_file_response",
-    test_mocker$use("gh_files_tree_response")
-  )
-  files_and_dirs <- test_mocker$use("files_and_dirs_list")
-  files_and_dirs$dirs <- character()
-  mockery::stub(
-    test_graphql_github_priv$get_files_structure_from_repo,
-    "private$get_files_and_dirs",
-    files_and_dirs
-  )
+  if (integration_tests_skipped) {
+    mockery::stub(
+      test_graphql_github_priv$get_files_structure_from_repo,
+      "private$get_file_response",
+      test_mocker$use("gh_files_tree_response")
+    )
+    files_and_dirs <- test_mocker$use("files_and_dirs_list")
+    files_and_dirs$dirs <- character()
+    mockery::stub(
+      test_graphql_github_priv$get_files_structure_from_repo,
+      "private$get_files_and_dirs",
+      files_and_dirs
+    )
+  }
   files_structure <- test_graphql_github_priv$get_files_structure_from_repo(
     org = gh_org,
     repo = gh_repo,

@@ -681,6 +681,10 @@ test_fixtures$github_files_tree_response <- list(
             "type" = "blob"
           ),
           list(
+            "name" = "test_file.R",
+            "type" = "blob"
+          ),
+          list(
             "name" = "test.md",
             "type" = "blob"
           ),

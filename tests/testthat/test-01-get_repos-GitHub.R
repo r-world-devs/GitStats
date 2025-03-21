@@ -7,6 +7,21 @@ test_that("repos_by_org query is built properly", {
   test_mocker$cache(gh_repos_by_org_query)
 })
 
+
+if (integration_tests_skipped) {
+  gh_org <- "test_org"
+  gh_user <- "test_user"
+  gh_repo <- "TestRepo"
+  gh_code <- "test_code"
+  gh_file <- "test_file"
+} else {
+  gh_org <- "r-world-devs"
+  gh_repo <- "GitStats"
+  gh_user <- "maciekbanas"
+  gh_code <- "dplyr"
+  gh_file <- "DESCRIPTION"
+}
+
 test_that("`get_repos_page()` pulls repos page from GitHub organization", {
   mockery::stub(
     test_graphql_github_priv$get_repos_page,
@@ -14,7 +29,7 @@ test_that("`get_repos_page()` pulls repos page from GitHub organization", {
     test_fixtures$github_repos_by_org_response
   )
   gh_repos_page <- test_graphql_github_priv$get_repos_page(
-    login = "test_org",
+    login = gh_org,
     type = "organization"
   )
   expect_gh_repos_gql_response(
@@ -30,7 +45,7 @@ test_that("`get_repos_from_org()` prepares formatted list", {
     test_mocker$use("gh_repos_page")
   )
   gh_repos_from_org <- test_graphql_github$get_repos_from_org(
-    org = "test_org",
+    org = gh_org,
     type = "organization"
   )
   expect_list_contains(
@@ -51,7 +66,7 @@ test_that("`get_repos_page()` pulls repos page from GitHub user", {
     test_fixtures$github_repos_by_user_response
   )
   gh_repos_user_page <- test_graphql_github_priv$get_repos_page(
-    login = "test_user",
+    login = gh_user,
     type = "user"
   )
   expect_gh_repos_gql_response(
@@ -68,7 +83,7 @@ test_that("`get_repos_from_org()` prepares formatted list", {
     test_mocker$use("gh_repos_user_page")
   )
   gh_repos_from_user <- test_graphql_github$get_repos_from_org(
-    org = "test_user",
+    org = gh_user,
     type = "user"
   )
   expect_list_contains(
@@ -145,10 +160,10 @@ test_that("`search_for_code()` returns repos output for code search in files", {
     test_mocker$use("gh_mapped_repos")
   )
   gh_search_for_code <- test_rest_github_priv$search_for_code(
-    code     = "test_code",
-    filename = "test_file",
+    code     = gh_code,
+    filename = gh_file,
     in_path  = FALSE,
-    org      = "test_org",
+    org      = gh_org,
     verbose  = FALSE,
     progress = FALSE
   )
@@ -173,10 +188,10 @@ test_that("`search_repos_for_code()` returns repos output for code search in fil
     test_mocker$use("gh_mapped_repos")
   )
   gh_search_repos_for_code <- test_rest_github_priv$search_repos_for_code(
-    code     = "test_code",
-    filename = "test_file",
+    code     = gh_code,
+    filename = gh_file,
     in_path  = FALSE,
-    repos    = c("TestRepo", "TestRepo1"),
+    repos    = gh_org,
     verbose  = FALSE,
     progress = FALSE
   )
@@ -196,8 +211,8 @@ test_that("`get_repos_by_code()` for GitHub prepares a raw search response", {
     test_mocker$use("gh_search_repos_for_code")
   )
   gh_repos_by_code_raw <- test_rest_github$get_repos_by_code(
-    code    = "test_code",
-    org     = "test_org",
+    code    = gh_code,
+    org     = gh_org,
     output  = "raw",
     verbose = FALSE
   )
@@ -222,8 +237,8 @@ test_that("`get_repos_by_code()` for GitHub prepares a repository output", {
     test_mocker$use("gh_mapped_repos")
   )
   gh_repos_by_code <- test_rest_github$get_repos_by_code(
-    code    = "test_code",
-    org     = "test_org",
+    code    = gh_code,
+    org     = gh_org,
     output  = "table_min",
     verbose = FALSE
   )
