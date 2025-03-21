@@ -267,18 +267,19 @@ EngineGraphQLGitHub <- R6::R6Class(
     prepare_files_table = function(files_response, org) {
       if (!is.null(files_response)) {
         files_table <- purrr::map(files_response, function(repository) {
-          purrr::imap(repository, function(file_data, file_name) {
-            data.frame(
-              "repo_name" = file_data$repo_name,
-              "repo_id" = file_data$repo_id,
-              "organization" = org,
-              "file_path" = file_name,
-              "file_content" = file_data$file$text %||% NA,
-              "file_size" = file_data$file$byteSize,
-              "repo_url" = file_data$repo_url
-            )
-          }) %>%
-            purrr::list_rbind()
+          purrr::discard(repository, ~ length(.$file) == 0) |>
+            purrr::imap(function(file_data, file_name) {
+              data.frame(
+                "repo_name" = file_data$repo_name,
+                "repo_id" = file_data$repo_id,
+                "organization" = org,
+                "file_path" = file_name,
+                "file_content" = file_data$file$text %||% NA,
+                "file_size" = file_data$file$byteSize,
+                "repo_url" = file_data$repo_url
+              )
+            }) %>%
+              purrr::list_rbind()
         }) %>%
           purrr::list_rbind()
       } else {
