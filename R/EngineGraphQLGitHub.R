@@ -278,9 +278,9 @@ EngineGraphQLGitHub <- R6::R6Class(
                 "file_size" = file_data$file$byteSize,
                 "repo_url" = file_data$repo_url
               )
-            }) %>%
-              purrr::list_rbind()
-        }) %>%
+            }) |>
+            purrr::list_rbind()
+        }) |>
           purrr::list_rbind()
       } else {
         files_table <- NULL
