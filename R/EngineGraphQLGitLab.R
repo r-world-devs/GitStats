@@ -316,18 +316,48 @@ EngineGraphQLGitLab <- R6::R6Class(
             repo = repo
           )
         }
-        files_response <- tryCatch(
-          {
-            private$get_file_blobs_response(
+        files_response <- private$get_file_blobs_response(
+          org = org,
+          repo = repo,
+          file_paths = file_paths
+        )
+        if (private$is_complexity_error(files_response)) {
+          if (verbose) {
+            cli::cli_alert("Encountered query complexity error (too many files). I will divide input data into chunks...")
+          }
+          iterations_number <- round(length(file_paths) / 100)
+          x <- 1
+          files_response <- private$get_file_blobs_response(
+            org = org,
+            repo = repo,
+            file_paths = file_paths[1]
+          )
+          nodes <- purrr::map(c(1:iterations_number), function(i) {
+            files_part_response <- private$get_file_blobs_response(
               org = org,
               repo = repo,
-              file_paths = file_paths
+              file_paths = file_paths[x:(i * 100)]
             )
-          },
-          error = function(e) {
-            list()
-          }
-        )
+            x <<- x + 100
+            return(files_part_response$data$project$repository$blobs$nodes)
+          }, .progress = verbose) |>
+            purrr::list_flatten()
+          files_response <- list(
+            "data" = list(
+              "project" = list(
+                "name" = repo,
+                "id" = files_response$data$project$id,
+                "webUrl" = files_response$data$project$webUrl,
+                "repository" = list(
+                  "blobs" = list(
+                    "nodes" = nodes
+                  )
+                )
+              )
+            )
+          )
+        }
+        return(files_response)
       }, .progress = progress)
       return(org_files_list)
     },

@@ -550,12 +550,12 @@ test_fixtures$gitlab_file_repo_response <- list(
           "nodes" = list(
             list(
               "path" = "README.md",
-              "rawBlob" = "# graphql_tests\n\nThis project is for testing GraphQL capabilities.\n",
+              "rawBlob" = "This project is for testing GraphQL capabilities.",
               "size" =  "67"
             ),
             list(
               "path" = "project_metadata.yaml",
-              "rawBlob" = "Name: GraphQL Tests",
+              "rawBlob" = "GraphQL Tests",
               "size" = "19"
             )
           )
@@ -678,6 +678,10 @@ test_fixtures$github_files_tree_response <- list(
           ),
           list(
             "name" = ".covrignore",
+            "type" = "blob"
+          ),
+          list(
+            "name" = "test_file.R",
             "type" = "blob"
           ),
           list(
