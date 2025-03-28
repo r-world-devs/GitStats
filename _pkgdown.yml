@@ -26,7 +26,7 @@ reference:
   desc: >
       Fuctions to get more indirect information about git repositories.
   contents:
-  - get_R_package_usage
+  - get_repos_with_R_package
 - title: Get statistics
   desc: >
       Functions summarizing git data.
