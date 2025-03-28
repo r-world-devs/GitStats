@@ -105,7 +105,7 @@ EngineGraphQLGitHub <- R6::R6Class(
     get_repos = function(repos_ids) {
       repos_query <- self$gql_query$repos_by_ids()
       if (length(repos_ids) > 100) {
-        iterations_number <- round(length(repos_ids) / 100)
+        iterations_number <- ceiling(length(repos_ids) / 100)
         x <- 1
         repos_nodes <- purrr::map(c(1:iterations_number), function(i) {
           if (i == iterations_number) {
