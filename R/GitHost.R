@@ -963,7 +963,7 @@ GitHost <- R6::R6Class(
                                              output   = "table_full",
                                              verbose  = TRUE,
                                              progress = TRUE) {
-      if (any(private$searching_scope == c("org", "all"))) {
+      if (any(private$searching_scope %in% c("org", "all"))) {
         repos_list <- purrr::map(private$orgs, function(org) {
           if (verbose) {
             show_message(

@@ -164,7 +164,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     # Get projects API URL from search response
     get_repo_url_from_response = function(search_response, type, repos_fullnames = NULL, progress = TRUE) {
       repo_urls <- purrr::map_vec(search_response, function(response) {
-        api_url <- paste0(private$api_url, "/projects/", response$project_id)
+        api_url <- paste0(private$api_url, "/projects/", gsub("gid://gitlab/Project/", "", response$node$repo_id))
         if (type == "api") {
           return(api_url)
         } else {

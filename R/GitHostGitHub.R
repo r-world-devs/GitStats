@@ -162,13 +162,13 @@ GitHostGitHub <- R6::R6Class(
     get_repo_url_from_response = function(search_response, repos_fullnames = NULL, type, progress = TRUE) {
       if (!is.null(repos_fullnames)) {
         search_response <- search_response |>
-          purrr::keep(~ .$repository$full_name %in% repos_fullnames)
+          purrr::keep(~ paste0(.$organization$login, "/", .$repo_name) %in% repos_fullnames)
       }
       purrr::map_vec(search_response, function(project) {
         if (type == "api") {
-          project$repository$url
+          paste0(private$api_url, "/repos/", project$organization$login, "/", project$repo_name)
         } else {
-          project$repository$html_url
+          project$repo_url
         }
       })
     },
