@@ -66,53 +66,98 @@ EngineRestGitLab <- R6::R6Class(
       return(files_table)
     },
 
-    # Wrapper for iteration over GitLab search API response
-    # @details For the time being there is no possibility to search GitLab with
-    #   filtering by language. For more information look here:
-    #   https://gitlab.com/gitlab-org/gitlab/-/issues/340333
-    get_repos_by_code = function(code,
-                                 org = NULL,
-                                 repos = NULL,
-                                 filename = NULL,
-                                 in_path = FALSE,
-                                 output = "table_full",
-                                 verbose = TRUE,
-                                 progress = TRUE) {
+    # Search for code
+    search_for_code = function(code,
+                               filename = NULL,
+                               in_path = FALSE,
+                               org = NULL,
+                               page_max = 1e6,
+                               verbose = TRUE) {
       if (!is.null(org)) {
         org <- utils::URLencode(org, reserved = TRUE)
       }
-      if (is.null(repos)) {
-        search_response <- private$search_for_code(
-          code = code,
-          filename = filename,
-          in_path = in_path,
-          org = org,
-          verbose = verbose
-        )
+      page <- 1
+      still_more_hits <- TRUE
+      full_repos_list <- list()
+      search_endpoint <- private$set_search_endpoint(org)
+      if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
+      if (!in_path) {
+        query <- paste0("%22", code, "%22")
       } else {
-        search_response <- private$search_repos_for_code(
-          code = code,
-          filename = filename,
-          in_path = in_path,
-          repos = repos,
-          verbose = verbose
-        )
+        query <- paste0("path:", code)
       }
-      if (output == "raw") {
-        search_output <- search_response
-      } else if (output == "table_full" || output == "table_min") {
-        search_output <- search_response %>%
-          private$map_search_into_repos(
-            progress = progress
-          )
-        if (output == "table_full") {
-          search_output <- search_output %>%
-            private$get_repos_languages(
-              progress = progress
+      if (!is.null(filename)) {
+        query <- paste0(query, "%20filename:", filename)
+      }
+      while (still_more_hits | page < page_max) {
+        search_result <- tryCatch({
+          self$response(
+            paste0(
+              search_endpoint,
+              query,
+              "&per_page=100&page=",
+              page
             )
+          )
+        }, error = function(e) {
+          if (length(full_repos_list) == 1e4) {
+            cli::cli_abort("Reached 10 thousand response limit.")
+          } else {
+            cli::cli_abort(e)
+          }
+        })
+        if (length(search_result) == 0) {
+          still_more_hits <- FALSE
+          break()
+        } else {
+          full_repos_list <- append(full_repos_list, search_result)
+          page <- page + 1
         }
       }
-      return(search_output)
+      return(full_repos_list)
+    },
+
+    search_repos_for_code = function(code,
+                                     repos,
+                                     filename = NULL,
+                                     in_path = FALSE,
+                                     page_max = 1e6,
+                                     verbose = TRUE) {
+      if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
+      if (!in_path) {
+        query <- paste0("%22", code, "%22")
+      } else {
+        query <- paste0("path:", code)
+      }
+      if (!is.null(filename)) {
+        query <- paste0(query, "%20filename:", filename)
+      }
+      search_response <- purrr::map(repos, function(repo) {
+        page <- 1
+        still_more_hits <- TRUE
+        full_repos_list <- list()
+        search_endpoint <- private$set_projects_search_endpoint(repo)
+        while (still_more_hits | page < page_max) {
+          search_result <- self$response(
+            paste0(
+              search_endpoint,
+              query,
+              "&per_page=100&page=",
+              page
+            )
+          )
+          if (length(search_result) == 0) {
+            still_more_hits <- FALSE
+            break()
+          } else {
+            full_repos_list <- append(full_repos_list, search_result)
+            page <- page + 1
+          }
+        }
+        return(full_repos_list)
+      }) |>
+        purrr::list_flatten()
+      return(search_response)
     },
 
     # Retrieve only important info from repositories response
@@ -380,105 +425,6 @@ EngineRestGitLab <- R6::R6Class(
           progress = progress
         )
       return(full_repos_list)
-    },
-
-    # Search for code
-    search_for_code = function(code,
-                               filename = NULL,
-                               in_path = FALSE,
-                               org = NULL,
-                               page_max = 1e6,
-                               verbose = TRUE) {
-      page <- 1
-      still_more_hits <- TRUE
-      full_repos_list <- list()
-      search_endpoint <- private$set_search_endpoint(org)
-      if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
-      if (!in_path) {
-        query <- paste0("%22", code, "%22")
-      } else {
-        query <- paste0("path:", code)
-      }
-      if (!is.null(filename)) {
-        query <- paste0(query, "%20filename:", filename)
-      }
-      while (still_more_hits | page < page_max) {
-        search_result <- self$response(
-          paste0(
-            search_endpoint,
-            query,
-            "&per_page=100&page=",
-            page
-          )
-        )
-        if (length(search_result) == 0) {
-          still_more_hits <- FALSE
-          break()
-        } else {
-          full_repos_list <- append(full_repos_list, search_result)
-          page <- page + 1
-        }
-      }
-      return(full_repos_list)
-    },
-
-    search_repos_for_code = function(code,
-                                     repos,
-                                     filename = NULL,
-                                     in_path = FALSE,
-                                     page_max = 1e6,
-                                     verbose = TRUE) {
-      if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
-      if (!in_path) {
-        query <- paste0("%22", code, "%22")
-      } else {
-        query <- paste0("path:", code)
-      }
-      if (!is.null(filename)) {
-        query <- paste0(query, "%20filename:", filename)
-      }
-      search_response <- purrr::map(repos, function(repo) {
-        page <- 1
-        still_more_hits <- TRUE
-        full_repos_list <- list()
-        search_endpoint <- private$set_projects_search_endpoint(repo)
-        while (still_more_hits | page < page_max) {
-          search_result <- self$response(
-            paste0(
-              search_endpoint,
-              query,
-              "&per_page=100&page=",
-              page
-            )
-          )
-          if (length(search_result) == 0) {
-            still_more_hits <- FALSE
-            break()
-          } else {
-            full_repos_list <- append(full_repos_list, search_result)
-            page <- page + 1
-          }
-        }
-        return(full_repos_list)
-      }) |>
-        purrr::list_flatten()
-      return(search_response)
-    },
-
-    # Parse search response into repositories output
-    map_search_into_repos = function(search_response, progress) {
-      repos_ids <- purrr::map_chr(search_response, ~ as.character(.$project_id)) %>%
-        unique()
-      repos_list <- purrr::map(repos_ids, function(repo_id) {
-        content <- self$response(
-          endpoint = paste0(private$endpoints[["projects"]], repo_id)
-        )
-      }, .progress = if (progress) {
-        "Parsing search response into repositories output..."
-      } else {
-        FALSE
-      })
-      return(repos_list)
     },
 
     # Pull languages of repositories.

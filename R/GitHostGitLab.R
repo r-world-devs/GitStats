@@ -150,8 +150,15 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       if (output == "full_table") {
         orgs <- orgs |>
           graphql_engine$prepare_orgs_table()
+        private$orgs <- dplyr::pull(orgs, path)
+      } else {
+        private$orgs <- orgs
       }
       return(orgs)
+    },
+
+    get_repos_ids = function(search_response) {
+      purrr::map_vec(search_response, ~.$project_id) |> unique()
     },
 
     # Get projects API URL from search response

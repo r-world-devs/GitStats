@@ -46,47 +46,68 @@ EngineRestGitHub <- R6::R6Class(
       return(files_table)
     },
 
-    # Pulling repositories where code appears
-    get_repos_by_code = function(code,
-                                 org = NULL,
-                                 repos = NULL,
-                                 filename = NULL,
-                                 in_path = FALSE,
-                                 output = "table_full",
-                                 verbose = TRUE,
-                                 progress = TRUE) {
-      if (is.null(repos)) {
-        search_result <- private$search_for_code(
-          code = code,
-          org = org,
-          filename = filename,
-          in_path = in_path,
-          verbose = verbose,
-          progress = progress
+    search_for_code = function(code,
+                               org = NULL,
+                               filename = NULL,
+                               in_path = FALSE,
+                               verbose = TRUE) {
+      user_query <- if (!is.null(org)) {
+        paste0('+user:', org)
+      } else {
+        ''
+      }
+      query <- if (!in_path) {
+        paste0('"', code, '"', user_query)
+      } else {
+        paste0('"', code, '"+in:path', user_query)
+      }
+      if (!is.null(filename)) {
+        query <- paste0(query, '+in:file+filename:', filename)
+      }
+      search_endpoint <- paste0(private$endpoints[["search"]], query)
+      if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
+      total_n <- self$response(search_endpoint)[["total_count"]]
+      search_result <- if (length(total_n) > 0) {
+        private$search_response(
+          search_endpoint = search_endpoint,
+          total_n = total_n
         )
       } else {
-        search_result <- private$search_repos_for_code(
-          code = code,
-          repos = repos,
-          filename = filename,
-          in_path = in_path,
-          verbose = verbose,
-          progress = progress
-        )
+        list()
       }
-      if (length(search_result) > 0) {
-        if (output == "table_full" || output == "table_min") {
-          search_output <- private$map_search_into_repos(
-            search_response = search_result,
-            progress        = progress
-          )
-        } else if (output == "raw") {
-          search_output <- search_result
+      return(search_result)
+    },
+
+    search_repos_for_code = function(code,
+                                     repos,
+                                     filename = NULL,
+                                     in_path = FALSE,
+                                     verbose = TRUE) {
+      if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
+      search_result <- purrr::map(repos, function(repo) {
+        repo_query <- paste0('+repo:', repo)
+        query <- if (!in_path) {
+          paste0('"', code, '"', repo_query)
+        } else {
+          paste0('"', code, '"+in:path', repo_query)
         }
-      } else {
-        search_output <- list()
-      }
-      return(search_output)
+        if (!is.null(filename)) {
+          query <- paste0(query, '+in:file+filename:', filename)
+        }
+        search_endpoint <- paste0(private$endpoints[["search"]], query)
+        total_n <- self$response(search_endpoint)[["total_count"]]
+        result <- if (length(total_n) > 0) {
+          private$search_response(
+            search_endpoint = search_endpoint,
+            total_n = total_n
+          )
+        } else {
+          list()
+        }
+        return(result)
+      }) |>
+        purrr::list_flatten()
+      return(search_result)
     },
 
     # Retrieve only important info from repositories response
@@ -228,72 +249,6 @@ EngineRestGitHub <- R6::R6Class(
       )
     },
 
-    search_for_code = function(code,
-                               org,
-                               filename,
-                               in_path,
-                               verbose,
-                               progress) {
-      user_query <- if (!is.null(org)) {
-        paste0('+user:', org)
-      } else {
-        ''
-      }
-      query <- if (!in_path) {
-        paste0('"', code, '"', user_query)
-      } else {
-        paste0('"', code, '"+in:path', user_query)
-      }
-      if (!is.null(filename)) {
-        query <- paste0(query, '+in:file+filename:', filename)
-      }
-      search_endpoint <- paste0(private$endpoints[["search"]], query)
-      if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
-      total_n <- self$response(search_endpoint)[["total_count"]]
-      search_result <- if (length(total_n) > 0) {
-        private$search_response(
-          search_endpoint = search_endpoint,
-          total_n = total_n
-        )
-      } else {
-        list()
-      }
-      return(search_result)
-    },
-
-    search_repos_for_code = function(code,
-                                     repos,
-                                     filename,
-                                     in_path,
-                                     verbose,
-                                     progress) {
-      if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
-      search_result <- purrr::map(repos, function(repo) {
-        repo_query <- paste0('+repo:', repo)
-        query <- if (!in_path) {
-          paste0('"', code, '"', repo_query)
-        } else {
-          paste0('"', code, '"+in:path', repo_query)
-        }
-        if (!is.null(filename)) {
-          query <- paste0(query, '+in:file+filename:', filename)
-        }
-        search_endpoint <- paste0(private$endpoints[["search"]], query)
-        total_n <- self$response(search_endpoint)[["total_count"]]
-        result <- if (length(total_n) > 0) {
-          private$search_response(
-            search_endpoint = search_endpoint,
-            total_n = total_n
-          )
-        } else {
-          list()
-        }
-        return(result)
-      }) |>
-        purrr::list_flatten()
-      return(search_result)
-    },
-
     # A wrapper for proper pagination of GitHub search REST API
     # @param search_endpoint A character, a search endpoint
     # @param total_n Number of results
@@ -373,22 +328,6 @@ EngineRestGitHub <- R6::R6Class(
         spinner$finish()
         return(items_list)
       }
-    },
-
-    # Parse search response into repositories output
-    map_search_into_repos = function(search_response, progress) {
-      repos_ids <- purrr::map_chr(search_response, ~ as.character(.$repository$id)) %>%
-        unique()
-      repos_list <- purrr::map(repos_ids, function(repo_id) {
-        content <- self$response(
-          endpoint = paste0(self$rest_api_url, "/repositories/", repo_id)
-        )
-      }, .progress = if (progress) {
-        "Parsing search response into respositories output..."
-      } else {
-        FALSE
-      })
-      repos_list
     },
 
     # Get files content

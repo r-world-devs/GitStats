@@ -147,8 +147,15 @@ GitHostGitHub <- R6::R6Class(
       if (output == "full_table") {
         orgs <- orgs |>
           graphql_engine$prepare_orgs_table()
+        private$orgs <- dplyr::pull(orgs, path)
+      } else {
+        private$orgs <- orgs
       }
       return(orgs)
+    },
+
+    get_repos_ids = function(search_response) {
+      purrr::map_vec(search_response, ~.$repository$node_id) |> unique()
     },
 
     # Get projects URL from search response

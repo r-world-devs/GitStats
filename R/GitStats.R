@@ -40,7 +40,7 @@ GitStats <- R6::R6Class(
       private$add_new_host(new_host)
     },
 
-    get_orgs = function(cache = TRUE, verbose = TRUE) {
+    get_orgs = function(cache = TRUE, output = "full_table", verbose = TRUE) {
       private$check_for_host()
       trigger <- private$trigger_pulling(
         cache   = cache,
@@ -49,6 +49,7 @@ GitStats <- R6::R6Class(
       )
       if (trigger) {
         organizations <- private$get_orgs_from_hosts(
+          output = output,
           verbose = verbose
         ) %>%
           private$set_object_class(
@@ -572,48 +573,58 @@ GitStats <- R6::R6Class(
       return(object)
     },
 
-    get_orgs_from_hosts = function(verbose) {
-      purrr::map(private$hosts, function(host) {
+    get_orgs_from_hosts = function(output, verbose) {
+      orgs_from_hosts <- purrr::map(private$hosts, function(host) {
         host$get_orgs(
+          output = output,
           verbose = verbose
         )
-      }) |>
-        purrr::list_rbind()
+      })
+      if (output == "full_table") {
+        orgs_from_hosts |>
+          purrr::list_rbind()
+      } else {
+        orgs_from_hosts |>
+          purrr::list_flatten()
+      }
     },
 
     # Pull repositories tables from hosts and bind them into one
     get_repos_from_hosts = function(add_contributors = FALSE,
                                     with_code,
-                                    in_files         = NULL,
+                                    in_files = NULL,
                                     with_files,
-                                    output           = "table_full",
-                                    verbose          = TRUE,
-                                    progress         = TRUE) {
+                                    output = "table_full",
+                                    force_orgs = FALSE,
+                                    verbose = TRUE,
+                                    progress = TRUE) {
       repos_table <- purrr::map(private$hosts, function(host) {
         if (!is.null(with_code)) {
           private$get_repos_from_host_with_code(
-            host             = host,
+            host = host,
             add_contributors = add_contributors,
-            with_code        = with_code,
-            in_files         = in_files,
-            output           = output,
-            verbose          = verbose,
-            progress         = progress
+            with_code = with_code,
+            in_files = in_files,
+            force_orgs = force_orgs,
+            output = output,
+            verbose = verbose,
+            progress = progress
           )
         } else if (!is.null(with_files)) {
           private$get_repos_from_host_with_files(
-            host             = host,
+            host = host,
             add_contributors = add_contributors,
-            with_files       = with_files,
-            output           = output,
-            verbose          = verbose,
-            progress         = progress
+            with_files = with_files,
+            force_orgs = force_orgs,
+            output = output,
+            verbose = verbose,
+            progress = progress
           )
         } else {
           host$get_repos(
             add_contributors = add_contributors,
-            verbose          = verbose,
-            progress         = progress
+            verbose = verbose,
+            progress = progress
           )
         }
       }) %>%
@@ -632,17 +643,19 @@ GitStats <- R6::R6Class(
                                              add_contributors,
                                              with_code,
                                              in_files,
+                                             force_orgs,
                                              output,
                                              verbose,
                                              progress) {
       purrr::map(with_code, function(with_code) {
         host$get_repos(
           add_contributors = add_contributors,
-          with_code        = with_code,
-          in_files         = in_files,
-          output           = output,
-          verbose          = verbose,
-          progress         = progress
+          with_code = with_code,
+          in_files = in_files,
+          force_orgs = force_orgs,
+          output = output,
+          verbose = verbose,
+          progress = progress
         )
       }) %>%
         purrr::list_rbind()
@@ -652,16 +665,18 @@ GitStats <- R6::R6Class(
     get_repos_from_host_with_files = function(host,
                                               add_contributors,
                                               with_files,
+                                              force_orgs,
                                               output,
                                               verbose,
                                               progress) {
       purrr::map(with_files, function(with_file) {
         host$get_repos(
           add_contributors = add_contributors,
-          with_file        = with_file,
-          output           = output,
-          verbose          = verbose,
-          progress         = progress
+          with_file = with_file,
+          force_orgs = force_orgs,
+          output = output,
+          verbose = verbose,
+          progress = progress
         )
       }) %>%
         purrr::list_rbind()
@@ -902,17 +917,39 @@ GitStats <- R6::R6Class(
         cli::cli_alert_info("Checking where [{package_name}] is loaded from library...")
       }
       package_usage_phrases <- c(
-        paste0("library(", package_name, ")"),
-        paste0("require(", package_name, ")")
+        glue::glue("library({package_name})"),
+        glue::glue("require({package_name})")
       )
       repos_using_package <- purrr::map(package_usage_phrases, ~ {
-        repos_using_package <- private$get_repos_from_hosts(
-          with_code  = .,
-          output     = "table_min",
-          verbose    = FALSE,
-          progress   = FALSE
-        )
-        if (nrow(repos_using_package) > 0) {
+        repos_using_package <- tryCatch({
+          private$get_repos_from_hosts(
+            with_code = .,
+            output = "table_min",
+            verbose = FALSE,
+            progress = FALSE
+          )
+        }, error = function(e) {
+          if (grepl("Reached 10 thousand response limit.", e$parent$parent$message)) {
+            if (verbose) {
+              cli::cli_alert_warning(e$parent$parent$message)
+              cli::cli_alert_info("I will cut search responses into `orgs`.")
+            }
+            invisible(private$get_orgs_from_hosts(output = "only_names", verbose = verbose))
+            private$get_repos_from_hosts(
+              with_code = .,
+              force_orgs = TRUE,
+              output = "table_min",
+              verbose = FALSE,
+              progress = verbose
+            )
+          } else {
+            if (verbose) {
+              cli::cli_alert_warning(e$parent$parent$message)
+            }
+            return(NULL)
+          }
+        })
+        if (!is.null(repos_using_package) && nrow(repos_using_package) > 0) {
           repos_using_package$package_usage <- "library"
         }
         return(repos_using_package)

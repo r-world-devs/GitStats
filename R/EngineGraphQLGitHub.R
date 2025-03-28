@@ -102,6 +102,40 @@ EngineGraphQLGitHub <- R6::R6Class(
     },
 
     # Pull all repositories from organization
+    get_repos = function(repos_ids) {
+      repos_query <- self$gql_query$repos_by_ids()
+      if (length(repos_ids) > 100) {
+        iterations_number <- round(length(repos_ids) / 100)
+        x <- 1
+        repos_nodes <- purrr::map(c(1:iterations_number), function(i) {
+          if (i == iterations_number) {
+            repos_ids_length <- length(repos_ids)
+          } else {
+            repos_ids_length <- i * 100
+          }
+          repos_response <- self$gql_response(
+            gql_query = repos_query,
+            vars = list(
+              "ids" = repos_ids[x:repos_ids_length]
+            )
+          )
+          x <<- x + 100
+          return(repos_response$data$nodes)
+        }) |>
+          purrr::list_flatten()
+      } else {
+        repos_response <- self$gql_response(
+          gql_query = repos_query,
+          vars = list(
+            "ids" = repos_ids
+          )
+        )
+        repos_nodes <- repos_response$data$nodes
+      }
+      return(repos_nodes)
+    },
+
+    # Pull all repositories from organization
     get_repos_from_org = function(org = NULL,
                                   type = c("organization", "user")) {
       full_repos_list <- list()
@@ -403,14 +437,14 @@ EngineGraphQLGitHub <- R6::R6Class(
 
     # Wrapper over building GraphQL query and response.
     get_repos_page = function(login = NULL,
-                              type = c("organization", "user"),
+                              type = c("organization"),
                               repo_cursor = "") {
-      repos_query <- if (type == "organization") {
-        self$gql_query$repos_by_org(
+      if (type == "organization") {
+        repos_query <- self$gql_query$repos_by_org(
           repo_cursor = repo_cursor
         )
-      } else {
-        self$gql_query$repos_by_user(
+      } else if (type == "user") {
+        repos_query <- self$gql_query$repos_by_user(
           repo_cursor = repo_cursor
         )
       }
