@@ -136,30 +136,6 @@ EngineRestGitHub <- R6::R6Class(
       return(repos_urls)
     },
 
-    #' A method to add information on open and closed issues of a repository.
-    get_repos_issues = function(repos_table, progress) {
-      if (nrow(repos_table) > 0) {
-        repos_iterator <- paste0(repos_table$organization, "/", repos_table$repo_name)
-        issues <- purrr::map_dfr(repos_iterator, function(repo_path) {
-          issues_endpoint <- paste0(private$endpoints[["repositories"]], repo_path, "/issues")
-          issues <- self$response(
-            endpoint = issues_endpoint
-          )
-          data.frame(
-            "open" = length(purrr::keep(issues, ~ .$state == "open")),
-            "closed" = length(purrr::keep(issues, ~ .$state == "closed"))
-          )
-        }, .progress = if (progress) {
-          "Pulling repositories issues..."
-        } else {
-          FALSE
-        })
-        repos_table$issues_open <- issues$open
-        repos_table$issues_closed <- issues$closed
-      }
-      return(repos_table)
-    },
-
     #' Add information on repository contributors.
     get_repos_contributors = function(repos_table, progress) {
       if (nrow(repos_table) > 0) {

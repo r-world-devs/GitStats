@@ -750,14 +750,14 @@ GitHost <- R6::R6Class(
           org <- utils::URLdecode(org)
           if (!private$scan_all && verbose) {
             show_message(
-              host        = private$host_name,
-              engine      = "graphql",
-              scope       = org,
+              host = private$host_name,
+              engine = "graphql",
+              scope = org,
               information = "Pulling repositories"
             )
           }
           repos_from_org <- graphql_engine$get_repos_from_org(
-            org  = org,
+            org = org,
             type = type
           )
           if (length(repos_from_org) > 0) {

@@ -2,7 +2,7 @@ test_that("get_R_package_as_dependency work correctly", {
   mockery::stub(
     test_gitstats_priv$get_R_package_as_dependency,
     "private$get_repos_from_hosts",
-    test_mocker$use("repos_from_hosts_min")
+    test_mocker$use("repos_from_hosts")
   )
   R_package_as_dependency <- test_gitstats_priv$get_R_package_as_dependency(
     package_name = "shiny",
@@ -23,7 +23,7 @@ test_that("get_R_package_loading work correctly", {
   mockery::stub(
     test_gitstats_priv$get_R_package_loading,
     "private$get_repos_from_hosts",
-    test_mocker$use("repos_from_hosts_min")
+    test_mocker$use("repos_from_hosts")
   )
   R_package_loading <- test_gitstats_priv$get_R_package_loading(
     package_name = "purrr",
@@ -104,13 +104,13 @@ test_that("when get_R_package_usage_from_hosts output is empty return warning", 
   )
 })
 
-test_that("get_R_package_usage works", {
+test_that("get_repos_with_R_package works", {
   mockery::stub(
-    test_gitstats$get_R_package_usage,
+    test_gitstats$get_repos_with_R_package,
     "private$get_R_package_usage_from_hosts",
     test_mocker$use("R_package_usage_table")
   )
-  R_package_usage_table <- test_gitstats$get_R_package_usage(
+  R_package_usage_table <- test_gitstats$get_repos_with_R_package(
     packages = c("shiny", "purrr"),
     verbose = FALSE
   )
@@ -118,5 +118,39 @@ test_that("get_R_package_usage works", {
   expect_s3_class(
     R_package_usage_table,
     "gitstats_package_usage"
+  )
+  test_mocker$cache(R_package_usage_table)
+})
+
+test_that("get_repos_with_R_package works", {
+  mockery::stub(
+    get_repos_with_R_package,
+    "gitstats$get_repos_with_R_package",
+    test_mocker$use("R_package_usage_table")
+  )
+  R_package_usage_table <- get_repos_with_R_package(
+    gitstats = test_gitstats,
+    packages = c("shiny", "purrr"),
+    verbose = FALSE
+  )
+  expect_package_usage_table(R_package_usage_table)
+  expect_s3_class(
+    R_package_usage_table,
+    "gitstats_package_usage"
+  )
+})
+
+test_that("get_repos_with_R_package records timespan of the process", {
+  mockery::stub(
+    get_repos_with_R_package,
+    "gitstats$get_repos_with_R_package",
+    test_mocker$use("R_package_usage_table")
+  )
+  expect_snapshot(
+    R_package_usage_table <- get_repos_with_R_package(
+      gitstats = test_gitstats,
+      packages = c("shiny", "purrr"),
+      verbose = TRUE
+    )
   )
 })

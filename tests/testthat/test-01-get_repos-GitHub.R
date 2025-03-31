@@ -281,9 +281,15 @@ test_that("`get_repos_with_code_from_orgs()` works", {
 test_that("`get_repos_with_code_from_orgs()` pulls raw response", {
   mockery::stub(
     github_testhost_priv$get_repos_with_code_from_orgs,
-    "rest_engine$search_repos_for_code",
+    "rest_engine$search_for_code",
     test_mocker$use("gh_search_repos_for_code")[["items"]]
   )
+  mockery::stub(
+    github_testhost_priv$get_repos_with_code_from_orgs,
+    "private$parse_search_response",
+    test_mocker$use("gh_repos_raw_output")
+  )
+  github_testhost_priv$orgs <- gh_org
   expect_snapshot(
     repos_with_code_from_orgs_raw <- github_testhost_priv$get_repos_with_code_from_orgs(
       code = "shiny",
@@ -435,6 +441,7 @@ test_that("get_repos_from_org works", {
     "graphql_engine$get_repos_from_org",
     test_mocker$use("gh_repos_from_org")
   )
+  github_testhost_priv$orgs <- gh_org
   gh_repos_from_orgs <- github_testhost_priv$get_repos_from_orgs(
     verbose = FALSE,
     progress = FALSE

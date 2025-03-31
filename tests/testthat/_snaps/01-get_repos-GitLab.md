@@ -8,7 +8,7 @@
 # `search_for_code()` works
 
     Code
-      gl_search_repos_by_code <- test_rest_gitlab_priv$search_for_code(code = "test",
+      gl_search_repos_by_code <- test_rest_gitlab$search_for_code(code = "test",
         filename = "TESTFILE", verbose = TRUE, page_max = 2)
     Message
       i Searching for code [test]...
@@ -16,7 +16,7 @@
 # `search_repos_for_code()` works
 
     Code
-      gl_search_repos_by_code <- test_rest_gitlab_priv$search_repos_for_code(code = "test",
+      gl_search_repos_by_code <- test_rest_gitlab$search_repos_for_code(code = "test",
         repos = "TestRepo", filename = "TESTFILE", verbose = TRUE, page_max = 2)
     Message
       i Searching for code [test]...

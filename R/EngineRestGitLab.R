@@ -228,26 +228,6 @@ EngineRestGitLab <- R6::R6Class(
       return(repos_urls)
     },
 
-    # Add information on open and closed issues of a repository.
-    get_repos_issues = function(repos_table, progress) {
-      if (nrow(repos_table) > 0) {
-        issues <- purrr::map(repos_table$repo_id, function(repos_id) {
-          id <- gsub("gid://gitlab/Project/", "", repos_id)
-          issues_endpoint <- paste0(self$rest_api_url, "/projects/", id, "/issues_statistics")
-          self$response(
-            endpoint = issues_endpoint
-          )[["statistics"]][["counts"]]
-        }, .progress = if (progress) {
-          "Pulling repositories issues..."
-        } else {
-          FALSE
-        })
-        repos_table$issues_open <- purrr::map_dbl(issues, ~ .$opened)
-        repos_table$issues_closed <- purrr::map_dbl(issues, ~ .$closed)
-      }
-      return(repos_table)
-    },
-
     #' Add information on repository contributors.
     get_repos_contributors = function(repos_table, progress) {
       if (nrow(repos_table) > 0) {

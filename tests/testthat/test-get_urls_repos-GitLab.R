@@ -120,9 +120,9 @@ test_that("get_all_repos_urls prepares api repo_urls vector", {
 
 test_that("`get_repo_url_from_response()` works", {
   gl_repo_web_urls <- gitlab_testhost_priv$get_repo_url_from_response(
-    search_response = test_mocker$use("gl_search_response"),
-    type            = "web",
-    progress        = FALSE
+    search_response = test_mocker$use("gl_repos_raw_output"),
+    type = "web",
+    progress = FALSE
   )
   expect_gt(length(gl_repo_web_urls), 0)
   expect_type(gl_repo_web_urls, "character")

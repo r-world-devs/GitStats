@@ -351,11 +351,11 @@ GitStats <- R6::R6Class(
       return(release_logs)
     },
 
-    get_R_package_usage = function(packages,
-                                   only_loading = FALSE,
-                                   split_output = FALSE,
-                                   cache        = TRUE,
-                                   verbose      = TRUE) {
+    get_repos_with_R_package = function(packages,
+                                        only_loading = FALSE,
+                                        split_output = FALSE,
+                                        cache = TRUE,
+                                        verbose = TRUE) {
       private$check_for_host()
       if (is.null(packages)) {
         cli::cli_abort("You need to define at least one `package_name`.", call = NULL)
@@ -594,7 +594,7 @@ GitStats <- R6::R6Class(
                                     with_code,
                                     in_files = NULL,
                                     with_files,
-                                    output = "table_full",
+                                    output = "table",
                                     force_orgs = FALSE,
                                     verbose = TRUE,
                                     progress = TRUE) {
@@ -629,12 +629,9 @@ GitStats <- R6::R6Class(
         }
       }) %>%
         purrr::list_rbind() %>%
+        dplyr::as_tibble() %>%
+        private$add_stats_to_repos() %>%
         dplyr::as_tibble()
-      if (output == "table_full") {
-        repos_table <- repos_table %>%
-          private$add_stats_to_repos() %>%
-          dplyr::as_tibble()
-      }
       return(repos_table)
     },
 

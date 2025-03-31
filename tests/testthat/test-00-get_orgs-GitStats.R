@@ -8,6 +8,7 @@ test_that("get_orgs_from_hosts works", {
     ))
   )
   orgs_from_hosts <- test_gitstats_priv$get_orgs_from_hosts(
+    output = "full_table",
     verbose = FALSE
   )
   expect_orgs_table(

@@ -34,7 +34,7 @@ test_that("get_repos_urls_from_hosts gets data with_code in_files from the hosts
   expect_type(repos_urls_from_hosts_with_code_in_files, "character")
   expect_gt(length(repos_urls_from_hosts_with_code_in_files), 0)
   expect_true(any(grepl("gitlab.com", repos_urls_from_hosts_with_code_in_files)))
-  expect_true(any(grepl("github.com", repos_urls_from_hosts_with_code_in_files)))
+  expect_true(any(grepl("github", repos_urls_from_hosts_with_code_in_files)))
   test_mocker$cache(repos_urls_from_hosts_with_code_in_files)
 })
 

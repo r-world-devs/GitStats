@@ -51,8 +51,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
         '
         query GetReposByIds($ids: [ID!]!) {
           nodes(ids: $ids) {
-            ... on Repository {',
-          private$repo_node_data, '
+            ... on Repository {', private$repo_node_data, '
             }
           }
         }
@@ -266,11 +265,8 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
           endCursor
           hasNextPage
         }
-        nodes {',
-          private$repo_node_data,
-        '}
-      }
-      ')
+        nodes {', private$repo_node_data, '}
+      }')
     },
 
     repo_node_data = '

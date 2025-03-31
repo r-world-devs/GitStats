@@ -162,7 +162,7 @@ get_repos_with_R_package <- function(gitstats,
                                      cache = TRUE,
                                      verbose = is_verbose(gitstats)) {
   start_time <- Sys.time()
-  package_usage <- gitstats$get_R_package_usage(
+  package_usage <- gitstats$get_repos_with_R_package(
     packages = packages,
     only_loading = only_loading,
     split_output = split_output,

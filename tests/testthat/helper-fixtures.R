@@ -207,7 +207,7 @@ github_repository_node <- function(repo_name) {
     "organization" = list(
       "login" = "test_org"
     ),
-    "repo_url" = "https://test_url"
+    "repo_url" = "https://github.test.com/api/test_url"
   )
 }
 
@@ -579,23 +579,23 @@ test_fixtures$gitlab_file_repo_response <- list(
 
 test_fixtures$gitlab_search_response <- list(
   list(
-    "basename"   = "test",
-    "data"       = "some text with searched phrase",
-    "path"       = "test.R",
-    "filename"   = "test.R",
-    "id"         = NULL,
-    "ref"        = "main",
-    "startline"  = 10,
+    "basename"= "test",
+    "data" = "some text with searched phrase",
+    "path" = "test.R",
+    "filename" = "test.R",
+    "id" = NULL,
+    "ref" = "main",
+    "startline" = 10,
     "project_id" = 43398933
   ),
   list(
-    "basename"   = "test",
-    "data"       = "some text with searched phrase",
-    "path"       = "test.R",
-    "filename"   = "test.R",
-    "id"         = NULL,
-    "ref"        = "main",
-    "startline"  = 15,
+    "basename" = "test",
+    "data" = "some text with searched phrase",
+    "path" = "test.R",
+    "filename" = "test.R",
+    "id" = NULL,
+    "ref" = "main",
+    "startline" = 15,
     "project_id" = 43400864
   )
 )
