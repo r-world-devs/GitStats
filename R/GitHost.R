@@ -68,7 +68,7 @@ GitHost <- R6::R6Class(
                          with_code = NULL,
                          in_files = NULL,
                          with_file = NULL,
-                         output = "table_full",
+                         output = "table",
                          force_orgs = FALSE,
                          verbose = TRUE,
                          progress = TRUE) {
@@ -97,14 +97,14 @@ GitHost <- R6::R6Class(
           progress = progress
         )
       }
-      if (output == "table_full" || output == "table_min") {
+      if (output == "table") {
         repos_table <- private$add_repo_api_url(repos_table) %>%
           private$add_platform()
         if (add_contributors) {
           repos_table <- private$get_repos_contributors(
             repos_table = repos_table,
-            verbose     = verbose,
-            progress    = progress
+            verbose = verbose,
+            progress = progress
           )
         }
       }
@@ -960,7 +960,7 @@ GitHost <- R6::R6Class(
     get_repos_with_code_from_orgs = function(code,
                                              in_files = NULL,
                                              in_path  = FALSE,
-                                             output   = "table_full",
+                                             output   = "table",
                                              verbose  = TRUE,
                                              progress = TRUE) {
       if (any(private$searching_scope %in% c("org", "all"))) {

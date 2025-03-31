@@ -110,44 +110,6 @@ EngineRestGitHub <- R6::R6Class(
       return(search_result)
     },
 
-    # Retrieve only important info from repositories response
-    tailor_repos_response = function(repos_response, output = "table_full") {
-      repos_list <- purrr::map(repos_response, function(repo) {
-        if (output == "table_full") {
-          repo_data <- list(
-            "repo_id" = repo$id,
-            "repo_name" = repo$name,
-            "default_branch" = repo$default_branch,
-            "stars" = repo$stargazers_count,
-            "forks" = repo$forks_count,
-            "created_at" = gts_to_posixt(repo$created_at),
-            "last_activity_at" = if (!is.null(repo$pushed_at)) {
-              gts_to_posixt(repo$pushed_at)
-            } else {
-              gts_to_posixt(repo$created_at)
-            },
-            "languages" = repo$language,
-            "issues_open" = repo$issues_open,
-            "issues_closed" = repo$issues_closed,
-            "organization" = repo$owner$login,
-            "repo_url" = repo$html_url
-          )
-        }
-        if (output == "table_min") {
-          repo_data <- list(
-            "repo_id" = repo$id,
-            "repo_name" = repo$name,
-            "default_branch" = repo$default_branch,
-            "created_at" = gts_to_posixt(repo$created_at),
-            "organization" = repo$owner$login,
-            "repo_url" = repo$html_url
-          )
-        }
-        return(repo_data)
-      })
-      return(repos_list)
-    },
-
     #' Pull all repositories URLS from organization
     get_repos_urls = function(type, org, repos) {
       owner_type <- attr(org, "type") %||% "organization"

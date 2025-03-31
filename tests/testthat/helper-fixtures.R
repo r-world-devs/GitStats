@@ -176,7 +176,7 @@ test_fixtures$gitlab_repositories_rest_response <- list(
 
 github_repository_node <- function(repo_name) {
   list(
-    "repo_id" = "xyz",
+    "repo_id" = "test_node_id",
     "repo_name" = repo_name,
     "default_branch" = list(
       "name" = "main"
@@ -210,6 +210,18 @@ github_repository_node <- function(repo_name) {
     "repo_url" = "https://test_url"
   )
 }
+
+test_fixtures$github_repos_by_ids_response <- list(
+  "data" = list(
+    "nodes" = list(
+      github_repository_node("TestRepo"),
+      github_repository_node("TestRepo1"),
+      github_repository_node("TestRepo2"),
+      github_repository_node("TestRepo3"),
+      github_repository_node("TestRepo4")
+    )
+  )
+)
 
 test_fixtures$github_repos_by_org_response <- list(
   "data" = list(
@@ -596,6 +608,7 @@ github_search_item <- list(
   "git_url" = "test_git_url",
   "html_url" = "test_html_url",
   "repository" = list(
+    "node_id" = "test_node_id",
     "id" = 627452680,
     "url" = "https://api.github.com/repos/r-world-devs/GitStats",
     "html_url" = "https://github.com/r-world-devs/GitStats"

@@ -66,26 +66,12 @@ expect_gl_repos_gql_response <- function(object, type = "organization") {
   )
 }
 
-expect_gh_repos_gql_response <- function(object, type = "organization") {
-  expect_type(
-    object,
-    "list"
-  )
-  expect_list_contains(
-    object,
-    "data"
-  )
-  repo_node <- if (type == "organization") {
-    object$data$repositoryOwner$repositories$nodes[[1]]
-  } else {
-    object$data$user$repositories$nodes[[1]]
-  }
-  expect_list_contains(
-    repo_node,
-    c(
-      "id", "name", "stars", "forks", "created_at",
-      "last_activity_at", "languages", "issues_open", "issues_closed",
-      "repo_url"
+expect_gh_repos_gql_response <- function(repo_node) {
+  expect_true(
+    all(
+      colnames(repo_node) %in% c("repo_id", "repo_name", "stars", "forks", "created_at",
+                                 "last_activity_at", "languages", "issues_open",
+                                 "issues_closed", "repo_url")
     )
   )
 }

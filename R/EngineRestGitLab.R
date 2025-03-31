@@ -160,40 +160,6 @@ EngineRestGitLab <- R6::R6Class(
       return(search_response)
     },
 
-    # Retrieve only important info from repositories response
-    tailor_repos_response = function(repos_response, output = "table_full") {
-      repos_list <- purrr::map(repos_response, function(project) {
-        if (output == "table_full") {
-          repo_data <- list(
-            "repo_id" = project$id,
-            "repo_name" = project$name,
-            "default_branch" = project$default_branch,
-            "stars" = project$star_count,
-            "forks" = project$fork_count,
-            "created_at" = project$created_at,
-            "last_activity_at" = project$last_activity_at,
-            "languages" = paste0(project$languages, collapse = ", "),
-            "issues_open" = project$issues_open,
-            "issues_closed" = project$issues_closed,
-            "organization" = project$namespace$full_path,
-            "repo_url" = project$web_url
-          )
-        }
-        if (output == "table_min") {
-          repo_data <- list(
-            "repo_id" = project$id,
-            "repo_name" = project$name,
-            "default_branch" = project$default_branch,
-            "created_at" = project$created_at,
-            "organization" = project$namespace$path,
-            "repo_url" = project$web_url
-          )
-        }
-        return(repo_data)
-      })
-      return(repos_list)
-    },
-
     # Get only important info on commits.
     tailor_commits_info = function(repos_list_with_commits,
                                    org) {

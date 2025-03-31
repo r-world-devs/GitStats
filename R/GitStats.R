@@ -924,7 +924,7 @@ GitStats <- R6::R6Class(
         repos_using_package <- tryCatch({
           private$get_repos_from_hosts(
             with_code = .,
-            output = "table_min",
+            output = "table",
             verbose = FALSE,
             progress = FALSE
           )
@@ -938,7 +938,7 @@ GitStats <- R6::R6Class(
             private$get_repos_from_hosts(
               with_code = .,
               force_orgs = TRUE,
-              output = "table_min",
+              output = "table",
               verbose = FALSE,
               progress = verbose
             )
@@ -966,11 +966,11 @@ GitStats <- R6::R6Class(
         cli::cli_alert_info("Checking where [{package_name}] is used as a dependency...")
       }
       repos_with_package <- private$get_repos_from_hosts(
-        with_code  = package_name,
-        in_files   = c("DESCRIPTION", "NAMESPACE"),
-        output     = "table_min",
-        verbose    = FALSE,
-        progress   = FALSE
+        with_code = package_name,
+        in_files = c("DESCRIPTION", "NAMESPACE"),
+        output = "table",
+        verbose = FALSE,
+        progress = FALSE
       )
       if (nrow(repos_with_package) > 0) {
         repos_with_package <- repos_with_package[!duplicated(repos_with_package$api_url), ]
