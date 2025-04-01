@@ -88,3 +88,19 @@ test_that("get_commits() returns error when since is not defined", {
     )
   )
 })
+
+test_that("get_commits() prints time used", {
+  mockery::stub(
+    get_commits,
+    "gitstats$get_commits",
+    test_mocker$use("commits_table")
+  )
+  expect_snapshot(
+    commits <- get_commits(
+      test_gitstats,
+      since = "2023-06-15",
+      until = "2023-06-30",
+      verbose = TRUE
+    )
+  )
+})

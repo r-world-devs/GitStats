@@ -50,7 +50,7 @@ files).
     orgs = c("r-world-devs", "openpharma")
   )
 
- get_R_package_usage(
+ get_repos_with_R_package(
    gitstats = my_gitstats,
    packages = c("purrr", "shiny"),
    split_output = TRUE

@@ -53,7 +53,8 @@ get_repos <- function(gitstats,
                       cache = TRUE,
                       verbose = is_verbose(gitstats),
                       progress = verbose) {
-  gitstats$get_repos(
+  start_time <- Sys.time()
+  repos <- gitstats$get_repos(
     add_contributors = add_contributors,
     with_code = with_code,
     in_files = in_files,
@@ -62,6 +63,12 @@ get_repos <- function(gitstats,
     verbose = verbose,
     progress = progress
   )
+  end_time <- Sys.time()
+  time_taken <- end_time - start_time
+  if (verbose) {
+    cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
+  }
+  return(repos)
 }
 
 #' @title Get repository URLS
@@ -109,7 +116,8 @@ get_repos_urls <- function(gitstats,
                            cache = TRUE,
                            verbose = is_verbose(gitstats),
                            progress = verbose) {
-  gitstats$get_repos_urls(
+  start_time <- Sys.time()
+  repos_urls <- gitstats$get_repos_urls(
     type = type,
     with_code = with_code,
     in_files = in_files,
@@ -118,6 +126,12 @@ get_repos_urls <- function(gitstats,
     verbose = verbose,
     progress = progress
   )
+  end_time <- Sys.time()
+  time_taken <- end_time - start_time
+  if (verbose) {
+    cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
+  }
+  return(repos_urls)
 }
 
 #' @title Get data on package usage across repositories
@@ -148,7 +162,7 @@ get_repos_urls <- function(gitstats,
 #'     orgs = c("r-world-devs", "openpharma")
 #'   )
 #'
-#'  get_R_package_usage(
+#'  get_repos_with_R_package(
 #'    gitstats = my_gitstats,
 #'    packages = c("purrr", "shiny"),
 #'    split_output = TRUE

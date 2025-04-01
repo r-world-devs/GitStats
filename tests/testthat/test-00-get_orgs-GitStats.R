@@ -50,3 +50,17 @@ test_that("get_orgs works", {
   expect_s3_class(orgs_table, "gitstats_orgs")
   test_mocker$cache(orgs_table)
 })
+
+test_that("get_orgs prints info on time used to pull data", {
+  mockery::stub(
+    get_orgs,
+    "gitstats$get_orgs",
+    test_mocker$use("orgs_table")
+  )
+  expect_snapshot(
+    orgs_table <- get_orgs(
+      test_gitstats,
+      verbose = TRUE
+    )
+  )
+})

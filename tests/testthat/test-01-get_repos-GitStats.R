@@ -66,10 +66,25 @@ test_that("get_repos works", {
     test_mocker$use("repos_data")
   )
   repos_data <- get_repos(
-    gitstats = test_gitstats
+    gitstats = test_gitstats,
+    verbose = FALSE
   )
   expect_repos_table_object(
     repos_object = repos_data,
     with_cols = c("contributors", "contributors_n")
+  )
+})
+
+test_that("get_repos prints time used to pull data", {
+  mockery::stub(
+    get_repos,
+    "gitstats$get_repos",
+    test_mocker$use("repos_data")
+  )
+  expect_snapshot(
+    repos_data <- get_repos(
+      gitstats = test_gitstats,
+      verbose = TRUE
+    )
   )
 })
