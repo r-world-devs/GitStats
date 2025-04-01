@@ -45,7 +45,8 @@ test_that("get_orgs works", {
     test_mocker$use("orgs_table")
   )
   orgs_table <- get_orgs(
-    test_gitstats
+    test_gitstats,
+    verbose = FALSE
   )
   expect_s3_class(orgs_table, "gitstats_orgs")
   test_mocker$cache(orgs_table)

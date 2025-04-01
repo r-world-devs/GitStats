@@ -371,7 +371,7 @@ GitStats <- R6::R6Class(
         verbose   = verbose
       )
       if (trigger) {
-        R_package_usage <- private$get_R_package_usage_from_hosts(
+        R_package_usage <- private$get_repos_with_R_packages_from_hosts(
           packages     = packages,
           only_loading = only_loading,
           split_output = split_output,
@@ -829,9 +829,9 @@ GitStats <- R6::R6Class(
     get_release_logs_from_hosts = function(since, until, verbose, progress) {
       purrr::map(private$hosts, function(host) {
         host$get_release_logs(
-          since    = since,
-          until    = until,
-          verbose  = verbose,
+          since = since,
+          until = until,
+          verbose = verbose,
           progress = progress
         )
       }) %>%
@@ -840,22 +840,22 @@ GitStats <- R6::R6Class(
     },
 
     # Pull information on package usage in a table form
-    get_R_package_usage_from_hosts = function(packages,
-                                              only_loading,
-                                              split_output = FALSE,
-                                              verbose = TRUE) {
+    get_repos_with_R_packages_from_hosts = function(packages,
+                                                    only_loading,
+                                                    split_output = FALSE,
+                                                    verbose = TRUE) {
       packages_usage_list <- purrr::map(packages, function(package_name) {
         if (!only_loading) {
           repos_with_package_as_dependency <- private$get_R_package_as_dependency(
             package_name = package_name,
-            verbose      = verbose
+            verbose = verbose
           )
         } else {
           repos_with_package_as_dependency <- NULL
         }
         repos_using_package <- private$get_R_package_loading(
           package_name = package_name,
-          verbose      = verbose
+          verbose = verbose
         )
         package_usage_table <- purrr::list_rbind(
           list(
@@ -921,6 +921,7 @@ GitStats <- R6::R6Class(
         repos_using_package <- tryCatch({
           private$get_repos_from_hosts(
             with_code = .,
+            force_orgs = FALSE,
             output = "table",
             verbose = FALSE,
             progress = FALSE
