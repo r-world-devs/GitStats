@@ -104,13 +104,13 @@ test_that("when get_R_package_usage_from_hosts output is empty return warning", 
   )
 })
 
-test_that("get_repos_with_R_package works", {
+test_that("get_repos_with_R_packages works", {
   mockery::stub(
-    test_gitstats$get_repos_with_R_package,
+    test_gitstats$get_repos_with_R_packages,
     "private$get_R_package_usage_from_hosts",
     test_mocker$use("R_package_usage_table")
   )
-  R_package_usage_table <- test_gitstats$get_repos_with_R_package(
+  R_package_usage_table <- test_gitstats$get_repos_with_R_packages(
     packages = c("shiny", "purrr"),
     verbose = FALSE
   )
@@ -122,13 +122,13 @@ test_that("get_repos_with_R_package works", {
   test_mocker$cache(R_package_usage_table)
 })
 
-test_that("get_repos_with_R_package works", {
+test_that("get_repos_with_R_packages works", {
   mockery::stub(
-    get_repos_with_R_package,
-    "gitstats$get_repos_with_R_package",
+    get_repos_with_R_packages,
+    "gitstats$get_repos_with_R_packages",
     test_mocker$use("R_package_usage_table")
   )
-  R_package_usage_table <- get_repos_with_R_package(
+  R_package_usage_table <- get_repos_with_R_packages(
     gitstats = test_gitstats,
     packages = c("shiny", "purrr"),
     verbose = FALSE
@@ -140,14 +140,14 @@ test_that("get_repos_with_R_package works", {
   )
 })
 
-test_that("get_repos_with_R_package records timespan of the process", {
+test_that("get_repos_with_R_packages records timespan of the process", {
   mockery::stub(
-    get_repos_with_R_package,
-    "gitstats$get_repos_with_R_package",
+    get_repos_with_R_packages,
+    "gitstats$get_repos_with_R_packages",
     test_mocker$use("R_package_usage_table")
   )
   expect_snapshot(
-    R_package_usage_table <- get_repos_with_R_package(
+    R_package_usage_table <- get_repos_with_R_packages(
       gitstats = test_gitstats,
       packages = c("shiny", "purrr"),
       verbose = TRUE

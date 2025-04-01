@@ -135,7 +135,7 @@ get_repos_urls <- function(gitstats,
 }
 
 #' @title Get data on package usage across repositories
-#' @name get_repos_with_R_package
+#' @name get_repos_with_R_packages
 #' @description Wrapper over searching repositories by code blobs related to
 #'   loading package (`library(package)` and `require(package)` in all files) or
 #'   using it as a dependency (`package` in `DESCRIPTION` and `NAMESPACE`
@@ -162,21 +162,21 @@ get_repos_urls <- function(gitstats,
 #'     orgs = c("r-world-devs", "openpharma")
 #'   )
 #'
-#'  get_repos_with_R_package(
+#'  get_repos_with_R_packages(
 #'    gitstats = my_gitstats,
 #'    packages = c("purrr", "shiny"),
 #'    split_output = TRUE
 #'  )
 #' }
 #' @export
-get_repos_with_R_package <- function(gitstats,
-                                     packages,
-                                     only_loading = FALSE,
-                                     split_output = FALSE,
-                                     cache = TRUE,
-                                     verbose = is_verbose(gitstats)) {
+get_repos_with_R_packages <- function(gitstats,
+                                      packages,
+                                      only_loading = FALSE,
+                                      split_output = FALSE,
+                                      cache = TRUE,
+                                      verbose = is_verbose(gitstats)) {
   start_time <- Sys.time()
-  package_usage <- gitstats$get_repos_with_R_package(
+  package_usage <- gitstats$get_repos_with_R_packages(
     packages = packages,
     only_loading = only_loading,
     split_output = split_output,

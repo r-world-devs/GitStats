@@ -351,11 +351,11 @@ GitStats <- R6::R6Class(
       return(release_logs)
     },
 
-    get_repos_with_R_package = function(packages,
-                                        only_loading = FALSE,
-                                        split_output = FALSE,
-                                        cache = TRUE,
-                                        verbose = TRUE) {
+    get_repos_with_R_packages = function(packages,
+                                         only_loading = FALSE,
+                                         split_output = FALSE,
+                                         cache = TRUE,
+                                         verbose = TRUE) {
       private$check_for_host()
       if (is.null(packages)) {
         cli::cli_abort("You need to define at least one `package_name`.", call = NULL)
