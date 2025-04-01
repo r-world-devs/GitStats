@@ -7,6 +7,14 @@ test_that("repos queries are built properly", {
   test_mocker$cache(gl_repos_by_org_query)
 })
 
+test_that("repos queries are built properly", {
+  gl_repos_query <-
+    test_gqlquery_gl$repos("")
+  expect_snapshot(
+    gl_repos_query
+  )
+})
+
 test_that("`get_repos_page()` pulls repos page from GitLab group", {
   mockery::stub(
     test_graphql_gitlab_priv$get_repos_page,
