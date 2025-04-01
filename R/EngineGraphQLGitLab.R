@@ -189,6 +189,11 @@ EngineGraphQLGitLab <- R6::R6Class(
           if (!is.null(repo$namespace)) {
             org <- repo$namespace$path
           }
+          if (is.null(org)) {
+            org <- sub(paste0("/", repo$repo_path), "", repo$repo_url) %>%
+              sub("^https://[^/]+", "", .) %>%
+              sub("^/", "", .)
+          }
           repo[["organization"]] <- org
           repo$namespace <- NULL
           repo$repo_path <- NULL # temporary to close issue 338

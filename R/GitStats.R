@@ -874,11 +874,11 @@ GitStats <- R6::R6Class(
             package_usage_table,
             package = package_name,
             repo_fullname = paste0(organization, "/", repo_name)
-          ) %>%
+          ) |>
             dplyr::relocate(
               package, package_usage,
               .before = repo_id
-            ) %>%
+            ) |>
             dplyr::relocate(
               repo_fullname,
               .after = repo_id
