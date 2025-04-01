@@ -1,3 +1,44 @@
+test_that("get_repos_from_host_with_code works", {
+  mockery::stub(
+    test_gitstats_priv$get_repos_from_host_with_code,
+    "host$get_repos",
+    test_mocker$use("gh_repos_table_full")
+  )
+  repos_from_host <- test_gitstats_priv$get_repos_from_host_with_code(
+    add_contributors = TRUE,
+    with_code = "test_code",
+    in_files = NULL,
+    force_orgs = FALSE,
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_repos_table(
+    repos_from_host,
+    repo_cols = repo_host_colnames,
+    with_cols = c("api_url", "platform", "contributors")
+  )
+})
+
+test_that("get_repos_from_host_with_files works", {
+  mockery::stub(
+    test_gitstats_priv$get_repos_from_host_with_files,
+    "host$get_repos",
+    test_mocker$use("gl_repos_table_full")
+  )
+  repos_from_host <- test_gitstats_priv$get_repos_from_host_with_files(
+    add_contributors = TRUE,
+    with_files = "test_file",
+    force_orgs = FALSE,
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_repos_table(
+    repos_from_host,
+    repo_cols = repo_host_colnames,
+    with_cols = c("api_url", "platform", "contributors")
+  )
+})
+
 test_that("get_repos_from_hosts works", {
   mockery::stub(
     test_gitstats_priv$get_repos_from_hosts,

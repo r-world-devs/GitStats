@@ -242,23 +242,35 @@ test_that("GitHost adds `repo_api_url` column to GitLab repos table", {
   test_mocker$cache(gl_repos_table_with_api_url)
 })
 
+
+test_that("add_platform adds data on Git platform to repos table", {
+  gl_repos_table_with_platform <- gitlab_testhost_priv$add_platform(
+    repos_table = test_mocker$use("gl_repos_table_with_api_url")
+  )
+  expect_repos_table(
+    gl_repos_table_with_platform,
+    with_cols = c("api_url", "platform")
+  )
+  test_mocker$cache(gl_repos_table_with_platform)
+})
+
 test_that("`get_repos_contributors()` adds contributors to repos table", {
   mockery::stub(
     test_rest_gitlab$get_repos_contributors,
     "private$get_contributors_from_repo",
     "Maciej Banas"
   )
-  gl_repos_table_with_contributors <- test_rest_gitlab$get_repos_contributors(
-    test_mocker$use("gl_repos_table_with_api_url"),
+  gl_repos_table_full <- test_rest_gitlab$get_repos_contributors(
+    test_mocker$use("gl_repos_table_with_platform"),
     progress = FALSE
   )
   expect_repos_table(
-    gl_repos_table_with_contributors,
-    with_cols = c("api_url", "contributors")
+    gl_repos_table_full,
+    with_cols = c("api_url", "platform", "contributors")
   )
   expect_gt(
-    length(gl_repos_table_with_contributors$contributors),
+    length(gl_repos_table_full$contributors),
     0
   )
-  test_mocker$cache(gl_repos_table_with_contributors)
+  test_mocker$cache(gl_repos_table_full)
 })
