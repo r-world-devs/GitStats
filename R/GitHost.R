@@ -482,16 +482,16 @@ GitHost <- R6::R6Class(
       if (!private$scan_all) {
         if (!is.null(orgs)) {
           private$orgs <- private$check_organizations(
-            orgs    = orgs,
+            orgs = orgs,
             verbose = verbose,
-            .error  = .error
+            .error = .error
           )
         }
         if (!is.null(repos)) {
           repos <- private$check_repositories(
-            repos   = repos,
+            repos = repos,
             verbose = verbose,
-            .error  = .error
+            .error = .error
           )
           private$repos_fullnames <- repos
           orgs_repos <- private$extract_repos_and_orgs(private$repos_fullnames)

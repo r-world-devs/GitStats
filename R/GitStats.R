@@ -84,22 +84,22 @@ GitStats <- R6::R6Class(
                         "in_files" = in_files,
                         "with_files" = with_files)
       trigger <- private$trigger_pulling(
-        cache     = cache,
-        storage   = "repositories",
+        cache = cache,
+        storage = "repositories",
         args_list = args_list,
-        verbose   = verbose
+        verbose = verbose
       )
       if (trigger) {
         repositories <- private$get_repos_from_hosts(
           add_contributors = add_contributors,
-          with_code        = with_code,
-          in_files         = in_files,
-          with_files       = with_files,
-          verbose          = verbose,
-          progress         = progress
-        ) %>%
+          with_code = with_code,
+          in_files = in_files,
+          with_files = with_files,
+          verbose = verbose,
+          progress = progress
+        ) |>
           private$set_object_class(
-            class     = "gitstats_repos",
+            class = "gitstats_repos",
             attr_list = args_list
           )
         private$save_to_storage(
@@ -107,7 +107,7 @@ GitStats <- R6::R6Class(
         )
       } else {
         repositories <- private$get_from_storage(
-          table   = "repositories",
+          table = "repositories",
           verbose = verbose
         )
       }
@@ -132,19 +132,19 @@ GitStats <- R6::R6Class(
                         "in_files"   = in_files,
                         "with_files" = with_files)
       trigger <- private$trigger_pulling(
-        cache     = cache,
-        storage   = "repos_urls",
+        cache = cache,
+        storage = "repos_urls",
         args_list = args_list,
-        verbose   = verbose
+        verbose = verbose
       )
       if (trigger) {
         repos_urls <- private$get_repos_urls_from_hosts(
-          type       = type,
-          with_code  = with_code,
-          in_files   = in_files,
+          type = type,
+          with_code = with_code,
+          in_files = in_files,
           with_files = with_files,
-          verbose    = verbose,
-          progress   = progress
+          verbose = verbose,
+          progress = progress
         )
         if (!is.null(repos_urls)) {
           repos_urls <- private$set_object_class(
@@ -177,20 +177,20 @@ GitStats <- R6::R6Class(
       private$check_for_host()
       args_list <- list("date_range" = c(since, as.character(until)))
       trigger <- private$trigger_pulling(
-        cache     = cache,
-        storage   = "commits",
+        cache = cache,
+        storage = "commits",
         args_list = args_list,
-        verbose   = verbose
+        verbose = verbose
       )
       if (trigger) {
         commits <- private$get_commits_from_hosts(
-          since    = since,
-          until    = until,
-          verbose  = verbose,
+          since = since,
+          until = until,
+          verbose = verbose,
           progress = progress
-        ) %>%
+        ) |>
           private$set_object_class(
-            class     = "gitstats_commits",
+            class = "gitstats_commits",
             attr_list = args_list
           )
         private$save_to_storage(
@@ -217,21 +217,21 @@ GitStats <- R6::R6Class(
         "date_range" = c(since, as.character(until))
       )
       trigger <- private$trigger_pulling(
-        cache     = cache,
-        storage   = "issues",
+        cache = cache,
+        storage = "issues",
         args_list = args_list,
-        verbose   = verbose
+        verbose = verbose
       )
       if (trigger) {
         issues <- private$get_issues_from_hosts(
-          since    = since,
-          until    = until,
-          state    = state,
-          verbose  = verbose,
+          since = since,
+          until = until,
+          state = state,
+          verbose = verbose,
           progress = progress
-        ) %>%
+        ) |>
           private$set_object_class(
-            class     = "gitstats_issues",
+            class = "gitstats_issues",
             attr_list = args_list
           )
         private$save_to_storage(
@@ -318,27 +318,27 @@ GitStats <- R6::R6Class(
     },
 
     get_release_logs = function(since,
-                                until    = Sys.Date(),
-                                cache    = TRUE,
-                                verbose  = TRUE,
+                                until = Sys.Date(),
+                                cache = TRUE,
+                                verbose = TRUE,
                                 progress = TRUE) {
       private$check_for_host()
       args_list <- list("date_range" = c(since, as.character(until)))
       trigger <- private$trigger_pulling(
-        storage   = "release_logs",
-        cache     = cache,
+        storage = "release_logs",
+        cache = cache,
         args_list = args_list,
-        verbose   = verbose
+        verbose = verbose
       )
       if (trigger) {
         release_logs <- private$get_release_logs_from_hosts(
-          since    = since,
-          until    = until,
-          verbose  = verbose,
+          since = since,
+          until = until,
+          verbose = verbose,
           progress = progress
-        ) %>%
+        ) |>
           private$set_object_class(
-            class     = "gitstats_releases",
+            class = "gitstats_releases",
             attr_list = args_list
           )
         private$save_to_storage(release_logs)
@@ -983,14 +983,14 @@ GitStats <- R6::R6Class(
         repos_table <- repos_table %>%
           dplyr::mutate(
             fullname = paste0(organization, "/", repo_name)
-          ) %>%
+          ) |>
           dplyr::mutate(
             last_activity = difftime(
               Sys.time(),
               last_activity_at,
               units = "days"
-            ) %>% round(2)
-          ) %>%
+            ) |> round(2)
+          ) |>
           dplyr::relocate(
             organization, fullname, platform, repo_url, api_url, created_at,
             last_activity_at, last_activity,
