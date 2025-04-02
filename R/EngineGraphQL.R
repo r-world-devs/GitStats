@@ -68,16 +68,23 @@ EngineGraphQL <- R6::R6Class(
                                     org) {
       issues_table <- purrr::imap(repos_list_with_issues, function(repo, repo_name) {
         issues_row <- purrr::map_dfr(repo, function(issue_data) {
-          issue_data[["node"]][["description"]] <- issue_data[["node"]][["description"]] %||% ""
-          issue_data[["node"]][["number"]] <- as.character(issue_data[["node"]][["number"]])
-          issue_data[["node"]][["created_at"]] <- lubridate::as_datetime(issue_data[["node"]][["created_at"]])
-          issue_data[["node"]][["closed_at"]] <- lubridate::as_datetime(issue_data[["node"]][["closed_at"]] %||% "")
-          issue_data[["node"]][["state"]] <- tolower(issue_data[["node"]][["state"]])
-          if (issue_data[["node"]][["state"]] == "opened") {
-            issue_data[["node"]][["state"]] <- "open"
+          state <- tolower(issue_data[["node"]][["state"]])
+          if (state == "opened") {
+            state <- "open"
           }
-          issue_data[["node"]][["author"]] <- issue_data[["node"]][["author"]][["login"]]
-          data.frame(issue_data$node)
+          get_node_data <- function(node_data) {
+            issue_data[["node"]][[node_data]] %||% ""
+          }
+          data.frame(
+            number = as.character(get_node_data("number")),
+            title = get_node_data("title"),
+            description = get_node_data("description"),
+            created_at = lubridate::as_datetime(get_node_data("created_at")),
+            closed_at = lubridate::as_datetime(get_node_data("closed_at")),
+            state = state,
+            url = get_node_data("url"),
+            author = issue_data[["node"]][["author"]][["login"]]
+          )
         })
         issues_row$repository <- repo_name
         issues_row
