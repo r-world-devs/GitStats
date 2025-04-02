@@ -911,7 +911,7 @@ GitStats <- R6::R6Class(
     # Search repositories with `library(package_name)` in code blobs.
     get_R_package_loading = function(package_name, verbose) {
       if (verbose) {
-        cli::cli_alert_info("Checking where [{package_name}] is loaded from library...")
+        cli::cli_alert("Checking where [{package_name}] is loaded from library...")
       }
       package_usage_phrases <- c(
         glue::glue("library({package_name})"),
@@ -961,7 +961,7 @@ GitStats <- R6::R6Class(
     # @param package_name Name of a package.
     get_R_package_as_dependency = function(package_name, verbose) {
       if (verbose) {
-        cli::cli_alert_info("Checking where [{package_name}] is used as a dependency...")
+        cli::cli_alert("Checking where [{package_name}] is used as a dependency...")
       }
       repos_with_package <- private$get_repos_from_hosts(
         with_code = package_name,

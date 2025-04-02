@@ -7,7 +7,7 @@ EngineRestGitLab <- R6::R6Class(
 
     get_orgs_count = function(verbose) {
       if (verbose) {
-        cli::cli_alert_info("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling number of all organizations...")
+        cli::cli_alert("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling number of all organizations...")
       }
       orgs_response <- private$perform_request(paste0(private$endpoints$organizations, "?all_available=True"),
                                                token = private$token)
@@ -80,7 +80,7 @@ EngineRestGitLab <- R6::R6Class(
       still_more_hits <- TRUE
       full_repos_list <- list()
       search_endpoint <- private$set_search_endpoint(org)
-      if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
+      if (verbose) cli::cli_alert("Searching for code [{code}]...")
       if (!in_path) {
         query <- paste0("%22", code, "%22")
       } else {
@@ -123,7 +123,7 @@ EngineRestGitLab <- R6::R6Class(
                                      in_path = FALSE,
                                      page_max = 1e6,
                                      verbose = TRUE) {
-      if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
+      if (verbose) cli::cli_alert("Searching for code [{code}]...")
       if (!in_path) {
         query <- paste0("%22", code, "%22")
       } else {
@@ -278,7 +278,7 @@ EngineRestGitLab <- R6::R6Class(
                                                      progress = verbose) {
       if (nrow(commits_table) > 0) {
         if (verbose) {
-          cli::cli_alert_info("Looking up for authors' names and logins...")
+          cli::cli_alert("Looking up for authors' names and logins...")
         }
         authors_dict <- private$get_authors_dict(
           commits_table = commits_table,

@@ -42,7 +42,7 @@ EngineGraphQLGitHub <- R6::R6Class(
     #' Get all orgs from GitHub.
     get_orgs = function(output = c("only_names", "full_table"), verbose) {
       if (verbose) {
-        cli::cli_alert_info("[Host:GitHub][Engine:{cli::col_yellow('GraphQL')}] Pulling organizations...")
+        cli::cli_alert("[Host:GitHub][Engine:{cli::col_yellow('GraphQL')}] Pulling organizations...")
       }
       end_cursor <- ""
       has_next_page <- TRUE

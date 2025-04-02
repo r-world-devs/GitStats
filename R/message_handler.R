@@ -19,7 +19,7 @@ show_message <- function(host,
   } else {
     glue::glue("[Host:{host}][Engine:{engine_msg}][Scope:{scope}] {information}...")
   }
-  cli::cli_alert_info(message)
+  cli::cli_alert(message)
 }
 
 set_repo_scope <- function(org, private) {

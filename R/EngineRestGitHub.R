@@ -65,7 +65,7 @@ EngineRestGitHub <- R6::R6Class(
         query <- paste0(query, '+in:file+filename:', filename)
       }
       search_endpoint <- paste0(private$endpoints[["search"]], query)
-      if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
+      if (verbose) cli::cli_alert("Searching for code [{code}]...")
       total_n <- self$response(search_endpoint)[["total_count"]]
       search_result <- if (length(total_n) > 0) {
         private$search_response(
@@ -83,7 +83,7 @@ EngineRestGitHub <- R6::R6Class(
                                      filename = NULL,
                                      in_path = FALSE,
                                      verbose = TRUE) {
-      if (verbose) cli::cli_alert_info("Searching for code [{code}]...")
+      if (verbose) cli::cli_alert("Searching for code [{code}]...")
       search_result <- purrr::map(repos, function(repo) {
         repo_query <- paste0('+repo:', repo)
         query <- if (!in_path) {

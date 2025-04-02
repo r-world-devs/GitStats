@@ -504,15 +504,15 @@ GitHost <- R6::R6Class(
     # Check if repositories exist
     check_repositories = function(repos, verbose, .error) {
       if (verbose) {
-        cli::cli_alert_info(cli::col_grey("Checking repositories..."))
+        cli::cli_alert(cli::col_grey("Checking repositories..."))
       }
       repos <- purrr::map(repos, function(repo) {
         repo_endpoint <- glue::glue("{private$endpoints$repositories}/{repo}")
         check <- private$check_endpoint(
           endpoint = repo_endpoint,
-          type     = "Repository",
-          verbose  = verbose,
-          .error   = .error
+          type = "Repository",
+          verbose = verbose,
+          .error = .error
         )
         if (!check) {
           repo <- NULL
@@ -530,7 +530,7 @@ GitHost <- R6::R6Class(
     # Check if organizations or users exist
     check_organizations = function(orgs, verbose, .error) {
       if (verbose) {
-        cli::cli_alert_info(cli::col_grey("Checking owners..."))
+        cli::cli_alert(cli::col_grey("Checking owners..."))
       }
       orgs <- private$engines$graphql$set_owner_type(
         owners = utils::URLdecode(orgs)
