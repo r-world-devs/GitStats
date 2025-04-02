@@ -24,18 +24,18 @@ EngineRestGitLab <- R6::R6Class(
       file_paths <- utils::URLencode(file_paths, reserved = TRUE)
       files_list <- purrr::map(file_paths, function(filename) {
         files_search_result <- private$search_for_code(
-          code    = filename,
+          code = filename,
           in_path = TRUE,
-          org     = org,
+          org = org,
           verbose = verbose
         ) %>%
           purrr::keep(~ .$path == filename)
         files_content <- private$add_file_info(
           files_search_result = files_search_result,
-          clean_file_content  = clean_files_content,
-          filename            = filename,
-          verbose             = verbose,
-          progress            = progress
+          clean_file_content = clean_files_content,
+          filename = filename,
+          verbose = verbose,
+          progress = progress
         )
         return(files_content)
       }, .progress = progress) %>%
