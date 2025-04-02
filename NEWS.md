@@ -14,6 +14,7 @@
 
 - Renamed `get_R_package_usage()` to `get_repos_with_R_package()` as the output resembles the one from `get_repos()`.
 - Added information on time used for pulling the data ([#603](https://github.com/r-world-devs/GitStats/issues/603)).
+- Shortened messages when pulling data from repositories ([#587](https://github.com/r-world-devs/GitStats/issues/587)).
 
 # GitStats 2.2.2
 
