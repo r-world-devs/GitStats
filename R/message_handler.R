@@ -25,3 +25,14 @@ show_message <- function(host,
 set_repo_scope <- function(org, private) {
   paste0(org, ": ", length(private$orgs_repos[[org]]), " repos")
 }
+
+cut_item_to_print <- function(item_to_print) {
+  if (length(item_to_print) < 10) {
+    list_items <- paste0(item_to_print, collapse = ", ")
+  } else {
+    item_to_print_cut <- item_to_print[1:10]
+    list_items <- paste0(item_to_print_cut, collapse = ", ") %>%
+      paste0("... and ", length(item_to_print) - 10, " more")
+  }
+  return(list_items)
+}
