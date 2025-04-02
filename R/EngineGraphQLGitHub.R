@@ -171,7 +171,7 @@ EngineGraphQLGitHub <- R6::R6Class(
     prepare_repos_table = function(repos_list, org) {
       if (length(repos_list) > 0) {
         repos_table <- purrr::map(repos_list, function(repo) {
-          repo[["default_branch"]] <- if (!is.null(repo$default_branch)) {
+          default_branch <- if (!is.null(repo$default_branch)) {
             repo$default_branch$name
           } else {
             ""
@@ -180,20 +180,22 @@ EngineGraphQLGitHub <- R6::R6Class(
           if (length(last_activity_at) == 0) {
             last_activity_at <- gts_to_posixt(repo$created_at)
           }
-          repo[["languages"]] <- purrr::map_chr(repo$languages$nodes, ~ .$name) |>
-            paste0(collapse = ", ")
-          repo[["created_at"]] <- gts_to_posixt(repo$created_at)
-          repo[["issues_open"]] <- repo$issues_open$totalCount
-          repo[["issues_closed"]] <- repo$issues_closed$totalCount
-          repo[["last_activity_at"]] <- last_activity_at
-          repo[["organization"]] <- repo$organization$login
-          repo <- data.frame(repo) %>%
-            dplyr::relocate(
-              default_branch,
-              .after = repo_name
-            )
-          return(repo)
-        }) %>%
+          data.frame(
+            repo_id = repo$repo_id,
+            repo_name = repo$repo_name,
+            default_branch = default_branch,
+            stars = repo$stars,
+            forks = repo$forks,
+            created_at = gts_to_posixt(repo$created_at),
+            last_activity_at = last_activity_at,
+            languages = purrr::map_chr(repo$languages$nodes, ~ .$name) |>
+              paste0(collapse = ", "),
+            issues_open = repo$issues_open$totalCount,
+            issues_closed = repo$issues_closed$totalCount,
+            organization = repo$organization$login,
+            repo_url = repo$repo_url
+          )
+        }) |>
           purrr::list_rbind()
       } else {
         repos_table <- NULL
