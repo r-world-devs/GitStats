@@ -718,7 +718,6 @@ GitHost <- R6::R6Class(
         type <- attr(org, "type") %||% "organization"
         org <- utils::URLdecode(org)
         graphql_engine$get_org(
-          output = output,
           org = org
         )
       }) |>
