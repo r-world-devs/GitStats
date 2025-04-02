@@ -19,5 +19,5 @@
       releases_from_repos <- gitlab_testhost_priv$get_release_logs_from_repos(since = "2023-05-01",
         until = "2023-09-30", verbose = TRUE, progress = FALSE)
     Message
-      i [Host:GitLab][Engine:GraphQl][Scope:test_org/TestRepo] Pulling release logs...
+      i [Host:GitLab][Engine:GraphQl][Scope:test_org: 1 repos] Pulling release logs...
 
