@@ -1250,7 +1250,7 @@ GitHost <- R6::R6Class(
             show_message(
               host = private$host_name,
               engine = "graphql",
-              scope = paste0(org, "/", private$orgs_repos[[org]], collapse = ", "),
+              scope = set_repo_scope(org, private),
               information = "Pulling issues"
             )
           }
@@ -1558,7 +1558,7 @@ GitHost <- R6::R6Class(
             show_message(
               host = private$host_name,
               engine = "graphql",
-              scope = paste0(org, "/", private$orgs_repos[[org]], collapse = ", "),
+              scope = set_repo_scope(org, private),
               information = "Pulling release logs"
             )
           }

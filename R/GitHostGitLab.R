@@ -243,7 +243,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             show_message(
               host        = private$host_name,
               engine      = "rest",
-              scope       = utils::URLdecode(paste0(repos_names, collapse = "|")),
+              scope       = set_repo_scope(org, private),
               information = "Pulling commits"
             )
           }
