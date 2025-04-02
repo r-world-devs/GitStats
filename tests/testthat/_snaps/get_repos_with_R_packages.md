@@ -4,7 +4,7 @@
       R_package_loading <- test_gitstats_priv$get_R_package_loading(package_name = "purrr",
         verbose = TRUE)
     Message
-      i Checking where [purrr] is loaded from library...
+      > Checking where [purrr] is loaded from library...
       ! Reached 10 thousand response limit.
       i I will cut search responses into `orgs`.
       ! Reached 10 thousand response limit.

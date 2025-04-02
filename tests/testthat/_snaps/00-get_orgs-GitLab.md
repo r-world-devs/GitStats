@@ -17,7 +17,7 @@
     Code
       orgs_count <- test_rest_gitlab$get_orgs_count(verbose = TRUE)
     Message
-      i [Host:GitLab][Engine:REST] Pulling number of all organizations...
+      > [Host:GitLab][Engine:REST] Pulling number of all organizations...
 
 # get_orgs prints message
 
@@ -25,7 +25,7 @@
       gl_orgs_full_response <- test_graphql_gitlab$get_orgs(orgs_count = 3L, output = "full_table",
         verbose = TRUE, progress = FALSE)
     Message
-      i [Host:GitLab][Engine:GraphQL] Pulling organizations...
+      > [Host:GitLab][Engine:GraphQL] Pulling organizations...
 
 # get_orgs_from_host prints message on number of organizations
 

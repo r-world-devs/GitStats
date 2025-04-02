@@ -18,5 +18,5 @@
       gh_orgs_full_response <- test_graphql_github$get_orgs(output = "full_table",
         verbose = TRUE)
     Message
-      i [Host:GitHub][Engine:GraphQL] Pulling organizations...
+      > [Host:GitHub][Engine:GraphQL] Pulling organizations...
 

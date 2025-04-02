@@ -4,7 +4,7 @@
       set_github_host(gitstats = test_gitstats, token = Sys.getenv("GITHUB_PAT"),
       orgs = c("openpharma", "r-world-devs"))
     Message
-      i Checking owners...
+      > Checking owners...
       v Set connection to GitHub.
 
 ---
@@ -13,7 +13,7 @@
       test_gitstats %>% set_gitlab_host(token = Sys.getenv("GITLAB_PAT_PUBLIC"),
       orgs = c("mbtests"))
     Message
-      i Checking owners...
+      > Checking owners...
       v Set connection to GitLab.
 
 # When empty token for GitHub, GitStats pulls default token
@@ -23,7 +23,7 @@
         "r-world-devs"))
     Message
       i Using PAT from GITHUB_PAT envar.
-      i Checking owners...
+      > Checking owners...
       v Set connection to GitHub.
 
 # When empty token for GitLab, GitStats pulls default token
@@ -34,7 +34,7 @@
       })
     Message
       i Using PAT from GITLAB_PAT envar.
-      i Checking owners...
+      > Checking owners...
       v Set connection to GitLab.
 
 # Set GitHub host with particular repos vector instead of orgs
@@ -44,7 +44,7 @@
         "r-world-devs/GitStats", "r-world-devs/shinyCohortBuilder",
         "openpharma/GithubMetrics", "openpharma/DataFakeR"))
     Message
-      i Checking repositories...
+      > Checking repositories...
       v Set connection to GitHub.
 
 # Set GitLab host with particular repos vector instead of orgs
@@ -53,7 +53,7 @@
       test_gitstats %>% set_gitlab_host(token = Sys.getenv("GITLAB_PAT_PUBLIC"),
       repos = c("mbtests/gitstatstesting", "mbtests/gitstats-testing-2"))
     Message
-      i Checking repositories...
+      > Checking repositories...
       v Set connection to GitLab.
 
 # Error shows if organizations are not specified and host is not passed
@@ -74,9 +74,9 @@
       test_gitstats %>% set_github_host(token = Sys.getenv("GITHUB_PAT"), orgs = "pharmaverse") %>%
         set_github_host(token = Sys.getenv("GITHUB_PAT"), orgs = "openpharma")
     Message
-      i Checking owners...
+      > Checking owners...
       v Set connection to GitHub.
-      i Checking owners...
+      > Checking owners...
       v Set connection to GitHub.
     Condition
       Error:
@@ -88,7 +88,7 @@
       test_gitstats <- create_gitstats() %>% set_github_host(token = Sys.getenv(
         "GITHUB_PAT"), orgs = c("openparma"))
     Message
-      i Checking owners...
+      > Checking owners...
     Condition
       Error in `purrr::map()`:
       i In index: 1.
@@ -102,7 +102,7 @@
       test_gitstats <- create_gitstats() %>% set_gitlab_host(token = Sys.getenv(
         "GITLAB_PAT_PUBLIC"), orgs = c("openparma", "mbtests"))
     Message
-      i Checking owners...
+      > Checking owners...
     Condition
       Error in `purrr::map()`:
       i In index: 1.
@@ -116,7 +116,7 @@
       test_gitstats <- create_gitstats() %>% set_github_host(token = Sys.getenv(
         "GITHUB_PAT"), orgs = c("openpharma", "r_world_devs"))
     Message
-      i Checking owners...
+      > Checking owners...
     Condition
       Error in `purrr::map()`:
       i In index: 2.
@@ -132,9 +132,9 @@
       verbose = TRUE, .error = FALSE)
     Message
       i Using PAT from GITHUB_PAT envar.
-      i Checking owners...
+      > Checking owners...
       ! Org/user you provided does not exist: r_world_devs
-      i Checking repositories...
+      > Checking repositories...
       ! Repository you provided does not exist: https://api.github.com/repos/r-world-devs/GitMetrics
       v Set connection to GitHub.
 

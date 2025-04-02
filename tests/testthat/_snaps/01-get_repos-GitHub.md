@@ -26,7 +26,7 @@
         get_repos_with_code_from_orgs(code = "shiny", in_files = c("DESCRIPTION",
         "NAMESPACE"), output = "raw", verbose = TRUE)
     Message
-      i [Host:GitHub][Engine:REST][Scope:test_org] Pulling repositories...
+      > [Host:GitHub][Engine:REST][Scope:test_org] Pulling repositories...
 
 # `get_repos_with_code_from_host()` pulls and parses output into table
 
@@ -35,7 +35,7 @@
         get_repos_with_code_from_host(code = "DESCRIPTION", in_path = TRUE, output = "table_full",
         verbose = TRUE)
     Message
-      i [Host:GitHub][Engine:REST] Pulling repositories...
+      > [Host:GitHub][Engine:REST] Pulling repositories...
 
 # `get_repos_with_code_from_repos()` works
 
@@ -43,7 +43,7 @@
       repos_with_code_from_repos_full <- github_testhost_priv$
         get_repos_with_code_from_repos(code = "tests", output = "table", verbose = TRUE)
     Message
-      i [Host:GitHub][Engine:REST][Scope:] Pulling repositories...
+      > [Host:GitHub][Engine:REST][Scope:] Pulling repositories...
 
 # `get_repos_with_code_from_host()` pulls raw response
 
@@ -52,10 +52,10 @@
         get_repos_with_code_from_host(code = "shiny", in_files = c("DESCRIPTION",
         "NAMESPACE"), output = "raw", verbose = TRUE)
     Message
-      i [Host:GitHub][Engine:REST] Pulling repositories...
-      i Searching for code [shiny]...
+      > [Host:GitHub][Engine:REST] Pulling repositories...
+      > Searching for code [shiny]...
       HTTP 401 Unauthorized.
-      i Searching for code [shiny]...
+      > Searching for code [shiny]...
       HTTP 401 Unauthorized.
 
 # get_repos_from_repos works
@@ -64,7 +64,7 @@
       gh_repos_individual <- github_testhost_priv$get_repos_from_repos(verbose = TRUE,
         progress = FALSE)
     Message
-      i [Host:GitHub][Engine:GraphQl][Scope:test_org: 1 repos] Pulling repositories...
+      > [Host:GitHub][Engine:GraphQl][Scope:test_org: 1 repos] Pulling repositories...
 
 # `get_repos_contributors()` works on GitHost level
 
@@ -73,5 +73,5 @@
         repos_table = test_mocker$use("gh_repos_table_with_platform"), verbose = TRUE,
         progress = FALSE)
     Message
-      i [Host:GitHub][Engine:REST] Pulling contributors...
+      > [Host:GitHub][Engine:REST] Pulling contributors...
 

@@ -18,7 +18,7 @@
       gl_search_repos_by_code <- test_rest_gitlab$search_for_code(code = "test",
         filename = "TESTFILE", verbose = TRUE, page_max = 2)
     Message
-      i Searching for code [test]...
+      > Searching for code [test]...
 
 # `search_repos_for_code()` works
 
@@ -26,7 +26,7 @@
       gl_search_repos_by_code <- test_rest_gitlab$search_repos_for_code(code = "test",
         repos = "TestRepo", filename = "TESTFILE", verbose = TRUE, page_max = 2)
     Message
-      i Searching for code [test]...
+      > Searching for code [test]...
 
 # get_repos_from_org prints proper message
 
@@ -34,5 +34,5 @@
       gl_repos_from_orgs <- gitlab_testhost_priv$get_repos_from_orgs(verbose = TRUE,
         progress = FALSE)
     Message
-      i [Host:GitLab][Engine:GraphQl][Scope:test_group] Pulling repositories...
+      > [Host:GitLab][Engine:GraphQl][Scope:test_group] Pulling repositories...
 
