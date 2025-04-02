@@ -306,7 +306,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             show_message(
               host = private$host_name,
               engine = "graphql",
-              scope = org,
+              scope = set_repo_scope(org, private),
               information = glue::glue("Pulling files content: [{paste0(file_path, collapse = ', ')}]")
             )
           }

@@ -64,7 +64,7 @@
       gh_repos_individual <- github_testhost_priv$get_repos_from_repos(verbose = TRUE,
         progress = FALSE)
     Message
-      i [Host:GitHub][Engine:GraphQl][Scope:test_org/TestRepo] Pulling repositories...
+      i [Host:GitHub][Engine:GraphQl][Scope:test_org: 1 repos] Pulling repositories...
 
 # `get_repos_contributors()` works on GitHost level
 

@@ -1321,7 +1321,7 @@ GitHost <- R6::R6Class(
             show_message(
               host = private$host_name,
               engine = "graphql",
-              scope = paste0(org, "/", private$orgs_repos[[org]], collapse = ", "),
+              scope = set_repo_scope(org, private),
               information = glue::glue("Pulling files content: [{paste0(file_path, collapse = ', ')}]")
             )
           }
@@ -1455,7 +1455,7 @@ GitHost <- R6::R6Class(
             show_message(
               host = private$host_name,
               engine = "graphql",
-              scope = paste0(org, "/", private$orgs_repos[[org]], collapse = ", "),
+              scope = set_repo_scope(org, private),
               information = user_info
             )
           }
