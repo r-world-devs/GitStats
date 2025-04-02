@@ -1,4 +1,4 @@
-# GitStats (development version)
+# GitStats 2.3.0
 
 - Added `get_orgs()` function ([#599](https://github.com/r-world-devs/GitStats/issues/599)).
 - Added `get_issues()` and `get_issues_stats()` functions ([#569](https://github.com/r-world-devs/GitStats/issues/569)).
