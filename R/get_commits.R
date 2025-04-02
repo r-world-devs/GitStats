@@ -32,16 +32,23 @@ get_commits <- function(gitstats,
                         cache    = TRUE,
                         verbose  = is_verbose(gitstats),
                         progress = verbose) {
+  start_time <- Sys.time()
   if (is.null(since)) {
     cli::cli_abort(cli::col_red("You need to pass date to `since` parameter."), call = NULL)
   }
-  gitstats$get_commits(
-    since    = since,
-    until    = until,
-    cache    = cache,
-    verbose  = verbose,
+  commits <- gitstats$get_commits(
+    since = since,
+    until = until,
+    cache = cache,
+    verbose = verbose,
     progress = progress
   )
+  end_time <- Sys.time()
+  time_taken <- end_time - start_time
+  if (verbose) {
+    cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
+  }
+  return(commits)
 }
 
 #' @title Get commits statistics

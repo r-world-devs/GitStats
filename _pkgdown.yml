@@ -17,16 +17,12 @@ reference:
   - get_orgs
   - get_repos
   - get_repos_urls
+  - get_repos_with_R_packages
   - get_commits
   - get_issues
   - get_release_logs
   - get_files
   - get_users
-- title: Get package usage
-  desc: >
-      Fuctions to get more indirect information about git repositories.
-  contents:
-  - get_R_package_usage
 - title: Get statistics
   desc: >
       Functions summarizing git data.

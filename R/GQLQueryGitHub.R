@@ -46,6 +46,19 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       }'
     ,
 
+    repos_by_ids = function() {
+      paste0(
+        '
+        query GetReposByIds($ids: [ID!]!) {
+          nodes(ids: $ids) {
+            ... on Repository {', private$repo_node_data, '
+            }
+          }
+        }
+        '
+      )
+    },
+
     repos_by_org = function(repo_cursor) {
       paste0('
         query GetReposByOrg($login: String!) {
@@ -252,30 +265,35 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
           endCursor
           hasNextPage
         }
+        nodes {', private$repo_node_data, '}
+      }')
+    },
+
+    repo_node_data = '
+      repo_id: id
+      repo_name: name
+      default_branch: defaultBranchRef {
+        name
+      }
+      stars: stargazerCount
+      forks: forkCount
+      created_at: createdAt
+      last_activity_at: pushedAt
+      languages(first: 5) {
         nodes {
-          repo_id: id
-          repo_name: name
-          default_branch: defaultBranchRef {
-            name
-          }
-          stars: stargazerCount
-          forks: forkCount
-          created_at: createdAt
-          last_activity_at: pushedAt
-          languages (first: 5) { nodes {name} }
-          issues_open: issues (first: 100 states: [OPEN]) {
-            totalCount
-          }
-          issues_closed: issues (first: 100 states: [CLOSED]) {
-            totalCount
-          }
-          organization: owner {
-            login
-          }
-          repo_url: url
+          name
         }
       }
-      ')
-    }
+      issues_open: issues(first: 100, states: [OPEN]) {
+        totalCount
+      }
+      issues_closed: issues(first: 100, states: [CLOSED]) {
+        totalCount
+      }
+      organization: owner {
+        login
+      }
+      repo_url: url
+    '
   )
 )

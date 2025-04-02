@@ -13,9 +13,7 @@ repo_min_colnames <- c("repo_id", "repo_name", "default_branch",
 
 expect_package_usage_table <- function(object, with_cols = NULL) {
   expect_s3_class(object, "data.frame")
-  expect_named(object, c("package", "package_usage", "repo_id", "repo_fullname",
-                         "repo_name", "default_branch", "created_at", "organization",
-                         "repo_url", "api_url", "platform"))
+  expect_named(object, c("package", "package_usage", "repo_id", "repo_fullname", "repo_name", "organization", "fullname", "platform", "repo_url", "api_url", "created_at", "last_activity_at", "last_activity", "default_branch", "stars", "forks", "languages", "issues_open", "issues_closed", "contributors", "contributors_n"))
   expect_gt(nrow(object), 0)
 }
 

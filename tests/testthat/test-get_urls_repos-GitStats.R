@@ -34,7 +34,7 @@ test_that("get_repos_urls_from_hosts gets data with_code in_files from the hosts
   expect_type(repos_urls_from_hosts_with_code_in_files, "character")
   expect_gt(length(repos_urls_from_hosts_with_code_in_files), 0)
   expect_true(any(grepl("gitlab.com", repos_urls_from_hosts_with_code_in_files)))
-  expect_true(any(grepl("github.com", repos_urls_from_hosts_with_code_in_files)))
+  expect_true(any(grepl("github", repos_urls_from_hosts_with_code_in_files)))
   test_mocker$cache(repos_urls_from_hosts_with_code_in_files)
 })
 
@@ -118,5 +118,22 @@ test_that("get_repos_urls gets vector of repository URLS", {
   expect_gt(
     length(repos_urls),
     1
+  )
+})
+
+test_that("get_repos_urls prints time used to pull data", {
+  test_gitstats <- create_test_gitstats(hosts = 2)
+  mockery::stub(
+    get_repos_urls,
+    "gitstats$get_repos_urls",
+    test_mocker$use("repos_urls")
+  )
+  expect_snapshot(
+    repos_urls <- get_repos_urls(
+      gitstats = test_gitstats,
+      with_code = "shiny",
+      in_files = "DESCRIPTION",
+      verbose = TRUE
+    )
   )
 })

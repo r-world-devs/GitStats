@@ -8,6 +8,7 @@ test_that("get_orgs_from_hosts works", {
     ))
   )
   orgs_from_hosts <- test_gitstats_priv$get_orgs_from_hosts(
+    output = "full_table",
     verbose = FALSE
   )
   expect_orgs_table(
@@ -44,8 +45,23 @@ test_that("get_orgs works", {
     test_mocker$use("orgs_table")
   )
   orgs_table <- get_orgs(
-    test_gitstats
+    test_gitstats,
+    verbose = FALSE
   )
   expect_s3_class(orgs_table, "gitstats_orgs")
   test_mocker$cache(orgs_table)
+})
+
+test_that("get_orgs prints info on time used to pull data", {
+  mockery::stub(
+    get_orgs,
+    "gitstats$get_orgs",
+    test_mocker$use("orgs_table")
+  )
+  expect_snapshot(
+    orgs_table <- get_orgs(
+      test_gitstats,
+      verbose = TRUE
+    )
+  )
 })

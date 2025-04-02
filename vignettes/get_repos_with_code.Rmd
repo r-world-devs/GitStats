@@ -59,7 +59,7 @@ repos_urls <- get_repos_urls(
 `GitStats` allows you to search for repositories which make use of certain R packages. This function scans repositories if they import packages (look for package name in `DESCRIPTION` or `NAMESPACE`) or if they load package with `library()` or `request()`.
 
 ```{r, eval = FALSE}
-package_usage <- get_R_package_usage(
+package_usage <- get_repos_with_R_packages(
   gitstats = github_stats,
   packages = c("shiny", "purrr"),
   split_output = TRUE

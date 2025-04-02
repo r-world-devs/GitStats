@@ -75,7 +75,7 @@ test_that("get_files works properly", {
     "gitstats$get_files",
     test_mocker$use("files_table")
   )
-  get_files(test_gitstats,
+  files_table <- get_files(test_gitstats,
             file_path = "meta_data.yaml",
             verbose = FALSE,
             progress = FALSE)
@@ -92,5 +92,21 @@ test_that("error shows when file_path and pattern are defined at the same time",
               file_path = "meta_data.yaml",
               verbose = FALSE,
               progress = FALSE)
+  )
+})
+
+test_that("get_files prints time used to pull data", {
+  mockery::stub(
+    get_files,
+    "gitstats$get_files",
+    test_mocker$use("files_table")
+  )
+  expect_snapshot(
+    files_table <- get_files(
+      test_gitstats,
+      file_path = "meta_data.yaml",
+      verbose = TRUE,
+      progress = FALSE
+    )
   )
 })

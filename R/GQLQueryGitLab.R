@@ -45,6 +45,15 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
       }'
     ,
 
+    repos = function(repo_cursor) {
+      paste0('
+        query GetRepo($projects_ids: [ID!]!) {
+          projects(ids: $projects_ids first:100', private$add_cursor(repo_cursor), ') {
+          ', private$projects_field_content, '
+          }
+        }')
+    },
+
     repos_by_org = function() {
       paste0('
         query GetReposByOrg($org: ID! $repo_cursor: String!) {

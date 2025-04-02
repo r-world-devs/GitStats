@@ -47,21 +47,28 @@
 #' @export
 get_repos <- function(gitstats,
                       add_contributors = TRUE,
-                      with_code        = NULL,
-                      in_files         = NULL,
-                      with_files       = NULL,
-                      cache            = TRUE,
-                      verbose          = is_verbose(gitstats),
-                      progress         = verbose) {
-  gitstats$get_repos(
+                      with_code = NULL,
+                      in_files = NULL,
+                      with_files = NULL,
+                      cache = TRUE,
+                      verbose = is_verbose(gitstats),
+                      progress = verbose) {
+  start_time <- Sys.time()
+  repos <- gitstats$get_repos(
     add_contributors = add_contributors,
-    with_code        = with_code,
-    in_files         = in_files,
-    with_files       = with_files,
-    cache            = cache,
-    verbose          = verbose,
-    progress         = progress
+    with_code = with_code,
+    in_files = in_files,
+    with_files = with_files,
+    cache = cache,
+    verbose = verbose,
+    progress = progress
   )
+  end_time <- Sys.time()
+  time_taken <- end_time - start_time
+  if (verbose) {
+    cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
+  }
+  return(repos)
 }
 
 #' @title Get repository URLS
@@ -102,20 +109,84 @@ get_repos <- function(gitstats,
 #' }
 #' @export
 get_repos_urls <- function(gitstats,
-                           type       = "api",
-                           with_code  = NULL,
-                           in_files   = NULL,
+                           type = "api",
+                           with_code = NULL,
+                           in_files = NULL,
                            with_files = NULL,
-                           cache      = TRUE,
-                           verbose    = is_verbose(gitstats),
-                           progress   = verbose) {
-  gitstats$get_repos_urls(
-    type       = type,
-    with_code  = with_code,
-    in_files   = in_files,
+                           cache = TRUE,
+                           verbose = is_verbose(gitstats),
+                           progress = verbose) {
+  start_time <- Sys.time()
+  repos_urls <- gitstats$get_repos_urls(
+    type = type,
+    with_code = with_code,
+    in_files = in_files,
     with_files = with_files,
-    cache      = cache,
-    verbose    = verbose,
-    progress   = progress
+    cache = cache,
+    verbose = verbose,
+    progress = progress
   )
+  end_time <- Sys.time()
+  time_taken <- end_time - start_time
+  if (verbose) {
+    cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
+  }
+  return(repos_urls)
+}
+
+#' @title Get data on package usage across repositories
+#' @name get_repos_with_R_packages
+#' @description Wrapper over searching repositories by code blobs related to
+#'   loading package (`library(package)` and `require(package)` in all files) or
+#'   using it as a dependency (`package` in `DESCRIPTION` and `NAMESPACE`
+#'   files).
+#' @param gitstats A GitStats object.
+#' @param packages A character vector, names of R packages to look for.
+#' @param only_loading A boolean, if `TRUE` function will check only if package
+#'   is loaded in repositories, not used as dependencies.
+#' @param split_output Optional, a boolean. If `TRUE` will return a list of
+#'   tables, where every element of the list stands for the package passed to
+#'   `packages` parameter. If `FALSE`, will return only one table with name of
+#'   the package stored in first column.
+#' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+#'   result from its storage.
+#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
+#'   output is switched off.
+#' @return A `tibble` or `list` of `tibbles` depending on `split_output`
+#'   parameter.
+#' @examples
+#' \dontrun{
+#'  my_gitstats <- create_gitstats() %>%
+#'   set_github_host(
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs", "openpharma")
+#'   )
+#'
+#'  get_repos_with_R_packages(
+#'    gitstats = my_gitstats,
+#'    packages = c("purrr", "shiny"),
+#'    split_output = TRUE
+#'  )
+#' }
+#' @export
+get_repos_with_R_packages <- function(gitstats,
+                                      packages,
+                                      only_loading = FALSE,
+                                      split_output = FALSE,
+                                      cache = TRUE,
+                                      verbose = is_verbose(gitstats)) {
+  start_time <- Sys.time()
+  package_usage <- gitstats$get_repos_with_R_packages(
+    packages = packages,
+    only_loading = only_loading,
+    split_output = split_output,
+    cache = cache,
+    verbose = verbose
+  )
+  end_time <- Sys.time()
+  time_taken <- end_time - start_time
+  if (verbose) {
+    cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
+  }
+  return(package_usage)
 }
