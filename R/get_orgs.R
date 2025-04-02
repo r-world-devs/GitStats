@@ -27,7 +27,7 @@ get_orgs <- function(gitstats,
                      verbose = is_verbose(gitstats)) {
   start_time <- Sys.time()
   orgs <- gitstats$get_orgs(
-    cache   = cache,
+    cache = cache,
     verbose = verbose
   )
   end_time <- Sys.time()

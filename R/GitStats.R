@@ -43,7 +43,7 @@ GitStats <- R6::R6Class(
     get_orgs = function(cache = TRUE, output = "full_table", verbose = TRUE) {
       private$check_for_host()
       trigger <- private$trigger_pulling(
-        cache   = cache,
+        cache = cache,
         storage = "organizations",
         verbose = verbose
       )
@@ -53,14 +53,14 @@ GitStats <- R6::R6Class(
           verbose = verbose
         ) %>%
           private$set_object_class(
-            class     = "gitstats_orgs"
+            class = "gitstats_orgs"
           )
         private$save_to_storage(
           table = organizations
         )
       } else {
         organizations <- private$get_from_storage(
-          table   = "organizations",
+          table = "organizations",
           verbose = verbose
         )
       }
