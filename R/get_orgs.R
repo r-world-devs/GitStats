@@ -21,6 +21,7 @@
 #'   )
 #' get_orgs(my_gitstats)
 #' }
+#' @export
 get_orgs <- function(gitstats,
                      cache = TRUE,
                      verbose = is_verbose(gitstats)) {
