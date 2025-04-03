@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,11 +35,31 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/r-world-devs/GitStats/blob/v2.2.2/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/r-world-devs/GitStats/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.2.2" id="gitstats-222">GitStats 2.2.2<a class="anchor" aria-label="anchor" href="#gitstats-222"></a></h2>
+<h2 class="pkg-version" data-toc-text="2.3.0" id="gitstats-230">GitStats 2.3.0<a class="anchor" aria-label="anchor" href="#gitstats-230"></a></h2>
+<p>This release introduces the new functions to get data on organizations and issues, alongside several important fixes and optimizations, such as handling GitLab API limits more efficiently. Additional enhancements include renamed function, added time usage information and shortened data-pulling messages.</p>
+<ul><li>Added <code><a href="../reference/get_orgs.html">get_orgs()</a></code> function (<a href="https://github.com/r-world-devs/GitStats/issues/599" class="external-link">#599</a>).</li>
+<li>Added <code><a href="../reference/get_issues.html">get_issues()</a></code> and <code><a href="../reference/get_issues_stats.html">get_issues_stats()</a></code> functions (<a href="https://github.com/r-world-devs/GitStats/issues/569" class="external-link">#569</a>).</li>
+</ul><div class="section level3">
+<h3 id="fixes-2-3-0">Fixes:<a class="anchor" aria-label="anchor" href="#fixes-2-3-0"></a></h3>
+<ul><li>Fixed <code><a href="../reference/get_files.html">get_files()</a></code> function when pattern is not defined (<a href="https://github.com/r-world-devs/GitStats/issues/605" class="external-link">#605</a>). Before, function call resulted with empty response or error.</li>
+<li>Optimized pulling repositories with code by:
+<ul><li>handling limits of 10 thousand responses on GitLab API (<a href="https://github.com/r-world-devs/GitStats/issues/607" class="external-link">#607</a>),</li>
+<li>switching to <code>GraphQL API</code> methods for parsing search responses (still gathered via <code>REST</code>) into repositories output.</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="other-2-3-0">Other:<a class="anchor" aria-label="anchor" href="#other-2-3-0"></a></h3>
+<ul><li>Renamed <code>get_R_package_usage()</code> to <code>get_repos_with_R_package()</code> as the output resembles the one from <code><a href="../reference/get_repos.html">get_repos()</a></code>.</li>
+<li>Added information on time used for pulling the data (<a href="https://github.com/r-world-devs/GitStats/issues/603" class="external-link">#603</a>).</li>
+<li>Shortened messages when pulling data from repositories (<a href="https://github.com/r-world-devs/GitStats/issues/587" class="external-link">#587</a>).</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.2.2" id="gitstats-222">GitStats 2.2.2<a class="anchor" aria-label="anchor" href="#gitstats-222"></a></h2><p class="text-muted">CRAN release: 2025-02-11</p>
 <ul><li>Fixed pulling repositories URLS by code when <code>GitStats</code> is set to scan whole hosts (<a href="https://github.com/r-world-devs/GitStats/issues/589" class="external-link">#589</a>). Set <code>type</code> parameter to <code>api</code> by default. Setting <code>type</code> to <code>web</code> results in parsing GitLab <code>api</code> URLs which may be time consuming and it should not be a default option.</li>
 </ul></div>
     <div class="section level2">
@@ -80,10 +100,10 @@
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.1.1" id="gitstats-211">GitStats 2.1.1<a class="anchor" aria-label="anchor" href="#gitstats-211"></a></h2><p class="text-muted">CRAN release: 2024-10-25</p>
-<p>This is a patch release which introduces some improvements in <code><a href="../reference/get_R_package_usage.html">get_R_package_usage()</a></code> on speed and possibility to pull at once data on multiple R packages, new <code><a href="../reference/get_storage.html">get_storage()</a></code> function and some fixes for checking token scopes and setting hosts.</p>
+<p>This is a patch release which introduces some improvements in <code>get_R_package_usage()</code> on speed and possibility to pull at once data on multiple R packages, new <code><a href="../reference/get_storage.html">get_storage()</a></code> function and some fixes for checking token scopes and setting hosts.</p>
 <div class="section level3">
 <h3 id="features-2-1-1">Features:<a class="anchor" aria-label="anchor" href="#features-2-1-1"></a></h3>
-<ul><li>Optimized <code><a href="../reference/get_R_package_usage.html">get_R_package_usage()</a></code> function:
+<ul><li>Optimized <code>get_R_package_usage()</code> function:
 <ul><li>it is now possible to pass a vector of packages names (new <code>packages</code> parameter replacing old <code>package_name</code>) (<a href="https://github.com/r-world-devs/GitStats/issues/494" class="external-link">#494</a>),</li>
 <li>on the other hand, output of the function has been limited to contain only most necessary data (removing all repository stats), making thus process of obtaining package usage faster (<a href="https://github.com/r-world-devs/GitStats/issues/474" class="external-link">#474</a>).</li>
 <li>new <code>split_output</code> parameter has been added - when set to <code>TRUE</code> a <code>list</code> with <code>tibbles</code> (every element of the <code>list</code> for every package) instead of one <code>tibble</code> is returned.</li>
@@ -117,14 +137,14 @@
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.0.2" id="gitstats-202">GitStats 2.0.2<a class="anchor" aria-label="anchor" href="#gitstats-202"></a></h2>
-<p>This is a patch release with substantial improvements to some functions (<code><a href="../reference/get_repos.html">get_repos()</a></code>, <code><a href="../reference/get_files.html">get_files()</a></code> and <code><a href="../reference/get_R_package_usage.html">get_R_package_usage()</a></code>), adding <code>with_files</code> and <code>in_files</code> parameters, fixing <code>cache</code> feature and introducing new <code><a href="../reference/get_repos_urls.html">get_repos_urls()</a></code> function, a minimalist version of <code><a href="../reference/get_repos.html">get_repos()</a></code>:</p>
+<p>This is a patch release with substantial improvements to some functions (<code><a href="../reference/get_repos.html">get_repos()</a></code>, <code><a href="../reference/get_files.html">get_files()</a></code> and <code>get_R_package_usage()</code>), adding <code>with_files</code> and <code>in_files</code> parameters, fixing <code>cache</code> feature and introducing new <code><a href="../reference/get_repos_urls.html">get_repos_urls()</a></code> function, a minimalist version of <code><a href="../reference/get_repos.html">get_repos()</a></code>:</p>
 <ul><li>Added new <code><a href="../reference/get_repos_urls.html">get_repos_urls()</a></code> function to fetch repository URLs (either web or API - choose with <code>type</code> parameter). It may return also only these repository URLs that consist of a given file or files (with passing argument to <code>with_files</code> parameter) or a text in code blobs (<code>with_code</code> parameter). This is a minimalist version of <code><a href="../reference/get_repos.html">get_repos()</a></code>, which takes out all the process of parsing (search response into repositories one) and adding statistics on repositories. This makes it poorer with content but faster. (<a href="https://github.com/r-world-devs/GitStats/issues/425" class="external-link">#425</a>).</li>
 <li>Added <code>with_files</code> parameter to <code><a href="../reference/get_repos.html">get_repos()</a></code> function, which makes it possible to search for repositories with a given file or files and return full output for repositories.</li>
 <li>It is also possible now to pass multiple code phrases to <code>with_code</code> parameter (as a character vector) in <code><a href="../reference/get_repos.html">get_repos()</a></code> and <code><a href="../reference/get_repos_urls.html">get_repos_urls()</a></code> (<a href="https://github.com/r-world-devs/GitStats/issues/282" class="external-link">282</a>).</li>
 <li>Added <code>in_files</code> parameter to <code><a href="../reference/get_repos.html">get_repos()</a></code> which works with <code>with_code</code> parameter. When both are defined, <code>GitStats</code> searches code blobs only in given files.</li>
 <li>Removed <code><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">dplyr::glimpse()</a></code> from <code>get_*()</code> functions, so there is printing to console only if <code>get_*()</code> function is not assigned to the object (<a href="https://github.com/r-world-devs/GitStats/issues/426" class="external-link">#426</a>).</li>
-<li>Output table of <code><a href="../reference/get_R_package_usage.html">get_R_package_usage()</a></code> consists now also of repository full name (<a href="https://github.com/r-world-devs/GitStats/issues/438" class="external-link">#438</a>).</li>
-<li>Improved <code><a href="../reference/get_R_package_usage.html">get_R_package_usage()</a></code> with optimizing search of package names in <code>DESCRIPTION</code> and <code>NAMESPACE</code> files by removing filtering method and replacing it with <code>filename:</code> filter directly in search endpoint query (<a href="https://github.com/r-world-devs/GitStats/issues/428" class="external-link">#428</a>).</li>
+<li>Output table of <code>get_R_package_usage()</code> consists now also of repository full name (<a href="https://github.com/r-world-devs/GitStats/issues/438" class="external-link">#438</a>).</li>
+<li>Improved <code>get_R_package_usage()</code> with optimizing search of package names in <code>DESCRIPTION</code> and <code>NAMESPACE</code> files by removing filtering method and replacing it with <code>filename:</code> filter directly in search endpoint query (<a href="https://github.com/r-world-devs/GitStats/issues/428" class="external-link">#428</a>).</li>
 <li>Fixed <code><a href="../reference/get_files.html">get_files()</a></code> when scanning scope is set to <code>repositories</code>. Earlier, it pulled given files from whole organizations, even if scanning scope was set to <code>repos</code> with <code>set_*_host()</code>. Now it shows only files for the given repositories (<a href="https://github.com/r-world-devs/GitStats/issues/439" class="external-link">#439</a>).</li>
 <li>Improved cache feature (<a href="https://github.com/r-world-devs/GitStats/issues/436" class="external-link">#436</a>).</li>
 <li>
@@ -179,7 +199,7 @@
 <h3 id="new-features-2-0-0">New features:<a class="anchor" aria-label="anchor" href="#new-features-2-0-0"></a></h3>
 <ul><li>Added <code><a href="../reference/get_release_logs.html">get_release_logs()</a></code> (<a href="https://github.com/r-world-devs/GitStats/issues/356" class="external-link">#356</a>).</li>
 <li>
-<code>get_orgs()</code> is renamed to <code><a href="../reference/show_orgs.html">show_orgs()</a></code> to reflect that it does not pull data from API, but only shows what is in <code>GitStats</code> object.</li>
+<code><a href="../reference/get_orgs.html">get_orgs()</a></code> is renamed to <code><a href="../reference/show_orgs.html">show_orgs()</a></code> to reflect that it does not pull data from API, but only shows what is in <code>GitStats</code> object.</li>
 <li>Commits response consists now of two new columns: <code>author_login</code> and <code>author_name</code> (<a href="https://github.com/r-world-devs/GitStats/issues/332" class="external-link">#332</a>). This is due to the mix of GitHub/GitLab handles and display names in the <code>author</code> column (the original author <code>name</code> field in commits API response).</li>
 <li>Improve printing <code>GitStats</code> object - now when you return <code>GitStats</code> object in console, it prints <code>GitStats</code> data divided into sections to give more readable information to user: <code>scanning scope</code> (organizations and repositories), and <code>storage</code> (the output tables stored in <code>GitStats</code> with basic information on dimensions) (<a href="https://github.com/r-world-devs/GitStats/issues/329" class="external-link">#329</a>).</li>
 </ul></div>
@@ -194,7 +214,7 @@
 <div class="section level3">
 <h3 id="new-features-1-1-0">New features:<a class="anchor" aria-label="anchor" href="#new-features-1-1-0"></a></h3>
 <ul><li>
-<code>pull_R_package_usage()</code> with <code><a href="../reference/get_R_package_usage.html">get_R_package_usage()</a></code> functions to pull repositories where package name is found in DESCRIPTION or NAMESPACE files or code blobs with phrases related to using an R package (<code><a href="https://rdrr.io/r/base/library.html" class="external-link">library(package)</a></code>, <code><a href="https://rdrr.io/r/base/library.html" class="external-link">require(package)</a></code>) (<a href="https://github.com/r-world-devs/GitStats/issues/326" class="external-link">#326</a>, <a href="https://github.com/r-world-devs/GitStats/issues/341" class="external-link">#341</a>),</li>
+<code>pull_R_package_usage()</code> with <code>get_R_package_usage()</code> functions to pull repositories where package name is found in DESCRIPTION or NAMESPACE files or code blobs with phrases related to using an R package (<code><a href="https://rdrr.io/r/base/library.html" class="external-link">library(package)</a></code>, <code><a href="https://rdrr.io/r/base/library.html" class="external-link">require(package)</a></code>) (<a href="https://github.com/r-world-devs/GitStats/issues/326" class="external-link">#326</a>, <a href="https://github.com/r-world-devs/GitStats/issues/341" class="external-link">#341</a>),</li>
 <li>
 <code>pull_files()</code> with <code><a href="../reference/get_files.html">get_files()</a></code> to pull content of text files (<a href="https://github.com/r-world-devs/GitStats/issues/200" class="external-link">#200</a>).</li>
 <li>possibility to pass specific repositories to <code>GitStats</code> with <code>set_host()</code> function by using <code>repos</code> parameter instead of <code>orgs</code> (<a href="https://github.com/r-world-devs/GitStats/issues/330" class="external-link">#330</a>).</li>
@@ -235,7 +255,7 @@
 <ul><li>added setting tokens by default - if the user does have all the PATs set up in environment variables (as e.g. <code>GITHUB_PAT</code> or <code>GITLAB_PAT</code>), there is no need to pass them as an argument to <code>set_host()</code> (<a href="https://github.com/r-world-devs/GitStats/issues/120" class="external-link">#120</a>),</li>
 <li>added <code>pull_users()</code> function to pull information on users (<a href="https://github.com/r-world-devs/GitStats/issues/199" class="external-link">#199</a>),</li>
 <li>added possibility of scanning whole internal git platforms if no <code>orgs</code> are passed (<a href="https://github.com/r-world-devs/GitStats/issues/258" class="external-link">#258</a>),</li>
-<li>added <code>get_orgs()</code> function to print all organizations (<a href="https://github.com/r-world-devs/GitStats/issues/283" class="external-link">#283</a>),</li>
+<li>added <code><a href="../reference/get_orgs.html">get_orgs()</a></code> function to print all organizations (<a href="https://github.com/r-world-devs/GitStats/issues/283" class="external-link">#283</a>),</li>
 <li>added resetting all settings to default with <code>reset()</code> function (<a href="https://github.com/r-world-devs/GitStats/issues/270" class="external-link">#270</a>)</li>
 <li>added resetting language in your search preferences with <code>reset_language()</code> or setting <code>language</code> parameter to <code>All</code> in <code>setup()</code> function (<a href="https://github.com/r-world-devs/GitStats/issues/231" class="external-link">#231</a>)</li>
 </ul></div>

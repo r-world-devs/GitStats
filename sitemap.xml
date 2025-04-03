@@ -10,13 +10,16 @@
 <url><loc>https://r-world-devs.github.io/GitStats/index.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/news/index.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/reference/create_gitstats.html</loc></url>
-<url><loc>https://r-world-devs.github.io/GitStats/reference/get_R_package_usage.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/reference/get_commits.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/reference/get_commits_stats.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/reference/get_files.html</loc></url>
+<url><loc>https://r-world-devs.github.io/GitStats/reference/get_issues.html</loc></url>
+<url><loc>https://r-world-devs.github.io/GitStats/reference/get_issues_stats.html</loc></url>
+<url><loc>https://r-world-devs.github.io/GitStats/reference/get_orgs.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/reference/get_release_logs.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/reference/get_repos.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/reference/get_repos_urls.html</loc></url>
+<url><loc>https://r-world-devs.github.io/GitStats/reference/get_repos_with_R_packages.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/reference/get_storage.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/reference/get_users.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/reference/index.html</loc></url>
