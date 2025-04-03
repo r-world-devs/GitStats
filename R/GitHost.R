@@ -1154,6 +1154,7 @@ GitHost <- R6::R6Class(
         output = "raw",
         verbose = verbose
       ) |>
+        purrr::discard(~ is.null(.)) |>
         private$get_repo_url_from_response(
           type = type,
           progress = progress
@@ -1168,6 +1169,7 @@ GitHost <- R6::R6Class(
         output = "raw",
         verbose = verbose
       ) |>
+        purrr::discard(~ is.null(.)) |>
         private$get_repo_url_from_response(
           type = type,
           repos_fullnames = private$repos_fullnames,
