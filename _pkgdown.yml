@@ -12,11 +12,14 @@ reference:
   - matches("get_storage")
 - title: Get git data
   desc: >
-      Functions pulling git data in a tibble format.
+      Functions to get git data in a tibble format.
   contents:
+  - get_orgs
   - get_repos
   - get_repos_urls
+  - get_repos_with_R_packages
   - get_commits
+  - get_issues
   - get_release_logs
   - get_files
   - get_users
@@ -25,7 +28,7 @@ reference:
       Functions summarizing git data.
 - contents:
   - get_commits_stats
-  - get_R_package_usage
+  - get_issues_stats
 articles:
 - title: Articles
   navbar: ~

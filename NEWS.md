@@ -1,3 +1,23 @@
+# GitStats 2.3.0
+
+This release introduces the new functions to get data on organizations and issues, alongside several important fixes and optimizations, such as handling GitLab API limits more efficiently.  Additional enhancements include renamed function, added time usage information and shortened data-pulling messages.
+
+- Added `get_orgs()` function ([#599](https://github.com/r-world-devs/GitStats/issues/599)).
+- Added `get_issues()` and `get_issues_stats()` functions ([#569](https://github.com/r-world-devs/GitStats/issues/569)).
+
+## Fixes:
+
+- Fixed `get_files()` function when pattern is not defined ([#605](https://github.com/r-world-devs/GitStats/issues/605)). Before, function call resulted with empty response or error.
+- Optimized pulling repositories with code by:
+  - handling limits of 10 thousand responses on GitLab API ([#607](https://github.com/r-world-devs/GitStats/issues/607)),
+  - switching to `GraphQL API` methods for parsing search responses (still gathered via `REST`) into repositories output.
+
+## Other:
+
+- Renamed `get_R_package_usage()` to `get_repos_with_R_package()` as the output resembles the one from `get_repos()`.
+- Added information on time used for pulling the data ([#603](https://github.com/r-world-devs/GitStats/issues/603)).
+- Shortened messages when pulling data from repositories ([#587](https://github.com/r-world-devs/GitStats/issues/587)).
+
 # GitStats 2.2.2
 
 - Fixed pulling repositories URLS by code when `GitStats` is set to scan whole hosts ([#589](https://github.com/r-world-devs/GitStats/issues/589)). Set `type` parameter to `api` by default. Setting `type` to `web` results in parsing GitLab `api` URLs which may be time consuming and it should not be a default option.

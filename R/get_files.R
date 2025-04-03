@@ -80,13 +80,14 @@ get_files <- function(gitstats,
                       cache = TRUE,
                       verbose = is_verbose(gitstats),
                       progress = verbose) {
+  start_time <- Sys.time()
   if (!is.null(pattern) && !is.null(file_path)) {
     cli::cli_abort(
       "Please choose either `pattern` or `file_path`.",
       call = NULL
     )
   }
-  gitstats$get_files(
+  files <- gitstats$get_files(
     pattern = pattern,
     depth = depth,
     file_path = file_path,
@@ -94,4 +95,10 @@ get_files <- function(gitstats,
     verbose = verbose,
     progress = progress
   )
+  end_time <- Sys.time()
+  time_taken <- end_time - start_time
+  if (verbose) {
+    cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
+  }
+  return(files)
 }

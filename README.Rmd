@@ -22,14 +22,19 @@ knitr::opts_chunk$set(
 [![Codecov test coverage](https://codecov.io/gh/r-world-devs/GitStats/branch/devel/graph/badge.svg)](https://app.codecov.io/gh/r-world-devs/GitStats?branch=devel)
 <!-- badges: end -->
 
-With GitStats you can pull git data in a uniform way (table format) from GitHub and GitLab. For the time-being you can get data on:
+With `GitStats` you can pull git data in a uniform way (table format) from GitHub and GitLab. For the time-being you can get data on:
 
+* organizations,
 * repositories,
 * commits,
+* issues,
 * users,
 * release logs,
 * text files content,
 * R package usage.
+
+You can also prepare basic statistics with `get_*_stats()` functions for commits and issues.
+
 
 ## Installation
 
@@ -103,7 +108,7 @@ Get package usage:
 
 ```{r}
 git_stats |>
-  get_R_package_usage(
+  get_repos_with_R_packages(
     packages = c("shiny", "purrr"),
     split_output = TRUE
   )
@@ -114,6 +119,10 @@ Print `GitStats` to see what it stores:
 ```{r}
 git_stats
 ```
+
+## See also
+
+`GitStats` is used to facilitate workflow of the `GitAI` R package, a tool for gathering AI-based knowledge about git repositories: https://r-world-devs.github.io/GitAI/
 
 ## Acknowledgement
 

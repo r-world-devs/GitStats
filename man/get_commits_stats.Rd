@@ -11,7 +11,7 @@ get_commits_stats(
 )
 }
 \arguments{
-\item{commits}{A \code{commits_data} table (output of \code{get_commits()}).}
+\item{commits}{A \code{gitstats_commits} S3 class table object (output of \code{get_commits()}).}
 
 \item{time_aggregation}{A character, specifying time aggregation of
 statistics.}

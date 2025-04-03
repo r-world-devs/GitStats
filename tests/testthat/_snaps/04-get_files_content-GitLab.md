@@ -12,6 +12,16 @@
     Output
       [1] "\n      query GetFilesByRepo($fullPath: ID!, $file_paths: [String!]!) {\n        project(fullPath: $fullPath) {\n          name\n          id\n          webUrl\n          repository {\n            blobs(paths: $file_paths) {\n              nodes {\n                path\n                rawBlob\n                size\n              }\n            }\n          }\n        }\n      }\n      "
 
+# GitLab GraphQL switches to iteration when query is too complex
+
+    Code
+      files_from_org_per_repo <- test_graphql_gitlab$get_files_from_org_per_repo(org = "mbtests",
+        type = "organization", repos = "gitstatstesting", file_paths = c(
+          "project_metadata.yaml", "README.md"), host_files_structure = NULL,
+        verbose = TRUE, progress = FALSE)
+    Message
+      > Encountered query complexity error (too many files). I will divide input data into chunks...
+
 # get_files_content makes use of files_structure
 
     Code

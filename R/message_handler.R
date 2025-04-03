@@ -19,11 +19,11 @@ show_message <- function(host,
   } else {
     glue::glue("[Host:{host}][Engine:{engine_msg}][Scope:{scope}] {information}...")
   }
-  cli::cli_alert_info(message)
+  cli::cli_alert(message)
 }
 
 set_repo_scope <- function(org, private) {
-  cut_item_to_print(paste0(org, "/", private$orgs_repos[[org]]))
+  paste0(org, ": ", length(private$orgs_repos[[org]]), " repos")
 }
 
 cut_item_to_print <- function(item_to_print) {

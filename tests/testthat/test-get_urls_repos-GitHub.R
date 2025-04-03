@@ -131,7 +131,7 @@ test_that("get_all_repos_urls is set to scan whole host", {
   )
   mockery::stub(
     github_testhost_all_priv$get_all_repos_urls,
-    "graphql_engine$get_orgs",
+    "private$get_orgs_from_host",
     "test_org"
   )
   mockery::stub(
@@ -155,14 +155,14 @@ test_that("get_all_repos_urls is set to scan whole host", {
 
 test_that("get_repo_url_from_response retrieves repositories URLS", {
   gh_repo_api_urls <- github_testhost_priv$get_repo_url_from_response(
-    search_response = test_mocker$use("gh_search_repos_response"),
+    search_response = test_mocker$use("gh_repos_raw_output"),
     type = "api"
   )
   expect_type(gh_repo_api_urls, "character")
   expect_gt(length(gh_repo_api_urls), 0)
   test_mocker$cache(gh_repo_api_urls)
   gh_repo_web_urls <- github_testhost_priv$get_repo_url_from_response(
-    search_response = test_mocker$use("gh_search_repos_response"),
+    search_response = test_mocker$use("gh_repos_raw_output"),
     type = "web"
   )
   expect_type(gh_repo_web_urls, "character")

@@ -14,7 +14,7 @@ get_commits(
 )
 }
 \arguments{
-\item{gitstats}{A GitStats object.}
+\item{gitstats}{A \code{GitStats} object.}
 
 \item{since}{A starting date.}
 
@@ -30,7 +30,7 @@ output is switched off.}
 \code{cli} progress bar will be displayed.}
 }
 \value{
-A data.frame.
+A table of \code{tibble} and \code{gitstats_commits} classes.
 }
 \description{
 List all commits from all repositories for an organization or a

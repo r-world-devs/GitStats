@@ -5,28 +5,17 @@
 GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
   public = list(
 
-    #' @description Prepare query to list organizations from GitHub.
-    #' @param end_cursor An end cursor to paginate.
-    #' @return A query.
     orgs = function(end_cursor) {
-      if (is.null(end_cursor)) {
-        pagination_phrase <- ''
-      } else {
-        pagination_phrase <- paste0('after: "', end_cursor, '"')
-      }
       paste0(
         'query {
-          search(first: 100, type: USER, query: "type:org" ', pagination_phrase, ') {
+          search(first: 100, type: USER, query: "type:org" ', private$add_cursor(end_cursor), ') {
             pageInfo {
                hasNextPage
                endCursor
             }
             edges {
               node{
-                ... on Organization {
-                  name
-                  url
-                }
+                ... on Organization {', private$org_fields, '}
               }
             }
           }
@@ -34,7 +23,15 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       )
     },
 
-    #' @description Query to check if a given string is user or organization.
+    org = function() {
+      paste0(
+        '
+        query GetOrg($org: String!) {
+          organization(login: $org) {', private$org_fields, '}
+        }'
+      )
+    },
+
     user_or_org_query =
       '
       query ($login: String!) {
@@ -49,8 +46,19 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       }'
     ,
 
-    #' @description Prepare query to get repositories from GitHub.
-    #' @return A query.
+    repos_by_ids = function() {
+      paste0(
+        '
+        query GetReposByIds($ids: [ID!]!) {
+          nodes(ids: $ids) {
+            ... on Repository {', private$repo_node_data, '
+            }
+          }
+        }
+        '
+      )
+    },
+
     repos_by_org = function(repo_cursor) {
       paste0('
         query GetReposByOrg($login: String!) {
@@ -62,8 +70,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
         }')
     },
 
-    #' @description Prepare query to get repositories from GitHub.
-    #' @return A query.
     repos_by_user = function(repo_cursor) {
       paste0('
         query GetUsersRepos($login: String!){
@@ -74,8 +80,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       )
     },
 
-    #' @description Prepare query to get info on a GitHub user.
-    #' @return A query.
     user = function() {
       paste0('
         query GetUser($user: String!) {
@@ -100,9 +104,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
         }')
     },
 
-    #' @description Prepare query to get commits on GitHub.
-    #' @param commits_cursor An endCursor.
-    #' @return A query.
     commits_from_repo = function(commits_cursor = "") {
       paste0('
       query GetCommitsFromRepo($repo: String!
@@ -115,7 +116,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
                 ... on Commit {
                   history(since: $since
                           until: $until
-                          ', private$add_cursor(commits_cursor), ") {
+                          ', private$add_cursor(commits_cursor), ') {
                     pageInfo {
                       hasNextPage
                       endCursor
@@ -145,12 +146,40 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
               }
             }
           }
-        }")
+        }')
     },
 
-    #' @description Prepare query to get files in a standard filepath from
-    #'   GitHub repositories.
-    #' @return A query.
+    issues_from_repo = function(issues_cursor = "") {
+      paste0('
+      query getIssuesFromRepo ($repo: String!
+                               $org: String!) {
+          repository(name: $repo, owner: $org) {
+            issues(first: 100
+                   ', private$add_cursor(issues_cursor), ') {
+              pageInfo {
+                hasNextPage
+      				  endCursor
+      				}
+              edges {
+                node {
+                  number
+                  title
+                  description: body
+                  created_at: createdAt
+                  closed_at: closedAt
+                  state
+                  url
+                  author {
+                    login
+                  }
+                }
+              }
+            }
+          }
+        }
+      ')
+    },
+
     file_blob_from_repo = function() {
       'query GetFileBlobFromRepo($org: String!, $repo: String!, $expression: String!) {
           repository(owner: $org, name: $repo) {
@@ -185,8 +214,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       }'
     },
 
-    #' @description Prepare query to get releases from GitHub repositories.
-    #' @return A query.
     releases_from_repo = function() {
       'query GetReleasesFromRepo ($org: String!, $repo: String!) {
           repository(owner:$org, name:$repo){
@@ -206,9 +233,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
     }
   ),
   private = list(
-    # @description Helper over defining cursor argument for the query.
-    # @param cursor A cursor.
-    # @return A string of cursor argument.
     add_cursor = function(cursor) {
       if (nchar(cursor) == 0) {
         cursor_argument <- cursor
@@ -217,6 +241,20 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       }
       return(cursor_argument)
     },
+
+    org_fields = '
+      name
+      description
+      login
+      url
+      repositories (first: 100) {
+        totalCount
+      }
+      membersWithRole(first: 100) {
+        totalCount
+      }
+      avatarUrl
+    ',
 
     # @description Helper to prepare repository query.
     repositories_field = function(repo_cursor) {
@@ -227,30 +265,35 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
           endCursor
           hasNextPage
         }
+        nodes {', private$repo_node_data, '}
+      }')
+    },
+
+    repo_node_data = '
+      repo_id: id
+      repo_name: name
+      default_branch: defaultBranchRef {
+        name
+      }
+      stars: stargazerCount
+      forks: forkCount
+      created_at: createdAt
+      last_activity_at: pushedAt
+      languages(first: 5) {
         nodes {
-          repo_id: id
-          repo_name: name
-          default_branch: defaultBranchRef {
-            name
-          }
-          stars: stargazerCount
-          forks: forkCount
-          created_at: createdAt
-          last_activity_at: pushedAt
-          languages (first: 5) { nodes {name} }
-          issues_open: issues (first: 100 states: [OPEN]) {
-            totalCount
-          }
-          issues_closed: issues (first: 100 states: [CLOSED]) {
-            totalCount
-          }
-          organization: owner {
-            login
-          }
-          repo_url: url
+          name
         }
       }
-      ')
-    }
+      issues_open: issues(first: 100, states: [OPEN]) {
+        totalCount
+      }
+      issues_closed: issues(first: 100, states: [CLOSED]) {
+        totalCount
+      }
+      organization: owner {
+        login
+      }
+      repo_url: url
+    '
   )
 )

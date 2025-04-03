@@ -30,6 +30,84 @@ test_fixtures$half_empty_gql_response <- list(
   )
 )
 
+github_org_edge <- list(
+  "node" = list(
+    "name" = "test_name",
+    "description" = "test_description",
+    "login" = "test_login",
+    "url" = "test_url",
+    "repositories" = list(
+      "totalCount" = 5L
+    ),
+    "membersWithRole" = list(
+      "totalCount" = 3L
+    ),
+    "avatarUrl" = "test_url"
+  )
+)
+
+test_fixtures$graphql_gh_orgs_response <- list(
+  "data" = list(
+    "search" = list(
+      "pageInfo" = list(
+        "hasNextPage" = FALSE,
+        "endCursor" = ""
+      ),
+      "edges" = list(
+        github_org_edge,
+        github_org_edge,
+        github_org_edge
+      )
+    )
+  )
+)
+
+test_fixtures$graphql_gh_org_response <- list(
+  "data" = list(
+    "organization" = github_org_edge$node
+  )
+)
+
+test_fixtures$rest_gl_orgs_response <- list(
+  "headers" = list(
+    "x-total" = "3"
+  )
+)
+
+gitlab_org_edge <- list(
+  "node" = list(
+    "name" = "test_name",
+    "description" = "test_description",
+    "fullPath" = "test_path",
+    "webUrl" = "web_url",
+    "projectsCount" = 5L,
+    "groupMembersCount" = 3L,
+    "avatarUrl" = "test_url"
+  )
+)
+
+test_fixtures$graphql_gl_orgs_response <- list(
+  "data" = list(
+    "groups" = list(
+      "pageInfo" = list(
+        "endCursor" = "",
+        "hasNextPage" = FALSE
+      ),
+      "edges" = list(
+        gitlab_org_edge,
+        gitlab_org_edge,
+        gitlab_org_edge
+      )
+    )
+  )
+)
+
+test_fixtures$graphql_gl_org_response <- list(
+  "data" = list(
+    "group" = gitlab_org_edge$node
+  )
+)
+
 test_fixtures$github_repository_rest_response <- list(
   "id" = 627452680,
   "node_id" = "R_kgDOJWYrCA",
@@ -98,7 +176,7 @@ test_fixtures$gitlab_repositories_rest_response <- list(
 
 github_repository_node <- function(repo_name) {
   list(
-    "repo_id" = "xyz",
+    "repo_id" = "test_node_id",
     "repo_name" = repo_name,
     "default_branch" = list(
       "name" = "main"
@@ -129,9 +207,21 @@ github_repository_node <- function(repo_name) {
     "organization" = list(
       "login" = "test_org"
     ),
-    "repo_url" = "https://test_url"
+    "repo_url" = "https://github.test.com/api/test_url"
   )
 }
+
+test_fixtures$github_repos_by_ids_response <- list(
+  "data" = list(
+    "nodes" = list(
+      github_repository_node("TestRepo"),
+      github_repository_node("TestRepo1"),
+      github_repository_node("TestRepo2"),
+      github_repository_node("TestRepo3"),
+      github_repository_node("TestRepo4")
+    )
+  )
+)
 
 test_fixtures$github_repos_by_org_response <- list(
   "data" = list(
@@ -286,6 +376,76 @@ test_fixtures$github_commits_response <- list(
   )
 )
 
+github_open_issue_edge <- function(created_at) {
+  list(
+    "node" = list(
+      "number" = 1,
+      "title" = "test",
+      "description" = "test",
+      "created_at" = created_at,
+      "closed_at" = "",
+      "state" = "open",
+      "url" = "test",
+      "author" = list(
+        "login" = "test"
+      )
+    )
+  )
+}
+
+github_closed_issue_edge <- function(created_at) {
+  list(
+    "node" = list(
+      "number" = 1,
+      "title" = "test",
+      "description" = "test",
+      "created_at" = created_at,
+      "closed_at" = "2025-01-01T00:00:00Z",
+      "state" = "closed",
+      "url" = "test",
+      "author" = list(
+        "login" = "test"
+      )
+    )
+  )
+}
+
+open_issue_timestamps <- generate_random_timestamps(25, 2023, 2024)
+set.seed(234)
+closed_issue_timestamps <- generate_random_timestamps(25, 2023, 2024)
+
+open_issues <- purrr::map(open_issue_timestamps, github_open_issue_edge)
+closed_issues <- purrr::map(closed_issue_timestamps, github_closed_issue_edge)
+
+test_fixtures$github_graphql_issues_response <- list(
+  "data" = list(
+    "repository" = list(
+      "issues" = list(
+        "pageInfo" = list(
+          "hasNextPage" = FALSE,
+          "endCursor" = ""
+        ),
+        "edges" = append(open_issues, closed_issues)
+      )
+    )
+  )
+)
+
+
+test_fixtures$gitlab_graphql_issues_response <- list(
+  "data" = list(
+    "project" = list(
+      "issues" = list(
+        "pageInfo" = list(
+          "hasNextPage" = FALSE,
+          "endCursor" = ""
+        ),
+        "edges" = append(open_issues, closed_issues)
+      )
+    )
+  )
+)
+
 gitlab_commit <- list(
   "id" = "xxxxxxxxxxxxxxxxx",
   "short_id" = "xxx",
@@ -402,12 +562,12 @@ test_fixtures$gitlab_file_repo_response <- list(
           "nodes" = list(
             list(
               "path" = "README.md",
-              "rawBlob" = "# graphql_tests\n\nThis project is for testing GraphQL capabilities.\n",
+              "rawBlob" = "This project is for testing GraphQL capabilities.",
               "size" =  "67"
             ),
             list(
               "path" = "project_metadata.yaml",
-              "rawBlob" = "Name: GraphQL Tests",
+              "rawBlob" = "GraphQL Tests",
               "size" = "19"
             )
           )
@@ -419,23 +579,23 @@ test_fixtures$gitlab_file_repo_response <- list(
 
 test_fixtures$gitlab_search_response <- list(
   list(
-    "basename"   = "test",
-    "data"       = "some text with searched phrase",
-    "path"       = "test.R",
-    "filename"   = "test.R",
-    "id"         = NULL,
-    "ref"        = "main",
-    "startline"  = 10,
+    "basename"= "test",
+    "data" = "some text with searched phrase",
+    "path" = "test.R",
+    "filename" = "test.R",
+    "id" = NULL,
+    "ref" = "main",
+    "startline" = 10,
     "project_id" = 43398933
   ),
   list(
-    "basename"   = "test",
-    "data"       = "some text with searched phrase",
-    "path"       = "test.R",
-    "filename"   = "test.R",
-    "id"         = NULL,
-    "ref"        = "main",
-    "startline"  = 15,
+    "basename" = "test",
+    "data" = "some text with searched phrase",
+    "path" = "test.R",
+    "filename" = "test.R",
+    "id" = NULL,
+    "ref" = "main",
+    "startline" = 15,
     "project_id" = 43400864
   )
 )
@@ -448,6 +608,7 @@ github_search_item <- list(
   "git_url" = "test_git_url",
   "html_url" = "test_html_url",
   "repository" = list(
+    "node_id" = "test_node_id",
     "id" = 627452680,
     "url" = "https://api.github.com/repos/r-world-devs/GitStats",
     "html_url" = "https://github.com/r-world-devs/GitStats"
@@ -530,6 +691,10 @@ test_fixtures$github_files_tree_response <- list(
           ),
           list(
             "name" = ".covrignore",
+            "type" = "blob"
+          ),
+          list(
+            "name" = "test_file.R",
             "type" = "blob"
           ),
           list(

@@ -9,11 +9,3 @@
 
     i GraphQL response error
 
-# `get_commits()` is set to scan whole git host
-
-    Code
-      gh_commits_table <- github_testhost_all$get_commits(since = "2023-01-01",
-        until = "2023-02-28", verbose = TRUE, progress = FALSE)
-    Message
-      i [GitHub][Engine:GraphQL] Pulling all organizations...
-

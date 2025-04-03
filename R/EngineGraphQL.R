@@ -45,6 +45,60 @@ EngineGraphQL <- R6::R6Class(
         }
       )
       return(response)
+    },
+
+    # Iterator over pulling issues from all repositories.
+    get_issues_from_repos = function(org,
+                                     repos_names,
+                                     progress) {
+      repos_list_with_issues <- purrr::map(repos_names, function(repo) {
+        private$get_issues_from_one_repo(
+          org   = org,
+          repo  = repo
+        )
+      }, .progress = !private$scan_all && progress)
+      names(repos_list_with_issues) <- repos_names
+      repos_list_with_issues <- repos_list_with_issues %>%
+        purrr::discard(~ length(.) == 0)
+      return(repos_list_with_issues)
+    },
+
+    # Parses repositories' list with issues into table of issues.
+    prepare_issues_table = function(repos_list_with_issues,
+                                    org) {
+      issues_table <- purrr::imap(repos_list_with_issues, function(repo, repo_name) {
+        issues_row <- purrr::map_dfr(repo, function(issue_data) {
+          state <- tolower(issue_data[["node"]][["state"]])
+          if (state == "opened") {
+            state <- "open"
+          }
+          get_node_data <- function(node_data) {
+            issue_data[["node"]][[node_data]] %||% ""
+          }
+          data.frame(
+            number = as.character(get_node_data("number")),
+            title = get_node_data("title"),
+            description = get_node_data("description"),
+            created_at = lubridate::as_datetime(get_node_data("created_at")),
+            closed_at = lubridate::as_datetime(get_node_data("closed_at")),
+            state = state,
+            url = get_node_data("url"),
+            author = issue_data[["node"]][["author"]][["login"]]
+          )
+        })
+        issues_row$repository <- repo_name
+        issues_row
+      }) %>%
+        purrr::discard(~ length(.) == 1) %>%
+        purrr::list_rbind()
+      if (nrow(issues_table) > 0) {
+        issues_table <- issues_table %>%
+          dplyr::mutate(
+            organization = org,
+            api_url = self$gql_api_url
+          )
+      }
+      return(issues_table)
     }
   ),
   private = list(

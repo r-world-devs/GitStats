@@ -74,13 +74,13 @@ release_logs <- get_release_logs(test_gitstats, since = "2024-01-01")
 release_logs <- get_release_logs(test_gitstats, since = "2024-01-01")
 
 # no cache
-package_usage <- get_R_package_usage(test_gitstats, packages = "shiny")
+package_usage <- get_repos_with_R_packages(test_gitstats, packages = "shiny")
 # cache
-package_usage <- get_R_package_usage(test_gitstats, packages = "shiny")
+package_usage <- get_repos_with_R_packages(test_gitstats, packages = "shiny")
 # no cache
-package_usage <- get_R_package_usage(test_gitstats, packages = "shiny", cache = FALSE)
+package_usage <- get_repos_with_R_packages(test_gitstats, packages = "shiny", cache = FALSE)
 
 # no cache
-package_usage <- get_R_package_usage(test_gitstats, packages = "shiny", only_loading = TRUE)
+package_usage <- get_repos_with_R_packages(test_gitstats, packages = "shiny", only_loading = TRUE)
 # cache
-package_usage <- get_R_package_usage(test_gitstats, packages = "shiny", only_loading = TRUE)
+package_usage <- get_repos_with_R_packages(test_gitstats, packages = "shiny", only_loading = TRUE)

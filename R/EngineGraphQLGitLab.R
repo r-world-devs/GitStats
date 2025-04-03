@@ -44,11 +44,16 @@ EngineGraphQLGitLab <- R6::R6Class(
     },
 
     #' Get all groups from GitLab.
-    get_orgs = function() {
+    get_orgs = function(orgs_count,
+                        output = c("only_names", "full_table"),
+                        verbose,
+                        progress = verbose) {
+      if (verbose) {
+        cli::cli_alert("[Host:GitLab][Engine:{cli::col_yellow('GraphQL')}] Pulling organizations...")
+      }
       group_cursor <- ""
-      has_next_page <- TRUE
-      full_orgs_list <- list()
-      while (has_next_page) {
+      iterations_number <- round(orgs_count / 100)
+      orgs_list <- purrr::map(1:iterations_number, function(x) {
         response <- self$gql_response(
           gql_query = self$gql_query$groups(),
           vars = list("groupCursor" = group_cursor)
@@ -62,13 +67,72 @@ EngineGraphQLGitLab <- R6::R6Class(
             )
           )
         }
-        orgs_list <- purrr::map(response$data$groups$edges, ~ .$node$fullPath)
-        full_orgs_list <- append(full_orgs_list, orgs_list)
-        has_next_page <- response$data$groups$pageInfo$hasNextPage
-        group_cursor <- response$data$groups$pageInfo$endCursor
+        if (output == "only_names") {
+          orgs_list <- purrr::map(response$data$groups$edges, ~ .$node$fullPath)
+        } else {
+          orgs_list <- purrr::map(response$data$groups$edges, ~ .$node)
+        }
+        group_cursor <<- response$data$groups$pageInfo$endCursor
+        return(orgs_list)
+      }, .progress = TRUE) |>
+        purrr::list_flatten()
+      if (output == "only_names") {
+        all_orgs <- unlist(orgs_list)
+      } else {
+        all_orgs <- orgs_list
       }
-      all_orgs <- unlist(full_orgs_list)
       return(all_orgs)
+    },
+
+    get_org = function(org) {
+      response <- self$gql_response(
+        gql_query = self$gql_query$group(),
+        vars = list("org" = org)
+      )
+      return(response$data$group)
+    },
+
+    prepare_orgs_table = function(full_orgs_list) {
+      orgs_table <- purrr::map(full_orgs_list, function(org_node) {
+        org_node$avatarUrl <- org_node$avatarUrl %||% ""
+        data.frame(org_node)
+      }) |>
+        purrr::list_rbind() |>
+        dplyr::rename(path = fullPath,
+                      url = webUrl,
+                      repos_count = projectsCount,
+                      members_count = groupMembersCount,
+                      avatar_url = avatarUrl) |>
+        dplyr::relocate(avatar_url, .before = repos_count) |>
+        tibble::as_tibble()
+      return(orgs_table)
+    },
+
+    # Iterator over pulling pages of repositories.
+    get_repos = function(repos_ids) {
+      full_repos_list <- list()
+      next_page <- TRUE
+      repo_cursor <- ""
+      while (next_page) {
+        repos_response <- private$get_repos_page(
+          projects_ids = paste0("gid://gitlab/Project/", repos_ids),
+          type = "projects",
+          repo_cursor = repo_cursor
+        )
+        core_response <- repos_response$data$projects
+        repos_list <- core_response$edges
+        next_page <- core_response$pageInfo$hasNextPage
+        if (is.null(next_page)) next_page <- FALSE
+        if (is.null(repos_list)) repos_list <- list()
+        if (length(repos_list) == 0) next_page <- FALSE
+        if (next_page) {
+          repo_cursor <- core_response$pageInfo$endCursor
+        } else {
+          repo_cursor <- ""
+        }
+        full_repos_list <- append(full_repos_list, repos_list)
+      }
+      return(full_repos_list)
     },
 
     # Iterator over pulling pages of repositories.
@@ -108,37 +172,36 @@ EngineGraphQLGitLab <- R6::R6Class(
       if (length(repos_list) > 0) {
         repos_table <- purrr::map(repos_list, function(repo) {
           repo <- repo$node
-          repo[["repo_id"]] <- sub(".*/(\\d+)$", "\\1", repo$repo_id)
-          repo[["default_branch"]] <- repo$repository$rootRef %||% ""
-          repo$repository <- NULL
-          repo[["languages"]] <- if (length(repo$languages) > 0) {
+          languages <- if (length(repo$languages) > 0) {
             purrr::map_chr(repo$languages, ~ .$name) |>
               paste0(collapse = ", ")
           } else {
             ""
           }
-          repo[["created_at"]] <- gts_to_posixt(repo$created_at)
-          repo[["issues_open"]] <- repo$issues$opened
-          repo[["issues_closed"]] <- repo$issues$closed
-          repo$issues <- NULL
-          repo[["last_activity_at"]] <- as.POSIXct(repo$last_activity_at)
           if (!is.null(repo$namespace)) {
             org <- repo$namespace$path
           }
-          repo[["organization"]] <- org
-          repo$namespace <- NULL
-          repo$repo_path <- NULL # temporary to close issue 338
-          return(data.frame(repo))
-        }) |>
-          purrr::list_rbind() |>
-          dplyr::relocate(
-            repo_url,
-            .after = organization
-          ) |>
-          dplyr::relocate(
-            default_branch,
-            .after = repo_name
+          if (is.null(org)) {
+            org <- sub(paste0("/", repo$repo_path), "", repo$repo_url) %>%
+              sub("^https://[^/]+", "", .) %>%
+              sub("^/", "", .)
+          }
+          data.frame(
+            repo_id = sub(".*/(\\d+)$", "\\1", repo$repo_id),
+            repo_name = repo$repo_name,
+            default_branch = repo$repository$rootRef %||% "",
+            stars = repo$stars,
+            forks = repo$forks,
+            created_at = gts_to_posixt(repo$created_at),
+            last_activity_at = as.POSIXct(repo$last_activity_at),
+            languages = languages,
+            issues_open = repo$issues$opened,
+            issues_closed = repo$issues$closed,
+            organization = org,
+            repo_url = repo$repo_url
           )
+        }) |>
+          purrr::list_rbind()
       } else {
         repos_table <- NULL
       }
@@ -279,18 +342,48 @@ EngineGraphQLGitLab <- R6::R6Class(
             repo = repo
           )
         }
-        files_response <- tryCatch(
-          {
-            private$get_file_blobs_response(
+        files_response <- private$get_file_blobs_response(
+          org = org,
+          repo = repo,
+          file_paths = file_paths
+        )
+        if (private$is_complexity_error(files_response)) {
+          if (verbose) {
+            cli::cli_alert("Encountered query complexity error (too many files). I will divide input data into chunks...")
+          }
+          iterations_number <- round(length(file_paths) / 100)
+          x <- 1
+          files_response <- private$get_file_blobs_response(
+            org = org,
+            repo = repo,
+            file_paths = file_paths[1]
+          )
+          nodes <- purrr::map(c(1:iterations_number), function(i) {
+            files_part_response <- private$get_file_blobs_response(
               org = org,
               repo = repo,
-              file_paths = file_paths
+              file_paths = file_paths[x:(i * 100)]
             )
-          },
-          error = function(e) {
-            list()
-          }
-        )
+            x <<- x + 100
+            return(files_part_response$data$project$repository$blobs$nodes)
+          }, .progress = verbose) |>
+            purrr::list_flatten()
+          files_response <- list(
+            "data" = list(
+              "project" = list(
+                "name" = repo,
+                "id" = files_response$data$project$id,
+                "webUrl" = files_response$data$project$webUrl,
+                "repository" = list(
+                  "blobs" = list(
+                    "nodes" = nodes
+                  )
+                )
+              )
+            )
+          )
+        }
+        return(files_response)
       }, .progress = progress)
       return(org_files_list)
     },
@@ -451,6 +544,7 @@ EngineGraphQLGitLab <- R6::R6Class(
 
     # Wrapper over building GraphQL query and response.
     get_repos_page = function(org = NULL,
+                              projects_ids = NULL,
                               type = "organization",
                               repo_cursor = "") {
       if (type == "organization") {
@@ -461,12 +555,19 @@ EngineGraphQLGitLab <- R6::R6Class(
             "repo_cursor" = repo_cursor
           )
         )
-      } else {
+      } else if (type == "user") {
         response <- self$gql_response(
           gql_query = self$gql_query$repos_by_user(),
           vars = list(
             "username" = org,
             "repo_cursor" = repo_cursor
+          )
+        )
+      } else if (type == "projects") {
+        response <- self$gql_response(
+          gql_query = self$gql_query$repos(repo_cursor),
+          vars = list(
+            "projects_ids" = as.character(projects_ids)
           )
         )
       }
@@ -503,6 +604,48 @@ EngineGraphQLGitLab <- R6::R6Class(
         )
       )
       return(file_blobs_response)
+    },
+
+    # An iterator over pulling issues pages from one repository.
+    get_issues_from_one_repo = function(org,
+                                        repo) {
+      next_page <- TRUE
+      full_issues_list <- list()
+      issues_cursor <- ""
+      while (next_page) {
+        issues_response <- private$get_issues_page_from_repo(
+          org = org,
+          repo = repo,
+          issues_cursor = issues_cursor
+        )
+        issues_list <- issues_response$data$project$issues$edges
+        next_page <- issues_response$data$project$issues$pageInfo$hasNextPage
+        if (is.null(next_page)) next_page <- FALSE
+        if (is.null(issues_list)) issues_list <- list()
+        if (next_page) {
+          issues_cursor <- issues_response$data$project$issues$pageInfo$endCursor
+        } else {
+          issues_cursor <- ""
+        }
+        full_issues_list <- append(full_issues_list, issues_list)
+      }
+      return(full_issues_list)
+    },
+
+    # Wrapper over building GraphQL query and response.
+    get_issues_page_from_repo = function(org,
+                                         repo,
+                                         issues_cursor = "") {
+      issues_from_repo_query <- self$gql_query$issues_from_repo(
+        issues_cursor = issues_cursor
+      )
+      response <- self$gql_response(
+        gql_query = issues_from_repo_query,
+        vars = list(
+          "fullPath" = paste0(org, "/", repo)
+        )
+      )
+      return(response)
     },
 
     get_files_tree_response = function(org, repo, file_path) {

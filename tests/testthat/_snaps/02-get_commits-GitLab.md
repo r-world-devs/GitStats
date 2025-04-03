@@ -4,7 +4,7 @@
       gl_commits_table <- gitlab_testhost_priv$get_commits_from_orgs(since = "2023-03-01",
         until = "2023-04-01", verbose = TRUE, progress = FALSE)
     Message
-      i [Host:GitLab][Engine:REST][Scope:test_group] Pulling commits...
+      > [Host:GitLab][Engine:REST][Scope:test_group] Pulling commits...
 
 # get_commits_from_repos works
 
@@ -12,5 +12,5 @@
       gl_commits_table <- gitlab_testhost_priv$get_commits_from_repos(since = "2023-03-01",
         until = "2023-04-01", verbose = TRUE, progress = FALSE)
     Message
-      i [Host:GitLab][Engine:REST][Scope:test_org/TestRepo] Pulling commits...
+      > [Host:GitLab][Engine:REST][Scope:test_org: 1 repos] Pulling commits...
 

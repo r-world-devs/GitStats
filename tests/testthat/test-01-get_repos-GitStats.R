@@ -1,4 +1,83 @@
+test_that("get_repos_from_host_with_code works", {
+  mockery::stub(
+    test_gitstats_priv$get_repos_from_host_with_code,
+    "host$get_repos",
+    test_mocker$use("gh_repos_table_full")
+  )
+  repos_from_host_with_code <- test_gitstats_priv$get_repos_from_host_with_code(
+    add_contributors = TRUE,
+    with_code = "test_code",
+    in_files = NULL,
+    force_orgs = FALSE,
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_repos_table(
+    repos_from_host_with_code,
+    repo_cols = repo_host_colnames,
+    with_cols = c("api_url", "platform", "contributors")
+  )
+  test_mocker$cache(repos_from_host_with_code)
+})
+
+test_that("get_repos_from_host_with_files works", {
+  mockery::stub(
+    test_gitstats_priv$get_repos_from_host_with_files,
+    "host$get_repos",
+    test_mocker$use("gl_repos_table_full")
+  )
+  repos_from_host_with_files <- test_gitstats_priv$get_repos_from_host_with_files(
+    add_contributors = TRUE,
+    with_files = "test_file",
+    force_orgs = FALSE,
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_repos_table(
+    repos_from_host_with_files,
+    repo_cols = repo_host_colnames,
+    with_cols = c("api_url", "platform", "contributors")
+  )
+  test_mocker$cache(repos_from_host_with_files)
+})
+
 test_that("get_repos_from_hosts works", {
+  mockery::stub(
+    test_gitstats_priv$get_repos_from_hosts,
+    "private$get_repos_from_host_with_code",
+    test_mocker$use("repos_from_host_with_code")
+  )
+  repos_from_hosts_with_code <- test_gitstats_priv$get_repos_from_hosts(
+    add_contributors = TRUE,
+    with_code = "test_code",
+    in_files = NULL,
+    with_files = NULL,
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_repos_table(
+    repos_from_hosts_with_code,
+    repo_cols = repo_gitstats_colnames,
+    with_cols = c("contributors", "contributors_n")
+  )
+  mockery::stub(
+    test_gitstats_priv$get_repos_from_hosts,
+    "private$get_repos_from_host_with_files",
+    test_mocker$use("repos_from_host_with_files")
+  )
+  repos_from_hosts_with_files <- test_gitstats_priv$get_repos_from_hosts(
+    add_contributors = TRUE,
+    with_code = NULL,
+    in_files = NULL,
+    with_files = "test_file",
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_repos_table(
+    repos_from_hosts_with_files,
+    repo_cols = repo_gitstats_colnames,
+    with_cols = c("contributors", "contributors_n")
+  )
   mockery::stub(
     test_gitstats_priv$get_repos_from_hosts,
     "host$get_repos",
@@ -23,36 +102,13 @@ test_that("get_repos_from_hosts works", {
   test_mocker$cache(repos_from_hosts)
 })
 
-test_that("get_repos_from_hosts pulls table in minimalist version", {
-  mockery::stub(
-    test_gitstats_priv$get_repos_from_hosts,
-    "host$get_repos",
-    test_mocker$use("gh_repos_table_min")
-  )
-  repos_from_hosts_min <- test_gitstats_priv$get_repos_from_hosts(
-    add_contributors = TRUE,
-    with_code = NULL,
-    in_files = NULL,
-    with_files = NULL,
-    output = "table_min",
-    verbose = FALSE,
-    progress = FALSE
-  )
-  expect_repos_table(
-    repos_from_hosts_min,
-    repo_cols = repo_min_colnames,
-    with_cols = c("api_url", "platform")
-  )
-  test_mocker$cache(repos_from_hosts_min)
-})
-
 test_that("set_object_class for repos_table works correctly", {
   repos_table <- test_gitstats_priv$set_object_class(
     object = test_mocker$use("repos_from_hosts"),
     class = "repos_table",
     attr_list = list(
-      "with_code"  = NULL,
-      "in_files"   = NULL,
+      "with_code" = NULL,
+      "in_files" = NULL,
       "with_files" = "renv.lock"
     )
   )
@@ -89,10 +145,25 @@ test_that("get_repos works", {
     test_mocker$use("repos_data")
   )
   repos_data <- get_repos(
-    gitstats = test_gitstats
+    gitstats = test_gitstats,
+    verbose = FALSE
   )
   expect_repos_table_object(
     repos_object = repos_data,
     with_cols = c("contributors", "contributors_n")
+  )
+})
+
+test_that("get_repos prints time used to pull data", {
+  mockery::stub(
+    get_repos,
+    "gitstats$get_repos",
+    test_mocker$use("repos_data")
+  )
+  expect_snapshot(
+    repos_data <- get_repos(
+      gitstats = test_gitstats,
+      verbose = TRUE
+    )
   )
 })

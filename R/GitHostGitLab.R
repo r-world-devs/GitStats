@@ -135,10 +135,36 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       return(repos_table)
     },
 
+    get_orgs_from_host = function(output, verbose) {
+      rest_engine <- private$engines$rest
+      orgs_count <- rest_engine$get_orgs_count(verbose)
+      if (verbose) {
+        cli::cli_alert_info("{orgs_count} organizations found.")
+      }
+      graphql_engine <- private$engines$graphql
+      orgs <- graphql_engine$get_orgs(
+        orgs_count = as.integer(orgs_count),
+        output = output,
+        verbose = verbose
+      )
+      if (output == "full_table") {
+        orgs <- orgs |>
+          graphql_engine$prepare_orgs_table()
+        private$orgs <- dplyr::pull(orgs, path)
+      } else {
+        private$orgs <- orgs
+      }
+      return(orgs)
+    },
+
+    get_repos_ids = function(search_response) {
+      purrr::map_vec(search_response, ~.$project_id) |> unique()
+    },
+
     # Get projects API URL from search response
     get_repo_url_from_response = function(search_response, type, repos_fullnames = NULL, progress = TRUE) {
       repo_urls <- purrr::map_vec(search_response, function(response) {
-        api_url <- paste0(private$api_url, "/projects/", response$project_id)
+        api_url <- paste0(private$api_url, "/projects/", gsub("gid://gitlab/Project/", "", response$node$repo_id))
         if (type == "api") {
           return(api_url)
         } else {
@@ -217,7 +243,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             show_message(
               host        = private$host_name,
               engine      = "rest",
-              scope       = utils::URLdecode(paste0(repos_names, collapse = "|")),
+              scope       = set_repo_scope(org, private),
               information = "Pulling commits"
             )
           }
@@ -280,7 +306,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             show_message(
               host = private$host_name,
               engine = "graphql",
-              scope = org,
+              scope = set_repo_scope(org, private),
               information = glue::glue("Pulling files content: [{paste0(file_path, collapse = ', ')}]")
             )
           }

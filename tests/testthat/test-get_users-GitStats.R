@@ -23,4 +23,38 @@ test_that("GitStats get users info", {
   expect_users_table(
     users_result
   )
+  test_mocker$cache(users_result)
+})
+
+test_that("get users works correctly", {
+  test_gitstats <- create_test_gitstats(hosts = 2)
+  mockery::stub(
+    get_users,
+    "gitstats$get_users",
+    test_mocker$use("users_result")
+  )
+  users_result <- get_users(
+    gitstats = test_gitstats,
+    c("test_user1", "test_user2"),
+    verbose = FALSE
+  )
+  expect_users_table(
+    users_result
+  )
+})
+
+test_that("get_users prints info on data used to pull data", {
+  test_gitstats <- create_test_gitstats(hosts = 2)
+  mockery::stub(
+    get_users,
+    "gitstats$get_users",
+    test_mocker$use("users_result")
+  )
+  expect_snapshot(
+    users_result <- get_users(
+      gitstats = test_gitstats,
+      c("test_user1", "test_user2"),
+      verbose = TRUE
+    )
+  )
 })

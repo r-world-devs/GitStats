@@ -66,26 +66,12 @@ expect_gl_repos_gql_response <- function(object, type = "organization") {
   )
 }
 
-expect_gh_repos_gql_response <- function(object, type = "organization") {
-  expect_type(
-    object,
-    "list"
-  )
-  expect_list_contains(
-    object,
-    "data"
-  )
-  repo_node <- if (type == "organization") {
-    object$data$repositoryOwner$repositories$nodes[[1]]
-  } else {
-    object$data$user$repositories$nodes[[1]]
-  }
-  expect_list_contains(
-    repo_node,
-    c(
-      "id", "name", "stars", "forks", "created_at",
-      "last_activity_at", "languages", "issues_open", "issues_closed",
-      "repo_url"
+expect_gh_repos_gql_response <- function(repo_node) {
+  expect_true(
+    all(
+      colnames(repo_node) %in% c("repo_id", "repo_name", "stars", "forks", "created_at",
+                                 "last_activity_at", "languages", "issues_open",
+                                 "issues_closed", "repo_url")
     )
   )
 }
@@ -269,4 +255,72 @@ expect_gitlab_releases_response <- function(object) {
       )
     })
   })
+}
+
+issue_fields <- c("number", "title", "description", "created_at", "closed_at",
+                  "state", "url", "author")
+
+expect_github_issues_page <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  if (names(object) == "errors") {
+    cli::cli_alert_danger(object$errors)
+    cli::cli_abort("Errors in GraphQL response.")
+  }
+  expect_named(
+    object$data$repository$issues,
+    c("pageInfo", "edges")
+  )
+  expect_named(
+    object$data$repository$issues$edges[[1]]$node,
+    issue_fields
+  )
+}
+
+expect_gitlab_issues_page <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  if (names(object) == "errors") {
+    cli::cli_alert_danger(object$errors)
+    cli::cli_abort("Errors in GraphQL response.")
+  }
+  expect_named(
+    object$data$project$issues,
+    c("pageInfo", "edges")
+  )
+  expect_named(
+    object$data$project$issues$edges[[1]]$node,
+    issue_fields
+  )
+}
+
+expect_issues_full_list <- function(object) {
+  expect_named(
+    object[[1]]$node,
+    issue_fields
+  )
+}
+
+github_orgs_fields <- c("name", "description", "login", "url", "repositories",
+                        "membersWithRole", "avatarUrl")
+
+expect_github_orgs_full_list <- function(object) {
+  expect_named(
+    object[[1]],
+    github_orgs_fields
+  )
+}
+
+gitlab_orgs_fields <- c("name", "description", "fullPath", "webUrl", "projectsCount",
+                        "groupMembersCount", "avatarUrl")
+
+expect_gitlab_orgs_full_list <- function(object) {
+  expect_named(
+    object[[1]],
+    gitlab_orgs_fields
+  )
 }

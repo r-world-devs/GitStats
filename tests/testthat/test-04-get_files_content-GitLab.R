@@ -131,6 +131,30 @@ test_that("Gitlab GraphQL switches to pulling files per repositories when query 
   test_mocker$cache(gitlab_files_response_by_repos)
 })
 
+test_that("GitLab GraphQL switches to iteration when query is too complex", {
+  mockery::stub(
+    test_graphql_gitlab$get_files_from_org_per_repo,
+    "private$get_file_blobs_response",
+    test_mocker$use("gl_file_blobs_response")
+  )
+  mockery::stub(
+    test_graphql_gitlab$get_files_from_org_per_repo,
+    "private$is_complexity_error",
+    TRUE
+  )
+  expect_snapshot(
+    files_from_org_per_repo <- test_graphql_gitlab$get_files_from_org_per_repo(
+      org = "mbtests",
+      type = "organization",
+      repos = "gitstatstesting",
+      file_paths = c("project_metadata.yaml", "README.md"),
+      host_files_structure = NULL,
+      verbose = TRUE,
+      progress = FALSE
+    )
+  )
+})
+
 test_that("checker properly identifies gitlab files responses", {
   expect_false(
     test_graphql_gitlab_priv$response_prepared_by_iteration(

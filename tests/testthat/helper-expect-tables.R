@@ -13,9 +13,14 @@ repo_min_colnames <- c("repo_id", "repo_name", "default_branch",
 
 expect_package_usage_table <- function(object, with_cols = NULL) {
   expect_s3_class(object, "data.frame")
-  expect_named(object, c("package", "package_usage", "repo_id", "repo_fullname",
-                         "repo_name", "default_branch", "created_at", "organization",
-                         "repo_url", "api_url", "platform"))
+  expect_named(object, c("package", "package_usage", "repo_id", "repo_fullname", "repo_name", "organization", "fullname", "platform", "repo_url", "api_url", "created_at", "last_activity_at", "last_activity", "default_branch", "stars", "forks", "languages", "issues_open", "issues_closed", "contributors", "contributors_n"))
+  expect_gt(nrow(object), 0)
+}
+
+expect_orgs_table <- function(object, add_cols = NULL) {
+  expect_s3_class(object, "data.frame")
+  expect_named(object, c("name", "description", "path", "url", "avatar_url",
+                         "repos_count", "members_count", add_cols))
   expect_gt(nrow(object), 0)
 }
 
@@ -35,6 +40,18 @@ expect_repos_table <- function(repos_object, repo_cols = repo_host_colnames, wit
   expect_named(repos_object, repo_cols)
   expect_gt(nrow(repos_object), 0)
 }
+
+expect_issues_table <- function(get_issues_object, with_stats = TRUE, exp_author = TRUE) {
+  issue_cols <- c("number", "title", "description", "created_at", "closed_at", "state", "url",
+                  "author", "repository", "organization", "api_url")
+
+  expect_s3_class(get_issues_object, "data.frame")
+  expect_named(get_issues_object, issue_cols)
+  expect_gt(nrow(get_issues_object), 0)
+  expect_s3_class(get_issues_object$created_at, "POSIXt")
+  expect_s3_class(get_issues_object$closed_at, "POSIXt")
+}
+
 
 expect_commits_table <- function(get_commits_object, with_stats = TRUE, exp_author = TRUE) {
   commit_cols <- if (exp_author) {

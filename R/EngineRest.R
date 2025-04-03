@@ -36,41 +36,6 @@ EngineRest <- R6::R6Class("EngineRest",
         result <- list()
       }
       return(result)
-    },
-
-    # Prepare table for repositories content
-    prepare_repos_table = function(repos_list, output = "table_full", verbose = TRUE) {
-      repos_dt <- purrr::map(repos_list, function(repo) {
-        repo <- purrr::map(repo, function(attr) {
-          attr <- attr %||% ""
-        })
-        data.frame(repo)
-      }) %>%
-        purrr::list_rbind()
-      if (verbose) {
-        cli::cli_alert_info("Preparing repositories table...")
-      }
-      if (length(repos_dt) > 0) {
-        if (output == "table_full") {
-          repos_dt <- dplyr::mutate(
-            repos_dt,
-            repo_id = as.character(repo_id),
-            created_at = as.POSIXct(created_at),
-            last_activity_at = as.POSIXct(last_activity_at),
-            forks = as.integer(forks),
-            issues_open = as.integer(issues_open),
-            issues_closed = as.integer(issues_closed)
-          )
-        }
-        if (output == "table_min") {
-          repos_dt <- dplyr::mutate(
-            repos_dt,
-            repo_id = as.character(repo_id),
-            created_at = as.POSIXct(created_at)
-          )
-        }
-      }
-      return(repos_dt)
     }
 
   ),

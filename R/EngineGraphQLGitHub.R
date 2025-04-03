@@ -40,8 +40,11 @@ EngineGraphQLGitHub <- R6::R6Class(
     },
 
     #' Get all orgs from GitHub.
-    get_orgs = function() {
-      end_cursor <- NULL
+    get_orgs = function(output = c("only_names", "full_table"), verbose) {
+      if (verbose) {
+        cli::cli_alert("[Host:GitHub][Engine:{cli::col_yellow('GraphQL')}] Pulling organizations...")
+      }
+      end_cursor <- ""
       has_next_page <- TRUE
       full_orgs_list <- list()
       while (has_next_page) {
@@ -55,13 +58,81 @@ EngineGraphQLGitHub <- R6::R6Class(
             response$errors[[1]]$message
           )
         }
-        orgs_list <- purrr::map(response$data$search$edges, ~ stringr::str_match(.$node$url, "[^\\/]*$"))
+        if (output == "only_names") {
+          orgs_list <- purrr::map(response$data$search$edges, ~ .$node$login)
+        } else {
+          orgs_list <- purrr::map(response$data$search$edges, ~ .$node)
+        }
         full_orgs_list <- append(full_orgs_list, orgs_list)
         has_next_page <- response$data$search$pageInfo$hasNextPage
         end_cursor <- response$data$search$pageInfo$endCursor
       }
-      all_orgs <- unlist(full_orgs_list)
+      all_orgs <- if (output == "only_names") {
+        unlist(full_orgs_list)
+      } else {
+        full_orgs_list
+      }
       return(all_orgs)
+    },
+
+    prepare_orgs_table = function(full_orgs_list) {
+      orgs_table <- purrr::map(full_orgs_list, function(orgs_node) {
+        orgs_node$description <- orgs_node$description %||% ""
+        orgs_node$repos_count <- orgs_node$repositories$totalCount
+        orgs_node$members_count <- orgs_node$membersWithRole$totalCount
+        orgs_node$membersWithRole <- NULL
+        orgs_node$repositories <- NULL
+        data.frame(orgs_node)
+      }) |>
+        purrr::list_rbind() |>
+        dplyr::rename(path = login,
+                      avatar_url = avatarUrl) |>
+        dplyr::relocate(description, .after = name) |>
+        tibble::as_tibble()
+      return(orgs_table)
+    },
+
+    # This method is for pulling orgs when host has set orgs
+    get_org = function(org) {
+      response <- self$gql_response(
+        gql_query = self$gql_query$org(),
+        vars = list("org" = org)
+      )
+      return(response$data$organization)
+    },
+
+    # Pull all repositories from organization
+    get_repos = function(repos_ids) {
+      repos_query <- self$gql_query$repos_by_ids()
+      if (length(repos_ids) > 100) {
+        iterations_number <- ceiling(length(repos_ids) / 100)
+        x <- 1
+        repos_nodes <- purrr::map(c(1:iterations_number), function(i) {
+          if (i == iterations_number) {
+            repos_ids_length <- length(repos_ids)
+          } else {
+            repos_ids_length <- i * 100
+          }
+          repos_response <- self$gql_response(
+            gql_query = repos_query,
+            vars = list(
+              "ids" = repos_ids[x:repos_ids_length]
+            )
+          )
+          x <<- x + 100
+          return(repos_response$data$nodes)
+        }) |>
+          purrr::list_flatten()
+      } else {
+        repos_response <- self$gql_response(
+          gql_query = repos_query,
+          vars = list(
+            "ids" = repos_ids
+          )
+        )
+        repos_nodes <- repos_response$data$nodes
+      }
+      return(repos_nodes)
     },
 
     # Pull all repositories from organization
@@ -100,7 +171,7 @@ EngineGraphQLGitHub <- R6::R6Class(
     prepare_repos_table = function(repos_list, org) {
       if (length(repos_list) > 0) {
         repos_table <- purrr::map(repos_list, function(repo) {
-          repo[["default_branch"]] <- if (!is.null(repo$default_branch)) {
+          default_branch <- if (!is.null(repo$default_branch)) {
             repo$default_branch$name
           } else {
             ""
@@ -109,20 +180,22 @@ EngineGraphQLGitHub <- R6::R6Class(
           if (length(last_activity_at) == 0) {
             last_activity_at <- gts_to_posixt(repo$created_at)
           }
-          repo[["languages"]] <- purrr::map_chr(repo$languages$nodes, ~ .$name) |>
-            paste0(collapse = ", ")
-          repo[["created_at"]] <- gts_to_posixt(repo$created_at)
-          repo[["issues_open"]] <- repo$issues_open$totalCount
-          repo[["issues_closed"]] <- repo$issues_closed$totalCount
-          repo[["last_activity_at"]] <- last_activity_at
-          repo[["organization"]] <- repo$organization$login
-          repo <- data.frame(repo) %>%
-            dplyr::relocate(
-              default_branch,
-              .after = repo_name
-            )
-          return(repo)
-        }) %>%
+          data.frame(
+            repo_id = repo$repo_id,
+            repo_name = repo$repo_name,
+            default_branch = default_branch,
+            stars = repo$stars,
+            forks = repo$forks,
+            created_at = gts_to_posixt(repo$created_at),
+            last_activity_at = last_activity_at,
+            languages = purrr::map_chr(repo$languages$nodes, ~ .$name) |>
+              paste0(collapse = ", "),
+            issues_open = repo$issues_open$totalCount,
+            issues_closed = repo$issues_closed$totalCount,
+            organization = repo$organization$login,
+            repo_url = repo$repo_url
+          )
+        }) |>
           purrr::list_rbind()
       } else {
         repos_table <- NULL
@@ -156,21 +229,16 @@ EngineGraphQLGitHub <- R6::R6Class(
       commits_table <- purrr::imap(repos_list_with_commits, function(repo, repo_name) {
         commits_row <- purrr::map_dfr(repo, function(commit) {
           commit_author <- commit$node$author
-          commit$node$author <- commit_author$name
-          commit$node$author_login <- if (!is.null(commit_author$user$login)) {
-            commit_author$user$login
-          } else {
-            NA_character_
-          }
-          commit$node$author_name <- if (!is.null(commit_author$user$name)) {
-            commit_author$user$name
-          } else {
-            NA_character_
-          }
-          commit$node$committed_date <- gts_to_posixt(commit$node$committed_date)
-          commit$node$repo_url <- commit$node$repository$url
-          commit$node$repository <- NULL
-          commit$node
+          data.frame(
+            id = commit$node$id,
+            committed_date = gts_to_posixt(commit$node$committed_date),
+            author = commit_author$name,
+            author_login = commit_author$user$login %||% NA_character_,
+            author_name = commit_author$user$name %||% NA_character_,
+            additions = commit$node$additions,
+            deletions = commit$node$deletions,
+            repo_url = commit$node$repository$url
+          )
         })
         commits_row$repository <- repo_name
         commits_row
@@ -230,19 +298,20 @@ EngineGraphQLGitHub <- R6::R6Class(
     prepare_files_table = function(files_response, org) {
       if (!is.null(files_response)) {
         files_table <- purrr::map(files_response, function(repository) {
-          purrr::imap(repository, function(file_data, file_name) {
-            data.frame(
-              "repo_name" = file_data$repo_name,
-              "repo_id" = file_data$repo_id,
-              "organization" = org,
-              "file_path" = file_name,
-              "file_content" = file_data$file$text %||% NA,
-              "file_size" = file_data$file$byteSize,
-              "repo_url" = file_data$repo_url
-            )
-          }) %>%
+          purrr::discard(repository, ~ length(.$file) == 0) |>
+            purrr::imap(function(file_data, file_name) {
+              data.frame(
+                "repo_name" = file_data$repo_name,
+                "repo_id" = file_data$repo_id,
+                "organization" = org,
+                "file_path" = file_name,
+                "file_content" = file_data$file$text %||% NA,
+                "file_size" = file_data$file$byteSize,
+                "repo_url" = file_data$repo_url
+              )
+            }) |>
             purrr::list_rbind()
-        }) %>%
+        }) |>
           purrr::list_rbind()
       } else {
         files_table <- NULL
@@ -365,14 +434,14 @@ EngineGraphQLGitHub <- R6::R6Class(
 
     # Wrapper over building GraphQL query and response.
     get_repos_page = function(login = NULL,
-                              type = c("organization", "user"),
+                              type = c("organization"),
                               repo_cursor = "") {
-      repos_query <- if (type == "organization") {
-        self$gql_query$repos_by_org(
+      if (type == "organization") {
+        repos_query <- self$gql_query$repos_by_org(
           repo_cursor = repo_cursor
         )
-      } else {
-        self$gql_query$repos_by_user(
+      } else if (type == "user") {
+        repos_query <- self$gql_query$repos_by_user(
           repo_cursor = repo_cursor
         )
       }
@@ -431,13 +500,13 @@ EngineGraphQLGitHub <- R6::R6Class(
                                           since,
                                           until,
                                           commits_cursor = "") {
-      commits_by_org_query <- self$gql_query$commits_from_repo(
+      commits_from_repo_query <- self$gql_query$commits_from_repo(
         commits_cursor = commits_cursor
       )
       response <- tryCatch(
         {
           self$gql_response(
-            gql_query = commits_by_org_query,
+            gql_query = commits_from_repo_query,
             vars = list(
               "org" = org,
               "repo" = repo,
@@ -448,12 +517,68 @@ EngineGraphQLGitHub <- R6::R6Class(
         },
         error = function(e) {
           self$gql_response(
-            gql_query = commits_by_org_query,
+            gql_query = commits_from_repo_query,
             vars = list(
               "org" = org,
               "repo" = repo,
               "since" = date_to_gts(since),
               "until" = date_to_gts(until)
+            )
+          )
+        }
+      )
+      return(response)
+    },
+
+    # An iterator over pulling issues pages from one repository.
+    get_issues_from_one_repo = function(org,
+                                        repo) {
+      next_page <- TRUE
+      full_issues_list <- list()
+      issues_cursor <- ""
+      while (next_page) {
+        issues_response <- private$get_issues_page_from_repo(
+          org = org,
+          repo = repo,
+          issues_cursor = issues_cursor
+        )
+        issues_list <- issues_response$data$repository$issues$edges
+        next_page <- issues_response$data$repository$issues$pageInfo$hasNextPage
+        if (is.null(next_page)) next_page <- FALSE
+        if (is.null(issues_list)) issues_list <- list()
+        if (next_page) {
+          issues_cursor <- issues_response$data$repository$issues$pageInfo$endCursor
+        } else {
+          issues_cursor <- ""
+        }
+        full_issues_list <- append(full_issues_list, issues_list)
+      }
+      return(full_issues_list)
+    },
+
+    # Wrapper over building GraphQL query and response.
+    get_issues_page_from_repo = function(org,
+                                         repo,
+                                         issues_cursor = "") {
+      issues_from_repo_query <- self$gql_query$issues_from_repo(
+        issues_cursor = issues_cursor
+      )
+      response <- tryCatch(
+        {
+          self$gql_response(
+            gql_query = issues_from_repo_query,
+            vars = list(
+              "org" = org,
+              "repo" = repo
+            )
+          )
+        },
+        error = function(e) {
+          self$gql_response(
+            gql_query = issues_from_repo_query,
+            vars = list(
+              "org" = org,
+              "repo" = repo
             )
           )
         }

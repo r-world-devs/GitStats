@@ -2,7 +2,7 @@
 #' @name get_commits
 #' @description List all commits from all repositories for an organization or a
 #'   vector of repositories.
-#' @param gitstats A GitStats object.
+#' @param gitstats A `GitStats` object.
 #' @param since A starting date.
 #' @param until An end date.
 #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
@@ -11,7 +11,7 @@
 #'   output is switched off.
 #' @param progress A logical, by default set to `verbose` value. If `FALSE` no
 #'   `cli` progress bar will be displayed.
-#' @return A data.frame.
+#' @return A table of `tibble` and `gitstats_commits` classes.
 #' @examples
 #' \dontrun{
 #' my_gitstats <- create_gitstats() %>%
@@ -27,21 +27,28 @@
 #' }
 #' @export
 get_commits <- function(gitstats,
-                        since    = NULL,
-                        until    = Sys.Date() + lubridate::days(1),
-                        cache    = TRUE,
-                        verbose  = is_verbose(gitstats),
+                        since = NULL,
+                        until = Sys.Date() + lubridate::days(1),
+                        cache = TRUE,
+                        verbose = is_verbose(gitstats),
                         progress = verbose) {
+  start_time <- Sys.time()
   if (is.null(since)) {
     cli::cli_abort(cli::col_red("You need to pass date to `since` parameter."), call = NULL)
   }
-  gitstats$get_commits(
-    since    = since,
-    until    = until,
-    cache    = cache,
-    verbose  = verbose,
+  commits <- gitstats$get_commits(
+    since = since,
+    until = until,
+    cache = cache,
+    verbose = verbose,
     progress = progress
   )
+  end_time <- Sys.time()
+  time_taken <- end_time - start_time
+  if (verbose) {
+    cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
+  }
+  return(commits)
 }
 
 #' @title Get commits statistics
@@ -49,7 +56,7 @@ get_commits <- function(gitstats,
 #' @description Prepare statistics from the pulled commits data.
 #' @details To make function work, you need first to get commits data with
 #'   `GitStats`. See examples section.
-#' @param commits A `commits_data` table (output of `get_commits()`).
+#' @param commits A `gitstats_commits` S3 class table object (output of `get_commits()`).
 #' @param time_aggregation A character, specifying time aggregation of
 #'   statistics.
 #' @param group_var Other grouping variable to be passed to `dplyr::group_by()`
