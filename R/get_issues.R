@@ -29,23 +29,30 @@
 #' }
 #' @export
 get_issues <- function(gitstats,
-                       since    = NULL,
-                       until    = Sys.Date() + lubridate::days(1),
-                       state    = NULL,
-                       cache    = TRUE,
-                       verbose  = is_verbose(gitstats),
+                       since = NULL,
+                       until = Sys.Date() + lubridate::days(1),
+                       state = NULL,
+                       cache = TRUE,
+                       verbose = is_verbose(gitstats),
                        progress = verbose) {
+  start_time <- Sys.time()
   if (is.null(since)) {
     cli::cli_abort(cli::col_red("You need to pass date to `since` parameter."), call = NULL)
   }
-  gitstats$get_issues(
-    since    = since,
-    until    = until,
-    state    = state,
-    cache    = cache,
-    verbose  = verbose,
+  issues <- gitstats$get_issues(
+    since = since,
+    until = until,
+    state = state,
+    cache = cache,
+    verbose = verbose,
     progress = progress
   )
+  end_time <- Sys.time()
+  time_taken <- end_time - start_time
+  if (verbose) {
+    cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
+  }
+  return(issues)
 }
 
 #' @title Get issues statistics

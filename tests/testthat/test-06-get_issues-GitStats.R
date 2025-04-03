@@ -76,3 +76,19 @@ test_that("get_issues() works", {
   )
   test_mocker$cache(issues_data)
 })
+
+test_that("get_issues() prints data on time used", {
+  mockery::stub(
+    get_issues,
+    "gitstats$get_issues",
+    test_mocker$use("issues_table")
+  )
+  expect_snapshot(
+    issues_data <- get_issues(
+      test_gitstats,
+      since = "2023-01-01",
+      until = "2025-03-06",
+      verbose = TRUE
+    )
+  )
+})
