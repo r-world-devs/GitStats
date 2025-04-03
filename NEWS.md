@@ -1,5 +1,7 @@
 # GitStats 2.3.0
 
+This release introduces the new functions to get data on organizations and issues, alongside several important fixes and optimizations, such as handling GitLab API limits more efficiently.  Additional enhancements include renamed functions, added time usage information and shortened data-pulling messages.
+
 - Added `get_orgs()` function ([#599](https://github.com/r-world-devs/GitStats/issues/599)).
 - Added `get_issues()` and `get_issues_stats()` functions ([#569](https://github.com/r-world-devs/GitStats/issues/569)).
 
