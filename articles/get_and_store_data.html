@@ -61,7 +61,7 @@
       <h1>Get and store your data</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/r-world-devs/GitStats/blob/master/vignettes/get_and_store_data.Rmd" class="external-link"><code>vignettes/get_and_store_data.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/r-world-devs/GitStats/blob/v2.3.0/vignettes/get_and_store_data.Rmd" class="external-link"><code>vignettes/get_and_store_data.Rmd</code></a></small>
       <div class="d-none name"><code>get_and_store_data.Rmd</code></div>
     </div>
 
@@ -101,7 +101,7 @@ organizations.</p>
 <span><span class="co">#&gt; → [Host:GitHub][Engine:<span style="color: #00BB00;">REST</span>] <span style="color: #5555FF;">Pulling contributors</span>...</span></span>
 <span><span class="co">#&gt; → [Host:GitLab][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:mbtests] <span style="color: #5555FF;">Pulling repositories</span>...</span></span>
 <span><span class="co">#&gt; → [Host:GitLab][Engine:<span style="color: #00BB00;">REST</span>] <span style="color: #5555FF;">Pulling contributors</span>...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 43.3 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 28.5 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">repos</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 89</span></span>
 <span><span class="co">#&gt; Columns: 18</span></span>
@@ -131,7 +131,7 @@ instead of whole table.</p>
 <span><span class="co">#&gt; → [Host:GitHub][Engine:<span style="color: #00BB00;">REST</span>][Scope:r-world-devs] <span style="color: #5555FF;">Pulling repositories (URLs)</span>...</span></span>
 <span><span class="co">#&gt; → [Host:GitHub][Engine:<span style="color: #00BB00;">REST</span>][Scope:openpharma] <span style="color: #5555FF;">Pulling repositories (URLs)</span>...</span></span>
 <span><span class="co">#&gt; → [Host:GitLab][Engine:<span style="color: #00BB00;">REST</span>][Scope:mbtests] <span style="color: #5555FF;">Pulling repositories (URLs)</span>...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 4 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 3.2 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">repos_urls</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  'gitstats_repos_urls' chr [1:89] "https://api.github.com/repos/r-world-devs/shinyGizmo" ...</span></span>
 <span><span class="co">#&gt;  - attr(*, "type")= chr "api"</span></span></code></pre></div>
@@ -174,7 +174,7 @@ function:</p>
 <span><span class="co">#&gt; → [Host:GitHub][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:r-world-devs] <span style="color: #5555FF;">Pulling commits</span>...</span></span>
 <span><span class="co">#&gt; → [Host:GitHub][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:openpharma] <span style="color: #5555FF;">Pulling commits</span>...</span></span>
 <span><span class="co">#&gt; → [Host:GitLab][Engine:<span style="color: #00BB00;">REST</span>][Scope:mbtests] <span style="color: #5555FF;">Pulling commits</span>...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 30.6 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 22.9 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 188</span></span>
 <span><span class="co">#&gt; Columns: 11</span></span>
@@ -228,7 +228,7 @@ function:</p>
 <span><span class="co">#&gt; → [Host:GitHub][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:r-world-devs] <span style="color: #5555FF;">Pulling commits</span>...</span></span>
 <span><span class="co">#&gt; → [Host:GitHub][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:openpharma] <span style="color: #5555FF;">Pulling commits</span>...</span></span>
 <span><span class="co">#&gt; → [Host:GitLab][Engine:<span style="color: #00BB00;">REST</span>][Scope:mbtests] <span style="color: #5555FF;">Pulling commits</span>...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 30.4 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 24.3 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 188</span></span>
 <span><span class="co">#&gt; Columns: 11</span></span>
@@ -255,7 +255,7 @@ function:</p>
 <span><span class="co">#&gt; → [Host:GitHub][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:openpharma] <span style="color: #5555FF;">Pulling commits</span>...</span></span>
 <span><span class="co">#&gt; → [Host:GitLab][Engine:<span style="color: #00BB00;">REST</span>][Scope:mbtests] <span style="color: #5555FF;">Pulling commits</span>...</span></span>
 <span><span class="co">#&gt; → Looking up for authors' names and logins...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 53.8 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 49.6 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 1,818</span></span>
 <span><span class="co">#&gt; Columns: 11</span></span>
