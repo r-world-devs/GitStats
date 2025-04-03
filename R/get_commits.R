@@ -27,10 +27,10 @@
 #' }
 #' @export
 get_commits <- function(gitstats,
-                        since    = NULL,
-                        until    = Sys.Date() + lubridate::days(1),
-                        cache    = TRUE,
-                        verbose  = is_verbose(gitstats),
+                        since = NULL,
+                        until = Sys.Date() + lubridate::days(1),
+                        cache = TRUE,
+                        verbose = is_verbose(gitstats),
                         progress = verbose) {
   start_time <- Sys.time()
   if (is.null(since)) {
