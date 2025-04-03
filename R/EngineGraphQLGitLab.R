@@ -172,20 +172,12 @@ EngineGraphQLGitLab <- R6::R6Class(
       if (length(repos_list) > 0) {
         repos_table <- purrr::map(repos_list, function(repo) {
           repo <- repo$node
-          repo[["repo_id"]] <- sub(".*/(\\d+)$", "\\1", repo$repo_id)
-          repo[["default_branch"]] <- repo$repository$rootRef %||% ""
-          repo$repository <- NULL
-          repo[["languages"]] <- if (length(repo$languages) > 0) {
+          languages <- if (length(repo$languages) > 0) {
             purrr::map_chr(repo$languages, ~ .$name) |>
               paste0(collapse = ", ")
           } else {
             ""
           }
-          repo[["created_at"]] <- gts_to_posixt(repo$created_at)
-          repo[["issues_open"]] <- repo$issues$opened
-          repo[["issues_closed"]] <- repo$issues$closed
-          repo$issues <- NULL
-          repo[["last_activity_at"]] <- as.POSIXct(repo$last_activity_at)
           if (!is.null(repo$namespace)) {
             org <- repo$namespace$path
           }
@@ -194,20 +186,22 @@ EngineGraphQLGitLab <- R6::R6Class(
               sub("^https://[^/]+", "", .) %>%
               sub("^/", "", .)
           }
-          repo[["organization"]] <- org
-          repo$namespace <- NULL
-          repo$repo_path <- NULL # temporary to close issue 338
-          return(data.frame(repo))
-        }) |>
-          purrr::list_rbind() |>
-          dplyr::relocate(
-            repo_url,
-            .after = organization
-          ) |>
-          dplyr::relocate(
-            default_branch,
-            .after = repo_name
+          data.frame(
+            repo_id = sub(".*/(\\d+)$", "\\1", repo$repo_id),
+            repo_name = repo$repo_name,
+            default_branch = repo$repository$rootRef %||% "",
+            stars = repo$stars,
+            forks = repo$forks,
+            created_at = gts_to_posixt(repo$created_at),
+            last_activity_at = as.POSIXct(repo$last_activity_at),
+            languages = languages,
+            issues_open = repo$issues$opened,
+            issues_closed = repo$issues$closed,
+            organization = org,
+            repo_url = repo$repo_url
           )
+        }) |>
+          purrr::list_rbind()
       } else {
         repos_table <- NULL
       }
