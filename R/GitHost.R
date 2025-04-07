@@ -200,16 +200,19 @@ GitHost <- R6::R6Class(
         issues_from_repos
       ) |>
         purrr::list_rbind() |>
-        dplyr::distinct() |>
-        dplyr::filter(
-          created_at >= since & created_at <= until
-        )
-      if (!is.null(state)) {
-        type <- state
+        dplyr::distinct()
+      if (nrow(issues_table) > 0) {
         issues_table <- issues_table |>
           dplyr::filter(
-            state == type
+            created_at >= since & created_at <= until
           )
+        if (!is.null(state)) {
+          type <- state
+          issues_table <- issues_table |>
+            dplyr::filter(
+              state == type
+            )
+        }
       }
       return(issues_table)
     },

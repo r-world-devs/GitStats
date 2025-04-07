@@ -44,18 +44,35 @@ test_that("get_issues works properly", {
     "private$get_issues_from_hosts",
     test_mocker$use("issues_table_from_hosts")
   )
-  suppressMessages(
-    issues_table <- test_gitstats$get_issues(
-      since = "2023-01-01",
-      until = "2025-03-06",
-      state = NULL,
-      verbose = FALSE
-    )
+  issues_table <- test_gitstats$get_issues(
+    since = "2023-01-01",
+    until = "2025-03-06",
+    state = NULL,
+    verbose = FALSE
   )
   expect_issues_table(
     issues_table
   )
   test_mocker$cache(issues_table)
+})
+
+
+test_that("get_issues() returns warning if issues table is empty", {
+  mockery::stub(
+    test_gitstats$get_issues,
+    "private$get_issues_from_hosts",
+    data.frame()
+  )
+  expect_snapshot(
+    issues_table <- test_gitstats$get_issues(
+      since = "2023-01-01",
+      until = "2025-03-06",
+      cache = FALSE,
+      state = NULL,
+      verbose = TRUE
+    )
+  )
+  expect_equal(nrow(issues_table), 0)
 })
 
 test_that("get_issues() works", {

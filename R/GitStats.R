@@ -188,14 +188,21 @@ GitStats <- R6::R6Class(
           until = until,
           verbose = verbose,
           progress = progress
-        ) |>
-          private$set_object_class(
+        )
+        if (nrow(commits) > 0) {
+          commits <- private$set_object_class(
+            object = commits,
             class = "gitstats_commits",
             attr_list = args_list
           )
-        private$save_to_storage(
-          table = commits
-        )
+          private$save_to_storage(
+            table = commits
+          )
+        } else {
+          if (verbose) {
+            cli::cli_alert_warning("No commits found.")
+          }
+        }
       } else {
         commits <- private$get_from_storage(
           table = "commits",
@@ -229,14 +236,21 @@ GitStats <- R6::R6Class(
           state = state,
           verbose = verbose,
           progress = progress
-        ) |>
-          private$set_object_class(
+        )
+        if (nrow(issues) > 0) {
+          issues <- private$set_object_class(
+            object = issues,
             class = "gitstats_issues",
             attr_list = args_list
           )
-        private$save_to_storage(
-          table = issues
-        )
+          private$save_to_storage(
+            table = issues
+          )
+        } else {
+          if (verbose) {
+            cli::cli_alert_warning("No issues found.")
+          }
+        }
       } else {
         issues <- private$get_from_storage(
           table = "issues",
