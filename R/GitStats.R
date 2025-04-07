@@ -386,23 +386,23 @@ GitStats <- R6::R6Class(
       )
       if (trigger) {
         R_package_usage <- private$get_repos_with_R_packages_from_hosts(
-          packages     = packages,
+          packages = packages,
           only_loading = only_loading,
           split_output = split_output,
-          verbose      = verbose
+          verbose = verbose
         )
         if ((!split_output && nrow(R_package_usage) > 0) ||
               (split_output && any(purrr::map_lgl(R_package_usage, ~ nrow(.) > 0)))) {
           R_package_usage <- private$set_object_class(
-            object    = R_package_usage,
-            class     = "gitstats_package_usage",
+            object = R_package_usage,
+            class = "gitstats_package_usage",
             attr_list = args_list
           )
           private$save_to_storage(R_package_usage)
         }
       } else {
         R_package_usage <- private$get_from_storage(
-          table   = "R_package_usage",
+          table = "R_package_usage",
           verbose = verbose
         )
       }
@@ -458,13 +458,13 @@ GitStats <- R6::R6Class(
 
     # @field storage for results
     storage = list(
-      repositories    = NULL,
-      commits         = NULL,
-      users           = NULL,
-      files           = NULL,
+      repositories = NULL,
+      commits = NULL,
+      users = NULL,
+      files = NULL,
       files_structure = NULL,
       R_package_usage = NULL,
-      release_logs    = NULL
+      release_logs = NULL
     ),
 
     # Add new host

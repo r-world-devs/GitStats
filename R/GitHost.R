@@ -156,15 +156,15 @@ GitHost <- R6::R6Class(
         )
       }
       commits_from_orgs <- private$get_commits_from_orgs(
-        since    = since,
-        until    = until,
-        verbose  = verbose,
+        since = since,
+        until = until,
+        verbose = verbose,
         progress = progress
       )
       commits_from_repos <- private$get_commits_from_repos(
-        since    = since,
-        until    = until,
-        verbose  = verbose,
+        since = since,
+        until = until,
+        verbose = verbose,
         progress = progress
       )
       commits_table <- list(
