@@ -1,3 +1,7 @@
+# GitStats (development version)
+
+- Fixed pulling GitLab repositories with no issues ([#616](https://github.com/r-world-devs/GitStats/issues/616)).
+
 # GitStats 2.3.0
 
 This release introduces the new functions to get data on organizations and issues, alongside several important fixes and optimizations, such as handling GitLab API limits more efficiently.  Additional enhancements include renamed function, added time usage information and shortened data-pulling messages.

@@ -156,15 +156,15 @@ GitHost <- R6::R6Class(
         )
       }
       commits_from_orgs <- private$get_commits_from_orgs(
-        since    = since,
-        until    = until,
-        verbose  = verbose,
+        since = since,
+        until = until,
+        verbose = verbose,
         progress = progress
       )
       commits_from_repos <- private$get_commits_from_repos(
-        since    = since,
-        until    = until,
-        verbose  = verbose,
+        since = since,
+        until = until,
+        verbose = verbose,
         progress = progress
       )
       commits_table <- list(
@@ -200,16 +200,19 @@ GitHost <- R6::R6Class(
         issues_from_repos
       ) |>
         purrr::list_rbind() |>
-        dplyr::distinct() |>
-        dplyr::filter(
-          created_at >= since & created_at <= until
-        )
-      if (!is.null(state)) {
-        type <- state
+        dplyr::distinct()
+      if (nrow(issues_table) > 0) {
         issues_table <- issues_table |>
           dplyr::filter(
-            state == type
+            created_at >= since & created_at <= until
           )
+        if (!is.null(state)) {
+          type <- state
+          issues_table <- issues_table |>
+            dplyr::filter(
+              state == type
+            )
+        }
       }
       return(issues_table)
     },
