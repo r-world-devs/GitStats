@@ -97,14 +97,21 @@ GitStats <- R6::R6Class(
           with_files = with_files,
           verbose = verbose,
           progress = progress
-        ) |>
-          private$set_object_class(
+        )
+        if (nrow(repositories) > 0) {
+          repositories <- private$set_object_class(
+            object = repositories,
             class = "gitstats_repos",
             attr_list = args_list
           )
-        private$save_to_storage(
-          table = repositories
-        )
+          private$save_to_storage(
+            table = repositories
+          )
+        } else {
+          if (verbose) {
+            cli::cli_alert_warning("No repositories found.")
+          }
+        }
       } else {
         repositories <- private$get_from_storage(
           table = "repositories",
@@ -350,12 +357,19 @@ GitStats <- R6::R6Class(
           until = until,
           verbose = verbose,
           progress = progress
-        ) |>
-          private$set_object_class(
+        )
+        if (nrow(release_logs) > 0) {
+          release_logs <- private$set_object_class(
+            object = release_logs,
             class = "gitstats_releases",
             attr_list = args_list
           )
-        private$save_to_storage(release_logs)
+          private$save_to_storage(release_logs)
+        } else {
+          if (verbose) {
+            cli::cli_alert_warning("No release logs found.")
+          }
+        }
       } else {
         release_logs <- private$get_from_storage(
           table = "release_logs",

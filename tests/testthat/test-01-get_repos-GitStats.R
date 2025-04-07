@@ -138,6 +138,21 @@ test_that("get_repos works properly and for the second time uses cache", {
   test_mocker$cache(repos_data)
 })
 
+test_that("get_repos returns warning when repositories table is empty", {
+  mockery::stub(
+    test_gitstats$get_repos,
+    "private$get_repos_from_hosts",
+    data.frame()
+  )
+  expect_snapshot(
+    repos_data <- test_gitstats$get_repos(
+      cache = FALSE,
+      verbose = TRUE
+    )
+  )
+  expect_equal(nrow(repos_data), 0)
+})
+
 test_that("get_repos works", {
   mockery::stub(
     get_repos,

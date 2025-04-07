@@ -29,6 +29,23 @@ test_that("get_release_logs works as expected", {
   test_mocker$cache(release_logs_table)
 })
 
+test_that("get_release_logs returns warning when releases table is empty", {
+  mockery::stub(
+    test_gitstats$get_release_logs,
+    "private$get_release_logs_from_hosts",
+    data.frame()
+  )
+  expect_snapshot(
+    release_logs_data <- test_gitstats$get_release_logs(
+      since = "2023-08-01",
+      until = "2023-09-30",
+      cache = FALSE,
+      verbose = TRUE
+    )
+  )
+  expect_equal(nrow(release_logs_data), 0)
+})
+
 test_that("get_release_logs works as expected", {
   mockery::stub(
     get_release_logs,
