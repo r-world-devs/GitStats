@@ -195,8 +195,8 @@ EngineGraphQLGitLab <- R6::R6Class(
             created_at = gts_to_posixt(repo$created_at),
             last_activity_at = as.POSIXct(repo$last_activity_at),
             languages = languages,
-            issues_open = repo$issues$opened,
-            issues_closed = repo$issues$closed,
+            issues_open = repo$issues$opened %||% 0,
+            issues_closed = repo$issues$closed %||% 0,
             organization = org,
             repo_url = repo$repo_url
           )
