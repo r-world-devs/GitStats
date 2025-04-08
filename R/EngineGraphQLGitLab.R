@@ -59,13 +59,14 @@ EngineGraphQLGitLab <- R6::R6Class(
           vars = list("groupCursor" = group_cursor)
         )
         if (length(response$data$groups$edges) == 0) {
-          cli::cli_abort(
-            c(
-              "x" = "Empty response.",
-              "!" = "Your token probably does not cover scope to pull organizations.",
-              "i" = "Set `read_api` scope when creating GitLab token."
-            )
-          )
+          if (verbose) {
+            cli::cli_alert_danger("Empty response")
+            if (private$is_query_error(response)) {
+              purrr::walk(response$errors, ~ cli::cli_alert_danger(.$message))
+            }
+          }
+          class(response) <- "graphql_error"
+          return(response)
         }
         if (output == "only_names") {
           orgs_list <- purrr::map(response$data$groups$edges, ~ .$node$fullPath)
@@ -80,6 +81,9 @@ EngineGraphQLGitLab <- R6::R6Class(
         all_orgs <- unlist(orgs_list)
       } else {
         all_orgs <- orgs_list
+      }
+      if (inherits(all_orgs[[1]], "graphql_error")) {
+        class(all_orgs) <- c("graphql_error", class(all_orgs))
       }
       return(all_orgs)
     },

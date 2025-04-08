@@ -27,6 +27,40 @@
     Message
       > [Host:GitLab][Engine:GraphQL] Pulling organizations...
 
+# if get_orgs runs into GraphQL error, it prints warnings and returns NULL
+
+    Code
+      gl_orgs_error_response <- test_graphql_gitlab$get_orgs(orgs_count = 3L, output = "full_table",
+        verbose = TRUE, progress = FALSE)
+    Message
+      > [Host:GitLab][Engine:GraphQL] Pulling organizations...
+      x Empty response
+      x Field 'groups' doesn't exist on type 'Query'
+      x Variable $groupCursor is declared by GetGroups but not used
+      x Empty response
+      x Field 'groups' doesn't exist on type 'Query'
+      x Variable $groupCursor is declared by GetGroups but not used
+
+# if get_orgs_from_host runs into GraphQL error, it switches to REST API
+
+    Code
+      gitlab_orgs_vec <- gitlab_test_host_priv_2$get_orgs_from_host(output = "only_names",
+        verbose = TRUE)
+    Message
+      > [Host:GitLab][Engine:REST] Pulling number of all organizations...
+      i  organizations found.
+      i Switching to REST API
+
+---
+
+    Code
+      gitlab_orgs_table <- gitlab_test_host_priv_2$get_orgs_from_host(output = "full_table",
+        verbose = TRUE)
+    Message
+      > [Host:GitLab][Engine:REST] Pulling number of all organizations...
+      i  organizations found.
+      i Switching to REST API
+
 # get_orgs_from_host prints message on number of organizations
 
     Code

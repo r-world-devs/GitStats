@@ -23,3 +23,9 @@ git_stats <- create_gitstats() |>
 get_orgs(git_stats)
 
 git_stats
+
+gitlab_stats <- create_gitstats() |>
+  set_gitlab_host(
+    orgs = "mbtests"
+  )
+get_orgs(gitlab_stats)

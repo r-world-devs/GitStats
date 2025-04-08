@@ -5,6 +5,7 @@
 GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
   public = list(
 
+    #' GitLab >= 14.3
     groups = function() {
       paste0(
         'query GetGroups($groupCursor: String!) {

@@ -14,12 +14,47 @@ EngineRestGitLab <- R6::R6Class(
       return(orgs_response$headers$`x-total`)
     },
 
+    get_orgs = function(orgs_count, verbose) {
+      if (verbose) {
+        cli::cli_alert("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling organizations...")
+      }
+      iterations_number <- round(orgs_count / 100)
+      orgs_list <- purrr::map(1:iterations_number, function(page) {
+        self$response(
+          paste0(
+            private$endpoints[["organizations"]],
+            "?all_available=true",
+            "&pagination=keyset",
+            "&per_page=100&page=",
+            page
+          )
+        )
+      }, .progress = verbose) |>
+        purrr::list_flatten()
+      return(orgs_list)
+    },
+
+    prepare_orgs_table = function(orgs_list) {
+      purrr::map(orgs_list, function(org) {
+        data.frame(
+          name = org$name,
+          description = org$description,
+          path = org$path,
+          url = org$web_url,
+          avatar_url = org$avatar_url %||% NA_character_,
+          repos_count = NA_integer_,
+          members_count = NA_integer_
+        )
+      }) |>
+        purrr::list_rbind()
+    },
+
     # Pull repositories with files
-    get_files = function(file_paths          = NULL,
-                         org                 = NULL,
+    get_files = function(file_paths = NULL,
+                         org = NULL,
                          clean_files_content = TRUE,
-                         verbose             = TRUE,
-                         progress            = TRUE) {
+                         verbose = TRUE,
+                         progress = TRUE) {
       files_list <- list()
       file_paths <- utils::URLencode(file_paths, reserved = TRUE)
       files_list <- purrr::map(file_paths, function(filename) {
