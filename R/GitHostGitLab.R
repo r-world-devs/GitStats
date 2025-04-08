@@ -152,7 +152,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           cli::cli_alert_info("Switching to REST API")
         }
         orgs <- rest_engine$get_orgs(
-          orgs_count = orgs_count,
+          orgs_count = as.integer(orgs_count),
           verbose = verbose
         )
         if (output == "full_table") {
