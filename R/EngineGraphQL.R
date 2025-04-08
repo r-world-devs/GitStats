@@ -124,6 +124,10 @@ EngineGraphQL <- R6::R6Class(
       return(check)
     },
 
+    is_no_fields_query_error = function(response) {
+      any(purrr::map_lgl(response$errors, ~ grepl("doesn't exist on type", .$message)))
+    },
+
     filter_files_by_pattern = function(files_structure, pattern) {
       files_structure[grepl(paste0(pattern, collapse = "|"), files_structure)]
     },

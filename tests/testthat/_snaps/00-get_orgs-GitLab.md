@@ -34,12 +34,9 @@
         verbose = TRUE, progress = FALSE)
     Message
       > [Host:GitLab][Engine:GraphQL] Pulling organizations...
-      x Empty response
-      x Field 'groups' doesn't exist on type 'Query'
-      x Variable $groupCursor is declared by GetGroups but not used
-      x Empty response
-      x Field 'groups' doesn't exist on type 'Query'
-      x Variable $groupCursor is declared by GetGroups but not used
+      x GraphQL returned errors.
+      x Your GraphQL does not see some fields specified in query.
+      x Check version of your GitLab.
 
 # if get_orgs_from_host runs into GraphQL error, it switches to REST API
 

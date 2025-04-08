@@ -58,32 +58,36 @@ EngineGraphQLGitLab <- R6::R6Class(
           gql_query = self$gql_query$groups(),
           vars = list("groupCursor" = group_cursor)
         )
-        if (length(response$data$groups$edges) == 0) {
-          if (verbose) {
-            cli::cli_alert_danger("Empty response")
-            if (private$is_query_error(response)) {
-              purrr::walk(response$errors, ~ cli::cli_alert_danger(.$message))
-            }
+        if (private$is_query_error(response)) {
+          class(response) <- c(class(response), "graphql_error")
+          if (private$is_no_fields_query_error(response)) {
+            class(response) <- c(class(response), "graphql_no_fields_error")
           }
-          class(response) <- "graphql_error"
           return(response)
-        }
-        if (output == "only_names") {
-          orgs_list <- purrr::map(response$data$groups$edges, ~ .$node$fullPath)
         } else {
-          orgs_list <- purrr::map(response$data$groups$edges, ~ .$node)
+          if (output == "only_names") {
+            orgs_list <- purrr::map(response$data$groups$edges, ~ .$node$fullPath)
+          } else {
+            orgs_list <- purrr::map(response$data$groups$edges, ~ .$node)
+          }
+          group_cursor <<- response$data$groups$pageInfo$endCursor
+          return(orgs_list)
         }
-        group_cursor <<- response$data$groups$pageInfo$endCursor
-        return(orgs_list)
       }, .progress = TRUE) |>
         purrr::list_flatten()
-      if (output == "only_names") {
-        all_orgs <- unlist(orgs_list)
-      } else {
+      if (any(purrr::map_lgl(orgs_list, ~ inherits(., "graphql_error")))) {
+        class(orgs_list) <- c("graphql_error", class(orgs_list))
+        if (verbose) cli::cli_alert_danger("GraphQL returned errors.")
+        check <- any(purrr::map_lgl(orgs_list, ~ inherits(., "graphql_no_fields_error")))
+        if (check && verbose) {
+          cli::cli_alert_danger("Your GraphQL does not see some fields specified in query.")
+          cli::cli_alert_danger("Check version of your GitLab.")
+        }
         all_orgs <- orgs_list
-      }
-      if (inherits(all_orgs[[1]], "graphql_error")) {
-        class(all_orgs) <- c("graphql_error", class(all_orgs))
+      } else if (output == "only_names") {
+        all_orgs <- unlist(orgs_list)
+      } else if (output == "full_table") {
+        all_orgs <- orgs_list
       }
       return(all_orgs)
     },
