@@ -128,7 +128,7 @@ EngineRestGitLab <- R6::R6Class(
           if (length(repo$languages) == 0) {
             repo_languages <- ""
           } else {
-            repo_languages <- repo$languages
+            repo_languages <- paste0(repo$languages, collapse = ", ")
           }
           data.frame(
             repo_id = repo$id,
