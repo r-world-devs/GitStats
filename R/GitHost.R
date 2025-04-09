@@ -817,13 +817,41 @@ GitHost <- R6::R6Class(
               information = "Pulling repositories"
             )
           }
-          repos_table <- graphql_engine$get_repos_from_org(
+          repos_from_org <- graphql_engine$get_repos_from_org(
             org = org,
             type = type,
             verbose = verbose
-          ) |>
-            graphql_engine$prepare_repos_table() |>
-            dplyr::filter(repo_name %in% private$orgs_repos[[org]])
+          )
+          if (!inherits(repos_from_org, "graphql_error")) {
+            if (length(repos_from_org) > 0) {
+              repos_table <- repos_from_org |>
+                graphql_engine$prepare_repos_table() |>
+                dplyr::filter(repo_name %in% private$orgs_repos[[org]])
+            } else {
+              repos_table <- NULL
+            }
+          } else {
+            if (verbose) {
+              cli::cli_alert_info("Switching to REST API")
+              show_message(
+                host = private$host_name,
+                engine = "rest",
+                scope = org,
+                information = "Pulling repositories"
+              )
+            }
+            rest_engine <- private$engines$rest
+            repos_table <- rest_engine$get_repos_from_org(
+              org = org,
+              type = type,
+              repos = private$orgs_repos[[org]],
+              output = "full_table",
+              verbose = verbose
+            ) |>
+              rest_engine$prepare_repos_table(
+                org = org
+              )
+          }
           return(repos_table)
         }, .progress = progress) |>
           purrr::list_rbind()
