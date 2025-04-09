@@ -13,32 +13,32 @@ GitHost <- R6::R6Class(
     #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
     #'   output is switched off.
     #' @return A new `GitHost` object.
-    initialize = function(orgs    = NA,
-                          repos   = NA,
-                          token   = NA,
-                          host    = NA,
+    initialize = function(orgs = NA,
+                          repos = NA,
+                          token = NA,
+                          host = NA,
                           verbose = NA,
-                          .error  = TRUE) {
+                          .error = TRUE) {
       private$set_api_url(host)
       private$set_web_url(host)
       private$set_endpoints()
       private$check_if_public(host)
       private$set_token(
-        token   = token,
+        token = token,
         verbose = verbose
       )
       private$set_graphql_url()
       private$set_searching_scope(
-        orgs    = orgs,
-        repos   = repos,
+        orgs = orgs,
+        repos = repos,
         verbose = verbose
       )
       private$setup_engines()
       private$set_orgs_and_repos(
-        orgs    = orgs,
-        repos   = repos,
+        orgs = orgs,
+        repos = repos,
         verbose = verbose,
-        .error  = .error
+        .error = .error
       )
     },
 
