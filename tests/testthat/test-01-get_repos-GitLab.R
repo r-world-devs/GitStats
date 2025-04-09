@@ -197,6 +197,59 @@ test_that("get_repos_from_org handles properly a GraphQL query error", {
   )
 })
 
+test_that("`get_repos_languages()` works", {
+  repos_list <- test_fixtures$gitlab_repositories_rest_response
+  mockery::stub(
+    test_rest_gitlab_priv$get_repos_languages,
+    "self$response",
+    test_fixtures$gitlab_languages_response
+  )
+  gl_repos_list_with_languages <- test_rest_gitlab_priv$get_repos_languages(
+    repos_list = repos_list,
+    progress   = FALSE
+  )
+  purrr::walk(gl_repos_list_with_languages, ~ expect_list_contains(., "languages"))
+  expect_equal(gl_repos_list_with_languages[[1]]$languages, c("Python", "R"))
+  test_mocker$cache(gl_repos_list_with_languages)
+})
+
+test_that("REST engine pulls repositories from organization", {
+  mockery::stub(
+    test_rest_gitlab$get_repos_from_org,
+    "private$paginate_results",
+    test_fixtures$gitlab_repositories_rest_response
+  )
+  mockery::stub(
+    test_rest_gitlab$get_repos_from_org,
+    "private$get_repos_languages",
+    test_mocker$use("gl_repos_list_with_languages")
+  )
+  gitlab_rest_repos_from_org_raw <- test_rest_gitlab$get_repos_from_org(
+    org = "test_org",
+    repos =  c("testRepo1", "testRepo2"),
+    type = "organization",
+    output = "raw"
+  )
+  expect_length(gitlab_rest_repos_from_org_raw, 2L)
+  test_mocker$cache(gitlab_rest_repos_from_org_raw)
+  gitlab_rest_repos_from_org <- test_rest_gitlab$get_repos_from_org(
+    org = "test_org",
+    type = "organization",
+    output = "full_table"
+  )
+  purrr::walk(gitlab_rest_repos_from_org, ~ expect_true("languages" %in% names(.)))
+  test_mocker$cache(gitlab_rest_repos_from_org)
+})
+
+test_that("REST engine prepares repositories table", {
+  gitlab_rest_repos_table <- test_rest_gitlab$prepare_repos_table(
+    repos_list = test_mocker$use("gitlab_rest_repos_from_org"),
+    org = "test_org"
+  )
+  expect_repos_table(gitlab_rest_repos_table)
+  test_mocker$cache(gitlab_rest_repos_table)
+})
+
 test_that("`search_for_code()` works", {
   mockery::stub(
     test_rest_gitlab$search_for_code,
@@ -230,24 +283,7 @@ test_that("`search_repos_for_code()` works", {
   )
 })
 
-test_that("`get_repos_languages()` works", {
-  repos_list <- test_mocker$use("gl_repos_from_org")
-  repos_list[[1]]$id <- "45300912"
-  mockery::stub(
-    test_rest_gitlab_priv$get_repos_languages,
-    "self$response",
-    test_fixtures$gitlab_languages_response
-  )
-  gl_repos_list_with_languages <- test_rest_gitlab_priv$get_repos_languages(
-    repos_list = repos_list,
-    progress   = FALSE
-  )
-  purrr::walk(gl_repos_list_with_languages, ~ expect_list_contains(., "languages"))
-  expect_equal(gl_repos_list_with_languages[[1]]$languages, c("Python", "R"))
-  test_mocker$cache(gl_repos_list_with_languages)
-})
-
-test_that("`prepare_repos_table()` prepares repos table", {
+test_that("GraphQL engine prepares repos table", {
   gl_repos_table <- test_graphql_gitlab$prepare_repos_table(
     repos_list = test_mocker$use("gl_repos_from_org"),
     org = "test_group"

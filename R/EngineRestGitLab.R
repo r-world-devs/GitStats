@@ -78,10 +78,9 @@ EngineRestGitLab <- R6::R6Class(
       return(files_list)
     },
 
-    # Pull all repositories URLs from organization
-    get_repos_urls = function(type, org, repos) {
+    get_repos_from_org = function(type, org, repos = NULL, output = "full_table", verbose = FALSE) {
       owner_type <- attr(org, "type")
-      owner_endpoint <- if (owner_type == "organization") {
+      owner_endpoint <- if (type == "organization") {
         private$endpoints[["organizations"]]
       } else {
         private$endpoints[["users"]]
@@ -95,6 +94,23 @@ EngineRestGitLab <- R6::R6Class(
         repos_response <- repos_response %>%
           purrr::keep(~ .$path %in% repos)
       }
+      if (output == "full_table") {
+        repos_response <- repos_response |>
+          private$get_repos_languages(
+            progress = verbose
+          )
+      }
+      return(repos_response)
+    },
+
+    # Pull all repositories URLs from organization
+    get_repos_urls = function(type, org, repos) {
+      repos_response <- self$get_repos_from_org(
+        type = type,
+        org = org,
+        repos = repos,
+        output = "raw"
+      )
       repos_urls <- repos_response %>%
         purrr::map_vec(function(project) {
           if (type == "api") {
@@ -104,6 +120,35 @@ EngineRestGitLab <- R6::R6Class(
           }
         })
       return(repos_urls)
+    },
+
+    prepare_repos_table = function(repos_list, org) {
+      if (length(repos_list) > 0) {
+        purrr::map(repos_list, function(repo) {
+          if (length(repo$languages) == 0) {
+            repo_languages <- ""
+          } else {
+            repo_languages <- repo$languages
+          }
+          data.frame(
+            repo_id = repo$id,
+            repo_name = repo$name,
+            default_branch = repo$default_branch %||% "",
+            stars = repo$star_count,
+            forks = repo$forks_count,
+            created_at = gts_to_posixt(repo$created_at),
+            last_activity_at = as.POSIXct(repo$last_activity_at),
+            languages = repo_languages,
+            issues_open = repo$open_issues_count %||% 0,
+            issues_closed = NA_integer_,
+            organization = org,
+            repo_url = repo$web_url
+          )
+        }) |>
+          purrr::list_rbind()
+      } else {
+        NULL
+      }
     },
 
     #' Add information on repository contributors.
@@ -393,19 +438,6 @@ EngineRestGitLab <- R6::R6Class(
         utils::URLencode(repo, reserved = TRUE),
         "/search?scope=blobs&search="
       )
-    },
-
-    # Iterator over pulling pages of repositories.
-    get_repos_from_org = function(org, progress) {
-      repo_endpoint <- paste0(self$rest_api_url, "/groups/", org, "/projects")
-      repos_response <- private$paginate_results(
-        endpoint = repo_endpoint
-      )
-      full_repos_list <- repos_response %>%
-        private$get_repos_languages(
-          progress = progress
-        )
-      return(full_repos_list)
     },
 
     # Pull languages of repositories.

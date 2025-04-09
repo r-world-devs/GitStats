@@ -763,14 +763,36 @@ GitHost <- R6::R6Class(
             type = type,
             verbose = verbose
           )
-          if (length(repos_from_org) > 0) {
-            repos_table <- repos_from_org |>
-              graphql_engine$prepare_repos_table(
-                org = unclass(org)
-              ) |>
-              dplyr::filter(organization == unclass(org))
+          if (!inherits(repos_from_org, "graphql_error")) {
+            if (length(repos_from_org) > 0) {
+              repos_table <- repos_from_org |>
+                graphql_engine$prepare_repos_table(
+                  org = unclass(org)
+                ) |>
+                dplyr::filter(organization == unclass(org))
+            } else {
+              repos_table <- NULL
+            }
           } else {
-            repos_table <- NULL
+            if (verbose) {
+              cli::cli_alert_info("Switching to REST API")
+              show_message(
+                host = private$host_name,
+                engine = "rest",
+                scope = org,
+                information = "Pulling repositories"
+              )
+            }
+            rest_engine <- private$engines$rest
+            repos_table <- rest_engine$get_repos_from_org(
+              org = org,
+              type = type,
+              output = "full_table",
+              verbose = verbose
+            ) |>
+             rest_engine$prepare_repos_table(
+               org = org
+             )
           }
           return(repos_table)
         }, .progress = progress) |>
