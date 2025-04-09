@@ -790,9 +790,9 @@ GitHost <- R6::R6Class(
               output = "full_table",
               verbose = verbose
             ) |>
-             rest_engine$prepare_repos_table(
-               org = org
-             )
+              rest_engine$prepare_repos_table(
+                org = org
+              )
           }
           return(repos_table)
         }, .progress = progress) |>
