@@ -183,18 +183,36 @@ test_that("get_repos_page handles properly a GraphQL query error", {
   test_mocker$cache(repos_graphql_error)
 })
 
+test_that("error handler works correctly", {
+  output <- handle_graphql_error(
+    responses_list = test_mocker$use("repos_graphql_error"),
+    verbose = FALSE
+  )
+  expect_s3_class(output, "graphql_error")
+})
+
+test_that("error handler prints proper messages", {
+  expect_snapshot(
+    output <- handle_graphql_error(
+      responses_list = test_mocker$use("repos_graphql_error"),
+      verbose = TRUE
+    )
+  )
+})
+
 test_that("get_repos_from_org handles properly a GraphQL query error", {
   mockery::stub(
     test_graphql_gitlab$get_repos_from_org,
     "private$get_repos_page",
     test_mocker$use("repos_graphql_error")
   )
-  expect_snapshot(
-    repos_error <- test_graphql_gitlab$get_repos_from_org(
-      org = "test_org",
-      type = "organization"
-    )
+  gitlab_repos_error <- test_graphql_gitlab$get_repos_from_org(
+    org = "test_org",
+    type = "organization",
+    verbose = FALSE
   )
+  expect_s3_class(gitlab_repos_error, "graphql_error")
+  test_mocker$cache(gitlab_repos_error)
 })
 
 test_that("`get_repos_languages()` works", {
@@ -311,6 +329,43 @@ test_that("get_repos_from_org prints proper message", {
     gl_repos_from_orgs
   )
   test_mocker$cache(gl_repos_from_orgs)
+})
+
+test_that("GitLab Host turns to REST if GraphQL fails with error", {
+  mockery::stub(
+    gitlab_testhost_priv$get_repos_from_orgs,
+    "graphql_engine$get_repos_from_org",
+    test_mocker$use("gitlab_repos_error")
+  )
+  mockery::stub(
+    gitlab_testhost_priv$get_repos_from_orgs,
+    "rest_engine$prepare_repos_table",
+    test_mocker$use("gitlab_rest_repos_table")
+  )
+  gl_repos_from_orgs <- gitlab_testhost_priv$get_repos_from_orgs(
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_repos_table(gl_repos_from_orgs)
+})
+
+test_that("GitLab Host prints message when turning to REST engine", {
+  mockery::stub(
+    gitlab_testhost_priv$get_repos_from_orgs,
+    "graphql_engine$get_repos_from_org",
+    test_mocker$use("gitlab_repos_error")
+  )
+  mockery::stub(
+    gitlab_testhost_priv$get_repos_from_orgs,
+    "rest_engine$prepare_repos_table",
+    test_mocker$use("gitlab_rest_repos_table")
+  )
+  expect_snapshot(
+    gl_repos_from_orgs <- gitlab_testhost_priv$get_repos_from_orgs(
+      verbose = TRUE,
+      progress = FALSE
+    )
+  )
 })
 
 test_that("get_repos_ids", {
