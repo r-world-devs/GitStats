@@ -195,6 +195,25 @@ EngineRestGitLab <- R6::R6Class(
       return(search_response)
     },
 
+    # Pull all commits from given repositories.
+    get_commits_from_repos = function(repos_names,
+                                      since,
+                                      until,
+                                      progress) {
+      repos_list_with_commits <- purrr::map(repos_names, function(repo_path) {
+        commits_from_repo <- private$get_commits_from_one_repo(
+          repo_path = repo_path,
+          since = since,
+          until = until
+        )
+        return(commits_from_repo)
+      }, .progress = !private$scan_all && progress)
+      names(repos_list_with_commits) <- repos_names
+      repos_list_with_commits <- repos_list_with_commits %>%
+        purrr::discard(~ length(.) == 0)
+      return(repos_list_with_commits)
+    },
+
     # Get only important info on commits.
     tailor_commits_info = function(repos_list_with_commits,
                                    org) {
@@ -286,25 +305,6 @@ EngineRestGitLab <- R6::R6Class(
         }, .progress = progress)
       }
       return(repos_table)
-    },
-
-    # Pull all commits from give repositories.
-    get_commits_from_repos = function(repos_names,
-                                      since,
-                                      until,
-                                      progress) {
-      repos_list_with_commits <- purrr::map(repos_names, function(repo_path) {
-        commits_from_repo <- private$get_commits_from_one_repo(
-          repo_path = repo_path,
-          since = since,
-          until = until
-        )
-        return(commits_from_repo)
-      }, .progress = !private$scan_all && progress)
-      names(repos_list_with_commits) <- repos_names
-      repos_list_with_commits <- repos_list_with_commits %>%
-        purrr::discard(~ length(.) == 0)
-      return(repos_list_with_commits)
     },
 
     # A method to get separately GL logins and display names
