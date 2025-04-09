@@ -242,17 +242,17 @@ test_that("REST engine pulls repositories from organization", {
     "private$get_repos_languages",
     test_mocker$use("gl_repos_list_with_languages")
   )
+  test_org <- "test_org"
+  attr(test_org, "type") <- "organization"
   gitlab_rest_repos_from_org_raw <- test_rest_gitlab$get_repos_from_org(
-    org = "test_org",
+    org = test_org,
     repos =  c("testRepo1", "testRepo2"),
-    type = "organization",
     output = "raw"
   )
   expect_length(gitlab_rest_repos_from_org_raw, 2L)
   test_mocker$cache(gitlab_rest_repos_from_org_raw)
   gitlab_rest_repos_from_org <- test_rest_gitlab$get_repos_from_org(
-    org = "test_org",
-    type = "organization",
+    org = test_org,
     output = "full_table"
   )
   purrr::walk(gitlab_rest_repos_from_org, ~ expect_true("languages" %in% names(.)))

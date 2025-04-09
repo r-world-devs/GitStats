@@ -78,9 +78,9 @@ EngineRestGitLab <- R6::R6Class(
       return(files_list)
     },
 
-    get_repos_from_org = function(type, org, repos = NULL, output = "full_table", verbose = FALSE) {
+    get_repos_from_org = function(org, repos = NULL, output = "full_table", verbose = FALSE) {
       owner_type <- attr(org, "type")
-      owner_endpoint <- if (type == "organization") {
+      owner_endpoint <- if (owner_type == "organization") {
         private$endpoints[["organizations"]]
       } else {
         private$endpoints[["users"]]
@@ -106,7 +106,6 @@ EngineRestGitLab <- R6::R6Class(
     # Pull all repositories URLs from organization
     get_repos_urls = function(type, org, repos) {
       repos_response <- self$get_repos_from_org(
-        type = type,
         org = org,
         repos = repos,
         output = "raw"
