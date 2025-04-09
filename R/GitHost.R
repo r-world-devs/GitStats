@@ -760,7 +760,8 @@ GitHost <- R6::R6Class(
           }
           repos_from_org <- graphql_engine$get_repos_from_org(
             org = org,
-            type = type
+            type = type,
+            verbose = verbose
           )
           if (length(repos_from_org) > 0) {
             repos_table <- repos_from_org |>
@@ -796,7 +797,8 @@ GitHost <- R6::R6Class(
           }
           repos_table <- graphql_engine$get_repos_from_org(
             org = org,
-            type = type
+            type = type,
+            verbose = verbose
           ) |>
             graphql_engine$prepare_repos_table() |>
             dplyr::filter(repo_name %in% private$orgs_repos[[org]])
@@ -1068,7 +1070,8 @@ GitHost <- R6::R6Class(
           owner_type <- attr(org, "type") %||% "organization"
           repos_from_org <- graphql_engine$get_repos_from_org(
             org = org,
-            type = owner_type
+            type = owner_type,
+            verbose = verbose
           )
           repos_response <- repos_from_org |>
             purrr::keep(function(repo) {

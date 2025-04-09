@@ -137,7 +137,8 @@ EngineGraphQLGitHub <- R6::R6Class(
 
     # Pull all repositories from organization
     get_repos_from_org = function(org = NULL,
-                                  type = c("organization", "user")) {
+                                  type = c("organization", "user"),
+                                  verbose = TRUE) {
       full_repos_list <- list()
       next_page <- TRUE
       repo_cursor <- ""

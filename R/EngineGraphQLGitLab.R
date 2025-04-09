@@ -75,18 +75,14 @@ EngineGraphQLGitLab <- R6::R6Class(
         }
       }, .progress = TRUE) |>
         purrr::list_flatten()
-      if (any(purrr::map_lgl(orgs_list, ~ inherits(., "graphql_error")))) {
-        class(orgs_list) <- c("graphql_error", class(orgs_list))
-        if (verbose) cli::cli_alert_danger("GraphQL returned errors.")
-        check <- any(purrr::map_lgl(orgs_list, ~ inherits(., "graphql_no_fields_error")))
-        if (check && verbose) {
-          cli::cli_alert_danger("Your GraphQL does not see some fields specified in query.")
-          cli::cli_alert_danger("Check version of your GitLab.")
+      orgs_list <- handle_graphql_error(orgs_list, verbose)
+      if (!inherits(orgs_list, "graphql_error")) {
+        if (output == "only_names") {
+          all_orgs <- unlist(orgs_list)
+        } else if (output == "full_table") {
+          all_orgs <- orgs_list
         }
-        all_orgs <- orgs_list
-      } else if (output == "only_names") {
-        all_orgs <- unlist(orgs_list)
-      } else if (output == "full_table") {
+      } else {
         all_orgs <- orgs_list
       }
       return(all_orgs)
@@ -127,25 +123,32 @@ EngineGraphQLGitLab <- R6::R6Class(
           type = "projects",
           repo_cursor = repo_cursor
         )
-        core_response <- repos_response$data$projects
-        repos_list <- core_response$edges
-        next_page <- core_response$pageInfo$hasNextPage
-        if (is.null(next_page)) next_page <- FALSE
-        if (is.null(repos_list)) repos_list <- list()
-        if (length(repos_list) == 0) next_page <- FALSE
-        if (next_page) {
-          repo_cursor <- core_response$pageInfo$endCursor
+        if (inherits(repos_response, "graphql_error")) {
+          full_repos_list <- repos_response
+          break
         } else {
-          repo_cursor <- ""
+          core_response <- repos_response$data$projects
+          repos_list <- core_response$edges
+          next_page <- core_response$pageInfo$hasNextPage
+          if (is.null(next_page)) next_page <- FALSE
+          if (is.null(repos_list)) repos_list <- list()
+          if (length(repos_list) == 0) next_page <- FALSE
+          if (next_page) {
+            repo_cursor <- core_response$pageInfo$endCursor
+          } else {
+            repo_cursor <- ""
+          }
+          full_repos_list <- append(full_repos_list, repos_list)
         }
-        full_repos_list <- append(full_repos_list, repos_list)
       }
+      full_repos_list <- handle_graphql_error(full_repos_list, verbose)
       return(full_repos_list)
     },
 
     # Iterator over pulling pages of repositories.
     get_repos_from_org = function(org  = NULL,
-                                  type = c("organization", "user")) {
+                                  type = c("organization", "user"),
+                                  verbose = TRUE) {
       full_repos_list <- list()
       next_page <- TRUE
       repo_cursor <- ""
@@ -155,23 +158,29 @@ EngineGraphQLGitLab <- R6::R6Class(
           type = type,
           repo_cursor = repo_cursor
         )
-        core_response <- if (type == "organization") {
-          repos_response$data$group$projects
+        if (inherits(repos_response, "graphql_error")) {
+          full_repos_list <- repos_response
+          break
         } else {
-          repos_response$data$projects
+          core_response <- if (type == "organization") {
+            repos_response$data$group$projects
+          } else {
+            repos_response$data$projects
+          }
+          repos_list <- core_response$edges
+          next_page <- core_response$pageInfo$hasNextPage
+          if (is.null(next_page)) next_page <- FALSE
+          if (is.null(repos_list)) repos_list <- list()
+          if (length(repos_list) == 0) next_page <- FALSE
+          if (next_page) {
+            repo_cursor <- core_response$pageInfo$endCursor
+          } else {
+            repo_cursor <- ""
+          }
+          full_repos_list <- append(full_repos_list, repos_list)
         }
-        repos_list <- core_response$edges
-        next_page <- core_response$pageInfo$hasNextPage
-        if (is.null(next_page)) next_page <- FALSE
-        if (is.null(repos_list)) repos_list <- list()
-        if (length(repos_list) == 0) next_page <- FALSE
-        if (next_page) {
-          repo_cursor <- core_response$pageInfo$endCursor
-        } else {
-          repo_cursor <- ""
-        }
-        full_repos_list <- append(full_repos_list, repos_list)
       }
+      full_repos_list <- handle_graphql_error(full_repos_list, verbose)
       return(full_repos_list)
     },
 
@@ -578,6 +587,13 @@ EngineGraphQLGitLab <- R6::R6Class(
             "projects_ids" = as.character(projects_ids)
           )
         )
+      }
+      if (private$is_query_error(response)) {
+        class(response) <- c(class(response), "graphql_error")
+        if (private$is_no_fields_query_error(response)) {
+          class(response) <- c(class(response), "graphql_no_fields_error")
+        }
+        return(response)
       }
       return(response)
     },

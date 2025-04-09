@@ -294,7 +294,8 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       type <- attr(org, "type") %||% "organization"
       repos_names <- graphql_engine$get_repos_from_org(
         org = utils::URLdecode(org),
-        type = type
+        type = type,
+        verbose = verbose
       ) |>
         purrr::map_vec(~ .$node$repo_path)
       return(repos_names)

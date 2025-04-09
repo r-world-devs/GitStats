@@ -35,7 +35,7 @@
     Message
       > [Host:GitLab][Engine:GraphQL] Pulling organizations...
       x GraphQL returned errors.
-      x Your GraphQL does not see some fields specified in query.
+      x Your GraphQL does not recognize [groups] field.
       x Check version of your GitLab.
 
 # if get_orgs_from_host runs into GraphQL error, it switches to REST API
