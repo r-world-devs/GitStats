@@ -78,6 +78,59 @@ EngineRestGitLab <- R6::R6Class(
       return(files_list)
     },
 
+    # Pull all repositories URLs from organization
+    get_repos_urls = function(type, org, repos) {
+      owner_type <- attr(org, "type")
+      owner_endpoint <- if (owner_type == "organization") {
+        private$endpoints[["organizations"]]
+      } else {
+        private$endpoints[["users"]]
+      }
+      repos_response <- private$paginate_results(
+        endpoint = paste0(owner_endpoint,
+                          utils::URLencode(org, reserved = TRUE),
+                          "/projects")
+      )
+      if (!is.null(repos)) {
+        repos_response <- repos_response %>%
+          purrr::keep(~ .$path %in% repos)
+      }
+      repos_urls <- repos_response %>%
+        purrr::map_vec(function(project) {
+          if (type == "api") {
+            project$`_links`$self
+          } else {
+            project$web_url
+          }
+        })
+      return(repos_urls)
+    },
+
+    #' Add information on repository contributors.
+    get_repos_contributors = function(repos_table, progress) {
+      if (nrow(repos_table) > 0) {
+        repo_urls <- repos_table$api_url
+        user_name <- rlang::expr(.$name)
+        repos_table$contributors <- purrr::map_chr(repo_urls, function(repo_url) {
+          contributors_endpoint <- paste0(
+            repo_url,
+            "/repository/contributors"
+          )
+          contributors_vec <- tryCatch({
+            private$get_contributors_from_repo(
+              contributors_endpoint = contributors_endpoint,
+              user_name = user_name
+            )
+          },
+          error = function(e) {
+            NA
+          })
+          return(contributors_vec)
+        }, .progress = progress)
+      }
+      return(repos_table)
+    },
+
     # Prepare files table from REST API.
     prepare_files_table = function(files_list) {
       files_table <- NULL
@@ -252,59 +305,6 @@ EngineRestGitLab <- R6::R6Class(
         )
       }
       return(commits_dt)
-    },
-
-    # Pull all repositories URLs from organization
-    get_repos_urls = function(type, org, repos) {
-      owner_type <- attr(org, "type")
-      owner_endpoint <- if (owner_type == "organization") {
-        private$endpoints[["organizations"]]
-      } else {
-        private$endpoints[["users"]]
-      }
-      repos_response <- private$paginate_results(
-        endpoint = paste0(owner_endpoint,
-                          utils::URLencode(org, reserved = TRUE),
-                          "/projects")
-      )
-      if (!is.null(repos)) {
-        repos_response <- repos_response %>%
-          purrr::keep(~ .$path %in% repos)
-      }
-      repos_urls <- repos_response %>%
-        purrr::map_vec(function(project) {
-          if (type == "api") {
-            project$`_links`$self
-          } else {
-            project$web_url
-          }
-        })
-      return(repos_urls)
-    },
-
-    #' Add information on repository contributors.
-    get_repos_contributors = function(repos_table, progress) {
-      if (nrow(repos_table) > 0) {
-        repo_urls <- repos_table$api_url
-        user_name <- rlang::expr(.$name)
-        repos_table$contributors <- purrr::map_chr(repo_urls, function(repo_url) {
-          contributors_endpoint <- paste0(
-            repo_url,
-            "/repository/contributors"
-          )
-          contributors_vec <- tryCatch({
-            private$get_contributors_from_repo(
-              contributors_endpoint = contributors_endpoint,
-              user_name = user_name
-            )
-          },
-          error = function(e) {
-            NA
-          })
-          return(contributors_vec)
-        }, .progress = progress)
-      }
-      return(repos_table)
     },
 
     # A method to get separately GL logins and display names
