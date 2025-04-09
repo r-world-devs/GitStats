@@ -58,13 +58,8 @@ EngineGraphQLGitLab <- R6::R6Class(
           gql_query = self$gql_query$groups(),
           vars = list("groupCursor" = group_cursor)
         )
-        if (private$is_query_error(response)) {
-          class(response) <- c(class(response), "graphql_error")
-          if (private$is_no_fields_query_error(response)) {
-            class(response) <- c(class(response), "graphql_no_fields_error")
-          }
-          return(response)
-        } else {
+        response <- set_graphql_error_class(response)
+        if (!inherits(response, "graphql_error")) {
           if (output == "only_names") {
             orgs_list <- purrr::map(response$data$groups$edges, ~ .$node$fullPath)
           } else {
@@ -72,6 +67,8 @@ EngineGraphQLGitLab <- R6::R6Class(
           }
           group_cursor <<- response$data$groups$pageInfo$endCursor
           return(orgs_list)
+        } else {
+          return(response)
         }
       }, .progress = TRUE) |>
         purrr::list_flatten()
@@ -588,13 +585,7 @@ EngineGraphQLGitLab <- R6::R6Class(
           )
         )
       }
-      if (private$is_query_error(response)) {
-        class(response) <- c(class(response), "graphql_error")
-        if (private$is_no_fields_query_error(response)) {
-          class(response) <- c(class(response), "graphql_no_fields_error")
-        }
-        return(response)
-      }
+      response <- set_graphql_error_class(response)
       return(response)
     },
 
