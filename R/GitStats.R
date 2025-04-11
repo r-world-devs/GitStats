@@ -946,35 +946,13 @@ GitStats <- R6::R6Class(
         glue::glue("require({package_name})")
       )
       repos_using_package <- purrr::map(package_usage_phrases, ~ {
-        repos_using_package <- tryCatch({
-          private$get_repos_from_hosts(
+        repos_using_package <- private$get_repos_from_hosts(
             with_code = .,
             force_orgs = FALSE,
             output = "table",
             verbose = FALSE,
             progress = FALSE
           )
-        }, error = function(e) {
-          if (grepl("Reached 10 thousand response limit.", e$parent$parent$message)) {
-            if (verbose) {
-              cli::cli_alert_warning(e$parent$parent$message)
-              cli::cli_alert_info("I will cut search responses into `orgs`.")
-            }
-            invisible(private$get_orgs_from_hosts(output = "only_names", verbose = verbose))
-            private$get_repos_from_hosts(
-              with_code = .,
-              force_orgs = TRUE,
-              output = "table",
-              verbose = FALSE,
-              progress = verbose
-            )
-          } else {
-            if (verbose) {
-              cli::cli_alert_warning(e$parent$parent$message)
-            }
-            return(NULL)
-          }
-        })
         if (!is.null(repos_using_package) && nrow(repos_using_package) > 0) {
           repos_using_package$package_usage <- "library"
         }
