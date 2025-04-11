@@ -79,7 +79,7 @@ EngineRestGitLab <- R6::R6Class(
     },
 
     get_repos_from_org = function(org, repos = NULL, output = "full_table", verbose = FALSE) {
-      owner_type <- attr(org, "type")
+      owner_type <- attr(org, "type") %||% "organization"
       owner_endpoint <- if (owner_type == "organization") {
         private$endpoints[["organizations"]]
       } else {
