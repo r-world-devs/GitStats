@@ -79,7 +79,7 @@ EngineRestGitLab <- R6::R6Class(
     },
 
     get_repos_from_org = function(org, repos = NULL, output = "full_table", verbose = FALSE) {
-      owner_type <- attr(org, "type")
+      owner_type <- attr(org, "type") %||% "organization"
       owner_endpoint <- if (owner_type == "organization") {
         private$endpoints[["organizations"]]
       } else {
@@ -233,12 +233,16 @@ EngineRestGitLab <- R6::R6Class(
           )
         }, error = function(e) {
           if (length(full_repos_list) == 1e4) {
-            cli::cli_abort("Reached 10 thousand response limit.")
+            if (verbose) {
+              cli::cli_alert_warning("Reached 10 thousand response limit.")
+            }
+            class(full_repos_list) <<- c(class(full_repos_list), "rest_error", "rest_error_response_limit")
+            return(NULL)
           } else {
             cli::cli_abort(e)
           }
         })
-        if (length(search_result) == 0) {
+        if (length(search_result) == 0 || inherits(full_repos_list, "rest_error")) {
           still_more_hits <- FALSE
           break()
         } else {
