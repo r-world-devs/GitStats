@@ -204,3 +204,7 @@ test_that("`set_default_token` sets default token for GitLab", {
     200
   )
 })
+
+test_that("is_query_error works", {
+  expect_true(is_query_error(test_fixtures$graphql_error_no_fields))
+})

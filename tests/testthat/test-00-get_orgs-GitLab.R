@@ -91,44 +91,7 @@ test_that("if get_orgs runs into GraphQL error, it prints warnings and returns N
   mockery::stub(
     test_graphql_gitlab$get_orgs,
     "self$gql_response",
-    list(
-      "errors" = list(
-        list(
-          "message" = "Field 'groups' doesn't exist on type 'Query'",
-          "locations" = list(
-            list(
-              "line" = 2L,
-              "column" = 13L
-            )
-          ),
-          "path" = list(
-            "query GetGroups",
-            "groups"
-          ),
-          "extensions" = list(
-            "code" = "undefinedField",
-            "typeName" = "Query",
-            "fieldName" = "groups"
-          )
-        ),
-        list(
-          "message" = "Variable $groupCursor is declared by GetGroups but not used",
-          "locations" = list(
-            list(
-              "line" = 1L,
-              "column" = 1L
-            )
-          ),
-          "path" = list(
-            "query GetGroups"
-          ),
-          "extensions" = list(
-            "code" = "variableNotUsed",
-            "variableName" = "groupCursor"
-          )
-        )
-      )
-    )
+    test_fixtures$graphql_error_no_fields
   )
   expect_snapshot(
     gl_orgs_error_response <- test_graphql_gitlab$get_orgs(
