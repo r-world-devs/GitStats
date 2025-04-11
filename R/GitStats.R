@@ -947,12 +947,12 @@ GitStats <- R6::R6Class(
       )
       repos_using_package <- purrr::map(package_usage_phrases, ~ {
         repos_using_package <- private$get_repos_from_hosts(
-            with_code = .,
-            force_orgs = FALSE,
-            output = "table",
-            verbose = FALSE,
-            progress = FALSE
-          )
+          with_code = .,
+          force_orgs = FALSE,
+          output = "table",
+          verbose = FALSE,
+          progress = FALSE
+        )
         if (!is.null(repos_using_package) && nrow(repos_using_package) > 0) {
           repos_using_package$package_usage <- "library"
         }
