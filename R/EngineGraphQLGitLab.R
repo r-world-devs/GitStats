@@ -59,6 +59,9 @@ EngineGraphQLGitLab <- R6::R6Class(
           vars = list("groupCursor" = group_cursor)
         )
         response <- set_graphql_error_class(response)
+        if (length(response$data$groups$edges) == 0) {
+          class(response) <- c(class(response), "graphql_error")
+        }
         if (!inherits(response, "graphql_error")) {
           if (output == "only_names") {
             orgs_list <- purrr::map(response$data$groups$edges, ~ .$node$fullPath)
