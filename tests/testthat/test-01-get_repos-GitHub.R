@@ -462,6 +462,11 @@ test_that("get_repos_from_repos works", {
   )
   mockery::stub(
     github_testhost_priv$get_repos_from_repos,
+    "graphql_engine$get_repos_from_org",
+    test_mocker$use("gh_repos_from_orgs")
+  )
+  mockery::stub(
+    github_testhost_priv$get_repos_from_repos,
     "graphql_engine$prepare_repos_table",
     test_mocker$use("gh_repos_table")
   )

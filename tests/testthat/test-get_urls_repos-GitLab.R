@@ -1,7 +1,7 @@
 test_that("get_repos_urls() works for org", {
   mockery::stub(
     test_rest_gitlab$get_repos_urls,
-    "private$paginate_results",
+    "self$get_repos_from_org",
     test_fixtures$gitlab_repositories_rest_response
   )
   test_org <- "test_org"
@@ -33,8 +33,8 @@ test_that("get_repos_urls() works for org", {
 test_that("get_repos_urls() works for individual repos", {
   mockery::stub(
     test_rest_gitlab$get_repos_urls,
-    "private$paginate_results",
-    test_fixtures$gitlab_repositories_rest_response
+    "self$get_repos_from_org",
+    test_mocker$use("gitlab_rest_repos_from_org_raw")
   )
   test_group <- "test_group"
   attr(test_group, "type") <- "organization"

@@ -147,12 +147,30 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         output = output,
         verbose = verbose
       )
-      if (output == "full_table") {
-        orgs <- orgs |>
-          graphql_engine$prepare_orgs_table()
-        private$orgs <- dplyr::pull(orgs, path)
+      if (inherits(orgs, "graphql_error")) {
+        if (verbose) {
+          cli::cli_alert_info("Switching to REST API")
+        }
+        orgs <- rest_engine$get_orgs(
+          orgs_count = as.integer(orgs_count),
+          verbose = verbose
+        )
+        if (output == "full_table") {
+          orgs <- orgs |>
+            rest_engine$prepare_orgs_table()
+          private$orgs <- dplyr::pull(orgs, path)
+        } else {
+          orgs <- purrr::map_vec(orgs, ~.$path)
+          private$orgs <- orgs
+        }
       } else {
-        private$orgs <- orgs
+        if (output == "full_table") {
+          orgs <- orgs |>
+            graphql_engine$prepare_orgs_table()
+          private$orgs <- dplyr::pull(orgs, path)
+        } else {
+          private$orgs <- orgs
+        }
       }
       return(orgs)
     },
@@ -276,7 +294,8 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       type <- attr(org, "type") %||% "organization"
       repos_names <- graphql_engine$get_repos_from_org(
         org = utils::URLdecode(org),
-        type = type
+        type = type,
+        verbose = verbose
       ) |>
         purrr::map_vec(~ .$node$repo_path)
       return(repos_names)

@@ -254,7 +254,8 @@ GitHostGitHub <- R6::R6Class(
       graphql_engine <- private$engines$graphql
       repos_names <- graphql_engine$get_repos_from_org(
         org = org,
-        type = type
+        type = type,
+        verbose = verbose
       ) |>
         purrr::map_vec(~ .$repo_name)
       return(repos_names)
