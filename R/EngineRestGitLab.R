@@ -99,7 +99,7 @@ EngineRestGitLab <- R6::R6Class(
       }
       repos_response <- private$paginate_results(
         endpoint = paste0(owner_endpoint,
-                          utils::URLencode(org, reserved = TRUE),
+                          utils::URLdecode(org),
                           "/projects")
       )
       if (!is.null(repos)) {
