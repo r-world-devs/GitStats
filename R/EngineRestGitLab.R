@@ -34,6 +34,18 @@ EngineRestGitLab <- R6::R6Class(
       return(orgs_list)
     },
 
+    get_org = function(org, verbose) {
+      if (verbose) {
+        cli::cli_alert("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling {utils::URLdecode(org)} organization...")
+      }
+      self$response(
+        paste0(
+          private$endpoints[["organizations"]],
+          org
+        )
+      )
+    },
+
     prepare_orgs_table = function(orgs_list) {
       purrr::map(orgs_list, function(org) {
         data.frame(

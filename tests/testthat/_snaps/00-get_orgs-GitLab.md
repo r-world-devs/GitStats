@@ -38,6 +38,20 @@
       x Your GraphQL does not recognize [groups] field.
       x Check version of your GitLab.
 
+# get_org prints proper message
+
+    Code
+      gl_org_response <- test_graphql_gitlab$get_org(org = org, verbose = TRUE)
+    Message
+      > [Host:GitLab][Engine:GraphQL] Pulling test_org organization...
+
+---
+
+    Code
+      gl_org_response <- test_rest_gitlab$get_org(org = org, verbose = TRUE)
+    Message
+      > [Host:GitLab][Engine:REST] Pulling test_org organization...
+
 # if get_orgs_from_host runs into GraphQL error, it switches to REST API
 
     Code
@@ -65,4 +79,17 @@
         verbose = TRUE)
     Message
       i 3 organizations found.
+
+# get_orgs_from_orgs_and_repos prints message when turning to REST engine
+
+    Code
+      gitlab_orgs_from_orgs_table <- gitlab_testhost_priv$
+      get_orgs_from_orgs_and_repos(verbose = TRUE)
+    Message
+      i Switching to REST API
+      i Switching to REST API
+      i Switching to REST API
+      i Switching to REST API
+      i Switching to REST API
+      i Switching to REST API
 

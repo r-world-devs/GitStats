@@ -88,12 +88,20 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(all_orgs)
     },
 
-    get_org = function(org) {
+    get_org = function(org, verbose) {
+      if (verbose) {
+        cli::cli_alert("[Host:GitLab][Engine:{cli::col_yellow('GraphQL')}] Pulling {org} organization...")
+      }
       response <- self$gql_response(
         gql_query = self$gql_query$group(),
         vars = list("org" = org)
       )
-      return(response$data$group)
+      if (length(response$data$group) == 0) {
+        class(response) <- c(class(response), "graphql_error")
+        return(response)
+      } else {
+        return(response$data$group)
+      }
     },
 
     prepare_orgs_table = function(full_orgs_list) {

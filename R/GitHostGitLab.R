@@ -175,6 +175,51 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       return(orgs)
     },
 
+    get_orgs_from_orgs_and_repos = function(output, verbose) {
+      graphql_engine <- private$engines$graphql
+      default_engine <- graphql_engine
+      rest_engine <- private$engines$rest
+      orgs_names <- NULL
+      orgs_names_from_repos <- NULL
+      if ("org" %in% private$searching_scope) {
+        orgs_names <- purrr::keep(private$orgs, function(org) {
+          type <- attr(org, "type") %||% "organization"
+          type == "organization"
+        })
+      }
+      if ("repo" %in% private$searching_scope) {
+        orgs_names_from_repos <- graphql_engine$set_owner_type(
+          owners = names(private$orgs_repos)
+        ) |>
+          purrr::keep(function(org) {
+            type <- attr(org, "type") %||% "organization"
+            type == "organization"
+          })
+      }
+      total_orgs_names <- c(orgs_names, orgs_names_from_repos)
+      orgs_list <- purrr::map(total_orgs_names, function(org) {
+        type <- attr(org, "type") %||% "organization"
+        org <- utils::URLencode(org, reserved = TRUE)
+        org_response <- graphql_engine$get_org(
+          org = org,
+          verbose = verbose
+        )
+        if (inherits(org_response, "graphql_error")) {
+          if (verbose) {
+            cli::cli_alert_info("Switching to REST API")
+          }
+          org_response <- rest_engine$get_org(
+            org = org,
+            verbose = verbose
+          )
+          default_engine <<- rest_engine
+        }
+        return(org_response)
+      })
+      orgs_table <- default_engine$prepare_orgs_table(orgs_list)
+      return(orgs_table)
+    },
+
     get_repos_ids = function(search_response) {
       purrr::map_vec(search_response, ~.$project_id) |> unique()
     },

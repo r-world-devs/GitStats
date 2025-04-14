@@ -108,6 +108,14 @@ test_fixtures$graphql_gl_org_response <- list(
   )
 )
 
+test_fixtures$rest_gl_org_response <- list(
+  "id" = 11111,
+  "web_url" = "url",
+  "name" = "test_name",
+  "path" = "test_path",
+  "description" = "test_description"
+)
+
 test_fixtures$github_repository_rest_response <- list(
   "id" = 627452680,
   "node_id" = "R_kgDOJWYrCA",

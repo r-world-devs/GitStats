@@ -126,10 +126,91 @@ test_that("get_org pulls response for one org from GraphQL", {
     org <- "mbtests"
   }
   gl_org_response <- test_graphql_gitlab$get_org(
-    org = org
+    org = org,
+    verbose = FALSE
   )
   expect_type(gl_org_response, "list")
   test_mocker$cache(gl_org_response)
+})
+
+test_that("get_org prints proper message", {
+  if (integration_tests_skipped) {
+    mockery::stub(
+      test_graphql_gitlab$get_org,
+      "self$gql_response",
+      test_fixtures$graphql_gl_org_response
+    )
+    org <- "test_org"
+  } else {
+    org <- "mbtests"
+  }
+  expect_snapshot(
+    gl_org_response <- test_graphql_gitlab$get_org(
+      org = org,
+      verbose = TRUE
+    )
+  )
+})
+
+test_that("get_org sets error class to response", {
+  if (integration_tests_skipped) {
+    mockery::stub(
+      test_graphql_gitlab$get_org,
+      "self$gql_response",
+      list()
+    )
+    org <- "test_org"
+  } else {
+    org <- "mbtests"
+  }
+  gl_org_error_response <- test_graphql_gitlab$get_org(
+    org = org,
+    verbose = FALSE
+  )
+  expect_type(gl_org_error_response, "list")
+  expect_s3_class(gl_org_error_response, "graphql_error")
+  test_mocker$cache(gl_org_error_response)
+})
+
+test_that("get_org pulls response for one org from REST", {
+  if (integration_tests_skipped) {
+    mockery::stub(
+      test_rest_gitlab$get_org,
+      "self$response",
+      test_fixtures$rest_gl_org_response
+    )
+    org <- "test_org"
+  } else {
+    org <- "mbtests"
+  }
+  gl_org_rest_response <- test_rest_gitlab$get_org(
+    org = "mbtests",
+    verbose = FALSE
+  )
+  expect_type(gl_org_rest_response, "list")
+  expect_true(
+    all(c("id", "web_url", "name", "path", "description") %in% names(gl_org_rest_response))
+  )
+  test_mocker$cache(gl_org_rest_response)
+})
+
+test_that("get_org prints proper message", {
+  if (integration_tests_skipped) {
+    mockery::stub(
+      test_rest_gitlab$get_org,
+      "self$response",
+      test_fixtures$rest_gl_org_response
+    )
+    org <- "test_org"
+  } else {
+    org <- "mbtests"
+  }
+  expect_snapshot(
+    gl_org_response <- test_rest_gitlab$get_org(
+      org = org,
+      verbose = TRUE
+    )
+  )
 })
 
 test_that("REST method get_orgs works", {
@@ -278,6 +359,67 @@ test_that("get_orgs_from_orgs_and_repos works on GitHost level", {
   test_mocker$cache(gitlab_orgs_from_orgs_table)
 })
 
+test_that("get_orgs_from_orgs_and_repos turns to REST if GraphQL fails", {
+  mockery::stub(
+    gitlab_testhost_priv$get_orgs_from_orgs_and_repos,
+    "graphql_engine$get_org",
+    test_mocker$use("gl_org_error_response")
+  )
+  test_org <- "test_org"
+  attr(test_org, "type") <- "organization"
+  mockery::stub(
+    gitlab_testhost_priv$get_orgs_from_orgs_and_repos,
+    "graphql_engine$set_owner_type",
+    test_org
+  )
+  mockery::stub(
+    gitlab_testhost_priv$get_orgs_from_orgs_and_repos,
+    "rest_engine$get_org",
+    test_mocker$use("gl_org_rest_response")
+  )
+  mockery::stub(
+    gitlab_testhost_priv$get_orgs_from_orgs_and_repos,
+    "default_engine$prepare_orgs_table",
+    test_mocker$use("gitlab_org_rest_table")
+  )
+  gitlab_orgs_from_orgs_table <- gitlab_testhost_priv$get_orgs_from_orgs_and_repos(
+    verbose = FALSE
+  )
+  expect_orgs_table(
+    gitlab_orgs_from_orgs_table
+  )
+  test_mocker$cache(gitlab_orgs_from_orgs_table)
+})
+
+test_that("get_orgs_from_orgs_and_repos prints message when turning to REST engine", {
+  mockery::stub(
+    gitlab_testhost_priv$get_orgs_from_orgs_and_repos,
+    "graphql_engine$get_org",
+    test_mocker$use("gl_org_error_response")
+  )
+  test_org <- "test_org"
+  attr(test_org, "type") <- "organization"
+  mockery::stub(
+    gitlab_testhost_priv$get_orgs_from_orgs_and_repos,
+    "graphql_engine$set_owner_type",
+    test_org
+  )
+  mockery::stub(
+    gitlab_testhost_priv$get_orgs_from_orgs_and_repos,
+    "rest_engine$get_org",
+    test_mocker$use("gl_org_rest_response")
+  )
+  mockery::stub(
+    gitlab_testhost_priv$get_orgs_from_orgs_and_repos,
+    "default_engine$prepare_orgs_table",
+    test_mocker$use("gitlab_org_rest_table")
+  )
+  expect_snapshot(
+    gitlab_orgs_from_orgs_table <- gitlab_testhost_priv$get_orgs_from_orgs_and_repos(
+      verbose = TRUE
+    )
+  )
+})
 
 test_that("get_orgs works on GitHost level", {
   mockery::stub(
