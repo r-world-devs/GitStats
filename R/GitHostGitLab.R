@@ -199,9 +199,8 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       total_orgs_names <- c(orgs_names, orgs_names_from_repos)
       orgs_list <- purrr::map(total_orgs_names, function(org) {
         type <- attr(org, "type") %||% "organization"
-        org <- utils::URLencode(org, reserved = TRUE)
         org_response <- graphql_engine$get_org(
-          org = org,
+          org = utils::URLdecode(org),
           verbose = verbose
         )
         if (inherits(org_response, "graphql_error")) {
@@ -209,7 +208,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             cli::cli_alert_info("Switching to REST API")
           }
           org_response <- rest_engine$get_org(
-            org = org,
+            org = utils::URLencode(org, reserved = TRUE),
             verbose = verbose
           )
           default_engine <<- rest_engine
