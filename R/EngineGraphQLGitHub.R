@@ -228,19 +228,24 @@ EngineGraphQLGitHub <- R6::R6Class(
     prepare_commits_table = function(repos_list_with_commits,
                                      org) {
       commits_table <- purrr::imap(repos_list_with_commits, function(repo, repo_name) {
-        commits_row <- purrr::map_dfr(repo, function(commit) {
-          commit_author <- commit$node$author
-          data.frame(
-            id = commit$node$id,
-            committed_date = gts_to_posixt(commit$node$committed_date),
-            author = commit_author$name,
-            author_login = commit_author$user$login %||% NA_character_,
-            author_name = commit_author$user$name %||% NA_character_,
-            additions = commit$node$additions,
-            deletions = commit$node$deletions,
-            repo_url = commit$node$repository$url
-          )
-        })
+        commits_row <- purrr::map(repo, function(commit) {
+          if (!is.null(commit$node)) {
+            commit_author <- commit$node$author
+            data.frame(
+              id = commit$node$id,
+              committed_date = gts_to_posixt(commit$node$committed_date),
+              author = commit_author$name,
+              author_login = commit_author$user$login %||% NA_character_,
+              author_name = commit_author$user$name %||% NA_character_,
+              additions = commit$node$additions,
+              deletions = commit$node$deletions,
+              repo_url = commit$node$repository$url
+            )
+          } else {
+            NULL
+          }
+        }) |>
+          purrr::list_rbind()
         commits_row$repository <- repo_name
         commits_row
       }) %>%
