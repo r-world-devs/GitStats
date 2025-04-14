@@ -160,7 +160,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             rest_engine$prepare_orgs_table()
           private$orgs <- dplyr::pull(orgs, path)
         } else {
-          orgs <- purrr::map_vec(orgs, ~.$path)
+          orgs <- purrr::map_vec(orgs, ~.$full_path)
           private$orgs <- orgs
         }
       } else {

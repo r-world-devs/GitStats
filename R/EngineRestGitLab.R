@@ -146,7 +146,7 @@ EngineRestGitLab <- R6::R6Class(
             repo_name = repo$name,
             default_branch = repo$default_branch %||% "",
             stars = repo$star_count,
-            forks = repo$forks_count,
+            forks = repo$forks_count %||% NA_integer_,
             created_at = gts_to_posixt(repo$created_at),
             last_activity_at = as.POSIXct(repo$last_activity_at),
             languages = repo_languages,
