@@ -108,6 +108,14 @@ test_fixtures$graphql_gl_org_response <- list(
   )
 )
 
+test_fixtures$rest_gl_org_response <- list(
+  "id" = 11111,
+  "web_url" = "url",
+  "name" = "test_name",
+  "path" = "test_path",
+  "description" = "test_description"
+)
+
 test_fixtures$github_repository_rest_response <- list(
   "id" = 627452680,
   "node_id" = "R_kgDOJWYrCA",
@@ -158,16 +166,40 @@ test_fixtures$github_repositories_rest_response <- list(
 
 test_fixtures$gitlab_repositories_rest_response <- list(
   list(
+    "id" = "1111",
+    "name" = "test repo 1",
+    "default_branch" = "main",
+    "star_count" = 5L,
+    "forks_count" = 2L,
+    "created_at" = "2023-04-13T13:52:24Z",
+    "last_activity_at" = "2025-04-09T17:04:00Z",
+    "open_issues_count" = 10L,
     "path" = "testRepo1",
     "_links" = list("self" = "https://gitlab.com/api/v4/projects/43400864"),
     "web_url" = "https://gitlab.com/mbtests/gitstats-testing-2"
   ),
   list(
+    "id" = "2222",
+    "name" = "test repo 2",
+    "default_branch" = "devel",
+    "star_count" = 5L,
+    "forks_count" = 2L,
+    "created_at" = "2023-04-14T13:52:24Z",
+    "last_activity_at" = "2025-04-09T17:04:00Z",
+    "open_issues_count" = 10L,
     "path" = "testRepo2",
     "_links" = list("self" = "https://gitlab.com/api/v4/projects/43398933"),
     "web_url" = "https://gitlab.com/mbtests/gitstatstesting"
   ),
   list(
+    "id" = "3333",
+    "name" = "test repo 3",
+    "default_branch" = "test",
+    "star_count" = 5L,
+    "forks_count" = 2L,
+    "created_at" = "2023-05-23T13:52:24Z",
+    "last_activity_at" = "2025-04-09T17:04:00Z",
+    "open_issues_count" = 10L,
     "path" = "testRepo3",
     "_links" = list("self" = "https://gitlab.com/api/v4/projects/43398933"),
     "web_url" = "https://gitlab.com/mbtests/gitstatstesting"
@@ -961,6 +993,45 @@ test_fixtures$github_org_login <- list(
     "organization" = list(
       "__typename" = "Organization",
       "login" = "test_org"
+    )
+  )
+)
+
+test_fixtures$graphql_error_no_fields <- list(
+  "errors" = list(
+    list(
+      "message" = "Field 'groups' doesn't exist on type 'Query'",
+      "locations" = list(
+        list(
+          "line" = 2L,
+          "column" = 13L
+        )
+      ),
+      "path" = list(
+        "query GetGroups",
+        "groups"
+      ),
+      "extensions" = list(
+        "code" = "undefinedField",
+        "typeName" = "Query",
+        "fieldName" = "groups"
+      )
+    ),
+    list(
+      "message" = "Variable $groupCursor is declared by GetGroups but not used",
+      "locations" = list(
+        list(
+          "line" = 1L,
+          "column" = 1L
+        )
+      ),
+      "path" = list(
+        "query GetGroups"
+      ),
+      "extensions" = list(
+        "code" = "variableNotUsed",
+        "variableName" = "groupCursor"
+      )
     )
   )
 )

@@ -55,6 +55,7 @@ test_that("GitHub GraphQL Engine pulls files from organization", {
   )
   github_files_response <- test_graphql_github$get_files_from_org(
     org = "test_org",
+    owner_type = "organization",
     repos = NULL,
     file_paths = "test_files.txt",
     host_files_structure = NULL,

@@ -58,38 +58,50 @@ EngineGraphQLGitLab <- R6::R6Class(
           gql_query = self$gql_query$groups(),
           vars = list("groupCursor" = group_cursor)
         )
+        response <- set_graphql_error_class(response)
         if (length(response$data$groups$edges) == 0) {
-          cli::cli_abort(
-            c(
-              "x" = "Empty response.",
-              "!" = "Your token probably does not cover scope to pull organizations.",
-              "i" = "Set `read_api` scope when creating GitLab token."
-            )
-          )
+          class(response) <- c(class(response), "graphql_error")
         }
-        if (output == "only_names") {
-          orgs_list <- purrr::map(response$data$groups$edges, ~ .$node$fullPath)
+        if (!inherits(response, "graphql_error")) {
+          if (output == "only_names") {
+            orgs_list <- purrr::map(response$data$groups$edges, ~ .$node$fullPath)
+          } else {
+            orgs_list <- purrr::map(response$data$groups$edges, ~ .$node)
+          }
+          group_cursor <<- response$data$groups$pageInfo$endCursor
+          return(orgs_list)
         } else {
-          orgs_list <- purrr::map(response$data$groups$edges, ~ .$node)
+          return(response)
         }
-        group_cursor <<- response$data$groups$pageInfo$endCursor
-        return(orgs_list)
       }, .progress = TRUE) |>
         purrr::list_flatten()
-      if (output == "only_names") {
-        all_orgs <- unlist(orgs_list)
+      orgs_list <- handle_graphql_error(orgs_list, verbose)
+      if (!inherits(orgs_list, "graphql_error")) {
+        if (output == "only_names") {
+          all_orgs <- unlist(orgs_list)
+        } else if (output == "full_table") {
+          all_orgs <- orgs_list
+        }
       } else {
         all_orgs <- orgs_list
       }
       return(all_orgs)
     },
 
-    get_org = function(org) {
+    get_org = function(org, verbose) {
+      if (verbose) {
+        cli::cli_alert("[Host:GitLab][Engine:{cli::col_yellow('GraphQL')}] Pulling {org} organization...")
+      }
       response <- self$gql_response(
         gql_query = self$gql_query$group(),
         vars = list("org" = org)
       )
-      return(response$data$group)
+      if (length(response$data$group) == 0) {
+        class(response) <- c(class(response), "graphql_error")
+        return(response)
+      } else {
+        return(response$data$group)
+      }
     },
 
     prepare_orgs_table = function(full_orgs_list) {
@@ -109,7 +121,7 @@ EngineGraphQLGitLab <- R6::R6Class(
     },
 
     # Iterator over pulling pages of repositories.
-    get_repos = function(repos_ids) {
+    get_repos = function(repos_ids, verbose) {
       full_repos_list <- list()
       next_page <- TRUE
       repo_cursor <- ""
@@ -119,51 +131,64 @@ EngineGraphQLGitLab <- R6::R6Class(
           type = "projects",
           repo_cursor = repo_cursor
         )
-        core_response <- repos_response$data$projects
-        repos_list <- core_response$edges
-        next_page <- core_response$pageInfo$hasNextPage
-        if (is.null(next_page)) next_page <- FALSE
-        if (is.null(repos_list)) repos_list <- list()
-        if (length(repos_list) == 0) next_page <- FALSE
-        if (next_page) {
-          repo_cursor <- core_response$pageInfo$endCursor
+        if (inherits(repos_response, "graphql_error")) {
+          full_repos_list <- repos_response
+          break
         } else {
-          repo_cursor <- ""
+          core_response <- repos_response$data$projects
+          repos_list <- core_response$edges
+          next_page <- core_response$pageInfo$hasNextPage
+          if (is.null(next_page)) next_page <- FALSE
+          if (is.null(repos_list)) repos_list <- list()
+          if (length(repos_list) == 0) next_page <- FALSE
+          if (next_page) {
+            repo_cursor <- core_response$pageInfo$endCursor
+          } else {
+            repo_cursor <- ""
+          }
+          full_repos_list <- append(full_repos_list, repos_list)
         }
-        full_repos_list <- append(full_repos_list, repos_list)
       }
+      full_repos_list <- handle_graphql_error(full_repos_list, verbose)
       return(full_repos_list)
     },
 
     # Iterator over pulling pages of repositories.
     get_repos_from_org = function(org  = NULL,
-                                  type = c("organization", "user")) {
+                                  owner_type = c("organization", "user"),
+                                  verbose = TRUE) {
       full_repos_list <- list()
       next_page <- TRUE
       repo_cursor <- ""
       while (next_page) {
         repos_response <- private$get_repos_page(
           org = org,
-          type = type,
+          type = owner_type,
           repo_cursor = repo_cursor
         )
-        core_response <- if (type == "organization") {
-          repos_response$data$group$projects
+        if (inherits(repos_response, "graphql_error")) {
+          full_repos_list <- repos_response
+          break
         } else {
-          repos_response$data$projects
+          core_response <- if (owner_type == "organization") {
+            repos_response$data$group$projects
+          } else {
+            repos_response$data$projects
+          }
+          repos_list <- core_response$edges
+          next_page <- core_response$pageInfo$hasNextPage
+          if (is.null(next_page)) next_page <- FALSE
+          if (is.null(repos_list)) repos_list <- list()
+          if (length(repos_list) == 0) next_page <- FALSE
+          if (next_page) {
+            repo_cursor <- core_response$pageInfo$endCursor
+          } else {
+            repo_cursor <- ""
+          }
+          full_repos_list <- append(full_repos_list, repos_list)
         }
-        repos_list <- core_response$edges
-        next_page <- core_response$pageInfo$hasNextPage
-        if (is.null(next_page)) next_page <- FALSE
-        if (is.null(repos_list)) repos_list <- list()
-        if (length(repos_list) == 0) next_page <- FALSE
-        if (next_page) {
-          repo_cursor <- core_response$pageInfo$endCursor
-        } else {
-          repo_cursor <- ""
-        }
-        full_repos_list <- append(full_repos_list, repos_list)
       }
+      full_repos_list <- handle_graphql_error(full_repos_list, verbose)
       return(full_repos_list)
     },
 
@@ -215,7 +240,7 @@ EngineGraphQLGitLab <- R6::R6Class(
     # pulled files_structure. In such a case GitStats will switch from this function
     # to iterator over repositories (multiple queries), as it is done for GitHub.
     get_files_from_org = function(org,
-                                  type,
+                                  owner_type,
                                   repos,
                                   file_paths = NULL,
                                   host_files_structure = NULL,
@@ -233,7 +258,7 @@ EngineGraphQLGitLab <- R6::R6Class(
       } else {
         file_paths <- file_paths[grepl(text_files_pattern, file_paths)]
       }
-      if (type == "organization") {
+      if (owner_type == "organization") {
         while (next_page) {
           files_query <- self$gql_query$files_by_org(
             end_cursor = end_cursor
@@ -264,7 +289,7 @@ EngineGraphQLGitLab <- R6::R6Class(
               }
               full_files_list <- self$get_files_from_org_per_repo(
                 org = org,
-                type = type,
+                owner_type = owner_type,
                 repos = repos,
                 file_paths = file_paths,
                 host_files_structure = host_files_structure,
@@ -305,7 +330,7 @@ EngineGraphQLGitLab <- R6::R6Class(
       } else {
         full_files_list <- self$get_files_from_org_per_repo(
           org = org,
-          type = type,
+          owner_type = owner_type,
           repos = repos,
           file_paths = file_paths,
           host_files_structure = host_files_structure,
@@ -320,7 +345,7 @@ EngineGraphQLGitLab <- R6::R6Class(
     # one query way applied with get_files_from_org() fails due to its complexity.
     # For more info see docs above.
     get_files_from_org_per_repo = function(org,
-                                           type,
+                                           owner_type,
                                            repos,
                                            file_paths = NULL,
                                            host_files_structure = NULL,
@@ -329,7 +354,7 @@ EngineGraphQLGitLab <- R6::R6Class(
       if (is.null(repos)) {
         repo_data <- private$get_repos_data(
           org = org,
-          type = type,
+          owner_type = owner_type,
           repos = repos
         )
         repos <- repo_data[["repositories"]]
@@ -431,7 +456,7 @@ EngineGraphQLGitLab <- R6::R6Class(
     },
 
     get_files_structure_from_org = function(org,
-                                            type,
+                                            owner_type,
                                             repos = NULL,
                                             pattern = NULL,
                                             depth = Inf,
@@ -439,7 +464,7 @@ EngineGraphQLGitLab <- R6::R6Class(
                                             progress = TRUE) {
       repo_data <- private$get_repos_data(
         org = org,
-        type = type,
+        owner_type = owner_type,
         repos = repos
       )
       repositories <- repo_data[["repositories"]]
@@ -571,6 +596,7 @@ EngineGraphQLGitLab <- R6::R6Class(
           )
         )
       }
+      response <- set_graphql_error_class(response)
       return(response)
     },
 
@@ -581,10 +607,10 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(repo_name)
     },
 
-    get_repos_data = function(org, type, repos = NULL) {
+    get_repos_data = function(org, owner_type, repos = NULL) {
       repos_list <- self$get_repos_from_org(
         org = org,
-        type = type
+        owner_type = owner_type
       )
       if (!is.null(repos)) {
         repos_list <- purrr::keep(repos_list, ~ .$node$repo_path %in% repos)

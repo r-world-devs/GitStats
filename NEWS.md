@@ -1,6 +1,7 @@
 # GitStats (development version)
 
 - Fixed pulling GitLab repositories with no issues ([#616](https://github.com/r-world-devs/GitStats/issues/616)).
+- Handled `GraphQL` errors due to old GitLab version with switching to `REST` engine ([#615](https://github.com/r-world-devs/GitStats/issues/615)).
 
 # GitStats 2.3.0
 

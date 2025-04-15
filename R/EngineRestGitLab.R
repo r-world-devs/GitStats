@@ -14,12 +14,59 @@ EngineRestGitLab <- R6::R6Class(
       return(orgs_response$headers$`x-total`)
     },
 
+    get_orgs = function(orgs_count, verbose, progress = verbose) {
+      if (verbose) {
+        cli::cli_alert("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling organizations...")
+      }
+      iterations_number <- round(orgs_count / 100)
+      orgs_list <- purrr::map(1:iterations_number, function(page) {
+        self$response(
+          paste0(
+            private$endpoints[["organizations"]],
+            "?all_available=true",
+            "&pagination=keyset",
+            "&per_page=100&page=",
+            page
+          )
+        )
+      }, .progress = progress) |>
+        purrr::list_flatten()
+      return(orgs_list)
+    },
+
+    get_org = function(org, verbose) {
+      if (verbose) {
+        cli::cli_alert("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling {utils::URLdecode(org)} organization...")
+      }
+      self$response(
+        paste0(
+          private$endpoints[["organizations"]],
+          org
+        )
+      )
+    },
+
+    prepare_orgs_table = function(orgs_list) {
+      purrr::map(orgs_list, function(org) {
+        data.frame(
+          name = org$name,
+          description = org$description,
+          path = org$path,
+          url = org$web_url,
+          avatar_url = org$avatar_url %||% NA_character_,
+          repos_count = NA_integer_,
+          members_count = NA_integer_
+        )
+      }) |>
+        purrr::list_rbind()
+    },
+
     # Pull repositories with files
-    get_files = function(file_paths          = NULL,
-                         org                 = NULL,
+    get_files = function(file_paths = NULL,
+                         org = NULL,
                          clean_files_content = TRUE,
-                         verbose             = TRUE,
-                         progress            = TRUE) {
+                         verbose = TRUE,
+                         progress = TRUE) {
       files_list <- list()
       file_paths <- utils::URLencode(file_paths, reserved = TRUE)
       files_list <- purrr::map(file_paths, function(filename) {
@@ -41,6 +88,103 @@ EngineRestGitLab <- R6::R6Class(
       }, .progress = progress) %>%
         purrr::list_flatten()
       return(files_list)
+    },
+
+    get_repos_from_org = function(org, repos = NULL, output = "full_table", verbose = FALSE) {
+      owner_type <- attr(org, "type") %||% "organization"
+      owner_endpoint <- if (owner_type == "organization") {
+        private$endpoints[["organizations"]]
+      } else {
+        private$endpoints[["users"]]
+      }
+      repos_response <- private$paginate_results(
+        endpoint = paste0(owner_endpoint,
+                          utils::URLencode(org, reserved = TRUE),
+                          "/projects")
+      )
+      if (!is.null(repos)) {
+        repos_response <- repos_response %>%
+          purrr::keep(~ .$path %in% repos)
+      }
+      if (output == "full_table") {
+        repos_response <- repos_response |>
+          private$get_repos_languages(
+            progress = verbose
+          )
+      }
+      return(repos_response)
+    },
+
+    # Pull all repositories URLs from organization
+    get_repos_urls = function(type, org, repos) {
+      repos_response <- self$get_repos_from_org(
+        org = org,
+        repos = repos,
+        output = "raw"
+      )
+      repos_urls <- repos_response %>%
+        purrr::map_vec(function(project) {
+          if (type == "api") {
+            project$`_links`$self
+          } else {
+            project$web_url
+          }
+        })
+      return(repos_urls)
+    },
+
+    prepare_repos_table = function(repos_list, org) {
+      if (length(repos_list) > 0) {
+        purrr::map(repos_list, function(repo) {
+          if (length(repo$languages) == 0) {
+            repo_languages <- ""
+          } else {
+            repo_languages <- paste0(repo$languages, collapse = ", ")
+          }
+          data.frame(
+            repo_id = repo$id,
+            repo_name = repo$name,
+            default_branch = repo$default_branch %||% "",
+            stars = repo$star_count,
+            forks = repo$forks_count %||% NA_integer_,
+            created_at = gts_to_posixt(repo$created_at),
+            last_activity_at = as.POSIXct(repo$last_activity_at),
+            languages = repo_languages,
+            issues_open = repo$open_issues_count %||% 0,
+            issues_closed = NA_integer_,
+            organization = org,
+            repo_url = repo$web_url
+          )
+        }) |>
+          purrr::list_rbind()
+      } else {
+        NULL
+      }
+    },
+
+    #' Add information on repository contributors.
+    get_repos_contributors = function(repos_table, progress) {
+      if (nrow(repos_table) > 0) {
+        repo_urls <- repos_table$api_url
+        user_name <- rlang::expr(.$name)
+        repos_table$contributors <- purrr::map_chr(repo_urls, function(repo_url) {
+          contributors_endpoint <- paste0(
+            repo_url,
+            "/repository/contributors"
+          )
+          contributors_vec <- tryCatch({
+            private$get_contributors_from_repo(
+              contributors_endpoint = contributors_endpoint,
+              user_name = user_name
+            )
+          },
+          error = function(e) {
+            NA
+          })
+          return(contributors_vec)
+        }, .progress = progress)
+      }
+      return(repos_table)
     },
 
     # Prepare files table from REST API.
@@ -101,12 +245,16 @@ EngineRestGitLab <- R6::R6Class(
           )
         }, error = function(e) {
           if (length(full_repos_list) == 1e4) {
-            cli::cli_abort("Reached 10 thousand response limit.")
+            if (verbose) {
+              cli::cli_alert_warning("Reached 10 thousand response limit.")
+            }
+            class(full_repos_list) <<- c(class(full_repos_list), "rest_error", "rest_error_response_limit")
+            return(NULL)
           } else {
             cli::cli_abort(e)
           }
         })
-        if (length(search_result) == 0) {
+        if (length(search_result) == 0 || inherits(full_repos_list, "rest_error")) {
           still_more_hits <- FALSE
           break()
         } else {
@@ -160,6 +308,25 @@ EngineRestGitLab <- R6::R6Class(
       return(search_response)
     },
 
+    # Pull all commits from given repositories.
+    get_commits_from_repos = function(repos_names,
+                                      since,
+                                      until,
+                                      progress) {
+      repos_list_with_commits <- purrr::map(repos_names, function(repo_path) {
+        commits_from_repo <- private$get_commits_from_one_repo(
+          repo_path = repo_path,
+          since = since,
+          until = until
+        )
+        return(commits_from_repo)
+      }, .progress = !private$scan_all && progress)
+      names(repos_list_with_commits) <- repos_names
+      repos_list_with_commits <- repos_list_with_commits %>%
+        purrr::discard(~ length(.) == 0)
+      return(repos_list_with_commits)
+    },
+
     # Get only important info on commits.
     tailor_commits_info = function(repos_list_with_commits,
                                    org) {
@@ -198,78 +365,6 @@ EngineRestGitLab <- R6::R6Class(
         )
       }
       return(commits_dt)
-    },
-
-    # Pull all repositories URLs from organization
-    get_repos_urls = function(type, org, repos) {
-      owner_type <- attr(org, "type")
-      owner_endpoint <- if (owner_type == "organization") {
-        private$endpoints[["organizations"]]
-      } else {
-        private$endpoints[["users"]]
-      }
-      repos_response <- private$paginate_results(
-        endpoint = paste0(owner_endpoint,
-                          utils::URLencode(org, reserved = TRUE),
-                          "/projects")
-      )
-      if (!is.null(repos)) {
-        repos_response <- repos_response %>%
-          purrr::keep(~ .$path %in% repos)
-      }
-      repos_urls <- repos_response %>%
-        purrr::map_vec(function(project) {
-          if (type == "api") {
-            project$`_links`$self
-          } else {
-            project$web_url
-          }
-        })
-      return(repos_urls)
-    },
-
-    #' Add information on repository contributors.
-    get_repos_contributors = function(repos_table, progress) {
-      if (nrow(repos_table) > 0) {
-        repo_urls <- repos_table$api_url
-        user_name <- rlang::expr(.$name)
-        repos_table$contributors <- purrr::map_chr(repo_urls, function(repo_url) {
-          contributors_endpoint <- paste0(
-            repo_url,
-            "/repository/contributors"
-          )
-          contributors_vec <- tryCatch({
-            private$get_contributors_from_repo(
-              contributors_endpoint = contributors_endpoint,
-              user_name = user_name
-            )
-          },
-          error = function(e) {
-            NA
-          })
-          return(contributors_vec)
-        }, .progress = progress)
-      }
-      return(repos_table)
-    },
-
-    # Pull all commits from give repositories.
-    get_commits_from_repos = function(repos_names,
-                                      since,
-                                      until,
-                                      progress) {
-      repos_list_with_commits <- purrr::map(repos_names, function(repo_path) {
-        commits_from_repo <- private$get_commits_from_one_repo(
-          repo_path = repo_path,
-          since = since,
-          until = until
-        )
-        return(commits_from_repo)
-      }, .progress = !private$scan_all && progress)
-      names(repos_list_with_commits) <- repos_names
-      repos_list_with_commits <- repos_list_with_commits %>%
-        purrr::discard(~ length(.) == 0)
-      return(repos_list_with_commits)
     },
 
     # A method to get separately GL logins and display names
@@ -358,19 +453,6 @@ EngineRestGitLab <- R6::R6Class(
         utils::URLencode(repo, reserved = TRUE),
         "/search?scope=blobs&search="
       )
-    },
-
-    # Iterator over pulling pages of repositories.
-    get_repos_from_org = function(org, progress) {
-      repo_endpoint <- paste0(self$rest_api_url, "/groups/", org, "/projects")
-      repos_response <- private$paginate_results(
-        endpoint = repo_endpoint
-      )
-      full_repos_list <- repos_response %>%
-        private$get_repos_languages(
-          progress = progress
-        )
-      return(full_repos_list)
     },
 
     # Pull languages of repositories.

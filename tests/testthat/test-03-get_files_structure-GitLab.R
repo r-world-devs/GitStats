@@ -145,7 +145,7 @@ test_that("GitLab GraphQL Engine pulls files structure from repositories", {
   gl_files_structure <- test_graphql_gitlab$get_files_structure_from_org(
     org = "mbtests",
     repos = gl_repos,
-    type = "organization",
+    owner_type = "organization",
     verbose  = FALSE,
     progress = FALSE
   )
@@ -177,7 +177,7 @@ test_that("GitLab GraphQL Engine pulls files structure from repositories", {
     org = "mbtests",
     repos =  gl_repos,
     pattern = "\\.md",
-    type = "organization",
+    owner_type = "organization",
     depth = 1L,
     verbose = FALSE,
     progress = FALSE

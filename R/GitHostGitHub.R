@@ -249,12 +249,13 @@ GitHostGitHub <- R6::R6Class(
 
     # Use repositories either from parameter or, if not set, pull them from API
     get_repos_names = function(org) {
-      type <- attr(org, "type") %||% "organization"
+      owner_type <- attr(org, "type") %||% "organization"
       org <- utils::URLdecode(org)
       graphql_engine <- private$engines$graphql
       repos_names <- graphql_engine$get_repos_from_org(
         org = org,
-        type = type
+        owner_type = owner_type,
+        verbose = verbose
       ) |>
         purrr::map_vec(~ .$repo_name)
       return(repos_names)

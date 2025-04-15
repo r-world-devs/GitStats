@@ -16,7 +16,7 @@
 
     Code
       files_from_org_per_repo <- test_graphql_gitlab$get_files_from_org_per_repo(org = "mbtests",
-        type = "organization", repos = "gitstatstesting", file_paths = c(
+        owner_type = "organization", repos = "gitstatstesting", file_paths = c(
           "project_metadata.yaml", "README.md"), host_files_structure = NULL,
         verbose = TRUE, progress = FALSE)
     Message

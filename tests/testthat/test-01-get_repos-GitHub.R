@@ -79,7 +79,7 @@ test_that("`get_repos_from_org()` prepares formatted list", {
   )
   gh_repos_from_org <- test_graphql_github$get_repos_from_org(
     org = gh_org,
-    type = "organization"
+    owner_type = "organization"
   )
   expect_list_contains(
     gh_repos_from_org[[1]],
@@ -116,7 +116,7 @@ test_that("`get_repos_from_org()` prepares formatted list", {
   )
   gh_repos_from_user <- test_graphql_github$get_repos_from_org(
     org = gh_user,
-    type = "user"
+    owner_type = "user"
   )
   expect_list_contains(
     gh_repos_from_user[[1]],
@@ -459,6 +459,11 @@ test_that("get_repos_from_repos works", {
     github_testhost_priv$get_repos_from_repos,
     "graphql_engine$set_owner_type",
     test_org
+  )
+  mockery::stub(
+    github_testhost_priv$get_repos_from_repos,
+    "graphql_engine$get_repos_from_org",
+    test_mocker$use("gh_repos_from_orgs")
   )
   mockery::stub(
     github_testhost_priv$get_repos_from_repos,

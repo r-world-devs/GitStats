@@ -102,7 +102,7 @@ EngineGraphQLGitHub <- R6::R6Class(
     },
 
     # Pull all repositories from organization
-    get_repos = function(repos_ids) {
+    get_repos = function(repos_ids, verbose) {
       repos_query <- self$gql_query$repos_by_ids()
       if (length(repos_ids) > 100) {
         iterations_number <- ceiling(length(repos_ids) / 100)
@@ -137,17 +137,18 @@ EngineGraphQLGitHub <- R6::R6Class(
 
     # Pull all repositories from organization
     get_repos_from_org = function(org = NULL,
-                                  type = c("organization", "user")) {
+                                  owner_type = c("organization", "user"),
+                                  verbose = TRUE) {
       full_repos_list <- list()
       next_page <- TRUE
       repo_cursor <- ""
       while (next_page) {
         repos_response <- private$get_repos_page(
           login = org,
-          type = type,
+          type = owner_type,
           repo_cursor = repo_cursor
         )
-        repositories <- if (type == "organization") {
+        repositories <- if (owner_type == "organization") {
           repos_response$data$repositoryOwner$repositories
         } else {
           repos_response$data$user$repositories
@@ -227,19 +228,24 @@ EngineGraphQLGitHub <- R6::R6Class(
     prepare_commits_table = function(repos_list_with_commits,
                                      org) {
       commits_table <- purrr::imap(repos_list_with_commits, function(repo, repo_name) {
-        commits_row <- purrr::map_dfr(repo, function(commit) {
-          commit_author <- commit$node$author
-          data.frame(
-            id = commit$node$id,
-            committed_date = gts_to_posixt(commit$node$committed_date),
-            author = commit_author$name,
-            author_login = commit_author$user$login %||% NA_character_,
-            author_name = commit_author$user$name %||% NA_character_,
-            additions = commit$node$additions,
-            deletions = commit$node$deletions,
-            repo_url = commit$node$repository$url
-          )
-        })
+        commits_row <- purrr::map(repo, function(commit) {
+          if (!is.null(commit$node)) {
+            commit_author <- commit$node$author
+            data.frame(
+              id = commit$node$id,
+              committed_date = gts_to_posixt(commit$node$committed_date),
+              author = commit_author$name,
+              author_login = commit_author$user$login %||% NA_character_,
+              author_name = commit_author$user$name %||% NA_character_,
+              additions = commit$node$additions,
+              deletions = commit$node$deletions,
+              repo_url = commit$node$repository$url
+            )
+          } else {
+            NULL
+          }
+        }) |>
+          purrr::list_rbind()
         commits_row$repository <- repo_name
         commits_row
       }) %>%
@@ -266,7 +272,7 @@ EngineGraphQLGitHub <- R6::R6Class(
 
     # Pull all given files from all repositories of an organization.
     get_files_from_org = function(org,
-                                  type,
+                                  owner_type,
                                   repos,
                                   file_paths = NULL,
                                   host_files_structure = NULL,
@@ -274,7 +280,7 @@ EngineGraphQLGitHub <- R6::R6Class(
                                   progress = TRUE) {
       repo_data <- private$get_repos_data(
         org = org,
-        type = type,
+        owner_type = owner_type,
         repos = repos
       )
       repositories <- repo_data[["repositories"]]
@@ -321,7 +327,7 @@ EngineGraphQLGitHub <- R6::R6Class(
 
     # Pull all files from all repositories of an organization.
     get_files_structure_from_org = function(org,
-                                            type,
+                                            owner_type,
                                             repos = NULL,
                                             pattern = NULL,
                                             depth = Inf,
@@ -329,7 +335,7 @@ EngineGraphQLGitHub <- R6::R6Class(
                                             progress = TRUE) {
       repo_data <- private$get_repos_data(
         org = org,
-        type = type,
+        owner_type = owner_type,
         repos = repos
       )
       repositories <- repo_data[["repositories"]]
@@ -586,10 +592,10 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(response)
     },
 
-    get_repos_data = function(org, type, repos = NULL) {
+    get_repos_data = function(org, owner_type, repos = NULL) {
       repos_list <- self$get_repos_from_org(
         org = org,
-        type = type
+        owner_type = owner_type
       )
       if (!is.null(repos)) {
         repos_list <- purrr::keep(repos_list, ~ .$repo_name %in% repos)
