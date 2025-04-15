@@ -1137,7 +1137,8 @@ GitHost <- R6::R6Class(
             })
         } else {
           repos_response <- graphql_engine$get_repos(
-            repos_ids = repos_ids
+            repos_ids = repos_ids,
+            verbose = verbose
           )
         }
         if (output != "raw") {

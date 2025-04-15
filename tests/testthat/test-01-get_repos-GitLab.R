@@ -200,6 +200,19 @@ test_that("error handler prints proper messages", {
   )
 })
 
+test_that("get_repos breaks when response is a GraphQL query error", {
+  mockery::stub(
+    test_graphql_gitlab$get_repos,
+    "private$get_repos_page",
+    test_mocker$use("repos_graphql_error")
+  )
+  response <- test_graphql_gitlab$get_repos(
+    repos_ids = c("test_id_1", "test_id_2"),
+    verbose = FALSE
+  )
+  expect_s3_class(response, "graphql_error")
+})
+
 test_that("get_repos_from_org handles properly a GraphQL query error", {
   mockery::stub(
     test_graphql_gitlab$get_repos_from_org,

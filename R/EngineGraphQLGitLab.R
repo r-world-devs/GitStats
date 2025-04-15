@@ -121,7 +121,7 @@ EngineGraphQLGitLab <- R6::R6Class(
     },
 
     # Iterator over pulling pages of repositories.
-    get_repos = function(repos_ids) {
+    get_repos = function(repos_ids, verbose) {
       full_repos_list <- list()
       next_page <- TRUE
       repo_cursor <- ""
