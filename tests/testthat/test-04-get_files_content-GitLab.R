@@ -35,6 +35,7 @@ test_that("get_repos_data pulls data on repositories", {
   )
   gl_repos_data <- test_graphql_gitlab_priv$get_repos_data(
     org = "mbtests",
+    owner_type = "organization",
     repos = NULL
   )
   expect_true(
@@ -56,7 +57,7 @@ test_that("GitLab GraphQL Engine pulls files from a group", {
   )
   gitlab_files_response <- test_graphql_gitlab$get_files_from_org(
     org = "mbtests",
-    type = "organization",
+    owner_type = "organization",
     repos = NULL,
     file_paths = "meta_data.yaml",
     host_files_structure = NULL
@@ -78,6 +79,7 @@ test_that("GitLab GraphQL Engine pulls files from org by iterating over repos", 
   )
   gl_files_from_org_per_repo <- test_graphql_gitlab$get_files_from_org_per_repo(
     org = "test_org",
+    owner_type = "organization",
     repos = "TestProject",
     file_paths = c("project_metadata.yaml", "README.md")
   )
@@ -117,7 +119,7 @@ test_that("Gitlab GraphQL switches to pulling files per repositories when query 
   )
   gitlab_files_response_by_repos <- test_graphql_gitlab$get_files_from_org(
     org = "mbtests",
-    type = "organization",
+    owner_type = "organization",
     repos = NULL,
     file_paths = c("project_metadata.yaml", "README.md"),
     host_files_structure = NULL,
@@ -145,7 +147,7 @@ test_that("GitLab GraphQL switches to iteration when query is too complex", {
   expect_snapshot(
     files_from_org_per_repo <- test_graphql_gitlab$get_files_from_org_per_repo(
       org = "mbtests",
-      type = "organization",
+      owner_type = "organization",
       repos = "gitstatstesting",
       file_paths = c("project_metadata.yaml", "README.md"),
       host_files_structure = NULL,

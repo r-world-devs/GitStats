@@ -1349,10 +1349,10 @@ GitHost <- R6::R6Class(
               information = glue::glue("Pulling files content: [{paste0(file_path, collapse = ', ')}]")
             )
           }
-          type <- attr(org, "type") %||% "organization"
+          owner_type <- attr(org, "type") %||% "organization"
           graphql_engine$get_files_from_org(
             org = org,
-            type = type,
+            owner_type = owner_type,
             repos = NULL,
             file_paths = file_path,
             verbose = verbose,
@@ -1386,10 +1386,10 @@ GitHost <- R6::R6Class(
               information = glue::glue("Pulling files content: [{paste0(file_path, collapse = ', ')}]")
             )
           }
-          type <- attr(org, "type") %||% "organization"
+          owner_type <- attr(org, "type") %||% "organization"
           graphql_engine$get_files_from_org(
             org = org,
-            type = type,
+            owner_type = owner_type,
             repos = private$orgs_repos[[org]],
             file_paths = file_path,
             verbose = verbose,
@@ -1423,10 +1423,10 @@ GitHost <- R6::R6Class(
             information = "Pulling files from files structure"
           )
         }
-        type <- attr(org, "type") %||% "organization"
+        owner_type <- attr(org, "type") %||% "organization"
         graphql_engine$get_files_from_org(
           org = org,
-          type = type,
+          owner_type = owner_type,
           repos = repos,
           host_files_structure = files_structure,
           verbose = verbose,
@@ -1471,10 +1471,10 @@ GitHost <- R6::R6Class(
               information = user_info
             )
           }
-          type <- attr(org, "type") %||% "organization"
+          owner_type <- attr(org, "type") %||% "organization"
           graphql_engine$get_files_structure_from_org(
             org = org,
-            type = type,
+            owner_type = owner_type,
             pattern = pattern,
             depth = depth,
             verbose = verbose,
@@ -1520,10 +1520,10 @@ GitHost <- R6::R6Class(
               information = user_info
             )
           }
-          type <- attr(org, "type") %||% "organization"
+          owner_type <- attr(org, "type") %||% "organization"
           graphql_engine$get_files_structure_from_org(
             org = org,
-            type = type,
+            owner_type = owner_type,
             repos = private$repos,
             pattern = pattern,
             depth = depth,

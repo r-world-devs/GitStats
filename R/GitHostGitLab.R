@@ -373,10 +373,10 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
               information = glue::glue("Pulling files content: [{paste0(file_path, collapse = ', ')}]")
             )
           }
-          type <- attr(org, "type") %||% "organization"
+          owner_type <- attr(org, "type") %||% "organization"
           graphql_engine$get_files_from_org_per_repo(
             org = org,
-            type = type,
+            owner_type = owner_type,
             repos = private$orgs_repos[[org]],
             file_paths = file_path,
             verbose = verbose,
@@ -410,10 +410,10 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             information = "Pulling files from files structure"
           )
         }
-        type <- attr(org, "type") %||% "organization"
+        owner_type <- attr(org, "type") %||% "organization"
         graphql_engine$get_files_from_org_per_repo(
           org = org,
-          type = type,
+          owner_type = owner_type,
           repos = repos,
           host_files_structure = files_structure,
           verbose = verbose,

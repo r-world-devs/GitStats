@@ -136,7 +136,7 @@ test_that("get_repos_data pulls data on repos and branches", {
   }
   gh_repos_data <- test_graphql_github_priv$get_repos_data(
     org = gh_org,
-    type = "organization",
+    owner_type = "organization",
     repos = NULL
   )
   expect_equal(
@@ -170,7 +170,7 @@ test_that("GitHub GraphQL Engine pulls files structure from repositories", {
   }
   gh_files_structure <- test_graphql_github$get_files_structure_from_org(
     org = gh_org,
-    type = "organization",
+    owner_type = "organization",
     repos = gh_repos
   )
   purrr::walk(gh_files_structure, ~ expect_true(length(.) > 0))
@@ -194,6 +194,7 @@ test_that("GitHub GraphQL Engine pulls files structure with pattern from reposit
   )
   gh_md_files_structure <- test_graphql_github$get_files_structure_from_org(
     org = gh_org,
+    owner_type = "organization",
     repos = gh_repo,
     pattern = "\\.md|\\.qmd|\\.Rmd"
   )
