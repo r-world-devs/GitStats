@@ -19,8 +19,8 @@
         "repos_graphql_error"), verbose = TRUE)
     Message
       x GraphQL returned errors.
-      x Your GraphQL schema does not recognize [count and languages] fields.
-      x Check version of your GitLab.
+      i Your GraphQL does not recognize [count and languages] fields.
+      ! Check version of your GitLab.
 
 # `search_for_code()` works
 

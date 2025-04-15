@@ -35,8 +35,8 @@
     Message
       > [Host:GitLab][Engine:GraphQL] Pulling organizations...
       x GraphQL returned errors.
-      x Your GraphQL does not recognize [groups] field.
-      x Check version of your GitLab.
+      i Your GraphQL does not recognize [groups] field.
+      ! Check version of your GitLab.
 
 # get_org prints proper message
 
