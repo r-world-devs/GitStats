@@ -155,7 +155,7 @@ EngineGraphQLGitLab <- R6::R6Class(
 
     # Iterator over pulling pages of repositories.
     get_repos_from_org = function(org  = NULL,
-                                  type = c("organization", "user"),
+                                  owner_type = c("organization", "user"),
                                   verbose = TRUE) {
       full_repos_list <- list()
       next_page <- TRUE
@@ -163,14 +163,14 @@ EngineGraphQLGitLab <- R6::R6Class(
       while (next_page) {
         repos_response <- private$get_repos_page(
           org = org,
-          type = type,
+          type = owner_type,
           repo_cursor = repo_cursor
         )
         if (inherits(repos_response, "graphql_error")) {
           full_repos_list <- repos_response
           break
         } else {
-          core_response <- if (type == "organization") {
+          core_response <- if (owner_type == "organization") {
             repos_response$data$group$projects
           } else {
             repos_response$data$projects
@@ -610,7 +610,7 @@ EngineGraphQLGitLab <- R6::R6Class(
     get_repos_data = function(org, type, repos = NULL) {
       repos_list <- self$get_repos_from_org(
         org = org,
-        type = type
+        owner_type = type
       )
       if (!is.null(repos)) {
         repos_list <- purrr::keep(repos_list, ~ .$node$repo_path %in% repos)

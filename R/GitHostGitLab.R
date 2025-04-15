@@ -335,10 +335,10 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     # Use repositories either from parameter or, if not set, pull them from API
     get_repos_names = function(org) {
       graphql_engine <- private$engines$graphql
-      type <- attr(org, "type") %||% "organization"
+      owner_type <- attr(org, "type") %||% "organization"
       repos_names <- graphql_engine$get_repos_from_org(
         org = utils::URLdecode(org),
-        type = type,
+        owner_type = owner_type,
         verbose = verbose
       ) |>
         purrr::map_vec(~ .$node$repo_path)

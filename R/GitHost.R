@@ -748,7 +748,7 @@ GitHost <- R6::R6Class(
       if (any(c("all", "org") %in% private$searching_scope)) {
         graphql_engine <- private$engines$graphql
         purrr::map(private$orgs, function(org) {
-          type <- attr(org, "type") %||% "organization"
+          owner_type <- attr(org, "type") %||% "organization"
           if (!private$scan_all && verbose) {
             show_message(
               host = private$host_name,
@@ -759,7 +759,7 @@ GitHost <- R6::R6Class(
           }
           repos_from_org <- graphql_engine$get_repos_from_org(
             org = utils::URLdecode(org),
-            type = type,
+            owner_type = owner_type,
             verbose = verbose
           )
           if (!inherits(repos_from_org, "graphql_error")) {
@@ -805,7 +805,7 @@ GitHost <- R6::R6Class(
           owners = names(private$orgs_repos)
         )
         purrr::map(orgs, function(org) {
-          type <- attr(org, "type") %||% "organization"
+          owner_type <- attr(org, "type") %||% "organization"
           if (!private$scan_all && verbose) {
             show_message(
               host = private$host_name,
@@ -816,7 +816,7 @@ GitHost <- R6::R6Class(
           }
           repos_from_org <- graphql_engine$get_repos_from_org(
             org = utils::URLdecode(org),
-            type = type,
+            owner_type = owner_type,
             verbose = verbose
           )
           if (!inherits(repos_from_org, "graphql_error")) {
@@ -1123,7 +1123,7 @@ GitHost <- R6::R6Class(
           owner_type <- attr(org, "type") %||% "organization"
           repos_from_org <- graphql_engine$get_repos_from_org(
             org = org,
-            type = owner_type,
+            owner_type = owner_type,
             verbose = verbose
           )
           repos_response <- repos_from_org |>

@@ -79,7 +79,7 @@ test_that("`get_repos_from_org()` prepares formatted list", {
   )
   gh_repos_from_org <- test_graphql_github$get_repos_from_org(
     org = gh_org,
-    type = "organization"
+    owner_type = "organization"
   )
   expect_list_contains(
     gh_repos_from_org[[1]],
@@ -116,7 +116,7 @@ test_that("`get_repos_from_org()` prepares formatted list", {
   )
   gh_repos_from_user <- test_graphql_github$get_repos_from_org(
     org = gh_user,
-    type = "user"
+    owner_type = "user"
   )
   expect_list_contains(
     gh_repos_from_user[[1]],

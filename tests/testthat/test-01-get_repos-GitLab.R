@@ -39,7 +39,7 @@ test_that("`get_repos_from_org()` prepares formatted list", {
   )
   gl_repos_from_org <- test_graphql_gitlab$get_repos_from_org(
     org = "test_org",
-    type = "organization"
+    owner_type = "organization"
   )
   expect_equal(
     names(gl_repos_from_org[[1]]$node),
@@ -76,8 +76,8 @@ test_that("`get_repos_from_org()` prepares formatted list", {
     test_mocker$use("gl_repos_user_page")
   )
   gl_repos_from_user <- test_graphql_gitlab$get_repos_from_org(
-    org  = "test_user",
-    type = "user"
+    org = "test_user",
+    owner_type = "user"
   )
   expect_equal(
     names(gl_repos_from_user[[1]]$node),
@@ -98,7 +98,7 @@ test_that("`get_repos_from_org()` does not fail when GraphQL response is not com
   )
   gl_repos_from_org <- test_graphql_gitlab$get_repos_from_org(
     org = "test_org",
-    type = "organization"
+    owner_type = "organization"
   )
   expect_type(
     gl_repos_from_org,
@@ -115,7 +115,7 @@ test_that("`get_repos_from_org()` does not fail when GraphQL response is not com
   )
   gl_repos_from_org <- test_graphql_gitlab$get_repos_from_org(
     org = "test_org",
-    type = "organization"
+    owner_type = "organization"
   )
   expect_type(
     gl_repos_from_org,
@@ -208,7 +208,7 @@ test_that("get_repos_from_org handles properly a GraphQL query error", {
   )
   gitlab_repos_error <- test_graphql_gitlab$get_repos_from_org(
     org = "test_org",
-    type = "organization",
+    owner_type = "organization",
     verbose = FALSE
   )
   expect_s3_class(gitlab_repos_error, "graphql_error")
@@ -224,7 +224,7 @@ test_that("`get_repos_languages()` works", {
   )
   gl_repos_list_with_languages <- test_rest_gitlab_priv$get_repos_languages(
     repos_list = repos_list,
-    progress   = FALSE
+    progress = FALSE
   )
   purrr::walk(gl_repos_list_with_languages, ~ expect_list_contains(., "languages"))
   expect_equal(gl_repos_list_with_languages[[1]]$languages, c("Python", "R"))
