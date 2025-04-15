@@ -102,7 +102,7 @@ EngineGraphQLGitHub <- R6::R6Class(
     },
 
     # Pull all repositories from organization
-    get_repos = function(repos_ids) {
+    get_repos = function(repos_ids, verbose) {
       repos_query <- self$gql_query$repos_by_ids()
       if (length(repos_ids) > 100) {
         iterations_number <- ceiling(length(repos_ids) / 100)
