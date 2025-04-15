@@ -224,6 +224,17 @@ test_that("REST method get_orgs works", {
   test_mocker$cache(gl_orgs_rest_list)
 })
 
+test_that("REST method prints message", {
+  expect_snapshot(
+    gl_orgs_rest_list <- test_rest_gitlab$get_orgs(
+      orgs_count = 300L,
+      verbose = TRUE,
+      progress = FALSE
+    )
+  )
+})
+
+
 test_that("table is prepared from REST orgs response", {
   gitlab_org_rest_table <- test_rest_gitlab$prepare_orgs_table(
     orgs_list = test_mocker$use("gl_orgs_rest_list")

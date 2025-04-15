@@ -52,6 +52,14 @@
     Message
       > [Host:GitLab][Engine:REST] Pulling test_org organization...
 
+# REST method prints message
+
+    Code
+      gl_orgs_rest_list <- test_rest_gitlab$get_orgs(orgs_count = 300L, verbose = TRUE,
+        progress = FALSE)
+    Message
+      > [Host:GitLab][Engine:REST] Pulling organizations...
+
 # if get_orgs_from_host runs into GraphQL error, it switches to REST API
 
     Code

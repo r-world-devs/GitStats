@@ -14,7 +14,7 @@ EngineRestGitLab <- R6::R6Class(
       return(orgs_response$headers$`x-total`)
     },
 
-    get_orgs = function(orgs_count, verbose) {
+    get_orgs = function(orgs_count, verbose, progress = verbose) {
       if (verbose) {
         cli::cli_alert("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling organizations...")
       }
@@ -29,7 +29,7 @@ EngineRestGitLab <- R6::R6Class(
             page
           )
         )
-      }, .progress = verbose) |>
+      }, .progress = progress) |>
         purrr::list_flatten()
       return(orgs_list)
     },
