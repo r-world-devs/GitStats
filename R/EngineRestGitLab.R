@@ -18,7 +18,7 @@ EngineRestGitLab <- R6::R6Class(
       if (verbose) {
         cli::cli_alert("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling organizations...")
       }
-      iterations_number <- round(orgs_count / 100)
+      iterations_number <- ceiling(orgs_count / 100)
       orgs_list <- purrr::map(1:iterations_number, function(page) {
         self$response(
           paste0(
