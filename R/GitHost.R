@@ -992,7 +992,8 @@ GitHost <- R6::R6Class(
         if (inherits(search_response, "rest_error_response_limit")) {
           repos_output <- private$parse_search_response(
             search_response = search_response,
-            output = output
+            output = output,
+            verbose = verbose
           )
           return(repos_output)
         }
@@ -1009,16 +1010,17 @@ GitHost <- R6::R6Class(
       }
       repos_output <- private$parse_search_response(
         search_response = search_response,
-        output = output
+        output = output,
+        verbose = verbose
       )
       return(repos_output)
     },
 
     get_repos_with_code_from_orgs = function(code,
                                              in_files = NULL,
-                                             in_path  = FALSE,
-                                             output   = "table",
-                                             verbose  = TRUE,
+                                             in_path = FALSE,
+                                             output = "table",
+                                             verbose = TRUE,
                                              progress = TRUE) {
       if (any(private$searching_scope %in% c("org", "all"))) {
         repos_list <- purrr::map(private$orgs, function(org) {
@@ -1054,7 +1056,8 @@ GitHost <- R6::R6Class(
           private$parse_search_response(
             search_response = search_response,
             org = org,
-            output = output
+            output = output,
+            verbose = verbose
           )
         }, .progress = if (progress) {
           "Pulling repositories from organizations..."
@@ -1109,13 +1112,14 @@ GitHost <- R6::R6Class(
         }
         repos_output <- private$parse_search_response(
           search_response = search_response,
-          output = output
+          output = output,
+          verbose = verbose
         )
         return(repos_output)
       }
     },
 
-    parse_search_response = function(search_response, org = NULL, output) {
+    parse_search_response = function(search_response, org = NULL, output, verbose = TRUE) {
       if (length(search_response) > 0) {
         repos_ids <- private$get_repos_ids(search_response)
         graphql_engine <- private$engines$graphql
