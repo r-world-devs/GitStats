@@ -989,14 +989,6 @@ GitHost <- R6::R6Class(
           in_path = in_path,
           verbose = verbose
         )
-        if (inherits(search_response, "rest_error_response_limit")) {
-          repos_output <- private$parse_search_response(
-            search_response = search_response,
-            output = output,
-            verbose = verbose
-          )
-          return(repos_output)
-        }
       } else {
         search_response <- purrr::map(in_files, function(filename) {
           rest_engine$search_for_code(
