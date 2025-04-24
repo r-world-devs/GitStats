@@ -46,7 +46,7 @@
     Message
       > [Host:GitLab][Engine:GraphQl][Scope:test_group] Pulling repositories...
 
-# GitLab Host prints message when turning to REST engine
+# GitLab Host prints message when turning to REST engine (from orgs)
 
     Code
       gl_repos_from_orgs <- gitlab_testhost_priv$get_repos_from_orgs(verbose = TRUE,
@@ -55,4 +55,14 @@
       > [Host:GitLab][Engine:GraphQl][Scope:test_group] Pulling repositories...
       i Switching to REST API
       > [Host:GitLab][Engine:REST][Scope:test_group] Pulling repositories...
+
+# GitLab Host prints message when turning to REST engine (from repos)
+
+    Code
+      gl_repos_from_repos <- gitlab_testhost_priv$get_repos_from_repos(verbose = TRUE,
+        progress = FALSE)
+    Message
+      > [Host:GitLab][Engine:GraphQl][Scope:test_org: 0 repos] Pulling repositories...
+      i Switching to REST API
+      > [Host:GitLab][Engine:REST][Scope:test_org] Pulling repositories...
 

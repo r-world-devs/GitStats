@@ -143,11 +143,12 @@ test_that("get_commits_from_orgs works", {
     "rest_engine$get_commits_authors_handles_and_names",
     test_mocker$use("gl_commits_table")
   )
+  gitlab_testhost_priv$searching_scope <- "org"
   expect_snapshot(
     gl_commits_table <- gitlab_testhost_priv$get_commits_from_orgs(
-      since    = "2023-03-01",
-      until    = "2023-04-01",
-      verbose  = TRUE,
+      since = "2023-03-01",
+      until = "2023-04-01",
+      verbose = TRUE,
       progress = FALSE
     )
   )

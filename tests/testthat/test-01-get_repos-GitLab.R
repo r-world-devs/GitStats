@@ -344,7 +344,7 @@ test_that("get_repos_from_org prints proper message", {
   test_mocker$cache(gl_repos_from_orgs)
 })
 
-test_that("GitLab Host turns to REST if GraphQL fails with error", {
+test_that("GitLab Host turns to REST if GraphQL fails with error (org setup)", {
   mockery::stub(
     gitlab_testhost_priv$get_repos_from_orgs,
     "graphql_engine$get_repos_from_org",
@@ -362,7 +362,33 @@ test_that("GitLab Host turns to REST if GraphQL fails with error", {
   expect_repos_table(gl_repos_from_orgs)
 })
 
-test_that("GitLab Host prints message when turning to REST engine", {
+test_that("GitLab Host turns to REST if GraphQL fails with error (repo setup)", {
+  test_org <- "test_org"
+  attr(test_org, "type") <- "organization"
+  mockery::stub(
+    gitlab_testhost_priv$get_repos_from_repos,
+    "graphql_engine$set_owner_type",
+    test_org
+  )
+  mockery::stub(
+    gitlab_testhost_priv$get_repos_from_repos,
+    "graphql_engine$get_repos_from_org",
+    test_mocker$use("gitlab_repos_error")
+  )
+  mockery::stub(
+    gitlab_testhost_priv$get_repos_from_repos,
+    "rest_engine$prepare_repos_table",
+    test_mocker$use("gitlab_rest_repos_table")
+  )
+  gitlab_testhost_priv$searching_scope <- "repo"
+  gl_repos_from_repos <- gitlab_testhost_priv$get_repos_from_repos(
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_repos_table(gl_repos_from_repos)
+})
+
+test_that("GitLab Host prints message when turning to REST engine (from orgs)", {
   mockery::stub(
     gitlab_testhost_priv$get_repos_from_orgs,
     "graphql_engine$get_repos_from_org",
@@ -373,8 +399,36 @@ test_that("GitLab Host prints message when turning to REST engine", {
     "rest_engine$prepare_repos_table",
     test_mocker$use("gitlab_rest_repos_table")
   )
+  gitlab_testhost_priv$searching_scope <- "org"
   expect_snapshot(
     gl_repos_from_orgs <- gitlab_testhost_priv$get_repos_from_orgs(
+      verbose = TRUE,
+      progress = FALSE
+    )
+  )
+})
+
+test_that("GitLab Host prints message when turning to REST engine (from repos)", {
+  test_org <- "test_org"
+  attr(test_org, "type") <- "organization"
+  mockery::stub(
+    gitlab_testhost_priv$get_repos_from_repos,
+    "graphql_engine$set_owner_type",
+    test_org
+  )
+  mockery::stub(
+    gitlab_testhost_priv$get_repos_from_repos,
+    "graphql_engine$get_repos_from_org",
+    test_mocker$use("gitlab_repos_error")
+  )
+  mockery::stub(
+    gitlab_testhost_priv$get_repos_from_repos,
+    "rest_engine$prepare_repos_table",
+    test_mocker$use("gitlab_rest_repos_table")
+  )
+  gitlab_testhost_priv$searching_scope <- "repo"
+  expect_snapshot(
+    gl_repos_from_repos <- gitlab_testhost_priv$get_repos_from_repos(
       verbose = TRUE,
       progress = FALSE
     )

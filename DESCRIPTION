@@ -1,6 +1,6 @@
 Package: GitStats
 Title: Standardized Git Repository Data
-Version: 2.3.0.9001
+Version: 2.3.0.9002
 Authors@R: c(
     person(given = "Maciej", family = "Banas", email = "banasmaciek@gmail.com", role = c("aut", "cre")),
     person(given = "Kamil", family = "Koziej", email = "koziej.k@gmail.com", role = "aut"),
