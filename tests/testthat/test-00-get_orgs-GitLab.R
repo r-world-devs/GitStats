@@ -87,7 +87,23 @@ test_that("get_orgs prints message", {
   )
 })
 
-test_that("if get_orgs runs into GraphQL error, it prints warnings and returns NULL", {
+test_that("if get_orgs runs into GraphQL error, it returns object of graphql_error class", {
+  mockery::stub(
+    test_graphql_gitlab$get_orgs,
+    "self$gql_response",
+    test_fixtures$graphql_error_no_fields
+  )
+  gl_orgs_error_response <- test_graphql_gitlab$get_orgs(
+    orgs_count = 3L,
+    output = "full_table",
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_s3_class(gl_orgs_error_response, "graphql_error")
+  test_mocker$cache(gl_orgs_error_response)
+})
+
+test_that("if get_orgs runs into GraphQL error, it prints warning", {
   mockery::stub(
     test_graphql_gitlab$get_orgs,
     "self$gql_response",
@@ -101,8 +117,6 @@ test_that("if get_orgs runs into GraphQL error, it prints warnings and returns N
       progress = FALSE
     )
   )
-  expect_s3_class(gl_orgs_error_response, "graphql_error")
-  test_mocker$cache(gl_orgs_error_response)
 })
 
 test_that("prepare_orgs_table works", {

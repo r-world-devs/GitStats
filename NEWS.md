@@ -1,7 +1,9 @@
-# GitStats (development version)
+# GitStats 2.3.1
+
+A patch release with hot fixes to functions pulling repositories with code.
 
 - Fixed pulling GitLab repositories with no issues ([#616](https://github.com/r-world-devs/GitStats/issues/616)).
-- Handled `GraphQL` errors due to old GitLab version with switching to `REST` engine ([#615](https://github.com/r-world-devs/GitStats/issues/615)).
+- Handled `GraphQL` errors due to old GitLab version with switching to `REST` engine ([#615](https://github.com/r-world-devs/GitStats/issues/615), @ThomUK).
 - Removed switching to iterating over organizations after large GitLab response error (over 10 thousand responses) ([#618](https://github.com/r-world-devs/GitStats/issues/618)), as the process takes very long.
 
 # GitStats 2.3.0

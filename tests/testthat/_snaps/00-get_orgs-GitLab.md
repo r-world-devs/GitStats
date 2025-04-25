@@ -27,7 +27,7 @@
     Message
       > [Host:GitLab][Engine:GraphQL] Pulling organizations...
 
-# if get_orgs runs into GraphQL error, it prints warnings and returns NULL
+# if get_orgs runs into GraphQL error, it prints warning
 
     Code
       gl_orgs_error_response <- test_graphql_gitlab$get_orgs(orgs_count = 3L, output = "full_table",
