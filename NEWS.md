@@ -1,3 +1,5 @@
+# GitStats (development version)
+
 # GitStats 2.3.1
 
 A patch release with hot fixes to functions pulling repositories with code.
