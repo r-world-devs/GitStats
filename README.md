@@ -11,8 +11,8 @@
 coverage](https://codecov.io/gh/r-world-devs/GitStats/branch/devel/graph/badge.svg)](https://app.codecov.io/gh/r-world-devs/GitStats?branch=devel)
 <!-- badges: end -->
 
-With `GitStats` you can pull git data in a uniform way (table format)
-from GitHub and GitLab. For the time-being you can get data on:
+With `GitStats` you can pull git data in a uniform way from GitHub and
+GitLab. For the time-being you can get data on:
 
 - organizations,
 - repositories,
@@ -20,6 +20,7 @@ from GitHub and GitLab. For the time-being you can get data on:
 - issues,
 - users,
 - release logs,
+- files tree (structure),
 - text files content,
 - R package usage.
 
@@ -66,7 +67,7 @@ commits <- git_stats |>
   )
 
 commits
-#> # A tibble: 2,682 × 11
+#> # A tibble: 2,873 × 11
 #>    id    committed_date      author author_login author_name additions deletions
 #>    <chr> <dttm>              <chr>  <chr>        <chr>           <int>     <int>
 #>  1 7f48… 2024-09-10 11:12:59 Macie… maciekbanas  Maciej Ban…         0         0
@@ -79,7 +80,7 @@ commits
 #>  8 C_kw… 2023-05-08 09:43:31 Kryst… krystian8207 Krystian I…        18         0
 #>  9 C_kw… 2023-04-28 12:30:40 Kamil… <NA>         Kamil Kozi…        18         0
 #> 10 C_kw… 2023-03-01 15:05:10 Kryst… krystian8207 Krystian I…       296       153
-#> # ℹ 2,672 more rows
+#> # ℹ 2,863 more rows
 #> # ℹ 4 more variables: repository <chr>, organization <chr>, repo_url <chr>,
 #> #   api_url <glue>
 
@@ -88,7 +89,7 @@ commits |>
     time_aggregation = "month",
     group_var = author
   )
-#> # A tibble: 289 × 4
+#> # A tibble: 298 × 4
 #>    stats_date          githost author             stats
 #>    <dttm>              <chr>   <chr>              <int>
 #>  1 2022-01-01 00:00:00 github  Admin_mschuemi         1
@@ -101,7 +102,7 @@ commits |>
 #>  8 2022-02-01 00:00:00 github  Reijo Sund             1
 #>  9 2022-02-01 00:00:00 github  eitsupi                1
 #> 10 2022-03-01 00:00:00 github  Maximilian Girlich    14
-#> # ℹ 279 more rows
+#> # ℹ 288 more rows
 ```
 
 Get repositories with specific code:
@@ -212,7 +213,7 @@ git_stats
 #>  Repositories: [2] mbtests/gitstatstesting, openpharma/DataFakeR
 #> Storage: 
 #>  Repositories: 8 
-#>  Commits: 2682 [date range: 2022-01-01 - 2025-04-02]
+#>  Commits: 2873 [date range: 2022-01-01 - 2025-04-30]
 #>  Files: 57 [file pattern: \.md]
 #>  R_package_usage: 2 [packages: shiny, purrr]
 ```

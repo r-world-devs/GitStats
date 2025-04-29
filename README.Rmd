@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 [![Codecov test coverage](https://codecov.io/gh/r-world-devs/GitStats/branch/devel/graph/badge.svg)](https://app.codecov.io/gh/r-world-devs/GitStats?branch=devel)
 <!-- badges: end -->
 
-With `GitStats` you can pull git data in a uniform way (table format) from GitHub and GitLab. For the time-being you can get data on:
+With `GitStats` you can pull git data in a uniform way from GitHub and GitLab. For the time-being you can get data on:
 
 * organizations,
 * repositories,
@@ -30,6 +30,7 @@ With `GitStats` you can pull git data in a uniform way (table format) from GitHu
 * issues,
 * users,
 * release logs,
+* files tree (structure),
 * text files content,
 * R package usage.
 
