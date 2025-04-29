@@ -4,10 +4,3 @@ test_that("REST Engine returns response on GitLab version", {
     "character"
   )
 })
-
-test_that("REST Engine returns response on GitHub version", {
-  expect_type(
-    test_rest_github$get_host_version(),
-    "character"
-  )
-})

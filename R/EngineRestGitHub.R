@@ -4,15 +4,6 @@ EngineRestGitHub <- R6::R6Class(
   classname = "EngineRestGitHub",
   inherit = EngineRest,
   public = list(
-
-    get_host_version = function() {
-      response <- private$perform_request(
-        paste0(private$endpoints$repos, "r-world-devs/GitStats"),
-        token = private$token
-      )
-      response$headers$`x-github-media-type`
-    },
-
     # Pull repositories with files
     get_files = function(files) {
       files_list <- list()
