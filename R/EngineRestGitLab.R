@@ -5,6 +5,10 @@ EngineRestGitLab <- R6::R6Class(
   inherit = EngineRest,
   public = list(
 
+    get_host_version = function() {
+      self$response(paste0(self$rest_api_url, "/version"))[["version"]]
+    },
+
     get_orgs_count = function(verbose) {
       if (verbose) {
         cli::cli_alert("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling number of all organizations...")
