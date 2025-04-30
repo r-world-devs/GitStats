@@ -31,6 +31,9 @@ result from its storage.}
 
 \item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and printing
 output is switched off.}
+
+\item{progress}{A logical, by default set to \code{verbose} value. If \code{FALSE} no
+\code{cli} progress bar will be displayed.}
 }
 \value{
 A \code{tibble}.

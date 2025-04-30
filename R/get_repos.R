@@ -208,6 +208,8 @@ get_repos_with_R_packages <- function(gitstats,
 #'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
 #'   output is switched off.
+#' @param progress A logical, by default set to `verbose` value. If `FALSE` no
+#'   `cli` progress bar will be displayed.
 #' @return A `tibble`.
 #' @examples
 #' \dontrun{
