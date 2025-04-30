@@ -25,12 +25,41 @@ test_that("GitStats pulls repos trees", {
   repos_trees <- test_gitstats$get_repos_trees(
     pattern = NULL,
     depth = Inf,
-    cache = TRUE,
+    cache = FALSE,
     verbose = FALSE,
     progress = FALSE
   )
   expect_s3_class(repos_trees, "gitstats_repos_trees")
   test_mocker$cache(repos_trees)
+})
+
+test_that("GitStats makes use of stored data", {
+  expect_snapshot(
+    repos_trees <- test_gitstats$get_repos_trees(
+      pattern = NULL,
+      depth = Inf,
+      cache = TRUE,
+      verbose = TRUE,
+      progress = FALSE
+    )
+  )
+})
+
+test_that("GitStats prints warning when no repos trees found", {
+  mockery::stub(
+    test_gitstats$get_repos_trees,
+    "private$get_repos_trees_from_hosts",
+    data.frame()
+  )
+  expect_snapshot(
+    repos_trees <- test_gitstats$get_repos_trees(
+      pattern = NULL,
+      depth = Inf,
+      cache = FALSE,
+      verbose = TRUE,
+      progress = FALSE
+    )
+  )
 })
 
 test_that("get_repos_trees pulls repos trees", {

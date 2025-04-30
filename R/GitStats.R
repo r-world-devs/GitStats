@@ -370,7 +370,7 @@ GitStats <- R6::R6Class(
           private$save_to_storage(repos_trees)
         } else {
           if (verbose) {
-            cli::cli_alert_warning("No repos trees found.")
+            cli::cli_alert_warning("No repos \U1F333 trees found.")
           }
         }
       } else {
