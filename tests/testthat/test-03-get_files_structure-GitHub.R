@@ -202,7 +202,7 @@ test_that("GitHub GraphQL Engine pulls files structure with pattern from reposit
   test_mocker$cache(gh_md_files_structure)
 })
 
-test_that("get_files_structure_from_orgs", {
+test_that("get_files_structure_from_orgs() works", {
   mockery::stub(
     github_testhost_priv$get_files_structure_from_orgs,
     "graphql_engine$get_files_structure_from_org",
@@ -211,7 +211,7 @@ test_that("get_files_structure_from_orgs", {
   github_testhost_priv$searching_scope <- "org"
   gh_files_structure_from_orgs <- github_testhost_priv$get_files_structure_from_orgs(
     pattern = "\\.md|\\.qmd|\\.Rmd",
-    depth   = Inf,
+    depth = Inf,
     verbose = FALSE
   )
   expect_gt(
@@ -223,6 +223,89 @@ test_that("get_files_structure_from_orgs", {
     gh_org
   )
   test_mocker$cache(gh_files_structure_from_orgs)
+})
+
+test_that("get_files_structure_from_orgs() prints message", {
+  mockery::stub(
+    github_testhost_priv$get_files_structure_from_orgs,
+    "graphql_engine$get_files_structure_from_org",
+    test_mocker$use("gh_md_files_structure")
+  )
+  github_testhost_priv$searching_scope <- "org"
+  expect_snapshot(
+    gh_files_structure_from_orgs <- github_testhost_priv$get_files_structure_from_orgs(
+      pattern = "\\.md|\\.qmd|\\.Rmd",
+      depth = Inf,
+      verbose = TRUE
+    )
+  )
+  expect_snapshot(
+    gh_files_structure_from_orgs <- github_testhost_priv$get_files_structure_from_orgs(
+      pattern = NULL,
+      depth = Inf,
+      verbose = TRUE
+    )
+  )
+})
+
+test_that("get_files_structure_from_repos() works", {
+  test_org <- "test_org"
+  attr(test_org, "type") <- "organization"
+  mockery::stub(
+    github_testhost_priv$get_files_structure_from_repos,
+    "graphql_engine$set_owner_type",
+    test_org
+  )
+  mockery::stub(
+    github_testhost_priv$get_files_structure_from_repos,
+    "graphql_engine$get_files_structure_from_org",
+    test_mocker$use("gh_md_files_structure")
+  )
+  github_testhost_priv$searching_scope <- "repo"
+  gh_files_structure_from_repos <- github_testhost_priv$get_files_structure_from_repos(
+    pattern = "\\.md|\\.qmd|\\.Rmd",
+    depth = Inf,
+    verbose = FALSE
+  )
+  expect_gt(
+    length(gh_files_structure_from_repos),
+    0
+  )
+  expect_equal(
+    names(gh_files_structure_from_repos),
+    gh_org
+  )
+  test_mocker$cache(gh_files_structure_from_repos)
+})
+
+test_that("get_files_structure_from_repos() prints message", {
+  test_org <- "test_org"
+  attr(test_org, "type") <- "organization"
+  mockery::stub(
+    github_testhost_priv$get_files_structure_from_repos,
+    "graphql_engine$set_owner_type",
+    test_org
+  )
+  mockery::stub(
+    github_testhost_priv$get_files_structure_from_repos,
+    "graphql_engine$get_files_structure_from_org",
+    test_mocker$use("gh_md_files_structure")
+  )
+  github_testhost_priv$searching_scope <- "repo"
+  expect_snapshot(
+    gh_files_structure_from_repos <- github_testhost_priv$get_files_structure_from_repos(
+      pattern = "\\.md|\\.qmd|\\.Rmd",
+      depth = Inf,
+      verbose = TRUE
+    )
+  )
+  expect_snapshot(
+    gh_files_structure_from_repos <- github_testhost_priv$get_files_structure_from_repos(
+      pattern = NULL,
+      depth = Inf,
+      verbose = TRUE
+    )
+  )
 })
 
 test_that("get_orgs_and_repos_from_files_structure", {
