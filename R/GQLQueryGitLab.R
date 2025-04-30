@@ -191,6 +191,7 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
       '
       query GetFilesTree ($fullPath: ID!, $file_path: String!) {
         project(fullPath: $fullPath) {
+          id
           repository {
             tree(path: $file_path) {
               trees (first: 100) {

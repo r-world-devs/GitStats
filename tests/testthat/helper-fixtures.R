@@ -667,6 +667,7 @@ test_fixtures$github_search_response_large <- list(
 test_fixtures$gitlab_files_tree_response <- list(
   "data" = list(
     "project" = list(
+      "id" = "123456",
       "repository" = list(
         "tree" = list(
           "trees" = list(
@@ -704,9 +705,9 @@ test_fixtures$gitlab_files_tree_response <- list(
 test_fixtures$github_files_tree_response <- list(
   "data" = list(
     "repository" = list(
-      "id"     = "R_kgD0Ivtxsg",
-      "name"   = "TestRepo",
-      "url"    = "https://github.com/test_org/TestRepo",
+      "id" = "R_kgD0Ivtxsg",
+      "name" = "TestRepo",
+      "url" = "https://github.com/test_org/TestRepo",
       "object" = list(
         "entries" = list(
           list(

@@ -11,7 +11,8 @@ test_that("GitStats pulls repos files trees from hosts", {
     progress = FALSE
   )
   expect_s3_class(repos_trees_from_hosts, "tbl")
-  expect_named(repos_trees_from_hosts, c("repo_name", "files_tree", "organization", "githost"))
+  expect_named(repos_trees_from_hosts,
+               c("repo_id", "repo_name", "organization", "files_tree", "githost"))
   test_mocker$cache(repos_trees_from_hosts)
 })
 

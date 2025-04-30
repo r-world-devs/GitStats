@@ -212,7 +212,7 @@ EngineGraphQLGitLab <- R6::R6Class(
               sub("^/", "", .)
           }
           data.frame(
-            repo_id = sub(".*/(\\d+)$", "\\1", repo$repo_id),
+            repo_id = get_gitlab_repo_id(repo$repo_id),
             repo_name = repo$repo_name,
             default_branch = repo$repository$rootRef %||% "",
             stars = repo$stars,
@@ -738,6 +738,9 @@ EngineGraphQLGitLab <- R6::R6Class(
         )
       } else {
         files_structure <- all_files_and_dirs_list$files
+      }
+      if (!is.null(files_structure)) {
+        attr(files_structure, "repo_id") <- get_gitlab_repo_id(files_tree_response$data$project$id)
       }
       return(files_structure)
     },

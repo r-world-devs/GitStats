@@ -63,3 +63,7 @@ is_name <- function(author) {
 is_login <- function(author) {
   length(stringr::str_split_1(author, " ")) == 1 && identical(author, tolower(author))
 }
+
+get_gitlab_repo_id <- function(gitlab_repo_id) {
+  sub(".*/(\\d+)$", "\\1", gitlab_repo_id)
+}

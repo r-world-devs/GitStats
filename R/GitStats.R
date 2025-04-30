@@ -878,17 +878,22 @@ GitStats <- R6::R6Class(
         ) |>
           purrr::discard(~ length(.) == 0) |>
           purrr::imap(function(org_tree, org_name) {
-            org_files_tree <- purrr::imap(org_tree, function(x, y) {
+            org_files_tree <- purrr::imap(org_tree, function(files_tree, repo_name) {
               dplyr::tibble(
-                "repo_name" = y,
-                "files_tree" = list(x)
+                "repo_id" = attr(files_tree, "repo_id"),
+                "repo_name" = repo_name,
+                "files_tree" = list(files_tree)
               )
             }) |>
               purrr::list_rbind() |>
               dplyr::mutate(
                 organization = org_name
+              ) |>
+              dplyr::relocate(
+                organization, .before = files_tree
               )
-          }) |> purrr::list_rbind() |>
+          }) |>
+          purrr::list_rbind() |>
           dplyr::mutate(
             githost = retrieve_platform(host$.__enclos_env__$private$api_url)
           )
