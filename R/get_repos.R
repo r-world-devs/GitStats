@@ -190,3 +190,59 @@ get_repos_with_R_packages <- function(gitstats,
   }
   return(package_usage)
 }
+
+#' @title Get data on files trees across repositories
+#' @name get_repos_trees
+#' @description Pulls files tree (structure) per repository. Files trees are
+#'   then stored as character vectors in `files_tree` column of output table.
+#' @param gitstats A GitStats object.
+#' @param pattern A regular expression. If defined, it pulls structure of files
+#'   in a repository matching this pattern reaching to the level of directories
+#'   defined by `depth` parameter.
+#' @param depth Defines level of directories to reach for files structure from.
+#'   E.g. if set to `0`, it will pull files tree only from `root`, if `1L`, will
+#'   take data from `root` directory and directories visible in `root`
+#'   directory. If left with no argument, will pull files tree down to every
+#'   directory in a repo.
+#' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
+#'   result from its storage.
+#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
+#'   output is switched off.
+#' @param progress A logical, by default set to `verbose` value. If `FALSE` no
+#'   `cli` progress bar will be displayed.
+#' @return A `tibble`.
+#' @examples
+#' \dontrun{
+#'  my_gitstats <- create_gitstats() %>%
+#'   set_github_host(
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs", "openpharma")
+#'   )
+#'
+#'  get_repos_trees(
+#'    gitstats = my_gitstats,
+#'    pattern = "\\.md"
+#'  )
+#' }
+#' @export
+get_repos_trees <- function(gitstats,
+                            pattern = NULL,
+                            depth = Inf,
+                            cache = TRUE,
+                            verbose = is_verbose(gitstats),
+                            progress = verbose) {
+  start_time <- Sys.time()
+  repos_trees <- gitstats$get_repos_trees(
+    pattern = pattern,
+    depth = depth,
+    cache = cache,
+    verbose = verbose,
+    progress = progress
+  )
+  end_time <- Sys.time()
+  time_taken <- end_time - start_time
+  if (verbose) {
+    cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
+  }
+  return(repos_trees)
+}

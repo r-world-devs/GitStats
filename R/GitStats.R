@@ -338,6 +338,50 @@ GitStats <- R6::R6Class(
       return(files)
     },
 
+    get_repos_trees = function(pattern,
+                               depth,
+                               cache,
+                               verbose,
+                               progress) {
+      private$check_for_host()
+      args_list <- list(
+        "file_pattern" = pattern,
+        "depth" = depth
+      )
+      trigger <- private$trigger_pulling(
+        cache = cache,
+        storage = "repos_trees",
+        args_list = args_list,
+        verbose = verbose
+      )
+      if (trigger) {
+        repos_trees <- private$get_repos_trees_from_hosts(
+          pattern = pattern,
+          depth = depth,
+          verbose = verbose,
+          progress = progress
+        )
+        if (nrow(repos_trees) > 0) {
+          repos_trees <- private$set_object_class(
+            object = repos_trees,
+            class = "gitstats_repos_trees",
+            attr_list = args_list
+          )
+          private$save_to_storage(repos_trees)
+        } else {
+          if (verbose) {
+            cli::cli_alert_warning("No repos \U1F333 trees found.")
+          }
+        }
+      } else {
+        repos_trees <- private$get_from_storage(
+          table = "repos_trees",
+          verbose = verbose
+        )
+      }
+      return(repos_trees)
+    },
+
     get_release_logs = function(since,
                                 until = Sys.Date(),
                                 cache = TRUE,
@@ -821,6 +865,42 @@ GitStats <- R6::R6Class(
         dplyr::as_tibble()
     },
 
+    get_repos_trees_from_hosts = function(pattern,
+                                          depth,
+                                          verbose,
+                                          progress) {
+      purrr::map(private$hosts, function(host) {
+        files_tree_table <- host$get_files_structure(
+          pattern = pattern,
+          depth = depth,
+          verbose = verbose,
+          progress = progress
+        ) |>
+          purrr::discard(~ length(.) == 0) |>
+          purrr::imap(function(org_tree, org_name) {
+            org_files_tree <- purrr::imap(org_tree, function(files_tree, repo_name) {
+              dplyr::tibble(
+                "repo_id" = attr(files_tree, "repo_id"),
+                "repo_name" = repo_name,
+                "files_tree" = list(files_tree)
+              )
+            }) |>
+              purrr::list_rbind() |>
+              dplyr::mutate(
+                organization = org_name
+              ) |>
+              dplyr::relocate(
+                organization, .before = files_tree
+              )
+          }) |>
+          purrr::list_rbind() |>
+          dplyr::mutate(
+            githost = retrieve_platform(host$.__enclos_env__$private$api_url)
+          )
+      }) |>
+        purrr::list_rbind()
+    },
+
     # Pull content of a text file in a table form
     get_files_from_hosts = function(pattern,
                                     depth,
@@ -830,9 +910,9 @@ GitStats <- R6::R6Class(
       purrr::map(private$hosts, function(host) {
         if (is.null(file_path)) {
           files_structure <- host$get_files_structure(
-            pattern  = pattern,
-            depth    = depth,
-            verbose  = verbose,
+            pattern = pattern,
+            depth = depth,
+            verbose = verbose,
             progress = progress
           ) |>
             purrr::discard(~ length(.) == 0)

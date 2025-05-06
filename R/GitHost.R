@@ -1456,10 +1456,10 @@ GitHost <- R6::R6Class(
           if (verbose) {
             user_info <- if (!is.null(pattern)) {
               glue::glue(
-                "Pulling files structure...[files matching pattern: '{paste0(pattern, collapse = '|')}']"
+                "Pulling files \U1F333 structure...[files matching pattern: '{paste0(pattern, collapse = '|')}']"
               )
             } else {
-              glue::glue("Pulling files structure...")
+              glue::glue("Pulling files \U1F333 structure...")
             }
             show_message(
               host = private$host_name,
@@ -1505,10 +1505,10 @@ GitHost <- R6::R6Class(
           if (verbose) {
             user_info <- if (!is.null(pattern)) {
               glue::glue(
-                "Pulling files structure...[files matching pattern: '{paste0(pattern, collapse = '|')}']"
+                "Pulling files \U1F333 structure...[files matching pattern: '{paste0(pattern, collapse = '|')}']"
               )
             } else {
-              glue::glue("Pulling files structure...")
+              glue::glue("Pulling files \U1F333 structure...")
             }
             show_message(
               host = private$host_name,

@@ -707,6 +707,9 @@ EngineGraphQLGitHub <- R6::R6Class(
       } else {
         files_structure <- all_files_and_dirs_list$files
       }
+      if (!is.null(files_structure)) {
+        attr(files_structure, "repo_id") <- files_tree_response$data$repository$id
+      }
       return(files_structure)
     },
 
