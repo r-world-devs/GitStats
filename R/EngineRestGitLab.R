@@ -251,7 +251,8 @@ EngineRestGitLab <- R6::R6Class(
             class(full_repos_list) <<- c(class(full_repos_list), "rest_error", "rest_error_response_limit")
             return(NULL)
           } else {
-            cli::cli_abort(e)
+            cli::cli_alert_danger(e$message)
+            return(NULL)
           }
         })
         if (length(search_result) == 0 || inherits(full_repos_list, "rest_error")) {
