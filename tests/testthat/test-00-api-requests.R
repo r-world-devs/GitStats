@@ -37,6 +37,16 @@ test_that("`perform_request()` returns proper status", {
   )
 })
 
+test_that("`paginate_results()` works properly", {
+  if (!integration_tests_skipped) {
+    expect_no_error(
+      test_rest_github_priv$paginate_results(
+        endpoint = "https://api.github.com/orgs/pharmaverse/repos"
+      )
+    )
+  }
+})
+
 test_that("`perform_request()` returns status 200", {
   skip_if(Sys.getenv("GITHUB_PAT") == "")
   response <- test_rest_github_priv$perform_request(
