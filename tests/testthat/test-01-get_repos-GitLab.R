@@ -317,6 +317,30 @@ test_that("`search_for_code()` works", {
   )
 })
 
+test_that("`search_for_code()` handles the 1000 response limit", {
+  limit_rest_error <- function() stop("test")
+  mockery::stub(
+    test_rest_gitlab$search_for_code,
+    "self$response",
+    limit_rest_error
+  )
+  mockery::stub(
+    test_rest_gitlab$search_for_code,
+    "list",
+    rep(1, 1e4)
+  )
+  expect_snapshot(
+    gl_search_repos_by_code <- test_rest_gitlab$search_for_code(
+      code = "test",
+      filename = "TESTFILE",
+      verbose = TRUE,
+      page_max = 2
+    )
+  )
+  expect_s3_class(gl_search_repos_by_code, "rest_error")
+  expect_s3_class(gl_search_repos_by_code, "rest_error_response_limit")
+})
+
 test_that("`search_repos_for_code()` works", {
   mockery::stub(
     test_rest_gitlab$search_repos_for_code,
