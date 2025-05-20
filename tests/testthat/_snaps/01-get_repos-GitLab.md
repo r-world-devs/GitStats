@@ -30,6 +30,15 @@
     Message
       > Searching for code [test]...
 
+# `search_for_code()` handles the 1000 response limit
+
+    Code
+      gl_search_repos_by_code <- test_rest_gitlab$search_for_code(code = "test",
+        filename = "TESTFILE", verbose = TRUE, page_max = 2)
+    Message
+      > Searching for code [test]...
+      ! Reached 10 thousand response limit.
+
 # `search_repos_for_code()` works
 
     Code

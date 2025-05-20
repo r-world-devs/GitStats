@@ -369,6 +369,20 @@ test_fixtures$gitlab_repos_by_user_response <- list(
   )
 )
 
+
+test_fixtures$gitlab_repos_response_flawed <- list(
+  "data" = list(
+    "projects" = list(
+      "count" = 5,
+      "pageInfo" = list(
+        "hasNextPage" = NULL,
+        "endCursor" = "xyz"
+      ),
+      "edges" = NULL
+    )
+  )
+)
+
 github_commit_edge <- function(timestamp, author) {
   list(
     "node" = list(

@@ -200,7 +200,43 @@ test_that("error handler prints proper messages", {
   )
 })
 
-test_that("get_repos breaks when response is a GraphQL query error", {
+test_that("get_repos returns empty list when data is flawed (edges and nextPage is NULL)", {
+  flawed_repos_response <- test_fixtures$gitlab_repos_response_flawed
+  mockery::stub(
+    test_graphql_gitlab$get_repos,
+    "private$get_repos_page",
+    flawed_repos_response
+  )
+  repos_response <- test_graphql_gitlab$get_repos(
+    repos_ids = c("test_id_1", "test_id_2"),
+    verbose = TRUE
+  )
+  expect_equal(
+    repos_response,
+    list()
+  )
+})
+
+test_that("get_repos tries one more time pull data when encounters GraphQL query error", {
+  standard_graphql_error <- test_fixtures$gitlab_repos_by_user_response
+  class(standard_graphql_error) <- c(class(standard_graphql_error), "graphql_error")
+  mockery::stub(
+    test_graphql_gitlab$get_repos,
+    "private$get_repos_page",
+    standard_graphql_error
+  )
+  repos_response <- test_graphql_gitlab$get_repos(
+    repos_ids = c("test_id_1", "test_id_2"),
+    verbose = TRUE
+  )
+  expect_named(
+    repos_response[[1]]$node,
+    c("repo_id", "repo_name", "repo_path", "repository", "stars", "forks", "created_at",
+      "last_activity_at", "languages", "issues", "namespace", "repo_url")
+  )
+})
+
+test_that("get_repos breaks when response is a GraphQL 'no fields' error", {
   mockery::stub(
     test_graphql_gitlab$get_repos,
     "private$get_repos_page",
@@ -211,6 +247,7 @@ test_that("get_repos breaks when response is a GraphQL query error", {
     verbose = FALSE
   )
   expect_s3_class(response, "graphql_error")
+  expect_s3_class(response, "graphql_no_fields_error")
 })
 
 test_that("get_repos_from_org handles properly a GraphQL query error", {
@@ -295,6 +332,30 @@ test_that("`search_for_code()` works", {
       page_max = 2
     )
   )
+})
+
+test_that("`search_for_code()` handles the 1000 response limit", {
+  limit_rest_error <- function() stop("test")
+  mockery::stub(
+    test_rest_gitlab$search_for_code,
+    "self$response",
+    limit_rest_error
+  )
+  mockery::stub(
+    test_rest_gitlab$search_for_code,
+    "list",
+    rep(1, 1e4)
+  )
+  expect_snapshot(
+    gl_search_repos_by_code <- test_rest_gitlab$search_for_code(
+      code = "test",
+      filename = "TESTFILE",
+      verbose = TRUE,
+      page_max = 2
+    )
+  )
+  expect_s3_class(gl_search_repos_by_code, "rest_error")
+  expect_s3_class(gl_search_repos_by_code, "rest_error_response_limit")
 })
 
 test_that("`search_repos_for_code()` works", {

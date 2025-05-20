@@ -21,7 +21,7 @@ test_gqlquery_gl <- GQLQueryGitLab$new()
 
 test_rest_github <- TestEngineRestGitHub$new(
   rest_api_url = "https://api.github.com",
-  token = NULL
+  token = github_token
 )
 test_rest_github_priv <- environment(test_rest_github$initialize)$private
 

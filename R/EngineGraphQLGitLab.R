@@ -132,22 +132,28 @@ EngineGraphQLGitLab <- R6::R6Class(
           repo_cursor = repo_cursor
         )
         if (inherits(repos_response, "graphql_error")) {
-          full_repos_list <- repos_response
-          break
-        } else {
-          core_response <- repos_response$data$projects
-          repos_list <- core_response$edges
-          next_page <- core_response$pageInfo$hasNextPage
-          if (is.null(next_page)) next_page <- FALSE
-          if (is.null(repos_list)) repos_list <- list()
-          if (length(repos_list) == 0) next_page <- FALSE
-          if (next_page) {
-            repo_cursor <- core_response$pageInfo$endCursor
-          } else {
-            repo_cursor <- ""
+          if (inherits(repos_response, "graphql_no_fields_error")) {
+            full_repos_list <- repos_response
+            break
           }
-          full_repos_list <- append(full_repos_list, repos_list)
+          repos_response <- private$get_repos_page(
+            projects_ids = paste0("gid://gitlab/Project/", repos_ids),
+            type = "projects",
+            repo_cursor = repo_cursor
+          )
         }
+        core_response <- repos_response$data$projects
+        repos_list <- core_response$edges
+        next_page <- core_response$pageInfo$hasNextPage
+        if (is.null(next_page)) next_page <- FALSE
+        if (is.null(repos_list)) repos_list <- list()
+        if (length(repos_list) == 0) next_page <- FALSE
+        if (next_page) {
+          repo_cursor <- core_response$pageInfo$endCursor
+        } else {
+          repo_cursor <- ""
+        }
+        full_repos_list <- append(full_repos_list, repos_list)
       }
       full_repos_list <- handle_graphql_error(full_repos_list, verbose)
       return(full_repos_list)
