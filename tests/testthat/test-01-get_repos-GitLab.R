@@ -200,6 +200,23 @@ test_that("error handler prints proper messages", {
   )
 })
 
+test_that("get_repos returns empty list when data is flawed (edges and nextPage is NULL)", {
+  flawed_repos_response <- test_fixtures$gitlab_repos_response_flawed
+  mockery::stub(
+    test_graphql_gitlab$get_repos,
+    "private$get_repos_page",
+    flawed_repos_response
+  )
+  repos_response <- test_graphql_gitlab$get_repos(
+    repos_ids = c("test_id_1", "test_id_2"),
+    verbose = TRUE
+  )
+  expect_equal(
+    repos_response,
+    list()
+  )
+})
+
 test_that("get_repos tries one more time pull data when encounters GraphQL query error", {
   standard_graphql_error <- test_fixtures$gitlab_repos_by_user_response
   class(standard_graphql_error) <- c(class(standard_graphql_error), "graphql_error")
