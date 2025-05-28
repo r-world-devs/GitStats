@@ -1,5 +1,8 @@
 # GitStats (development version)
 
+- Handled connection errors to `GraphQL` (502 Bad Gateway) occurring during pulling commits (#636).
+- Fixed pulling issues when there are no authors of the issue (#637).
+
 # GitStats 2.3.2
 
 - Added `get_repos_trees()` function (#614).
