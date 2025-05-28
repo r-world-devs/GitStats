@@ -479,13 +479,18 @@ EngineGraphQLGitHub <- R6::R6Class(
       full_commits_list <- list()
       commits_cursor <- ""
       while (next_page) {
-        commits_response <- private$get_commits_page_from_repo(
-          org = org,
-          repo = repo,
-          since = since,
-          until = until,
-          commits_cursor = commits_cursor
-        )
+        commits_response <- tryCatch({
+          private$get_commits_page_from_repo(
+            org = org,
+            repo = repo,
+            since = since,
+            until = until,
+            commits_cursor = commits_cursor
+          )
+        }, error = function(e) {
+          cli::cli_alert_danger(e$message)
+          NULL
+        })
         commits_list <- commits_response$data$repository$defaultBranchRef$target$history$edges
         next_page <- commits_response$data$repository$defaultBranchRef$target$history$pageInfo$hasNextPage
         if (is.null(next_page)) next_page <- FALSE
