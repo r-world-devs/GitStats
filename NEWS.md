@@ -2,6 +2,7 @@
 
 - Handled connection errors to `GraphQL` (502 Bad Gateway) occurring during pulling commits ([#636](https://github.com/r-world-devs/GitStats/issues/636)).
 - Fixed pulling issues when there are no authors of the issue ([#637](https://github.com/r-world-devs/GitStats/issues/637)).
+- Fixed pulling GitLab commits when `org` is set as a scope ([#639](https://github.com/r-world-devs/GitStats/issues/639)).
 
 # GitStats 2.3.2
 
