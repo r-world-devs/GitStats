@@ -55,6 +55,27 @@ test_that("`get_commits_from_one_repo()` prepares formatted list", {
   test_mocker$cache(commits_from_repo)
 })
 
+test_that("`get_commits_from_one_repo()` handles 502 error and returns empty list", {
+  bad_gateway_error <- function() stop("502 Bad Gateway")
+  mockery::stub(
+    test_graphql_github_priv$get_commits_from_one_repo,
+    "private$get_commits_page_from_repo",
+    bad_gateway_error
+  )
+  expect_snapshot(
+    commits_from_repo <- test_graphql_github_priv$get_commits_from_one_repo(
+      org = "r-world-devs",
+      repo = "GitStats",
+      since = "2023-01-01",
+      until = "2023-02-28"
+    )
+  )
+  expect_equal(
+    commits_from_repo,
+    list()
+  )
+})
+
 test_that("`get_commits_from_repos()` pulls commits from repos", {
   mockery::stub(
     test_graphql_github$get_commits_from_repos,
