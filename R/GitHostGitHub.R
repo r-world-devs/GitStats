@@ -187,7 +187,10 @@ GitHostGitHub <- R6::R6Class(
               information = "Pulling commits"
             )
           }
-          repos_names <- private$get_repos_names(org)
+          repos_names <- private$get_repos_names(
+            org = org,
+            verbose = verbose
+          )
           commits_table_org <- graphql_engine$get_commits_from_repos(
             org = org,
             repos_names = repos_names,
@@ -248,7 +251,7 @@ GitHostGitHub <- R6::R6Class(
     },
 
     # Use repositories either from parameter or, if not set, pull them from API
-    get_repos_names = function(org) {
+    get_repos_names = function(org, verbose) {
       owner_type <- attr(org, "type") %||% "organization"
       org <- utils::URLdecode(org)
       graphql_engine <- private$engines$graphql
