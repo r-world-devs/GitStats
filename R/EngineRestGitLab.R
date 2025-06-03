@@ -476,7 +476,7 @@ EngineRestGitLab <- R6::R6Class(
                                          until) {
       commits_endpoint <- paste0(
         private$endpoints$projects,
-        repo_path,
+        utils::URLencode(repo_path, reserved = TRUE),
         "/repository/commits?since='",
         as.Date(since),
         "'&until='",

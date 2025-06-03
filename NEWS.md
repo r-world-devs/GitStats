@@ -1,14 +1,20 @@
+# GitStats 2.3.3
+
+- Handled connection errors to `GraphQL` (502 Bad Gateway) occurring during pulling commits ([#636](https://github.com/r-world-devs/GitStats/issues/636)).
+- Fixed pulling issues when there are no authors of the issue ([#637](https://github.com/r-world-devs/GitStats/issues/637)).
+- Fixed pulling GitLab commits when `org` is set as a scope ([#639](https://github.com/r-world-devs/GitStats/issues/639)).
+
 # GitStats 2.3.2
 
-- Added `get_repos_trees()` function (#614).
-- Fixed errors when pulling data on repositories with code (#634).
+- Added `get_repos_trees()` function ([#614](https://github.com/r-world-devs/GitStats/issues/614)).
+- Fixed errors when pulling data on repositories with code ([#634](https://github.com/r-world-devs/GitStats/issues/634)).
 
 # GitStats 2.3.1
 
 A patch release with hot fixes to functions pulling repositories with code.
 
 - Fixed pulling GitLab repositories with no issues ([#616](https://github.com/r-world-devs/GitStats/issues/616)).
-- Handled `GraphQL` errors due to old GitLab version with switching to `REST` engine ([#615](https://github.com/r-world-devs/GitStats/issues/615), @ThomUK).
+- Handled `GraphQL` errors due to old GitLab version with switching to `REST` engine ([#615](https://github.com/r-world-devs/GitStats/issues/615), [@ThomUK](https://github.com/ThomUK)).
 - Removed switching to iterating over organizations after large GitLab response error (over 10 thousand responses) ([#618](https://github.com/r-world-devs/GitStats/issues/618)), as the process takes very long.
 
 # GitStats 2.3.0

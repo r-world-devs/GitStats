@@ -1275,7 +1275,10 @@ GitHost <- R6::R6Class(
               information = "Pulling issues"
             )
           }
-          repos_names <- private$get_repos_names(org)
+          repos_names <- private$get_repos_names(
+            org = org,
+            verbose = verbose
+          )
           issues_table_org <- graphql_engine$get_issues_from_repos(
             org = org,
             repos_names = repos_names,
@@ -1576,7 +1579,8 @@ GitHost <- R6::R6Class(
             )
           }
           repos_names <- private$get_repos_names(
-            org = org
+            org = org,
+            verbose = verbose
           )
           graphql_engine <- private$engines$graphql
           if (length(repos_names) > 0) {

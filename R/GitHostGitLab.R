@@ -265,7 +265,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             org = org
           )
           commits_table_org <- rest_engine$get_commits_from_repos(
-            repos_names = paste0(org, "%2f", repos_names),
+            repos_names = paste0(org, "/", repos_names),
             since = since,
             until = until,
             progress = progress
@@ -303,9 +303,9 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           repos_names <- paste0(utils::URLencode(org, reserved = TRUE), "%2f", repos)
           if (!private$scan_all && verbose) {
             show_message(
-              host        = private$host_name,
-              engine      = "rest",
-              scope       = set_repo_scope(org, private),
+              host = private$host_name,
+              engine = "rest",
+              scope = set_repo_scope(org, private),
               information = "Pulling commits"
             )
           }
@@ -318,7 +318,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             rest_engine$tailor_commits_info(org = org) %>%
             rest_engine$prepare_commits_table() %>%
             rest_engine$get_commits_authors_handles_and_names(
-              verbose  = verbose,
+              verbose = verbose,
               progress = progress
             )
           return(commits_table_org)
@@ -333,7 +333,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     },
 
     # Use repositories either from parameter or, if not set, pull them from API
-    get_repos_names = function(org) {
+    get_repos_names = function(org, verbose) {
       graphql_engine <- private$engines$graphql
       owner_type <- attr(org, "type") %||% "organization"
       repos_names <- graphql_engine$get_repos_from_org(

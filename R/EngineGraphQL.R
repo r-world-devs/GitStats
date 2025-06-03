@@ -75,6 +75,7 @@ EngineGraphQL <- R6::R6Class(
           get_node_data <- function(node_data) {
             issue_data[["node"]][[node_data]] %||% ""
           }
+          author_login <- issue_data[["node"]][["author"]][["login"]] %||% NA_character_
           data.frame(
             number = as.character(get_node_data("number")),
             title = get_node_data("title"),
@@ -83,7 +84,7 @@ EngineGraphQL <- R6::R6Class(
             closed_at = lubridate::as_datetime(get_node_data("closed_at")),
             state = state,
             url = get_node_data("url"),
-            author = issue_data[["node"]][["author"]][["login"]]
+            author = author_login
           )
         })
         issues_row$repository <- repo_name

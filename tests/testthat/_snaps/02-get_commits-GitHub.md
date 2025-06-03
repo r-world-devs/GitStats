@@ -9,3 +9,11 @@
 
     i GraphQL response error
 
+# `get_commits_from_one_repo()` handles 502 error and returns empty list
+
+    Code
+      commits_from_repo <- test_graphql_github_priv$get_commits_from_one_repo(org = "r-world-devs",
+        repo = "GitStats", since = "2023-01-01", until = "2023-02-28")
+    Message
+      x unused arguments (org = org, repo = repo, since = since, until = until, commits_cursor = commits_cursor)
+
