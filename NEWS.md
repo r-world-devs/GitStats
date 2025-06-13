@@ -1,3 +1,5 @@
+# GitStats (development version)
+
 # GitStats 2.3.3
 
 - Handled connection errors to `GraphQL` (502 Bad Gateway) occurring during pulling commits ([#636](https://github.com/r-world-devs/GitStats/issues/636)).
