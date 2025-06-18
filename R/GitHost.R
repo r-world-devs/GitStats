@@ -451,26 +451,16 @@ GitHost <- R6::R6Class(
     # Check if both repos and orgs are defined or not.
     set_searching_scope = function(orgs, repos, verbose) {
       if (is.null(repos) && is.null(orgs)) {
-        if (private$is_public) {
-          cli::cli_abort(c(
-            "You need to specify `orgs` or/and `repos` for public Git Host.",
-            "x" = "Host will not be added.",
-            "i" = "Add organizations to your `orgs` and/or repositories to
-            `repos` parameter."
-          ),
-          call = NULL)
-        } else {
-          if (verbose) {
-            cli::cli_alert_info(cli::col_grey(
-              "No `orgs` nor `repos` specified."
-            ))
-            cli::cli_alert_info(cli::col_grey(
-              "Searching scope set to [all]."
-            ))
-          }
-          private$searching_scope <- "all"
-          private$scan_all <- TRUE
+        if (verbose) {
+          cli::cli_alert_info(cli::col_grey(
+            "No `orgs` nor `repos` specified."
+          ))
+          cli::cli_alert_info(cli::col_grey(
+            "Searching scope set to [all]."
+          ))
         }
+        private$searching_scope <- "all"
+        private$scan_all <- TRUE
       }
       if (!is.null(repos)) {
         private$searching_scope <- c(private$searching_scope, "repo")
