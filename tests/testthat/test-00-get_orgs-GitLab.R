@@ -449,6 +449,16 @@ test_that("get_orgs_from_orgs_and_repos prints message when turning to REST engi
   )
 })
 
+test_that("get_orgs_from_host returns error when GitHost is public", {
+  gitlab_testhost_priv$is_public <- TRUE
+  expect_snapshot_error(
+    gitlab_testhost_priv$get_orgs_from_host(
+      output = "full_table",
+      verbose = FALSE
+    )
+  )
+})
+
 test_that("get_orgs works on GitHost level", {
   mockery::stub(
     gitlab_testhost$get_orgs,
