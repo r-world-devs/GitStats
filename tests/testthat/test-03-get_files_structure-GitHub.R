@@ -378,6 +378,7 @@ test_that("get_files_structure pulls files structure for repositories in orgs", 
 
 test_that("get_files_structure runs when scope is set to scan whole host", {
   github_testhost$.__enclos_env__$private$scan_all <- TRUE
+  github_testhost$.__enclos_env__$private$orgs <- NULL
   mockery::stub(
     github_testhost$get_files_structure,
     "private$get_orgs_from_host",
