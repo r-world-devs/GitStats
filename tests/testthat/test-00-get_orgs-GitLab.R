@@ -248,7 +248,6 @@ test_that("REST method prints message", {
   )
 })
 
-
 test_that("table is prepared from REST orgs response", {
   gitlab_org_rest_table <- test_rest_gitlab$prepare_orgs_table(
     orgs_list = test_mocker$use("gl_orgs_rest_list")
