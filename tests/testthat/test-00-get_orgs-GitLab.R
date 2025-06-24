@@ -271,6 +271,7 @@ test_that("if get_orgs_from_host runs into GraphQL error, it switches to REST AP
     "rest_engine$get_orgs",
     test_mocker$use("gl_orgs_rest_list")
   )
+  gitlab_test_host_priv_2$is_public <- FALSE
   expect_snapshot(
     gitlab_orgs_vec <- gitlab_test_host_priv_2$get_orgs_from_host(
       output = "only_names",
@@ -286,6 +287,7 @@ test_that("if get_orgs_from_host runs into GraphQL error, it switches to REST AP
     orgs = "mbtests",
     mode = "private"
   )
+  gitlab_test_host_priv_2$is_public <- FALSE
   mockery::stub(
     gitlab_test_host_priv_2$get_orgs_from_host,
     "graphql_engine$get_orgs",
@@ -317,6 +319,7 @@ test_that("get_orgs_from_host works on GitHost level", {
     "graphql_engine$get_orgs",
     test_mocker$use("gl_orgs_full_response")
   )
+  gitlab_testhost_priv$is_public <- FALSE
   gitlab_orgs_table <- gitlab_testhost_priv$get_orgs_from_host(
     output = "full_table",
     verbose = FALSE
@@ -333,6 +336,7 @@ test_that("get_orgs_from_host prints message on number of organizations", {
     "rest_engine$get_orgs_count",
     3L
   )
+  gitlab_testhost_priv$is_public <- FALSE
   mockery::stub(
     gitlab_testhost_priv$get_orgs_from_host,
     "graphql_engine$get_orgs",

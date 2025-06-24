@@ -136,6 +136,10 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     },
 
     get_orgs_from_host = function(output, verbose) {
+      if (private$is_public) {
+        cli::cli_abort("This feature is not applicable for public hosts.",
+                       call = NULL)
+      }
       rest_engine <- private$engines$rest
       orgs_count <- rest_engine$get_orgs_count(verbose)
       if (verbose) {
