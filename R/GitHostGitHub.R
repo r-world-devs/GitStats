@@ -139,6 +139,10 @@ GitHostGitHub <- R6::R6Class(
     },
 
     get_orgs_from_host = function(output, verbose) {
+      if (private$is_public) {
+        cli::cli_abort("This feature is not applicable for public hosts.",
+                       call = NULL)
+      }
       graphql_engine <- private$engines$graphql
       orgs <- graphql_engine$get_orgs(
         output = output,

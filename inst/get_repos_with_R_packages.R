@@ -1,5 +1,15 @@
 devtools::load_all(".")
 
+github_stats <- create_gitstats() |>
+  set_github_host()
+
+get_repos_with_R_packages(github_stats, "GitStats")
+
+gitlab_stats <- create_gitstats() |>
+  set_gitlab_host()
+
+gitlab_stats$get_orgs()
+
 openpharma_stats <- create_gitstats() %>%
   set_github_host(
     orgs = "openpharma"

@@ -376,13 +376,26 @@ test_that("get_files_structure pulls files structure for repositories in orgs", 
   test_mocker$cache(gh_files_structure_from_orgs)
 })
 
-test_that("get_files_structure aborts when scope to scan whole host", {
+test_that("get_files_structure runs when scope is set to scan whole host", {
   github_testhost$.__enclos_env__$private$scan_all <- TRUE
-  expect_snapshot_error(
-    github_testhost$get_files_structure(
-      pattern = "\\.md|\\.qmd",
-      depth = 1L,
-      verbose = FALSE
-    )
+  github_testhost$.__enclos_env__$private$orgs <- NULL
+  mockery::stub(
+    github_testhost$get_files_structure,
+    "private$get_orgs_from_host",
+    c("test_org")
+  )
+  mockery::stub(
+    github_testhost$get_files_structure,
+    "private$get_files_structure_from_orgs",
+    test_mocker$use("gh_files_structure_from_orgs")
+  )
+  files_structure <- github_testhost$get_files_structure(
+    pattern = "\\.md|\\.qmd",
+    depth = 1L,
+    verbose = TRUE
+  )
+  expect_equal(
+    names(files_structure),
+    "test_org"
   )
 })

@@ -273,11 +273,11 @@ GitHost <- R6::R6Class(
                                    depth,
                                    verbose  = TRUE,
                                    progress = TRUE) {
-      if (private$scan_all) {
-        cli::cli_abort(c(
-          "x" = "This feature is not applicable to scan whole Git Host (time consuming).",
-          "i" = "Set `orgs` or `repos` arguments in `set_*_host()` if you wish to run this function."
-        ), call = NULL)
+      if (private$scan_all && is.null(private$orgs)) {
+        private$orgs <- private$get_orgs_from_host(
+          output = "only_names",
+          verbose = verbose
+        )
       }
       files_structure_from_orgs <- private$get_files_structure_from_orgs(
         pattern = pattern,
@@ -451,26 +451,16 @@ GitHost <- R6::R6Class(
     # Check if both repos and orgs are defined or not.
     set_searching_scope = function(orgs, repos, verbose) {
       if (is.null(repos) && is.null(orgs)) {
-        if (private$is_public) {
-          cli::cli_abort(c(
-            "You need to specify `orgs` or/and `repos` for public Git Host.",
-            "x" = "Host will not be added.",
-            "i" = "Add organizations to your `orgs` and/or repositories to
-            `repos` parameter."
-          ),
-          call = NULL)
-        } else {
-          if (verbose) {
-            cli::cli_alert_info(cli::col_grey(
-              "No `orgs` nor `repos` specified."
-            ))
-            cli::cli_alert_info(cli::col_grey(
-              "Searching scope set to [all]."
-            ))
-          }
-          private$searching_scope <- "all"
-          private$scan_all <- TRUE
+        if (verbose) {
+          cli::cli_alert_info(cli::col_grey(
+            "No `orgs` nor `repos` specified."
+          ))
+          cli::cli_alert_info(cli::col_grey(
+            "Searching scope set to [all]."
+          ))
         }
+        private$searching_scope <- "all"
+        private$scan_all <- TRUE
       }
       if (!is.null(repos)) {
         private$searching_scope <- c(private$searching_scope, "repo")
@@ -1453,7 +1443,7 @@ GitHost <- R6::R6Class(
                                              depth,
                                              verbose  = TRUE,
                                              progress = TRUE) {
-      if ("org" %in% private$searching_scope) {
+      if (any(c("all", "org") %in% private$searching_scope)) {
         graphql_engine <- private$engines$graphql
         files_structure_list <- purrr::map(private$orgs, function(org) {
           if (verbose) {

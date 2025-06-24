@@ -20,3 +20,7 @@
     Message
       > [Host:GitHub][Engine:GraphQL] Pulling organizations...
 
+# get_orgs_from_host returns error when GitHost is public
+
+    This feature is not applicable for public hosts.
+

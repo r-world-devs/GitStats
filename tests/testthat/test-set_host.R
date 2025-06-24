@@ -77,18 +77,15 @@ test_that("Set GitLab host with particular repos vector instead of orgs", {
   }
 })
 
-test_that("Error shows if organizations are not specified and host is not passed", {
+test_that("When no organizations or repositories are set information is printed", {
   skip_on_cran()
   test_gitstats <- create_gitstats()
-  expect_snapshot_error(
+  expect_snapshot(
     test_gitstats %>%
       set_github_host(
-        token = Sys.getenv("GITHUB_PAT")
+        token = Sys.getenv("GITHUB_PAT"),
+        verbose = TRUE
       )
-  )
-  expect_length(
-    test_gitstats$.__enclos_env__$private$hosts,
-    0
   )
 })
 

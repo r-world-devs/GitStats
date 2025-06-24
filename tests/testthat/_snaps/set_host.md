@@ -56,11 +56,14 @@
       > Checking repositories...
       v Set connection to GitLab.
 
-# Error shows if organizations are not specified and host is not passed
+# When no organizations or repositories are set information is printed
 
-    You need to specify `orgs` or/and `repos` for public Git Host.
-    x Host will not be added.
-    i Add organizations to your `orgs` and/or repositories to `repos` parameter.
+    Code
+      test_gitstats %>% set_github_host(token = Sys.getenv("GITHUB_PAT"), verbose = TRUE)
+    Message
+      i No `orgs` nor `repos` specified.
+      i Searching scope set to [all].
+      v Set connection to GitHub.
 
 # Error shows, when wrong input is passed when setting connection and host is not passed
 

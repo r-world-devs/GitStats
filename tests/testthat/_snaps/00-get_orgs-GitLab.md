@@ -101,3 +101,7 @@
       i Switching to REST API
       i Switching to REST API
 
+# get_orgs_from_host returns error when GitHost is public
+
+    This feature is not applicable for public hosts.
+
