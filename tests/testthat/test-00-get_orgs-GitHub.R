@@ -85,7 +85,18 @@ test_that("get_org pulls response for one org from GraphQL", {
   test_mocker$cache(gh_org_response)
 })
 
+test_that("get_orgs_from_host returns error when GitHost is public", {
+  github_testhost_priv$is_public <- TRUE
+  expect_snapshot_error(
+    github_testhost_priv$get_orgs_from_host(
+      output = "full_table",
+      verbose = FALSE
+    )
+  )
+})
+
 test_that("get_orgs_from_host works on GitHost level", {
+  github_testhost_priv$is_public <- FALSE
   mockery::stub(
     github_testhost_priv$get_orgs_from_host,
     "graphql_engine$get_orgs",
