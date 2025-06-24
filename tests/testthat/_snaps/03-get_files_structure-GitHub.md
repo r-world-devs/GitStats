@@ -49,8 +49,3 @@
     Output
       named list()
 
-# get_files_structure aborts when scope to scan whole host
-
-    x This feature is not applicable to scan whole Git Host (time consuming).
-    i Set `orgs` or `repos` arguments in `set_*_host()` if you wish to run this function.
-
