@@ -273,11 +273,11 @@ GitHost <- R6::R6Class(
                                    depth,
                                    verbose  = TRUE,
                                    progress = TRUE) {
-      if (private$scan_all) {
-        cli::cli_abort(c(
-          "x" = "This feature is not applicable to scan whole Git Host (time consuming).",
-          "i" = "Set `orgs` or `repos` arguments in `set_*_host()` if you wish to run this function."
-        ), call = NULL)
+      if (private$scan_all && is.null(private$orgs)) {
+        private$orgs <- private$get_orgs_from_host(
+          output = "only_names",
+          verbose = verbose
+        )
       }
       files_structure_from_orgs <- private$get_files_structure_from_orgs(
         pattern = pattern,
@@ -1443,7 +1443,7 @@ GitHost <- R6::R6Class(
                                              depth,
                                              verbose  = TRUE,
                                              progress = TRUE) {
-      if ("org" %in% private$searching_scope) {
+      if (any(c("all", "org") %in% private$searching_scope)) {
         graphql_engine <- private$engines$graphql
         files_structure_list <- purrr::map(private$orgs, function(org) {
           if (verbose) {
