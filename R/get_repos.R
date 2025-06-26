@@ -134,63 +134,6 @@ get_repos_urls <- function(gitstats,
   return(repos_urls)
 }
 
-#' @title Get data on package usage across repositories
-#' @name get_repos_with_R_packages
-#' @description Wrapper over searching repositories by code blobs related to
-#'   loading package (`library(package)` and `require(package)` in all files) or
-#'   using it as a dependency (`package` in `DESCRIPTION` and `NAMESPACE`
-#'   files).
-#' @param gitstats A GitStats object.
-#' @param packages A character vector, names of R packages to look for.
-#' @param only_loading A boolean, if `TRUE` function will check only if package
-#'   is loaded in repositories, not used as dependencies.
-#' @param split_output Optional, a boolean. If `TRUE` will return a list of
-#'   tables, where every element of the list stands for the package passed to
-#'   `packages` parameter. If `FALSE`, will return only one table with name of
-#'   the package stored in first column.
-#' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
-#'   result from its storage.
-#' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
-#'   output is switched off.
-#' @return A `tibble` or `list` of `tibbles` depending on `split_output`
-#'   parameter.
-#' @examples
-#' \dontrun{
-#'  my_gitstats <- create_gitstats() %>%
-#'   set_github_host(
-#'     token = Sys.getenv("GITHUB_PAT"),
-#'     orgs = c("r-world-devs", "openpharma")
-#'   )
-#'
-#'  get_repos_with_R_packages(
-#'    gitstats = my_gitstats,
-#'    packages = c("purrr", "shiny"),
-#'    split_output = TRUE
-#'  )
-#' }
-#' @export
-get_repos_with_R_packages <- function(gitstats,
-                                      packages,
-                                      only_loading = FALSE,
-                                      split_output = FALSE,
-                                      cache = TRUE,
-                                      verbose = is_verbose(gitstats)) {
-  start_time <- Sys.time()
-  package_usage <- gitstats$get_repos_with_R_packages(
-    packages = packages,
-    only_loading = only_loading,
-    split_output = split_output,
-    cache = cache,
-    verbose = verbose
-  )
-  end_time <- Sys.time()
-  time_taken <- end_time - start_time
-  if (verbose) {
-    cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
-  }
-  return(package_usage)
-}
-
 #' @title Get data on files trees across repositories
 #' @name get_repos_trees
 #' @description Pulls files tree (structure) per repository. Files trees are

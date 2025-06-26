@@ -21,8 +21,7 @@ GitLab. For the time-being you can get data on:
 - users,
 - release logs,
 - files tree (structure),
-- text files content,
-- R package usage.
+- text files content.
 
 You can also prepare basic statistics with `get_*_stats()` functions for
 commits and issues.
@@ -67,7 +66,7 @@ commits <- git_stats |>
   )
 
 commits
-#> # A tibble: 2,873 × 11
+#> # A tibble: 2,976 × 11
 #>    id    committed_date      author author_login author_name additions deletions
 #>    <chr> <dttm>              <chr>  <chr>        <chr>           <int>     <int>
 #>  1 7f48… 2024-09-10 11:12:59 Macie… maciekbanas  Maciej Ban…         0         0
@@ -80,7 +79,7 @@ commits
 #>  8 C_kw… 2023-05-08 09:43:31 Kryst… krystian8207 Krystian I…        18         0
 #>  9 C_kw… 2023-04-28 12:30:40 Kamil… <NA>         Kamil Kozi…        18         0
 #> 10 C_kw… 2023-03-01 15:05:10 Kryst… krystian8207 Krystian I…       296       153
-#> # ℹ 2,863 more rows
+#> # ℹ 2,966 more rows
 #> # ℹ 4 more variables: repository <chr>, organization <chr>, repo_url <chr>,
 #> #   api_url <glue>
 
@@ -89,7 +88,7 @@ commits |>
     time_aggregation = "month",
     group_var = author
   )
-#> # A tibble: 298 × 4
+#> # A tibble: 307 × 4
 #>    stats_date          githost author             stats
 #>    <dttm>              <chr>   <chr>              <int>
 #>  1 2022-01-01 00:00:00 github  Admin_mschuemi         1
@@ -102,7 +101,7 @@ commits |>
 #>  8 2022-02-01 00:00:00 github  Reijo Sund             1
 #>  9 2022-02-01 00:00:00 github  eitsupi                1
 #> 10 2022-03-01 00:00:00 github  Maximilian Girlich    14
-#> # ℹ 288 more rows
+#> # ℹ 297 more rows
 ```
 
 Get repositories with specific code:
@@ -137,7 +136,7 @@ git_stats |>
     pattern = "\\.md",
     depth = 2L
   )
-#> # A tibble: 57 × 8
+#> # A tibble: 58 × 8
 #>    repo_name      repo_id organization file_path file_content file_size repo_url
 #>    <chr>          <chr>   <chr>        <chr>     <chr>            <int> <chr>   
 #>  1 GitStats Test… gid://… mbtests      README.md "# GitStats…       122 https:/…
@@ -150,56 +149,8 @@ git_stats |>
 #>  8 shinyCohortBu… R_kgDO… r-world-devs README.md "\n# shinyC…      3355 https:/…
 #>  9 cohortBuilder… R_kgDO… r-world-devs README.md "\n# cohort…      3472 https:/…
 #> 10 GitStats       R_kgDO… r-world-devs LICENSE.… "# MIT Lice…      1075 https:/…
-#> # ℹ 47 more rows
+#> # ℹ 48 more rows
 #> # ℹ 1 more variable: api_url <chr>
-```
-
-Get package usage:
-
-``` r
-git_stats |>
-  get_repos_with_R_packages(
-    packages = c("shiny", "purrr"),
-    split_output = TRUE
-  )
-#> $shiny
-#> # A tibble: 6 × 19
-#>   package package_usage   repo_id  repo_fullname repo_name organization fullname
-#>   <chr>   <chr>           <chr>    <chr>         <chr>     <chr>        <chr>   
-#> 1 shiny   import          R_kgDOH… r-world-devs… cohortBu… r-world-devs r-world…
-#> 2 shiny   import, library R_kgDOH… r-world-devs… shinyCoh… r-world-devs r-world…
-#> 3 shiny   import, library R_kgDOJ… r-world-devs… shinyTim… r-world-devs r-world…
-#> 4 shiny   import, library R_kgDOJ… r-world-devs… hypothes… r-world-devs r-world…
-#> 5 shiny   import, library R_kgDOM… r-world-devs… shinyQue… r-world-devs r-world…
-#> 6 shiny   import, library R_kgDON… r-world-devs… GitAI     r-world-devs r-world…
-#> # ℹ 12 more variables: platform <chr>, repo_url <chr>, api_url <chr>,
-#> #   created_at <dttm>, last_activity_at <dttm>, last_activity <drtn>,
-#> #   default_branch <chr>, stars <int>, forks <int>, languages <chr>,
-#> #   issues_open <int>, issues_closed <int>
-#> 
-#> $purrr
-#> # A tibble: 8 × 19
-#>   package package_usage repo_id    repo_fullname repo_name organization fullname
-#>   <chr>   <chr>         <chr>      <chr>         <chr>     <chr>        <chr>   
-#> 1 purrr   import        R_kgDOHYN… r-world-devs… cohortBu… r-world-devs r-world…
-#> 2 purrr   import        R_kgDOHYN… r-world-devs… shinyCoh… r-world-devs r-world…
-#> 3 purrr   import        R_kgDOIvt… r-world-devs… GitStats  r-world-devs r-world…
-#> 4 purrr   import        R_kgDOJWY… r-world-devs… hypothes… r-world-devs r-world…
-#> 5 purrr   import        R_kgDOM0o… r-world-devs… queryBui… r-world-devs r-world…
-#> 6 purrr   import        R_kgDOM0v… r-world-devs… shinyQue… r-world-devs r-world…
-#> 7 purrr   import        R_kgDONLz… r-world-devs… GitAI     r-world-devs r-world…
-#> 8 purrr   import        MDEwOlJlc… openpharma/D… DataFakeR openpharma   openpha…
-#> # ℹ 12 more variables: platform <chr>, repo_url <chr>, api_url <chr>,
-#> #   created_at <dttm>, last_activity_at <dttm>, last_activity <drtn>,
-#> #   default_branch <chr>, stars <int>, forks <int>, languages <chr>,
-#> #   issues_open <int>, issues_closed <int>
-#> 
-#> attr(,"class")
-#> [1] "gitstats_package_usage" "list"                  
-#> attr(,"packages")
-#> [1] "shiny" "purrr"
-#> attr(,"only_loading")
-#> [1] FALSE
 ```
 
 Print `GitStats` to see what it stores:
@@ -213,9 +164,8 @@ git_stats
 #>  Repositories: [2] mbtests/gitstatstesting, openpharma/DataFakeR
 #> Storage: 
 #>  Repositories: 8 
-#>  Commits: 2873 [date range: 2022-01-01 - 2025-04-30]
-#>  Files: 57 [file pattern: \.md]
-#>  R_package_usage: 2 [packages: shiny, purrr]
+#>  Commits: 2976 [date range: 2022-01-01 - 2025-06-27]
+#>  Files: 58 [file pattern: \.md]
 ```
 
 ## See also

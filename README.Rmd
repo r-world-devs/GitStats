@@ -31,8 +31,7 @@ With `GitStats` you can pull git data in a uniform way from GitHub and GitLab. F
 * users,
 * release logs,
 * files tree (structure),
-* text files content,
-* R package usage.
+* text files content.
 
 You can also prepare basic statistics with `get_*_stats()` functions for commits and issues.
 
@@ -102,16 +101,6 @@ git_stats |>
   get_files(
     pattern = "\\.md",
     depth = 2L
-  )
-```
-
-Get package usage:
-
-```{r}
-git_stats |>
-  get_repos_with_R_packages(
-    packages = c("shiny", "purrr"),
-    split_output = TRUE
   )
 ```
 
