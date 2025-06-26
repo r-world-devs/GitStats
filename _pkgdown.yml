@@ -17,7 +17,6 @@ reference:
   - get_orgs
   - get_repos
   - get_repos_urls
-  - get_repos_with_R_packages
   - get_repos_trees
   - get_commits
   - get_issues
