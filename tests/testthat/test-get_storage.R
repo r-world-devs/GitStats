@@ -11,13 +11,11 @@ test_that("get_storage works", {
     "tbl"
   )
   expect_true(
-    all(names(gitstats_storage) %in% c("organizations", "repositories",
-                                       "commits", "issues", "repos_trees",
-                                       "users", "files", "files_structure",
-                                       "release_logs", "R_package_usage"))
+    all(c("organizations", "repositories",
+          "commits", "issues", "repos_trees",
+          "users", "files", "release_logs") %in% names(gitstats_storage))
   )
 })
-
 test_that("get_storage retrieves one table", {
   gitstats_storage <- test_gitstats$get_storage(
     storage = "commits"

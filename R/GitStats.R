@@ -345,7 +345,7 @@ GitStats <- R6::R6Class(
                                progress) {
       private$check_for_host()
       args_list <- list(
-        "file_pattern" = pattern,
+        "file_pattern" = pattern %||% "",
         "depth" = depth
       )
       trigger <- private$trigger_pulling(
@@ -476,8 +476,7 @@ GitStats <- R6::R6Class(
       commits = NULL,
       users = NULL,
       files = NULL,
-      files_structure = NULL,
-      R_package_usage = NULL,
+      repos_trees = NULL,
       release_logs = NULL
     ),
 
@@ -1044,6 +1043,7 @@ GitStats <- R6::R6Class(
       if (!storage_name %in% c("repositories", "organizations")) {
         storage_attr <- switch(storage_name,
                                "repos_urls" = "type",
+                               "repos_trees" = "file_pattern",
                                "files" = "file_pattern",
                                "commits" = "date_range",
                                "issues" = "date_range",

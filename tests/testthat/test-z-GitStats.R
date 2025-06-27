@@ -98,6 +98,12 @@ test_that("print_storage_attribute", {
       storage_name = "release_logs"
     )
   )
+  expect_snapshot(
+    test_gitstats_priv$print_storage_attribute(
+      storage_data = test_mocker$use("repos_trees"),
+      storage_name = "repos_trees"
+    )
+  )
 })
 
 test_that("show_orgs print orgs properly", {

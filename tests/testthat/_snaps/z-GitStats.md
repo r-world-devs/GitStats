@@ -67,6 +67,15 @@
       <cli_ansi_string>
       [1] [date range: 2023-08-01 - 2023-09-30]
 
+---
+
+    Code
+      test_gitstats_priv$print_storage_attribute(storage_data = test_mocker$use(
+        "repos_trees"), storage_name = "repos_trees")
+    Output
+      <cli_ansi_string>
+      [1] [file pattern: ]
+
 # subgroups are cleanly printed in GitStats
 
     Code
