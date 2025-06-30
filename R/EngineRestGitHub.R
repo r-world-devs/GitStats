@@ -4,7 +4,6 @@ EngineRestGitHub <- R6::R6Class(
   classname = "EngineRestGitHub",
   inherit = EngineRest,
   public = list(
-
     # Pull repositories with files
     get_files = function(files) {
       files_list <- list()

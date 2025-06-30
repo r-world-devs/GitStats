@@ -3,10 +3,12 @@ integration_tests_skipped <- Sys.getenv("GITSTATS_INTEGRATION_TEST_SKIPPED", uns
 
 if (integration_tests_skipped) {
   github_token <- NULL
+  gitlab_token <- NULL
   github_org <- "test_org"
   gitlab_group <- "test_group"
 } else {
   github_token <- Sys.getenv("GITHUB_PAT")
+  gitlab_token <- Sys.getenv("GITLAB_PAT_PUBLIC")
   github_org <- "r-world-devs"
   gitlab_group <- "mbtests"
 }
@@ -33,13 +35,13 @@ test_graphql_github_priv <- environment(test_graphql_github$initialize)$private
 
 test_rest_gitlab <- TestEngineRestGitLab$new(
   rest_api_url = "https://gitlab.com/api/v4",
-  token = NULL
+  token = gitlab_token
 )
 test_rest_gitlab_priv <- environment(test_rest_gitlab$initialize)$private
 
 test_graphql_gitlab <- EngineGraphQLGitLab$new(
   gql_api_url = "https://gitlab.com/api/graphql",
-  token = NULL
+  token = gitlab_token
 )
 test_graphql_gitlab_priv <- environment(test_graphql_gitlab$initialize)$private
 
