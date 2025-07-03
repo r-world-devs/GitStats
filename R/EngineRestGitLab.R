@@ -195,8 +195,8 @@ EngineRestGitLab <- R6::R6Class(
           org_repo <- stringr::str_split_1(file_data$repo_fullname, "/")
           org <- paste0(org_repo[1:(length(org_repo) - 1)], collapse = "/")
           data.frame(
-            "repo_name" = file_data$repo_name,
             "repo_id" = as.character(file_data$repo_id),
+            "repo_name" = file_data$repo_name,
             "organization" = org,
             "file_path" = file_data$file_path,
             "file_content" = file_data$content,
@@ -334,16 +334,16 @@ EngineRestGitLab <- R6::R6Class(
       repos_list_with_commits_cut <- purrr::map(repos_list_with_commits, function(repo) {
         purrr::map(repo, function(commit) {
           list(
+            "repo_name" = gsub(
+              pattern = paste0("/-/commit/", commit$id),
+              replacement = "",
+              x = gsub(paste0("(.*)", org, "/"), "", commit$web_url)
+            ),
             "id" = commit$id,
             "committed_date" = gts_to_posixt(commit$committed_date),
             "author" = commit$author_name,
             "additions" = commit$stats$additions,
             "deletions" = commit$stats$deletions,
-            "repository" = gsub(
-              pattern = paste0("/-/commit/", commit$id),
-              replacement = "",
-              x = gsub(paste0("(.*)", org, "/"), "", commit$web_url)
-            ),
             "organization" = org,
             "repo_url" = stringr::str_match(commit$web_url, "(.*)/-/commit/.*")[2]
           )

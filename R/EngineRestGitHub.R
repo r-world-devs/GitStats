@@ -32,8 +32,8 @@ EngineRestGitHub <- R6::R6Class(
           repo_fullname <- private$get_repo_fullname(file_data$url)
           org_repo <- stringr::str_split_1(repo_fullname, "/")
           data.frame(
-            "repo_name" = org_repo[2],
             "repo_id" = NA_character_,
+            "repo_name" = org_repo[2],
             "organization" = org_repo[1],
             "file_path" = file_data$path,
             "file_content" = file_data$content,

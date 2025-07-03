@@ -546,7 +546,7 @@ test_that("add_platform adds data on Git platform to repos table", {
   )
   expect_repos_table(
     gl_repos_table_with_platform,
-    with_cols = c("api_url", "platform")
+    with_cols = c("api_url", "githost")
   )
   test_mocker$cache(gl_repos_table_with_platform)
 })
@@ -563,7 +563,7 @@ test_that("`get_repos_contributors()` adds contributors to repos table", {
   )
   expect_repos_table(
     gl_repos_table_full,
-    with_cols = c("api_url", "platform", "contributors")
+    with_cols = c("api_url", "githost", "contributors")
   )
   expect_gt(
     length(gl_repos_table_full$contributors),

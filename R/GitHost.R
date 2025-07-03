@@ -1227,7 +1227,7 @@ GitHost <- R6::R6Class(
       if (!is.null(repos_table) && nrow(repos_table) > 0) {
         dplyr::mutate(
           repos_table,
-          platform = retrieve_platform(api_url)
+          githost = retrieve_platform(api_url)
         )
       }
     },

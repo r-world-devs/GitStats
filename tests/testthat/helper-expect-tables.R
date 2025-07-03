@@ -1,5 +1,5 @@
 repo_gitstats_colnames <- c(
-  "repo_id", "repo_name", "organization", "fullname", "platform", "repo_url", "api_url",
+  "repo_id", "repo_name", "organization", "fullname", "githost", "repo_url", "api_url",
   "created_at", "last_activity_at", "last_activity", "default_branch", "stars", "forks",
   "languages", "issues_open", "issues_closed"
 )
@@ -10,12 +10,6 @@ repo_host_colnames <- c("repo_id", "repo_name", "default_branch", "stars", "fork
 
 repo_min_colnames <- c("repo_id", "repo_name", "default_branch",
                        "created_at", "organization", "repo_url")
-
-expect_package_usage_table <- function(object, with_cols = NULL) {
-  expect_s3_class(object, "data.frame")
-  expect_named(object, c("package", "package_usage", "repo_id", "repo_fullname", "repo_name", "organization", "fullname", "platform", "repo_url", "api_url", "created_at", "last_activity_at", "last_activity", "default_branch", "stars", "forks", "languages", "issues_open", "issues_closed", "contributors", "contributors_n"))
-  expect_gt(nrow(object), 0)
-}
 
 expect_orgs_table <- function(object, add_cols = NULL) {
   expect_s3_class(object, "data.frame")
@@ -42,8 +36,8 @@ expect_repos_table <- function(repos_object, repo_cols = repo_host_colnames, wit
 }
 
 expect_issues_table <- function(get_issues_object, with_stats = TRUE, exp_author = TRUE) {
-  issue_cols <- c("number", "title", "description", "created_at", "closed_at", "state", "url",
-                  "author", "repository", "organization", "api_url")
+  issue_cols <- c("repo_name", "number", "title", "description", "created_at",
+                  "closed_at", "state", "url", "author", "organization", "api_url")
 
   expect_s3_class(get_issues_object, "data.frame")
   expect_named(get_issues_object, issue_cols)
@@ -56,13 +50,13 @@ expect_issues_table <- function(get_issues_object, with_stats = TRUE, exp_author
 expect_commits_table <- function(get_commits_object, with_stats = TRUE, exp_author = TRUE) {
   commit_cols <- if (exp_author) {
     c(
-      "id", "committed_date", "author", "author_login", "author_name", "additions", "deletions",
-      "repository", "organization", "repo_url", "api_url"
+      "repo_name", "id", "committed_date", "author", "author_login", "author_name",
+      "additions", "deletions", "organization", "repo_url", "api_url"
     )
   } else {
     c(
-      "id", "committed_date", "author", "additions", "deletions",
-      "repository", "organization", "repo_url", "api_url"
+      "repo_name", "id", "committed_date", "author", "additions", "deletions",
+      "organization", "repo_url", "api_url"
     )
   }
   expect_s3_class(get_commits_object, "data.frame")
@@ -93,7 +87,7 @@ expect_files_table <- function(files_object, with_cols = NULL) {
   expect_s3_class(files_object, "data.frame")
   expect_named(
     files_object,
-    c("repo_name", "repo_id", "organization",
+    c("repo_id", "repo_name", "organization",
       "file_path", "file_content", "file_size",
       "repo_url", with_cols)
   )

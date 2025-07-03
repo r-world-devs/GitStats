@@ -77,17 +77,17 @@ EngineGraphQL <- R6::R6Class(
           }
           author_login <- issue_data[["node"]][["author"]][["login"]] %||% NA_character_
           data.frame(
-            number = as.character(get_node_data("number")),
-            title = get_node_data("title"),
-            description = get_node_data("description"),
-            created_at = lubridate::as_datetime(get_node_data("created_at")),
-            closed_at = lubridate::as_datetime(get_node_data("closed_at")),
-            state = state,
-            url = get_node_data("url"),
-            author = author_login
+            "number" = as.character(get_node_data("number")),
+            "title" = get_node_data("title"),
+            "description" = get_node_data("description"),
+            "created_at" = lubridate::as_datetime(get_node_data("created_at")),
+            "closed_at" = lubridate::as_datetime(get_node_data("closed_at")),
+            "state" = state,
+            "url" = get_node_data("url"),
+            "author" = author_login
           )
         })
-        issues_row$repository <- repo_name
+        issues_row$repo_name <- repo_name
         issues_row
       }) %>%
         purrr::discard(~ length(.) == 1) %>%
@@ -97,6 +97,10 @@ EngineGraphQL <- R6::R6Class(
           dplyr::mutate(
             organization = org,
             api_url = self$gql_api_url
+          ) |>
+          dplyr::relocate(
+            repo_name,
+            .before = number
           )
       }
       return(issues_table)

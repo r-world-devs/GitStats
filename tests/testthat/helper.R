@@ -48,7 +48,7 @@ expect_tailored_commits_list <- function(object) {
   expect_list_contains_only(
     object,
     c(
-      "id", "organization", "repository", "additions", "deletions",
+      "repo_name", "id", "organization", "additions", "deletions",
       "committed_date", "author"
     )
   )
