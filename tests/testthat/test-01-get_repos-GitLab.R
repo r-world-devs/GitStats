@@ -540,8 +540,8 @@ test_that("GitHost adds `repo_api_url` column to GitLab repos table", {
 })
 
 
-test_that("add_platform adds data on Git platform to repos table", {
-  gl_repos_table_with_platform <- gitlab_testhost_priv$add_platform(
+test_that("add_githost_info adds data on Git platform to repos table", {
+  gl_repos_table_with_platform <- gitlab_testhost_priv$add_githost_info(
     repos_table = test_mocker$use("gl_repos_table_with_api_url")
   )
   expect_repos_table(

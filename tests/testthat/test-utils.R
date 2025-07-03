@@ -19,13 +19,13 @@ test_that("`gts_to_posixt()` transforms git timestamp format into posixt format"
   expect_equal(gts_to_posixt(gts), posixt)
 })
 
-test_that("retrieve_platform works", {
+test_that("retrieve_githost works", {
   expect_equal(
-    retrieve_platform("https://api.github.com/repositories/r-world-devs/GitStats"),
+    retrieve_githost("https://api.github.com/repositories/r-world-devs/GitStats"),
     "github"
   )
   expect_equal(
-    retrieve_platform("https://gitlab.com/api/v4"),
+    retrieve_githost("https://gitlab.com/api/v4"),
     "gitlab"
   )
 })

@@ -33,7 +33,7 @@ gts_to_posixt <- function(date_vector) {
 }
 
 #' @noRd
-retrieve_platform <- function(api_url) {
+retrieve_githost <- function(api_url) {
   stringr::str_remove_all(
     string = api_url,
     pattern = "(?<=com).*|(https://)|(api.)|(.com)"

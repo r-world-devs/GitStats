@@ -97,7 +97,7 @@ get_issues_stats <- function(issues,
         created_at,
         unit = time_aggregation
       ),
-      githost = retrieve_platform(api_url)
+      githost = retrieve_githost(api_url)
     )
   issues_stats <- issues |>
     dplyr::group_by(stats_date, githost, {{ group_var }}) |>

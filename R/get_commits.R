@@ -93,7 +93,7 @@ get_commits_stats <- function(commits,
         committed_date,
         unit = time_aggregation
       ),
-      githost = retrieve_platform(api_url)
+      githost = retrieve_githost(api_url)
     )
   commits_stats <- commits |>
     dplyr::group_by(stats_date, githost, {{ group_var }}) |>

@@ -850,7 +850,7 @@ GitStats <- R6::R6Class(
           }) |>
           purrr::list_rbind() |>
           dplyr::mutate(
-            githost = retrieve_platform(host$.__enclos_env__$private$api_url)
+            githost = retrieve_githost(host$.__enclos_env__$private$api_url)
           )
       }) |>
         purrr::list_rbind()
