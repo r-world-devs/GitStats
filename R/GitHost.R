@@ -99,7 +99,7 @@ GitHost <- R6::R6Class(
       }
       if (output == "table") {
         repos_table <- private$add_repo_api_url(repos_table) %>%
-          private$add_platform()
+          private$add_githost_info()
         if (add_contributors) {
           repos_table <- private$get_repos_contributors(
             repos_table = repos_table,
@@ -1223,11 +1223,11 @@ GitHost <- R6::R6Class(
         )
     },
 
-    add_platform = function(repos_table) {
+    add_githost_info = function(repos_table) {
       if (!is.null(repos_table) && nrow(repos_table) > 0) {
         dplyr::mutate(
           repos_table,
-          platform = retrieve_platform(api_url)
+          githost = retrieve_githost(api_url)
         )
       }
     },

@@ -426,8 +426,8 @@ EngineGraphQLGitLab <- R6::R6Class(
           files_table <- purrr::map(files_response, function(response_data) {
             purrr::map(response_data$data$project$repository$blobs$nodes, function(file) {
               data.frame(
-                "repo_name" = response_data$data$project$name,
                 "repo_id" = response_data$data$project$id,
+                "repo_name" = response_data$data$project$name,
                 "organization" = org,
                 "file_path" = file$path,
                 "file_content" = file$rawBlob,
@@ -442,8 +442,8 @@ EngineGraphQLGitLab <- R6::R6Class(
           files_table <- purrr::map(files_response, function(project) {
             purrr::map(project$repository$blobs$nodes, function(file) {
               data.frame(
-                "repo_name" = project$name,
                 "repo_id" = project$id,
+                "repo_name" = project$name,
                 "organization" = org,
                 "file_path" = file$path,
                 "file_content" = file$rawBlob,

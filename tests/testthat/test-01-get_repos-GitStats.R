@@ -15,7 +15,7 @@ test_that("get_repos_from_host_with_code works", {
   expect_repos_table(
     repos_from_host_with_code,
     repo_cols = repo_host_colnames,
-    with_cols = c("api_url", "platform", "contributors")
+    with_cols = c("api_url", "githost", "contributors")
   )
   test_mocker$cache(repos_from_host_with_code)
 })
@@ -36,7 +36,7 @@ test_that("get_repos_from_host_with_files works", {
   expect_repos_table(
     repos_from_host_with_files,
     repo_cols = repo_host_colnames,
-    with_cols = c("api_url", "platform", "contributors")
+    with_cols = c("api_url", "githost", "contributors")
   )
   test_mocker$cache(repos_from_host_with_files)
 })

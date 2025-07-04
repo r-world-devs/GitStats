@@ -850,7 +850,7 @@ GitStats <- R6::R6Class(
           }) |>
           purrr::list_rbind() |>
           dplyr::mutate(
-            githost = retrieve_platform(host$.__enclos_env__$private$api_url)
+            githost = retrieve_githost(host$.__enclos_env__$private$api_url)
           )
       }) |>
         purrr::list_rbind()
@@ -917,7 +917,7 @@ GitStats <- R6::R6Class(
             ) |> round(2)
           ) |>
           dplyr::relocate(
-            organization, fullname, platform, repo_url, api_url, created_at,
+            organization, fullname, githost, repo_url, api_url, created_at,
             last_activity_at, last_activity,
             .after = repo_name
           )

@@ -540,13 +540,13 @@ test_that("GitHost adds `repo_api_url` column to GitHub repos table", {
   test_mocker$cache(gh_repos_table_with_api_url)
 })
 
-test_that("add_platform adds data on Git platform to repos table", {
-  gh_repos_table_with_platform <- github_testhost_priv$add_platform(
+test_that("add_githost_info adds data on Git platform to repos table", {
+  gh_repos_table_with_platform <- github_testhost_priv$add_githost_info(
     repos_table = test_mocker$use("gh_repos_table_with_api_url")
   )
   expect_repos_table(
     gh_repos_table_with_platform,
-    with_cols = c("api_url", "platform")
+    with_cols = c("api_url", "githost")
   )
   test_mocker$cache(gh_repos_table_with_platform)
 })
@@ -578,7 +578,7 @@ test_that("`get_repos_contributors()` adds contributors to repos table", {
   )
   expect_repos_table(
     gh_repos_with_contributors,
-    with_cols = c("api_url", "platform", "contributors")
+    with_cols = c("api_url", "githost", "contributors")
   )
   expect_gt(
     length(gh_repos_with_contributors$contributors),
@@ -602,7 +602,7 @@ test_that("`get_repos_contributors()` works on GitHost level", {
   )
   expect_repos_table(
     gh_repos_with_contributors,
-    with_cols = c("api_url", "platform", "contributors")
+    with_cols = c("api_url", "githost", "contributors")
   )
   expect_gt(
     length(gh_repos_with_contributors$contributors),
@@ -623,7 +623,7 @@ test_that("`get_repos()` works as expected", {
   )
   expect_repos_table(
     gh_repos_table,
-    with_cols = c("api_url", "platform")
+    with_cols = c("api_url", "githost")
   )
   test_mocker$cache(gh_repos_table)
 })
@@ -645,7 +645,7 @@ test_that("`get_repos()` works as expected", {
   )
   expect_repos_table(
     gh_repos_table_full,
-    with_cols = c("api_url", "platform", "contributors")
+    with_cols = c("api_url", "githost", "contributors")
   )
   test_mocker$cache(gh_repos_table_full)
 })

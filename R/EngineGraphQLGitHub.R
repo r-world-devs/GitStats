@@ -246,21 +246,25 @@ EngineGraphQLGitHub <- R6::R6Class(
           }
         }) |>
           purrr::list_rbind()
-        commits_row$repository <- repo_name
+        commits_row$repo_name <- repo_name
         commits_row
-      }) %>%
-        purrr::discard(~ length(.) == 1) %>%
+      }) |>
+        purrr::discard(~ length(.) == 1) |>
         purrr::list_rbind()
       if (nrow(commits_table) > 0) {
-        commits_table <- commits_table %>%
+        commits_table <- commits_table |>
           dplyr::mutate(
             organization = org,
             api_url = self$gql_api_url
-          ) %>%
+          ) |>
+          dplyr::relocate(
+            repo_name,
+            .before = id
+          ) |>
           dplyr::relocate(
             any_of(c("author_login", "author_name")),
             .after = author
-          ) %>%
+          ) |>
           dplyr::relocate(
             repo_url,
             .before = api_url
@@ -307,8 +311,8 @@ EngineGraphQLGitHub <- R6::R6Class(
           purrr::discard(repository, ~ length(.$file) == 0) |>
             purrr::imap(function(file_data, file_name) {
               data.frame(
-                "repo_name" = file_data$repo_name,
                 "repo_id" = file_data$repo_id,
+                "repo_name" = file_data$repo_name,
                 "organization" = org,
                 "file_path" = file_name,
                 "file_content" = file_data$file$text %||% NA,
