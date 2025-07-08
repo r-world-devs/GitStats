@@ -61,7 +61,7 @@
       <h1>Get and store your data</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/r-world-devs/GitStats/blob/master/vignettes/get_and_store_data.Rmd" class="external-link"><code>vignettes/get_and_store_data.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/r-world-devs/GitStats/blob/v2.3.4/vignettes/get_and_store_data.Rmd" class="external-link"><code>vignettes/get_and_store_data.Rmd</code></a></small>
       <div class="d-none name"><code>get_and_store_data.Rmd</code></div>
     </div>
 
@@ -101,7 +101,7 @@ organizations.</p>
 <span><span class="co">#&gt; → [Host:GitHub][Engine:<span style="color: #00BB00;">REST</span>] <span style="color: #5555FF;">Pulling contributors</span>...</span></span>
 <span><span class="co">#&gt; → [Host:GitLab][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:mbtests] <span style="color: #5555FF;">Pulling repositories</span>...</span></span>
 <span><span class="co">#&gt; → [Host:GitLab][Engine:<span style="color: #00BB00;">REST</span>] <span style="color: #5555FF;">Pulling contributors</span>...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 30.5 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 34.6 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">repos</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 92</span></span>
 <span><span class="co">#&gt; Columns: 18</span></span>
@@ -113,8 +113,8 @@ organizations.</p>
 <span><span class="co">#&gt; $ repo_url         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/shinyGizmo"<span style="color: #949494;">, </span>"https:…</span></span>
 <span><span class="co">#&gt; $ api_url          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://api.github.com/repos/r-world-devs/shinyGizmo…</span></span>
 <span><span class="co">#&gt; $ created_at       <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2022-04-20 10:04:32<span style="color: #949494;">, </span>2022-05-22 18:31:55<span style="color: #949494;">, </span>2022-05-22…</span></span>
-<span><span class="co">#&gt; $ last_activity_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-07-12<span style="color: #949494;">, </span>2025-06-23<span style="color: #949494;">, </span>2025-07-04<span style="color: #949494;">, </span>2024-06-13<span style="color: #949494;">, </span>2025…</span></span>
-<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 360.52 days<span style="color: #949494;">, </span>14.52 days<span style="color: #949494;">, </span>3.52 days<span style="color: #949494;">, </span>389.52 days<span style="color: #949494;">, </span>0.5…</span></span>
+<span><span class="co">#&gt; $ last_activity_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-07-12<span style="color: #949494;">, </span>2025-06-23<span style="color: #949494;">, </span>2025-07-07<span style="color: #949494;">, </span>2024-06-13<span style="color: #949494;">, </span>2025…</span></span>
+<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 361.57 days<span style="color: #949494;">, </span>15.57 days<span style="color: #949494;">, </span>1.57 days<span style="color: #949494;">, </span>390.57 days<span style="color: #949494;">, </span>0.5…</span></span>
 <span><span class="co">#&gt; $ default_branch   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "dev"<span style="color: #949494;">, </span>"dev"<span style="color: #949494;">, </span>"dev"<span style="color: #949494;">, </span>"master"<span style="color: #949494;">, </span>"master"<span style="color: #949494;">, </span>"master"<span style="color: #949494;">, </span>"m…</span></span>
 <span><span class="co">#&gt; $ stars            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 21<span style="color: #949494;">, </span>9<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>7<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>7<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>…</span></span>
 <span><span class="co">#&gt; $ forks            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>6<span style="color: #949494;">,</span>…</span></span>
@@ -131,7 +131,7 @@ instead of whole table.</p>
 <span><span class="co">#&gt; → [Host:GitHub][Engine:<span style="color: #00BB00;">REST</span>][Scope:r-world-devs] <span style="color: #5555FF;">Pulling repositories (URLs)</span>...</span></span>
 <span><span class="co">#&gt; → [Host:GitHub][Engine:<span style="color: #00BB00;">REST</span>][Scope:openpharma] <span style="color: #5555FF;">Pulling repositories (URLs)</span>...</span></span>
 <span><span class="co">#&gt; → [Host:GitLab][Engine:<span style="color: #00BB00;">REST</span>][Scope:mbtests] <span style="color: #5555FF;">Pulling repositories (URLs)</span>...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 3.5 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 4 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">repos_urls</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  'gitstats_repos_urls' chr [1:92] "https://api.github.com/repos/r-world-devs/shinyGizmo" ...</span></span>
 <span><span class="co">#&gt;  - attr(*, "type")= chr "api"</span></span></code></pre></div>
@@ -147,12 +147,12 @@ function:</p>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">release_logs</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Rows: 56</span></span>
+<span><span class="co">#&gt; Rows: 57</span></span>
 <span><span class="co">#&gt; Columns: 7</span></span>
 <span><span class="co">#&gt; $ repo_name    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "cohortBuilder"<span style="color: #949494;">, </span>"shinyCohortBuilder"<span style="color: #949494;">, </span>"shinyCohortBuilde…</span></span>
 <span><span class="co">#&gt; $ repo_url     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/cohortBuilder"<span style="color: #949494;">, </span>"https:/…</span></span>
 <span><span class="co">#&gt; $ release_name <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "cohortBuilder 0.3.0"<span style="color: #949494;">, </span>"v0.3.1"<span style="color: #949494;">, </span>"v0.3.0"<span style="color: #949494;">, </span>"GitStats 2.3.…</span></span>
-<span><span class="co">#&gt; $ release_tag  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "v0.3.0"<span style="color: #949494;">, </span>"v0.3.1"<span style="color: #949494;">, </span>"v0.3.0"<span style="color: #949494;">, </span>"v2.3.3"<span style="color: #949494;">, </span>"v2.3.2"<span style="color: #949494;">, </span>"v2.3.1…</span></span>
+<span><span class="co">#&gt; $ release_tag  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "v0.3.0"<span style="color: #949494;">, </span>"v0.3.1"<span style="color: #949494;">, </span>"v0.3.0"<span style="color: #949494;">, </span>"v2.3.4"<span style="color: #949494;">, </span>"v2.3.3"<span style="color: #949494;">, </span>"v2.3.2…</span></span>
 <span><span class="co">#&gt; $ published_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-09-27 11:35:06<span style="color: #949494;">, </span>2024-10-24 08:21:19<span style="color: #949494;">, </span>2024-10-24 08:…</span></span>
 <span><span class="co">#&gt; $ release_url  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/cohortBuilder/releases/t…</span></span>
 <span><span class="co">#&gt; $ release_log  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "* Add new filter of type `\"query\"` that allows to conf…</span></span></code></pre></div>
@@ -174,7 +174,7 @@ function:</p>
 <span><span class="co">#&gt; → [Host:GitHub][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:r-world-devs] <span style="color: #5555FF;">Pulling commits</span>...</span></span>
 <span><span class="co">#&gt; → [Host:GitHub][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:openpharma] <span style="color: #5555FF;">Pulling commits</span>...</span></span>
 <span><span class="co">#&gt; → [Host:GitLab][Engine:<span style="color: #00BB00;">REST</span>][Scope:mbtests] <span style="color: #5555FF;">Pulling commits</span>...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 27.8 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 30 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 188</span></span>
 <span><span class="co">#&gt; Columns: 11</span></span>
@@ -228,7 +228,7 @@ function:</p>
 <span><span class="co">#&gt; → [Host:GitHub][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:r-world-devs] <span style="color: #5555FF;">Pulling commits</span>...</span></span>
 <span><span class="co">#&gt; → [Host:GitHub][Engine:<span style="color: #BBBB00;">GraphQl</span>][Scope:openpharma] <span style="color: #5555FF;">Pulling commits</span>...</span></span>
 <span><span class="co">#&gt; → [Host:GitLab][Engine:<span style="color: #00BB00;">REST</span>][Scope:mbtests] <span style="color: #5555FF;">Pulling commits</span>...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 24.6 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 35.9 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 188</span></span>
 <span><span class="co">#&gt; Columns: 11</span></span>
@@ -257,7 +257,7 @@ function:</p>
 <span><span class="co">#&gt; → Looking up for authors' names and logins...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 1.5 mins</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Rows: 3,195</span></span>
+<span><span class="co">#&gt; Rows: 3,202</span></span>
 <span><span class="co">#&gt; Columns: 11</span></span>
 <span><span class="co">#&gt; $ repo_name      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "cohortBuilder"<span style="color: #949494;">, </span>"cohortBuilder"<span style="color: #949494;">, </span>"cohortBuilder"<span style="color: #949494;">, </span>"coh…</span></span>
 <span><span class="co">#&gt; $ id             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "C_kwDOHYNOFdoAKGFkYzI3ODYxNTQxY2M5MmMyYWJlMTNkZTAzNDNj…</span></span>
@@ -284,8 +284,8 @@ function:</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;"> Repositories: </span>[<span style="color: #00BB00;">0</span>] </span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Storage: </span></span></span>
 <span><span class="co"><span style="color: #0000BB;">#&gt; </span> Repositories: 92 </span></span>
-<span><span class="co">#&gt;  Commits: 3195 <span style="color: #555555;">[date range: 2024-07-01 - 2025-07-08]</span></span></span>
-<span><span class="co">#&gt;  Release_logs: 56 <span style="color: #555555;">[date range: 2024-01-01 - 2025-07-08]</span></span></span>
+<span><span class="co">#&gt;  Commits: 3202 <span style="color: #555555;">[date range: 2024-07-01 - 2025-07-09]</span></span></span>
+<span><span class="co">#&gt;  Release_logs: 57 <span style="color: #555555;">[date range: 2024-01-01 - 2025-07-09]</span></span></span>
 <span><span class="co">#&gt;  Repos_urls: 92 <span style="color: #555555;">[type: api]</span></span></span></code></pre></div>
 <p>You can retrieve whole data from your <code>GitStats</code> object
 with:</p>
@@ -312,7 +312,7 @@ with:</p>
 <span><span class="co">#&gt; <span style="color: #949494;">#   contributors &lt;chr&gt;, contributors_n &lt;int&gt;</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $commits</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3,195 × 11</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3,202 × 11</span></span></span>
 <span><span class="co">#&gt;    repo_name id    committed_date      author author_login author_name additions</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> cohortBu… C_kw… 2025-05-02 <span style="color: #949494;">10:45:58</span> Dawid… syroBx       Dawid Bory…       443</span></span>
@@ -325,7 +325,7 @@ with:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> cohortBu… C_kw… 2025-02-06 <span style="color: #949494;">08:44:21</span> Adam … galachad     Adam Foryś         99</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> cohortBu… C_kw… 2025-02-04 <span style="color: #949494;">15:05:46</span> Borys  syroBx       Dawid Bory…        99</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> cohortBu… C_kw… 2025-02-04 <span style="color: #949494;">14:03:43</span> Borys  syroBx       Dawid Bory…       259</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 3,185 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 3,192 more rows</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4 more variables: deletions &lt;int&gt;, organization &lt;chr&gt;, repo_url &lt;chr&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   api_url &lt;glue&gt;</span></span></span>
 <span><span class="co">#&gt; </span></span>
@@ -339,20 +339,20 @@ with:</p>
 <span><span class="co">#&gt; NULL</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $release_logs</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 56 × 7</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 57 × 7</span></span></span>
 <span><span class="co">#&gt;    repo_name   repo_url release_name release_tag published_at        release_url</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> cohortBuil… https:/… cohortBuild… v0.3.0      2024-09-27 <span style="color: #949494;">11:35:06</span> https://gi…</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> shinyCohor… https:/… v0.3.1       v0.3.1      2024-10-24 <span style="color: #949494;">08:21:19</span> https://gi…</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> shinyCohor… https:/… v0.3.0       v0.3.0      2024-10-24 <span style="color: #949494;">08:20:32</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> GitStats    https:/… GitStats 2.… v2.3.3      2025-06-03 <span style="color: #949494;">08:06:26</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> GitStats    https:/… GitStats 2.… v2.3.2      2025-05-20 <span style="color: #949494;">09:21:19</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> GitStats    https:/… GitStats 2.… v2.3.1      2025-04-25 <span style="color: #949494;">14:38:02</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> GitStats    https:/… GitStats 2.… v2.3.0      2025-04-03 <span style="color: #949494;">09:09:52</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> GitStats    https:/… GitStats 2.… v2.2.2      2025-02-11 <span style="color: #949494;">11:22:35</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> GitStats    https:/… GitStats 2.… v2.2.1      2025-01-21 <span style="color: #949494;">11:04:20</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> GitStats    https:/… GitStats 2.… v2.2.0      2025-01-14 <span style="color: #949494;">14:34:26</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 46 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> GitStats    https:/… GitStats 2.… v2.3.4      2025-07-08 <span style="color: #949494;">13:33:50</span> https://gi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> GitStats    https:/… GitStats 2.… v2.3.3      2025-06-03 <span style="color: #949494;">08:06:26</span> https://gi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> GitStats    https:/… GitStats 2.… v2.3.2      2025-05-20 <span style="color: #949494;">09:21:19</span> https://gi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> GitStats    https:/… GitStats 2.… v2.3.1      2025-04-25 <span style="color: #949494;">14:38:02</span> https://gi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> GitStats    https:/… GitStats 2.… v2.3.0      2025-04-03 <span style="color: #949494;">09:09:52</span> https://gi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> GitStats    https:/… GitStats 2.… v2.2.2      2025-02-11 <span style="color: #949494;">11:22:35</span> https://gi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> GitStats    https:/… GitStats 2.… v2.2.1      2025-01-21 <span style="color: #949494;">11:04:20</span> https://gi…</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 47 more rows</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: release_log &lt;chr&gt;</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $repos_urls</span></span>
