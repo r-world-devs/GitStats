@@ -129,6 +129,20 @@ EngineGraphQL <- R6::R6Class(
       return(check)
     },
 
+    is_no_fields_query_error = function(response) {
+      any(purrr::map_lgl(response$errors, ~ grepl("doesn't exist on type", .$message)))
+    },
+
+    set_graphql_error_class = function(response) {
+      if (private$is_query_error(response)) {
+        class(response) <- c(class(response), "graphql_error")
+        if (private$is_no_fields_query_error(response)) {
+          class(response) <- c(class(response), "graphql_no_fields_error")
+        }
+      }
+      return(response)
+    },
+
     filter_files_by_pattern = function(files_structure, pattern) {
       repo_id <- attr(files_structure, "repo_id")
       files_structure <- files_structure[grepl(paste0(pattern, collapse = "|"), files_structure)]

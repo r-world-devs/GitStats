@@ -131,52 +131,7 @@ test_that("get_repos_page handles properly a GraphQL query error", {
   mockery::stub(
     test_graphql_gitlab_priv$get_repos_page,
     "self$gql_response",
-    list(
-      "errors" = list(
-        list(
-          "message" = "Field 'count' doesn't exist on type 'ProjectConnection'",
-          "locations" = list(
-            list(
-              "line" = 6L,
-              "column" = 7L
-            )
-          ),
-          "path" = list(
-            "query GetReposByOrg",
-            "group",
-            "projects",
-            "count"
-          ),
-          "extensions" = list(
-            "code" = "undefinedField",
-            "typeName" = "ProjectConnection",
-            "fieldName" = "count"
-          )
-        ),
-        list(
-          "message" = "Field 'languages' doesn't exist on type 'Project'",
-          "locations" = list(
-            list(
-              "line" = 25L,
-              "column" = 11L
-            )
-          ),
-          "path" = list(
-            "query GetReposByOrg",
-            "group",
-            "projects",
-            "edges",
-            "node",
-            "languages"
-          ),
-          "extensions" = list(
-            "code" = "undefinedField",
-            "typeName" = "Project",
-            "fieldName" = "languages"
-          )
-        )
-      )
-    )
+    test_error_fixtures$graphql_error_no_count_languages
   )
   repos_graphql_error <- test_graphql_gitlab_priv$get_repos_page()
   expect_s3_class(repos_graphql_error, "graphql_error")

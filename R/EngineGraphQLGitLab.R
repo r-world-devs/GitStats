@@ -58,7 +58,7 @@ EngineGraphQLGitLab <- R6::R6Class(
           gql_query = self$gql_query$groups(),
           vars = list("groupCursor" = group_cursor)
         )
-        response <- set_graphql_error_class(response)
+        response <- private$set_graphql_error_class(response)
         if (length(response$data$groups$edges) == 0) {
           class(response) <- c(class(response), "graphql_error")
         }
@@ -602,7 +602,7 @@ EngineGraphQLGitLab <- R6::R6Class(
           )
         )
       }
-      response <- set_graphql_error_class(response)
+      response <- private$set_graphql_error_class(response)
       return(response)
     },
 

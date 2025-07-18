@@ -20,25 +20,3 @@ handle_graphql_error <- function(responses_list, verbose) {
   }
   return(responses_list)
 }
-
-set_graphql_error_class <- function(response) {
-  if (is_query_error(response)) {
-    class(response) <- c(class(response), "graphql_error")
-    if (is_no_fields_query_error(response)) {
-      class(response) <- c(class(response), "graphql_no_fields_error")
-    }
-  }
-  return(response)
-}
-
-is_query_error <- function(response) {
-  check <- FALSE
-  if (length(response) > 0) {
-    check <- any(names(response) == "errors")
-  }
-  return(check)
-}
-
-is_no_fields_query_error <- function(response) {
-  any(purrr::map_lgl(response$errors, ~ grepl("doesn't exist on type", .$message)))
-}
