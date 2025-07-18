@@ -6,19 +6,6 @@ test_that("commits_by_repo GitHub query is built properly", {
   )
 })
 
-test_that("error in GraphQL response is handled properly", {
-  mockery::stub(
-    test_graphql_github_priv$handle_gql_response_error,
-    "private$is_query_error",
-    TRUE
-  )
-  expect_snapshot_error(
-    test_graphql_github_priv$handle_gql_response_error(
-      response = list()
-    )
-  )
-})
-
 test_that("`get_commits_page_from_repo()` pulls commits page from repository", {
   mockery::stub(
     test_graphql_github_priv$get_commits_page_from_repo,

@@ -131,7 +131,8 @@ test_that("get_repos_page handles properly a GraphQL query error", {
   mockery::stub(
     test_graphql_gitlab_priv$get_repos_page,
     "self$gql_response",
-    test_error_fixtures$graphql_error_no_count_languages
+    test_error_fixtures$graphql_error_no_count_languages |>
+      test_graphql_gitlab_priv$set_graphql_error_class()
   )
   repos_graphql_error <- test_graphql_gitlab_priv$get_repos_page()
   expect_s3_class(repos_graphql_error, "graphql_error")
@@ -139,7 +140,7 @@ test_that("get_repos_page handles properly a GraphQL query error", {
 })
 
 test_that("error handler works correctly", {
-  output <- handle_graphql_error(
+  output <- test_graphql_gitlab_priv$handle_graphql_error(
     responses_list = test_mocker$use("repos_graphql_error"),
     verbose = FALSE
   )
@@ -148,7 +149,7 @@ test_that("error handler works correctly", {
 
 test_that("error handler prints proper messages", {
   expect_snapshot(
-    output <- handle_graphql_error(
+    output <- test_graphql_gitlab_priv$handle_graphql_error(
       responses_list = test_mocker$use("repos_graphql_error"),
       verbose = TRUE
     )

@@ -58,10 +58,6 @@ EngineGraphQLGitLab <- R6::R6Class(
           gql_query = self$gql_query$groups(),
           vars = list("groupCursor" = group_cursor)
         )
-        response <- private$set_graphql_error_class(response)
-        if (length(response$data$groups$edges) == 0) {
-          class(response) <- c(class(response), "graphql_error")
-        }
         if (!inherits(response, "graphql_error")) {
           if (output == "only_names") {
             orgs_list <- purrr::map(response$data$groups$edges, ~ .$node$fullPath)
@@ -75,7 +71,7 @@ EngineGraphQLGitLab <- R6::R6Class(
         }
       }, .progress = TRUE) |>
         purrr::list_flatten()
-      orgs_list <- handle_graphql_error(orgs_list, verbose)
+      orgs_list <- private$handle_graphql_error(orgs_list, verbose)
       if (!inherits(orgs_list, "graphql_error")) {
         if (output == "only_names") {
           all_orgs <- unlist(orgs_list)
@@ -155,7 +151,7 @@ EngineGraphQLGitLab <- R6::R6Class(
         }
         full_repos_list <- append(full_repos_list, repos_list)
       }
-      full_repos_list <- handle_graphql_error(full_repos_list, verbose)
+      full_repos_list <- private$handle_graphql_error(full_repos_list, verbose)
       return(full_repos_list)
     },
 
@@ -194,7 +190,7 @@ EngineGraphQLGitLab <- R6::R6Class(
           full_repos_list <- append(full_repos_list, repos_list)
         }
       }
-      full_repos_list <- handle_graphql_error(full_repos_list, verbose)
+      full_repos_list <- private$handle_graphql_error(full_repos_list, verbose)
       return(full_repos_list)
     },
 
@@ -602,7 +598,6 @@ EngineGraphQLGitLab <- R6::R6Class(
           )
         )
       }
-      response <- private$set_graphql_error_class(response)
       return(response)
     },
 

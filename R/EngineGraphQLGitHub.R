@@ -461,17 +461,8 @@ EngineGraphQLGitHub <- R6::R6Class(
           "login" = login
         )
       )
-      private$handle_gql_response_error(response)
+      private$handle_graphql_error(response)
       return(response)
-    },
-
-    handle_gql_response_error = function(response) {
-      if (private$is_query_error(response)) {
-        cli::cli_abort(c(
-          "i" = "GraphQL response error",
-          "x" = response$errors[[1]]$message
-        ), call = NULL)
-      }
     },
 
     # An iterator over pulling commit pages from one repository.

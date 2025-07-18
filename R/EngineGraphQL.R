@@ -27,7 +27,8 @@ EngineGraphQL <- R6::R6Class(
         gql_query = gql_query,
         vars = vars
       )
-      response_list <- httr2::resp_body_json(response)
+      response_list <- httr2::resp_body_json(response) |>
+        private$set_graphql_error_class()
       return(response_list)
     },
 
@@ -119,6 +120,31 @@ EngineGraphQL <- R6::R6Class(
         ) %>%
         httr2::req_perform()
       return(response)
+    },
+
+    handle_graphql_error = function(responses_list, verbose) {
+      if (inherits(responses_list, "graphql_error")) {
+        if (verbose) cli::cli_alert_danger("GraphQL returned errors.")
+        if (inherits(responses_list, "graphql_no_fields_error")) {
+          if (verbose) {
+            error_fields <- purrr::map_vec(responses_list$errors, ~.$extensions$fieldName)
+            cli::cli_alert_info("Your GraphQL does not recognize [{error_fields}] field{?s}.")
+            cli::cli_alert_warning("Check version of your GitLab.")
+          }
+        } else {
+          purrr::map_vec(responses_list$errors, ~.$message)
+        }
+      } else if (any(purrr::map_lgl(responses_list, ~ inherits(., "graphql_error")))) {
+        class(responses_list) <- c("graphql_error", class(responses_list))
+        if (verbose) cli::cli_alert_danger("GraphQL returned errors.")
+        check <- any(purrr::map_lgl(responses_list, ~ inherits(., "graphql_no_fields_error")))
+        if (check && verbose) {
+          error_fields <- purrr::map_vec(responses_list, ~ purrr::map(.$errors, ~.$extensions$fieldName) |> purrr::discard(is.null)) |> unique()
+          cli::cli_alert_info("Your GraphQL does not recognize [{error_fields}] field{?s}.")
+          cli::cli_alert_warning("Check version of your GitLab.")
+        }
+      }
+      return(responses_list)
     },
 
     is_query_error = function(response) {
