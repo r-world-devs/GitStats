@@ -1,3 +1,5 @@
+# GitStats (development version)
+
 # GitStats 2.3.4
 
 - Enabled possibility to set public hosts without specifying `organizations` and `repositories` scope ([#640](https://github.com/r-world-devs/GitStats/issues/640)). This change was motivated by the need to enable the call of functions based on Search API on public hosts (such as `get_repos(with_code = {code})`), whose performance is acceptable on large public repositories. In the case of other slower functions, users will be informed of the estimated data retrieval time via a progress bar.
