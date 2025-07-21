@@ -161,16 +161,6 @@ EngineGraphQL <- R6::R6Class(
       return(response)
     },
 
-    set_graphql_error_to_list = function(list_of_responses) {
-      if (any(purrr::map_lgl(list_of_responses, ~ inherits(., "graphql_error")))) {
-        class(list_of_responses) <- c(class(list_of_responses), "graphql_error")
-      }
-      if (any(purrr::map_lgl(list_of_responses, ~ inherits(., "graphql_no_fields_error")))) {
-        class(list_of_responses) <- c(class(list_of_responses), "graphql_no_fields_error")
-      }
-      return(list_of_responses)
-    },
-
     filter_files_by_pattern = function(files_structure, pattern) {
       repo_id <- attr(files_structure, "repo_id")
       files_structure <- files_structure[grepl(paste0(pattern, collapse = "|"), files_structure)]
