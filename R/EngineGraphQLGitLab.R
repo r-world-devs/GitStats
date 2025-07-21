@@ -53,7 +53,8 @@ EngineGraphQLGitLab <- R6::R6Class(
       }
       group_cursor <- ""
       iterations_number <- round(orgs_count / 100)
-      orgs_list <- purrr::map(1:iterations_number, function(x) {
+      full_orgs_list <- list()
+      for (x in 1:iterations_number) {
         response <- self$gql_response(
           gql_query = self$gql_query$groups(),
           vars = list("groupCursor" = group_cursor)
@@ -64,22 +65,22 @@ EngineGraphQLGitLab <- R6::R6Class(
           } else {
             orgs_list <- purrr::map(response$data$groups$edges, ~ .$node)
           }
-          group_cursor <<- response$data$groups$pageInfo$endCursor
-          return(orgs_list)
+          group_cursor <- response$data$groups$pageInfo$endCursor
+          full_orgs_list <- append(full_orgs_list, orgs_list)
         } else {
-          return(response)
+          full_orgs_list <- response
+          break
         }
-      }, .progress = TRUE) |>
-        purrr::list_flatten()
-      orgs_list <- private$handle_graphql_error(orgs_list, verbose)
-      if (!inherits(orgs_list, "graphql_error")) {
+      }
+      full_orgs_list <- private$handle_graphql_error(full_orgs_list, verbose)
+      if (!inherits(full_orgs_list, "graphql_error")) {
         if (output == "only_names") {
-          all_orgs <- unlist(orgs_list)
+          all_orgs <- unlist(full_orgs_list)
         } else if (output == "full_table") {
-          all_orgs <- orgs_list
+          all_orgs <- full_orgs_list
         }
       } else {
-        all_orgs <- orgs_list
+        all_orgs <- full_orgs_list
       }
       return(all_orgs)
     },

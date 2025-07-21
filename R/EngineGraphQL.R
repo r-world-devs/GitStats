@@ -127,21 +127,13 @@ EngineGraphQL <- R6::R6Class(
         if (verbose) cli::cli_alert_danger("GraphQL returned errors.")
         if (inherits(responses_list, "graphql_no_fields_error")) {
           if (verbose) {
-            error_fields <- purrr::map_vec(responses_list$errors, ~.$extensions$fieldName)
+            error_fields <- purrr::map_vec(responses_list$errors, ~.$extensions$fieldName %||% "") |>
+              purrr::discard(~ . == "")
             cli::cli_alert_info("Your GraphQL does not recognize [{error_fields}] field{?s}.")
             cli::cli_alert_warning("Check version of your GitLab.")
           }
         } else {
           purrr::map_vec(responses_list$errors, ~.$message)
-        }
-      } else if (any(purrr::map_lgl(responses_list, ~ inherits(., "graphql_error")))) {
-        class(responses_list) <- c("graphql_error", class(responses_list))
-        if (verbose) cli::cli_alert_danger("GraphQL returned errors.")
-        check <- any(purrr::map_lgl(responses_list, ~ inherits(., "graphql_no_fields_error")))
-        if (check && verbose) {
-          error_fields <- purrr::map_vec(responses_list, ~ purrr::map(.$errors, ~.$extensions$fieldName) |> purrr::discard(is.null)) |> unique()
-          cli::cli_alert_info("Your GraphQL does not recognize [{error_fields}] field{?s}.")
-          cli::cli_alert_warning("Check version of your GitLab.")
         }
       }
       return(responses_list)
@@ -167,6 +159,16 @@ EngineGraphQL <- R6::R6Class(
         }
       }
       return(response)
+    },
+
+    set_graphql_error_to_list = function(list_of_responses) {
+      if (any(purrr::map_lgl(list_of_responses, ~ inherits(., "graphql_error")))) {
+        class(list_of_responses) <- c(class(list_of_responses), "graphql_error")
+      }
+      if (any(purrr::map_lgl(list_of_responses, ~ inherits(., "graphql_no_fields_error")))) {
+        class(list_of_responses) <- c(class(list_of_responses), "graphql_no_fields_error")
+      }
+      return(list_of_responses)
     },
 
     filter_files_by_pattern = function(files_structure, pattern) {
