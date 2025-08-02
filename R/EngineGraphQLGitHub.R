@@ -146,7 +146,8 @@ EngineGraphQLGitHub <- R6::R6Class(
         repos_response <- private$get_repos_page(
           login = org,
           type = owner_type,
-          repo_cursor = repo_cursor
+          repo_cursor = repo_cursor,
+          verbose = verbose
         )
         repositories <- if (owner_type == "organization") {
           repos_response$data$repositoryOwner$repositories
@@ -445,7 +446,8 @@ EngineGraphQLGitHub <- R6::R6Class(
     # Wrapper over building GraphQL query and response.
     get_repos_page = function(login = NULL,
                               type = c("organization"),
-                              repo_cursor = "") {
+                              repo_cursor = "",
+                              verbose = TRUE) {
       if (type == "organization") {
         repos_query <- self$gql_query$repos_by_org(
           repo_cursor = repo_cursor
@@ -461,7 +463,10 @@ EngineGraphQLGitHub <- R6::R6Class(
           "login" = login
         )
       )
-      private$handle_graphql_error(response)
+      private$handle_graphql_error(
+        responses_list = response,
+        verbose = verbose
+      )
       return(response)
     },
 
