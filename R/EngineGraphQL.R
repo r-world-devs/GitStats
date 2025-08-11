@@ -111,14 +111,24 @@ EngineGraphQL <- R6::R6Class(
 
     # GraphQL method for pulling response from API
     perform_request = function(gql_query, vars, token = private$token) {
-      response <- httr2::request(paste0(self$gql_api_url, "?")) %>%
-        httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
-        httr2::req_body_json(list(query = gql_query, variables = vars)) %>%
-        httr2::req_retry(
-          is_transient = ~ httr2::resp_status(.x) %in% c(400, 502),
-          max_seconds = 60
-        ) %>%
+      response <- NULL
+      response <- httr2::request(paste0(self$gql_api_url, "?")) |>
+        httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
+        httr2::req_body_json(list(query = gql_query, variables = vars)) |>
+        httr2::req_error(is_error = function(resp) FALSE) |>
         httr2::req_perform()
+      if (response$status_code %in% c(400, 502)) {
+        response <- httr2::request(paste0(self$gql_api_url, "?")) |>
+          httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
+          httr2::req_body_json(list(query = gql_query, variables = vars)) |>
+          httr2::req_retry(
+            is_transient = ~ httr2::resp_status(.x) %in% c(400, 502),
+            max_seconds = 60
+          ) %>%
+          httr2::req_perform()
+      } else if (response$status_code != 200) {
+        cli::cli_alert_danger(response$status_code)
+      }
       return(response)
     },
 
