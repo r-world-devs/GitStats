@@ -91,3 +91,46 @@ test_that("`perform_request()` for GraphQL returns status 200", {
     200
   )
 })
+
+test_that("`perform_request()` for GraphQL handles error 400", {
+  skip_if(Sys.getenv("GITHUB_PAT") == "")
+  testthat::skip_on_cran()
+  mockery::stub(
+    test_graphql_github_priv$perform_request,
+    "httr2::req_perform",
+    httr2::response(status_code = 400)
+  )
+  response <- test_graphql_github_priv$perform_request(
+    gql_query = "{
+      viewer {
+        login
+      }
+    }",
+    vars = NULL,
+    token = Sys.getenv("GITHUB_PAT")
+  )
+  expect_equal(
+    response$status_code,
+    400
+  )
+})
+
+test_that("`perform_request()` for GraphQL handles error 503", {
+  skip_if(Sys.getenv("GITHUB_PAT") == "")
+  mockery::stub(
+    test_graphql_github_priv$perform_request,
+    "httr2::req_perform",
+    httr2::response(status_code = 503)
+  )
+  expect_snapshot(
+    response <- test_graphql_github_priv$perform_request(
+      gql_query = "{
+      viewer {
+        login
+      }
+    }",
+      vars = NULL,
+      token = Sys.getenv("GITHUB_PAT")
+    )
+  )
+})
