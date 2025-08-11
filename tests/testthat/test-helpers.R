@@ -113,6 +113,23 @@ test_that("check_endpoint returns error if they are not correct", {
   )
 })
 
+test_that("check_endpoint returns warning if they are not correct", {
+  skip_on_cran()
+  github_testhost_priv <- create_github_testhost(
+    orgs = "test-org",
+    token = Sys.getenv("GITHUB_PAT"),
+    mode = "private"
+  )
+  expect_snapshot(
+    check <- github_testhost_priv$check_endpoint(
+      endpoint = "https://api.github.com/repos/r-worlddevs/GitStats",
+      type = "Repository",
+      verbose = TRUE,
+      .error = FALSE
+    )
+  )
+})
+
 test_that("`check_if_public` works correctly", {
   expect_true(
     github_testhost_priv$check_if_public("api.github.com")

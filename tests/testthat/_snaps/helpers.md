@@ -38,6 +38,15 @@
     ! Please type your repository name as you see it in web URL.
     i E.g. do not use spaces. Repository names as you see on the page may differ from their web 'address'.
 
+# check_endpoint returns warning if they are not correct
+
+    Code
+      check <- github_testhost_priv$check_endpoint(endpoint = "https://api.github.com/repos/r-worlddevs/GitStats",
+        type = "Repository", verbose = TRUE, .error = FALSE)
+    Message
+      HTTP 404 Not Found.
+      ! Repository you provided does not exist: https://api.github.com/repos/r-worlddevs/GitStats
+
 # `set_default_token` sets default token for public GitHub
 
     Code
