@@ -9,8 +9,8 @@ EngineRestGitLab <- R6::R6Class(
       if (verbose) {
         cli::cli_alert("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling number of all organizations...")
       }
-      orgs_response <- private$perform_request(paste0(private$endpoints$organizations, "?all_available=True"),
-                                               token = private$token)
+      orgs_response <- self$perform_request(paste0(private$endpoints$organizations, "?all_available=True"),
+                                            token = private$token)
       return(orgs_response$headers$`x-total`)
     },
 

@@ -3,7 +3,7 @@ test_that("`perform_request()` returns proper status when token is empty or inva
   purrr::walk(
     wrong_tokens,
     ~ expect_message(
-      test_rest_github_priv$perform_request(
+      test_rest_github$perform_request(
         endpoint = "https://api.github.com",
         token = .
       ),
@@ -16,7 +16,7 @@ test_that("`perform_request()` throws error on bad host", {
   bad_host <- "https://github.bad_host.com"
   expect_error(
     suppressMessages(
-      test_rest_github_priv$perform_request(
+      test_rest_github$perform_request(
         endpoint = paste0(bad_host),
         token = Sys.getenv("GITHUB_PAT")
       )
@@ -28,8 +28,8 @@ test_that("`perform_request()` throws error on bad host", {
 test_that("`perform_request()` returns proper status", {
   skip_if(Sys.getenv("GITHUB_PAT") == "")
   bad_endpoint <- "https://api.github.com/orgs/everybody_loves_somebody"
-  expect_error(
-    test_rest_github_priv$perform_request(
+  expect_message(
+    test_rest_github$perform_request(
       endpoint = bad_endpoint,
       token = Sys.getenv("GITHUB_PAT")
     ),
@@ -49,7 +49,7 @@ test_that("`paginate_results()` works properly", {
 
 test_that("`perform_request()` returns status 200", {
   skip_if(Sys.getenv("GITHUB_PAT") == "")
-  response <- test_rest_github_priv$perform_request(
+  response <- test_rest_github$perform_request(
     endpoint = "https://api.github.com/repos/r-world-devs/GitStats",
     token = Sys.getenv("GITHUB_PAT")
   )

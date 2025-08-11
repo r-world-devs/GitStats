@@ -1,6 +1,7 @@
 # GitStats (development version)
 
 - Unified approach to handling `GraphQL` errors in GitHub and GitLab ([#622](https://github.com/r-world-devs/GitStats/issues/622)).
+- Added graceful falling on `HTTP 404` error ([#653](https://github.com/r-world-devs/GitStats/issues/653)).
 
 # GitStats 2.3.4
 

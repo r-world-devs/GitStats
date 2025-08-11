@@ -17,7 +17,7 @@ test_that("group GitLab query is built properly", {
 test_that("get_orgs_count works", {
   mockery::stub(
     test_rest_gitlab$get_orgs_count,
-    "private$perform_request",
+    "self$perform_request",
     test_fixtures$rest_gl_orgs_response
   )
   orgs_count <- test_rest_gitlab$get_orgs_count(verbose = FALSE)
@@ -34,7 +34,7 @@ test_that("get_orgs_count works", {
 test_that("get_orgs_count prints message", {
   mockery::stub(
     test_rest_gitlab$get_orgs_count,
-    "private$perform_request",
+    "self$perform_request",
     test_fixtures$rest_gl_orgs_response
   )
   expect_snapshot(

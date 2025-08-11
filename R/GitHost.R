@@ -563,38 +563,34 @@ GitHost <- R6::R6Class(
     # Check whether the endpoint exists.
     check_endpoint = function(endpoint, type, verbose, .error) {
       check <- TRUE
-      tryCatch(
-        {
-          private$engines$rest$response(endpoint = endpoint)
-        },
-        error = function(e) {
-          if (grepl("404", e)) {
-            if (.error) {
-              cli::cli_abort(
-                c(
-                  "x" = "{type} you provided does not exist or its name was passed
-                in a wrong way: {cli::col_red({utils::URLdecode(endpoint)})}",
-                  "!" = "Please type your {tolower(type)} name as you see it in
-                web URL.",
-                  "i" = "E.g. do not use spaces. {type} names as you see on the
-                page may differ from their web 'address'."
-                ),
-                call = NULL
-              )
-            } else {
-              if (verbose) {
-                cli::cli_alert_warning(
-                  cli::col_yellow(
-                    "{type} you provided does not exist: {cli::col_red({utils::URLdecode(endpoint)})}"
-                  )
-                )
-              }
-              check <<- FALSE
-            }
-
-          }
-        }
+      endpoint_response <- private$engines$rest$perform_request(
+        endpoint = endpoint,
+        token = private$token
       )
+      if (endpoint_response$status_code == 404) {
+        if (.error) {
+          cli::cli_abort(
+            c(
+              "x" = "{type} you provided does not exist or its name was passed
+                in a wrong way: {cli::col_red({utils::URLdecode(endpoint)})}",
+              "!" = "Please type your {tolower(type)} name as you see it in
+                web URL.",
+              "i" = "E.g. do not use spaces. {type} names as you see on the
+                page may differ from their web 'address'."
+            ),
+            call = NULL
+          )
+        } else {
+          if (verbose) {
+            cli::cli_alert_warning(
+              cli::col_yellow(
+                "{type} you provided does not exist: {cli::col_red({utils::URLdecode(endpoint)})}"
+              )
+            )
+          }
+          check <- FALSE
+        }
+      }
       return(check)
     },
 

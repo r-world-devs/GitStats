@@ -129,8 +129,7 @@ test_that("`set_default_token` sets default token for public GitHub", {
       verbose = TRUE
     )
   )
-  test_rest <- create_testrest(token = default_token,
-                               mode = "private")
+  test_rest <- create_testrest(token = default_token)
   expect_equal(
     test_rest$perform_request(
       endpoint = "https://api.github.com",
@@ -194,8 +193,7 @@ test_that("`set_default_token` sets default token for GitLab", {
       default_token <- gitlab_testhost_priv$set_default_token(verbose = TRUE)
     })
   )
-  test_rest <- create_testrest(token = default_token,
-                               mode = "private")
+  test_rest <- create_testrest(token = default_token)
   expect_equal(
     test_rest$perform_request(
       endpoint = "https://gitlab.com/api/v4/projects",
