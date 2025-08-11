@@ -4,7 +4,7 @@ test_that("`perform_request()` returns proper status when token is empty or inva
     wrong_tokens,
     ~ expect_message(
       test_rest_github_priv$perform_request(
-        endpoint = "https://api.github.com/org/openpharma",
+        endpoint = "https://api.github.com",
         token = .
       ),
       "HTTP 401 Unauthorized."
