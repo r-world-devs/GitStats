@@ -48,13 +48,13 @@ EngineRest <- R6::R6Class("EngineRest",
         httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
         httr2::req_error(is_error = function(resp) FALSE) %>%
         httr2::req_perform()
-      if (resp$status == 401) {
+      if (resp$status_code == 401) {
         message("HTTP 401 Unauthorized.")
       }
-      if (resp$status == 404) {
+      if (resp$status_code == 404) {
         message("HTTP 404 Not Found.")
       }
-      if (resp$status %in% c(400, 500, 403)) {
+      if (resp$status_code %in% c(400, 500, 403)) {
         resp <- httr2::request(endpoint) %>%
           httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
           httr2::req_retry(

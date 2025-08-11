@@ -1,4 +1,5 @@
 test_that("`perform_request()` returns proper status when token is empty or invalid", {
+  testthat::skip_on_cran()
   wrong_tokens <- c("", "bad_token")
   purrr::walk(
     wrong_tokens,
@@ -22,6 +23,21 @@ test_that("`perform_request()` throws error on bad host", {
       )
     ),
     "Could not resolve host"
+  )
+})
+
+test_that("403 error is handled", {
+  testthat::skip_on_cran()
+  mockery::stub(
+    test_rest_github$perform_request,
+    "httr2::req_perform",
+    httr2::response(status_code = 403)
+  )
+  expect_no_error(
+    response <- test_rest_github$perform_request(
+      endpoint =  "https://example.com",
+      token = Sys.getenv("GITHUB_PAT")
+    )
   )
 })
 
