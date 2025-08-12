@@ -632,7 +632,7 @@ test_fixtures$gitlab_search_response <- list(
     "id" = NULL,
     "ref" = "main",
     "startline" = 10,
-    "project_id" = 43398933
+    "project_id" = 61399846
   ),
   list(
     "basename" = "test",

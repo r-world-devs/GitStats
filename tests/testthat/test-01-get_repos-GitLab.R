@@ -473,6 +473,7 @@ test_that("parse_search_response works", {
   )
   gl_repos_raw_output <- gitlab_testhost_priv$parse_search_response(
     search_response = test_fixtures$gitlab_search_response,
+    org = "test_group",
     output = "raw"
   )
   expect_type(
