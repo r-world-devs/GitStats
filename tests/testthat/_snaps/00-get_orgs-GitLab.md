@@ -43,14 +43,14 @@
     Code
       gl_org_response <- test_graphql_gitlab$get_org(org = org, verbose = TRUE)
     Message
-      > [Host:GitLab][Engine:GraphQL] Pulling test_org organization...
+      > [Host:GitLab][Engine:GraphQL] Pulling mbtests organization...
 
 ---
 
     Code
-      gl_org_response <- test_rest_gitlab$get_org(org = org, verbose = TRUE)
+      gl_org_response <- test_rest_gitlab$get_org(org = "mbtests", verbose = TRUE)
     Message
-      > [Host:GitLab][Engine:REST] Pulling test_org organization...
+      > [Host:GitLab][Engine:REST] Pulling mbtests organization...
 
 # REST method prints message
 
