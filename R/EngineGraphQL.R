@@ -27,7 +27,8 @@ EngineGraphQL <- R6::R6Class(
         gql_query = gql_query,
         vars = vars
       )
-      response_list <- httr2::resp_body_json(response)
+      response_list <- httr2::resp_body_json(response) |>
+        private$set_graphql_error_class()
       return(response_list)
     },
 
@@ -110,15 +111,42 @@ EngineGraphQL <- R6::R6Class(
 
     # GraphQL method for pulling response from API
     perform_request = function(gql_query, vars, token = private$token) {
-      response <- httr2::request(paste0(self$gql_api_url, "?")) %>%
-        httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
-        httr2::req_body_json(list(query = gql_query, variables = vars)) %>%
-        httr2::req_retry(
-          is_transient = ~ httr2::resp_status(.x) %in% c(400, 502),
-          max_seconds = 60
-        ) %>%
+      response <- NULL
+      response <- httr2::request(paste0(self$gql_api_url, "?")) |>
+        httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
+        httr2::req_body_json(list(query = gql_query, variables = vars)) |>
+        httr2::req_error(is_error = function(resp) FALSE) |>
         httr2::req_perform()
+      if (response$status_code %in% c(400, 502)) {
+        response <- httr2::request(paste0(self$gql_api_url, "?")) |>
+          httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
+          httr2::req_body_json(list(query = gql_query, variables = vars)) |>
+          httr2::req_retry(
+            is_transient = ~ httr2::resp_status(.x) %in% c(400, 502),
+            max_seconds = 60
+          ) %>%
+          httr2::req_perform()
+      } else if (response$status_code != 200) {
+        cli::cli_alert_danger(response$status_code)
+      }
       return(response)
+    },
+
+    handle_graphql_error = function(responses_list, verbose) {
+      if (inherits(responses_list, "graphql_error")) {
+        if (verbose) cli::cli_alert_danger("GraphQL returned errors.")
+        if (inherits(responses_list, "graphql_no_fields_error")) {
+          if (verbose) {
+            error_fields <- purrr::map_vec(responses_list$errors, ~.$extensions$fieldName %||% "") |>
+              purrr::discard(~ . == "")
+            cli::cli_alert_info("Your GraphQL does not recognize [{error_fields}] field{?s}.")
+            cli::cli_alert_warning("Check version of your GitLab.")
+          }
+        } else {
+          purrr::map_vec(responses_list$errors, ~.$message)
+        }
+      }
+      return(responses_list)
     },
 
     is_query_error = function(response) {
@@ -127,6 +155,20 @@ EngineGraphQL <- R6::R6Class(
         check <- any(names(response) == "errors")
       }
       return(check)
+    },
+
+    is_no_fields_query_error = function(response) {
+      any(purrr::map_lgl(response$errors, ~ grepl("doesn't exist on type", .$message)))
+    },
+
+    set_graphql_error_class = function(response) {
+      if (private$is_query_error(response)) {
+        class(response) <- c(class(response), "graphql_error")
+        if (private$is_no_fields_query_error(response)) {
+          class(response) <- c(class(response), "graphql_no_fields_error")
+        }
+      }
+      return(response)
     },
 
     filter_files_by_pattern = function(files_structure, pattern) {

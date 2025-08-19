@@ -16,7 +16,7 @@ repos_urls <- get_repos_urls(
   with_code = "shiny"
 )
 
-files_structure <- get_files_structure(
+files_structure <- get_files(
   gitstats = git_stats,
   pattern = "\\.md",
   depth = 1L

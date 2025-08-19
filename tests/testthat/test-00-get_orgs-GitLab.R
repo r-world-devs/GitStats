@@ -17,7 +17,7 @@ test_that("group GitLab query is built properly", {
 test_that("get_orgs_count works", {
   mockery::stub(
     test_rest_gitlab$get_orgs_count,
-    "private$perform_request",
+    "self$perform_request",
     test_fixtures$rest_gl_orgs_response
   )
   orgs_count <- test_rest_gitlab$get_orgs_count(verbose = FALSE)
@@ -34,7 +34,7 @@ test_that("get_orgs_count works", {
 test_that("get_orgs_count prints message", {
   mockery::stub(
     test_rest_gitlab$get_orgs_count,
-    "private$perform_request",
+    "self$perform_request",
     test_fixtures$rest_gl_orgs_response
   )
   expect_snapshot(
@@ -91,7 +91,8 @@ test_that("if get_orgs runs into GraphQL error, it returns object of graphql_err
   mockery::stub(
     test_graphql_gitlab$get_orgs,
     "self$gql_response",
-    test_fixtures$graphql_error_no_fields
+    test_error_fixtures$graphql_error_no_groups |>
+      test_graphql_gitlab_priv$set_graphql_error_class()
   )
   gl_orgs_error_response <- test_graphql_gitlab$get_orgs(
     orgs_count = 3L,
@@ -107,7 +108,8 @@ test_that("if get_orgs runs into GraphQL error, it prints warning", {
   mockery::stub(
     test_graphql_gitlab$get_orgs,
     "self$gql_response",
-    test_fixtures$graphql_error_no_fields
+    test_error_fixtures$graphql_error_no_groups |>
+      test_graphql_gitlab_priv$set_graphql_error_class()
   )
   expect_snapshot(
     gl_orgs_error_response <- test_graphql_gitlab$get_orgs(

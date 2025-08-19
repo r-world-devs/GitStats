@@ -113,6 +113,23 @@ test_that("check_endpoint returns error if they are not correct", {
   )
 })
 
+test_that("check_endpoint returns warning if they are not correct", {
+  skip_on_cran()
+  github_testhost_priv <- create_github_testhost(
+    orgs = "test-org",
+    token = Sys.getenv("GITHUB_PAT"),
+    mode = "private"
+  )
+  expect_snapshot(
+    check <- github_testhost_priv$check_endpoint(
+      endpoint = "https://api.github.com/repos/r-worlddevs/GitStats",
+      type = "Repository",
+      verbose = TRUE,
+      .error = FALSE
+    )
+  )
+})
+
 test_that("`check_if_public` works correctly", {
   expect_true(
     github_testhost_priv$check_if_public("api.github.com")
@@ -129,8 +146,7 @@ test_that("`set_default_token` sets default token for public GitHub", {
       verbose = TRUE
     )
   )
-  test_rest <- create_testrest(token = default_token,
-                               mode = "private")
+  test_rest <- create_testrest(token = default_token)
   expect_equal(
     test_rest$perform_request(
       endpoint = "https://api.github.com",
@@ -194,8 +210,7 @@ test_that("`set_default_token` sets default token for GitLab", {
       default_token <- gitlab_testhost_priv$set_default_token(verbose = TRUE)
     })
   )
-  test_rest <- create_testrest(token = default_token,
-                               mode = "private")
+  test_rest <- create_testrest(token = default_token)
   expect_equal(
     test_rest$perform_request(
       endpoint = "https://gitlab.com/api/v4/projects",
@@ -203,8 +218,4 @@ test_that("`set_default_token` sets default token for GitLab", {
     )$status,
     200
   )
-})
-
-test_that("is_query_error works", {
-  expect_true(is_query_error(test_fixtures$graphql_error_no_fields))
 })

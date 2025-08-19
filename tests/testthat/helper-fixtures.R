@@ -632,7 +632,7 @@ test_fixtures$gitlab_search_response <- list(
     "id" = NULL,
     "ref" = "main",
     "startline" = 10,
-    "project_id" = 43398933
+    "project_id" = 61399846
   ),
   list(
     "basename" = "test",
@@ -1008,45 +1008,6 @@ test_fixtures$github_org_login <- list(
     "organization" = list(
       "__typename" = "Organization",
       "login" = "test_org"
-    )
-  )
-)
-
-test_fixtures$graphql_error_no_fields <- list(
-  "errors" = list(
-    list(
-      "message" = "Field 'groups' doesn't exist on type 'Query'",
-      "locations" = list(
-        list(
-          "line" = 2L,
-          "column" = 13L
-        )
-      ),
-      "path" = list(
-        "query GetGroups",
-        "groups"
-      ),
-      "extensions" = list(
-        "code" = "undefinedField",
-        "typeName" = "Query",
-        "fieldName" = "groups"
-      )
-    ),
-    list(
-      "message" = "Variable $groupCursor is declared by GetGroups but not used",
-      "locations" = list(
-        list(
-          "line" = 1L,
-          "column" = 1L
-        )
-      ),
-      "path" = list(
-        "query GetGroups"
-      ),
-      "extensions" = list(
-        "code" = "variableNotUsed",
-        "variableName" = "groupCursor"
-      )
     )
   )
 )

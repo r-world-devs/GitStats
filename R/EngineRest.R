@@ -29,13 +29,41 @@ EngineRest <- R6::R6Class("EngineRest",
     #' @return A content of response formatted to list.
     response = function(endpoint,
                         token = private$token) {
-      resp <- private$perform_request(endpoint, token)
+      resp <- self$perform_request(endpoint, token)
       if (!is.null(resp)) {
         result <- resp %>% httr2::resp_body_json(check_type = FALSE)
       } else {
         result <- list()
       }
       return(result)
+    },
+
+    # @description A wrapper for httr2 functions to prepare get request to REST API endpoint.
+    # @param endpoint An API endpoint.
+    # @param token An API token.
+    # @returns A request.
+    perform_request = function(endpoint, token) {
+      resp <- NULL
+      resp <- httr2::request(endpoint) %>%
+        httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
+        httr2::req_error(is_error = function(resp) FALSE) %>%
+        httr2::req_perform()
+      if (resp$status_code == 401) {
+        message("HTTP 401 Unauthorized.")
+      }
+      if (resp$status_code == 404) {
+        message("HTTP 404 Not Found.")
+      }
+      if (resp$status_code %in% c(400, 500, 403)) {
+        resp <- httr2::request(endpoint) %>%
+          httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
+          httr2::req_retry(
+            is_transient = ~ httr2::resp_status(.x) %in% c(400, 500, 403),
+            max_seconds = 60
+          ) %>%
+          httr2::req_perform()
+      }
+      return(resp)
     }
 
   ),
@@ -67,33 +95,6 @@ EngineRest <- R6::R6Class("EngineRest",
         }
       }
       return(full_response)
-    },
-
-    # @description A wrapper for httr2 functions to prepare get request to REST API endpoint.
-    # @param endpoint An API endpoint.
-    # @param token An API token.
-    # @returns A request.
-    perform_request = function(endpoint, token) {
-      resp <- NULL
-      resp <- httr2::request(endpoint) %>%
-        httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
-        httr2::req_error(is_error = function(resp) httr2::resp_status(resp) == 404) %>%
-        httr2::req_perform()
-      if (!private$scan_all) {
-        if (resp$status == 401) {
-          message("HTTP 401 Unauthorized.")
-        }
-      }
-      if (resp$status %in% c(400, 500, 403)) {
-        resp <- httr2::request(endpoint) %>%
-          httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
-          httr2::req_retry(
-            is_transient = ~ httr2::resp_status(.x) %in% c(400, 500, 403),
-            max_seconds = 60
-          ) %>%
-          httr2::req_perform()
-      }
-      return(resp)
     }
   )
 )

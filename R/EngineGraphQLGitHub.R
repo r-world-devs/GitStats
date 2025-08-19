@@ -146,7 +146,8 @@ EngineGraphQLGitHub <- R6::R6Class(
         repos_response <- private$get_repos_page(
           login = org,
           type = owner_type,
-          repo_cursor = repo_cursor
+          repo_cursor = repo_cursor,
+          verbose = verbose
         )
         repositories <- if (owner_type == "organization") {
           repos_response$data$repositoryOwner$repositories
@@ -445,7 +446,8 @@ EngineGraphQLGitHub <- R6::R6Class(
     # Wrapper over building GraphQL query and response.
     get_repos_page = function(login = NULL,
                               type = c("organization"),
-                              repo_cursor = "") {
+                              repo_cursor = "",
+                              verbose = TRUE) {
       if (type == "organization") {
         repos_query <- self$gql_query$repos_by_org(
           repo_cursor = repo_cursor
@@ -461,17 +463,11 @@ EngineGraphQLGitHub <- R6::R6Class(
           "login" = login
         )
       )
-      private$handle_gql_response_error(response)
+      private$handle_graphql_error(
+        responses_list = response,
+        verbose = verbose
+      )
       return(response)
-    },
-
-    handle_gql_response_error = function(response) {
-      if (private$is_query_error(response)) {
-        cli::cli_abort(c(
-          "i" = "GraphQL response error",
-          "x" = response$errors[[1]]$message
-        ), call = NULL)
-      }
     },
 
     # An iterator over pulling commit pages from one repository.

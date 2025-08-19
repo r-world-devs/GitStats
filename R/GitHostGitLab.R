@@ -251,7 +251,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
 
     get_commits_from_orgs = function(since,
                                      until,
-                                     verbose  = TRUE,
+                                     verbose = TRUE,
                                      progress = verbose) {
       if ("org" %in% private$searching_scope) {
         rest_engine <- private$engines$rest
@@ -266,7 +266,8 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             )
           }
           repos_names <- private$get_repos_names(
-            org = org
+            org = org,
+            verbose = verbose
           )
           commits_table_org <- rest_engine$get_commits_from_repos(
             repos_names = paste0(org, "/", repos_names),
