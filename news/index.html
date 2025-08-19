@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,9 +35,14 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/r-world-devs/GitStats/blob/v2.3.4/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/r-world-devs/GitStats/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.3.5" id="gitstats-235">GitStats 2.3.5<a class="anchor" aria-label="anchor" href="#gitstats-235"></a></h2><p class="text-muted">CRAN release: 2025-08-18</p>
+<ul><li>Unified approach to handling <code>GraphQL</code> errors in GitHub and GitLab (<a href="https://github.com/r-world-devs/GitStats/issues/622" class="external-link">#622</a>).</li>
+<li>Added graceful handling for <code>HTTP 404</code> error (<a href="https://github.com/r-world-devs/GitStats/issues/653" class="external-link">#653</a>).</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.3.4" id="gitstats-234">GitStats 2.3.4<a class="anchor" aria-label="anchor" href="#gitstats-234"></a></h2><p class="text-muted">CRAN release: 2025-07-07</p>
 <ul><li>Enabled possibility to set public hosts without specifying <code>organizations</code> and <code>repositories</code> scope (<a href="https://github.com/r-world-devs/GitStats/issues/640" class="external-link">#640</a>). This change was motivated by the need to enable the call of functions based on Search API on public hosts (such as <code>get_repos(with_code = {code})</code>), whose performance is acceptable on large public repositories. In the case of other slower functions, users will be informed of the estimated data retrieval time via a progress bar.</li>
