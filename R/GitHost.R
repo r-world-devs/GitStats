@@ -68,6 +68,7 @@ GitHost <- R6::R6Class(
                          with_code = NULL,
                          in_files = NULL,
                          with_file = NULL,
+                         language = NULL,
                          output = "table",
                          force_orgs = FALSE,
                          verbose = TRUE,
@@ -82,6 +83,7 @@ GitHost <- R6::R6Class(
         repos_table <- private$get_repos_with_code(
           code = with_code,
           in_files = in_files,
+          language = language,
           output = output,
           force_orgs = force_orgs,
           verbose = verbose,
@@ -91,6 +93,7 @@ GitHost <- R6::R6Class(
         repos_table <- private$get_repos_with_code(
           code = with_file,
           in_path = TRUE,
+          language = language,
           output = output,
           force_orgs = force_orgs,
           verbose = verbose,
@@ -100,6 +103,12 @@ GitHost <- R6::R6Class(
       if (output == "table") {
         repos_table <- private$add_repo_api_url(repos_table) %>%
           private$add_githost_info()
+        if (!is.null(language)) {
+          repos_table <- private$filter_repos_table_by_language(
+            repos_table = repos_table,
+            language_filter = language
+          )
+        }
         if (add_contributors) {
           repos_table <- private$get_repos_contributors(
             repos_table = repos_table,
@@ -844,6 +853,7 @@ GitHost <- R6::R6Class(
     get_repos_with_code = function(code,
                                    in_files = NULL,
                                    in_path = FALSE,
+                                   language = NULL,
                                    output = "table_full",
                                    force_orgs = FALSE,
                                    verbose = TRUE,
@@ -853,6 +863,7 @@ GitHost <- R6::R6Class(
           code = code,
           in_files = in_files,
           in_path = in_path,
+          language = language,
           output = output,
           verbose = verbose,
           progress = progress
@@ -863,6 +874,7 @@ GitHost <- R6::R6Class(
           code = code,
           in_files = in_files,
           in_path = in_path,
+          language = language,
           output = output,
           verbose = verbose,
           progress = progress
@@ -871,6 +883,7 @@ GitHost <- R6::R6Class(
           code = code,
           in_files = in_files,
           in_path = in_path,
+          language = language,
           output = output,
           verbose = verbose,
           progress = progress
@@ -958,6 +971,7 @@ GitHost <- R6::R6Class(
     get_repos_with_code_from_host = function(code,
                                              in_files = NULL,
                                              in_path = FALSE,
+                                             language = NULL,
                                              output = "table_full",
                                              verbose = TRUE,
                                              progress = TRUE) {
@@ -973,6 +987,7 @@ GitHost <- R6::R6Class(
         search_response <- rest_engine$search_for_code(
           code = code,
           in_path = in_path,
+          language = language,
           verbose = verbose
         )
       } else {
@@ -981,6 +996,7 @@ GitHost <- R6::R6Class(
             code = code,
             filename = filename,
             in_path = in_path,
+            language = language,
             verbose = verbose
           )
         }) |>
@@ -997,6 +1013,7 @@ GitHost <- R6::R6Class(
     get_repos_with_code_from_orgs = function(code,
                                              in_files = NULL,
                                              in_path = FALSE,
+                                             language = NULL,
                                              output = "table",
                                              verbose = TRUE,
                                              progress = TRUE) {
@@ -1017,6 +1034,7 @@ GitHost <- R6::R6Class(
               org = org,
               code = code,
               in_path = in_path,
+              language = language,
               verbose = verbose
             )
           } else {
@@ -1026,6 +1044,7 @@ GitHost <- R6::R6Class(
                 code = code,
                 filename = filename,
                 in_path = in_path,
+                language = language,
                 verbose = verbose
               )
             }) %>%
@@ -1053,9 +1072,10 @@ GitHost <- R6::R6Class(
 
     get_repos_with_code_from_repos = function(code,
                                               in_files = NULL,
-                                              in_path  = FALSE,
-                                              output   = "table_full",
-                                              verbose  = TRUE,
+                                              in_path = FALSE,
+                                              language = NULL,
+                                              output = "table_full",
+                                              verbose = TRUE,
                                               progress = TRUE) {
       orgs <- names(private$orgs_repos)
       if ("repo" %in% private$searching_scope) {
@@ -1074,6 +1094,7 @@ GitHost <- R6::R6Class(
             repos = private$repos_fullnames,
             code = code,
             in_path = in_path,
+            language = language,
             verbose = verbose
           )
         } else {
@@ -1083,6 +1104,7 @@ GitHost <- R6::R6Class(
               code = code,
               filename = filename,
               in_path = in_path,
+              language = language,
               verbose = verbose
             )
           }) %>%
@@ -1628,6 +1650,11 @@ GitHost <- R6::R6Class(
           purrr::list_rbind()
         return(release_logs_table)
       }
+    },
+
+    filter_repos_table_by_language = function(repos_table, language_filter) {
+      repos_table |>
+        dplyr::filter(grepl(paste0("\\b", language_filter, "\\b"), languages))
     }
   )
 )

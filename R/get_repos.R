@@ -21,6 +21,8 @@
 #'   parameter.
 #' @param with_files A character vector, if defined, GitStats will pull
 #'   repositories with specified files.
+#' @param language A character. If defined, GitStats will return only
+#'   repositories with given language.
 #' @param cache A logical, if set to `TRUE` GitStats will retrieve the last
 #'   result from its storage.
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
@@ -50,6 +52,7 @@ get_repos <- function(gitstats,
                       with_code = NULL,
                       in_files = NULL,
                       with_files = NULL,
+                      language = NULL,
                       cache = TRUE,
                       verbose = is_verbose(gitstats),
                       progress = verbose) {
@@ -59,6 +62,7 @@ get_repos <- function(gitstats,
     with_code = with_code,
     in_files = in_files,
     with_files = with_files,
+    language = language,
     cache = cache,
     verbose = verbose,
     progress = progress

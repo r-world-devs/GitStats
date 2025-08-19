@@ -24,7 +24,7 @@
     Code
       repos_with_code_from_orgs_raw <- github_testhost_priv$
         get_repos_with_code_from_orgs(code = "shiny", in_files = c("DESCRIPTION",
-        "NAMESPACE"), output = "raw", verbose = TRUE)
+        "NAMESPACE"), language = "R", output = "raw", verbose = TRUE)
     Message
       > [Host:GitHub][Engine:REST][Scope:test_org] Pulling repositories...
 

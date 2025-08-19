@@ -215,6 +215,7 @@ EngineRestGitLab <- R6::R6Class(
                                filename = NULL,
                                in_path = FALSE,
                                org = NULL,
+                               language = NULL,
                                page_max = 1e6,
                                verbose = TRUE) {
       if (!is.null(org)) {
@@ -257,7 +258,7 @@ EngineRestGitLab <- R6::R6Class(
         })
         if (length(search_result) == 0 || inherits(full_repos_list, "rest_error")) {
           still_more_hits <- FALSE
-          break()
+          break
         } else {
           full_repos_list <- append(full_repos_list, search_result)
           page <- page + 1
@@ -270,6 +271,7 @@ EngineRestGitLab <- R6::R6Class(
                                      repos,
                                      filename = NULL,
                                      in_path = FALSE,
+                                     language = NULL,
                                      page_max = 1e6,
                                      verbose = TRUE) {
       if (verbose) cli::cli_alert("Searching for code [{code}]...")

@@ -202,6 +202,7 @@ test_that("`search_repos_for_code()` returns repos output for code search in fil
     code = gh_code,
     filename = gh_file,
     in_path = FALSE,
+    language = "R",
     repos = paste0(gh_org, "/", gh_repo),
     verbose = FALSE
   )
@@ -322,6 +323,7 @@ test_that("`get_repos_with_code_from_orgs()` pulls raw response", {
     repos_with_code_from_orgs_raw <- github_testhost_priv$get_repos_with_code_from_orgs(
       code = "shiny",
       in_files = c("DESCRIPTION", "NAMESPACE"),
+      language = "R",
       output = "raw",
       verbose = TRUE
     )
@@ -669,6 +671,7 @@ test_that("`get_repos()` works as expected", {
   )
   gh_repos_table_full <- github_testhost$get_repos(
     add_contributors = TRUE,
+    language = "R",
     verbose = FALSE
   )
   expect_repos_table(
@@ -676,4 +679,21 @@ test_that("`get_repos()` works as expected", {
     with_cols = c("api_url", "githost", "contributors")
   )
   test_mocker$cache(gh_repos_table_full)
+})
+
+test_that("filtering by language works", {
+  repos_table <- test_mocker$use("gh_repos_table_full")
+  repos_table$languages[1] <- "Python"
+  filtered_repos <- github_testhost_priv$filter_repos_table_by_language(
+    repos_table = repos_table,
+    language_filter = "R"
+  )
+  expect_gt(
+    nrow(filtered_repos),
+    0
+  )
+  expect_gt(
+    nrow(repos_table),
+    nrow(filtered_repos)
+  )
 })
