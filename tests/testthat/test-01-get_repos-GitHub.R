@@ -36,7 +36,7 @@ if (integration_tests_skipped) {
   gh_org <- "r-world-devs"
   gh_repo <- "GitStats"
   gh_user <- "maciekbanas"
-  gh_code <- "dplyr"
+  gh_code <- "GitStats"
   gh_file <- "DESCRIPTION"
 }
 
@@ -162,16 +162,18 @@ test_that("`search_response()` performs search with limit over 1000", {
 })
 
 test_that("`search_for_code()` returns repos output for code search in files", {
-  mockery::stub(
-    test_rest_github$search_for_code,
-    "self$response",
-    list("total_count" = 3L)
-  )
-  mockery::stub(
-    test_rest_github$search_for_code,
-    "private$search_response",
-    test_fixtures$github_search_response
-  )
+  if (integration_tests_skipped) {
+    mockery::stub(
+      test_rest_github$search_for_code,
+      "self$response",
+      list("total_count" = 3L)
+    )
+    mockery::stub(
+      test_rest_github$search_for_code,
+      "private$search_response",
+      test_fixtures$github_search_response$items
+    )
+  }
   gh_search_for_code <- test_rest_github$search_for_code(
     code = gh_code,
     filename = gh_file,
@@ -179,30 +181,56 @@ test_that("`search_for_code()` returns repos output for code search in files", {
     org = gh_org,
     verbose = FALSE
   )
-  expect_gh_search_response(gh_search_for_code$items)
+  expect_gh_search_response(gh_search_for_code)
   test_mocker$cache(gh_search_for_code)
 })
 
 test_that("`search_repos_for_code()` returns repos output for code search in files", {
-  mockery::stub(
-    test_rest_github$search_repos_for_code,
-    "self$response",
-    list("total_count" = 3L)
-  )
-  mockery::stub(
-    test_rest_github$search_repos_for_code,
-    "private$search_response",
-    test_fixtures$github_search_response
-  )
+  if (integration_tests_skipped) {
+    mockery::stub(
+      test_rest_github$search_repos_for_code,
+      "self$response",
+      list("total_count" = 3L)
+    )
+    mockery::stub(
+      test_rest_github$search_repos_for_code,
+      "private$search_response",
+      test_fixtures$github_search_response$items
+    )
+  }
   gh_search_repos_for_code <- test_rest_github$search_repos_for_code(
     code = gh_code,
     filename = gh_file,
     in_path = FALSE,
-    repos = gh_org,
+    repos = paste0(gh_org, "/", gh_repo),
     verbose = FALSE
   )
-  expect_gh_search_response(gh_search_repos_for_code$items)
+  expect_gh_search_response(gh_search_repos_for_code)
   test_mocker$cache(gh_search_repos_for_code)
+})
+
+test_that("`search_for_code()` works with language filter", {
+  if (integration_tests_skipped) {
+    mockery::stub(
+      test_rest_github$search_for_code,
+      "self$response",
+      list("total_count" = 3L)
+    )
+    mockery::stub(
+      test_rest_github$search_for_code,
+      "private$search_response",
+      test_fixtures$github_search_response$items
+    )
+  }
+  gh_search_for_code_language <- test_rest_github$search_for_code(
+    code = gh_code,
+    filename = gh_file,
+    in_path = FALSE,
+    language = "R",
+    verbose = FALSE
+  )
+  expect_gh_search_response(gh_search_for_code_language)
+  test_mocker$cache(gh_search_for_code_language)
 })
 
 test_that("`prepare_repos_table()` prepares repos table", {
@@ -218,7 +246,7 @@ test_that("`prepare_repos_table()` prepares repos table", {
 
 test_that("get_repos_ids", {
   repos_ids <- github_testhost_priv$get_repos_ids(
-    search_response = test_mocker$use("gh_search_repos_for_code")[["items"]]
+    search_response = test_mocker$use("gh_search_repos_for_code")
   )
   expect_type(
     repos_ids,
@@ -236,7 +264,7 @@ test_that("parse_search_response parses search response into repositories output
     test_mocker$use("gh_repos_by_ids")
   )
   gh_repos_raw_output <- github_testhost_priv$parse_search_response(
-    search_response = test_mocker$use("gh_search_repos_for_code")[["items"]],
+    search_response = test_mocker$use("gh_search_repos_for_code"),
     output = "raw"
   )
   expect_gh_repos_gql_response(gh_repos_raw_output[[1]])
@@ -250,7 +278,7 @@ test_that("parse_search_response parses search response into repositories output
     test_mocker$use("gh_repos_from_org")
   )
   gh_repos_by_code_table <- github_testhost_priv$parse_search_response(
-    search_response = test_mocker$use("gh_search_repos_for_code")[["items"]],
+    search_response = test_mocker$use("gh_search_repos_for_code"),
     org = gh_org,
     output = "table"
   )
@@ -262,7 +290,7 @@ test_that("`get_repos_with_code_from_orgs()` works", {
   mockery::stub(
     github_testhost_priv$get_repos_with_code_from_orgs,
     "rest_engine$search_for_code",
-    test_mocker$use("gh_search_repos_for_code")[["items"]]
+    test_mocker$use("gh_search_repos_for_code")
   )
   mockery::stub(
     github_testhost_priv$get_repos_with_code_from_orgs,
@@ -282,7 +310,7 @@ test_that("`get_repos_with_code_from_orgs()` pulls raw response", {
   mockery::stub(
     github_testhost_priv$get_repos_with_code_from_orgs,
     "rest_engine$search_for_code",
-    test_mocker$use("gh_search_repos_for_code")[["items"]]
+    test_mocker$use("gh_search_repos_for_code")
   )
   mockery::stub(
     github_testhost_priv$get_repos_with_code_from_orgs,
@@ -306,7 +334,7 @@ test_that("`get_repos_with_code_from_host()` pulls and parses output into table"
   mockery::stub(
     github_testhost_priv$get_repos_with_code_from_host,
     "rest_engine$search_for_code",
-    test_mocker$use("gh_search_repos_for_code")[["items"]]
+    test_mocker$use("gh_search_repos_for_code")
   )
   mockery::stub(
     github_testhost_priv$get_repos_with_code_from_host,
@@ -333,7 +361,7 @@ test_that("`get_repos_with_code_from_repos()` works", {
   mockery::stub(
     github_testhost_priv$get_repos_with_code_from_repos,
     "rest_engine$search_repos_for_code",
-    test_mocker$use("gh_search_repos_for_code")[["items"]]
+    test_mocker$use("gh_search_repos_for_code")
   )
   mockery::stub(
     github_testhost_priv$get_repos_with_code_from_repos,
@@ -355,7 +383,7 @@ test_that("`get_repos_with_code_from_host()` pulls raw response", {
   mockery::stub(
     github_testhost_priv$get_repos_with_code_from_host,
     "rest_engine$search_repos_for_code",
-    test_mocker$use("gh_search_repos_for_code")[["items"]]
+    test_mocker$use("gh_search_repos_for_code")
   )
   expect_snapshot(
     repos_with_code_from_host_raw <- github_testhost_priv$get_repos_with_code_from_host(
@@ -371,7 +399,7 @@ test_that("`get_repos_with_code_from_host()` pulls raw response", {
   mockery::stub(
     github_testhost_priv$get_repos_with_code_from_host,
     "rest_engine$search_for_code",
-    test_mocker$use("gh_search_repos_for_code")[["items"]]
+    test_mocker$use("gh_search_repos_for_code")
   )
   mockery::stub(
     github_testhost_priv$get_repos_with_code_from_host,
