@@ -50,19 +50,20 @@ EngineRestGitHub <- R6::R6Class(
                                org = NULL,
                                filename = NULL,
                                in_path = FALSE,
+                               language = NULL,
                                verbose = TRUE) {
-      user_query <- if (!is.null(org)) {
-        paste0('+user:', org)
-      } else {
-        ''
+      query <- paste0('"', code, '"')
+      if (in_path) {
+        query <- paste0(query, '+in:path')
       }
-      query <- if (!in_path) {
-        paste0('"', code, '"', user_query)
-      } else {
-        paste0('"', code, '"+in:path', user_query)
+      if (!is.null(org)) {
+        query <- paste0(query, '+user:', org)
       }
       if (!is.null(filename)) {
         query <- paste0(query, '+in:file+filename:', filename)
+      }
+      if (!is.null(language)) {
+        query <- paste0(query, '+language:', language)
       }
       search_endpoint <- paste0(private$endpoints[["search"]], query)
       if (verbose) cli::cli_alert("Searching for code [{code}]...")
@@ -82,17 +83,19 @@ EngineRestGitHub <- R6::R6Class(
                                      repos,
                                      filename = NULL,
                                      in_path = FALSE,
+                                     language = NULL,
                                      verbose = TRUE) {
       if (verbose) cli::cli_alert("Searching for code [{code}]...")
       search_result <- purrr::map(repos, function(repo) {
-        repo_query <- paste0('+repo:', repo)
-        query <- if (!in_path) {
-          paste0('"', code, '"', repo_query)
-        } else {
-          paste0('"', code, '"+in:path', repo_query)
+        query <- paste0('"', code, '"+repo:', repo)
+        if (in_path) {
+          query <- paste0(query, '+in:path')
         }
         if (!is.null(filename)) {
           query <- paste0(query, '+in:file+filename:', filename)
+        }
+        if (!is.null(language)) {
+          query <- paste0(query, '+language:', language)
         }
         search_endpoint <- paste0(private$endpoints[["search"]], query)
         total_n <- self$response(search_endpoint)[["total_count"]]

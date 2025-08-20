@@ -137,10 +137,8 @@ test_that("get_org pulls response for one org from GraphQL", {
       "self$gql_response",
       test_fixtures$graphql_gl_org_response
     )
-    org <- "test_org"
-  } else {
-    org <- "mbtests"
   }
+  org <- "mbtests"
   gl_org_response <- test_graphql_gitlab$get_org(
     org = org,
     verbose = FALSE
@@ -156,10 +154,8 @@ test_that("get_org prints proper message", {
       "self$gql_response",
       test_fixtures$graphql_gl_org_response
     )
-    org <- "test_org"
-  } else {
-    org <- "mbtests"
   }
+  org <- "mbtests"
   expect_snapshot(
     gl_org_response <- test_graphql_gitlab$get_org(
       org = org,
@@ -175,10 +171,8 @@ test_that("get_org sets error class to response", {
       "self$gql_response",
       list()
     )
-    org <- "test_org"
-  } else {
-    org <- "mbtests"
   }
+  org <- "mbtrests"
   gl_org_error_response <- test_graphql_gitlab$get_org(
     org = org,
     verbose = FALSE
@@ -195,9 +189,6 @@ test_that("get_org pulls response for one org from REST", {
       "self$response",
       test_fixtures$rest_gl_org_response
     )
-    org <- "test_org"
-  } else {
-    org <- "mbtests"
   }
   gl_org_rest_response <- test_rest_gitlab$get_org(
     org = "mbtests",
@@ -217,13 +208,10 @@ test_that("get_org prints proper message", {
       "self$response",
       test_fixtures$rest_gl_org_response
     )
-    org <- "test_org"
-  } else {
-    org <- "mbtests"
   }
   expect_snapshot(
     gl_org_response <- test_rest_gitlab$get_org(
-      org = org,
+      org =  "mbtests",
       verbose = TRUE
     )
   )

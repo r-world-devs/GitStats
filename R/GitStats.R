@@ -68,12 +68,13 @@ GitStats <- R6::R6Class(
     },
 
     get_repos = function(add_contributors = FALSE,
-                         with_code        = NULL,
-                         in_files         = NULL,
-                         with_files       = NULL,
-                         cache            = TRUE,
-                         verbose          = TRUE,
-                         progress         = TRUE) {
+                         with_code = NULL,
+                         in_files = NULL,
+                         with_files = NULL,
+                         language = NULL,
+                         cache = TRUE,
+                         verbose = TRUE,
+                         progress = TRUE) {
       private$check_for_host()
       private$check_params_conflict(
         with_code = with_code,
@@ -82,7 +83,8 @@ GitStats <- R6::R6Class(
       )
       args_list <- list("with_code" = with_code,
                         "in_files" = in_files,
-                        "with_files" = with_files)
+                        "with_files" = with_files,
+                        "language" = language)
       trigger <- private$trigger_pulling(
         cache = cache,
         storage = "repositories",
@@ -95,6 +97,7 @@ GitStats <- R6::R6Class(
           with_code = with_code,
           in_files = in_files,
           with_files = with_files,
+          language = language,
           verbose = verbose,
           progress = progress
         )
@@ -621,6 +624,7 @@ GitStats <- R6::R6Class(
                                     with_code,
                                     in_files = NULL,
                                     with_files,
+                                    language = NULL,
                                     output = "table",
                                     force_orgs = FALSE,
                                     verbose = TRUE,
@@ -632,6 +636,7 @@ GitStats <- R6::R6Class(
             add_contributors = add_contributors,
             with_code = with_code,
             in_files = in_files,
+            language = language,
             force_orgs = force_orgs,
             output = output,
             verbose = verbose,
@@ -642,6 +647,7 @@ GitStats <- R6::R6Class(
             host = host,
             add_contributors = add_contributors,
             with_files = with_files,
+            language = language,
             force_orgs = force_orgs,
             output = output,
             verbose = verbose,
@@ -667,6 +673,7 @@ GitStats <- R6::R6Class(
                                              add_contributors,
                                              with_code,
                                              in_files,
+                                             language,
                                              force_orgs,
                                              output,
                                              verbose,
@@ -676,6 +683,7 @@ GitStats <- R6::R6Class(
           add_contributors = add_contributors,
           with_code = with_code,
           in_files = in_files,
+          language = language,
           force_orgs = force_orgs,
           output = output,
           verbose = verbose,
@@ -689,6 +697,7 @@ GitStats <- R6::R6Class(
     get_repos_from_host_with_files = function(host,
                                               add_contributors,
                                               with_files,
+                                              language,
                                               force_orgs,
                                               output,
                                               verbose,
@@ -697,6 +706,7 @@ GitStats <- R6::R6Class(
         host$get_repos(
           add_contributors = add_contributors,
           with_file = with_file,
+          language = language,
           force_orgs = force_orgs,
           output = output,
           verbose = verbose,

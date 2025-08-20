@@ -10,6 +10,7 @@ get_repos(
   with_code = NULL,
   in_files = NULL,
   with_files = NULL,
+  language = NULL,
   cache = TRUE,
   verbose = is_verbose(gitstats),
   progress = verbose
@@ -38,6 +39,9 @@ parameter.}
 
 \item{with_files}{A character vector, if defined, GitStats will pull
 repositories with specified files.}
+
+\item{language}{A character. If defined, GitStats will return only
+repositories with given language.}
 
 \item{cache}{A logical, if set to \code{TRUE} GitStats will retrieve the last
 result from its storage.}
