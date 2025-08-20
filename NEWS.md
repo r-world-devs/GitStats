@@ -1,5 +1,7 @@
 # GitStats (development version)
 
+- Added `language` parameter to `get_repos()` function to pull repositories only with defined language ([#654](https://github.com/r-world-devs/GitStats/issues/654)). For GitHub Search API it translates into language query, whereas in other cases the repositories output is simply filtered by the given language.
+
 # GitStats 2.3.5
 
 - Unified approach to handling `GraphQL` errors in GitHub and GitLab ([#622](https://github.com/r-world-devs/GitStats/issues/622)).
