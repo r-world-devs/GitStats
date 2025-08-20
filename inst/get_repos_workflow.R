@@ -11,7 +11,7 @@ repos_with_gitstats <- git_stats |>
 
 gitlab_stats <- create_gitstats() |>
   set_gitlab_host(
-    host = "your.host.com"
+    host = "your.host.com" # pass your host here
   )
 gitlab_repos_with_gitstats <-
   gitlab_stats |>
