@@ -1,14 +1,15 @@
 repo_gitstats_colnames <- c(
-  "repo_id", "repo_name", "organization", "fullname", "githost", "repo_url", "api_url",
-  "created_at", "last_activity_at", "last_activity", "default_branch", "stars", "forks",
-  "languages", "issues_open", "issues_closed"
+  "repo_id", "repo_name", "repo_fullpath", "default_branch", "stars", "forks",
+  "created_at", "last_activity_at", "languages", "issues_open", "issues_closed",
+  "organization", "repo_url", "api_url", "githost", "last_activity"
 )
 
-repo_host_colnames <- c("repo_id", "repo_name", "default_branch", "stars", "forks",
-                        "created_at", "last_activity_at", "languages", "issues_open",
-                        "issues_closed", "organization", "repo_url")
+repo_host_colnames <- c("repo_id", "repo_name", "repo_fullpath", "default_branch",
+                        "stars", "forks", "created_at", "last_activity_at",
+                        "languages", "issues_open", "issues_closed",
+                        "organization", "repo_url")
 
-repo_min_colnames <- c("repo_id", "repo_name", "default_branch",
+repo_min_colnames <- c("repo_id", "repo_name", "repo_fullpath", "default_branch",
                        "created_at", "organization", "repo_url")
 
 expect_orgs_table <- function(object, add_cols = NULL) {

@@ -143,7 +143,8 @@ EngineRestGitLab <- R6::R6Class(
           }
           data.frame(
             repo_id = repo$id,
-            repo_name = repo$name,
+            repo_name = repo$path,
+            repo_fullpath = repo$path_with_namespace,
             default_branch = repo$default_branch %||% "",
             stars = repo$star_count,
             forks = repo$forks_count %||% NA_integer_,

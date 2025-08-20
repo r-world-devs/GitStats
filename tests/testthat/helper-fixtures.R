@@ -168,6 +168,8 @@ test_fixtures$gitlab_repositories_rest_response <- list(
   list(
     "id" = "1111",
     "name" = "test repo 1",
+    "path" = "test_repo_1",
+    "path_with_namespace" = "test_org/test_repo_1",
     "default_branch" = "main",
     "star_count" = 5L,
     "forks_count" = 2L,
@@ -181,6 +183,8 @@ test_fixtures$gitlab_repositories_rest_response <- list(
   list(
     "id" = "2222",
     "name" = "test repo 2",
+    "path" = "test_repo_2",
+    "path_with_namespace" = "test_org/test_repo_2",
     "default_branch" = "devel",
     "star_count" = 5L,
     "forks_count" = 2L,
@@ -194,6 +198,8 @@ test_fixtures$gitlab_repositories_rest_response <- list(
   list(
     "id" = "3333",
     "name" = "test repo 3",
+    "path" = "test_repo_3",
+    "path_with_namespace" = "test_org/test_repo_3",
     "default_branch" = "test",
     "star_count" = 5L,
     "forks_count" = 2L,
@@ -206,10 +212,12 @@ test_fixtures$gitlab_repositories_rest_response <- list(
   )
 )
 
-github_repository_node <- function(repo_name) {
+github_repository_node <- function(org_name, repo_name) {
   list(
     "repo_id" = "test_node_id",
     "repo_name" = repo_name,
+    "repo_path" = repo_name,
+    "repo_fullpath" = paste0(org_name, "/", repo_name),
     "default_branch" = list(
       "name" = "main"
     ),
@@ -246,11 +254,11 @@ github_repository_node <- function(repo_name) {
 test_fixtures$github_repos_by_ids_response <- list(
   "data" = list(
     "nodes" = list(
-      github_repository_node("TestRepo"),
-      github_repository_node("TestRepo1"),
-      github_repository_node("TestRepo2"),
-      github_repository_node("TestRepo3"),
-      github_repository_node("TestRepo4")
+      github_repository_node("TestOrg", "TestRepo"),
+      github_repository_node("TestOrg", "TestRepo1"),
+      github_repository_node("TestOrg", "TestRepo2"),
+      github_repository_node("TestOrg", "TestRepo3"),
+      github_repository_node("TestOrg", "TestRepo4")
     )
   )
 )
@@ -265,11 +273,11 @@ test_fixtures$github_repos_by_org_response <- list(
           "hasNextPage" = FALSE
         ),
         "nodes" = list(
-          github_repository_node("TestRepo"),
-          github_repository_node("TestRepo1"),
-          github_repository_node("TestRepo2"),
-          github_repository_node("TestRepo3"),
-          github_repository_node("TestRepo4")
+          github_repository_node("TestOrg", "TestRepo"),
+          github_repository_node("TestOrg", "TestRepo1"),
+          github_repository_node("TestOrg", "TestRepo2"),
+          github_repository_node("TestOrg", "TestRepo3"),
+          github_repository_node("TestOrg", "TestRepo4")
         )
       )
     )
@@ -286,11 +294,11 @@ test_fixtures$github_repos_by_user_response <- list(
           "hasNextPage" = FALSE
         ),
         "nodes" = list(
-          github_repository_node("TestRepo"),
-          github_repository_node("TestRepo1"),
-          github_repository_node("TestRepo2"),
-          github_repository_node("TestRepo3"),
-          github_repository_node("TestRepo4")
+          github_repository_node("TestOrg", "TestRepo"),
+          github_repository_node("TestOrg", "TestRepo1"),
+          github_repository_node("TestOrg", "TestRepo2"),
+          github_repository_node("TestOrg", "TestRepo3"),
+          github_repository_node("TestOrg", "TestRepo4")
         )
       )
     )
@@ -302,6 +310,7 @@ gitlab_project_node <- list(
     "repo_id" = "gid://gitlab/Project/61399846",
     "repo_name" = "test_repo",
     "repo_path" = "test_repo",
+    "repo_fullpath" = "test_org/rest_repo",
     "repository" = list(
       "rootRef" = "main"
     ),
@@ -546,6 +555,7 @@ test_fixtures$gitlab_file_org_response <- list(
           list(
             "node" = list(
               "name" = "graphql_tests",
+              "path" = "graphql_tests",
               "id" = "gid://gitlab/Project/61399846",
               "webUrl" = "https://gitlab.com/mbtests/graphql_tests",
               "repository" = list(
@@ -558,6 +568,7 @@ test_fixtures$gitlab_file_org_response <- list(
           list(
             "node" = list(
               "name" = "RM Tests 3",
+              "path" = "rm_tests_3",
               "id" = "gid://gitlab/Project/44346961",
               "webUrl" = "https://gitlab.com/mbtests/rm-tests-3",
               "repository" = list(
@@ -576,6 +587,7 @@ test_fixtures$gitlab_file_org_response <- list(
           list(
             "node" = list(
               "name" = "RM Tests 2",
+              "path" = "rm_tests_2",
               "id" = "gid://gitlab/Project/44293594",
               "webUrl" = "https://gitlab.com/mbtests/rm-tests-2",
               "repository" = list(
@@ -601,6 +613,7 @@ test_fixtures$gitlab_file_repo_response <- list(
   "data" = list(
     "project" = list(
       "name" = "TestProject",
+      "path" = "TestProject",
       "id" = "1010101",
       "webUrl"  = "https://gitlab.com/mbtests/graphql_tests",
       "repository" = list(

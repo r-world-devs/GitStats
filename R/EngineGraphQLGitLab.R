@@ -216,7 +216,8 @@ EngineGraphQLGitLab <- R6::R6Class(
           }
           data.frame(
             repo_id = get_gitlab_repo_id(repo$repo_id),
-            repo_name = repo$repo_name,
+            repo_name = repo$repo_path,
+            repo_fullpath = repo$repo_fullpath,
             default_branch = repo$repository$rootRef %||% "",
             stars = repo$stars,
             forks = repo$forks,
@@ -424,7 +425,7 @@ EngineGraphQLGitLab <- R6::R6Class(
             purrr::map(response_data$data$project$repository$blobs$nodes, function(file) {
               data.frame(
                 "repo_id" = response_data$data$project$id,
-                "repo_name" = response_data$data$project$name,
+                "repo_name" = response_data$data$project$path,
                 "organization" = org,
                 "file_path" = file$path,
                 "file_content" = file$rawBlob,
@@ -440,7 +441,7 @@ EngineGraphQLGitLab <- R6::R6Class(
             purrr::map(project$repository$blobs$nodes, function(file) {
               data.frame(
                 "repo_id" = project$id,
-                "repo_name" = project$name,
+                "repo_name" = project$path,
                 "organization" = org,
                 "file_path" = file$path,
                 "file_content" = file$rawBlob,
