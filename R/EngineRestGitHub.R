@@ -125,7 +125,7 @@ EngineRestGitHub <- R6::R6Class(
         endpoint = repo_endpoint
       )
       if (!is.null(repos)) {
-        repos_response <- repos_response %>%
+        repos_response <- repos_response |>
           purrr::keep(~ .$name %in% repos)
       }
       repos_urls <- repos_response %>%

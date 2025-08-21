@@ -917,19 +917,11 @@ GitStats <- R6::R6Class(
       if (nrow(repos_table > 0)) {
         repos_table <- repos_table %>%
           dplyr::mutate(
-            fullname = paste0(organization, "/", repo_name)
-          ) |>
-          dplyr::mutate(
             last_activity = difftime(
               Sys.time(),
               last_activity_at,
               units = "days"
             ) |> round(2)
-          ) |>
-          dplyr::relocate(
-            organization, fullname, githost, repo_url, api_url, created_at,
-            last_activity_at, last_activity,
-            .after = repo_name
           )
         if ("contributors" %in% colnames(repos_table)) {
           repos_table <- dplyr::mutate(
@@ -937,7 +929,11 @@ GitStats <- R6::R6Class(
             contributors_n = purrr::map_vec(contributors, function(contributors_string) {
               length(stringr::str_split(contributors_string[1], ", ")[[1]])
             })
-          )
+          ) |>
+            dplyr::relocate(
+              contributors,
+              .after = last_activity
+            )
         }
       } else {
         repos_table <- NULL

@@ -147,6 +147,7 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
           edges {
             node {
               name
+              path
               id
               webUrl
               repository {
@@ -171,6 +172,7 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
       query GetFilesByRepo($fullPath: ID!, $file_paths: [String!]!) {
         project(fullPath: $fullPath) {
           name
+          path
           id
           webUrl
           repository {
@@ -274,6 +276,7 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
           repo_id: id
           repo_name: name
           repo_path: path
+          repo_fullpath: fullPath
           ... on Project {
             repository {
               rootRef

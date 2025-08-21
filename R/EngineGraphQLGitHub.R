@@ -184,7 +184,8 @@ EngineGraphQLGitHub <- R6::R6Class(
           }
           data.frame(
             repo_id = repo$repo_id,
-            repo_name = repo$repo_name,
+            repo_name = repo$repo_path,
+            repo_fullpath = repo$repo_fullpath,
             default_branch = default_branch,
             stars = repo$stars,
             forks = repo$forks,
@@ -603,10 +604,10 @@ EngineGraphQLGitHub <- R6::R6Class(
         owner_type = owner_type
       )
       if (!is.null(repos)) {
-        repos_list <- purrr::keep(repos_list, ~ .$repo_name %in% repos)
+        repos_list <- purrr::keep(repos_list, ~ .$repo_path %in% repos)
       }
       result <- list(
-        "repositories" = purrr::map(repos_list, ~ .$repo_name),
+        "repositories" = purrr::map(repos_list, ~ .$repo_path),
         "def_branches" = purrr::map(repos_list, ~ .$default_branch$name)
       )
       return(result)

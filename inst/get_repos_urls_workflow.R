@@ -19,7 +19,7 @@ create_gitstats() %>%
   set_github_host(
     repos = c("r-world-devs/GitStats", "r-world-devs/shinyCohortBuilder")
   ) %>%
-  get_repos_urls(type = "api")
+  get_repos_urls(type = "web")
 
 create_gitstats() %>%
   set_gitlab_host(
@@ -32,4 +32,4 @@ create_gitstats() %>%
   set_gitlab_host(
     repos = "mbtests/gitstatstesting"
   ) %>%
-  get_repos_urls(type = "api")
+  get_repos_urls(type = "web")
