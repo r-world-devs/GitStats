@@ -8,7 +8,6 @@ test_that("get_repos_from_host_with_code works", {
     add_contributors = TRUE,
     with_code = "test_code",
     in_files = NULL,
-    force_orgs = FALSE,
     verbose = FALSE,
     progress = FALSE
   )
@@ -29,7 +28,6 @@ test_that("get_repos_from_host_with_files works", {
   repos_from_host_with_files <- test_gitstats_priv$get_repos_from_host_with_files(
     add_contributors = TRUE,
     with_files = "test_file",
-    force_orgs = FALSE,
     verbose = FALSE,
     progress = FALSE
   )
