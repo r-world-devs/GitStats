@@ -536,7 +536,13 @@ test_fixtures$github_file_response <- list(
       "repo_url"  = "https://github.com/r-world-devs/GitStats",
       "file" = list(
         "text" = "Some interesting text.",
-        "byteSize" = 50L
+        "byteSize" = 50L,
+        "oid" = "12345"
+      ),
+      "defaultBranchRef" = list(
+        "target" = list(
+          "oid" = "54321abcde"
+        )
       )
     )
   )
@@ -577,9 +583,13 @@ test_fixtures$gitlab_file_org_response <- list(
                     list(
                       "path" = "meta_data.yaml",
                       "rawBlob" = "Some interesting text",
-                      "size" = 4
+                      "size" = 4,
+                      "oid" = "1a2b3c"
                     )
                   )
+                ),
+                "lastCommit" = list(
+                  "sha" = "e5f6d7"
                 )
               )
             )
@@ -596,9 +606,13 @@ test_fixtures$gitlab_file_org_response <- list(
                     list(
                       "path" = "meta_data.yaml",
                       "rawBlob" = "Some interesting text",
-                      "size" = 5
+                      "size" = 5,
+                      "oid" = "1a2b3c"
                     )
                   )
+                ),
+                "lastCommit" = list(
+                  "sha" = "e5f6d7"
                 )
               )
             )
@@ -622,14 +636,19 @@ test_fixtures$gitlab_file_repo_response <- list(
             list(
               "path" = "README.md",
               "rawBlob" = "This project is for testing GraphQL capabilities.",
-              "size" =  "67"
+              "size" =  "67",
+              "oid" = "1a2b3c"
             ),
             list(
               "path" = "project_metadata.yaml",
               "rawBlob" = "GraphQL Tests",
-              "size" = "19"
+              "size" = "19",
+              "oid" = "1a2b3c"
             )
           )
+        ),
+        "lastCommit" = list(
+          "sha" = "e5f6d7"
         )
       )
     )

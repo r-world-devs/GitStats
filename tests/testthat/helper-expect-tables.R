@@ -89,8 +89,8 @@ expect_files_table <- function(files_object, with_cols = NULL) {
   expect_named(
     files_object,
     c("repo_id", "repo_name", "organization",
-      "file_path", "file_content", "file_size",
-      "repo_url", with_cols)
+      "file_path", "file_content", "file_size", "file_id",
+      "repo_url", "commit_sha", with_cols)
   )
   expect_type(files_object$file_size, "integer")
   expect_gt(nrow(files_object), 0)

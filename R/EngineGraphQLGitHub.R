@@ -319,7 +319,9 @@ EngineGraphQLGitHub <- R6::R6Class(
                 "file_path" = file_name,
                 "file_content" = file_data$file$text %||% NA,
                 "file_size" = file_data$file$byteSize,
-                "repo_url" = file_data$repo_url
+                "file_id" = file_data$file$oid,
+                "repo_url" = file_data$repo_url,
+                "commit_sha" = file_data$defaultBranchRef$target$oid
               )
             }) |>
             purrr::list_rbind()
