@@ -156,7 +156,11 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
                     path
                     rawBlob
                     size
+                    oid
                   }
+                }
+                lastCommit {
+                  sha
                 }
               }
             }
@@ -181,7 +185,11 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
                 path
                 rawBlob
                 size
+                oid
               }
+            }
+            lastCommit {
+              sha
             }
           }
         }
@@ -214,6 +222,9 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
                   name
                 }
               }
+            }
+            lastCommit {
+              sha
             }
           }
         }
