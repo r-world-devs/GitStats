@@ -197,7 +197,7 @@ EngineGraphQLGitHub <- R6::R6Class(
             issues_closed = repo$issues_closed$totalCount,
             organization = repo$organization$login,
             repo_url = repo$repo_url,
-            commit_sha = repo$defaultBranchRef$target$oid
+            commit_sha = repo$defaultBranchRef$target$oid %||% NA_character_
           )
         }) |>
           purrr::list_rbind()
