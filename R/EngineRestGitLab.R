@@ -154,7 +154,8 @@ EngineRestGitLab <- R6::R6Class(
             issues_open = repo$open_issues_count %||% 0,
             issues_closed = NA_integer_,
             organization = org,
-            repo_url = repo$web_url
+            repo_url = repo$web_url,
+            commit_sha = NA_character_
           )
         }) |>
           purrr::list_rbind()

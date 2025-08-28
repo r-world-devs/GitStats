@@ -291,6 +291,9 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
           ... on Project {
             repository {
               rootRef
+              lastCommit {
+                sha
+              }
             }
           }
           stars: starCount

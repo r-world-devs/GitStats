@@ -227,7 +227,8 @@ EngineGraphQLGitLab <- R6::R6Class(
             issues_open = repo$issues$opened %||% 0,
             issues_closed = repo$issues$closed %||% 0,
             organization = org,
-            repo_url = repo$repo_url
+            repo_url = repo$repo_url,
+            commit_sha = repo$repository$lastCommit$sha %||% NA_character_
           )
         }) |>
           purrr::list_rbind()

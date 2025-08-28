@@ -71,7 +71,7 @@ expect_gh_repos_gql_response <- function(repo_node) {
     all(
       colnames(repo_node) %in% c("repo_id", "repo_name", "stars", "forks", "created_at",
                                  "last_activity_at", "languages", "issues_open",
-                                 "issues_closed", "repo_url")
+                                 "issues_closed", "repo_url", "commit_sha")
     )
   )
 }

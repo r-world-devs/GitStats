@@ -304,6 +304,13 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
         login
       }
       repo_url: url
+      defaultBranchRef {
+        target {
+          ... on Commit {
+            oid
+          }
+        }
+      }
     '
   )
 )
