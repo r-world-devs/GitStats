@@ -679,7 +679,7 @@ EngineGraphQLGitHub <- R6::R6Class(
       all_files_and_dirs_list <- files_and_dirs_list
       dirs <- files_and_dirs_list$dirs
       tier <- 1
-      while (folders_exist && tier < depth) {
+      while (folders_exist && tier <= depth) {
         new_dirs_list <- c()
         for (dir in dirs) {
           files_tree_response <- private$get_file_response(

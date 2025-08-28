@@ -1,6 +1,7 @@
 # GitStats (development version)
 
 - Added `commit_sha` column to `get_repos()` and `get_files()` outputs ([#546](https://github.com/r-world-devs/GitStats/issues/546)).
+- Fixed `depth` parameter in `get_files()` - previously `0` and `1` value returned same output, i.e. files from `root`. Now it works the way as explained in function documentation - value `0` returns files from the `root` and value `1` goes 1 level deeper ([#663](https://github.com/r-world-devs/GitStats/issues/663)).
 - Added `language` parameter to `get_repos()` function to pull repositories only with defined language ([#654](https://github.com/r-world-devs/GitStats/issues/654)). For GitHub Search API it translates into language query, whereas in other cases the repositories output is simply filtered by the given language.
 - Introduced new `repo_fullpath` column, which replaced `fullname` in output of `get_repos()`. The `fullname` column was flawed in case of GitLab repositories as it was created out of repository `name` with `organization`. In case of GitLab repository `name` (which is more of a user friendly label) differs from repository `path` (which is in the `URL`), unlike in GitHub where repository `name` is repository `path` ([#659](https://github.com/r-world-devs/GitStats/issues/659)). `repo_name` column for GitLab repositories now mirrors repository `path`.
 
