@@ -429,14 +429,15 @@ EngineGraphQLGitLab <- R6::R6Class(
             purrr::map(response_data$data$project$repository$blobs$nodes, function(file) {
               data.frame(
                 "repo_id" = response_data$data$project$id,
-                "repo_name" = response_data$data$project$path,
+                "repo_name" = response_data$data$project$path %||% response_data$data$project$name,
                 "organization" = org,
                 "file_path" = file$path,
                 "file_content" = file$rawBlob,
                 "file_size" = as.integer(file$size),
                 "file_id" = file$oid,
                 "repo_url" = response_data$data$project$webUrl,
-                "commit_sha" = response_data$data$project$repository$lastCommit$sha
+                "commit_sha" = response_data$data$project$repository$lastCommit$sha %||%
+                  NA_character_
               )
             }) %>%
               purrr::list_rbind()
@@ -447,14 +448,14 @@ EngineGraphQLGitLab <- R6::R6Class(
             purrr::map(project$repository$blobs$nodes, function(file) {
               data.frame(
                 "repo_id" = project$id,
-                "repo_name" = project$path,
+                "repo_name" = project$path %||% project$name,
                 "organization" = org,
                 "file_path" = file$path,
                 "file_content" = file$rawBlob,
                 "file_size" = as.integer(file$size),
                 "file_id" = file$oid,
                 "repo_url" = project$webUrl,
-                "commit_sha" = project$repository$lastCommit$sha
+                "commit_sha" = project$repository$lastCommit$sha %||% NA_character_
               )
             }) %>%
               purrr::list_rbind()
