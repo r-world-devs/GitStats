@@ -70,7 +70,6 @@ GitHost <- R6::R6Class(
                          with_file = NULL,
                          language = NULL,
                          output = "table",
-                         force_orgs = FALSE,
                          verbose = TRUE,
                          progress = TRUE) {
       if (is.null(with_code) && is.null(with_file)) {
@@ -85,7 +84,6 @@ GitHost <- R6::R6Class(
           in_files = in_files,
           language = language,
           output = output,
-          force_orgs = force_orgs,
           verbose = verbose,
           progress = progress
         )
@@ -95,7 +93,6 @@ GitHost <- R6::R6Class(
           in_path = TRUE,
           language = language,
           output = output,
-          force_orgs = force_orgs,
           verbose = verbose,
           progress = progress
         )
@@ -855,10 +852,9 @@ GitHost <- R6::R6Class(
                                    in_path = FALSE,
                                    language = NULL,
                                    output = "table_full",
-                                   force_orgs = FALSE,
                                    verbose = TRUE,
                                    progress = TRUE) {
-      if (private$scan_all && !force_orgs) {
+      if (private$scan_all) {
         repos_table <- private$get_repos_with_code_from_host(
           code = code,
           in_files = in_files,
@@ -869,7 +865,7 @@ GitHost <- R6::R6Class(
           progress = progress
         )
       }
-      if (!private$scan_all || force_orgs) {
+      if (!private$scan_all) {
         repos_from_org <- private$get_repos_with_code_from_orgs(
           code = code,
           in_files = in_files,

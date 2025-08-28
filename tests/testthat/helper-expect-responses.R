@@ -71,7 +71,7 @@ expect_gh_repos_gql_response <- function(repo_node) {
     all(
       colnames(repo_node) %in% c("repo_id", "repo_name", "stars", "forks", "created_at",
                                  "last_activity_at", "languages", "issues_open",
-                                 "issues_closed", "repo_url")
+                                 "issues_closed", "repo_url", "commit_sha")
     )
   )
 }
@@ -130,7 +130,7 @@ expect_gitlab_files_blob_response <- function(object) {
   purrr::walk(object$data$project$repository$blobs$nodes, function(node) {
     expect_equal(
       names(node),
-      c("path", "rawBlob", "size")
+      c("path", "rawBlob", "size", "oid")
     )
   })
 }
@@ -185,9 +185,7 @@ expect_gitlab_files_from_org_response <- function(object) {
     )
     expect_list_contains(
       project$repository$blobs$nodes[[1]],
-      c(
-        "path", "rawBlob", "size"
-      )
+      c("path", "rawBlob", "size", "oid")
     )
   })
 }
@@ -205,7 +203,7 @@ expect_gitlab_files_from_org_by_repos_response <- function(response, expected_fi
     purrr::walk(repo$data$project$repository$blobs$nodes, function(file) {
       expect_equal(
         names(file),
-        c("path", "rawBlob", "size")
+        c("path", "rawBlob", "size", "oid")
       )
     })
   })

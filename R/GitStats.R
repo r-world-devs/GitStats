@@ -626,7 +626,6 @@ GitStats <- R6::R6Class(
                                     with_files,
                                     language = NULL,
                                     output = "table",
-                                    force_orgs = FALSE,
                                     verbose = TRUE,
                                     progress = TRUE) {
       repos_table <- purrr::map(private$hosts, function(host) {
@@ -637,7 +636,6 @@ GitStats <- R6::R6Class(
             with_code = with_code,
             in_files = in_files,
             language = language,
-            force_orgs = force_orgs,
             output = output,
             verbose = verbose,
             progress = progress
@@ -648,7 +646,6 @@ GitStats <- R6::R6Class(
             add_contributors = add_contributors,
             with_files = with_files,
             language = language,
-            force_orgs = force_orgs,
             output = output,
             verbose = verbose,
             progress = progress
@@ -674,7 +671,6 @@ GitStats <- R6::R6Class(
                                              with_code,
                                              in_files,
                                              language,
-                                             force_orgs,
                                              output,
                                              verbose,
                                              progress) {
@@ -684,7 +680,6 @@ GitStats <- R6::R6Class(
           with_code = with_code,
           in_files = in_files,
           language = language,
-          force_orgs = force_orgs,
           output = output,
           verbose = verbose,
           progress = progress
@@ -698,7 +693,6 @@ GitStats <- R6::R6Class(
                                               add_contributors,
                                               with_files,
                                               language,
-                                              force_orgs,
                                               output,
                                               verbose,
                                               progress) {
@@ -707,7 +701,6 @@ GitStats <- R6::R6Class(
           add_contributors = add_contributors,
           with_file = with_file,
           language = language,
-          force_orgs = force_orgs,
           output = output,
           verbose = verbose,
           progress = progress
@@ -726,25 +719,25 @@ GitStats <- R6::R6Class(
       purrr::map(private$hosts, function(host) {
         if (!is.null(with_code)) {
           private$get_repos_urls_from_host_with_code(
-            host      = host,
-            type      = type,
+            host = host,
+            type = type,
             with_code = with_code,
-            in_files  = in_files,
-            verbose   = verbose,
-            progress  = progress
+            in_files = in_files,
+            verbose = verbose,
+            progress = progress
           )
         } else if (!is.null(with_files)) {
           private$get_repos_urls_from_host_with_files(
-            host       = host,
-            type       = type,
+            host = host,
+            type = type,
             with_files = with_files,
-            verbose    = verbose,
-            progress   = progress
+            verbose = verbose,
+            progress = progress
           )
         } else {
           host$get_repos_urls(
-            type     = type,
-            verbose  = verbose,
+            type = type,
+            verbose = verbose,
             progress = progress
           )
         }

@@ -196,7 +196,8 @@ EngineGraphQLGitHub <- R6::R6Class(
             issues_open = repo$issues_open$totalCount,
             issues_closed = repo$issues_closed$totalCount,
             organization = repo$organization$login,
-            repo_url = repo$repo_url
+            repo_url = repo$repo_url,
+            commit_sha = repo$defaultBranchRef$target$oid %||% NA_character_
           )
         }) |>
           purrr::list_rbind()
@@ -319,7 +320,9 @@ EngineGraphQLGitHub <- R6::R6Class(
                 "file_path" = file_name,
                 "file_content" = file_data$file$text %||% NA,
                 "file_size" = file_data$file$byteSize,
-                "repo_url" = file_data$repo_url
+                "file_id" = file_data$file$oid,
+                "repo_url" = file_data$repo_url,
+                "commit_sha" = file_data$defaultBranchRef$target$oid
               )
             }) |>
             purrr::list_rbind()

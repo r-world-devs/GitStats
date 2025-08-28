@@ -1,16 +1,16 @@
 repo_gitstats_colnames <- c(
   "repo_id", "repo_name", "repo_fullpath", "default_branch", "stars", "forks",
   "created_at", "last_activity_at", "languages", "issues_open", "issues_closed",
-  "organization", "repo_url", "api_url", "githost", "last_activity"
+  "organization", "repo_url", "commit_sha", "api_url", "githost", "last_activity"
 )
 
 repo_host_colnames <- c("repo_id", "repo_name", "repo_fullpath", "default_branch",
                         "stars", "forks", "created_at", "last_activity_at",
                         "languages", "issues_open", "issues_closed",
-                        "organization", "repo_url")
+                        "organization", "repo_url", "commit_sha")
 
 repo_min_colnames <- c("repo_id", "repo_name", "repo_fullpath", "default_branch",
-                       "created_at", "organization", "repo_url")
+                       "created_at", "organization", "repo_url", "commit_sha")
 
 expect_orgs_table <- function(object, add_cols = NULL) {
   expect_s3_class(object, "data.frame")
@@ -89,8 +89,8 @@ expect_files_table <- function(files_object, with_cols = NULL) {
   expect_named(
     files_object,
     c("repo_id", "repo_name", "organization",
-      "file_path", "file_content", "file_size",
-      "repo_url", with_cols)
+      "file_path", "file_content", "file_size", "file_id",
+      "repo_url", "commit_sha", with_cols)
   )
   expect_type(files_object$file_size, "integer")
   expect_gt(nrow(files_object), 0)
