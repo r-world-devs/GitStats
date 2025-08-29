@@ -475,13 +475,15 @@ EngineGraphQLGitLab <- R6::R6Class(
                                             depth = Inf,
                                             verbose = TRUE,
                                             progress = TRUE) {
-      repo_data <- private$get_repos_data(
-        org = org,
-        owner_type = owner_type,
-        repos = repos
-      )
-      repositories <- repo_data[["repositories"]]
-      files_structure <- purrr::map(repositories, function(repo) {
+      if (is.null(repos)) {
+        repo_data <- private$get_repos_data(
+          org = org,
+          owner_type = owner_type,
+          repos = repos
+        )
+        repos <- repo_data[["repositories"]]
+      }
+      files_structure <- purrr::map(repos, function(repo) {
         private$get_files_structure_from_repo(
           org = org,
           repo = repo,
@@ -489,7 +491,7 @@ EngineGraphQLGitLab <- R6::R6Class(
           depth = depth
         )
       }, .progress = progress)
-      names(files_structure) <- repositories
+      names(files_structure) <- repos
       files_structure <- purrr::discard(files_structure, ~ length(.) == 0)
       return(files_structure)
     },
