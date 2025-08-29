@@ -19,6 +19,25 @@
     Output
       [1] "\n        query GetReposByIds($ids: [ID!]!) {\n          nodes(ids: $ids) {\n            ... on Repository {\n      repo_id: id\n      repo_name: name\n      repo_path: name\n      repo_fullpath: nameWithOwner\n      default_branch: defaultBranchRef {\n        name\n      }\n      stars: stargazerCount\n      forks: forkCount\n      created_at: createdAt\n      last_activity_at: pushedAt\n      languages(first: 5) {\n        nodes {\n          name\n        }\n      }\n      issues_open: issues(first: 100, states: [OPEN]) {\n        totalCount\n      }\n      issues_closed: issues(first: 100, states: [CLOSED]) {\n        totalCount\n      }\n      organization: owner {\n        login\n      }\n      repo_url: url\n      defaultBranchRef {\n        target {\n          ... on Commit {\n            oid\n          }\n        }\n      }\n    \n            }\n          }\n        }\n        "
 
+# parse_search_response prints message
+
+    Code
+      gh_repos_raw_output <- github_testhost_priv$parse_search_response(
+        search_response = test_mocker$use("gh_search_repos_for_code"), org = gh_org,
+        output = "raw", verbose = TRUE)
+    Message
+      i Parsing search response with GraphQL...
+
+# parse_search_response turns to REST when first attempt returns error
+
+    Code
+      gh_repos_by_code_table <- github_testhost_priv$parse_search_response(
+        search_response = test_mocker$use("gh_search_repos_for_code"), org = gh_org,
+        output = "raw", verbose = TRUE)
+    Message
+      i Parsing search response with GraphQL...
+      i Switching to REST API... it may take longer 🕓
+
 # `get_repos_with_code_from_orgs()` pulls raw response
 
     Code
