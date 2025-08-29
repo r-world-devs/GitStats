@@ -576,10 +576,6 @@ EngineGraphQLGitLab <- R6::R6Class(
     }
   ),
   private = list(
-    is_complexity_error = function(response) {
-      any(purrr::map_lgl(response$errors, ~ grepl("Query has complexity", .$message)))
-    },
-
     # Wrapper over building GraphQL query and response.
     get_repos_page = function(org = NULL,
                               projects_ids = NULL,

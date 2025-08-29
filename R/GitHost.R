@@ -1118,32 +1118,43 @@ GitHost <- R6::R6Class(
     parse_search_response = function(search_response, org = NULL, output, verbose = TRUE) {
       if (length(search_response) > 0) {
         repos_ids <- private$get_repos_ids(search_response)
-        graphql_engine <- private$engines$graphql
+        api_engine <- private$engines$graphql
+        if (verbose) cli::cli_alert_info("Parsing search response with GraphQL...")
         if (!is.null(org)) {
           owner_type <- attr(org, "type") %||% "organization"
-          repos_from_org <- graphql_engine$get_repos_from_org(
+          repos_from_org <- api_engine$get_repos_from_org(
             org = org,
             owner_type = owner_type,
             verbose = verbose
           )
-          repos_response <- repos_from_org |>
-            purrr::keep(function(repo) {
-              if (is.null(repo$node)) {
-                repo_node <- repo
-              } else {
-                repo_node <- repo$node
-              }
-              any(purrr::map_lgl(repos_ids, ~ grepl(., repo_node$repo_id)))
-            })
+          if (!inherits(repos_from_org, "graphql_error")) {
+            repos_response <- repos_from_org |>
+              purrr::keep(function(repo) {
+                if (is.null(repo$node)) {
+                  repo_node <- repo
+                } else {
+                  repo_node <- repo$node
+                }
+                any(purrr::map_lgl(repos_ids, ~ grepl(., repo_node$repo_id)))
+              })
+          } else {
+            api_engine <- private$engines$rest
+            repos_from_org <- api_engine$get_repos_from_org(org = org)
+            if (verbose) cli::cli_alert_info("Switching to REST API... it may take longer \U1F553")
+            repos_response <- repos_from_org |>
+              purrr::keep(function(repo) {
+                any(purrr::map_lgl(repos_ids, ~ grepl(., repo$id)))
+              })
+          }
         } else {
-          repos_response <- graphql_engine$get_repos(
+          repos_response <- api_engine$get_repos(
             repos_ids = repos_ids,
             verbose = verbose
           )
         }
         if (output != "raw") {
           repos_output <- repos_response |>
-            graphql_engine$prepare_repos_table(
+            api_engine$prepare_repos_table(
               org = org
             )
         } else {

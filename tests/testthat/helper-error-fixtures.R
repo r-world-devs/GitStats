@@ -1,5 +1,21 @@
 test_error_fixtures <- list()
 
+test_error_fixtures$graphql_server_error <- list(
+  "errors" = list(
+    list(
+      "message" = "Internal server error"
+    )
+  )
+)
+
+test_error_fixtures$graphql_complexity_error <- list(
+  "errors" = list(
+    list(
+      "message" = "Query has complexity of ..."
+    )
+  )
+)
+
 test_error_fixtures$graphql_error_no_groups <- list(
   "errors" = list(
     list(
