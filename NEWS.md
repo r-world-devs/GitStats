@@ -1,4 +1,4 @@
-# GitStats (development version)
+# GitStats 2.3.6
 
 - Added `commit_sha` column to `get_repos()` and `get_files()` outputs ([#546](https://github.com/r-world-devs/GitStats/issues/546)).
 - Fixed `depth` parameter in `get_files()` - previously `0` and `1` value returned same output, i.e. files from `root`. Now it works the way as explained in function documentation - value `0` returns files from the `root` and value `1` goes 1 level deeper ([#663](https://github.com/r-world-devs/GitStats/issues/663)).
