@@ -51,21 +51,22 @@ EngineGraphQLGitHub <- R6::R6Class(
         response <- self$gql_response(
           gql_query = self$gql_query$orgs(
             end_cursor = end_cursor
-          )
+          ),
+          verbose = verbose
         )
-        if (length(response$errors) > 0) {
-          cli::cli_abort(
-            response$errors[[1]]$message
-          )
-        }
-        if (output == "only_names") {
-          orgs_list <- purrr::map(response$data$search$edges, ~ .$node$login)
+        if (!inherits(response, "graphql_error")) {
+          if (output == "only_names") {
+            orgs_list <- purrr::map(response$data$search$edges, ~ .$node$login)
+          } else {
+            orgs_list <- purrr::map(response$data$search$edges, ~ .$node)
+          }
+          full_orgs_list <- append(full_orgs_list, orgs_list)
+          has_next_page <- response$data$search$pageInfo$hasNextPage
+          end_cursor <- response$data$search$pageInfo$endCursor
         } else {
-          orgs_list <- purrr::map(response$data$search$edges, ~ .$node)
+          full_orgs_list <- response
+          break
         }
-        full_orgs_list <- append(full_orgs_list, orgs_list)
-        has_next_page <- response$data$search$pageInfo$hasNextPage
-        end_cursor <- response$data$search$pageInfo$endCursor
       }
       all_orgs <- if (output == "only_names") {
         unlist(full_orgs_list)
