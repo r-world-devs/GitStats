@@ -157,7 +157,7 @@ test_that("GitLab GraphQL Engine pulls files structure from repositories", {
   purrr::walk(gl_files_structure, ~ expect_false(all(grepl("/$", .)))) # no empty dirs
 })
 
-test_that("GitLab GraphQL Engine pulls files structure from repositories", {
+test_that("GitLab GraphQL Engine pulls files structure from repositories when repos are not set", {
   if (integration_tests_skipped) {
     gl_repos_data <- list(
       "repositories" = gl_repos
@@ -175,7 +175,7 @@ test_that("GitLab GraphQL Engine pulls files structure from repositories", {
   }
   gl_files_structure_shallow <- test_graphql_gitlab$get_files_structure_from_org(
     org = "mbtests",
-    repos =  gl_repos,
+    repos =  NULL,
     pattern = "\\.md",
     owner_type = "organization",
     depth = 1L,
