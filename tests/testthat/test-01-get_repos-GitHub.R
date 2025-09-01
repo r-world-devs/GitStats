@@ -261,12 +261,13 @@ test_that("get_repos_ids", {
 test_that("parse_search_response parses search response into repositories output", {
   mockery::stub(
     github_testhost_priv$parse_search_response,
-    "graphql_engine$get_repos",
+    "api_engine$get_repos",
     test_mocker$use("gh_repos_by_ids")
   )
   gh_repos_raw_output <- github_testhost_priv$parse_search_response(
     search_response = test_mocker$use("gh_search_repos_for_code"),
-    output = "raw"
+    output = "raw",
+    verbose = FALSE
   )
   expect_gh_repos_gql_response(gh_repos_raw_output[[1]])
   test_mocker$cache(gh_repos_raw_output)
@@ -275,16 +276,51 @@ test_that("parse_search_response parses search response into repositories output
 test_that("parse_search_response parses search response into repositories output", {
   mockery::stub(
     github_testhost_priv$parse_search_response,
-    "graphql_engine$get_repos_from_org",
+    "api_engine$get_repos_from_org",
     test_mocker$use("gh_repos_from_org")
   )
   gh_repos_by_code_table <- github_testhost_priv$parse_search_response(
     search_response = test_mocker$use("gh_search_repos_for_code"),
     org = gh_org,
-    output = "table"
+    output = "table",
+    verbose = FALSE
   )
   expect_repos_table(gh_repos_by_code_table)
   test_mocker$cache(gh_repos_by_code_table)
+})
+
+test_that("parse_search_response prints message", {
+  mockery::stub(
+    github_testhost_priv$parse_search_response,
+    "api_engine$get_repos_from_org",
+    test_mocker$use("gh_repos_by_ids")
+  )
+  expect_snapshot(
+    gh_repos_raw_output <- github_testhost_priv$parse_search_response(
+      search_response = test_mocker$use("gh_search_repos_for_code"),
+      org = gh_org,
+      output = "raw",
+      verbose = TRUE
+    )
+  )
+})
+
+test_that("parse_search_response turns to REST when first attempt returns error", {
+  internal_server_error <- list("repo" = list("id" = "1234"))
+  class(internal_server_error) <- c("graphql_error", "graphql_server_error")
+  mockery::stub(
+    github_testhost_priv$parse_search_response,
+    "api_engine$get_repos_from_org",
+    internal_server_error
+  )
+  expect_snapshot(
+    gh_repos_by_code_table <- github_testhost_priv$parse_search_response(
+      search_response = test_mocker$use("gh_search_repos_for_code"),
+      org = gh_org,
+      output = "raw",
+      verbose = TRUE
+    )
+  )
 })
 
 test_that("`get_repos_with_code_from_orgs()` works", {

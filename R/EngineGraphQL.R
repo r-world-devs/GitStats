@@ -161,11 +161,25 @@ EngineGraphQL <- R6::R6Class(
       any(purrr::map_lgl(response$errors, ~ grepl("doesn't exist on type", .$message)))
     },
 
+    is_complexity_error = function(response) {
+      any(purrr::map_lgl(response$errors, ~ grepl("Query has complexity", .$message)))
+    },
+
+    is_server_error = function(response) {
+      any(purrr::map_lgl(response$errors, ~ grepl("Internal server error", .$message)))
+    },
+
     set_graphql_error_class = function(response) {
       if (private$is_query_error(response)) {
         class(response) <- c(class(response), "graphql_error")
         if (private$is_no_fields_query_error(response)) {
           class(response) <- c(class(response), "graphql_no_fields_error")
+        }
+        if (private$is_complexity_error(response)) {
+          class(response) <- c(class(response), "graphql_complexity_error")
+        }
+        if (private$is_server_error(response)) {
+          class(response) <- c(class(response), "graphql_server_error")
         }
       }
       return(response)

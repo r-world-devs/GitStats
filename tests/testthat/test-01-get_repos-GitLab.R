@@ -469,13 +469,14 @@ test_that("get_repos_ids", {
 test_that("parse_search_response works", {
   mockery::stub(
     gitlab_testhost_priv$parse_search_response,
-    "graphql_engine$get_repos_from_org",
+    "api_engine$get_repos_from_org",
     test_mocker$use("gl_repos_from_org")
   )
   gl_repos_raw_output <- gitlab_testhost_priv$parse_search_response(
     search_response = test_fixtures$gitlab_search_response,
     org = "test_group",
-    output = "raw"
+    output = "raw",
+    verbose = FALSE
   )
   expect_type(
     gl_repos_raw_output,
