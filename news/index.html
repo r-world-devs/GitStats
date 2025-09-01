@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.5.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.5.9005</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,7 @@
 <li>Fixed <code>depth</code> parameter in <code><a href="../reference/get_files.html">get_files()</a></code> - previously <code>0</code> and <code>1</code> value returned same output, i.e. files from <code>root</code>. Now it works the way as explained in function documentation - value <code>0</code> returns files from the <code>root</code> and value <code>1</code> goes 1 level deeper (<a href="https://github.com/r-world-devs/GitStats/issues/663" class="external-link">#663</a>).</li>
 <li>Added <code>language</code> parameter to <code><a href="../reference/get_repos.html">get_repos()</a></code> function to pull repositories only with defined language (<a href="https://github.com/r-world-devs/GitStats/issues/654" class="external-link">#654</a>). For GitHub Search API it translates into language query, whereas in other cases the repositories output is simply filtered by the given language.</li>
 <li>Introduced new <code>repo_fullpath</code> column, which replaced <code>fullname</code> in output of <code><a href="../reference/get_repos.html">get_repos()</a></code>. The <code>fullname</code> column was flawed in case of GitLab repositories as it was created out of repository <code>name</code> with <code>organization</code>. In case of GitLab repository <code>name</code> (which is more of a user friendly label) differs from repository <code>path</code> (which is in the <code>URL</code>), unlike in GitHub where repository <code>name</code> is repository <code>path</code> (<a href="https://github.com/r-world-devs/GitStats/issues/659" class="external-link">#659</a>). <code>repo_name</code> column for GitLab repositories now mirrors repository <code>path</code>.</li>
+<li>Handled <code>GraphQL Internal Server Error</code> with switching to <code>REST API</code> when parsing search response to repositories output (<a href="https://github.com/r-world-devs/GitStats/issues/666" class="external-link">#666</a>).</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.3.5" id="gitstats-235">GitStats 2.3.5<a class="anchor" aria-label="anchor" href="#gitstats-235"></a></h2><p class="text-muted">CRAN release: 2025-08-18</p>
