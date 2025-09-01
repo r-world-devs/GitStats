@@ -6,7 +6,8 @@ test_that("`perform_request()` returns proper status when token is empty or inva
     ~ expect_message(
       test_rest_github$perform_request(
         endpoint = "https://api.github.com",
-        token = .
+        token = .,
+        verbose = TRUE
       ),
       "HTTP 401 Unauthorized."
     )
@@ -19,7 +20,8 @@ test_that("`perform_request()` throws error on bad host", {
     suppressMessages(
       test_rest_github$perform_request(
         endpoint = paste0(bad_host),
-        token = Sys.getenv("GITHUB_PAT")
+        token = Sys.getenv("GITHUB_PAT"),
+        verbose = TRUE
       )
     ),
     "Could not resolve host"
@@ -47,7 +49,8 @@ test_that("`perform_request()` returns proper status", {
   expect_message(
     test_rest_github$perform_request(
       endpoint = bad_endpoint,
-      token = Sys.getenv("GITHUB_PAT")
+      token = Sys.getenv("GITHUB_PAT"),
+      verbose = TRUE
     ),
     "HTTP 404 Not Found"
   )

@@ -18,14 +18,15 @@ EngineGraphQLGitHub <- R6::R6Class(
     },
 
     # Set owner type
-    set_owner_type = function(owners) {
+    set_owner_type = function(owners, verbose) {
       user_or_org_query <- self$gql_query$user_or_org_query
       login_types <- purrr::map(owners, function(owner) {
         response <- self$gql_response(
           gql_query = user_or_org_query,
           vars = list(
             "login" = owner
-          )
+          ),
+          verbose = verbose
         )
         if (length(response$errors) < 2) {
           type <- purrr::discard(response$data, is.null) |>
@@ -94,10 +95,11 @@ EngineGraphQLGitHub <- R6::R6Class(
     },
 
     # This method is for pulling orgs when host has set orgs
-    get_org = function(org) {
+    get_org = function(org, verbose = TRUE) {
       response <- self$gql_response(
         gql_query = self$gql_query$org(),
-        vars = list("org" = org)
+        vars = list("org" = org),
+        verbose = verbose
       )
       return(response$data$organization)
     },
@@ -118,7 +120,8 @@ EngineGraphQLGitHub <- R6::R6Class(
             gql_query = repos_query,
             vars = list(
               "ids" = repos_ids[x:repos_ids_length]
-            )
+            ),
+            verbose = verbose
           )
           x <<- x + 100
           return(repos_response$data$nodes)
@@ -129,7 +132,8 @@ EngineGraphQLGitHub <- R6::R6Class(
           gql_query = repos_query,
           vars = list(
             "ids" = repos_ids
-          )
+          ),
+          verbose = verbose
         )
         repos_nodes <- repos_response$data$nodes
       }
@@ -213,13 +217,15 @@ EngineGraphQLGitHub <- R6::R6Class(
                                       repos_names,
                                       since,
                                       until,
+                                      verbose = TRUE,
                                       progress) {
       repos_list_with_commits <- purrr::map(repos_names, function(repo) {
         private$get_commits_from_one_repo(
           org   = org,
           repo  = repo,
           since = since,
-          until = until
+          until = until,
+          verbose = verbose
         )
       }, .progress = !private$scan_all && progress)
       names(repos_list_with_commits) <- repos_names
@@ -299,6 +305,7 @@ EngineGraphQLGitHub <- R6::R6Class(
         org = org,
         file_paths = file_paths,
         host_files_structure = host_files_structure,
+        verbose = verbose,
         progress = progress
       )
       names(org_files_list) <- repositories
@@ -356,7 +363,8 @@ EngineGraphQLGitHub <- R6::R6Class(
           repo = repo,
           def_branch = def_branch,
           pattern = pattern,
-          depth = depth
+          depth = depth,
+          verbose = verbose
         )
       }, .progress = progress)
       names(files_structure) <- repositories
@@ -389,7 +397,7 @@ EngineGraphQLGitHub <- R6::R6Class(
     },
 
     # Pull release logs from organization
-    get_release_logs_from_org = function(repos_names, org) {
+    get_release_logs_from_org = function(repos_names, org, verbose = TRUE) {
       release_responses <- purrr::map(repos_names, function(repository) {
         releases_from_repo_query <- self$gql_query$releases_from_repo()
         response <- self$gql_response(
@@ -397,7 +405,8 @@ EngineGraphQLGitHub <- R6::R6Class(
           vars = list(
             "org" = org,
             "repo" = repository
-          )
+          ),
+          verbose = verbose
         )
         return(response)
       }) %>%
@@ -466,7 +475,8 @@ EngineGraphQLGitHub <- R6::R6Class(
         gql_query = repos_query,
         vars = list(
           "login" = login
-        )
+        ),
+        verbose = verbose
       )
       private$handle_graphql_error(
         responses_list = response,
@@ -479,31 +489,33 @@ EngineGraphQLGitHub <- R6::R6Class(
     get_commits_from_one_repo = function(org,
                                          repo,
                                          since,
-                                         until) {
+                                         until,
+                                         verbose = TRUE) {
       next_page <- TRUE
       full_commits_list <- list()
       commits_cursor <- ""
       while (next_page) {
-        commits_response <- tryCatch({
-          private$get_commits_page_from_repo(
-            org = org,
-            repo = repo,
-            since = since,
-            until = until,
-            commits_cursor = commits_cursor
-          )
-        }, error = function(e) {
-          cli::cli_alert_danger(e$message)
-          NULL
-        })
-        commits_list <- commits_response$data$repository$defaultBranchRef$target$history$edges
-        next_page <- commits_response$data$repository$defaultBranchRef$target$history$pageInfo$hasNextPage
-        if (is.null(next_page)) next_page <- FALSE
-        if (is.null(commits_list)) commits_list <- list()
-        if (next_page) {
-          commits_cursor <- commits_response$data$repository$defaultBranchRef$target$history$pageInfo$endCursor
+        commits_response <- private$get_commits_page_from_repo(
+          org = org,
+          repo = repo,
+          since = since,
+          until = until,
+          commits_cursor = commits_cursor,
+          verbose = verbose
+        )
+        if (!inherits(commits_response, "graphql_error")) {
+          commits_list <- commits_response$data$repository$defaultBranchRef$target$history$edges
+          next_page <- commits_response$data$repository$defaultBranchRef$target$history$pageInfo$hasNextPage
+          if (is.null(next_page)) next_page <- FALSE
+          if (is.null(commits_list)) commits_list <- list()
+          if (next_page) {
+            commits_cursor <- commits_response$data$repository$defaultBranchRef$target$history$pageInfo$endCursor
+          } else {
+            commits_cursor <- ""
+          }
         } else {
-          commits_cursor <- ""
+          commits_list <- NULL
+          next_page <- FALSE
         }
         full_commits_list <- append(full_commits_list, commits_list)
       }
@@ -515,40 +527,40 @@ EngineGraphQLGitHub <- R6::R6Class(
                                           repo,
                                           since,
                                           until,
-                                          commits_cursor = "") {
+                                          commits_cursor = "",
+                                          verbose = TRUE) {
       commits_from_repo_query <- self$gql_query$commits_from_repo(
         commits_cursor = commits_cursor
       )
-      response <- tryCatch(
-        {
-          self$gql_response(
-            gql_query = commits_from_repo_query,
-            vars = list(
-              "org" = org,
-              "repo" = repo,
-              "since" = date_to_gts(since),
-              "until" = date_to_gts(until)
-            )
-          )
-        },
-        error = function(e) {
-          self$gql_response(
-            gql_query = commits_from_repo_query,
-            vars = list(
-              "org" = org,
-              "repo" = repo,
-              "since" = date_to_gts(since),
-              "until" = date_to_gts(until)
-            )
-          )
-        }
+      response <- self$gql_response(
+        gql_query = commits_from_repo_query,
+        vars = list(
+          "org" = org,
+          "repo" = repo,
+          "since" = date_to_gts(since),
+          "until" = date_to_gts(until)
+        ),
+        verbose = verbose
       )
+      if (inherits(response, "graphql_error")) {
+        respone <- self$gql_response(
+          gql_query = commits_from_repo_query,
+          vars = list(
+            "org" = org,
+            "repo" = repo,
+            "since" = date_to_gts(since),
+            "until" = date_to_gts(until)
+          ),
+          verbose = verbose
+        )
+      }
       return(response)
     },
 
     # An iterator over pulling issues pages from one repository.
     get_issues_from_one_repo = function(org,
-                                        repo) {
+                                        repo,
+                                        verbose = TRUE) {
       next_page <- TRUE
       full_issues_list <- list()
       issues_cursor <- ""
@@ -556,7 +568,8 @@ EngineGraphQLGitHub <- R6::R6Class(
         issues_response <- private$get_issues_page_from_repo(
           org = org,
           repo = repo,
-          issues_cursor = issues_cursor
+          issues_cursor = issues_cursor,
+          verbose = verbose
         )
         issues_list <- issues_response$data$repository$issues$edges
         next_page <- issues_response$data$repository$issues$pageInfo$hasNextPage
@@ -575,30 +588,29 @@ EngineGraphQLGitHub <- R6::R6Class(
     # Wrapper over building GraphQL query and response.
     get_issues_page_from_repo = function(org,
                                          repo,
-                                         issues_cursor = "") {
+                                         issues_cursor = "",
+                                         verbose = TRUE) {
       issues_from_repo_query <- self$gql_query$issues_from_repo(
         issues_cursor = issues_cursor
       )
-      response <- tryCatch(
-        {
-          self$gql_response(
-            gql_query = issues_from_repo_query,
-            vars = list(
-              "org" = org,
-              "repo" = repo
-            )
-          )
-        },
-        error = function(e) {
-          self$gql_response(
-            gql_query = issues_from_repo_query,
-            vars = list(
-              "org" = org,
-              "repo" = repo
-            )
-          )
-        }
+      response <- self$gql_response(
+        gql_query = issues_from_repo_query,
+        vars = list(
+          "org" = org,
+          "repo" = repo
+        ),
+        verbose = verbose
       )
+      if (inherits(response, "graphql_error")) {
+        response <- self$gql_response(
+          gql_query = issues_from_repo_query,
+          vars = list(
+            "org" = org,
+            "repo" = repo
+          ),
+          verbose = verbose
+        )
+      }
       return(response)
     },
 
@@ -622,6 +634,7 @@ EngineGraphQLGitHub <- R6::R6Class(
                                            org,
                                            host_files_structure,
                                            file_paths,
+                                           verbose = TRUE,
                                            progress) {
       purrr::map2(repositories, def_branches, function(repo, def_branch) {
         if (!is.null(host_files_structure)) {
@@ -639,16 +652,17 @@ EngineGraphQLGitHub <- R6::R6Class(
             repo = repo,
             def_branch = def_branch,
             file_path = file_path,
-            files_query = self$gql_query$file_blob_from_repo()
+            files_query = self$gql_query$file_blob_from_repo(),
+            verbose = verbose
           )
-        }) %>%
+        }) |>
           purrr::map(~ .$data$repository)
         names(repo_files_list) <- file_paths
         return(repo_files_list)
       }, .progress = progress)
     },
 
-    get_file_response = function(org, repo, def_branch, file_path, files_query) {
+    get_file_response = function(org, repo, def_branch, file_path, files_query, verbose = TRUE) {
       expression <- paste0(def_branch, ":", file_path)
       files_response <- self$gql_response(
         gql_query = files_query,
@@ -656,18 +670,25 @@ EngineGraphQLGitHub <- R6::R6Class(
           "org" = org,
           "repo" = repo,
           "expression" = expression
-        )
+        ),
+        verbose = verbose
       )
       return(files_response)
     },
 
-    get_files_structure_from_repo = function(org, repo, def_branch, pattern = NULL, depth = Inf) {
+    get_files_structure_from_repo = function(org,
+                                             repo,
+                                             def_branch,
+                                             pattern = NULL,
+                                             depth = Inf,
+                                             verbose = TRUE) {
       files_tree_response <- private$get_file_response(
         org = org,
         repo = repo,
         def_branch = def_branch,
         file_path = "",
-        files_query = self$gql_query$files_tree_from_repo()
+        files_query = self$gql_query$files_tree_from_repo(),
+        verbose = verbose
       )
       files_and_dirs_list <- private$get_files_and_dirs(
         files_tree_response = files_tree_response
@@ -688,7 +709,8 @@ EngineGraphQLGitHub <- R6::R6Class(
             repo = repo,
             def_branch = def_branch,
             file_path = dir,
-            files_query = self$gql_query$files_tree_from_repo()
+            files_query = self$gql_query$files_tree_from_repo(),
+            verbose = verbose
           )
           files_and_dirs_list <- private$get_files_and_dirs(
             files_tree_response = files_tree_response
