@@ -221,7 +221,8 @@ GitHostGitHub <- R6::R6Class(
       if ("repo" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
         orgs <- graphql_engine$set_owner_type(
-          owners = names(private$orgs_repos)
+          owners = names(private$orgs_repos),
+          verbose = verbose
         )
         commits_table <- purrr::map(orgs, function(org) {
           commits_table_org <- NULL

@@ -18,7 +18,7 @@ EngineGraphQLGitLab <- R6::R6Class(
     },
 
     # Set owner type
-    set_owner_type = function(owners) {
+    set_owner_type = function(owners, verbose = TRUE) {
       user_or_org_query <- self$gql_query$user_or_org_query
       login_types <- purrr::map(owners, function(owner) {
         response <- self$gql_response(
@@ -26,7 +26,8 @@ EngineGraphQLGitLab <- R6::R6Class(
           vars = list(
             "username" = owner,
             "grouppath" = owner
-          )
+          ),
+          verbose = verbose
         )
         if (!all(purrr::map_lgl(response$data, is.null))) {
           type <- purrr::discard(response$data, is.null) |>
@@ -57,7 +58,8 @@ EngineGraphQLGitLab <- R6::R6Class(
       for (x in 1:iterations_number) {
         response <- self$gql_response(
           gql_query = self$gql_query$groups(),
-          vars = list("groupCursor" = group_cursor)
+          vars = list("groupCursor" = group_cursor),
+          verbose = verbose
         )
         if (!inherits(response, "graphql_error")) {
           if (output == "only_names") {
@@ -91,7 +93,8 @@ EngineGraphQLGitLab <- R6::R6Class(
       }
       response <- self$gql_response(
         gql_query = self$gql_query$group(),
-        vars = list("org" = org)
+        vars = list("org" = org),
+        verbose = verbose
       )
       if (length(response$data$group) == 0) {
         class(response) <- c(class(response), "graphql_error")
@@ -126,7 +129,8 @@ EngineGraphQLGitLab <- R6::R6Class(
         repos_response <- private$get_repos_page(
           projects_ids = paste0("gid://gitlab/Project/", repos_ids),
           type = "projects",
-          repo_cursor = repo_cursor
+          repo_cursor = repo_cursor,
+          verbose = verbose
         )
         if (inherits(repos_response, "graphql_error")) {
           if (inherits(repos_response, "graphql_no_fields_error")) {
@@ -136,7 +140,8 @@ EngineGraphQLGitLab <- R6::R6Class(
           repos_response <- private$get_repos_page(
             projects_ids = paste0("gid://gitlab/Project/", repos_ids),
             type = "projects",
-            repo_cursor = repo_cursor
+            repo_cursor = repo_cursor,
+            verbose = verbose
           )
         }
         core_response <- repos_response$data$projects
@@ -167,7 +172,8 @@ EngineGraphQLGitLab <- R6::R6Class(
         repos_response <- private$get_repos_page(
           org = org,
           type = owner_type,
-          repo_cursor = repo_cursor
+          repo_cursor = repo_cursor,
+          verbose = verbose
         )
         if (inherits(repos_response, "graphql_error")) {
           full_repos_list <- repos_response
@@ -268,20 +274,17 @@ EngineGraphQLGitLab <- R6::R6Class(
           files_query <- self$gql_query$files_by_org(
             end_cursor = end_cursor
           )
-          files_response <- tryCatch(
-            {
-              self$gql_response(
-                gql_query = files_query,
-                vars = list(
-                  "org" = org,
-                  "file_paths" = file_paths
-                )
-              )
-            },
-            error = function(e) {
-              list()
-            }
+          files_response <- self$gql_response(
+            gql_query = files_query,
+            vars = list(
+              "org" = org,
+              "file_paths" = file_paths
+            ),
+            verbose = verbose
           )
+          if (inherits(files_response, "graphql_error")) {
+            files_response <- list()
+          }
           if (private$is_query_error(files_response)) {
             if (verbose) {
               purrr::walk(files_response$errors, ~ cli::cli_alert_warning(.))
@@ -375,7 +378,8 @@ EngineGraphQLGitLab <- R6::R6Class(
         files_response <- private$get_file_blobs_response(
           org = org,
           repo = repo,
-          file_paths = file_paths
+          file_paths = file_paths,
+          verbose = verbose
         )
         if (private$is_complexity_error(files_response)) {
           if (verbose) {
@@ -386,13 +390,15 @@ EngineGraphQLGitLab <- R6::R6Class(
           files_response <- private$get_file_blobs_response(
             org = org,
             repo = repo,
-            file_paths = file_paths[1]
+            file_paths = file_paths[1],
+            verbose = verbose
           )
           nodes <- purrr::map(c(1:iterations_number), function(i) {
             files_part_response <- private$get_file_blobs_response(
               org = org,
               repo = repo,
-              file_paths = file_paths[x:(i * 100)]
+              file_paths = file_paths[x:(i * 100)],
+              verbose = verbose
             )
             x <<- x + 100
             return(files_part_response$data$project$repository$blobs$nodes)
@@ -488,7 +494,8 @@ EngineGraphQLGitLab <- R6::R6Class(
           org = org,
           repo = repo,
           pattern = pattern,
-          depth = depth
+          depth = depth,
+          verbose = verbose
         )
       }, .progress = progress)
       names(files_structure) <- repos
@@ -521,14 +528,15 @@ EngineGraphQLGitLab <- R6::R6Class(
     },
 
     # Pull all releases from all repositories of an organization.
-    get_release_logs_from_org = function(repos_names, org) {
+    get_release_logs_from_org = function(repos_names, org, verbose = TRUE) {
       release_responses <- purrr::map(repos_names, function(repository) {
         releases_from_repo_query <- self$gql_query$releases_from_repo()
         response <- self$gql_response(
           gql_query = releases_from_repo_query,
           vars = list(
             "project_path" = paste0(org, "/", utils::URLdecode(repository))
-          )
+          ),
+          verbose = verbose
         )
         return(response)
       }) %>%
@@ -582,14 +590,16 @@ EngineGraphQLGitLab <- R6::R6Class(
     get_repos_page = function(org = NULL,
                               projects_ids = NULL,
                               type = "organization",
-                              repo_cursor = "") {
+                              repo_cursor = "",
+                              verbose = TRUE) {
       if (type == "organization") {
         response <- self$gql_response(
           gql_query = self$gql_query$repos_by_org(),
           vars = list(
             "org" = org,
             "repo_cursor" = repo_cursor
-          )
+          ),
+          verbose = verbose
         )
       } else if (type == "user") {
         response <- self$gql_response(
@@ -597,14 +607,16 @@ EngineGraphQLGitLab <- R6::R6Class(
           vars = list(
             "username" = org,
             "repo_cursor" = repo_cursor
-          )
+          ),
+          verbose = verbose
         )
       } else if (type == "projects") {
         response <- self$gql_response(
           gql_query = self$gql_query$repos(repo_cursor),
           vars = list(
             "projects_ids" = as.character(projects_ids)
-          )
+          ),
+          verbose = verbose
         )
       }
       return(response)
@@ -631,20 +643,22 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(result)
     },
 
-    get_file_blobs_response = function(org, repo, file_paths) {
+    get_file_blobs_response = function(org, repo, file_paths, verbose = TRUE) {
       file_blobs_response <- self$gql_response(
         gql_query = self$gql_query$file_blob_from_repo(),
         vars = list(
           "fullPath" = paste0(org, "/", repo),
           "file_paths" = file_paths
-        )
+        ),
+        verbose = verbose
       )
       return(file_blobs_response)
     },
 
     # An iterator over pulling issues pages from one repository.
     get_issues_from_one_repo = function(org,
-                                        repo) {
+                                        repo,
+                                        verbose = TRUE) {
       next_page <- TRUE
       full_issues_list <- list()
       issues_cursor <- ""
@@ -652,7 +666,8 @@ EngineGraphQLGitLab <- R6::R6Class(
         issues_response <- private$get_issues_page_from_repo(
           org = org,
           repo = repo,
-          issues_cursor = issues_cursor
+          issues_cursor = issues_cursor,
+          verbose = verbose
         )
         issues_list <- issues_response$data$project$issues$edges
         next_page <- issues_response$data$project$issues$pageInfo$hasNextPage
@@ -671,7 +686,8 @@ EngineGraphQLGitLab <- R6::R6Class(
     # Wrapper over building GraphQL query and response.
     get_issues_page_from_repo = function(org,
                                          repo,
-                                         issues_cursor = "") {
+                                         issues_cursor = "",
+                                         verbose = TRUE) {
       issues_from_repo_query <- self$gql_query$issues_from_repo(
         issues_cursor = issues_cursor
       )
@@ -679,27 +695,34 @@ EngineGraphQLGitLab <- R6::R6Class(
         gql_query = issues_from_repo_query,
         vars = list(
           "fullPath" = paste0(org, "/", repo)
-        )
+        ),
+        verbose = verbose
       )
       return(response)
     },
 
-    get_files_tree_response = function(org, repo, file_path) {
+    get_files_tree_response = function(org, repo, file_path, verbose = TRUE) {
       files_tree_response <- self$gql_response(
         gql_query = self$gql_query$files_tree_from_repo(),
         vars = list(
           "fullPath" = paste0(org, "/", repo),
           "file_path" = file_path
-        )
+        ),
+        verbose = verbose
       )
       return(files_tree_response)
     },
 
-    get_files_structure_from_repo = function(org, repo, pattern = NULL, depth = Inf) {
+    get_files_structure_from_repo = function(org,
+                                             repo,
+                                             pattern = NULL,
+                                             depth = Inf,
+                                             verbose = TRUE) {
       files_tree_response <- private$get_files_tree_response(
         org = org,
         repo = repo,
-        file_path = ""
+        file_path = "",
+        verbose = vebose
       )
       files_and_dirs_list <- private$get_files_and_dirs(
         files_tree_response = files_tree_response
@@ -718,7 +741,8 @@ EngineGraphQLGitLab <- R6::R6Class(
           files_tree_response <- private$get_files_tree_response(
             org = org,
             repo = repo,
-            file_path = dir
+            file_path = dir,
+            verbose = verbose
           )
           files_and_dirs_list <- private$get_files_and_dirs(
             files_tree_response = files_tree_response
