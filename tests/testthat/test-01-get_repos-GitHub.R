@@ -153,12 +153,11 @@ test_that("`search_response()` performs search with limit over 1000", {
     "self$response",
     test_fixtures$github_search_response_large
   )
-  gh_search_repos_response <- test_rest_github_priv$search_response(
+  gh_search_repos_response_large <- test_rest_github_priv$search_response(
     search_endpoint = test_mocker$use("search_endpoint"),
     total_n = total_n
   )
-  expect_gh_search_response(gh_search_repos_response)
-  test_mocker$cache(gh_search_repos_response)
+  expect_gh_search_response(gh_search_repos_response_large)
 })
 
 test_that("`search_for_code()` returns repos output for code search in files", {
