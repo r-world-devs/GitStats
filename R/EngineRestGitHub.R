@@ -6,9 +6,9 @@ EngineRestGitHub <- R6::R6Class(
   public = list(
 
     # Pull repositories with files
-    get_files = function(files, verbose = TRUE) {
+    get_files = function(file_paths, verbose = TRUE) {
       files_list <- list()
-      for (filename in files) {
+      for (filename in file_paths) {
         search_file_endpoint <- paste0(private$endpoints[["search"]], "filename:", filename)
         total_n <- self$response(
           endpoint = search_file_endpoint,
