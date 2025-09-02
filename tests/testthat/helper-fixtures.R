@@ -702,6 +702,8 @@ github_search_item <- list(
   "score" = 1
 )
 
+test_fixtures$github_file_rest_response <- github_search_item
+
 test_fixtures$github_search_response <- list(
   "total_count" = 250,
   "incomplete_results" = FALSE,
