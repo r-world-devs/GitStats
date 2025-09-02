@@ -1051,3 +1051,15 @@ test_fixtures$github_org_login <- list(
     )
   )
 )
+
+test_fixtures$gitlab_file_rest_response <- list(
+  "file_name" = "test.R",
+  "file_path" = "test.R",
+  "size" = 19L,
+  "encoding" = "base64",
+  "content" = "test content",
+  "ref" = "main",
+  "blob_id" = "1a2b3c",
+  "commit_id" = "e5f6d7",
+  "last_commit_id" = "e5f6d7"
+)

@@ -1587,7 +1587,7 @@ GitHost <- R6::R6Class(
         )
       }
       files_table <- rest_engine$get_files(
-        files = file_path,
+        file_paths = file_path,
         verbose = verbose
       ) |>
         rest_engine$prepare_files_table() |>
