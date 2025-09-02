@@ -43,6 +43,25 @@ test_that("get_orgs pulls responses from GraphQL", {
   test_mocker$cache(gh_orgs_full_response)
 })
 
+
+test_that("get_orgs breaks when meet GraphQL error", {
+  graphql_error <- ""
+  class(graphql_error) <- "graphql_error"
+  mockery::stub(
+    test_graphql_github$get_orgs,
+    "self$gql_response",
+    graphql_error
+  )
+  gh_orgs_raw_response <- test_graphql_github$get_orgs(
+    output = "only_names",
+    verbose = FALSE
+  )
+  expect_s3_class(
+    gh_orgs_raw_response,
+    "graphql_error"
+  )
+})
+
 test_that("get_orgs prints message", {
   mockery::stub(
     test_graphql_github$get_orgs,

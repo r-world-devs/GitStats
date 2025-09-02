@@ -27,6 +27,25 @@ test_that("issues page is pulled from repository", {
   test_mocker$cache(issues_page)
 })
 
+test_that("issues page works when encounters error", {
+  response_error <- ""
+  class(response_error) <- "graphql_error"
+  mockery::stub(
+    test_graphql_github_priv$get_issues_page_from_repo,
+    "self$gql_response",
+    response_error
+  )
+  org <- "test_org"
+  repo <- "TestRepo"
+  expect_no_error(
+    issues_page <- test_graphql_github_priv$get_issues_page_from_repo(
+      org = org,
+      repo = repo
+    )
+  )
+})
+
+
 test_that("issues page with cursor is pulled from repository", {
   if (!integration_tests_skipped) {
     issues_page <- test_graphql_github_priv$get_issues_page_from_repo(
