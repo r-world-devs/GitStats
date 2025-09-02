@@ -70,7 +70,7 @@ EngineRestGitLab <- R6::R6Class(
       files_list <- list()
       file_paths <- utils::URLencode(file_paths, reserved = TRUE)
       files_list <- purrr::map(file_paths, function(filename) {
-        files_search_result <- private$search_for_code(
+        files_search_result <- self$search_for_code(
           code = filename,
           in_path = TRUE,
           org = org,
