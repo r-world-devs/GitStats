@@ -127,19 +127,15 @@ EngineGraphQL <- R6::R6Class(
     },
 
     handle_graphql_error = function(responses_list, verbose) {
-      if (inherits(responses_list, "graphql_error")) {
-        if (verbose) cli::cli_alert_danger("GraphQL returned errors.")
+      if (verbose && inherits(responses_list, "graphql_error")) {
+        cli::cli_alert_danger("GraphQL returned errors:")
         if (inherits(responses_list, "graphql_no_fields_error")) {
-          if (verbose) {
-            error_fields <- purrr::map_vec(responses_list$errors, ~.$extensions$fieldName %||% "") |>
-              purrr::discard(~ . == "")
-            cli::cli_alert_info("Your GraphQL does not recognize [{error_fields}] field{?s}.")
-            cli::cli_alert_warning("Check version of your GitLab.")
-          }
+          error_fields <- purrr::map_vec(responses_list$errors, ~.$extensions$fieldName %||% "") |>
+            purrr::discard(~ . == "")
+          cli::cli_alert_info("Your GraphQL does not recognize [{error_fields}] field{?s}.")
+          cli::cli_alert_warning("Check version of your GitLab.")
         } else {
-          if (verbose) {
-            cli::cli_alert_warning(purrr::map_vec(responses_list$errors, ~.$message))
-          }
+          cli::cli_alert_warning(purrr::map_vec(responses_list$errors, ~.$message))
         }
       }
       return(responses_list)

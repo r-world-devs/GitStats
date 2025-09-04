@@ -18,7 +18,7 @@
       output <- test_graphql_gitlab_priv$handle_graphql_error(responses_list = test_mocker$
         use("repos_graphql_error"), verbose = TRUE)
     Message
-      x GraphQL returned errors.
+      x GraphQL returned errors:
       i Your GraphQL does not recognize [count and languages] fields.
       ! Check version of your GitLab.
 

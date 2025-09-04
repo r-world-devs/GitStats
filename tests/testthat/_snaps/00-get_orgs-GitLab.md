@@ -34,7 +34,7 @@
         verbose = TRUE, progress = FALSE)
     Message
       > [Host:GitLab][Engine:GraphQL] Pulling organizations...
-      x GraphQL returned errors.
+      x GraphQL returned errors:
       i Your GraphQL does not recognize [groups] field.
       ! Check version of your GitLab.
 
