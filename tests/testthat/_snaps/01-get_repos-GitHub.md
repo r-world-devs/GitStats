@@ -73,9 +73,9 @@
     Message
       > [Host:GitHub][Engine:REST] Pulling repositories...
       > Searching for code [shiny]...
-      HTTP 401 Unauthorized.
+      x HTTP 401 Unauthorized.
       > Searching for code [shiny]...
-      HTTP 401 Unauthorized.
+      x HTTP 401 Unauthorized.
 
 # get_repos_from_repos works
 

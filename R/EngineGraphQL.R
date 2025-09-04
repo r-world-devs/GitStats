@@ -122,8 +122,6 @@ EngineGraphQL <- R6::R6Class(
             max_seconds = 60
           ) %>%
           httr2::req_perform()
-      } else if (response$status_code != 200 && verbose) {
-        cli::cli_alert_danger(response$status_code)
       }
       return(response)
     },
@@ -139,7 +137,9 @@ EngineGraphQL <- R6::R6Class(
             cli::cli_alert_warning("Check version of your GitLab.")
           }
         } else {
-          purrr::map_vec(responses_list$errors, ~.$message)
+          if (verbose) {
+            cli::cli_alert_warning(purrr::map_vec(responses_list$errors, ~.$message))
+          }
         }
       }
       return(responses_list)

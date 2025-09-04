@@ -54,10 +54,10 @@ EngineRest <- R6::R6Class("EngineRest",
         httr2::req_error(is_error = function(resp) FALSE) %>%
         httr2::req_perform()
       if (resp$status_code == 401 && verbose) {
-        message("HTTP 401 Unauthorized.")
+        cli::cli_alert_danger("HTTP 401 Unauthorized.")
       }
       if (resp$status_code == 404 && verbose) {
-        message("HTTP 404 Not Found.")
+        cli::cli_alert_danger("HTTP 404 Not Found.")
       }
       if (resp$status_code %in% c(400, 500, 403)) {
         resp <- httr2::request(endpoint) %>%
