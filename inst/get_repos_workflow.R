@@ -70,3 +70,4 @@ rwd_stats <- create_gitstats() |>
   )
 
 get_repos(rwd_stats, with_code = "get_data", add_contributors = FALSE)
+get_repos(rwd_stats, with_code = "get_data", add_contributors = FALSE, verbose = FALSE)

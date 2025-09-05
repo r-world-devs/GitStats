@@ -193,7 +193,8 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       }
       if ("repo" %in% private$searching_scope) {
         orgs_names_from_repos <- graphql_engine$set_owner_type(
-          owners = names(private$orgs_repos)
+          owners = names(private$orgs_repos),
+          verbose = verbose
         ) |>
           purrr::keep(function(org) {
             type <- attr(org, "type") %||% "organization"
@@ -228,7 +229,11 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     },
 
     # Get projects API URL from search response
-    get_repo_url_from_response = function(search_response, type, repos_fullnames = NULL, progress = TRUE) {
+    get_repo_url_from_response = function(search_response,
+                                          type,
+                                          repos_fullnames = NULL,
+                                          verbose = TRUE,
+                                          progress = TRUE) {
       repo_urls <- purrr::map_vec(search_response, function(response) {
         api_url <- paste0(private$api_url, "/projects/", gsub("gid://gitlab/Project/", "", response$node$repo_id))
         if (type == "api") {
@@ -236,7 +241,8 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         } else {
           rest_engine <- private$engines$rest
           project_response <- rest_engine$response(
-            endpoint = api_url
+            endpoint = api_url,
+            verbose = verbose
           )
           web_url <- project_response$web_url
           return(web_url)
@@ -273,10 +279,11 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             repos_names = paste0(org, "/", repos_names),
             since = since,
             until = until,
+            verbose = verbose,
             progress = progress
-          ) %>%
-            rest_engine$tailor_commits_info(org = org) %>%
-            rest_engine$prepare_commits_table() %>%
+          ) |>
+            rest_engine$tailor_commits_info(org = org) |>
+            rest_engine$prepare_commits_table() |>
             rest_engine$get_commits_authors_handles_and_names(
               verbose = verbose,
               progress = progress
@@ -300,7 +307,8 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         rest_engine <- private$engines$rest
         graphql_engine <- private$engines$graphql
         orgs <- graphql_engine$set_owner_type(
-          owners = names(private$orgs_repos)
+          owners = names(private$orgs_repos),
+          verbose = verbose
         )
         commits_table <- purrr::map(orgs, function(org) {
           commits_table_org <- NULL
@@ -318,10 +326,11 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             repos_names = repos_names,
             since = since,
             until = until,
+            verbose = verbose,
             progress = progress
-          ) %>%
-            rest_engine$tailor_commits_info(org = org) %>%
-            rest_engine$prepare_commits_table() %>%
+          ) |>
+            rest_engine$tailor_commits_info(org = org) |>
+            rest_engine$prepare_commits_table() |>
             rest_engine$get_commits_authors_handles_and_names(
               verbose = verbose,
               progress = progress
@@ -367,7 +376,8 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       if ("repo" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
         orgs <- graphql_engine$set_owner_type(
-          owners = names(private$orgs_repos)
+          owners = names(private$orgs_repos),
+          verbose = verbose
         )
         files_table <- purrr::map(orgs, function(org) {
           if (verbose) {

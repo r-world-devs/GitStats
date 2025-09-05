@@ -44,7 +44,7 @@
       check <- github_testhost_priv$check_endpoint(endpoint = "https://api.github.com/repos/r-worlddevs/GitStats",
         type = "Repository", verbose = TRUE, .error = FALSE)
     Message
-      HTTP 404 Not Found.
+      x HTTP 404 Not Found.
       ! Repository you provided does not exist: https://api.github.com/repos/r-worlddevs/GitStats
 
 # `set_default_token` sets default token for public GitHub

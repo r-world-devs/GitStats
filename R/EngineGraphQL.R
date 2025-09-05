@@ -22,10 +22,11 @@ EngineGraphQL <- R6::R6Class(
     },
 
     #' Wrapper of GraphQL API request and response.
-    gql_response = function(gql_query, vars = "null") {
+    gql_response = function(gql_query, vars = "null", verbose) {
       response <- private$perform_request(
         gql_query = gql_query,
-        vars = vars
+        vars = vars,
+        verbose = verbose
       )
       response_list <- httr2::resp_body_json(response) |>
         private$set_graphql_error_class()
@@ -34,16 +35,9 @@ EngineGraphQL <- R6::R6Class(
 
     # A method to pull information on user.
     get_user = function(username) {
-      response <- tryCatch(
-        {
-          self$gql_response(
-            gql_query = self$gql_query$user(),
-            vars = list("user" = username)
-          )
-        },
-        error = function(e) {
-          NULL
-        }
+      response <- self$gql_response(
+        gql_query = self$gql_query$user(),
+        vars = list("user" = username)
       )
       return(response)
     },
@@ -51,11 +45,13 @@ EngineGraphQL <- R6::R6Class(
     # Iterator over pulling issues from all repositories.
     get_issues_from_repos = function(org,
                                      repos_names,
+                                     verbose,
                                      progress) {
       repos_list_with_issues <- purrr::map(repos_names, function(repo) {
         private$get_issues_from_one_repo(
-          org   = org,
-          repo  = repo
+          org = org,
+          repo = repo,
+          verbose = verbose
         )
       }, .progress = !private$scan_all && progress)
       names(repos_list_with_issues) <- repos_names
@@ -110,7 +106,7 @@ EngineGraphQL <- R6::R6Class(
   private = list(
 
     # GraphQL method for pulling response from API
-    perform_request = function(gql_query, vars, token = private$token) {
+    perform_request = function(gql_query, vars, token = private$token, verbose = TRUE) {
       response <- NULL
       response <- httr2::request(paste0(self$gql_api_url, "?")) |>
         httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
@@ -126,24 +122,20 @@ EngineGraphQL <- R6::R6Class(
             max_seconds = 60
           ) %>%
           httr2::req_perform()
-      } else if (response$status_code != 200) {
-        cli::cli_alert_danger(response$status_code)
       }
       return(response)
     },
 
     handle_graphql_error = function(responses_list, verbose) {
-      if (inherits(responses_list, "graphql_error")) {
-        if (verbose) cli::cli_alert_danger("GraphQL returned errors.")
+      if (verbose && inherits(responses_list, "graphql_error")) {
+        cli::cli_alert_danger("GraphQL returned errors:")
         if (inherits(responses_list, "graphql_no_fields_error")) {
-          if (verbose) {
-            error_fields <- purrr::map_vec(responses_list$errors, ~.$extensions$fieldName %||% "") |>
-              purrr::discard(~ . == "")
-            cli::cli_alert_info("Your GraphQL does not recognize [{error_fields}] field{?s}.")
-            cli::cli_alert_warning("Check version of your GitLab.")
-          }
+          error_fields <- purrr::map_vec(responses_list$errors, ~.$extensions$fieldName %||% "") |>
+            purrr::discard(~ . == "")
+          cli::cli_alert_info("Your GraphQL does not recognize [{error_fields}] field{?s}.")
+          cli::cli_alert_warning("Check version of your GitLab.")
         } else {
-          purrr::map_vec(responses_list$errors, ~.$message)
+          cli::cli_alert_warning(purrr::map_vec(responses_list$errors, ~.$message))
         }
       }
       return(responses_list)

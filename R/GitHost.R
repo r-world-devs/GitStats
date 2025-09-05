@@ -532,7 +532,8 @@ GitHost <- R6::R6Class(
         cli::cli_alert(cli::col_grey("Checking owners..."))
       }
       orgs <- private$engines$graphql$set_owner_type(
-        owners = utils::URLdecode(orgs)
+        owners = utils::URLdecode(orgs),
+        verbose = verbose
       ) |>
         purrr::map(function(org) {
           if (attr(org, "type") == "not found") {
@@ -571,7 +572,8 @@ GitHost <- R6::R6Class(
       check <- TRUE
       endpoint_response <- private$engines$rest$perform_request(
         endpoint = endpoint,
-        token = private$token
+        token = private$token,
+        verbose = verbose
       )
       if (endpoint_response$status_code == 404) {
         if (.error) {
@@ -701,7 +703,8 @@ GitHost <- R6::R6Class(
       }
       if ("repo" %in% private$searching_scope) {
         orgs_names_from_repos <- graphql_engine$set_owner_type(
-          owners = names(private$orgs_repos)
+          owners = names(private$orgs_repos),
+          verbose = verbose
         ) |>
           purrr::keep(function(org) {
             type <- attr(org, "type") %||% "organization"
@@ -713,7 +716,8 @@ GitHost <- R6::R6Class(
         type <- attr(org, "type") %||% "organization"
         org <- utils::URLdecode(org)
         graphql_engine$get_org(
-          org = org
+          org = org,
+          verbose = verbose
         )
       }) |>
         graphql_engine$prepare_orgs_table()
@@ -794,7 +798,8 @@ GitHost <- R6::R6Class(
       if ("repo" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
         orgs <- graphql_engine$set_owner_type(
-          owners = names(private$orgs_repos)
+          owners = names(private$orgs_repos),
+          verbose = verbose
         )
         purrr::map(orgs, function(org) {
           owner_type <- attr(org, "type") %||% "organization"
@@ -942,7 +947,8 @@ GitHost <- R6::R6Class(
         rest_engine <- private$engines$rest
         graphql_engine <- private$engines$graphql
         orgs <- graphql_engine$set_owner_type(
-          owners = names(private$orgs_repos)
+          owners = names(private$orgs_repos),
+          verbose = verbose
         )
         repos_vector <- purrr::map(orgs, function(org) {
           if (!private$scan_all && verbose) {
@@ -1213,6 +1219,7 @@ GitHost <- R6::R6Class(
       ) |>
         private$get_repo_url_from_response(
           type = type,
+          verbose = verbose,
           progress = progress
         )
     },
@@ -1228,6 +1235,7 @@ GitHost <- R6::R6Class(
         purrr::discard(~ is.null(.)) |>
         private$get_repo_url_from_response(
           type = type,
+          verbose = verbose,
           progress = progress
         )
     },
@@ -1244,6 +1252,7 @@ GitHost <- R6::R6Class(
         private$get_repo_url_from_response(
           type = type,
           repos_fullnames = private$repos_fullnames,
+          verbose = verbose,
           progress = progress
         )
     },
@@ -1271,7 +1280,8 @@ GitHost <- R6::R6Class(
         rest_engine <- private$engines$rest
         repos_table <- rest_engine$get_repos_contributors(
           repos_table = repos_table,
-          progress    = progress
+          verbose = verbose,
+          progress = progress
         )
         return(repos_table)
       }
@@ -1297,6 +1307,7 @@ GitHost <- R6::R6Class(
           issues_table_org <- graphql_engine$get_issues_from_repos(
             org = org,
             repos_names = repos_names,
+            verbose = verbose,
             progress = progress
           ) |>
             graphql_engine$prepare_issues_table(
@@ -1318,7 +1329,8 @@ GitHost <- R6::R6Class(
       if ("repo" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
         orgs <- graphql_engine$set_owner_type(
-          owners = names(private$orgs_repos)
+          owners = names(private$orgs_repos),
+          verbose = verbose
         )
         issues_table <- purrr::map(orgs, function(org) {
           issues_table_org <- NULL
@@ -1390,7 +1402,8 @@ GitHost <- R6::R6Class(
       if ("repo" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
         orgs <- graphql_engine$set_owner_type(
-          owners = names(private$orgs_repos)
+          owners = names(private$orgs_repos),
+          verbose = verbose
         )
         files_table <- purrr::map(orgs, function(org) {
           if (verbose) {
@@ -1517,7 +1530,8 @@ GitHost <- R6::R6Class(
       if ("repo" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
         orgs <- graphql_engine$set_owner_type(
-          owners = names(private$orgs_repos)
+          owners = names(private$orgs_repos),
+          verbose = verbose
         )
         files_structure_list <- purrr::map(orgs, function(org) {
           if (verbose) {
@@ -1573,7 +1587,8 @@ GitHost <- R6::R6Class(
         )
       }
       files_table <- rest_engine$get_files(
-        files = file_path
+        file_paths = file_path,
+        verbose = verbose
       ) |>
         rest_engine$prepare_files_table() |>
         private$add_repo_api_url()
@@ -1601,8 +1616,9 @@ GitHost <- R6::R6Class(
           if (length(repos_names) > 0) {
             release_logs_table_org <- graphql_engine$get_release_logs_from_org(
               repos_names = repos_names,
-              org = org
-            ) %>%
+              org = org,
+              verbose = verbose
+            ) |>
               graphql_engine$prepare_releases_table(
                 org = org,
                 since = since,
@@ -1626,7 +1642,8 @@ GitHost <- R6::R6Class(
       if ("repo" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
         orgs <- graphql_engine$set_owner_type(
-          owners = names(private$orgs_repos)
+          owners = names(private$orgs_repos),
+          verbose = verbose
         )
         release_logs_table <- purrr::map(orgs, function(org) {
           org <- utils::URLdecode(org)
@@ -1641,8 +1658,9 @@ GitHost <- R6::R6Class(
           }
           release_logs_table_org <- graphql_engine$get_release_logs_from_org(
             repos_names = private$orgs_repos[[org]],
-            org = org
-          ) %>%
+            org = org,
+            verbose = verbose
+          ) |>
             graphql_engine$prepare_releases_table(
               org = org,
               since = since,

@@ -702,6 +702,8 @@ github_search_item <- list(
   "score" = 1
 )
 
+test_fixtures$github_file_rest_response <- github_search_item
+
 test_fixtures$github_search_response <- list(
   "total_count" = 250,
   "incomplete_results" = FALSE,
@@ -1050,4 +1052,16 @@ test_fixtures$github_org_login <- list(
       "login" = "test_org"
     )
   )
+)
+
+test_fixtures$gitlab_file_rest_response <- list(
+  "file_name" = "test.R",
+  "file_path" = "test.R",
+  "size" = 19L,
+  "encoding" = "base64",
+  "content" = "test content",
+  "ref" = "main",
+  "blob_id" = "1a2b3c",
+  "commit_id" = "e5f6d7",
+  "last_commit_id" = "e5f6d7"
 )

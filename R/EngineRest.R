@@ -28,8 +28,13 @@ EngineRest <- R6::R6Class("EngineRest",
     #' @param token A token.
     #' @return A content of response formatted to list.
     response = function(endpoint,
-                        token = private$token) {
-      resp <- self$perform_request(endpoint, token)
+                        token = private$token,
+                        verbose) {
+      resp <- self$perform_request(
+        endpoint = endpoint,
+        token = token,
+        verbose = verbose
+      )
       if (!is.null(resp)) {
         result <- resp %>% httr2::resp_body_json(check_type = FALSE)
       } else {
@@ -42,17 +47,17 @@ EngineRest <- R6::R6Class("EngineRest",
     # @param endpoint An API endpoint.
     # @param token An API token.
     # @returns A request.
-    perform_request = function(endpoint, token) {
+    perform_request = function(endpoint, token, verbose) {
       resp <- NULL
       resp <- httr2::request(endpoint) %>%
         httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
         httr2::req_error(is_error = function(resp) FALSE) %>%
         httr2::req_perform()
-      if (resp$status_code == 401) {
-        message("HTTP 401 Unauthorized.")
+      if (resp$status_code == 401 && verbose) {
+        cli::cli_alert_danger("HTTP 401 Unauthorized.")
       }
-      if (resp$status_code == 404) {
-        message("HTTP 404 Not Found.")
+      if (resp$status_code == 404 && verbose) {
+        cli::cli_alert_danger("HTTP 404 Not Found.")
       }
       if (resp$status_code %in% c(400, 500, 403)) {
         resp <- httr2::request(endpoint) %>%
@@ -70,8 +75,11 @@ EngineRest <- R6::R6Class("EngineRest",
   private = list(
 
     # Paginate contributors and parse response into character vector
-    get_contributors_from_repo = function(contributors_endpoint, user_name) {
-      contributors_response <- private$paginate_results(contributors_endpoint)
+    get_contributors_from_repo = function(contributors_endpoint, user_name, verbose) {
+      contributors_response <- private$paginate_results(
+        endpoint = contributors_endpoint,
+        verbose = verbose
+      )
       contributors_vec <- contributors_response %>%
         purrr::map_chr(~ eval(user_name)) %>%
         paste0(collapse = ", ")
@@ -79,13 +87,14 @@ EngineRest <- R6::R6Class("EngineRest",
     },
 
     # Helper
-    paginate_results = function(endpoint, joining_sign = "?") {
+    paginate_results = function(endpoint, joining_sign = "?", verbose = TRUE) {
       full_response <- list()
       page <- 1
       repeat {
         endpoint_with_pagination <- paste0(endpoint, joining_sign, "per_page=100&page=", page)
         response_page <- self$response(
-          endpoint = endpoint_with_pagination
+          endpoint = endpoint_with_pagination,
+          verbose = verbose
         )
         if (length(response_page) > 0) {
           full_response <- append(full_response, response_page)

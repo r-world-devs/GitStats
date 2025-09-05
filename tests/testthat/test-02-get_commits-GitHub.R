@@ -24,6 +24,24 @@ test_that("`get_commits_page_from_repo()` pulls commits page from repository", {
   test_mocker$cache(commits_page)
 })
 
+test_that("`get_commits_page_from_repo()` runs for the second time when fails with error", {
+  error_response <- ""
+  class(error_response) <- "graphql_error"
+  mockery::stub(
+    test_graphql_github_priv$get_commits_page_from_repo,
+    "self$gql_response",
+    error_response
+  )
+  expect_no_error(
+    commits_page <- test_graphql_github_priv$get_commits_page_from_repo(
+      org = "r-world-devs",
+      repo = "GitStats",
+      since = "2023-01-01",
+      until = "2023-02-28"
+    )
+  )
+})
+
 test_that("`get_commits_from_one_repo()` prepares formatted list", {
   mockery::stub(
     test_graphql_github_priv$get_commits_from_one_repo,
@@ -43,19 +61,18 @@ test_that("`get_commits_from_one_repo()` prepares formatted list", {
 })
 
 test_that("`get_commits_from_one_repo()` handles 502 error and returns empty list", {
-  bad_gateway_error <- function() stop("502 Bad Gateway")
+  bad_gateway_error <- "502 Bad Gateway Error"
+  class(bad_gateway_error) <- c("graphql_error", class(bad_gateway_error))
   mockery::stub(
     test_graphql_github_priv$get_commits_from_one_repo,
     "private$get_commits_page_from_repo",
     bad_gateway_error
   )
-  expect_snapshot(
-    commits_from_repo <- test_graphql_github_priv$get_commits_from_one_repo(
-      org = "r-world-devs",
-      repo = "GitStats",
-      since = "2023-01-01",
-      until = "2023-02-28"
-    )
+  commits_from_repo <- test_graphql_github_priv$get_commits_from_one_repo(
+    org = "r-world-devs",
+    repo = "GitStats",
+    since = "2023-01-01",
+    until = "2023-02-28"
   )
   expect_equal(
     commits_from_repo,
@@ -70,10 +87,10 @@ test_that("`get_commits_from_repos()` pulls commits from repos", {
     test_mocker$use("commits_from_repo")
   )
   commits_from_repos <- test_graphql_github$get_commits_from_repos(
-    org      = "r-world-devs",
-    repo     = "GitStats",
-    since    = "2023-01-01",
-    until    = "2023-02-28",
+    org = "r-world-devs",
+    repo = "GitStats",
+    since = "2023-01-01",
+    until = "2023-02-28",
     progress = FALSE
   )
   expect_gh_commit_gql_response(

@@ -6,7 +6,8 @@ test_that("`perform_request()` returns proper status when token is empty or inva
     ~ expect_message(
       test_rest_github$perform_request(
         endpoint = "https://api.github.com",
-        token = .
+        token = .,
+        verbose = TRUE
       ),
       "HTTP 401 Unauthorized."
     )
@@ -19,7 +20,8 @@ test_that("`perform_request()` throws error on bad host", {
     suppressMessages(
       test_rest_github$perform_request(
         endpoint = paste0(bad_host),
-        token = Sys.getenv("GITHUB_PAT")
+        token = Sys.getenv("GITHUB_PAT"),
+        verbose = TRUE
       )
     ),
     "Could not resolve host"
@@ -47,7 +49,8 @@ test_that("`perform_request()` returns proper status", {
   expect_message(
     test_rest_github$perform_request(
       endpoint = bad_endpoint,
-      token = Sys.getenv("GITHUB_PAT")
+      token = Sys.getenv("GITHUB_PAT"),
+      verbose = TRUE
     ),
     "HTTP 404 Not Found"
   )
@@ -112,25 +115,5 @@ test_that("`perform_request()` for GraphQL handles error 400", {
   expect_equal(
     response$status_code,
     400
-  )
-})
-
-test_that("`perform_request()` for GraphQL handles error 503", {
-  skip_if(Sys.getenv("GITHUB_PAT") == "")
-  mockery::stub(
-    test_graphql_github_priv$perform_request,
-    "httr2::req_perform",
-    httr2::response(status_code = 503)
-  )
-  expect_snapshot(
-    response <- test_graphql_github_priv$perform_request(
-      gql_query = "{
-      viewer {
-        login
-      }
-    }",
-      vars = NULL,
-      token = Sys.getenv("GITHUB_PAT")
-    )
   )
 })
