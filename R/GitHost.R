@@ -1125,7 +1125,7 @@ GitHost <- R6::R6Class(
       if (length(search_response) > 0) {
         repos_ids <- private$get_repos_ids(search_response)
         api_engine <- private$engines$graphql
-        if (verbose) cli::cli_alert_info("Parsing search response with GraphQL...")
+        if (verbose) cli::cli_alert("Parsing search response with GraphQL...")
         if (!is.null(org)) {
           owner_type <- attr(org, "type") %||% "organization"
           repos_from_org <- api_engine$get_repos_from_org(
