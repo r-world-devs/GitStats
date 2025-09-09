@@ -26,7 +26,7 @@
         search_response = test_mocker$use("gh_search_repos_for_code"), org = gh_org,
         output = "raw", verbose = TRUE)
     Message
-      i Parsing search response with GraphQL...
+      > Parsing search response with GraphQL...
 
 # parse_search_response turns to REST when first attempt returns error
 
@@ -35,7 +35,7 @@
         search_response = test_mocker$use("gh_search_repos_for_code"), org = gh_org,
         output = "raw", verbose = TRUE)
     Message
-      i Parsing search response with GraphQL...
+      > Parsing search response with GraphQL...
       i Switching to REST API... it may take longer 🕓
 
 # `get_repos_with_code_from_orgs()` pulls raw response
