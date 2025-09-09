@@ -231,10 +231,11 @@ EngineRestGitLab <- R6::R6Class(
       full_repos_list <- list()
       search_endpoint <- private$set_search_endpoint(org, verbose)
       if (verbose) cli::cli_alert("Searching for code [{code}]...")
-      if (!in_path) {
-        query <- paste0("%22", code, "%22")
-      } else {
+      code <- utils::URLencode(code, reserved = TRUE)
+      if (in_path) {
         query <- paste0("path:", code)
+      } else {
+        query <- code
       }
       if (!is.null(filename)) {
         query <- paste0(query, "%20filename:", filename)
@@ -281,10 +282,11 @@ EngineRestGitLab <- R6::R6Class(
                                      page_max = 1e6,
                                      verbose = TRUE) {
       if (verbose) cli::cli_alert("Searching for code [{code}]...")
-      if (!in_path) {
-        query <- paste0("%22", code, "%22")
-      } else {
+      code <- utils::URLencode(code, reserved = TRUE)
+      if (in_path) {
         query <- paste0("path:", code)
+      } else {
+        query <- code
       }
       if (!is.null(filename)) {
         query <- paste0(query, "%20filename:", filename)
