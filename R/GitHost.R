@@ -1145,8 +1145,8 @@ GitHost <- R6::R6Class(
               })
           } else {
             api_engine <- private$engines$rest
-            repos_from_org <- api_engine$get_repos_from_org(org = org)
             if (verbose) cli::cli_alert_info("Switching to REST API... it may take longer \U1F553")
+            repos_from_org <- api_engine$get_repos_from_org(org = org)
             repos_response <- repos_from_org |>
               purrr::keep(function(repo) {
                 any(purrr::map_lgl(repos_ids, ~ grepl(., repo$id)))
