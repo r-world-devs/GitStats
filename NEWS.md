@@ -6,6 +6,7 @@
 - Introduced new `repo_fullpath` column, which replaced `fullname` in output of `get_repos()`. The `fullname` column was flawed in case of GitLab repositories as it was created out of repository `name` with `organization`. In case of GitLab repository `name` (which is more of a user friendly label) differs from repository `path` (which is in the `URL`), unlike in GitHub where repository `name` is repository `path` ([#659](https://github.com/r-world-devs/GitStats/issues/659)). `repo_name` column for GitLab repositories now mirrors repository `path`.
 - Handled `GraphQL Internal Server Error` with switching to `REST API` when parsing search response to repositories output ([#666](https://github.com/r-world-devs/GitStats/issues/666)).
 - Enhanced `verbose` role to control displaying of response error statuses ([#669](https://github.com/r-world-devs/GitStats/issues/669)).
+- Improved code for searching code blobs, so `get_repos()` does not fail when user passes text, e.g. with spaces to the `with_code` parameter ([#673](https://github.com/r-world-devs/GitStats/issues/673)).
 
 # GitStats 2.3.5
 

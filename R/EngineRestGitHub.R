@@ -56,7 +56,7 @@ EngineRestGitHub <- R6::R6Class(
                                in_path = FALSE,
                                language = NULL,
                                verbose = TRUE) {
-      query <- paste0('"', code, '"')
+      query <- utils::URLencode(code)
       if (in_path) {
         query <- paste0(query, '+in:path')
       }
@@ -95,7 +95,7 @@ EngineRestGitHub <- R6::R6Class(
                                      verbose = TRUE) {
       if (verbose) cli::cli_alert("Searching for code [{code}]...")
       search_result <- purrr::map(repos, function(repo) {
-        query <- paste0('"', code, '"+repo:', repo)
+        query <- paste0(utils::URLencode(code), '+repo:', repo)
         if (in_path) {
           query <- paste0(query, '+in:path')
         }
