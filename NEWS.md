@@ -7,6 +7,7 @@
 - Handled `GraphQL Internal Server Error` with switching to `REST API` when parsing search response to repositories output ([#666](https://github.com/r-world-devs/GitStats/issues/666)).
 - Enhanced `verbose` role to control displaying of response error statuses ([#669](https://github.com/r-world-devs/GitStats/issues/669)).
 - Improved code for searching code blobs, so `get_repos()` does not fail when user passes text, e.g. with spaces to the `with_code` parameter ([#673](https://github.com/r-world-devs/GitStats/issues/673)).
+- Standardized `repo_id` column in `get_repos()` and `get_files()` outputs for GitLab hosts - it consists now only of digits formatted as a `character` ([#675](https://github.com/r-world-devs/GitStats/issues/675)).
 
 # GitStats 2.3.5
 
