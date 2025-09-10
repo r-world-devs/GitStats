@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.5.9007</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.5.9008</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,6 +46,7 @@
 <li>Introduced new <code>repo_fullpath</code> column, which replaced <code>fullname</code> in output of <code><a href="../reference/get_repos.html">get_repos()</a></code>. The <code>fullname</code> column was flawed in case of GitLab repositories as it was created out of repository <code>name</code> with <code>organization</code>. In case of GitLab repository <code>name</code> (which is more of a user friendly label) differs from repository <code>path</code> (which is in the <code>URL</code>), unlike in GitHub where repository <code>name</code> is repository <code>path</code> (<a href="https://github.com/r-world-devs/GitStats/issues/659" class="external-link">#659</a>). <code>repo_name</code> column for GitLab repositories now mirrors repository <code>path</code>.</li>
 <li>Handled <code>GraphQL Internal Server Error</code> with switching to <code>REST API</code> when parsing search response to repositories output (<a href="https://github.com/r-world-devs/GitStats/issues/666" class="external-link">#666</a>).</li>
 <li>Enhanced <code>verbose</code> role to control displaying of response error statuses (<a href="https://github.com/r-world-devs/GitStats/issues/669" class="external-link">#669</a>).</li>
+<li>Improved code for searching code blobs, so <code><a href="../reference/get_repos.html">get_repos()</a></code> does not fail when user passes text, e.g. with spaces to the <code>with_code</code> parameter (<a href="https://github.com/r-world-devs/GitStats/issues/673" class="external-link">#673</a>).</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.3.5" id="gitstats-235">GitStats 2.3.5<a class="anchor" aria-label="anchor" href="#gitstats-235"></a></h2><p class="text-muted">CRAN release: 2025-08-18</p>
