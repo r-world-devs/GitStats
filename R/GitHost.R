@@ -1126,38 +1126,10 @@ GitHost <- R6::R6Class(
         repos_ids <- private$get_repos_ids(search_response)
         api_engine <- private$engines$graphql
         if (verbose) cli::cli_alert("Parsing search response with GraphQL...")
-        if (!is.null(org)) {
-          owner_type <- attr(org, "type") %||% "organization"
-          repos_from_org <- api_engine$get_repos_from_org(
-            org = org,
-            owner_type = owner_type,
-            verbose = verbose
-          )
-          if (!inherits(repos_from_org, "graphql_error")) {
-            repos_response <- repos_from_org |>
-              purrr::keep(function(repo) {
-                if (is.null(repo$node)) {
-                  repo_node <- repo
-                } else {
-                  repo_node <- repo$node
-                }
-                any(purrr::map_lgl(repos_ids, ~ grepl(., repo_node$repo_id)))
-              })
-          } else {
-            api_engine <- private$engines$rest
-            if (verbose) cli::cli_alert_info("Switching to REST API... it may take longer \U1F553")
-            repos_from_org <- api_engine$get_repos_from_org(org = org)
-            repos_response <- repos_from_org |>
-              purrr::keep(function(repo) {
-                any(purrr::map_lgl(repos_ids, ~ grepl(., repo$id)))
-              })
-          }
-        } else {
-          repos_response <- api_engine$get_repos(
-            repos_ids = repos_ids,
-            verbose = verbose
-          )
-        }
+        repos_response <- api_engine$get_repos(
+          repos_ids = repos_ids,
+          verbose = verbose
+        )
         if (output != "raw") {
           repos_output <- repos_response |>
             api_engine$prepare_repos_table(
@@ -1678,8 +1650,10 @@ GitHost <- R6::R6Class(
     },
 
     filter_repos_table_by_language = function(repos_table, language_filter) {
-      repos_table |>
-        dplyr::filter(grepl(paste0("\\b", language_filter, "\\b"), languages))
+      if (!is.null(repos_table)) {
+        repos_table |>
+          dplyr::filter(grepl(paste0("\\b", language_filter, "\\b"), languages))
+      }
     }
   )
 )
