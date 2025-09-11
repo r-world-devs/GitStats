@@ -714,3 +714,12 @@ test_that("filtering by language works", {
     nrow(filtered_repos)
   )
 })
+
+test_that("filtering by language does not fail when NULL is passed as input", {
+  expect_no_error({
+    filtered_repos <- github_testhost_priv$filter_repos_table_by_language(
+      repos_table = NULL,
+      language_filter = "R"
+    )
+  })
+})
