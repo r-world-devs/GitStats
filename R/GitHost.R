@@ -1650,8 +1650,10 @@ GitHost <- R6::R6Class(
     },
 
     filter_repos_table_by_language = function(repos_table, language_filter) {
-      repos_table |>
-        dplyr::filter(grepl(paste0("\\b", language_filter, "\\b"), languages))
+      if (!is.null(repos_table)) {
+        repos_table |>
+          dplyr::filter(grepl(paste0("\\b", language_filter, "\\b"), languages))
+      }
     }
   )
 )
