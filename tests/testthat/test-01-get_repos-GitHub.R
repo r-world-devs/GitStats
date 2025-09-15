@@ -401,22 +401,6 @@ test_that("`get_repos_with_code_from_repos()` works", {
 test_that("`get_repos_with_code_from_host()` pulls raw response", {
   mockery::stub(
     github_testhost_priv$get_repos_with_code_from_host,
-    "rest_engine$search_repos_for_code",
-    test_mocker$use("gh_search_repos_for_code")
-  )
-  expect_snapshot(
-    repos_with_code_from_host_raw <- github_testhost_priv$get_repos_with_code_from_host(
-      code = "shiny",
-      in_files = c("DESCRIPTION", "NAMESPACE"),
-      output = "raw",
-      verbose = TRUE
-    )
-  )
-})
-
-test_that("`get_repos_with_code_from_host()` pulls raw response", {
-  mockery::stub(
-    github_testhost_priv$get_repos_with_code_from_host,
     "rest_engine$search_for_code",
     test_mocker$use("gh_search_repos_for_code")
   )
