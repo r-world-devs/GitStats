@@ -1,4 +1,6 @@
-# GitStats (development version)
+# GitStats 2.3.6
+
+A minor release with some substantial performance improvements on searching repositories by code, new features like filtering repositories data by languages and adding new columns in `get_repos()` and `get_files()` output.
 
 - Added `commit_sha` column to `get_repos()` and `get_files()` outputs ([#546](https://github.com/r-world-devs/GitStats/issues/546)).
 - Fixed `depth` parameter in `get_files()` - previously `0` and `1` value returned same output, i.e. files from `root`. Now it works the way as explained in function documentation - value `0` returns files from the `root` and value `1` goes 1 level deeper ([#663](https://github.com/r-world-devs/GitStats/issues/663)).
