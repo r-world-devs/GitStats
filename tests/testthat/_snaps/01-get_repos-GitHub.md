@@ -28,16 +28,6 @@
     Message
       > Parsing search response with GraphQL...
 
-# parse_search_response turns to REST when first attempt returns error
-
-    Code
-      gh_repos_by_code_table <- github_testhost_priv$parse_search_response(
-        search_response = test_mocker$use("gh_search_repos_for_code"), org = gh_org,
-        output = "raw", verbose = TRUE)
-    Message
-      > Parsing search response with GraphQL...
-      i Switching to REST API... it may take longer 🕓
-
 # `get_repos_with_code_from_orgs()` pulls raw response
 
     Code
@@ -63,19 +53,6 @@
         get_repos_with_code_from_repos(code = "tests", output = "table", verbose = TRUE)
     Message
       > [Host:GitHub][Engine:REST][Scope:] Pulling repositories...
-
-# `get_repos_with_code_from_host()` pulls raw response
-
-    Code
-      repos_with_code_from_host_raw <- github_testhost_priv$
-        get_repos_with_code_from_host(code = "shiny", in_files = c("DESCRIPTION",
-        "NAMESPACE"), output = "raw", verbose = TRUE)
-    Message
-      > [Host:GitHub][Engine:REST] Pulling repositories...
-      > Searching for code [shiny]...
-      x HTTP 401 Unauthorized.
-      > Searching for code [shiny]...
-      x HTTP 401 Unauthorized.
 
 # get_repos_from_repos works
 
