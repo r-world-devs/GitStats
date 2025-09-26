@@ -1477,8 +1477,7 @@ GitHost <- R6::R6Class(
             owner_type = owner_type,
             pattern = pattern,
             depth = depth,
-            verbose = verbose,
-            progress = FALSE
+            verbose = verbose
           )
         }, .progress = set_progress_bar(progress, private))
         names(files_structure_list) <- private$orgs
@@ -1528,8 +1527,7 @@ GitHost <- R6::R6Class(
             repos = private$repos,
             pattern = pattern,
             depth = depth,
-            verbose = verbose,
-            progress = FALSE
+            verbose = verbose
           )
         }, .progress = set_progress_bar(progress, private))
         names(files_structure_list) <- orgs
