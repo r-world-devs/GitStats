@@ -23,9 +23,8 @@ test_that("`get_commits_from_repos()` pulls commits from repositories", {
   repos_names <- c("test_org/TestRepo1", "test_org/TestRepo2")
   gl_commits_org <- test_rest_gitlab$get_commits_from_repos(
     repos_names = repos_names,
-    since       = "2023-01-01",
-    until       = "2023-04-20",
-    progress    = FALSE
+    since = "2023-01-01",
+    until = "2023-04-20"
   )
   expect_equal(names(gl_commits_org), c("test_org/TestRepo1", "test_org/TestRepo2"))
   purrr::walk(gl_commits_org[[1]], ~ expect_gl_commit_rest_response(.))
@@ -111,8 +110,7 @@ test_that("get_authors_dict() prepares dictionary with handles and names", {
     test_fixtures$gitlab_user_search_response
   )
   authors_dict <- test_rest_gitlab_priv$get_authors_dict(
-    commits_table = test_mocker$use("gl_commits_table"),
-    progress = FALSE
+    commits_table = test_mocker$use("gl_commits_table")
   )
   expect_s3_class(authors_dict, "data.frame")
   expect_true(nrow(authors_dict) > 0)

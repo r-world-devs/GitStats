@@ -90,8 +90,7 @@ test_that("`get_commits_from_repos()` pulls commits from repos", {
     org = "r-world-devs",
     repo = "GitStats",
     since = "2023-01-01",
-    until = "2023-02-28",
-    progress = FALSE
+    until = "2023-02-28"
   )
   expect_gh_commit_gql_response(
     commits_from_repos[[1]][[1]]

@@ -217,8 +217,7 @@ EngineGraphQLGitHub <- R6::R6Class(
                                       repos_names,
                                       since,
                                       until,
-                                      verbose = TRUE,
-                                      progress) {
+                                      verbose) {
       repos_list_with_commits <- purrr::map(repos_names, function(repo) {
         private$get_commits_from_one_repo(
           org   = org,
@@ -227,9 +226,9 @@ EngineGraphQLGitHub <- R6::R6Class(
           until = until,
           verbose = verbose
         )
-      }, .progress = !private$scan_all && progress)
+      })
       names(repos_list_with_commits) <- repos_names
-      repos_list_with_commits <- repos_list_with_commits %>%
+      repos_list_with_commits <- repos_list_with_commits |>
         purrr::discard(~ length(.) == 0)
       return(repos_list_with_commits)
     },

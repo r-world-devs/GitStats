@@ -152,8 +152,8 @@ GitHost <- R6::R6Class(
 
     #' Pull commits method
     get_commits = function(since,
-                           until    = Sys.Date(),
-                           verbose  = TRUE,
+                           until = Sys.Date(),
+                           verbose = TRUE,
                            progress = TRUE) {
       if (private$scan_all && is.null(private$orgs)) {
         private$orgs <- private$get_orgs_from_host(
