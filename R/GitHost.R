@@ -152,7 +152,7 @@ GitHost <- R6::R6Class(
 
     #' Pull commits method
     get_commits = function(since,
-                           until = Sys.Date(),
+                           until,
                            verbose = TRUE,
                            progress = TRUE) {
       if (private$scan_all && is.null(private$orgs)) {
@@ -1598,11 +1598,7 @@ GitHost <- R6::R6Class(
             releases_logs_table_org <- NULL
           }
           return(release_logs_table_org)
-        }, .progress = if (progress) {
-          glue::glue("[GitHost:{private$host_name}] Pulling release logs...")
-        } else {
-          FALSE
-        }) %>%
+        }, .progress = set_progress_bar(progress, private)) |>
           purrr::list_rbind()
         return(release_logs_table)
       }
@@ -1637,11 +1633,7 @@ GitHost <- R6::R6Class(
               until = until
             )
           return(release_logs_table_org)
-        }, .progress = if (progress) {
-          glue::glue("[GitHost:{private$host_name}] Pulling release logs...")
-        } else {
-          FALSE
-        }) %>%
+        }, .progress = set_progress_bar(progress, private)) |>
           purrr::list_rbind()
         return(release_logs_table)
       }
