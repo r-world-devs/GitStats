@@ -67,3 +67,11 @@ is_login <- function(author) {
 get_gitlab_repo_id <- function(gitlab_repo_id) {
   sub(".*/(\\d+)$", "\\1", gitlab_repo_id)
 }
+
+set_progress_bar <- function(progress, private) {
+  if (progress) {
+    glue::glue("{private$host_name}")
+  } else {
+    FALSE
+  }
+}

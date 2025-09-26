@@ -1,3 +1,5 @@
+# GitStats (development version)
+
 # GitStats 2.3.6
 
 A minor release with some substantial performance improvements on searching repositories by code, new features like filtering repositories data by languages and adding new columns in `get_repos()` and `get_files()` output.

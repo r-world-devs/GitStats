@@ -69,6 +69,7 @@ test_that("get_files_structure_from_repo returns list with files and dirs vector
   files_structure <- test_graphql_github_priv$get_files_structure_from_repo(
     org = gh_org,
     repo = gh_repo,
+    pattern = NULL,
     def_branch = "master"
   )
   expect_type(
@@ -91,12 +92,14 @@ test_that("get_files_structure_from_repo returns list of files up to 2 tier of d
   files_structure_very_shallow <- test_graphql_github_priv$get_files_structure_from_repo(
     org = gh_org,
     repo = gh_repo,
+    pattern = NULL,
     def_branch = "master",
     depth = 1L
   )
   files_structure_shallow <- test_graphql_github_priv$get_files_structure_from_repo(
     org = gh_org,
     repo = gh_repo,
+    pattern = NULL,
     def_branch = "master",
     depth = 2L
   )

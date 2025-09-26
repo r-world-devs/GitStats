@@ -152,8 +152,8 @@ GitHost <- R6::R6Class(
 
     #' Pull commits method
     get_commits = function(since,
-                           until    = Sys.Date(),
-                           verbose  = TRUE,
+                           until = Sys.Date(),
+                           verbose = TRUE,
                            progress = TRUE) {
       if (private$scan_all && is.null(private$orgs)) {
         private$orgs <- private$get_orgs_from_host(
@@ -1355,12 +1355,12 @@ GitHost <- R6::R6Class(
             repos = NULL,
             file_paths = file_path,
             verbose = verbose,
-            progress = progress
+            progress = FALSE
           ) |>
             graphql_engine$prepare_files_table(
               org = org
             )
-        }) |>
+        }, .progress = set_progress_bar(progress, private)) |>
           purrr::list_rbind() |>
           private$add_repo_api_url()
         return(files_table)
@@ -1393,12 +1393,12 @@ GitHost <- R6::R6Class(
             repos = private$orgs_repos[[org]],
             file_paths = file_path,
             verbose = verbose,
-            progress = progress
+            progress = FALSE
           ) |>
             graphql_engine$prepare_files_table(
               org = org
             )
-        }) |>
+        }, .progress = set_progress_bar(progress, private)) |>
           purrr::list_rbind() |>
           private$add_repo_api_url()
         return(files_table)
@@ -1430,12 +1430,12 @@ GitHost <- R6::R6Class(
           repos = repos,
           host_files_structure = files_structure,
           verbose = verbose,
-          progress = progress
+          progress = FALSE
         ) |>
           graphql_engine$prepare_files_table(
             org = org
           )
-      }) |>
+      }, .progress = set_progress_bar(progress, private)) |>
         purrr::list_rbind() |>
         private$add_repo_api_url()
       return(files_table)
@@ -1477,10 +1477,9 @@ GitHost <- R6::R6Class(
             owner_type = owner_type,
             pattern = pattern,
             depth = depth,
-            verbose = verbose,
-            progress = progress
+            verbose = verbose
           )
-        })
+        }, .progress = set_progress_bar(progress, private))
         names(files_structure_list) <- private$orgs
         files_structure_list <- files_structure_list %>%
           purrr::discard(~ length(.) == 0)
@@ -1528,10 +1527,9 @@ GitHost <- R6::R6Class(
             repos = private$repos,
             pattern = pattern,
             depth = depth,
-            verbose = verbose,
-            progress = progress
+            verbose = verbose
           )
-        })
+        }, .progress = set_progress_bar(progress, private))
         names(files_structure_list) <- orgs
         files_structure_list <- files_structure_list %>%
           purrr::discard(~ length(.) == 0)

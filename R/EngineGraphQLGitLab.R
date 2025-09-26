@@ -476,11 +476,10 @@ EngineGraphQLGitLab <- R6::R6Class(
 
     get_files_structure_from_org = function(org,
                                             owner_type,
-                                            repos = NULL,
-                                            pattern = NULL,
-                                            depth = Inf,
-                                            verbose = TRUE,
-                                            progress = TRUE) {
+                                            repos,
+                                            pattern,
+                                            depth,
+                                            verbose) {
       if (is.null(repos)) {
         repo_data <- private$get_repos_data(
           org = org,
@@ -497,7 +496,7 @@ EngineGraphQLGitLab <- R6::R6Class(
           depth = depth,
           verbose = verbose
         )
-      }, .progress = progress)
+      })
       names(files_structure) <- repos
       files_structure <- purrr::discard(files_structure, ~ length(.) == 0)
       return(files_structure)
@@ -701,7 +700,7 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(response)
     },
 
-    get_files_tree_response = function(org, repo, file_path, verbose = TRUE) {
+    get_files_tree_response = function(org, repo, file_path, verbose) {
       files_tree_response <- self$gql_response(
         gql_query = self$gql_query$files_tree_from_repo(),
         vars = list(
@@ -715,14 +714,14 @@ EngineGraphQLGitLab <- R6::R6Class(
 
     get_files_structure_from_repo = function(org,
                                              repo,
-                                             pattern = NULL,
-                                             depth = Inf,
-                                             verbose = TRUE) {
+                                             pattern,
+                                             depth,
+                                             verbose) {
       files_tree_response <- private$get_files_tree_response(
         org = org,
         repo = repo,
         file_path = "",
-        verbose = vebose
+        verbose = verbose
       )
       files_and_dirs_list <- private$get_files_and_dirs(
         files_tree_response = files_tree_response

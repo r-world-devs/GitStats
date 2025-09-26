@@ -62,7 +62,8 @@ test_that("get_files_structure_from_repo() pulls files structure from repo", {
   }
   gl_files_structure <- test_graphql_gitlab_priv$get_files_structure_from_repo(
     org = "mbtests",
-    repo = "graphql_tests"
+    repo = "graphql_tests",
+    pattern = NULL
   )
   expect_type(
     gl_files_structure,
@@ -146,8 +147,7 @@ test_that("GitLab GraphQL Engine pulls files structure from repositories", {
     org = "mbtests",
     repos = gl_repos,
     owner_type = "organization",
-    verbose  = FALSE,
-    progress = FALSE
+    verbose  = FALSE
   )
   purrr::walk(gl_files_structure, ~ expect_true(length(.) > 0))
   expect_equal(
@@ -179,8 +179,7 @@ test_that("GitLab GraphQL Engine pulls files structure from repositories when re
     pattern = "\\.md",
     owner_type = "organization",
     depth = 1L,
-    verbose = FALSE,
-    progress = FALSE
+    verbose = FALSE
   )
   purrr::walk(gl_files_structure_shallow, ~ expect_true(length(.) > 0))
   expect_equal(
