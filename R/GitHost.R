@@ -1279,18 +1279,13 @@ GitHost <- R6::R6Class(
           issues_table_org <- graphql_engine$get_issues_from_repos(
             org = org,
             repos_names = repos_names,
-            verbose = verbose,
-            progress = progress
+            verbose = verbose
           ) |>
             graphql_engine$prepare_issues_table(
               org = org
             )
           return(issues_table_org)
-        }, .progress = if (private$scan_all && progress) {
-          "[GitHost:GitHub] Pulling issues..."
-        } else {
-          FALSE
-        }) |>
+        }, .progress = set_progress_bar(progress, private)) |>
           purrr::list_rbind()
         return(issues_table)
       }
@@ -1317,17 +1312,13 @@ GitHost <- R6::R6Class(
           issues_table_org <- graphql_engine$get_issues_from_repos(
             org = org,
             repos_names = private$orgs_repos[[org]],
-            progress = progress
+            verbose = verbose
           ) |>
             graphql_engine$prepare_issues_table(
               org = org
             )
           return(issues_table_org)
-        }, .progress = if (private$scan_all && progress) {
-          "[GitHost:GitHub] Pulling issues..."
-        } else {
-          FALSE
-        }) %>%
+        }, .progress = set_progress_bar(progress, private)) |>
           purrr::list_rbind()
         return(issues_table)
       }

@@ -85,8 +85,7 @@ test_that("`get_issues_from_repos()` pulls issues from repos", {
   }
   issues_from_repos <- test_graphql_github$get_issues_from_repos(
     org = "r-world-devs",
-    repo = c("GitStats", "GitAI"),
-    progress = FALSE
+    repo = c("GitStats", "GitAI")
   )
   expect_issues_full_list(
     issues_from_repos[[1]]

@@ -45,15 +45,14 @@ EngineGraphQL <- R6::R6Class(
     # Iterator over pulling issues from all repositories.
     get_issues_from_repos = function(org,
                                      repos_names,
-                                     verbose,
-                                     progress) {
+                                     verbose) {
       repos_list_with_issues <- purrr::map(repos_names, function(repo) {
         private$get_issues_from_one_repo(
           org = org,
           repo = repo,
           verbose = verbose
         )
-      }, .progress = !private$scan_all && progress)
+      })
       names(repos_list_with_issues) <- repos_names
       repos_list_with_issues <- repos_list_with_issues %>%
         purrr::discard(~ length(.) == 0)
