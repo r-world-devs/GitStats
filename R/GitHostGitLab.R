@@ -275,8 +275,9 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             org = org,
             verbose = verbose
           )
+          full_repos_encoded <- paste0(utils::URLencode(org, reserved = TRUE), "%2f", repos_names)
           commits_table_org <- rest_engine$get_commits_from_repos(
-            repos_names = paste0(org, "/", repos_names),
+            full_repos_names = full_repos_encoded,
             since = since,
             until = until,
             verbose = verbose
@@ -317,7 +318,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             )
           }
           commits_table_org <- rest_engine$get_commits_from_repos(
-            repos_names = repos_names,
+            full_repos_names = repos_names,
             since = since,
             until = until,
             verbose = verbose
@@ -338,12 +339,27 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     get_repos_names = function(org, verbose) {
       graphql_engine <- private$engines$graphql
       owner_type <- attr(org, "type") %||% "organization"
-      repos_names <- graphql_engine$get_repos_from_org(
+      repos_response <- graphql_engine$get_repos_from_org(
         org = utils::URLdecode(org),
         owner_type = owner_type,
         verbose = verbose
-      ) |>
-        purrr::map_vec(~ .$node$repo_path)
+      )
+      if (!inherits(repos_response, "graphql_error")) {
+        repos_names <- repos_response |>
+          purrr::map_vec(~ .$node$repo_path)
+      } else {
+        if (verbose) {
+          cli::cli_alert_info("Switching to REST API...")
+        }
+        rest_engine <- private$engines$rest
+        repos_response <- rest_engine$get_repos_from_org(
+          org = utils::URLencode(org, reserved = TRUE),
+          output = "raw",
+          verbose = verbose
+        )
+        repos_names <- repos_response |>
+          purrr::map_vec(~ .$path)
+      }
       return(repos_names)
     },
 
