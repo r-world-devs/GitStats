@@ -178,7 +178,10 @@ GitHostGitHub <- R6::R6Class(
     },
 
     # Pull commits from GitHub
-    get_commits_from_orgs = function(since, until, verbose, progress) {
+    get_commits_from_orgs = function(since,
+                                     until,
+                                     verbose,
+                                     progress) {
       if ("org" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
         commits_table <- purrr::map(private$orgs, function(org) {
@@ -199,25 +202,23 @@ GitHostGitHub <- R6::R6Class(
             org = org,
             repos_names = repos_names,
             since = since,
-            until = until,
-            progress = progress
-          ) %>%
+            until = until
+          ) |>
             graphql_engine$prepare_commits_table(
               org = org
             )
           return(commits_table_org)
-        }, .progress = if (private$scan_all && progress) {
-          "[GitHost:GitHub] Pulling commits..."
-        } else {
-          FALSE
-        }) %>%
+        }, .progress = set_progress_bar(progress, private)) |>
           purrr::list_rbind()
         return(commits_table)
       }
     },
 
     # Pull commits from GitHub
-    get_commits_from_repos = function(since, until, verbose, progress) {
+    get_commits_from_repos = function(since,
+                                      until,
+                                      verbose,
+                                      progress) {
       if ("repo" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
         orgs <- graphql_engine$set_owner_type(
@@ -238,18 +239,13 @@ GitHostGitHub <- R6::R6Class(
             org = org,
             repos_names = private$orgs_repos[[org]],
             since = since,
-            until = until,
-            progress = progress
-          ) %>%
+            until = until
+          ) |>
             graphql_engine$prepare_commits_table(
               org = org
             )
           return(commits_table_org)
-        }, .progress = if (private$scan_all && progress) {
-          "[GitHost:GitHub] Pulling commits..."
-        } else {
-          FALSE
-        }) %>%
+        }, .progress = set_progress_bar(progress, private)) |>
           purrr::list_rbind()
         return(commits_table)
       }

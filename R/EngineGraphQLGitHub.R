@@ -217,8 +217,7 @@ EngineGraphQLGitHub <- R6::R6Class(
                                       repos_names,
                                       since,
                                       until,
-                                      verbose = TRUE,
-                                      progress) {
+                                      verbose) {
       repos_list_with_commits <- purrr::map(repos_names, function(repo) {
         private$get_commits_from_one_repo(
           org   = org,
@@ -227,9 +226,9 @@ EngineGraphQLGitHub <- R6::R6Class(
           until = until,
           verbose = verbose
         )
-      }, .progress = !private$scan_all && progress)
+      })
       names(repos_list_with_commits) <- repos_names
-      repos_list_with_commits <- repos_list_with_commits %>%
+      repos_list_with_commits <- repos_list_with_commits |>
         purrr::discard(~ length(.) == 0)
       return(repos_list_with_commits)
     },
@@ -345,11 +344,10 @@ EngineGraphQLGitHub <- R6::R6Class(
     # Pull all files from all repositories of an organization.
     get_files_structure_from_org = function(org,
                                             owner_type,
-                                            repos = NULL,
-                                            pattern = NULL,
-                                            depth = Inf,
-                                            verbose = FALSE,
-                                            progress = TRUE) {
+                                            repos,
+                                            pattern,
+                                            depth,
+                                            verbose) {
       repo_data <- private$get_repos_data(
         org = org,
         owner_type = owner_type,
@@ -366,7 +364,7 @@ EngineGraphQLGitHub <- R6::R6Class(
           depth = depth,
           verbose = verbose
         )
-      }, .progress = progress)
+      })
       names(files_structure) <- repositories
       files_structure <- purrr::discard(files_structure, ~ length(.) == 0)
       return(files_structure)
@@ -679,9 +677,9 @@ EngineGraphQLGitHub <- R6::R6Class(
     get_files_structure_from_repo = function(org,
                                              repo,
                                              def_branch,
-                                             pattern = NULL,
-                                             depth = Inf,
-                                             verbose = TRUE) {
+                                             pattern,
+                                             depth,
+                                             verbose) {
       files_tree_response <- private$get_file_response(
         org = org,
         repo = repo,

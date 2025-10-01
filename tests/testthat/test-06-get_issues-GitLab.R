@@ -55,8 +55,7 @@ test_that("`get_issues_from_repos()` pulls issues from repos", {
   }
   issues_from_repos <- test_graphql_gitlab$get_issues_from_repos(
     org = "mbtests",
-    repo = c("gitstatstesting", "graphql_tests"),
-    progress = FALSE
+    repo = c("gitstatstesting", "graphql_tests")
   )
   expect_issues_full_list(
     issues_from_repos[[1]]

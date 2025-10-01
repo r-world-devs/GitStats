@@ -257,8 +257,8 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
 
     get_commits_from_orgs = function(since,
                                      until,
-                                     verbose = TRUE,
-                                     progress = verbose) {
+                                     verbose,
+                                     progress) {
       if ("org" %in% private$searching_scope) {
         rest_engine <- private$engines$rest
         commits_table <- purrr::map(private$orgs, function(org) {
@@ -279,21 +279,15 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             repos_names = paste0(org, "/", repos_names),
             since = since,
             until = until,
-            verbose = verbose,
-            progress = progress
+            verbose = verbose
           ) |>
             rest_engine$tailor_commits_info(org = org) |>
             rest_engine$prepare_commits_table() |>
             rest_engine$get_commits_authors_handles_and_names(
-              verbose = verbose,
-              progress = progress
+              verbose = verbose
             )
           return(commits_table_org)
-        }, .progress = if (private$scan_all && progress) {
-          "[GitHost:GitLab] Pulling commits..."
-        } else {
-          FALSE
-        }) %>%
+        }, .progress = set_progress_bar(progress, private)) |>
           purrr::list_rbind()
         return(commits_table)
       }
@@ -301,8 +295,8 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
 
     get_commits_from_repos = function(since,
                                       until,
-                                      verbose  = TRUE,
-                                      progress = verbose) {
+                                      verbose,
+                                      progress) {
       if ("repo" %in% private$searching_scope) {
         rest_engine <- private$engines$rest
         graphql_engine <- private$engines$graphql
@@ -326,21 +320,15 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             repos_names = repos_names,
             since = since,
             until = until,
-            verbose = verbose,
-            progress = progress
+            verbose = verbose
           ) |>
             rest_engine$tailor_commits_info(org = org) |>
             rest_engine$prepare_commits_table() |>
             rest_engine$get_commits_authors_handles_and_names(
-              verbose = verbose,
-              progress = progress
+              verbose = verbose
             )
           return(commits_table_org)
-        }, .progress = if (private$scan_all && progress) {
-          "[GitHost:GitLab] Pulling commits..."
-        } else {
-          FALSE
-        }) %>%
+        }, .progress = set_progress_bar(progress, private)) |>
           purrr::list_rbind()
         return(commits_table)
       }

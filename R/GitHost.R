@@ -152,8 +152,8 @@ GitHost <- R6::R6Class(
 
     #' Pull commits method
     get_commits = function(since,
-                           until    = Sys.Date(),
-                           verbose  = TRUE,
+                           until,
+                           verbose = TRUE,
                            progress = TRUE) {
       if (private$scan_all && is.null(private$orgs)) {
         private$orgs <- private$get_orgs_from_host(
@@ -1279,18 +1279,13 @@ GitHost <- R6::R6Class(
           issues_table_org <- graphql_engine$get_issues_from_repos(
             org = org,
             repos_names = repos_names,
-            verbose = verbose,
-            progress = progress
+            verbose = verbose
           ) |>
             graphql_engine$prepare_issues_table(
               org = org
             )
           return(issues_table_org)
-        }, .progress = if (private$scan_all && progress) {
-          "[GitHost:GitHub] Pulling issues..."
-        } else {
-          FALSE
-        }) |>
+        }, .progress = set_progress_bar(progress, private)) |>
           purrr::list_rbind()
         return(issues_table)
       }
@@ -1317,17 +1312,13 @@ GitHost <- R6::R6Class(
           issues_table_org <- graphql_engine$get_issues_from_repos(
             org = org,
             repos_names = private$orgs_repos[[org]],
-            progress = progress
+            verbose = verbose
           ) |>
             graphql_engine$prepare_issues_table(
               org = org
             )
           return(issues_table_org)
-        }, .progress = if (private$scan_all && progress) {
-          "[GitHost:GitHub] Pulling issues..."
-        } else {
-          FALSE
-        }) %>%
+        }, .progress = set_progress_bar(progress, private)) |>
           purrr::list_rbind()
         return(issues_table)
       }
@@ -1355,12 +1346,12 @@ GitHost <- R6::R6Class(
             repos = NULL,
             file_paths = file_path,
             verbose = verbose,
-            progress = progress
+            progress = FALSE
           ) |>
             graphql_engine$prepare_files_table(
               org = org
             )
-        }) |>
+        }, .progress = set_progress_bar(progress, private)) |>
           purrr::list_rbind() |>
           private$add_repo_api_url()
         return(files_table)
@@ -1393,12 +1384,12 @@ GitHost <- R6::R6Class(
             repos = private$orgs_repos[[org]],
             file_paths = file_path,
             verbose = verbose,
-            progress = progress
+            progress = FALSE
           ) |>
             graphql_engine$prepare_files_table(
               org = org
             )
-        }) |>
+        }, .progress = set_progress_bar(progress, private)) |>
           purrr::list_rbind() |>
           private$add_repo_api_url()
         return(files_table)
@@ -1430,12 +1421,12 @@ GitHost <- R6::R6Class(
           repos = repos,
           host_files_structure = files_structure,
           verbose = verbose,
-          progress = progress
+          progress = FALSE
         ) |>
           graphql_engine$prepare_files_table(
             org = org
           )
-      }) |>
+      }, .progress = set_progress_bar(progress, private)) |>
         purrr::list_rbind() |>
         private$add_repo_api_url()
       return(files_table)
@@ -1477,10 +1468,9 @@ GitHost <- R6::R6Class(
             owner_type = owner_type,
             pattern = pattern,
             depth = depth,
-            verbose = verbose,
-            progress = progress
+            verbose = verbose
           )
-        })
+        }, .progress = set_progress_bar(progress, private))
         names(files_structure_list) <- private$orgs
         files_structure_list <- files_structure_list %>%
           purrr::discard(~ length(.) == 0)
@@ -1528,10 +1518,9 @@ GitHost <- R6::R6Class(
             repos = private$repos,
             pattern = pattern,
             depth = depth,
-            verbose = verbose,
-            progress = progress
+            verbose = verbose
           )
-        })
+        }, .progress = set_progress_bar(progress, private))
         names(files_structure_list) <- orgs
         files_structure_list <- files_structure_list %>%
           purrr::discard(~ length(.) == 0)
@@ -1600,11 +1589,7 @@ GitHost <- R6::R6Class(
             releases_logs_table_org <- NULL
           }
           return(release_logs_table_org)
-        }, .progress = if (progress) {
-          glue::glue("[GitHost:{private$host_name}] Pulling release logs...")
-        } else {
-          FALSE
-        }) %>%
+        }, .progress = set_progress_bar(progress, private)) |>
           purrr::list_rbind()
         return(release_logs_table)
       }
@@ -1639,11 +1624,7 @@ GitHost <- R6::R6Class(
               until = until
             )
           return(release_logs_table_org)
-        }, .progress = if (progress) {
-          glue::glue("[GitHost:{private$host_name}] Pulling release logs...")
-        } else {
-          FALSE
-        }) %>%
+        }, .progress = set_progress_bar(progress, private)) |>
           purrr::list_rbind()
         return(release_logs_table)
       }
