@@ -1,5 +1,8 @@
 # GitStats (development version)
 
+- Handled GitLab GraphQL error for `get_repos_names()` method in `get_commits()` with switching to REST API engine ([#690](https://github.com/r-world-devs/GitStats/issues/690)).
+- Introduced changes to progress bars, most notably moved them to the GitHost level to display high-level progress ([#687](https://github.com/r-world-devs/GitStats/issues/687)).
+
 # GitStats 2.3.6
 
 A minor release with some substantial performance improvements on searching repositories by code, new features like filtering repositories data by languages and adding new columns in `get_repos()` and `get_files()` output.
