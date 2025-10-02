@@ -13,6 +13,7 @@
         verbose = TRUE)
     Message
       > [Host:GitHub][Engine:GraphQl][Scope:test_org] Pulling repos 🌳 [files matching pattern: '\.md|\.qmd|\.Rmd']...
+      > Pulling repositories data...
 
 ---
 
@@ -21,6 +22,7 @@
         get_files_structure_from_orgs(pattern = NULL, depth = Inf, verbose = TRUE)
     Message
       > [Host:GitHub][Engine:GraphQl][Scope:test_org] Pulling repos 🌳...
+      > Pulling repositories data...
 
 # get_files_structure_from_repos() prints message
 
@@ -30,6 +32,7 @@
         verbose = TRUE)
     Message
       > [Host:GitHub][Engine:GraphQl][Scope:test_org: 1 repos] Pulling repos 🌳 [files matching pattern: '\.md|\.qmd|\.Rmd']...
+      > Pulling repositories data...
 
 ---
 
@@ -38,6 +41,7 @@
         get_files_structure_from_repos(pattern = NULL, depth = Inf, verbose = TRUE)
     Message
       > [Host:GitHub][Engine:GraphQl][Scope:test_org: 1 repos] Pulling repos 🌳...
+      > Pulling repositories data...
 
 # when files_structure is empty, appropriate message is returned
 

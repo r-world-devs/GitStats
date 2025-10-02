@@ -130,12 +130,7 @@ if (integration_tests_skipped) {
 test_that("GitLab GraphQL Engine pulls files structure from repositories", {
   if (integration_tests_skipped) {
     gl_repos_data <- list(
-      "repositories" = gl_repos
-    )
-    mockery::stub(
-      test_graphql_gitlab$get_files_structure_from_org,
-      "private$get_repos_data",
-      gl_repos_data
+      "paths" = gl_repos
     )
     mockery::stub(
       test_graphql_gitlab$get_files_structure_from_org,
@@ -145,7 +140,7 @@ test_that("GitLab GraphQL Engine pulls files structure from repositories", {
   }
   gl_files_structure <- test_graphql_gitlab$get_files_structure_from_org(
     org = "mbtests",
-    repos = gl_repos,
+    repos_data = gl_repos_data,
     owner_type = "organization",
     verbose  = FALSE
   )
@@ -160,12 +155,7 @@ test_that("GitLab GraphQL Engine pulls files structure from repositories", {
 test_that("GitLab GraphQL Engine pulls files structure from repositories when repos are not set", {
   if (integration_tests_skipped) {
     gl_repos_data <- list(
-      "repositories" = gl_repos
-    )
-    mockery::stub(
-      test_graphql_gitlab$get_files_structure_from_org,
-      "private$get_repos_data",
-      gl_repos_data
+      "paths" = gl_repos
     )
     mockery::stub(
       test_graphql_gitlab$get_files_structure_from_org,
@@ -175,7 +165,7 @@ test_that("GitLab GraphQL Engine pulls files structure from repositories when re
   }
   gl_files_structure_shallow <- test_graphql_gitlab$get_files_structure_from_org(
     org = "mbtests",
-    repos =  NULL,
+    repos_data = gl_repos_data,
     pattern = "\\.md",
     owner_type = "organization",
     depth = 1L,
@@ -203,9 +193,9 @@ test_that("get_files_structure_from_orgs pulls files structure for repositories 
     test_mocker$use("gl_files_structure_shallow")
   )
   gl_files_structure_from_orgs <- gitlab_testhost_priv$get_files_structure_from_orgs(
-    pattern  = "\\.md",
-    depth    = 1L,
-    verbose  = FALSE,
+    pattern = "\\.md",
+    depth = 1L,
+    verbose = FALSE,
     progress = FALSE
   )
   expect_equal(
@@ -239,9 +229,9 @@ test_that("get_files_structure pulls files structure for repositories in orgs", 
     test_mocker$use("gl_files_structure_from_orgs")
   )
   gl_files_structure_from_orgs <- gitlab_testhost$get_files_structure(
-    pattern  = "\\.md",
-    depth    = 1L,
-    verbose  = FALSE,
+    pattern = "\\.md",
+    depth = 1L,
+    verbose = FALSE,
     progress = FALSE
   )
   expect_equal(
