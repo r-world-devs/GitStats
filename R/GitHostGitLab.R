@@ -271,11 +271,15 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
               information = "Pulling commits"
             )
           }
-          repos_names <- private$get_repos_names(
+          repos_data <- private$get_repos_data(
             org = org,
             verbose = verbose
           )
-          full_repos_encoded <- paste0(utils::URLencode(org, reserved = TRUE), "%2f", repos_names)
+          full_repos_encoded <- paste0(
+            utils::URLencode(org, reserved = TRUE),
+            "%2f",
+            repos_data[["paths"]]
+          )
           commits_table_org <- rest_engine$get_commits_from_repos(
             full_repos_names = full_repos_encoded,
             since = since,
@@ -308,7 +312,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         commits_table <- purrr::map(orgs, function(org) {
           commits_table_org <- NULL
           repos <- private$orgs_repos[[org]]
-          repos_names <- paste0(utils::URLencode(org, reserved = TRUE), "%2f", repos)
+          full_repos_names <- paste0(utils::URLencode(org, reserved = TRUE), "%2f", repos)
           if (!private$scan_all && verbose) {
             show_message(
               host = private$host_name,
@@ -318,7 +322,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             )
           }
           commits_table_org <- rest_engine$get_commits_from_repos(
-            full_repos_names = repos_names,
+            full_repos_names = full_repos_names,
             since = since,
             until = until,
             verbose = verbose
@@ -336,31 +340,39 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     },
 
     # Use repositories either from parameter or, if not set, pull them from API
-    get_repos_names = function(org, verbose) {
-      graphql_engine <- private$engines$graphql
-      owner_type <- attr(org, "type") %||% "organization"
-      repos_response <- graphql_engine$get_repos_from_org(
-        org = utils::URLdecode(org),
-        owner_type = owner_type,
-        verbose = verbose
-      )
-      if (!inherits(repos_response, "graphql_error")) {
-        repos_names <- repos_response |>
-          purrr::map_vec(~ .$node$repo_path)
+    get_repos_data = function(org, repos = NULL, verbose) {
+      if (verbose) cli::cli_alert("Pulling repositories data...")
+      if (!is.null(repos)) {
+        repos_names <- repos
       } else {
-        if (verbose) {
-          cli::cli_alert_info("Switching to REST API...")
-        }
-        rest_engine <- private$engines$rest
-        repos_response <- rest_engine$get_repos_from_org(
-          org = utils::URLencode(org, reserved = TRUE),
-          output = "raw",
+        graphql_engine <- private$engines$graphql
+        owner_type <- attr(org, "type") %||% "organization"
+        repos_response <- graphql_engine$get_repos_from_org(
+          org = utils::URLdecode(org),
+          owner_type = owner_type,
           verbose = verbose
         )
-        repos_names <- repos_response |>
-          purrr::map_vec(~ .$path)
+        if (!inherits(repos_response, "graphql_error")) {
+          repos_names <- repos_response |>
+            purrr::map_vec(~ .$node$repo_path)
+        } else {
+          if (verbose) {
+            cli::cli_alert_info("Switching to REST API...")
+          }
+          rest_engine <- private$engines$rest
+          repos_response <- rest_engine$get_repos_from_org(
+            org = utils::URLencode(org, reserved = TRUE),
+            output = "raw",
+            verbose = verbose
+          )
+          repos_names <- repos_response |>
+            purrr::map_vec(~ .$path)
+        }
       }
-      return(repos_names)
+      repos_data <- list(
+        "paths" = repos_names
+      )
+      return(repos_data)
     },
 
     are_non_text_files = function(file_path, host_files_structure) {
@@ -370,6 +382,56 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         any(grepl(non_text_files_pattern, unlist(host_files_structure, use.names = FALSE)))
       } else {
         FALSE
+      }
+    },
+
+    get_files_structure_from_repos = function(pattern,
+                                              depth,
+                                              verbose  = TRUE,
+                                              progress = TRUE) {
+      if ("repo" %in% private$searching_scope) {
+        graphql_engine <- private$engines$graphql
+        orgs <- graphql_engine$set_owner_type(
+          owners = names(private$orgs_repos),
+          verbose = verbose
+        )
+        files_structure_list <- purrr::map(orgs, function(org) {
+          if (verbose) {
+            user_info <- if (!is.null(pattern)) {
+              glue::glue(
+                "Pulling repos \U1F333 [files matching pattern: '{paste0(pattern, collapse = '|')}']"
+              )
+            } else {
+              glue::glue("Pulling repos \U1F333")
+            }
+            show_message(
+              host = private$host_name,
+              engine = "graphql",
+              scope = set_repo_scope(org, private),
+              information = user_info
+            )
+          }
+          owner_type <- attr(org, "type") %||% "organization"
+          graphql_engine$get_files_structure_from_org(
+            org = org,
+            owner_type = owner_type,
+            repos_data = list("paths" = private$orgs_repos[[org]]),
+            pattern = pattern,
+            depth = depth,
+            verbose = verbose
+          )
+        }, .progress = set_progress_bar(progress, private))
+        names(files_structure_list) <- orgs
+        files_structure_list <- files_structure_list %>%
+          purrr::discard(~ length(.) == 0)
+        if (length(files_structure_list) == 0 && verbose) {
+          cli::cli_alert_warning(
+            cli::col_yellow(
+              "For {private$host_name} no files structure found."
+            )
+          )
+        }
+        return(files_structure_list)
       }
     },
 
@@ -433,7 +495,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         graphql_engine$get_files_from_org_per_repo(
           org = org,
           owner_type = owner_type,
-          repos = repos,
+          repos_data = list("paths" = repos),
           host_files_structure = files_structure,
           verbose = verbose,
           progress = progress

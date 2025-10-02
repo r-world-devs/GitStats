@@ -1272,13 +1272,13 @@ GitHost <- R6::R6Class(
               information = "Pulling issues"
             )
           }
-          repos_names <- private$get_repos_names(
+          repos_data <- private$get_repos_data(
             org = org,
             verbose = verbose
           )
           issues_table_org <- graphql_engine$get_issues_from_repos(
             org = org,
-            repos_names = repos_names,
+            repos_names = repos_data[["paths"]],
             verbose = verbose
           ) |>
             graphql_engine$prepare_issues_table(
@@ -1340,10 +1340,14 @@ GitHost <- R6::R6Class(
             )
           }
           owner_type <- attr(org, "type") %||% "organization"
+          repos_data <- private$get_repos_data(
+            org = org,
+            verbose = verbose
+          )
           graphql_engine$get_files_from_org(
             org = org,
             owner_type = owner_type,
-            repos = NULL,
+            repos_data = repos_data,
             file_paths = file_path,
             verbose = verbose,
             progress = FALSE
@@ -1378,10 +1382,15 @@ GitHost <- R6::R6Class(
             )
           }
           owner_type <- attr(org, "type") %||% "organization"
+          repos_data <- private$get_repos_data(
+            org = org,
+            repos = private$orgs_repos[[org]],
+            verbose = verbose
+          )
           graphql_engine$get_files_from_org(
             org = org,
             owner_type = owner_type,
-            repos = private$orgs_repos[[org]],
+            repos_data = repos_data,
             file_paths = file_path,
             verbose = verbose,
             progress = FALSE
@@ -1415,10 +1424,15 @@ GitHost <- R6::R6Class(
           )
         }
         owner_type <- attr(org, "type") %||% "organization"
+        repos_data <- private$get_repos_data(
+          org = org,
+          repos = repos,
+          verbose = verbose
+        )
         graphql_engine$get_files_from_org(
           org = org,
           owner_type = owner_type,
-          repos = repos,
+          repos_data = repos_data,
           host_files_structure = files_structure,
           verbose = verbose,
           progress = FALSE
@@ -1463,65 +1477,20 @@ GitHost <- R6::R6Class(
             )
           }
           owner_type <- attr(org, "type") %||% "organization"
+          repos_data <- private$get_repos_data(
+            org = org,
+            verbose = verbose
+          )
           graphql_engine$get_files_structure_from_org(
             org = org,
             owner_type = owner_type,
+            repos_data = repos_data,
             pattern = pattern,
             depth = depth,
             verbose = verbose
           )
         }, .progress = set_progress_bar(progress, private))
         names(files_structure_list) <- private$orgs
-        files_structure_list <- files_structure_list %>%
-          purrr::discard(~ length(.) == 0)
-        if (length(files_structure_list) == 0 && verbose) {
-          cli::cli_alert_warning(
-            cli::col_yellow(
-              "For {private$host_name} no files structure found."
-            )
-          )
-        }
-        return(files_structure_list)
-      }
-    },
-
-    get_files_structure_from_repos = function(pattern,
-                                              depth,
-                                              verbose  = TRUE,
-                                              progress = TRUE) {
-      if ("repo" %in% private$searching_scope) {
-        graphql_engine <- private$engines$graphql
-        orgs <- graphql_engine$set_owner_type(
-          owners = names(private$orgs_repos),
-          verbose = verbose
-        )
-        files_structure_list <- purrr::map(orgs, function(org) {
-          if (verbose) {
-            user_info <- if (!is.null(pattern)) {
-              glue::glue(
-                "Pulling repos \U1F333 [files matching pattern: '{paste0(pattern, collapse = '|')}']"
-              )
-            } else {
-              glue::glue("Pulling repos \U1F333")
-            }
-            show_message(
-              host = private$host_name,
-              engine = "graphql",
-              scope = set_repo_scope(org, private),
-              information = user_info
-            )
-          }
-          owner_type <- attr(org, "type") %||% "organization"
-          graphql_engine$get_files_structure_from_org(
-            org = org,
-            owner_type = owner_type,
-            repos = private$repos,
-            pattern = pattern,
-            depth = depth,
-            verbose = verbose
-          )
-        }, .progress = set_progress_bar(progress, private))
-        names(files_structure_list) <- orgs
         files_structure_list <- files_structure_list %>%
           purrr::discard(~ length(.) == 0)
         if (length(files_structure_list) == 0 && verbose) {
@@ -1569,14 +1538,14 @@ GitHost <- R6::R6Class(
               information = "Pulling release logs"
             )
           }
-          repos_names <- private$get_repos_names(
+          repos_data <- private$get_repos_data(
             org = org,
             verbose = verbose
           )
           graphql_engine <- private$engines$graphql
-          if (length(repos_names) > 0) {
+          if (length(repos_data[["paths"]]) > 0) {
             release_logs_table_org <- graphql_engine$get_release_logs_from_org(
-              repos_names = repos_names,
+              repos_names = repos_data[["paths"]],
               org = org,
               verbose = verbose
             ) |>
