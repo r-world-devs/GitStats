@@ -294,8 +294,8 @@ GitHostGitHub <- R6::R6Class(
     },
 
     get_files_content_from_files_structure = function(files_structure,
-                                                      verbose = TRUE,
-                                                      progress = TRUE) {
+                                                      verbose,
+                                                      progress) {
       graphql_engine <- private$engines$graphql
       result <- private$get_orgs_and_repos_from_files_structure(
         files_structure = files_structure
