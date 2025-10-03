@@ -200,12 +200,44 @@ test_that("get_files_structure_from_orgs pulls files structure for repositories 
   )
   expect_equal(
     names(gl_files_structure_from_orgs),
-    c(gl_group)
+    gl_group
   )
   purrr::walk(gl_files_structure_from_orgs[[1]], function(repo_files) {
     expect_true(all(grepl("\\.md", repo_files)))
   })
   test_mocker$cache(gl_files_structure_from_orgs)
+})
+
+test_that("get_files_structure_from_repos pulls files structure for repositories", {
+  if (integration_tests_skipped) {
+    mockery::stub(
+      gitlab_testhost_priv$get_files_structure_from_repos,
+      "graphql_engine$get_files_structure_from_org",
+      test_mocker$use("gl_files_structure_shallow")
+    )
+    test_org <- "test_group"
+    attr(test_org, "type") <- "organization"
+    mockery::stub(
+      gitlab_testhost_priv$get_files_structure_from_repos,
+      "graphql_engine$set_owner_type",
+      test_org
+    )
+  }
+  gitlab_testhost_priv$searching_scope <- "repo"
+  gl_files_structure_from_repos <- gitlab_testhost_priv$get_files_structure_from_repos(
+    pattern = "\\.md",
+    depth = 1L,
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_equal(
+    names(gl_files_structure_from_repos),
+    gl_group
+  )
+  purrr::walk(gl_files_structure_from_repos[[1]], function(repo_files) {
+    expect_true(all(grepl("\\.md", repo_files)))
+  })
+  gitlab_testhost_priv$searching_scope <- "org"
 })
 
 test_that("get_path_from_files_structure gets file path from files structure", {
