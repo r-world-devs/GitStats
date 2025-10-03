@@ -188,6 +188,32 @@ test_that("get_files_content_from_orgs for GitLab works", {
   test_mocker$cache(gl_files_table)
 })
 
+test_that("get_files_content_from_repos for GitLab works", {
+  mockery::stub(
+    gitlab_testhost_priv$get_files_content_from_repos,
+    "graphql_engine$prepare_files_table",
+    test_mocker$use("gl_files_table")
+  )
+  test_org <- "test_group"
+  attr(test_org, "type") <- "organization"
+  mockery::stub(
+    gitlab_testhost_priv$get_files_content_from_repos,
+    "graphql_engine$set_owner_type",
+    test_org
+  )
+  gitlab_testhost_priv$searching_scope <- "repo"
+  suppressMessages(
+    gl_files_table <- gitlab_testhost_priv$get_files_content_from_repos(
+      file_path = "meta_data.yaml",
+      verbose = FALSE
+    )
+  )
+  expect_files_table(
+    gl_files_table, with_cols = "api_url"
+  )
+  gitlab_testhost_priv$searching_scope <- "org"
+})
+
 test_that("get_files_content makes use of files_structure", {
   mockery::stub(
     gitlab_testhost_priv$get_files_content_from_files_structure,

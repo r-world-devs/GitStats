@@ -209,20 +209,18 @@ test_that("get_files_structure_from_orgs pulls files structure for repositories 
 })
 
 test_that("get_files_structure_from_repos pulls files structure for repositories", {
-  if (integration_tests_skipped) {
-    mockery::stub(
-      gitlab_testhost_priv$get_files_structure_from_repos,
-      "graphql_engine$get_files_structure_from_org",
-      test_mocker$use("gl_files_structure_shallow")
-    )
-    test_org <- "test_group"
-    attr(test_org, "type") <- "organization"
-    mockery::stub(
-      gitlab_testhost_priv$get_files_structure_from_repos,
-      "graphql_engine$set_owner_type",
-      test_org
-    )
-  }
+  mockery::stub(
+    gitlab_testhost_priv$get_files_structure_from_repos,
+    "graphql_engine$get_files_structure_from_org",
+    test_mocker$use("gl_files_structure_shallow")
+  )
+  test_org <- "test_group"
+  attr(test_org, "type") <- "organization"
+  mockery::stub(
+    gitlab_testhost_priv$get_files_structure_from_repos,
+    "graphql_engine$set_owner_type",
+    test_org
+  )
   gitlab_testhost_priv$searching_scope <- "repo"
   gl_files_structure_from_repos <- gitlab_testhost_priv$get_files_structure_from_repos(
     pattern = "\\.md",
