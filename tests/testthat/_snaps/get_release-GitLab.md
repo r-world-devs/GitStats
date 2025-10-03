@@ -5,14 +5,6 @@
     Output
       [1] "query GetReleasesFromRepo($project_path: ID!) {\n              project(fullPath: $project_path) {\n                name\n                webUrl\n    \t\t\t\t\t\treleases {\n                  nodes{\n                    name\n                    tagName\n                    releasedAt\n                    links {\n                      selfUrl\n                    }\n                    description\n                  }\n                }\n              }\n          }"
 
-# `get_repos_data` pulls data from repos
-
-    Code
-      gl_repos_data <- gitlab_testhost_priv$get_repos_data(org = "test_org", repos = "TestRepo",
-        verbose = TRUE)
-    Message
-      > Pulling repositories data...
-
 # `get_release_logs_from_orgs()` prints proper message
 
     Code
