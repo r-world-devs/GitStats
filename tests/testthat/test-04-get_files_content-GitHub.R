@@ -120,6 +120,11 @@ test_that("get_files_content_from_repos for GitHub works", {
   )
   mockery::stub(
     github_testhost_priv$get_files_content_from_repos,
+    "private$get_repos_data",
+    test_mocker$use("gh_repos_data")
+  )
+  mockery::stub(
+    github_testhost_priv$get_files_content_from_repos,
     "graphql_engine$prepare_files_table",
     test_mocker$use("gh_files_table")
   )
