@@ -1362,49 +1362,6 @@ GitHost <- R6::R6Class(
       }
     },
 
-    # Pull files content from organizations
-    get_files_content_from_repos = function(file_path,
-                                            verbose = TRUE,
-                                            progress = TRUE) {
-      if ("repo" %in% private$searching_scope) {
-        graphql_engine <- private$engines$graphql
-        orgs <- graphql_engine$set_owner_type(
-          owners = names(private$orgs_repos),
-          verbose = verbose
-        )
-        files_table <- purrr::map(orgs, function(org) {
-          if (verbose) {
-            show_message(
-              host = private$host_name,
-              engine = "graphql",
-              scope = set_repo_scope(org, private),
-              information = glue::glue("Pulling files content: [{paste0(file_path, collapse = ', ')}]")
-            )
-          }
-          owner_type <- attr(org, "type") %||% "organization"
-          repos_data <- private$get_repos_data(
-            org = org,
-            repos = private$orgs_repos[[org]],
-            verbose = verbose
-          )
-          graphql_engine$get_files_from_org(
-            org = org,
-            owner_type = owner_type,
-            repos_data = repos_data,
-            file_paths = file_path,
-            verbose = verbose,
-            progress = FALSE
-          ) |>
-            graphql_engine$prepare_files_table(
-              org = org
-            )
-        }, .progress = set_progress_bar(progress, private)) |>
-          purrr::list_rbind() |>
-          private$add_repo_api_url()
-        return(files_table)
-      }
-    },
-
     get_files_content_from_files_structure = function(files_structure,
                                                       verbose = TRUE,
                                                       progress = TRUE) {
