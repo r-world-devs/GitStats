@@ -41,14 +41,14 @@ test_that("`get_release_logs_from_orgs()` works", {
   )
   mockery::stub(
     github_testhost_priv$get_release_logs_from_orgs,
-    "private$get_repos_names",
-    test_mocker$use("gh_repos_names")
+    "private$get_repos_data",
+    test_mocker$use("gh_repos_data")
   )
   github_testhost_priv$searching_scope <- "org"
   releases_from_orgs <- github_testhost_priv$get_release_logs_from_orgs(
-    since    = "2023-05-01",
-    until    = "2023-09-30",
-    verbose  = FALSE,
+    since = "2023-05-01",
+    until = "2023-09-30",
+    verbose = FALSE,
     progress = FALSE
   )
   expect_releases_table(releases_from_orgs)

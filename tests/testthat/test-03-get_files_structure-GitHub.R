@@ -129,39 +129,8 @@ test_that("only files with certain pattern are retrieved", {
   test_mocker$cache(md_files_structure)
 })
 
-test_that("get_repos_data pulls data on repos and branches", {
-  if (integration_tests_skipped) {
-    mockery::stub(
-      test_graphql_github_priv$get_repos_data,
-      "self$get_repos_from_org",
-      test_mocker$use("gh_repos_from_org")
-    )
-  }
-  gh_repos_data <- test_graphql_github_priv$get_repos_data(
-    org = gh_org,
-    owner_type = "organization",
-    repos = NULL
-  )
-  expect_equal(
-    names(gh_repos_data),
-    c("repositories", "def_branches")
-  )
-  expect_true(
-    length(gh_repos_data$repositories) > 0
-  )
-  expect_true(
-    length(gh_repos_data$def_branches) > 0
-  )
-  test_mocker$cache(gh_repos_data)
-})
-
 test_that("GitHub GraphQL Engine pulls files structure from repositories", {
   if (integration_tests_skipped) {
-    mockery::stub(
-      test_graphql_github$get_files_structure_from_org,
-      "private$get_repos_data",
-      test_mocker$use("gh_repos_data")
-    )
     mockery::stub(
       test_graphql_github$get_files_structure_from_org,
       "private$get_files_structure_from_repo",
@@ -173,8 +142,8 @@ test_that("GitHub GraphQL Engine pulls files structure from repositories", {
   }
   gh_files_structure <- test_graphql_github$get_files_structure_from_org(
     org = gh_org,
-    owner_type = "organization",
-    repos = gh_repos
+    repos_data = test_mocker$use("gh_repos_data"),
+    owner_type = "organization"
   )
   purrr::walk(gh_files_structure, ~ expect_true(length(.) > 0))
   expect_equal(
@@ -187,18 +156,13 @@ test_that("GitHub GraphQL Engine pulls files structure from repositories", {
 test_that("GitHub GraphQL Engine pulls files structure with pattern from repositories", {
   mockery::stub(
     test_graphql_github$get_files_structure_from_org,
-    "private$get_repos_data",
-    test_mocker$use("gh_repos_data")
-  )
-  mockery::stub(
-    test_graphql_github$get_files_structure_from_org,
     "private$get_files_structure_from_repo",
     test_mocker$use("md_files_structure")
   )
   gh_md_files_structure <- test_graphql_github$get_files_structure_from_org(
     org = gh_org,
     owner_type = "organization",
-    repos = gh_repo,
+    repos_data = test_mocker$use("gh_repos_data"),
     pattern = "\\.md|\\.qmd|\\.Rmd"
   )
   purrr::walk(gh_md_files_structure, ~ expect_true(all(grepl("\\.md|\\.qmd|\\.Rmd", .))))

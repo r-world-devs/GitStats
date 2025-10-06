@@ -286,18 +286,13 @@ EngineGraphQLGitHub <- R6::R6Class(
     # Pull all given files from all repositories of an organization.
     get_files_from_org = function(org,
                                   owner_type,
-                                  repos,
+                                  repos_data,
                                   file_paths = NULL,
                                   host_files_structure = NULL,
                                   verbose = TRUE,
                                   progress = TRUE) {
-      repo_data <- private$get_repos_data(
-        org = org,
-        owner_type = owner_type,
-        repos = repos
-      )
-      repositories <- repo_data[["repositories"]]
-      def_branches <- repo_data[["def_branches"]]
+      repositories <- repos_data[["paths"]]
+      def_branches <- repos_data[["def_branches"]]
       org_files_list <- private$get_repositories_with_files(
         repositories = repositories,
         def_branches = def_branches,
@@ -344,17 +339,12 @@ EngineGraphQLGitHub <- R6::R6Class(
     # Pull all files from all repositories of an organization.
     get_files_structure_from_org = function(org,
                                             owner_type,
-                                            repos,
+                                            repos_data,
                                             pattern,
                                             depth,
                                             verbose) {
-      repo_data <- private$get_repos_data(
-        org = org,
-        owner_type = owner_type,
-        repos = repos
-      )
-      repositories <- repo_data[["repositories"]]
-      def_branches <- repo_data[["def_branches"]]
+      repositories <- repos_data[["paths"]]
+      def_branches <- repos_data[["def_branches"]]
       files_structure <- purrr::map2(repositories, def_branches, function(repo, def_branch) {
         private$get_files_structure_from_repo(
           org = org,
@@ -610,21 +600,6 @@ EngineGraphQLGitHub <- R6::R6Class(
         )
       }
       return(response)
-    },
-
-    get_repos_data = function(org, owner_type, repos = NULL) {
-      repos_list <- self$get_repos_from_org(
-        org = org,
-        owner_type = owner_type
-      )
-      if (!is.null(repos)) {
-        repos_list <- purrr::keep(repos_list, ~ .$repo_path %in% repos)
-      }
-      result <- list(
-        "repositories" = purrr::map(repos_list, ~ .$repo_path),
-        "def_branches" = purrr::map(repos_list, ~ .$default_branch$name)
-      )
-      return(result)
     },
 
     get_repositories_with_files = function(repositories,

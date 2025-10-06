@@ -30,16 +30,14 @@ EngineRest <- R6::R6Class("EngineRest",
     response = function(endpoint,
                         token = private$token,
                         verbose) {
-      resp <- self$perform_request(
+      response <- self$perform_request(
         endpoint = endpoint,
         token = token,
         verbose = verbose
       )
-      if (!is.null(resp)) {
-        result <- resp %>% httr2::resp_body_json(check_type = FALSE)
-      } else {
-        result <- list()
-      }
+      result <- response |>
+        httr2::resp_body_json(check_type = FALSE) |>
+        private$set_rest_error_class()
       return(result)
     },
 
@@ -48,7 +46,6 @@ EngineRest <- R6::R6Class("EngineRest",
     # @param token An API token.
     # @returns A request.
     perform_request = function(endpoint, token, verbose) {
-      resp <- NULL
       resp <- httr2::request(endpoint) %>%
         httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
         httr2::req_error(is_error = function(resp) FALSE) %>%
@@ -74,6 +71,13 @@ EngineRest <- R6::R6Class("EngineRest",
   ),
   private = list(
 
+    set_rest_error_class = function(resp) {
+      if (!is.null(resp$message) && grepl("404", resp$message)) {
+        class(resp) <- c("rest_error", "404_not_found", class(resp))
+      }
+      resp
+    },
+
     # Paginate contributors and parse response into character vector
     get_contributors_from_repo = function(contributors_endpoint, user_name, verbose) {
       contributors_response <- private$paginate_results(
@@ -96,6 +100,9 @@ EngineRest <- R6::R6Class("EngineRest",
           endpoint = endpoint_with_pagination,
           verbose = verbose
         )
+        if (inherits(response_page, "rest_error")) {
+          response_page <- NULL
+        }
         if (length(response_page) > 0) {
           full_response <- append(full_response, response_page)
           page <- page + 1

@@ -5,6 +5,7 @@
         until = "2023-04-01", verbose = TRUE, progress = FALSE)
     Message
       > [Host:GitLab][Engine:REST][Scope:test_group] Pulling commits...
+      > Pulling repositories data...
 
 # get_commits_from_repos works
 

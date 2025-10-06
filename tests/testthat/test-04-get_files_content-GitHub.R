@@ -93,23 +93,6 @@ test_that("get_files_content_from_orgs for GitHub works", {
   test_mocker$cache(gh_files_from_orgs)
 })
 
-test_that("get_files_content makes use of files_structure", {
-  mockery::stub(
-    github_testhost_priv$get_files_content_from_files_structure,
-    "private$add_repo_api_url",
-    test_mocker$use("gh_files_from_orgs")
-  )
-  expect_snapshot(
-    files_content <- github_testhost_priv$get_files_content_from_files_structure(
-      files_structure = test_mocker$use("gh_files_structure_from_orgs")
-    )
-  )
-  expect_files_table(
-    files_content,
-    with_cols = "api_url"
-  )
-})
-
 test_that("get_files_content_from_repos for GitHub works", {
   test_org <- "test_org"
   attr(test_org, "type") <- "organization"
@@ -117,6 +100,11 @@ test_that("get_files_content_from_repos for GitHub works", {
     github_testhost_priv$get_files_content_from_repos,
     "graphql_engine$set_owner_type",
     test_org
+  )
+  mockery::stub(
+    github_testhost_priv$get_files_content_from_repos,
+    "private$get_repos_data",
+    test_mocker$use("gh_repos_data")
   )
   mockery::stub(
     github_testhost_priv$get_files_content_from_repos,
@@ -133,6 +121,30 @@ test_that("get_files_content_from_repos for GitHub works", {
     with_cols = "api_url"
   )
   test_mocker$cache(gh_files_from_repos)
+})
+
+test_that("get_files_content makes use of files_structure", {
+  mockery::stub(
+    github_testhost_priv$get_files_content_from_files_structure,
+    "private$get_repos_data",
+    test_mocker$use("gh_repos_data")
+  )
+  mockery::stub(
+    github_testhost_priv$get_files_content_from_files_structure,
+    "graphql_engine$prepare_files_table",
+    test_mocker$use("gh_files_table")
+  )
+  expect_snapshot(
+    files_content <- github_testhost_priv$get_files_content_from_files_structure(
+      files_structure = test_mocker$use("gh_files_structure_from_orgs"),
+      verbose = TRUE,
+      progress = FALSE
+    )
+  )
+  expect_files_table(
+    files_content,
+    with_cols = "api_url"
+  )
 })
 
 test_that("`get_files_content()` pulls files in the table format", {

@@ -51,3 +51,26 @@ get_files(
   depth = 2L,
   verbose = FALSE
 )
+
+test_gitstats <- create_gitstats() |>
+  set_github_host(
+    repos = c("r-world-devs/GitStats", "r-world-devs/GitAI", "openpharma/DataFakeR")
+  )
+
+get_files(
+  gitstats = test_gitstats,
+  pattern = "\\.md|\\.Rmd",
+  depth = 1L
+)
+
+test_gitstats <- create_gitstats() |>
+  set_github_host(
+    orgs = c("r-world-devs", "openpharma", "pharmaverse", "Roche", "insightsengineering")
+  )
+
+
+md_files <- get_files(
+  gitstats = test_gitstats,
+  pattern = "\\.md|\\.Rmd\\.R",
+  depth = 1L
+)

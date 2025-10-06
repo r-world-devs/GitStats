@@ -122,22 +122,6 @@ test_that("fill_empty_authors() works as expected", {
   )
 })
 
-test_that("`get_repos_names` works", {
-  mockery::stub(
-    github_testhost_priv$get_repos_names,
-    "graphql_engine$get_repos_from_org",
-    test_mocker$use("gh_repos_from_org")
-  )
-  github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
-  github_testhost_priv$searching_scope <- "org"
-  gh_repos_names <- github_testhost_priv$get_repos_names(
-    org = "test_org"
-  )
-  expect_type(gh_repos_names, "character")
-  expect_gt(length(gh_repos_names), 0)
-  test_mocker$cache(gh_repos_names)
-})
-
 test_that("get_commits_from_orgs for GitHub works", {
   mockery::stub(
     github_testhost_priv$get_commits_from_orgs,
@@ -146,14 +130,14 @@ test_that("get_commits_from_orgs for GitHub works", {
   )
   mockery::stub(
     github_testhost_priv$get_commits_from_orgs,
-    "private$get_repos_names",
-    test_mocker$use("gh_repos_names")
+    "private$get_repos_data",
+    test_mocker$use("gh_repos_data")
   )
   github_testhost_priv$searching_scope <- "org"
   gh_commits_from_orgs <- github_testhost_priv$get_commits_from_orgs(
-    since    = "2023-03-01",
-    until    = "2023-04-01",
-    verbose  = FALSE,
+    since = "2023-03-01",
+    until = "2023-04-01",
+    verbose = FALSE,
     progress = FALSE
   )
   expect_commits_table(
