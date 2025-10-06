@@ -387,6 +387,19 @@ GitHost <- R6::R6Class(
     # engines A placeholder for REST and GraphQL Engine classes.
     engines = list(),
 
+    cached_repos = list(),
+
+    get_cached_repos = function(org) {
+      private$cached_repos[[org]]
+    },
+
+    set_cached_repos = function(repos, org, verbose) {
+      if (verbose) {
+        cli::cli_alert("Caching repositories for [{org}]...")
+      }
+      private$cached_repos[[org]] <- repos
+    },
+
     # Set API url
     set_custom_api_url = function(host) {
       private$api_url <- if (!grepl("https|http", host)) {

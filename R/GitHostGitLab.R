@@ -341,33 +341,42 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
 
     # Use repositories either from parameter or, if not set, pull them from API
     get_repos_data = function(org, repos = NULL, verbose) {
-      if (verbose) cli::cli_alert("Pulling repositories data...")
       if (!is.null(repos)) {
         repos_names <- repos
       } else {
-        graphql_engine <- private$engines$graphql
-        owner_type <- attr(org, "type") %||% "organization"
-        repos_response <- graphql_engine$get_repos_from_org(
-          org = utils::URLdecode(org),
-          owner_type = owner_type,
-          verbose = verbose
-        )
-        if (!inherits(repos_response, "graphql_error")) {
-          repos_names <- repos_response |>
-            purrr::map_vec(~ .$node$repo_path)
-        } else {
-          if (verbose) {
-            cli::cli_alert_info("Switching to REST API...")
-          }
-          rest_engine <- private$engines$rest
-          repos_response <- rest_engine$get_repos_from_org(
-            org = utils::URLencode(org, reserved = TRUE),
-            output = "raw",
+        cached_repos <- private$get_cached_repos(org)
+        if (is.null(cached_repos)) {
+          if (verbose) cli::cli_alert("Pulling repositories data...")
+          graphql_engine <- private$engines$graphql
+          owner_type <- attr(org, "type") %||% "organization"
+          repos_from_org <- graphql_engine$get_repos_from_org(
+            org = utils::URLdecode(org),
+            owner_type = owner_type,
             verbose = verbose
           )
-          repos_names <- repos_response |>
-            purrr::map_vec(~ .$path)
+          if (inherits(repos_from_org, "graphql_error")) {
+            if (verbose) {
+              cli::cli_alert_info("Switching to REST API...")
+            }
+            rest_engine <- private$engines$rest
+            repos_from_org <- rest_engine$get_repos_from_org(
+              org = utils::URLencode(org, reserved = TRUE),
+              output = "raw",
+              verbose = verbose
+            )
+          } else {
+            repos_from_org <- purrr::map(repos_from_org, function(repos_data) {
+              repos_data$path <- repos_data$node$repo_path
+              repos_data
+            })
+          }
+          private$set_cached_repos(repos_from_org, org, verbose)
+        } else {
+          if (verbose) cli::cli_alert("Using cached repositories data...")
+          repos_from_org <- cached_repos
         }
+        repos_names <- repos_from_org |>
+          purrr::map_vec(~ .$path)
       }
       repos_data <- list(
         "paths" = repos_names

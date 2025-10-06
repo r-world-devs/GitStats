@@ -391,15 +391,22 @@ GitHostGitHub <- R6::R6Class(
 
     # Use repositories either from parameter or, if not set, pull them from API
     get_repos_data = function(org, repos = NULL, verbose) {
-      if (verbose) cli::cli_alert("Pulling repositories data...")
-      owner_type <- attr(org, "type") %||% "organization"
-      org <- utils::URLdecode(org)
-      graphql_engine <- private$engines$graphql
-      repos_from_org <- graphql_engine$get_repos_from_org(
-        org = org,
-        owner_type = owner_type,
-        verbose = verbose
-      )
+      cached_repos <- private$get_cached_repos(org)
+      if (is.null(cached_repos)) {
+        if (verbose) cli::cli_alert("Pulling repositories data...")
+        owner_type <- attr(org, "type") %||% "organization"
+        org <- utils::URLdecode(org)
+        graphql_engine <- private$engines$graphql
+        repos_from_org <- graphql_engine$get_repos_from_org(
+          org = org,
+          owner_type = owner_type,
+          verbose = verbose
+        )
+        private$set_cached_repos(repos_from_org, org, verbose)
+      } else {
+        if (verbose) cli::cli_alert("Using cached repositories data...")
+        repos_from_org <- cached_repos
+      }
       if (!is.null(repos)) {
         repos_from_org <- repos_from_org |>
           purrr::keep(~ .$repo_path %in% repos)
