@@ -75,6 +75,13 @@
       i Switching to REST API
       > [Host:GitLab][Engine:REST][Scope:test_org] Pulling repositories...
 
+# `get_repos_data` pulls data from org
+
+    Code
+      gl_repos_data <- gitlab_testhost_priv$get_repos_data(org = "test_org", verbose = TRUE)
+    Message
+      > Using cached repositories data...
+
 # get_repos_data prints message when turns to REST engine
 
     Code
