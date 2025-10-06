@@ -263,6 +263,10 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         rest_engine <- private$engines$rest
         commits_table <- purrr::map(private$orgs, function(org) {
           commits_table_org <- NULL
+          repos_data <- private$get_repos_data(
+            org = org,
+            verbose = verbose
+          )
           if (!private$scan_all && verbose) {
             show_message(
               host = private$host_name,
@@ -271,10 +275,6 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
               information = "Pulling commits"
             )
           }
-          repos_data <- private$get_repos_data(
-            org = org,
-            verbose = verbose
-          )
           full_repos_encoded <- paste0(
             utils::URLencode(org, reserved = TRUE),
             "%2f",

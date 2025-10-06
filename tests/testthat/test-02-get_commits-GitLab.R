@@ -147,6 +147,7 @@ test_that("get_commits_from_orgs works", {
     test_mocker$use("gl_commits_table")
   )
   gitlab_testhost_priv$searching_scope <- "org"
+  gitlab_testhost_priv$cached_repos <- list()
   expect_snapshot(
     gl_commits_table <- gitlab_testhost_priv$get_commits_from_orgs(
       since = "2023-03-01",

@@ -186,6 +186,10 @@ GitHostGitHub <- R6::R6Class(
         graphql_engine <- private$engines$graphql
         commits_table <- purrr::map(private$orgs, function(org) {
           commits_table_org <- NULL
+          repos_data <- private$get_repos_data(
+            org = org,
+            verbose = verbose
+          )
           if (!private$scan_all && verbose) {
             show_message(
               host = private$host_name,
@@ -194,10 +198,6 @@ GitHostGitHub <- R6::R6Class(
               information = "Pulling commits"
             )
           }
-          repos_data <- private$get_repos_data(
-            org = org,
-            verbose = verbose
-          )
           commits_table_org <- graphql_engine$get_commits_from_repos(
             org = org,
             repos_names = repos_data[["paths"]],
@@ -261,6 +261,12 @@ GitHostGitHub <- R6::R6Class(
           verbose = verbose
         )
         files_table <- purrr::map(orgs, function(org) {
+          owner_type <- attr(org, "type") %||% "organization"
+          repos_data <- private$get_repos_data(
+            org = org,
+            repos = private$orgs_repos[[org]],
+            verbose = verbose
+          )
           if (verbose) {
             show_message(
               host = private$host_name,
@@ -269,12 +275,6 @@ GitHostGitHub <- R6::R6Class(
               information = glue::glue("Pulling files content: [{paste0(file_path, collapse = ', ')}]")
             )
           }
-          owner_type <- attr(org, "type") %||% "organization"
-          repos_data <- private$get_repos_data(
-            org = org,
-            repos = private$orgs_repos[[org]],
-            verbose = verbose
-          )
           graphql_engine$get_files_from_org(
             org = org,
             owner_type = owner_type,
@@ -303,6 +303,12 @@ GitHostGitHub <- R6::R6Class(
       orgs <- result$orgs
       repos <- result$repos
       files_table <- purrr::map(orgs, function(org) {
+        owner_type <- attr(org, "type") %||% "organization"
+        repos_data <- private$get_repos_data(
+          org = org,
+          repos = repos,
+          verbose = verbose
+        )
         if (verbose) {
           show_message(
             host = private$host_name,
@@ -311,12 +317,6 @@ GitHostGitHub <- R6::R6Class(
             information = "Pulling files from files structure"
           )
         }
-        owner_type <- attr(org, "type") %||% "organization"
-        repos_data <- private$get_repos_data(
-          org = org,
-          repos = repos,
-          verbose = verbose
-        )
         graphql_engine$get_files_from_org(
           org = org,
           owner_type = owner_type,
@@ -345,6 +345,12 @@ GitHostGitHub <- R6::R6Class(
           verbose = verbose
         )
         files_structure_list <- purrr::map(orgs, function(org) {
+          owner_type <- attr(org, "type") %||% "organization"
+          repos_data <- private$get_repos_data(
+            org = org,
+            repos = private$orgs_repos[[org]],
+            verbose = verbose
+          )
           if (verbose) {
             user_info <- if (!is.null(pattern)) {
               glue::glue(
@@ -360,12 +366,6 @@ GitHostGitHub <- R6::R6Class(
               information = user_info
             )
           }
-          owner_type <- attr(org, "type") %||% "organization"
-          repos_data <- private$get_repos_data(
-            org = org,
-            repos = private$orgs_repos[[org]],
-            verbose = verbose
-          )
           graphql_engine$get_files_structure_from_org(
             org = org,
             owner_type = owner_type,

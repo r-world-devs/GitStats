@@ -569,12 +569,11 @@ test_that("`get_repos_data` pulls data from repos", {
     test_mocker$use("gl_repos_from_org")
   )
   gitlab_testhost_priv$searching_scope <- "repo"
-  expect_snapshot(
-    gl_repos_data <- gitlab_testhost_priv$get_repos_data(
-      org = "test_org",
-      repos = "TestRepo",
-      verbose = TRUE
-    )
+  gitlab_testhost_priv$cached_repos <- list()
+  gl_repos_data <- gitlab_testhost_priv$get_repos_data(
+    org = "test_org",
+    repos = "TestRepo",
+    verbose = FALSE
   )
   expect_type(gl_repos_data, "list")
   expect_type(gl_repos_data[["paths"]], "character")
@@ -614,6 +613,7 @@ test_that("get_repos_data prints message when turns to REST engine", {
     test_mocker$use("gitlab_rest_repos_from_org_raw")
   )
   gitlab_testhost_priv$searching_scope <- "org"
+  gitlab_testhost_priv$cached_repos <- list()
   expect_snapshot(
     gl_repos_data <- gitlab_testhost_priv$get_repos_data(
       org = "test_org",
