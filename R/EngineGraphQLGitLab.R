@@ -605,18 +605,25 @@ EngineGraphQLGitLab <- R6::R6Class(
 
     prepare_files_table_row = function(project, org) {
       purrr::map(project$repository$blobs$nodes, function(file) {
-        print(project)
-        print(file)
         # data.frame(
-        #   "repo_id" = get_gitlab_repo_id(project$id),
-        #   "repo_name" = project$path %||% project$name,
-        #   "organization" = org,
-        #   "file_path" = file$path,
-        #   "file_content" = file$rawBlob,
-        #   "file_size" = as.integer(file$size),
-        #   "file_id" = file$oid,
-        #   "repo_url" = project$webUrl,
-        #   "commit_sha" = project$repository$lastCommit$sha %||% NA_character_
+          "repo_id"
+          get_gitlab_repo_id(project$id)
+          "repo_name"
+          project$path %||% project$name
+          "organization"
+          org
+          "file_path"
+          file$path
+          "file_content"
+          file$rawBlob
+          "file_size"
+          as.integer(file$size)
+          "file_id"
+          file$oid
+          "repo_url"
+          project$webUrl
+          "commit_sha"
+          project$repository$lastCommit$sha %||% NA_character_
         # )
       }) |>
         purrr::list_rbind()
