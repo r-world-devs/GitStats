@@ -199,6 +199,7 @@ test_that("get_files_structure_from_orgs() prints message", {
     test_mocker$use("gh_md_files_structure")
   )
   github_testhost_priv$searching_scope <- "org"
+  github_testhost_priv$cached_repos <- list()
   expect_snapshot(
     gh_files_structure_from_orgs <- github_testhost_priv$get_files_structure_from_orgs(
       pattern = "\\.md|\\.qmd|\\.Rmd",
@@ -206,6 +207,7 @@ test_that("get_files_structure_from_orgs() prints message", {
       verbose = TRUE
     )
   )
+  github_testhost_priv$cached_repos <- list()
   expect_snapshot(
     gh_files_structure_from_orgs <- github_testhost_priv$get_files_structure_from_orgs(
       pattern = NULL,
@@ -259,6 +261,7 @@ test_that("get_files_structure_from_repos() prints message", {
     test_mocker$use("gh_md_files_structure")
   )
   github_testhost_priv$searching_scope <- "repo"
+  github_testhost_priv$cached_repos <- list()
   expect_snapshot(
     gh_files_structure_from_repos <- github_testhost_priv$get_files_structure_from_repos(
       pattern = "\\.md|\\.qmd|\\.Rmd",
@@ -266,6 +269,7 @@ test_that("get_files_structure_from_repos() prints message", {
       verbose = TRUE
     )
   )
+  github_testhost_priv$cached_repos <- list()
   expect_snapshot(
     gh_files_structure_from_repos <- github_testhost_priv$get_files_structure_from_repos(
       pattern = NULL,

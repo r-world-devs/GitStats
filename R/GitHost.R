@@ -387,6 +387,19 @@ GitHost <- R6::R6Class(
     # engines A placeholder for REST and GraphQL Engine classes.
     engines = list(),
 
+    cached_repos = list(),
+
+    get_cached_repos = function(org) {
+      private$cached_repos[[org]]
+    },
+
+    set_cached_repos = function(repos, org, verbose) {
+      if (verbose) {
+        cli::cli_alert("Caching repositories for [{org}]...")
+      }
+      private$cached_repos[[org]] <- repos
+    },
+
     # Set API url
     set_custom_api_url = function(host) {
       private$api_url <- if (!grepl("https|http", host)) {
@@ -1264,6 +1277,10 @@ GitHost <- R6::R6Class(
         graphql_engine <- private$engines$graphql
         issues_table <- purrr::map(private$orgs, function(org) {
           issues_table_org <- NULL
+          repos_data <- private$get_repos_data(
+            org = org,
+            verbose = verbose
+          )
           if (!private$scan_all && verbose) {
             show_message(
               host = private$host_name,
@@ -1272,10 +1289,6 @@ GitHost <- R6::R6Class(
               information = "Pulling issues"
             )
           }
-          repos_data <- private$get_repos_data(
-            org = org,
-            verbose = verbose
-          )
           issues_table_org <- graphql_engine$get_issues_from_repos(
             org = org,
             repos_names = repos_data[["paths"]],
@@ -1331,6 +1344,11 @@ GitHost <- R6::R6Class(
       if ("org" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
         files_table <- purrr::map(private$orgs, function(org) {
+          owner_type <- attr(org, "type") %||% "organization"
+          repos_data <- private$get_repos_data(
+            org = org,
+            verbose = verbose
+          )
           if (verbose) {
             show_message(
               host = private$host_name,
@@ -1339,11 +1357,6 @@ GitHost <- R6::R6Class(
               information = glue::glue("Pulling files content: [{paste0(file_path, collapse = ', ')}]")
             )
           }
-          owner_type <- attr(org, "type") %||% "organization"
-          repos_data <- private$get_repos_data(
-            org = org,
-            verbose = verbose
-          )
           graphql_engine$get_files_from_org(
             org = org,
             owner_type = owner_type,
@@ -1377,6 +1390,11 @@ GitHost <- R6::R6Class(
       if (any(c("all", "org") %in% private$searching_scope)) {
         graphql_engine <- private$engines$graphql
         files_structure_list <- purrr::map(private$orgs, function(org) {
+          owner_type <- attr(org, "type") %||% "organization"
+          repos_data <- private$get_repos_data(
+            org = org,
+            verbose = verbose
+          )
           if (verbose) {
             user_info <- if (!is.null(pattern)) {
               glue::glue(
@@ -1392,11 +1410,6 @@ GitHost <- R6::R6Class(
               information = user_info
             )
           }
-          owner_type <- attr(org, "type") %||% "organization"
-          repos_data <- private$get_repos_data(
-            org = org,
-            verbose = verbose
-          )
           graphql_engine$get_files_structure_from_org(
             org = org,
             owner_type = owner_type,
@@ -1446,6 +1459,10 @@ GitHost <- R6::R6Class(
         release_logs_table <- purrr::map(private$orgs, function(org) {
           org <- utils::URLdecode(org)
           release_logs_table_org <- NULL
+          repos_data <- private$get_repos_data(
+            org = org,
+            verbose = verbose
+          )
           if (!private$scan_all && verbose) {
             show_message(
               host = private$host_name,
@@ -1454,10 +1471,6 @@ GitHost <- R6::R6Class(
               information = "Pulling release logs"
             )
           }
-          repos_data <- private$get_repos_data(
-            org = org,
-            verbose = verbose
-          )
           graphql_engine <- private$engines$graphql
           if (length(repos_data[["paths"]]) > 0) {
             release_logs_table_org <- graphql_engine$get_release_logs_from_org(

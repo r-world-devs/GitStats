@@ -71,3 +71,11 @@
     Message
       > [Host:GitHub][Engine:REST] Pulling contributors...
 
+# `get_repos_data` pulls repos data from cache for the second time
+
+    Code
+      gh_repos_data <- github_testhost_priv$get_repos_data(org = "test_org", repos = "TestRepo",
+        verbose = TRUE)
+    Message
+      > Using cached repositories data...
+
