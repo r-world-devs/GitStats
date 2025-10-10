@@ -373,7 +373,11 @@ EngineGraphQLGitLab <- R6::R6Class(
           file_paths = file_paths,
           verbose = verbose
         )
+        print("Getting files from org per repo")
+        print(files_response)
+        print("End")
         if (private$is_complexity_error(files_response)) {
+          print("Complexity error")
           if (verbose) {
             cli::cli_alert("Encountered query complexity error (too many files). I will divide input data into chunks...")
           }
