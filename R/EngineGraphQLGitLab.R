@@ -389,6 +389,12 @@ EngineGraphQLGitLab <- R6::R6Class(
             file_paths = file_paths[1],
             verbose = verbose
           )
+          print(file_paths)
+          print(file_paths[1])
+          print("Iterations:")
+          print(iterations_number)
+          print(files_response)
+          print("End")
           nodes <- purrr::map(c(1:iterations_number), function(i) {
             files_part_response <- private$get_file_blobs_response(
               org = org,
@@ -396,6 +402,9 @@ EngineGraphQLGitLab <- R6::R6Class(
               file_paths = file_paths[x:(i * 100)],
               verbose = verbose
             )
+            print("Part response:")
+            print(files_part_response)
+            print("End part.")
             x <<- x + 100
             return(files_part_response$data$project$repository$blobs$nodes)
           }, .progress = verbose) |>
