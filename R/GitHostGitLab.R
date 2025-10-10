@@ -467,7 +467,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           graphql_engine$get_files_from_org_per_repo(
             org = org,
             owner_type = owner_type,
-            repos = private$orgs_repos[[org]],
+            repos_data = list("paths" = private$orgs_repos[[org]]),
             file_paths = file_path,
             verbose = verbose,
             progress = progress
