@@ -423,6 +423,8 @@ EngineGraphQLGitLab <- R6::R6Class(
     prepare_files_table = function(files_response, org) {
       if (!is.null(files_response)) {
         if (private$response_prepared_by_iteration(files_response)) {
+          print("by iteration")
+          print(files_response)
           files_table <- purrr::map(files_response, function(response_data) {
             private$prepare_files_table_row(
               project = response_data$data$project,
@@ -431,6 +433,8 @@ EngineGraphQLGitLab <- R6::R6Class(
           }) |>
             purrr::list_rbind()
         } else {
+          print("no iteration")
+          print(files_response)
           files_table <- purrr::map(files_response, function(project) {
             private$prepare_files_table_row(
               project = project,
@@ -605,26 +609,7 @@ EngineGraphQLGitLab <- R6::R6Class(
 
     prepare_files_table_row = function(project, org) {
       purrr::map(project$repository$blobs$nodes, function(file) {
-        # data.frame(
-          "repo_id"
-          get_gitlab_repo_id(project$id)
-          "repo_name"
-          project$path %||% project$name
-          "organization"
-          org
-          "file_path"
-          file$path
-          "file_content"
-          file$rawBlob
-          "file_size"
-          as.integer(file$size)
-          "file_id"
-          file$oid
-          "repo_url"
-          project$webUrl
-          "commit_sha"
-          project$repository$lastCommit$sha %||% NA_character_
-        # )
+        NULL
       }) |>
         purrr::list_rbind()
     },
