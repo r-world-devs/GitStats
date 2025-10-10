@@ -357,7 +357,7 @@ EngineGraphQLGitLab <- R6::R6Class(
                                            repos_data,
                                            file_paths = NULL,
                                            host_files_structure = NULL,
-                                           verbose = FALSE,
+                                           verbose = TRUE,
                                            progress = FALSE) {
       org_files_list <- purrr::map(repos_data$paths, function(repo) {
         if (!is.null(host_files_structure)) {
