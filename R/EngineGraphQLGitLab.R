@@ -605,6 +605,7 @@ EngineGraphQLGitLab <- R6::R6Class(
 
     prepare_files_table_row = function(project, org) {
       purrr::map(project$repository$blobs$nodes, function(file) {
+        browser()
         data.frame(
           "repo_id" = get_gitlab_repo_id(project$id),
           "repo_name" = project$path %||% project$name,
