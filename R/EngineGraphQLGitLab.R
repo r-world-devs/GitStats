@@ -255,8 +255,7 @@ EngineGraphQLGitLab <- R6::R6Class(
                                   repos_data,
                                   file_paths = NULL,
                                   host_files_structure = NULL,
-                                  verbose = FALSE,
-                                  progress = FALSE) {
+                                  verbose = FALSE) {
       org <- URLdecode(org)
       full_files_list <- list()
       next_page <- TRUE
@@ -301,8 +300,7 @@ EngineGraphQLGitLab <- R6::R6Class(
                 repos_data = repos_data,
                 file_paths = file_paths,
                 host_files_structure = host_files_structure,
-                verbose = verbose,
-                progress = progress
+                verbose = verbose
               )
               return(full_files_list)
             }
@@ -342,8 +340,7 @@ EngineGraphQLGitLab <- R6::R6Class(
           repos_data = repos_data,
           file_paths = file_paths,
           host_files_structure = host_files_structure,
-          verbose = verbose,
-          progress = progress
+          verbose = verbose
         )
       }
       return(full_files_list)
@@ -357,8 +354,7 @@ EngineGraphQLGitLab <- R6::R6Class(
                                            repos_data,
                                            file_paths = NULL,
                                            host_files_structure = NULL,
-                                           verbose = FALSE,
-                                           progress = FALSE) {
+                                           verbose = FALSE) {
       org_files_list <- purrr::map(repos_data$paths, function(repo) {
         if (!is.null(host_files_structure)) {
           file_paths <- private$get_path_from_files_structure(
@@ -391,7 +387,7 @@ EngineGraphQLGitLab <- R6::R6Class(
               verbose = verbose
             )
             return(files_part_response$data$project$repository$blobs$nodes)
-          }, .progress = verbose) |>
+          }) |>
             purrr::list_flatten()
           files_response <- list(
             "data" = list(
@@ -412,7 +408,7 @@ EngineGraphQLGitLab <- R6::R6Class(
           )
         }
         return(files_response)
-      }, .progress = progress)
+      })
       return(org_files_list)
     },
 

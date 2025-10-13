@@ -106,8 +106,7 @@ test_that("Gitlab GraphQL switches to pulling files per repositories when query 
     repos = NULL,
     file_paths = c("project_metadata.yaml", "README.md"),
     host_files_structure = NULL,
-    verbose = FALSE,
-    progress = FALSE
+    verbose = FALSE
   )
   expect_gitlab_files_from_org_by_repos_response(
     response = gitlab_files_response_by_repos,
@@ -134,8 +133,7 @@ test_that("GitLab GraphQL switches to iteration when query is too complex", {
       repos_data = list("paths" = "gitstatstesting"),
       file_paths = c("project_metadata.yaml", "README.md"),
       host_files_structure = NULL,
-      verbose = TRUE,
-      progress = FALSE
+      verbose = TRUE
     )
   )
 })

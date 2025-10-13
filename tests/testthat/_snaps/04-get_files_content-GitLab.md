@@ -18,7 +18,7 @@
       files_from_org_per_repo <- test_graphql_gitlab$get_files_from_org_per_repo(org = "mbtests",
         owner_type = "organization", repos_data = list(paths = "gitstatstesting"),
         file_paths = c("project_metadata.yaml", "README.md"), host_files_structure = NULL,
-        verbose = TRUE, progress = FALSE)
+        verbose = TRUE)
     Message
       > Encountered query complexity error (too many files). I will divide input data into chunks...
 

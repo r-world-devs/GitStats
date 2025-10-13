@@ -35,8 +35,7 @@ test_that("get_repositories_with_files works", {
     def_branches = c("test_branch_1", "test_branch_2", "test_branch_3", "test_branch_4", "test_branch_5"),
     org = "test_org",
     file_paths = "test_files.txt",
-    host_files_structure = NULL,
-    progress = FALSE
+    host_files_structure = NULL
   )
   expect_type(gh_repositories_with_files, "list")
   test_mocker$cache(gh_repositories_with_files)
@@ -59,8 +58,7 @@ test_that("GitHub GraphQL Engine pulls files from organization", {
     repos = NULL,
     file_paths = "test_files.txt",
     host_files_structure = NULL,
-    verbose = FALSE,
-    progress = FALSE
+    verbose = FALSE
   )
   expect_github_files_response(github_files_response)
   test_mocker$cache(github_files_response)
