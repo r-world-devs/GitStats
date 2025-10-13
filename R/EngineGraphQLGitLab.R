@@ -377,22 +377,19 @@ EngineGraphQLGitLab <- R6::R6Class(
           if (verbose) {
             cli::cli_alert("Encountered query complexity error (too many files). I will divide input data into chunks...")
           }
-          iterations_number <- round(length(file_paths) / 100)
-          x <- 1
           files_response <- private$get_file_blobs_response(
             org = org,
             repo = repo,
             file_paths = file_paths[1],
             verbose = verbose
           )
-          nodes <- purrr::map(c(1:iterations_number), function(i) {
+          nodes <- purrr::map(seq_along(file_paths), function(i) {
             files_part_response <- private$get_file_blobs_response(
               org = org,
               repo = repo,
-              file_paths = file_paths[x:(i * 100)],
+              file_paths = file_paths[i],
               verbose = verbose
             )
-            x <<- x + 100
             return(files_part_response$data$project$repository$blobs$nodes)
           }, .progress = verbose) |>
             purrr::list_flatten()
