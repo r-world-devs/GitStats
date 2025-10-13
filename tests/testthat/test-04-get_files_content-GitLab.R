@@ -174,11 +174,9 @@ test_that("get_files_content_from_orgs for GitLab works", {
     "graphql_engine$prepare_files_table",
     test_mocker$use("gl_files_table")
   )
-  suppressMessages(
-    gl_files_table <- gitlab_testhost_priv$get_files_content_from_orgs(
-      file_path = "meta_data.yaml",
-      verbose = FALSE
-    )
+  gl_files_table <- gitlab_testhost_priv$get_files_content_from_orgs(
+    file_path = "meta_data.yaml",
+    verbose = FALSE
   )
   expect_files_table(
     gl_files_table, with_cols = "api_url"
@@ -200,11 +198,9 @@ test_that("get_files_content_from_repos for GitLab works", {
     test_org
   )
   gitlab_testhost_priv$searching_scope <- "repo"
-  suppressMessages(
-    gl_files_table <- gitlab_testhost_priv$get_files_content_from_repos(
-      file_path = "meta_data.yaml",
-      verbose = FALSE
-    )
+  gl_files_table <- gitlab_testhost_priv$get_files_content_from_repos(
+    file_path = "meta_data.yaml",
+    verbose = FALSE
   )
   expect_files_table(
     gl_files_table, with_cols = "api_url"
@@ -212,15 +208,38 @@ test_that("get_files_content_from_repos for GitLab works", {
   gitlab_testhost_priv$searching_scope <- "org"
 })
 
+test_that("get_files_content_from_repos for GitLab prints message", {
+  mockery::stub(
+    gitlab_testhost_priv$get_files_content_from_repos,
+    "graphql_engine$prepare_files_table",
+    test_mocker$use("gl_files_table")
+  )
+  test_org <- "test_group"
+  attr(test_org, "type") <- "organization"
+  mockery::stub(
+    gitlab_testhost_priv$get_files_content_from_repos,
+    "graphql_engine$set_owner_type",
+    test_org
+  )
+  gitlab_testhost_priv$searching_scope <- "repo"
+  expect_snapshot(
+    gl_files_table <- gitlab_testhost_priv$get_files_content_from_repos(
+      file_path = "meta_data.yaml",
+      verbose = TRUE
+    )
+  )
+})
+
 test_that("get_files_content makes use of files_structure", {
   mockery::stub(
     gitlab_testhost_priv$get_files_content_from_files_structure,
-    "private$add_repo_api_url",
+    "graphql_engine$prepare_files_table",
     test_mocker$use("gl_files_table")
   )
   expect_snapshot(
     files_content <- gitlab_testhost_priv$get_files_content_from_files_structure(
-      files_structure = test_mocker$use("gl_files_structure_from_orgs")
+      files_structure = test_mocker$use("gl_files_structure_from_orgs"),
+      verbose = TRUE
     )
   )
   expect_files_table(

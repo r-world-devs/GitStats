@@ -238,6 +238,31 @@ test_that("get_files_structure_from_repos pulls files structure for repositories
   gitlab_testhost_priv$searching_scope <- "org"
 })
 
+test_that("get_files_structure_from_repos prints message", {
+  mockery::stub(
+    gitlab_testhost_priv$get_files_structure_from_repos,
+    "graphql_engine$get_files_structure_from_org",
+    test_mocker$use("gl_files_structure_shallow")
+  )
+  test_org <- "test_group"
+  attr(test_org, "type") <- "organization"
+  mockery::stub(
+    gitlab_testhost_priv$get_files_structure_from_repos,
+    "graphql_engine$set_owner_type",
+    test_org
+  )
+  gitlab_testhost_priv$searching_scope <- "repo"
+  expect_snapshot(
+    gl_files_structure_from_repos <- gitlab_testhost_priv$get_files_structure_from_repos(
+      pattern = "\\.md",
+      depth = 1L,
+      verbose = TRUE,
+      progress = FALSE
+    )
+  )
+  gitlab_testhost_priv$searching_scope <- "org"
+})
+
 test_that("get_path_from_files_structure gets file path from files structure", {
   test_graphql_gitlab <- EngineGraphQLGitLab$new(
     gql_api_url = "https://gitlab.com/api/v4/graphql",

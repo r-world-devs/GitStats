@@ -22,9 +22,19 @@
     Message
       > Encountered query complexity error (too many files). I will divide input data into chunks...
 
+# get_files_content_from_repos for GitLab prints message
+
+    Code
+      gl_files_table <- gitlab_testhost_priv$get_files_content_from_repos(file_path = "meta_data.yaml",
+        verbose = TRUE)
+    Message
+      > [Host:GitLab][Engine:GraphQl][Scope:test_group: 0 repos] Pulling files content: [meta_data.yaml]...
+
 # get_files_content makes use of files_structure
 
     Code
       files_content <- gitlab_testhost_priv$get_files_content_from_files_structure(
-        files_structure = test_mocker$use("gl_files_structure_from_orgs"))
+        files_structure = test_mocker$use("gl_files_structure_from_orgs"), verbose = TRUE)
+    Message
+      > [Host:GitLab][Engine:GraphQl][Scope:test_group] Pulling files from files structure...
 
