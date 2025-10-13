@@ -30,11 +30,6 @@ test_that("get_file_blobs_response() works", {
 test_that("GitLab GraphQL Engine pulls files from a group", {
   mockery::stub(
     test_graphql_gitlab$get_files_from_org,
-    "self$get_repos_data",
-    test_mocker$use("gl_repos_data")
-  )
-  mockery::stub(
-    test_graphql_gitlab$get_files_from_org,
     "self$gql_response",
     test_fixtures$gitlab_file_org_response
   )
@@ -50,11 +45,6 @@ test_that("GitLab GraphQL Engine pulls files from a group", {
 })
 
 test_that("GitLab GraphQL Engine pulls files from org by iterating over repos", {
-  mockery::stub(
-    test_graphql_gitlab$get_files_from_org_per_repo,
-    "self$get_repos_data",
-    test_mocker$use("gl_repos_data")
-  )
   mockery::stub(
     test_graphql_gitlab$get_files_from_org_per_repo,
     "private$get_file_blobs_response",
@@ -79,12 +69,26 @@ test_that("is query error is FALSE when response is empty (non query error)", {
   )
 })
 
-test_that("Gitlab GraphQL switches to pulling files per repositories when query is too complex", {
+test_that("GitLab GraphQL Engine switches to pulliing files per repo when owner is not an organization", {
   mockery::stub(
     test_graphql_gitlab$get_files_from_org,
-    "self$get_repos_data",
-    test_mocker$use("gl_repos_data")
+    "self$get_files_from_org_per_repo",
+    test_mocker$use("gl_files_from_org_per_repo")
   )
+  gitlab_files_response <- test_graphql_gitlab$get_files_from_org(
+    org = "mbtests",
+    owner_type = "user",
+    repos = NULL,
+    file_paths = "project_metadata.yaml",
+    host_files_structure = NULL
+  )
+  expect_gitlab_files_from_org_by_repos_response(
+    response = gitlab_files_response,
+    expected_files = "project_metadata.yaml"
+  )
+})
+
+test_that("Gitlab GraphQL switches to pulling files per repositories when query is too complex", {
   mockery::stub(
     test_graphql_gitlab$get_files_from_org,
     "private$is_query_error",
@@ -113,6 +117,34 @@ test_that("Gitlab GraphQL switches to pulling files per repositories when query 
     expected_files = c("project_metadata.yaml", "README.md")
   )
   test_mocker$cache(gitlab_files_response_by_repos)
+})
+
+test_that("Gitlab GraphQL prints messages when switching to pulling files per repositories", {
+  mockery::stub(
+    test_graphql_gitlab$get_files_from_org,
+    "private$is_query_error",
+    TRUE
+  )
+  mockery::stub(
+    test_graphql_gitlab$get_files_from_org,
+    "private$is_complexity_error",
+    TRUE
+  )
+  mockery::stub(
+    test_graphql_gitlab$get_files_from_org,
+    "self$get_files_from_org_per_repo",
+    test_mocker$use("gl_files_from_org_per_repo")
+  )
+  expect_snapshot(
+    gitlab_files_response_by_repos <- test_graphql_gitlab$get_files_from_org(
+      org = "mbtests",
+      owner_type = "organization",
+      repos = NULL,
+      file_paths = c("project_metadata.yaml", "README.md"),
+      host_files_structure = NULL,
+      verbose = TRUE
+    )
+  )
 })
 
 test_that("GitLab GraphQL switches to iteration when query is too complex", {

@@ -12,6 +12,16 @@
     Output
       [1] "\n      query GetFilesByRepo($fullPath: ID!, $file_paths: [String!]!) {\n        project(fullPath: $fullPath) {\n          name\n          path\n          id\n          webUrl\n          repository {\n            blobs(paths: $file_paths) {\n              nodes {\n                path\n                rawBlob\n                size\n                oid\n              }\n            }\n            lastCommit {\n              sha\n            }\n          }\n        }\n      }\n      "
 
+# Gitlab GraphQL prints messages when switching to pulling files per repositories
+
+    Code
+      gitlab_files_response_by_repos <- test_graphql_gitlab$get_files_from_org(org = "mbtests",
+        owner_type = "organization", repos = NULL, file_paths = c(
+          "project_metadata.yaml", "README.md"), host_files_structure = NULL,
+        verbose = TRUE)
+    Message
+      i I will switch to pulling files per repository.
+
 # GitLab GraphQL switches to iteration when query is too complex
 
     Code
