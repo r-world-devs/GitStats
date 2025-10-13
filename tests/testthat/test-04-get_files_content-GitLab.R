@@ -206,6 +206,7 @@ test_that("get_files_content_from_orgs for GitLab works", {
     "graphql_engine$prepare_files_table",
     test_mocker$use("gl_files_table")
   )
+  gitlab_testhost_priv$searching_scope <- "org"
   gl_files_table <- gitlab_testhost_priv$get_files_content_from_orgs(
     file_path = "meta_data.yaml",
     verbose = FALSE
