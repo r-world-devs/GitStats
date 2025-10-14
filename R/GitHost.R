@@ -1362,8 +1362,7 @@ GitHost <- R6::R6Class(
             owner_type = owner_type,
             repos_data = repos_data,
             file_paths = file_path,
-            verbose = verbose,
-            progress = FALSE
+            verbose = verbose
           ) |>
             graphql_engine$prepare_files_table(
               org = org
