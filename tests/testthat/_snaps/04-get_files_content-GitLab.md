@@ -30,7 +30,7 @@
         file_paths = c("project_metadata.yaml", "README.md"), host_files_structure = NULL,
         verbose = TRUE)
     Message
-      > Encountered query complexity error (too many files). I will divide input data into chunks...
+      ! [gitstatstesting] Encountered query complexity error. Too many files (2)).
 
 # get_files_content_from_repos for GitLab prints message
 

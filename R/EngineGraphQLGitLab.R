@@ -371,7 +371,7 @@ EngineGraphQLGitLab <- R6::R6Class(
         )
         if (private$is_complexity_error(files_response)) {
           if (verbose) {
-            cli::cli_alert("Encountered query complexity error (too many files). I will divide input data into chunks...")
+            cli::cli_alert_warning("[{repo}] Encountered query complexity error. Too many files ({length(file_paths)})).")
           }
           files_response <- private$get_file_blobs_response(
             org = org,
@@ -598,17 +598,19 @@ EngineGraphQLGitLab <- R6::R6Class(
 
     prepare_files_table_row = function(project, org) {
       purrr::map(project$repository$blobs$nodes, function(file) {
-        data.frame(
-          "repo_id" = get_gitlab_repo_id(project$id),
-          "repo_name" = project$path %||% project$name,
-          "organization" = org,
-          "file_path" = file$path,
-          "file_content" = file$rawBlob,
-          "file_size" = as.integer(file$size),
-          "file_id" = file$oid,
-          "repo_url" = project$webUrl,
-          "commit_sha" = project$repository$lastCommit$sha %||% NA_character_
-        )
+        if (!is.null(file)) {
+          data.frame(
+            "repo_id" = get_gitlab_repo_id(project$id),
+            "repo_name" = project$path %||% project$name,
+            "organization" = org,
+            "file_path" = file$path,
+            "file_content" = file$rawBlob,
+            "file_size" = as.integer(file$size),
+            "file_id" = file$oid,
+            "repo_url" = project$webUrl,
+            "commit_sha" = project$repository$lastCommit$sha %||% NA_character_
+          )
+        }
       }) |>
         purrr::list_rbind()
     },
