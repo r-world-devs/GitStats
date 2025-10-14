@@ -802,7 +802,7 @@ GitHost <- R6::R6Class(
               )
           }
           return(repos_table)
-        }, .progress = progress) |>
+        }, .progress = set_progress_bar(progress, private)) |>
           purrr::list_rbind()
       }
     },
@@ -859,7 +859,7 @@ GitHost <- R6::R6Class(
               )
           }
           return(repos_table)
-        }, .progress = progress) |>
+        }, .progress = set_progress_bar(progress, private)) |>
           purrr::list_rbind()
       }
     },
@@ -879,8 +879,7 @@ GitHost <- R6::R6Class(
           in_path = in_path,
           language = language,
           output = output,
-          verbose = verbose,
-          progress = progress
+          verbose = verbose
         )
       }
       if (!private$scan_all) {
@@ -899,8 +898,7 @@ GitHost <- R6::R6Class(
           in_path = in_path,
           language = language,
           output = output,
-          verbose = verbose,
-          progress = progress
+          verbose = verbose
         )
         repos_table <- rbind(repos_from_org, repos_from_repos)
       }
@@ -950,7 +948,7 @@ GitHost <- R6::R6Class(
             repos = NULL
           )
           return(repos_urls)
-        }, .progress = progress) %>%
+        }, .progress = set_progress_bar(progress, private)) |>
           unlist()
       }
     },
@@ -978,7 +976,7 @@ GitHost <- R6::R6Class(
             repos = private$orgs_repos[[org]]
           )
           return(repos_urls)
-        }, .progress = progress) %>%
+        }, .progress = set_progress_bar(progress, private)) |>
           unlist()
       }
     },
@@ -988,8 +986,7 @@ GitHost <- R6::R6Class(
                                              in_path = FALSE,
                                              language = NULL,
                                              output = "table_full",
-                                             verbose = TRUE,
-                                             progress = TRUE) {
+                                             verbose = TRUE) {
       if (verbose) {
         show_message(
           host = private$host_name,
@@ -1071,11 +1068,7 @@ GitHost <- R6::R6Class(
             output = output,
             verbose = verbose
           )
-        }, .progress = if (progress) {
-          "Pulling repositories from organizations..."
-        } else {
-          FALSE
-        })
+        }, .progress = set_progress_bar(progress, private))
         if (output != "raw") {
           repos_output <- purrr::list_rbind(repos_list)
         } else {
@@ -1090,8 +1083,7 @@ GitHost <- R6::R6Class(
                                               in_path = FALSE,
                                               language = NULL,
                                               output = "table_full",
-                                              verbose = TRUE,
-                                              progress = TRUE) {
+                                              verbose = TRUE) {
       orgs <- names(private$orgs_repos)
       if ("repo" %in% private$searching_scope) {
         if (verbose) {

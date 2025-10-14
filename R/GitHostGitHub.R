@@ -163,7 +163,10 @@ GitHostGitHub <- R6::R6Class(
     },
 
     # Get projects URL from search response
-    get_repo_url_from_response = function(search_response, repos_fullnames = NULL, type, progress = TRUE) {
+    get_repo_url_from_response = function(search_response,
+                                          repos_fullnames = NULL,
+                                          type,
+                                          progress = TRUE) {
       if (!is.null(repos_fullnames)) {
         search_response <- search_response |>
           purrr::keep(~ paste0(.$organization$login, "/", .$repo_path) %in% repos_fullnames)
