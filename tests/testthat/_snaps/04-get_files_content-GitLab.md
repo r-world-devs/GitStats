@@ -46,5 +46,5 @@
       files_content <- gitlab_testhost_priv$get_files_content_from_files_structure(
         files_structure = test_mocker$use("gl_files_structure_from_orgs"), verbose = TRUE)
     Message
-      > [Host:GitLab][Engine:GraphQl][Scope:test_group] Pulling files from files structure...
+      > [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling files from files structure...
 

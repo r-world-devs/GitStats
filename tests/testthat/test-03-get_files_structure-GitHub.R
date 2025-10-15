@@ -7,13 +7,8 @@ test_that("files tree query for GitHub are built properly", {
   test_mocker$cache(gh_files_tree_query)
 })
 
-if (integration_tests_skipped) {
-  gh_org <- "test_org"
-  gh_repo <- "TestRepo"
-} else {
-  gh_org <- "r-world-devs"
-  gh_repo <- "GitStats"
-}
+gh_org <- "r-world-devs"
+gh_repo <- "GitStats"
 
 test_that("get_file_response works", {
   if (integration_tests_skipped) {
@@ -70,7 +65,9 @@ test_that("get_files_structure_from_repo returns list with files and dirs vector
     org = gh_org,
     repo = gh_repo,
     pattern = NULL,
-    def_branch = "master"
+    depth = 1L,
+    def_branch = "master",
+    verbose = FALSE
   )
   expect_type(
     files_structure,
@@ -136,19 +133,21 @@ test_that("GitHub GraphQL Engine pulls files structure from repositories", {
       "private$get_files_structure_from_repo",
       test_mocker$use("files_structure")
     )
-    gh_repos <- c("TestRepo", "TestRepo1", "TestRepo2", "TestRepo3", "TestRepo4")
-  } else {
-    gh_repos <- c("cohortBuilder", "GitStats", "GitAI")
   }
+  gh_repos <- c("GitStats", "GitAI", "cohortBuilder", "shinyCohortBuilder", "shinyGizmo")
+  gh_repos_data <- test_mocker$use("gh_repos_data")
   gh_files_structure <- test_graphql_github$get_files_structure_from_org(
     org = gh_org,
-    repos_data = test_mocker$use("gh_repos_data"),
-    owner_type = "organization"
+    repos_data = gh_repos_data,
+    owner_type = "organization",
+    pattern = NULL,
+    depth = 1L,
+    verbose = FALSE
   )
   purrr::walk(gh_files_structure, ~ expect_true(length(.) > 0))
   expect_equal(
     names(gh_files_structure),
-    gh_repos
+    unlist(gh_repos_data$paths)
   )
   test_mocker$cache(gh_files_structure)
 })
@@ -218,7 +217,7 @@ test_that("get_files_structure_from_orgs() prints message", {
 })
 
 test_that("get_files_structure_from_repos() works", {
-  test_org <- "test_org"
+  test_org <- "r-world-devs"
   attr(test_org, "type") <- "organization"
   mockery::stub(
     github_testhost_priv$get_files_structure_from_repos,
@@ -367,6 +366,6 @@ test_that("get_files_structure runs when scope is set to scan whole host", {
   )
   expect_equal(
     names(files_structure),
-    "test_org"
+    "r-world-devs"
   )
 })
