@@ -35,7 +35,7 @@
         get_repos_with_code_from_orgs(code = "shiny", in_files = c("DESCRIPTION",
         "NAMESPACE"), language = "R", output = "raw", verbose = TRUE)
     Message
-      > [Host:GitHub][Engine:REST][Scope:test_org] Pulling repositories...
+      > [Host:GitHub][Engine:REST][Scope:r-world-devs] Pulling repositories...
 
 # `get_repos_with_code_from_host()` pulls and parses output into table
 
@@ -60,7 +60,7 @@
       gh_repos_individual <- github_testhost_priv$get_repos_from_repos(verbose = TRUE,
         progress = FALSE)
     Message
-      > [Host:GitHub][Engine:GraphQl][Scope:test_org: 1 repos] Pulling repositories...
+      > [Host:GitHub][Engine:GraphQl][Scope:r-world-devs: 1 repos] Pulling repositories...
 
 # `get_repos_contributors()` works on GitHost level
 
@@ -74,7 +74,7 @@
 # `get_repos_data` pulls repos data from cache for the second time
 
     Code
-      gh_repos_data <- github_testhost_priv$get_repos_data(org = "test_org", repos = "TestRepo",
+      gh_repos_data <- github_testhost_priv$get_repos_data(org = "r-world-devs",
         verbose = TRUE)
     Message
       > Using cached repositories data...
