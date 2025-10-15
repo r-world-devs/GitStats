@@ -6,6 +6,7 @@ Patch release with some improvements and fixes for the process of pulling reposi
 - Introduced caching repositories data, as a bunch of functions for getting commits, files and issues etc. make use of this data ([#693](https://github.com/r-world-devs/GitStats/issues/693)).
 - Simplified code for handling complexity error when getting files from GitLab repositories ([#695](https://github.com/r-world-devs/GitStats/issues/695)).
 - Introduced changes to progress bars, most notably moved them to the GitHost level to display high-level progress ([#687](https://github.com/r-world-devs/GitStats/issues/687), [#697](https://github.com/r-world-devs/GitStats/issues/697)).
+- Made integration tests work for local testing ([#595](https://github.com/r-world-devs/GitStats/issues/595)).
 
 # GitStats 2.3.6
 
