@@ -166,6 +166,7 @@ GitHostGitHub <- R6::R6Class(
     get_repo_url_from_response = function(search_response,
                                           repos_fullnames = NULL,
                                           type,
+                                          verbose = TRUE,
                                           progress = TRUE) {
       if (!is.null(repos_fullnames)) {
         search_response <- search_response |>
