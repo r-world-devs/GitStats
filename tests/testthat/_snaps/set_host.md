@@ -138,6 +138,7 @@
       > Checking owners...
       ! Org/user you provided does not exist: r_world_devs
       > Checking repositories...
+      x HTTP 404 Not Found.
       ! Repository you provided does not exist: https://api.github.com/repos/r-world-devs/GitMetrics
       v Set connection to GitHub.
 

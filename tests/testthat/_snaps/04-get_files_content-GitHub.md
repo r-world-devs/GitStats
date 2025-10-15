@@ -12,5 +12,5 @@
         files_structure = test_mocker$use("gh_files_structure_from_orgs"), verbose = TRUE,
         progress = FALSE)
     Message
-      > [Host:GitHub][Engine:GraphQl][Scope:test_org] Pulling files from files structure...
+      > [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling files from files structure...
 

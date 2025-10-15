@@ -25,16 +25,14 @@ test_that("repos_by_ids query is built properly", {
   test_mocker$cache(gh_repos_by_ids_query)
 })
 
-
+gh_org <- "r-world-devs"
 if (integration_tests_skipped) {
-  gh_org <- "test_org"
   gh_user <- "test_user"
   gh_repo <- "TestRepo"
   gh_code <- "test_code"
   gh_file <- "test_file"
 } else {
-  gh_org <- "r-world-devs"
-  gh_repo <- "GitStats"
+  gh_repo <- "GitAI"
   gh_user <- "maciekbanas"
   gh_code <- "GitStats"
   gh_file <- "DESCRIPTION"
@@ -201,7 +199,6 @@ test_that("`search_repos_for_code()` returns repos output for code search in fil
     code = gh_code,
     filename = gh_file,
     in_path = FALSE,
-    language = "R",
     repos = paste0(gh_org, "/", gh_repo),
     verbose = FALSE
   )
@@ -221,16 +218,15 @@ test_that("`search_for_code()` works with language filter", {
       "private$search_response",
       test_fixtures$github_search_response$items
     )
+    gh_search_for_code_language <- test_rest_github$search_for_code(
+      code = gh_code,
+      filename = gh_file,
+      in_path = FALSE,
+      language = "R",
+      verbose = FALSE
+    )
+    expect_gh_search_response(gh_search_for_code_language)
   }
-  gh_search_for_code_language <- test_rest_github$search_for_code(
-    code = gh_code,
-    filename = gh_file,
-    in_path = FALSE,
-    language = "R",
-    verbose = FALSE
-  )
-  expect_gh_search_response(gh_search_for_code_language)
-  test_mocker$cache(gh_search_for_code_language)
 })
 
 test_that("`prepare_repos_table()` prepares repos table", {
@@ -484,7 +480,7 @@ test_that("get_repos_from_orgs works", {
 })
 
 test_that("get_repos_from_repos works", {
-  test_org <- "test_org"
+  test_org <- "r-world-devs"
   attr(test_org, "type") <- "organization"
   mockery::stub(
     github_testhost_priv$get_repos_from_repos,
@@ -502,7 +498,7 @@ test_that("get_repos_from_repos works", {
     test_mocker$use("gh_repos_table")
   )
   github_testhost_priv$searching_scope <- c("org", "repo")
-  github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
+  github_testhost_priv$orgs_repos <- list("r-world-devs" = "GitStats")
   expect_snapshot(
     gh_repos_individual <- github_testhost_priv$get_repos_from_repos(
       verbose = TRUE,
@@ -709,15 +705,17 @@ test_that("filtering by language does not fail when NULL is passed as input", {
 })
 
 test_that("`get_repos_data` pulls repos data from org", {
-  mockery::stub(
-    github_testhost_priv$get_repos_data,
-    "graphql_engine$get_repos_from_org",
-    test_mocker$use("gh_repos_from_org")
-  )
-  github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
+  if (integration_tests_skipped) {
+    mockery::stub(
+      github_testhost_priv$get_repos_data,
+      "graphql_engine$get_repos_from_org",
+      test_mocker$use("gh_repos_from_org")
+    )
+  }
+  github_testhost_priv$orgs_repos <- list("r-world-devs" = c("cohortBuilder", "GitStats", "GitAI"))
   github_testhost_priv$searching_scope <- "org"
   gh_repos_data <- github_testhost_priv$get_repos_data(
-    org = "test_org",
+    org = "r-world-devs",
     verbose = FALSE
   )
   expect_type(gh_repos_data, "list")
@@ -741,8 +739,7 @@ test_that("`get_repos_data` pulls repos data from cache for the second time", {
   github_testhost_priv$searching_scope <- "org"
   expect_snapshot(
     gh_repos_data <- github_testhost_priv$get_repos_data(
-      org = "test_org",
-      repos = "TestRepo",
+      org = "r-world-devs",
       verbose = TRUE
     )
   )
@@ -754,15 +751,17 @@ test_that("`get_repos_data` pulls repos data from cache for the second time", {
 })
 
 test_that("`get_repos_data` pulls repos data from repos", {
-  mockery::stub(
-    github_testhost_priv$get_repos_data,
-    "graphql_engine$get_repos_from_org",
-    test_mocker$use("gh_repos_from_org")
-  )
+  if (integration_tests_skipped) {
+    mockery::stub(
+      github_testhost_priv$get_repos_data,
+      "graphql_engine$get_repos_from_org",
+      test_mocker$use("gh_repos_from_org")
+    )
+  }
   github_testhost_priv$searching_scope <- "repo"
   gh_repos_data <- github_testhost_priv$get_repos_data(
-    org = "test_org",
-    repos = "TestRepo",
+    org = "r-world-devs",
+    repos = c("cohortBuilder", "GitStats", "GitAI"),
     verbose = FALSE
   )
   expect_type(gh_repos_data, "list")

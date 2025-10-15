@@ -11,7 +11,7 @@
       releases_from_orgs <- gitlab_testhost_priv$get_release_logs_from_orgs(since = "2023-05-01",
         until = "2023-09-30", verbose = TRUE, progress = FALSE)
     Message
-      > [Host:GitLab][Engine:GraphQl][Scope:test_group] Pulling release logs...
+      > [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling release logs...
 
 # `get_release_logs_from_repos()` works
 

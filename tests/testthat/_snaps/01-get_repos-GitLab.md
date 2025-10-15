@@ -53,7 +53,7 @@
       gl_repos_from_orgs <- gitlab_testhost_priv$get_repos_from_orgs(verbose = TRUE,
         progress = FALSE)
     Message
-      > [Host:GitLab][Engine:GraphQl][Scope:test_group] Pulling repositories...
+      > [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling repositories...
 
 # GitLab Host prints message when turning to REST engine (from orgs)
 
@@ -61,9 +61,9 @@
       gl_repos_from_orgs <- gitlab_testhost_priv$get_repos_from_orgs(verbose = TRUE,
         progress = FALSE)
     Message
-      > [Host:GitLab][Engine:GraphQl][Scope:test_group] Pulling repositories...
+      > [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling repositories...
       i Switching to REST API
-      > [Host:GitLab][Engine:REST][Scope:test_group] Pulling repositories...
+      > [Host:GitLab][Engine:REST][Scope:mbtests] Pulling repositories...
 
 # GitLab Host prints message when turning to REST engine (from repos)
 
@@ -75,10 +75,10 @@
       i Switching to REST API
       > [Host:GitLab][Engine:REST][Scope:test_org] Pulling repositories...
 
-# `get_repos_data` pulls data from org
+# `get_repos_data` uses cached data from org
 
     Code
-      gl_repos_data <- gitlab_testhost_priv$get_repos_data(org = "test_org", verbose = TRUE)
+      gl_repos_data <- gitlab_testhost_priv$get_repos_data(org = "mbtests", verbose = TRUE)
     Message
       > Using cached repositories data...
 
