@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.6.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,10 +39,13 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="gitstats-development-version">GitStats (development version)<a class="anchor" aria-label="anchor" href="#gitstats-development-version"></a></h2>
-<ul><li>Handled GitLab GraphQL error for <code>get_repos_names()</code> method in <code><a href="../reference/get_commits.html">get_commits()</a></code> with switching to REST API engine (<a href="https://github.com/r-world-devs/GitStats/issues/690" class="external-link">#690</a>).</li>
-<li>Introduced changes to progress bars, most notably moved them to the GitHost level to display high-level progress (<a href="https://github.com/r-world-devs/GitStats/issues/687" class="external-link">#687</a>).</li>
+<h2 class="pkg-version" data-toc-text="2.3.7" id="gitstats-237">GitStats 2.3.7<a class="anchor" aria-label="anchor" href="#gitstats-237"></a></h2>
+<p>Patch release with some improvements and fixes for the process of pulling repositories data when getting commits and files, as well as change of the idea of progress bars, which are now displayed on GitHost level, instead of organization level.</p>
+<ul><li>Handled GitLab GraphQL error for <code>get_repos_data()</code> method in <code><a href="../reference/get_commits.html">get_commits()</a></code> and <code><a href="../reference/get_files.html">get_files()</a></code> with switching to REST API engine (<a href="https://github.com/r-world-devs/GitStats/issues/690" class="external-link">#690</a>).</li>
 <li>Introduced caching repositories data, as a bunch of functions for getting commits, files and issues etc. make use of this data (<a href="https://github.com/r-world-devs/GitStats/issues/693" class="external-link">#693</a>).</li>
+<li>Simplified code for handling complexity error when getting files from GitLab repositories (<a href="https://github.com/r-world-devs/GitStats/issues/695" class="external-link">#695</a>).</li>
+<li>Introduced changes to progress bars, most notably moved them to the GitHost level to display high-level progress (<a href="https://github.com/r-world-devs/GitStats/issues/687" class="external-link">#687</a>, <a href="https://github.com/r-world-devs/GitStats/issues/697" class="external-link">#697</a>).</li>
+<li>Made integration tests work for local testing (<a href="https://github.com/r-world-devs/GitStats/issues/595" class="external-link">#595</a>).</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.3.6" id="gitstats-236">GitStats 2.3.6<a class="anchor" aria-label="anchor" href="#gitstats-236"></a></h2><p class="text-muted">CRAN release: 2025-09-17</p>
