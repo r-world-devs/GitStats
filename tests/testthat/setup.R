@@ -1,14 +1,11 @@
 integration_tests_skipped <- Sys.getenv("GITSTATS_INTEGRATION_TEST_SKIPPED", unset = "true") |>
   as.logical()
-
+gitlab_group <- "mbtests"
+github_org <- "r-world-devs"
 if (integration_tests_skipped) {
   github_token <- NULL
-  github_org <- "test_org"
-  gitlab_group <- "test_group"
 } else {
   github_token <- Sys.getenv("GITHUB_PAT")
-  github_org <- "r-world-devs"
-  gitlab_group <- "mbtests"
 }
 
 test_mocker <- Mocker$new()

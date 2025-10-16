@@ -76,9 +76,9 @@ test_fixtures$rest_gl_orgs_response <- list(
 
 gitlab_org_edge <- list(
   "node" = list(
-    "name" = "test_name",
+    "name" = "mbtests",
     "description" = "test_description",
-    "fullPath" = "test_path",
+    "fullPath" = "mbtests",
     "webUrl" = "web_url",
     "projectsCount" = 5L,
     "groupMembersCount" = 3L,
@@ -111,8 +111,8 @@ test_fixtures$graphql_gl_org_response <- list(
 test_fixtures$rest_gl_org_response <- list(
   "id" = 11111,
   "web_url" = "url",
-  "name" = "test_name",
-  "path" = "test_path",
+  "name" = "mbtests",
+  "path" = "mbtests",
   "description" = "test_description"
 )
 
@@ -245,7 +245,7 @@ github_repository_node <- function(org_name, repo_name) {
       "totalCount" = 5
     ),
     "organization" = list(
-      "login" = "test_org"
+      "login" = "r-world-devs"
     ),
     "repo_url" = "https://github.test.com/api/test_url",
     "defaultBranchRef" = list(
@@ -278,11 +278,11 @@ test_fixtures$github_repos_by_org_response <- list(
           "hasNextPage" = FALSE
         ),
         "nodes" = list(
-          github_repository_node("TestOrg", "TestRepo"),
-          github_repository_node("TestOrg", "TestRepo1"),
-          github_repository_node("TestOrg", "TestRepo2"),
-          github_repository_node("TestOrg", "TestRepo3"),
-          github_repository_node("TestOrg", "TestRepo4")
+          github_repository_node("r-world-devs", "GitStats"),
+          github_repository_node("r-world-devs", "GitAI"),
+          github_repository_node("r-world-devs", "cohortBuilder"),
+          github_repository_node("r-world-devs", "shinyCohortBuilder"),
+          github_repository_node("r-world-devs", "shinyGizmo")
         )
       )
     )
@@ -340,7 +340,7 @@ gitlab_project_node <- list(
       "opened" = 2
     ),
     "namespace" = list(
-      "path" = "test_group"
+      "path" = "mbtests"
     ),
     "repo_url" = "https://test_gitlab_url.com"
   )
@@ -473,9 +473,9 @@ github_closed_issue_edge <- function(created_at) {
   )
 }
 
-open_issue_timestamps <- generate_random_timestamps(25, 2023, 2024)
+open_issue_timestamps <- generate_random_timestamps(25, 2023, 2025)
 set.seed(234)
-closed_issue_timestamps <- generate_random_timestamps(25, 2023, 2024)
+closed_issue_timestamps <- generate_random_timestamps(25, 2023, 2025)
 
 open_issues <- purrr::map(open_issue_timestamps, github_open_issue_edge)
 closed_issues <- purrr::map(closed_issue_timestamps, github_closed_issue_edge)

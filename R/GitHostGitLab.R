@@ -469,13 +469,12 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             owner_type = owner_type,
             repos_data = list("paths" = private$orgs_repos[[org]]),
             file_paths = file_path,
-            verbose = verbose,
-            progress = progress
+            verbose = verbose
           ) |>
             graphql_engine$prepare_files_table(
               org = org
             )
-        }) |>
+        }, .progress = set_progress_bar(progress, private)) |>
           purrr::list_rbind() |>
           private$add_repo_api_url()
         return(files_table)
@@ -506,13 +505,12 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           owner_type = owner_type,
           repos_data = list("paths" = repos),
           host_files_structure = files_structure,
-          verbose = verbose,
-          progress = progress
+          verbose = verbose
         ) |>
           graphql_engine$prepare_files_table(
             org = org
           )
-      }) |>
+      }, .progress = set_progress_bar(progress, private)) |>
         purrr::list_rbind() |>
         private$add_repo_api_url()
       return(files_table)

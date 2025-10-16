@@ -163,7 +163,11 @@ GitHostGitHub <- R6::R6Class(
     },
 
     # Get projects URL from search response
-    get_repo_url_from_response = function(search_response, repos_fullnames = NULL, type, progress = TRUE) {
+    get_repo_url_from_response = function(search_response,
+                                          repos_fullnames = NULL,
+                                          type,
+                                          verbose = TRUE,
+                                          progress = TRUE) {
       if (!is.null(repos_fullnames)) {
         search_response <- search_response |>
           purrr::keep(~ paste0(.$organization$login, "/", .$repo_path) %in% repos_fullnames)
@@ -280,8 +284,7 @@ GitHostGitHub <- R6::R6Class(
             owner_type = owner_type,
             repos_data = repos_data,
             file_paths = file_path,
-            verbose = verbose,
-            progress = FALSE
+            verbose = verbose
           ) |>
             graphql_engine$prepare_files_table(
               org = org
@@ -322,8 +325,7 @@ GitHostGitHub <- R6::R6Class(
           owner_type = owner_type,
           repos_data = repos_data,
           host_files_structure = files_structure,
-          verbose = verbose,
-          progress = FALSE
+          verbose = verbose
         ) |>
           graphql_engine$prepare_files_table(
             org = org
