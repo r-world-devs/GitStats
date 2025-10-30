@@ -1,3 +1,5 @@
+# GitStats (development version)
+
 # GitStats 2.3.7
 
 Patch release with some improvements and fixes for the process of pulling repositories data when getting commits and files, as well as change of the idea of progress bars, which are now displayed on GitHost level, instead of organization level.
