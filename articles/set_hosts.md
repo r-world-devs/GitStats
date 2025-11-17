@@ -1,0 +1,161 @@
+# Setting hosts
+
+To make `GitStats` work you need to set hosts after creating `gitstats`.
+
+You can set GitLab host with
+[`set_gitlab_host()`](https://r-world-devs.github.io/GitStats/reference/set_gitlab_host.md)
+and GitHub host with
+[`set_github_host()`](https://r-world-devs.github.io/GitStats/reference/set_github_host.md)
+or both.
+
+When setting hosts you need to consider:
+
+- Do you wish to connect to `private` or `public` hosts?
+
+- What `scanning scope` do you wish to set? Do you want to scan specific
+  `organizations` and/or `repositories` or maybe whole git platforms?
+
+- Do you have `tokens` set up and stored in your environment variables
+  that grant you access to APIs?
+
+## Public and private hosts
+
+If you connect to **public** hosts you simply call
+[`set_github_host()`](https://r-world-devs.github.io/GitStats/reference/set_github_host.md)
+or
+[`set_gitlab_host()`](https://r-world-devs.github.io/GitStats/reference/set_gitlab_host.md)
+function without specifying `host` parameter.
+
+``` r
+library(GitStats)
+git_stats <- create_gitstats() |>
+  set_github_host(
+    orgs = c("r-world-devs", "openpharma"),
+    token = Sys.getenv("GITHUB_PAT")
+  ) |>
+  set_gitlab_host(
+    orgs = c("mbtests"),
+    token = Sys.getenv("GITLAB_PAT_PUBLIC")
+  )
+```
+
+If you wish to connect to **internal** GitHub or GitLab, you need to
+pass names of the hosts to `host` parameter. Remember also to have
+tokens set up properly for these hosts (on tokens read below).
+
+``` r
+git_stats <- create_gitstats() |>
+  set_github_host(
+    host = "github.internal.com",
+    orgs = c("org_1", "org_2", "org_3"),
+    token = Sys.getenv("YOUR_GITHUB_PAT")
+  ) |>
+  set_gitlab_host(
+    host = "internal.host.com",
+    orgs = c("internal_org"),
+    token = Sys.getenv("YOUR_GITLAB_PAT")
+  )
+```
+
+### API versions
+
+`GitStats` is configured to connect to GitHub API (version 3) and GitLab
+API (version 4).
+
+## Scanning scope
+
+When setting hosts you choose what scanning scope of your `GitStats`
+will be:
+
+- `organizations/groups` - in this case you need to pass character
+  arguments (names of organizations (in case of GitHub) or groups (in
+  case of GitLab)) to `orgs` parameter.
+
+``` r
+git_stats <- create_gitstats() |>
+  set_github_host(
+    orgs = c("r-world-devs", "openpharma"),
+    token = Sys.getenv("GITHUB_PAT")
+  ) |>
+  set_gitlab_host(
+    orgs = c("mbtests"),
+    token = Sys.getenv("GITLAB_PAT_PUBLIC")
+  )
+```
+
+- `repositories` - in this case you need to pass full names of
+  repositories (`{org_name}/{repo_name}`) to the `repos` parameter.
+
+``` r
+git_stats <- create_gitstats() |>
+  set_github_host(
+    repos = c("r-world-devs/GitStats", "r-world-devs/shinyCohortBuilder", "openpharma/DataFakeR"),
+    token = Sys.getenv("GITHUB_PAT")
+  ) |>
+  set_gitlab_host(
+    repos = "mbtests/gitstatstesting",
+    token = Sys.getenv("GITLAB_PAT_PUBLIC")
+  )
+```
+
+- `organizations/groups` and `repositories` - you can define both at the
+  same time:
+
+``` r
+git_stats <- create_gitstats() |>
+  set_github_host(
+    orgs = "openpharma",
+    repos = c("r-world-devs/GitStats", "r-world-devs/shinyCohortBuilder"),
+    token = Sys.getenv("GITHUB_PAT")
+  )
+```
+
+- `whole hosts` - this is possible for the time being only in case of
+  private hosts, as public ones are deemed to be too large. To set whole
+  Git platform to be scanned just set hosts **without specifying**
+  `orgs` or `repos`. On the other hand, remember that to connect with
+  internal host, you need to pass argument to `host` parameter.
+
+``` r
+git_stats <- create_gitstats() |>
+  set_github_host(
+    host = "github.internal.com",
+    token = Sys.getenv("YOUR_GITHUB_PAT")
+  ) |>
+  set_gitlab_host(
+    host = "internal.host.com",
+    token = Sys.getenv("YOUR_GITLAB_PAT")
+  )
+```
+
+## Authorize your access with tokens
+
+Remember to pass to your `set_*_host()` functions `tokens` that
+authorize access.
+
+You can store your tokens in environment variables, e.g. defined in
+`.Renviron` file as `GITHUB_PAT` for GitHub and `GITLAB_PAT` for GitLab.
+
+On how to create your tokens refer to GitHub API and GitLab API
+documentation.
+
+When creating tokens you will be asked to set access scopes of the
+tokens. For `GitStats` to work you need tokens with given scopes:
+
+- \[GitHub\] `public_repo`, `read:org` and `read:user`,
+- \[GitLab\] `read_api`.
+
+If you have your access tokens stored in environment variables with such
+names as `GITHUB_PAT` or `GITHUB_PAT_*` and `GITLAB_PAT` or
+`GITLAB_PAT_*` you do not need to specify them in `set_*_host()`
+functions, `GitStats` will automatically find them.
+
+``` r
+git_stats <- create_gitstats() |>
+  set_github_host(
+    orgs = c("r-world-devs", "openpharma")
+  ) |>
+  set_gitlab_host(
+    orgs = c("mbtests")
+  )
+```
