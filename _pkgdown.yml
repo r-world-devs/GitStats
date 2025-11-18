@@ -3,12 +3,13 @@ url: https://r-world-devs.github.io/GitStats/
 template:
   bootstrap: 5
 reference:
-- title: Create and set
+- title: Create, set and show
 - contents:
   - matches("create_gitstats")
   - starts_with("set_")
   - matches("verbose")
   - matches("show_orgs")
+  - matches("show_hosts")
   - matches("get_storage")
 - title: Get git data
   desc: >
