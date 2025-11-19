@@ -58,6 +58,7 @@ test_that("check_if_args_changed", {
   test_gitstats <- create_test_gitstats(
     hosts = 2,
     priv_mode = TRUE,
+    test_mocker = test_mocker,
     inject_repos = "repos_table"
   )
   check <- test_gitstats$check_if_args_changed(

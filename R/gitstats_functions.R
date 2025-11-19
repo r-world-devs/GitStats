@@ -8,6 +8,17 @@ create_gitstats <- function() {
   GitStats$new()
 }
 
+#' @title Show hosts set in `GitStats`
+#' @name show_hosts
+#' @description Retrieves hosts set by `GitStats` with `set_*_host()` functions.
+#' @param gitstats A GitStats object.
+#' @return A list of hosts.
+#' @export
+show_hosts <- function(gitstats) {
+  gitstats$show_hosts()
+}
+
+
 #' @title Show organizations set in `GitStats`
 #' @name show_orgs
 #' @description Retrieves organizations set or pulled by `GitStats`. Especially

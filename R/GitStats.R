@@ -426,6 +426,17 @@ GitStats <- R6::R6Class(
       return(release_logs)
     },
 
+    show_hosts = function() {
+      purrr::map(private$hosts, function(host) {
+        host_priv <- host$.__enclos_env__$private
+        list(
+          host = host_priv$host_name,
+          web_url = host_priv$web_url,
+          api_url = host_priv$api_url
+        )
+      })
+    },
+
     show_orgs = function() {
       purrr::map(private$hosts, function(host) {
         orgs <- host$.__enclos_env__$private$orgs

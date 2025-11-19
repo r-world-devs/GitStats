@@ -1,5 +1,6 @@
 # GitStats (development version)
 
+- Added `show_hosts()` function to print info on hosts set with `set_*_host()` functions ([#672](https://github.com/r-world-devs/GitStats/issues/672))
 - Handled empty GitLab project values when generating a files table ([#702](https://github.com/r-world-devs/GitStats/issues/702)).
 
 # GitStats 2.3.7
