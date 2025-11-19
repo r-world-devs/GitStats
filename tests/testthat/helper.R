@@ -1,6 +1,7 @@
 #' Create GitStats object for tests
 create_test_gitstats <- function(hosts = 0,
                                  priv_mode = FALSE,
+                                 test_mocker = NULL,
                                  inject_repos = NULL,
                                  inject_commits = NULL,
                                  inject_files = NULL,
