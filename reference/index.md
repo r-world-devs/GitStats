@@ -1,6 +1,6 @@
 # Package index
 
-## Create and set
+## Create, set and show
 
 - [`create_gitstats()`](https://r-world-devs.github.io/GitStats/reference/create_gitstats.md)
   :
@@ -26,6 +26,11 @@
   :
 
   Show organizations set in `GitStats`
+
+- [`show_hosts()`](https://r-world-devs.github.io/GitStats/reference/show_hosts.md)
+  :
+
+  Show hosts set in `GitStats`
 
 - [`get_storage()`](https://r-world-devs.github.io/GitStats/reference/get_storage.md)
   :
