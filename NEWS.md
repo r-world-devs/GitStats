@@ -2,6 +2,7 @@
 
 - Added `show_hosts()` function to print info on hosts set with `set_*_host()` functions ([#672](https://github.com/r-world-devs/GitStats/issues/672))
 - Handled empty GitLab project values when generating a files table ([#702](https://github.com/r-world-devs/GitStats/issues/702)).
+- Changed `verbose` logic - by default user functions have now `verbose` set to `FALSE`. Still, most important messages are printed (e.g. timespan of whole process) ([#704](https://github.com/r-world-devs/GitStats/issues/704)).
 
 # GitStats 2.3.7
 

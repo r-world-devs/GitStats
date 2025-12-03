@@ -12,8 +12,7 @@ git_stats <- create_gitstats() |>
 
 release_logs <- get_release_logs(
   gitstats = git_stats,
-  since = "2024-01-01",
-  verbose = FALSE
+  since = "2024-01-01"
 )
 
 release_logs

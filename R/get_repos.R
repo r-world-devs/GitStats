@@ -54,8 +54,8 @@ get_repos <- function(gitstats,
                       with_files = NULL,
                       language = NULL,
                       cache = TRUE,
-                      verbose = is_verbose(gitstats),
-                      progress = verbose) {
+                      verbose = FALSE,
+                      progress = TRUE) {
   start_time <- Sys.time()
   repos <- gitstats$get_repos(
     add_contributors = add_contributors,
@@ -69,9 +69,7 @@ get_repos <- function(gitstats,
   )
   end_time <- Sys.time()
   time_taken <- end_time - start_time
-  if (verbose) {
-    cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
-  }
+  cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
   return(repos)
 }
 
@@ -118,8 +116,8 @@ get_repos_urls <- function(gitstats,
                            in_files = NULL,
                            with_files = NULL,
                            cache = TRUE,
-                           verbose = is_verbose(gitstats),
-                           progress = verbose) {
+                           verbose = FALSE,
+                           progress = TRUE) {
   start_time <- Sys.time()
   repos_urls <- gitstats$get_repos_urls(
     type = type,
@@ -132,9 +130,7 @@ get_repos_urls <- function(gitstats,
   )
   end_time <- Sys.time()
   time_taken <- end_time - start_time
-  if (verbose) {
-    cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
-  }
+  cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
   return(repos_urls)
 }
 
@@ -176,8 +172,8 @@ get_repos_trees <- function(gitstats,
                             pattern = NULL,
                             depth = Inf,
                             cache = TRUE,
-                            verbose = is_verbose(gitstats),
-                            progress = verbose) {
+                            verbose = FALSE,
+                            progress = TRUE) {
   start_time <- Sys.time()
   repos_trees <- gitstats$get_repos_trees(
     pattern = pattern,
@@ -188,8 +184,6 @@ get_repos_trees <- function(gitstats,
   )
   end_time <- Sys.time()
   time_taken <- end_time - start_time
-  if (verbose) {
-    cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
-  }
+  cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
   return(repos_trees)
 }

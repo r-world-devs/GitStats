@@ -372,6 +372,7 @@ EngineGraphQLGitLab <- R6::R6Class(
         if (private$is_complexity_error(files_response)) {
           if (verbose) {
             cli::cli_alert_warning("[{repo}] Encountered query complexity error. Too many files ({length(file_paths)})).")
+            cli::cli_alert_info("I will run queries per 1 file.")
           }
           files_response <- private$get_file_blobs_response(
             org = org,

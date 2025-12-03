@@ -18,7 +18,6 @@ show_hosts <- function(gitstats) {
   gitstats$show_hosts()
 }
 
-
 #' @title Show organizations set in `GitStats`
 #' @name show_orgs
 #' @description Retrieves organizations set or pulled by `GitStats`. Especially
