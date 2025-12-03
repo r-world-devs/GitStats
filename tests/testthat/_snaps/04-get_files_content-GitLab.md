@@ -31,6 +31,7 @@
         verbose = TRUE)
     Message
       ! [gitstatstesting] Encountered query complexity error. Too many files (2)).
+      i I will run queries per 1 file.
 
 # get_files_content_from_repos for GitLab prints message
 
