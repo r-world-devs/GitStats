@@ -395,7 +395,7 @@ GitHostGitHub <- R6::R6Class(
     get_repos_data = function(org, repos = NULL, verbose) {
       cached_repos <- private$get_cached_repos(org)
       if (is.null(cached_repos)) {
-        cli::cli_alert("[{org}] Pulling repositories data...")
+        if (verbose) cli::cli_alert("[{org}] Pulling repositories data...")
         owner_type <- attr(org, "type") %||% "organization"
         org <- utils::URLdecode(org)
         graphql_engine <- private$engines$graphql
@@ -406,7 +406,7 @@ GitHostGitHub <- R6::R6Class(
         )
         private$set_cached_repos(repos_from_org, org, verbose)
       } else {
-        cli::cli_alert("Using cached repositories data...")
+        if (verbose) cli::cli_alert("[{org}] Using cached repositories data...")
         repos_from_org <- cached_repos
       }
       if (!is.null(repos)) {

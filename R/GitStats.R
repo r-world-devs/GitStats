@@ -48,6 +48,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
+        cli::cli_alert("Pulling organizations data...")
         organizations <- private$get_orgs_from_hosts(
           output = output,
           verbose = verbose
@@ -60,8 +61,7 @@ GitStats <- R6::R6Class(
         )
       } else {
         organizations <- private$get_from_storage(
-          table = "organizations",
-          verbose = verbose
+          table = "organizations"
         )
       }
       return(organizations)
@@ -92,6 +92,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
+        cli::cli_alert("Pulling repositories data...")
         repositories <- private$get_repos_from_hosts(
           add_contributors = add_contributors,
           with_code = with_code,
@@ -117,29 +118,28 @@ GitStats <- R6::R6Class(
         }
       } else {
         repositories <- private$get_from_storage(
-          table = "repositories",
-          verbose = verbose
+          table = "repositories"
         )
       }
       return(repositories)
     },
 
-    get_repos_urls = function(type       = "web",
-                              with_code  = NULL,
-                              in_files   = NULL,
+    get_repos_urls = function(type = "web",
+                              with_code = NULL,
+                              in_files = NULL,
                               with_files = NULL,
-                              cache      = TRUE,
-                              verbose    = TRUE,
-                              progress   = TRUE) {
+                              cache = TRUE,
+                              verbose = TRUE,
+                              progress = TRUE) {
       private$check_for_host()
       private$check_params_conflict(
         with_code = with_code,
         in_files = in_files,
         with_files = with_files
       )
-      args_list <- list("type"       = type,
-                        "with_code"  = with_code,
-                        "in_files"   = in_files,
+      args_list <- list("type" = type,
+                        "with_code" = with_code,
+                        "in_files" = in_files,
                         "with_files" = with_files)
       trigger <- private$trigger_pulling(
         cache = cache,
@@ -148,6 +148,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
+        cli::cli_alert("Pulling repositories URLs...")
         repos_urls <- private$get_repos_urls_from_hosts(
           type = type,
           with_code = with_code,
@@ -172,8 +173,7 @@ GitStats <- R6::R6Class(
         }
       } else {
         repos_urls <- private$get_from_storage(
-          table = "repos_urls",
-          verbose = verbose
+          table = "repos_urls"
         )
       }
       return(repos_urls)
@@ -181,8 +181,8 @@ GitStats <- R6::R6Class(
 
     get_commits = function(since,
                            until,
-                           cache    = TRUE,
-                           verbose  = TRUE,
+                           cache = TRUE,
+                           verbose = TRUE,
                            progress = TRUE) {
       private$check_for_host()
       args_list <- list("date_range" = c(since, as.character(until)))
@@ -193,6 +193,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
+        cli::cli_alert("Pulling commits...")
         commits <- private$get_commits_from_hosts(
           since = since,
           until = until,
@@ -215,8 +216,7 @@ GitStats <- R6::R6Class(
         }
       } else {
         commits <- private$get_from_storage(
-          table = "commits",
-          verbose = verbose
+          table = "commits"
         )
       }
       return(commits)
@@ -240,6 +240,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
+        cli::cli_alert("Pulling issues...")
         issues <- private$get_issues_from_hosts(
           since = since,
           until = until,
@@ -263,8 +264,7 @@ GitStats <- R6::R6Class(
         }
       } else {
         issues <- private$get_from_storage(
-          table = "issues",
-          verbose = verbose
+          table = "issues"
         )
       }
       return(issues)
@@ -280,6 +280,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
+        cli::cli_alert("Pulling users data...")
         users <- private$get_users_from_hosts(logins) %>%
           private$set_object_class(
             class = "gitstats_users",
@@ -288,8 +289,7 @@ GitStats <- R6::R6Class(
         private$save_to_storage(users)
       } else {
         users <- private$get_from_storage(
-          table = "users",
-          verbose = verbose
+          table = "users"
         )
       }
       return(users)
@@ -313,6 +313,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
+        cli::cli_alert("Pulling files content...")
         files <- private$get_files_from_hosts(
           pattern = pattern,
           depth = depth,
@@ -334,8 +335,7 @@ GitStats <- R6::R6Class(
         }
       } else {
         files <- private$get_from_storage(
-          table = "files",
-          verbose = verbose
+          table = "files"
         )
       }
       return(files)
@@ -358,6 +358,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
+        cli::cli_alert("Pulling repositories structure...")
         repos_trees <- private$get_repos_trees_from_hosts(
           pattern = pattern,
           depth = depth,
@@ -378,8 +379,7 @@ GitStats <- R6::R6Class(
         }
       } else {
         repos_trees <- private$get_from_storage(
-          table = "repos_trees",
-          verbose = verbose
+          table = "repos_trees"
         )
       }
       return(repos_trees)
@@ -399,6 +399,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
+        cli::cli_alert("Pulling release logs..")
         release_logs <- private$get_release_logs_from_hosts(
           since = since,
           until = until,
@@ -419,8 +420,7 @@ GitStats <- R6::R6Class(
         }
       } else {
         release_logs <- private$get_from_storage(
-          table = "release_logs",
-          verbose = verbose
+          table = "release_logs"
         )
       }
       return(release_logs)
@@ -552,15 +552,13 @@ GitStats <- R6::R6Class(
     },
 
     # Retrieve table form storage
-    get_from_storage = function(table, verbose) {
-      if (verbose) {
-        cli::cli_alert_warning(cli::col_yellow(
-          glue::glue("Retrieving {table} from the GitStats storage.")
-        ))
-        cli::cli_alert_info(cli::col_cyan(
-          "If you wish to pull the data from API once more, set `cache` parameter to `FALSE`."
-        ))
-      }
+    get_from_storage = function(table) {
+      cli::cli_alert_warning(cli::col_yellow(
+        glue::glue("Getting cached {table} data.")
+      ))
+      cli::cli_alert_info(cli::col_cyan(
+        "If you wish to pull the data from API once more, set `cache` parameter to `FALSE`."
+      ))
       private$storage[[table]]
     },
 

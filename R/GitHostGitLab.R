@@ -346,7 +346,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       } else {
         cached_repos <- private$get_cached_repos(org)
         if (is.null(cached_repos)) {
-          cli::cli_alert("[{org}] Pulling repositories data...")
+          if (verbose) cli::cli_alert("[{org}] Pulling repositories data...")
           graphql_engine <- private$engines$graphql
           owner_type <- attr(org, "type") %||% "organization"
           repos_from_org <- graphql_engine$get_repos_from_org(
@@ -372,7 +372,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           }
           private$set_cached_repos(repos_from_org, org, verbose)
         } else {
-          cli::cli_alert("Using cached repositories data...")
+          if (verbose) cli::cli_alert("Using cached repositories data...")
           repos_from_org <- cached_repos
         }
         repos_names <- repos_from_org |>
