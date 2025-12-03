@@ -12,8 +12,8 @@ get_repos(
   with_files = NULL,
   language = NULL,
   cache = TRUE,
-  verbose = is_verbose(gitstats),
-  progress = verbose
+  verbose = FALSE,
+  progress = TRUE
 )
 }
 \arguments{

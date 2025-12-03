@@ -9,8 +9,8 @@ get_repos_trees(
   pattern = NULL,
   depth = Inf,
   cache = TRUE,
-  verbose = is_verbose(gitstats),
-  progress = verbose
+  verbose = FALSE,
+  progress = TRUE
 )
 }
 \arguments{

@@ -4,7 +4,7 @@
 \alias{get_users}
 \title{Get users data}
 \usage{
-get_users(gitstats, logins, cache = TRUE, verbose = is_verbose(gitstats))
+get_users(gitstats, logins, cache = TRUE, verbose = FALSE)
 }
 \arguments{
 \item{gitstats}{A GitStats object.}

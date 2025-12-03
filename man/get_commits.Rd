@@ -9,8 +9,8 @@ get_commits(
   since = NULL,
   until = Sys.Date() + lubridate::days(1),
   cache = TRUE,
-  verbose = is_verbose(gitstats),
-  progress = verbose
+  verbose = FALSE,
+  progress = TRUE
 )
 }
 \arguments{

@@ -10,8 +10,8 @@ get_issues(
   until = Sys.Date() + lubridate::days(1),
   state = NULL,
   cache = TRUE,
-  verbose = is_verbose(gitstats),
-  progress = verbose
+  verbose = FALSE,
+  progress = TRUE
 )
 }
 \arguments{

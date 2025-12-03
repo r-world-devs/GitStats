@@ -11,8 +11,8 @@ get_repos_urls(
   in_files = NULL,
   with_files = NULL,
   cache = TRUE,
-  verbose = is_verbose(gitstats),
-  progress = verbose
+  verbose = FALSE,
+  progress = TRUE
 )
 }
 \arguments{
