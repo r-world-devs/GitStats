@@ -4,7 +4,7 @@
       repos_trees <- test_gitstats$get_repos_trees(pattern = NULL, depth = Inf,
         cache = TRUE, verbose = TRUE, progress = FALSE)
     Message
-      ! Retrieving repos_trees from the GitStats storage.
+      ! Getting cached repos_trees data.
       i If you wish to pull the data from API once more, set `cache` parameter to `FALSE`.
 
 # GitStats prints warning when no repos trees found
@@ -14,5 +14,6 @@
         cache = FALSE, verbose = TRUE, progress = FALSE)
     Message
       i Cache set to FALSE, I will pull data from API.
+      > Pulling repositories structure...
       ! No repos 🌳 trees found.
 

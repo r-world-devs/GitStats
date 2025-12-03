@@ -77,5 +77,5 @@
       gh_repos_data <- github_testhost_priv$get_repos_data(org = "r-world-devs",
         verbose = TRUE)
     Message
-      > Using cached repositories data...
+      > [r-world-devs] Using cached repositories data...
 

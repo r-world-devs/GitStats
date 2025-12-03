@@ -5,6 +5,7 @@
         cache = FALSE, verbose = TRUE)
     Message
       i Cache set to FALSE, I will pull data from API.
+      > Pulling commits...
       ! No commits found.
 
 # get_commits() returns error when since is not defined

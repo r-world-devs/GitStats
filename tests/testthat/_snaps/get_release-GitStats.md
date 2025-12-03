@@ -5,6 +5,7 @@
         until = "2023-09-30", cache = FALSE, verbose = TRUE)
     Message
       i Cache set to FALSE, I will pull data from API.
+      > Pulling release logs..
       ! No release logs found.
 
 # get_release_logs prints time used to pull data
