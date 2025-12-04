@@ -70,6 +70,24 @@ test_that("get_files works properly", {
     with_cols = "api_url"
   )
   test_mocker$cache(files_table)
+})
+
+test_that("get_files gets data from storage for the second time", {
+  expect_snapshot(
+    files_table <- test_gitstats$get_files(
+      pattern = NULL,
+      depth = Inf,
+      file_path = "meta_data.yaml",
+      verbose = FALSE
+    )
+  )  
+  expect_files_table(
+    files_table,
+    with_cols = "api_url"
+  )  
+})
+
+test_that("get_files function works", {
   mockery::stub(
     get_files,
     "gitstats$get_files",
