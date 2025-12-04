@@ -599,13 +599,13 @@ EngineRestGitLab <- R6::R6Class(
         }
         if (is.null(user_response) || length(user_response) == 0) {
           user_tbl <- tibble::tibble(
-            author = URLdecode(author),
+            author = author,
             author_login = NA,
             author_name = NA
           )
         } else {
           user_tbl <- tibble::tibble(
-            author = URLdecode(author),
+            author = author,
             author_login = user_response[[1]]$username,
             author_name = user_response[[1]]$name
           )
@@ -613,7 +613,11 @@ EngineRestGitLab <- R6::R6Class(
         return(user_tbl)
       }) |>
         purrr::list_rbind()
-      authors_dict <- private$clean_authors_dict(authors_dict)
+      authors_dict <- authors_dict |>
+        dplyr::mutate(author = author |>
+            utils::URLdecode()
+        ) |>
+        private$clean_authors_dict()
       return(authors_dict)
     },
 
