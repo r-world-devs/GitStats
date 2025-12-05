@@ -497,9 +497,9 @@ GitStats <- R6::R6Class(
     # Add new host
     add_new_host = function(new_host) {
       if (!is.null(new_host)) {
-        private$hosts <- new_host |>
-          private$check_for_duplicate_hosts() %>%
-          append(private$hosts, .)
+        new_host <- new_host |>
+          private$check_for_duplicate_hosts()
+        private$hosts <- append(private$hosts, new_host)
       }
     },
 
