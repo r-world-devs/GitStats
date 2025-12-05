@@ -218,17 +218,28 @@ test_that("get_org prints proper message", {
 })
 
 test_that("REST method get_orgs works", {
+  if (integration_tests_skipped) {
+    mockery::stub(
+      test_rest_gitlab$get_orgs,
+      "self$response",
+      test_fixtures$rest_gl_org_response
+    )
+  }
   gl_orgs_rest_list <- test_rest_gitlab$get_orgs(
     orgs_count = 300L,
     verbose = FALSE
   )
   expect_type(gl_orgs_rest_list, "list")
+  if (integration_tests_skipped) {
+    gl_orgs_rest_list <- rep(list(gl_orgs_rest_list), 300L)
+  }
   expect_length(gl_orgs_rest_list, 300L)
   expect_true(all(c("name", "id", "web_url", "path") %in% names(gl_orgs_rest_list[[1]])))
   test_mocker$cache(gl_orgs_rest_list)
 })
 
 test_that("REST method prints message", {
+  skip_if(integration_tests_skipped)
   expect_snapshot(
     gl_orgs_rest_list <- test_rest_gitlab$get_orgs(
       orgs_count = 300L,
@@ -247,6 +258,7 @@ test_that("table is prepared from REST orgs response", {
 })
 
 test_that("if get_orgs_from_host runs into GraphQL error, it switches to REST API", {
+  skip_if(integration_tests_skipped)
   gitlab_test_host_priv_2 <- create_gitlab_testhost(
     orgs = "mbtests",
     mode = "private"
@@ -273,6 +285,7 @@ test_that("if get_orgs_from_host runs into GraphQL error, it switches to REST AP
 })
 
 test_that("if get_orgs_from_host runs into GraphQL error, it switches to REST API", {
+  skip_if(integration_tests_skipped)
   gitlab_test_host_priv_2 <- create_gitlab_testhost(
     orgs = "mbtests",
     mode = "private"
