@@ -313,9 +313,9 @@ test_fixtures$github_repos_by_user_response <- list(
 gitlab_project_node <- list(
   "node" = list(
     "repo_id" = "gid://gitlab/Project/61399846",
-    "repo_name" = "test_repo",
-    "repo_path" = "test_repo",
-    "repo_fullpath" = "test_org/rest_repo",
+    "repo_name" = "gitstatstesting",
+    "repo_path" = "gitstatstesting",
+    "repo_fullpath" = "mbtests/gitstatstesting",
     "repository" = list(
       "rootRef" = "main",
       "lastCommit" = list(
@@ -342,7 +342,7 @@ gitlab_project_node <- list(
     "namespace" = list(
       "path" = "mbtests"
     ),
-    "repo_url" = "https://test_gitlab_url.com"
+    "repo_url" = "https://gitlab.com/mbtests/gitstatstesting"
   )
 )
 

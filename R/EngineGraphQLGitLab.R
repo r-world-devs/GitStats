@@ -216,9 +216,9 @@ EngineGraphQLGitLab <- R6::R6Class(
             org <- repo$namespace$path
           }
           if (is.null(org)) {
-            org <- sub(paste0("/", repo$repo_path), "", repo$repo_url) %>%
-              sub("^https://[^/]+", "", .) %>%
-              sub("^/", "", .)
+            org <- sub(paste0("/", repo$repo_path), "", repo$repo_url) |>
+              stringr::str_replace_all("^https://[^/]+", "") |>
+              stringr::str_replace_all("^/", "")
           }
           data.frame(
             repo_id = get_gitlab_repo_id(repo$repo_id),
