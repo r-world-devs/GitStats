@@ -32,11 +32,11 @@
 #' @return A data.frame.
 #' @examples
 #' \dontrun{
-#' my_gitstats <- create_gitstats() %>%
+#' my_gitstats <- create_gitstats() |>
 #'   set_github_host(
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma")
-#'   ) %>%
+#'   ) |>
 #'   set_gitlab_host(
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
@@ -98,11 +98,11 @@ get_repos <- function(gitstats,
 #' @return A character vector.
 #' @examples
 #' \dontrun{
-#' my_gitstats <- create_gitstats() %>%
+#' my_gitstats <- create_gitstats() |>
 #'   set_github_host(
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma")
-#'   ) %>%
+#'   ) |>
 #'   set_gitlab_host(
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
@@ -156,7 +156,7 @@ get_repos_urls <- function(gitstats,
 #' @return A `tibble`.
 #' @examples
 #' \dontrun{
-#'  my_gitstats <- create_gitstats() %>%
+#'  my_gitstats <- create_gitstats() |>
 #'   set_github_host(
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma")

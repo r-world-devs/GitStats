@@ -46,9 +46,9 @@ EngineRest <- R6::R6Class("EngineRest",
     # @param token An API token.
     # @returns A request.
     perform_request = function(endpoint, token, verbose) {
-      resp <- httr2::request(endpoint) %>%
-        httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
-        httr2::req_error(is_error = function(resp) FALSE) %>%
+      resp <- httr2::request(endpoint) |>
+        httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
+        httr2::req_error(is_error = function(resp) FALSE) |>
         httr2::req_perform()
       if (resp$status_code == 401 && verbose) {
         cli::cli_alert_danger("HTTP 401 Unauthorized.")
@@ -57,12 +57,12 @@ EngineRest <- R6::R6Class("EngineRest",
         cli::cli_alert_danger("HTTP 404 Not Found.")
       }
       if (resp$status_code %in% c(400, 500, 403)) {
-        resp <- httr2::request(endpoint) %>%
-          httr2::req_headers("Authorization" = paste0("Bearer ", token)) %>%
+        resp <- httr2::request(endpoint) |>
+          httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
           httr2::req_retry(
             is_transient = ~ httr2::resp_status(.x) %in% c(400, 500, 403),
             max_seconds = 60
-          ) %>%
+          ) |>
           httr2::req_perform()
       }
       return(resp)
@@ -84,8 +84,8 @@ EngineRest <- R6::R6Class("EngineRest",
         endpoint = contributors_endpoint,
         verbose = verbose
       )
-      contributors_vec <- contributors_response %>%
-        purrr::map_chr(~ eval(user_name)) %>%
+      contributors_vec <- contributors_response |>
+        purrr::map_chr(~ eval(user_name)) |>
         paste0(collapse = ", ")
       return(contributors_vec)
     },

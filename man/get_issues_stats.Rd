@@ -33,7 +33,7 @@ To make function work, you need first to get issues data with
 }
 \examples{
 \dontrun{
- my_gitstats <- create_gitstats() \%>\%
+ my_gitstats <- create_gitstats() |>
    set_github_host(
      token = Sys.getenv("GITHUB_PAT"),
      repos = c("r-world-devs/GitStats", "openpharma/visR")

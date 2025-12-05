@@ -85,7 +85,7 @@ EngineRestGitLab <- R6::R6Class(
           progress = progress
         )
         return(files_content)
-      }, .progress = progress) %>%
+      }, .progress = progress) |>
         purrr::list_flatten()
       return(files_list)
     },
@@ -104,7 +104,7 @@ EngineRestGitLab <- R6::R6Class(
         verbose = verbose
       )
       if (!is.null(repos)) {
-        repos_response <- repos_response %>%
+        repos_response <- repos_response |>
           purrr::keep(~ .$path %in% repos)
       }
       if (output == "full_table") {
@@ -208,8 +208,8 @@ EngineRestGitLab <- R6::R6Class(
             "file_size" = file_data$size,
             "repo_url" = file_data$repo_url
           )
-        }) %>%
-          purrr::list_rbind() %>%
+        }) |>
+          purrr::list_rbind() |>
           unique()
       }
       return(files_table)
@@ -367,9 +367,9 @@ EngineRestGitLab <- R6::R6Class(
     # A helper to turn list of data.frames into one data.frame
     prepare_commits_table = function(commits_list) {
       commits_dt <- purrr::map(commits_list, function(commit) {
-        purrr::map(commit, ~ data.frame(.)) %>%
+        purrr::map(commit, ~ data.frame(.)) |>
           purrr::list_rbind()
-      }) %>%
+      }) |>
         purrr::list_rbind()
       if (length(commits_dt) > 0) {
         commits_dt <- dplyr::mutate(

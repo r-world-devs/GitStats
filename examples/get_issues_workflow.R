@@ -1,11 +1,11 @@
 devtools::load_all(".")
 
-git_stats <- create_gitstats() %>%
+git_stats <- create_gitstats() |>
   set_github_host(
     orgs = c("r-world-devs"),
     repos = c("openpharma/DataFakeR"),
     token = Sys.getenv("GITHUB_PAT")
-  ) %>%
+  ) |>
   set_gitlab_host(
     orgs = c("mbtests"),
     token = Sys.getenv("GITLAB_PAT_PUBLIC")

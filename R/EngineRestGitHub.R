@@ -44,7 +44,7 @@ EngineRestGitHub <- R6::R6Class(
             "file_size" = file_data$size,
             "repo_url" = private$set_repo_url(file_data$url)
           )
-        }) %>%
+        }) |>
           purrr::list_rbind()
       }
       return(files_table)
@@ -141,7 +141,7 @@ EngineRestGitHub <- R6::R6Class(
         repos_response <- repos_response |>
           purrr::keep(~ .$name %in% repos)
       }
-      repos_urls <- repos_response %>%
+      repos_urls <- repos_response |>
         purrr::map_vec(function(repository) {
           if (type == "api") {
             repository$url
@@ -229,7 +229,7 @@ EngineRestGitHub <- R6::R6Class(
             verbose = verbose
           )
           return(response[["items"]])
-        }) %>%
+        }) |>
           purrr::list_flatten()
         return(items_list)
       } else if (total_n >= 1e3) {
@@ -265,7 +265,7 @@ EngineRestGitHub <- R6::R6Class(
                                   "&per_page=100"),
                 verbose = verbose
               )[["items"]]
-            }) %>%
+            }) |>
               purrr::list_flatten()
             items_list <- append(items_list, items_part_list)
           } else if ((n_count - 1) %/% 100 == 0) {
@@ -299,14 +299,14 @@ EngineRestGitHub <- R6::R6Class(
     # Get files content
     get_files_content = function(search_result, filename) {
       purrr::map(search_result, ~ self$response(.$url),
-                 .progress = glue::glue("Adding file [{filename}] info...")) %>%
+                 .progress = glue::glue("Adding file [{filename}] info...")) |>
         unique()
     },
 
     # Get repository full name
     get_repo_fullname = function(file_url) {
       stringr::str_remove_all(file_url,
-                              paste0(private$endpoints$repositories, "/")) %>%
+                              paste0(private$endpoints$repositories, "/")) |>
         stringr::str_replace_all("/contents.*", "")
     }
   )

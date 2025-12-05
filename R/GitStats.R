@@ -52,7 +52,7 @@ GitStats <- R6::R6Class(
         organizations <- private$get_orgs_from_hosts(
           output = output,
           verbose = verbose
-        ) %>%
+        ) |>
           private$set_object_class(
             class = "gitstats_orgs"
           )
@@ -281,7 +281,7 @@ GitStats <- R6::R6Class(
       )
       if (trigger) {
         cli::cli_alert("Pulling users data...")
-        users <- private$get_users_from_hosts(logins) %>%
+        users <- private$get_users_from_hosts(logins) |>
           private$set_object_class(
             class = "gitstats_users",
             attr_list = args_list
@@ -441,7 +441,7 @@ GitStats <- R6::R6Class(
       purrr::map(private$hosts, function(host) {
         orgs <- host$.__enclos_env__$private$orgs
         purrr::map_vec(orgs, ~ URLdecode(.))
-      }) %>%
+      }) |>
         unlist()
     },
 
@@ -497,7 +497,7 @@ GitStats <- R6::R6Class(
     # Add new host
     add_new_host = function(new_host) {
       if (!is.null(new_host)) {
-        private$hosts <- new_host %>%
+        private$hosts <- new_host |>
           private$check_for_duplicate_hosts() %>%
           append(private$hosts, .)
       }
@@ -666,10 +666,10 @@ GitStats <- R6::R6Class(
             progress = progress
           )
         }
-      }) %>%
-        purrr::list_rbind() %>%
-        dplyr::as_tibble() %>%
-        private$add_stats_to_repos() %>%
+      }) |>
+        purrr::list_rbind() |>
+        dplyr::as_tibble() |>
+        private$add_stats_to_repos() |>
         dplyr::as_tibble()
       return(repos_table)
     },
@@ -693,7 +693,7 @@ GitStats <- R6::R6Class(
           verbose = verbose,
           progress = progress
         )
-      }) %>%
+      }) |>
         purrr::list_rbind()
     },
 
@@ -714,7 +714,7 @@ GitStats <- R6::R6Class(
           verbose = verbose,
           progress = progress
         )
-      }) %>%
+      }) |>
         purrr::list_rbind()
     },
 
@@ -750,8 +750,8 @@ GitStats <- R6::R6Class(
             progress = progress
           )
         }
-      }) %>%
-        unlist() %>%
+      }) |>
+        unlist() |>
         unique()
     },
 
@@ -770,7 +770,7 @@ GitStats <- R6::R6Class(
           verbose   = verbose,
           progress  = progress
         )
-      }) %>%
+      }) |>
         unlist()
     },
 
@@ -787,7 +787,7 @@ GitStats <- R6::R6Class(
           verbose   = verbose,
           progress  = progress
         )
-      }) %>%
+      }) |>
         unlist()
     },
 
@@ -800,8 +800,8 @@ GitStats <- R6::R6Class(
           verbose  = verbose,
           progress = progress
         )
-      }) %>%
-        purrr::list_rbind() %>%
+      }) |>
+        purrr::list_rbind() |>
         dplyr::as_tibble()
       return(commits_table)
     },
@@ -816,8 +816,8 @@ GitStats <- R6::R6Class(
           verbose  = verbose,
           progress = progress
         )
-      }) %>%
-        purrr::list_rbind() %>%
+      }) |>
+        purrr::list_rbind() |>
         dplyr::as_tibble()
       return(issues_table)
     },
@@ -826,9 +826,9 @@ GitStats <- R6::R6Class(
     get_users_from_hosts = function(logins) {
       purrr::map(private$hosts, function(host) {
         host$get_users(logins)
-      }) %>%
-        unique() %>%
-        purrr::list_rbind() %>%
+      }) |>
+        unique() |>
+        purrr::list_rbind() |>
         dplyr::as_tibble()
     },
 
@@ -909,15 +909,15 @@ GitStats <- R6::R6Class(
           verbose = verbose,
           progress = progress
         )
-      }) %>%
-        purrr::list_rbind() %>%
+      }) |>
+        purrr::list_rbind() |>
         dplyr::as_tibble()
     },
 
     # Add some user-friendly columns to repositories table
     add_stats_to_repos = function(repos_table) {
       if (nrow(repos_table > 0)) {
-        repos_table <- repos_table %>%
+        repos_table <- repos_table |>
           dplyr::mutate(
             last_activity = difftime(
               Sys.time(),
@@ -1031,7 +1031,7 @@ GitStats <- R6::R6Class(
             "{stringr::str_to_title(storage_name)}: {storage_size} {private$print_storage_attribute(storage_object, storage_name)}"
           )
         }
-      }) %>%
+      }) |>
         purrr::discard(~is.null(.))
       if (length(gitstats_storage) == 0) {
         private$print_item(
@@ -1069,7 +1069,7 @@ GitStats <- R6::R6Class(
           } else {
             ", "
           }
-          attr_data <- attr_data %>% paste0(collapse = separator)
+          attr_data <- attr_data |> paste0(collapse = separator)
         }
         return(cli::col_grey(glue::glue("[{attr_name}: {trimws(attr_data)}]")))
       } else {

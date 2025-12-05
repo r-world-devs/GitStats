@@ -372,7 +372,7 @@ EngineGraphQLGitHub <- R6::R6Class(
         user_data[["email"]] <- user_data$email %||% ""
         user_data[["location"]] <- user_data$location %||% ""
         user_data[["web_url"]] <- user_data$web_url %||% ""
-        user_table <- tibble::as_tibble(user_data) %>%
+        user_table <- tibble::as_tibble(user_data) |>
           dplyr::relocate(c(commits, issues, pull_requests, reviews),
             .after = starred_repos
           )
@@ -395,7 +395,7 @@ EngineGraphQLGitHub <- R6::R6Class(
           verbose = verbose
         )
         return(response)
-      }) %>%
+      }) |>
         purrr::discard(~ length(.$data$repository$releases$nodes) == 0)
       return(release_responses)
     },
@@ -413,24 +413,24 @@ EngineGraphQLGitHub <- R6::R6Class(
                 release_url = node$url,
                 release_log = node$description
               )
-            }) %>%
+            }) |>
               purrr::list_rbind() |>
               dplyr::mutate(
                 repo_name = release$data$repository$name,
                 repo_url = release$data$repository$url
-              ) %>%
+              ) |>
               dplyr::relocate(
                 repo_name, repo_url,
                 .before = release_name
               )
             return(release_table)
-          }) %>%
+          }) |>
           purrr::list_rbind() |>
           dplyr::filter(
             published_at <= as.POSIXct(until)
           )
         if (!is.null(since)) {
-          releases_table <- releases_table %>%
+          releases_table <- releases_table |>
             dplyr::filter(
               published_at >= as.POSIXct(since)
             )
@@ -717,9 +717,9 @@ EngineGraphQLGitHub <- R6::R6Class(
 
     get_files_and_dirs = function(files_tree_response) {
       entries <- files_tree_response$data$repository$object$entries
-      dirs <- purrr::keep(entries, ~ .$type == "tree") %>%
+      dirs <- purrr::keep(entries, ~ .$type == "tree") |>
         purrr::map_vec(~ .$name)
-      files <- purrr::discard(entries, ~ .$type == "tree") %>%
+      files <- purrr::discard(entries, ~ .$type == "tree") |>
         purrr::map_vec(~ .$name)
       result <- list(
         "dirs" = dirs,

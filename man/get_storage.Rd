@@ -23,7 +23,7 @@ pulled earlier with \code{GitStats}.
 }
 \examples{
 \dontrun{
- my_gitstats <- create_gitstats() \%>\%
+ my_gitstats <- create_gitstats() |>
   set_github_host(
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma")

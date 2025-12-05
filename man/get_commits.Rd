@@ -38,11 +38,11 @@ vector of repositories.
 }
 \examples{
 \dontrun{
-my_gitstats <- create_gitstats() \%>\%
+my_gitstats <- create_gitstats() |>
   set_github_host(
     token = Sys.getenv("GITHUB_PAT"),
     repos = c("openpharma/DataFakeR", "openpharma/visR")
-  ) \%>\%
+  ) |>
   set_gitlab_host(
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "mbtests"

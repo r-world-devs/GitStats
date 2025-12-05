@@ -118,8 +118,8 @@ GitHostGitHub <- R6::R6Class(
     # Check token scopes
     # token parameter only for need of super method
     check_token_scopes = function(response, token = NULL) {
-      private$token_scopes <- response$headers$`x-oauth-scopes` %>%
-        stringr::str_split(", ") %>%
+      private$token_scopes <- response$headers$`x-oauth-scopes` |>
+        stringr::str_split(", ") |>
         unlist()
       org_scopes <- any(private$access_scopes$org %in% private$token_scopes)
       repo_scopes <- any(private$access_scopes$repo %in% private$token_scopes)
@@ -378,7 +378,7 @@ GitHostGitHub <- R6::R6Class(
           )
         }, .progress = set_progress_bar(progress, private))
         names(files_structure_list) <- orgs
-        files_structure_list <- files_structure_list %>%
+        files_structure_list <- files_structure_list |>
           purrr::discard(~ length(.) == 0)
         if (length(files_structure_list) == 0 && verbose) {
           cli::cli_alert_warning(

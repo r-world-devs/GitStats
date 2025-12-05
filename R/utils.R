@@ -14,8 +14,8 @@ date_to_gts <- function(date) {
       date,
       "^(.{10})(.*)$",
       "\\1T\\2"
-    ) %>%
-      stringr::str_replace(" ", "") %>%
+    ) |>
+      stringr::str_replace(" ", "") |>
       stringr::str_replace(
         "^(.{19})(.*)$",
         "\\1Z"
@@ -42,7 +42,7 @@ retrieve_githost <- function(api_url) {
 
 #' @noRd
 standardize_dates <- function(dates) {
-  purrr::discard(dates, is.null) %>%
+  purrr::discard(dates, is.null) |>
     purrr::map_vec(lubridate::as_datetime)
 }
 
