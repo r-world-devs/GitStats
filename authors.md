@@ -13,7 +13,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/r-world-devs/GitStats/blob/master/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/r-world-devs/GitStats/blob/v2.3.8/DESCRIPTION)
 
 Banas M, Koziej K, Marcinkowska K, Secrest M (2025). *GitStats:
 Standardized Git Repository Data*. R package version 2.3.8,
