@@ -1,6 +1,12 @@
 # Changelog
 
-## GitStats (development version)
+## GitStats 2.3.8
+
+This patch introduces the
+[`show_hosts()`](https://r-world-devs.github.io/GitStats/reference/show_hosts.md)
+function to display host information, addresses empty GitLab project
+values in file tables, and updates `verbose` logic to default to `FALSE`
+while retaining critical messages.
 
 - Added
   [`show_hosts()`](https://r-world-devs.github.io/GitStats/reference/show_hosts.md)
@@ -8,6 +14,10 @@
   ([\#672](https://github.com/r-world-devs/GitStats/issues/672))
 - Handled empty GitLab project values when generating a files table
   ([\#702](https://github.com/r-world-devs/GitStats/issues/702)).
+- Changed `verbose` logic - by default user functions have now `verbose`
+  set to `FALSE`. Still, most important messages are printed (e.g. time
+  span of the whole process)
+  ([\#704](https://github.com/r-world-devs/GitStats/issues/704)).
 
 ## GitStats 2.3.7
 

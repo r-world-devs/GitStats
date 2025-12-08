@@ -6,7 +6,7 @@ format.
 ## Usage
 
 ``` r
-get_orgs(gitstats, cache = TRUE, verbose = is_verbose(gitstats))
+get_orgs(gitstats, cache = TRUE, verbose = FALSE)
 ```
 
 ## Arguments

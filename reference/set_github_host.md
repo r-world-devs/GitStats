@@ -68,7 +68,7 @@ organizations may take large amount of time.
 
 ``` r
 if (FALSE) { # \dontrun{
-my_gitstats <- create_gitstats() %>%
+my_gitstats <- create_gitstats() |>
   set_github_host(
     orgs = c("r-world-devs", "openpharma", "pharmaverse")
   )

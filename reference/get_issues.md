@@ -12,8 +12,8 @@ get_issues(
   until = Sys.Date() + lubridate::days(1),
   state = NULL,
   cache = TRUE,
-  verbose = is_verbose(gitstats),
-  progress = verbose
+  verbose = FALSE,
+  progress = TRUE
 )
 ```
 
@@ -59,11 +59,11 @@ A table of `tibble` and `gitstats_issues` classes.
 
 ``` r
 if (FALSE) { # \dontrun{
-my_gitstats <- create_gitstats() %>%
+my_gitstats <- create_gitstats() |>
   set_github_host(
     token = Sys.getenv("GITHUB_PAT"),
     repos = c("openpharma/DataFakeR", "openpharma/visR")
-  ) %>%
+  ) |>
   set_gitlab_host(
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "mbtests"

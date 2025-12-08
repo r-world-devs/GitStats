@@ -6,11 +6,11 @@ those that have a particular text in a `code blob`:
 ``` r
 library(GitStats)
 
-github_stats <- create_gitstats() %>%
+github_stats <- create_gitstats() |>
   set_github_host(
     orgs = c("r-world-devs", "openpharma"),
     token = Sys.getenv("GITHUB_PAT")
-  ) %>%
+  ) |>
   verbose_off()
 
 repos_urls <- get_repos_urls(

@@ -11,8 +11,8 @@ get_files(
   depth = Inf,
   file_path = NULL,
   cache = TRUE,
-  verbose = is_verbose(gitstats),
-  progress = verbose
+  verbose = FALSE,
+  progress = TRUE
 )
 ```
 
