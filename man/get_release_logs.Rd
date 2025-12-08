@@ -9,8 +9,8 @@ get_release_logs(
   since = NULL,
   until = Sys.Date() + lubridate::days(1),
   cache = TRUE,
-  verbose = is_verbose(gitstats),
-  progress = verbose
+  verbose = FALSE,
+  progress = TRUE
 )
 }
 \arguments{
@@ -37,7 +37,7 @@ Pull release logs from repositories.
 }
 \examples{
 \dontrun{
- my_gitstats <- create_gitstats() \%>\%
+ my_gitstats <- create_gitstats() |>
   set_github_host(
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma")

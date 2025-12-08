@@ -16,11 +16,11 @@
 #' @return A table of `tibble` and `gitstats_issues` classes.
 #' @examples
 #' \dontrun{
-#' my_gitstats <- create_gitstats() %>%
+#' my_gitstats <- create_gitstats() |>
 #'   set_github_host(
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     repos = c("openpharma/DataFakeR", "openpharma/visR")
-#'   ) %>%
+#'   ) |>
 #'   set_gitlab_host(
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
@@ -33,8 +33,8 @@ get_issues <- function(gitstats,
                        until = Sys.Date() + lubridate::days(1),
                        state = NULL,
                        cache = TRUE,
-                       verbose = is_verbose(gitstats),
-                       progress = verbose) {
+                       verbose = FALSE,
+                       progress = TRUE) {
   start_time <- Sys.time()
   if (is.null(since)) {
     cli::cli_abort(cli::col_red("You need to pass date to `since` parameter."), call = NULL)
@@ -49,9 +49,7 @@ get_issues <- function(gitstats,
   )
   end_time <- Sys.time()
   time_taken <- end_time - start_time
-  if (verbose) {
-    cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
-  }
+  cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
   return(issues)
 }
 
@@ -70,7 +68,7 @@ get_issues <- function(gitstats,
 #' @return A table of `issues_stats` class.
 #' @examples
 #' \dontrun{
-#'  my_gitstats <- create_gitstats() %>%
+#'  my_gitstats <- create_gitstats() |>
 #'    set_github_host(
 #'      token = Sys.getenv("GITHUB_PAT"),
 #'      repos = c("r-world-devs/GitStats", "openpharma/visR")

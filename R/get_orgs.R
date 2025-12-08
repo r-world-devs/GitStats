@@ -24,7 +24,7 @@
 #' @export
 get_orgs <- function(gitstats,
                      cache = TRUE,
-                     verbose = is_verbose(gitstats)) {
+                     verbose = FALSE) {
   start_time <- Sys.time()
   orgs <- gitstats$get_orgs(
     cache = cache,
@@ -32,8 +32,6 @@ get_orgs <- function(gitstats,
   )
   end_time <- Sys.time()
   time_taken <- end_time - start_time
-  if (verbose) {
-    cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
-  }
+  cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
   return(orgs)
 }

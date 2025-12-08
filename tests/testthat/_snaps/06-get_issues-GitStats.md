@@ -1,3 +1,12 @@
+# get_issues gets data from storage for the second time
+
+    Code
+      issues_table <- test_gitstats$get_issues(since = "2023-01-01", until = "2025-03-06",
+        state = NULL, verbose = FALSE)
+    Message
+      ! Getting cached issues data.
+      i If you wish to pull the data from API once more, set `cache` parameter to `FALSE`.
+
 # get_issues() returns warning if issues table is empty
 
     Code
@@ -5,6 +14,7 @@
         cache = FALSE, state = NULL, verbose = TRUE)
     Message
       i Cache set to FALSE, I will pull data from API.
+      > Pulling issues...
       ! No issues found.
 
 # get_issues() prints data on time used

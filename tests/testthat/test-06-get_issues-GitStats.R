@@ -50,12 +50,21 @@ test_that("get_issues works properly", {
     state = NULL,
     verbose = FALSE
   )
-  expect_issues_table(
-    issues_table
-  )
+  expect_issues_table(issues_table)
   test_mocker$cache(issues_table)
 })
 
+test_that("get_issues gets data from storage for the second time", {
+  expect_snapshot(
+    issues_table <- test_gitstats$get_issues(
+      since = "2023-01-01",
+      until = "2025-03-06",
+      state = NULL,
+      verbose = FALSE
+    )
+  )  
+  expect_issues_table(issues_table)
+})
 
 test_that("get_issues() returns warning if issues table is empty", {
   mockery::stub(

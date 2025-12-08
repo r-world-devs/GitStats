@@ -12,8 +12,8 @@ get_repos(
   with_files = NULL,
   language = NULL,
   cache = TRUE,
-  verbose = is_verbose(gitstats),
-  progress = verbose
+  verbose = FALSE,
+  progress = TRUE
 )
 }
 \arguments{
@@ -62,11 +62,11 @@ file (\code{with_files} parameter) and parse it into table format.
 }
 \examples{
 \dontrun{
-my_gitstats <- create_gitstats() \%>\%
+my_gitstats <- create_gitstats() |>
   set_github_host(
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs", "openpharma")
-  ) \%>\%
+  ) |>
   set_gitlab_host(
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "mbtests"

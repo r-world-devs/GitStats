@@ -18,7 +18,6 @@ show_hosts <- function(gitstats) {
   gitstats$show_hosts()
 }
 
-
 #' @title Show organizations set in `GitStats`
 #' @name show_orgs
 #' @description Retrieves organizations set or pulled by `GitStats`. Especially
@@ -72,7 +71,7 @@ is_verbose <- function(gitstats) {
 #'   `storage` defined).
 #' @examples
 #' \dontrun{
-#'  my_gitstats <- create_gitstats() %>%
+#'  my_gitstats <- create_gitstats() |>
 #'   set_github_host(
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma")

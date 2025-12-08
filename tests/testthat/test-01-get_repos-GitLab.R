@@ -356,6 +356,34 @@ test_that("GraphQL engine prepares repos table", {
   test_mocker$cache(gl_repos_table)
 })
 
+test_that("GraphQL engine prepares repos table with no org specified", {
+  gl_repos_table <- test_graphql_gitlab$prepare_repos_table(
+    repos_list = test_mocker$use("gl_repos_from_org"),
+    org = NULL
+  )
+  expect_repos_table(
+    gl_repos_table
+  )
+})
+
+test_that("GraphQL engine prepares repos table with no info on org at all", {
+  repos_from_org <- test_mocker$use("gl_repos_from_org") |>
+    purrr::map(function(x) {
+      x$node$namespace$path <- NULL
+      x
+    })
+  gl_repos_table <- test_graphql_gitlab$prepare_repos_table(
+    repos_list = repos_from_org,
+    org = NULL
+  )
+  expect_repos_table(
+    gl_repos_table
+  )
+  expect_true(
+    all(gl_repos_table$org == "mbtests")
+  )
+})
+
 test_that("get_repos_from_org prints proper message", {
   if (integration_tests_skipped) {
     mockery::stub(

@@ -1,3 +1,12 @@
+# get_commits() pulls data from storage for the second time
+
+    Code
+      commits_table <- test_gitstats$get_commits(since = "2023-06-15", until = "2023-06-30",
+        verbose = FALSE)
+    Message
+      ! Getting cached commits data.
+      i If you wish to pull the data from API once more, set `cache` parameter to `FALSE`.
+
 # get_commits prints warning when commits table is empty
 
     Code
@@ -5,6 +14,7 @@
         cache = FALSE, verbose = TRUE)
     Message
       i Cache set to FALSE, I will pull data from API.
+      > Pulling commits...
       ! No commits found.
 
 # get_commits() returns error when since is not defined

@@ -38,6 +38,13 @@ test_that("get_orgs works", {
   test_mocker$cache(orgs_table)
 })
 
+test_that("get_orgs() pulls data from storage for the second time", {
+  expect_snapshot(
+    orgs_table <- test_gitstats$get_orgs()      
+  )  
+  expect_orgs_table(orgs_table, add_cols = c("host_url", "host_name"))
+})
+
 test_that("get_orgs works", {
   mockery::stub(
     get_orgs,

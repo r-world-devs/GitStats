@@ -21,7 +21,7 @@
 #' @return A `GitStats` object with added information on host.
 #' @examples
 #' \dontrun{
-#' my_gitstats <- create_gitstats() %>%
+#' my_gitstats <- create_gitstats() |>
 #'   set_github_host(
 #'     orgs = c("r-world-devs", "openpharma", "pharmaverse")
 #'   )
@@ -57,7 +57,7 @@ set_github_host <- function(gitstats,
 #' @return A `GitStats` object with added information on host.
 #' @examples
 #' \dontrun{
-#' my_gitstats <- create_gitstats() %>%
+#' my_gitstats <- create_gitstats() |>
 #'   set_gitlab_host(
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"

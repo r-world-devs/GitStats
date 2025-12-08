@@ -1,3 +1,17 @@
+test_that("private get_from_storage works", {
+  test_gitstats_priv <- test_gitstats$.__enclos_env__$private
+  suppressMessages({
+    commits <- test_gitstats_priv$get_from_storage(table = "commits")
+  })
+  expect_s3_class(
+    commits,
+    "tbl"
+  )
+  expect_commits_table(
+    commits
+  )
+})
+
 test_that("get_storage works", {
   gitstats_storage <- test_gitstats$get_storage(
     storage = NULL

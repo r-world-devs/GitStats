@@ -50,7 +50,7 @@ take large amount of time.
 }
 \examples{
 \dontrun{
-my_gitstats <- create_gitstats() \%>\%
+my_gitstats <- create_gitstats() |>
   set_gitlab_host(
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "mbtests"

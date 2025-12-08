@@ -50,7 +50,7 @@ take large amount of time.
 }
 \examples{
 \dontrun{
-my_gitstats <- create_gitstats() \%>\%
+my_gitstats <- create_gitstats() |>
   set_github_host(
     orgs = c("r-world-devs", "openpharma", "pharmaverse")
   )

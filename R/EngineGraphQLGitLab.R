@@ -216,9 +216,9 @@ EngineGraphQLGitLab <- R6::R6Class(
             org <- repo$namespace$path
           }
           if (is.null(org)) {
-            org <- sub(paste0("/", repo$repo_path), "", repo$repo_url) %>%
-              sub("^https://[^/]+", "", .) %>%
-              sub("^/", "", .)
+            org <- sub(paste0("/", repo$repo_path), "", repo$repo_url) |>
+              stringr::str_replace_all("^https://[^/]+", "") |>
+              stringr::str_replace_all("^/", "")
           }
           data.frame(
             repo_id = get_gitlab_repo_id(repo$repo_id),
@@ -311,7 +311,7 @@ EngineGraphQLGitLab <- R6::R6Class(
           projects <- files_response$data$group$projects
           files_list <- purrr::map(projects$edges, function(edge) {
             edge$node
-          }) %>%
+          }) |>
             purrr::discard(~ length(.$repository$blobs$nodes) == 0)
           if (is.null(files_list)) files_list <- list()
           if (length(files_list) > 0) {
@@ -372,6 +372,7 @@ EngineGraphQLGitLab <- R6::R6Class(
         if (private$is_complexity_error(files_response)) {
           if (verbose) {
             cli::cli_alert_warning("[{repo}] Encountered query complexity error. Too many files ({length(file_paths)})).")
+            cli::cli_alert_info("I will run queries per 1 file.")
           }
           files_response <- private$get_file_blobs_response(
             org = org,
@@ -494,7 +495,7 @@ EngineGraphQLGitLab <- R6::R6Class(
           verbose = verbose
         )
         return(response)
-      }) %>%
+      }) |>
         purrr::discard(~ length(.$data$project$releases$nodes) == 0)
       return(release_responses)
     },
@@ -512,24 +513,24 @@ EngineGraphQLGitLab <- R6::R6Class(
                 release_url = node$links$selfUrl,
                 release_log = node$description
               )
-            }) %>%
-              purrr::list_rbind() %>%
+            }) |>
+              purrr::list_rbind() |>
               dplyr::mutate(
                 repo_name = release$data$project$name,
                 repo_url = release$data$project$webUrl
-              ) %>%
+              ) |>
               dplyr::relocate(
                 repo_name, repo_url,
                 .before = release_name
               )
             return(release_table)
-          }) %>%
-          purrr::list_rbind() %>%
+          }) |>
+          purrr::list_rbind() |>
           dplyr::filter(
             published_at <= as.POSIXct(until)
           )
         if (!is.null(since)) {
-          releases_table <- releases_table %>%
+          releases_table <- releases_table |>
             dplyr::filter(
               published_at >= as.POSIXct(since)
             )
@@ -745,11 +746,11 @@ EngineGraphQLGitLab <- R6::R6Class(
     get_files_and_dirs = function(files_tree_response) {
       tree_nodes <- files_tree_response$data$project$repository$tree$trees$nodes
       blob_nodes <- files_tree_response$data$project$repository$tree$blobs$nodes
-      dirs <- purrr::map_vec(tree_nodes, ~ .$name) %>%
-        unlist() %>%
+      dirs <- purrr::map_vec(tree_nodes, ~ .$name) |>
+        unlist() |>
         unname()
-      files <- purrr::map_vec(blob_nodes, ~ .$name) %>%
-        unlist() %>%
+      files <- purrr::map_vec(blob_nodes, ~ .$name) |>
+        unlist() |>
         unname()
       result <- list(
         "dirs" = dirs,

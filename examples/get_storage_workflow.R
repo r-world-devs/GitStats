@@ -1,6 +1,6 @@
 devtools::load_all(".")
 
-git_stats <- create_gitstats() %>%
+git_stats <- create_gitstats() |>
   set_github_host(
     orgs = c("r-world-devs", "openpharma"),
     token = Sys.getenv("GITHUB_PAT")

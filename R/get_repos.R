@@ -32,11 +32,11 @@
 #' @return A data.frame.
 #' @examples
 #' \dontrun{
-#' my_gitstats <- create_gitstats() %>%
+#' my_gitstats <- create_gitstats() |>
 #'   set_github_host(
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma")
-#'   ) %>%
+#'   ) |>
 #'   set_gitlab_host(
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
@@ -54,8 +54,8 @@ get_repos <- function(gitstats,
                       with_files = NULL,
                       language = NULL,
                       cache = TRUE,
-                      verbose = is_verbose(gitstats),
-                      progress = verbose) {
+                      verbose = FALSE,
+                      progress = TRUE) {
   start_time <- Sys.time()
   repos <- gitstats$get_repos(
     add_contributors = add_contributors,
@@ -69,9 +69,7 @@ get_repos <- function(gitstats,
   )
   end_time <- Sys.time()
   time_taken <- end_time - start_time
-  if (verbose) {
-    cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
-  }
+  cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
   return(repos)
 }
 
@@ -100,11 +98,11 @@ get_repos <- function(gitstats,
 #' @return A character vector.
 #' @examples
 #' \dontrun{
-#' my_gitstats <- create_gitstats() %>%
+#' my_gitstats <- create_gitstats() |>
 #'   set_github_host(
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma")
-#'   ) %>%
+#'   ) |>
 #'   set_gitlab_host(
 #'     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
 #'     orgs = "mbtests"
@@ -118,8 +116,8 @@ get_repos_urls <- function(gitstats,
                            in_files = NULL,
                            with_files = NULL,
                            cache = TRUE,
-                           verbose = is_verbose(gitstats),
-                           progress = verbose) {
+                           verbose = FALSE,
+                           progress = TRUE) {
   start_time <- Sys.time()
   repos_urls <- gitstats$get_repos_urls(
     type = type,
@@ -132,9 +130,7 @@ get_repos_urls <- function(gitstats,
   )
   end_time <- Sys.time()
   time_taken <- end_time - start_time
-  if (verbose) {
-    cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
-  }
+  cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
   return(repos_urls)
 }
 
@@ -160,7 +156,7 @@ get_repos_urls <- function(gitstats,
 #' @return A `tibble`.
 #' @examples
 #' \dontrun{
-#'  my_gitstats <- create_gitstats() %>%
+#'  my_gitstats <- create_gitstats() |>
 #'   set_github_host(
 #'     token = Sys.getenv("GITHUB_PAT"),
 #'     orgs = c("r-world-devs", "openpharma")
@@ -176,8 +172,8 @@ get_repos_trees <- function(gitstats,
                             pattern = NULL,
                             depth = Inf,
                             cache = TRUE,
-                            verbose = is_verbose(gitstats),
-                            progress = verbose) {
+                            verbose = FALSE,
+                            progress = TRUE) {
   start_time <- Sys.time()
   repos_trees <- gitstats$get_repos_trees(
     pattern = pattern,
@@ -188,8 +184,6 @@ get_repos_trees <- function(gitstats,
   )
   end_time <- Sys.time()
   time_taken <- end_time - start_time
-  if (verbose) {
-    cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
-  }
+  cli::cli_alert_success("Data pulled in {round(time_taken, 1)} {attr(time_taken, 'units')}")
   return(repos_trees)
 }

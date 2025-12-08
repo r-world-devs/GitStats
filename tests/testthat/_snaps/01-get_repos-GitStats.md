@@ -4,6 +4,7 @@
       repos_data <- test_gitstats$get_repos(cache = FALSE, verbose = TRUE)
     Message
       i Cache set to FALSE, I will pull data from API.
+      > Pulling repositories data...
       ! No repositories found.
 
 # get_repos prints time used to pull data

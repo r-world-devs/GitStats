@@ -56,6 +56,19 @@ test_that("get_commits works properly", {
   test_mocker$cache(commits_table)
 })
 
+test_that("get_commits() pulls data from storage for the second time", {
+  expect_snapshot(
+    commits_table <- test_gitstats$get_commits(
+      since = "2023-06-15",
+      until = "2023-06-30",
+      verbose = FALSE
+    )
+  )  
+  expect_commits_table(
+    commits_table
+  )
+})
+
 test_that("get_commits prints warning when commits table is empty", {
   mockery::stub(
     test_gitstats$get_commits,

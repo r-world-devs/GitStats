@@ -207,8 +207,8 @@ expect_gitlab_files_from_org_by_repos_response <- function(response, expected_fi
       )
     })
   })
-  files_vec <- purrr::map(response, ~ purrr::map_vec(.$data$project$repository$blobs$nodes, ~ .$path)) %>%
-    unlist() %>%
+  files_vec <- purrr::map(response, ~ purrr::map_vec(.$data$project$repository$blobs$nodes, ~ .$path)) |>
+    unlist() |>
     unique()
   expect_true(
     all(expected_files %in% files_vec)

@@ -98,7 +98,7 @@ GitHost <- R6::R6Class(
         )
       }
       if (output == "table") {
-        repos_table <- private$add_repo_api_url(repos_table) %>%
+        repos_table <- private$add_repo_api_url(repos_table) |>
           private$add_githost_info()
         if (!is.null(language)) {
           repos_table <- private$filter_repos_table_by_language(
@@ -227,9 +227,9 @@ GitHost <- R6::R6Class(
     get_users = function(users) {
       graphql_engine <- private$engines$graphql
       users_table <-  purrr::map(users, function(user) {
-        graphql_engine$get_user(user) %>%
+        graphql_engine$get_user(user) |>
           graphql_engine$prepare_user_table()
-      }) %>%
+      }) |>
         purrr::list_rbind()
       return(users_table)
     },
@@ -681,11 +681,11 @@ GitHost <- R6::R6Class(
     # of repositories
     extract_repos_and_orgs = function(repos_fullnames = NULL) {
       repos_fullnames <- URLdecode(repos_fullnames)
-      repos_vec <- stringr::str_split(repos_fullnames, "/") %>%
-        purrr::map(~ paste0(.[length(.)], collapse = "/")) %>%
+      repos_vec <- stringr::str_split(repos_fullnames, "/") |>
+        purrr::map(~ paste0(.[length(.)], collapse = "/")) |>
         unlist()
-      orgs_vec <- stringr::str_split(repos_fullnames, "/") %>%
-        purrr::map(~ paste0(.[-length(.)], collapse = "/")) %>%
+      orgs_vec <- stringr::str_split(repos_fullnames, "/") |>
+        purrr::map(~ paste0(.[-length(.)], collapse = "/")) |>
         unlist()
       names(repos_vec) <- orgs_vec
       orgs_names <- unique(orgs_vec)
@@ -1059,7 +1059,7 @@ GitHost <- R6::R6Class(
                 language = language,
                 verbose = verbose
               )
-            }) %>%
+            }) |>
               purrr::list_flatten()
           }
           private$parse_search_response(
@@ -1114,7 +1114,7 @@ GitHost <- R6::R6Class(
               language = language,
               verbose = verbose
             )
-          }) %>%
+          }) |>
             purrr::list_flatten()
         }
         repos_output <- private$parse_search_response(
@@ -1369,7 +1369,7 @@ GitHost <- R6::R6Class(
     get_orgs_and_repos_from_files_structure = function(files_structure) {
       result <- list(
         "orgs"  = names(files_structure),
-        "repos" = purrr::map(files_structure, ~names(.)) %>% unlist() %>% unname()
+        "repos" = purrr::map(files_structure, ~names(.)) |> unlist() |> unname()
       )
       return(result)
     },
@@ -1411,7 +1411,7 @@ GitHost <- R6::R6Class(
           )
         }, .progress = set_progress_bar(progress, private))
         names(files_structure_list) <- private$orgs
-        files_structure_list <- files_structure_list %>%
+        files_structure_list <- files_structure_list |>
           purrr::discard(~ length(.) == 0)
         if (length(files_structure_list) == 0 && verbose) {
           cli::cli_alert_warning(

@@ -70,7 +70,8 @@ test_that("`perform_request()` returns status 200", {
   skip_if(Sys.getenv("GITHUB_PAT") == "")
   response <- test_rest_github$perform_request(
     endpoint = "https://api.github.com/repos/r-world-devs/GitStats",
-    token = Sys.getenv("GITHUB_PAT")
+    token = Sys.getenv("GITHUB_PAT"),
+    verbose = FALSE
   )
   expect_equal(
     response$status_code,

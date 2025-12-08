@@ -4,7 +4,7 @@
 \alias{get_orgs}
 \title{Get data on organizations}
 \usage{
-get_orgs(gitstats, cache = TRUE, verbose = is_verbose(gitstats))
+get_orgs(gitstats, cache = TRUE, verbose = FALSE)
 }
 \arguments{
 \item{gitstats}{A GitStats object.}

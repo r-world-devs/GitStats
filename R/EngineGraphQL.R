@@ -54,7 +54,7 @@ EngineGraphQL <- R6::R6Class(
         )
       })
       names(repos_list_with_issues) <- repos_names
-      repos_list_with_issues <- repos_list_with_issues %>%
+      repos_list_with_issues <- repos_list_with_issues |>
         purrr::discard(~ length(.) == 0)
       return(repos_list_with_issues)
     },
@@ -85,11 +85,11 @@ EngineGraphQL <- R6::R6Class(
         })
         issues_row$repo_name <- repo_name
         issues_row
-      }) %>%
-        purrr::discard(~ length(.) == 1) %>%
+      }) |>
+        purrr::discard(~ length(.) == 1) |>
         purrr::list_rbind()
       if (nrow(issues_table) > 0) {
-        issues_table <- issues_table %>%
+        issues_table <- issues_table |>
           dplyr::mutate(
             organization = org,
             api_url = self$gql_api_url
@@ -119,7 +119,7 @@ EngineGraphQL <- R6::R6Class(
           httr2::req_retry(
             is_transient = ~ httr2::resp_status(.x) %in% c(400, 502),
             max_seconds = 60
-          ) %>%
+          ) |>
           httr2::req_perform()
       }
       return(response)
@@ -187,8 +187,8 @@ EngineGraphQL <- R6::R6Class(
                                              org,
                                              repo = NULL) {
       if (is.null(repo)) {
-        file_path <- host_files_structure[[org]] %>%
-          unlist(use.names = FALSE) %>%
+        file_path <- host_files_structure[[org]] |>
+          unlist(use.names = FALSE) |>
           unique()
       } else {
         file_path <- host_files_structure[[org]][[repo]]

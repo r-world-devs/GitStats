@@ -10,8 +10,8 @@
 ---
 
     Code
-      test_gitstats %>% set_gitlab_host(token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-      orgs = c("mbtests"))
+      set_gitlab_host(test_gitstats, token = Sys.getenv("GITLAB_PAT_PUBLIC"), orgs = c(
+        "mbtests"))
     Message
       > Checking owners...
       v Set connection to GitLab.
@@ -19,7 +19,7 @@
 # When empty token for GitHub, GitStats pulls default token
 
     Code
-      test_gitstats <- create_gitstats() %>% set_github_host(orgs = c("openpharma",
+      test_gitstats <- set_github_host(create_gitstats(), orgs = c("openpharma",
         "r-world-devs"))
     Message
       i Using PAT from GITHUB_PAT envar.
@@ -30,7 +30,7 @@
 
     Code
       withr::with_envvar(new = c(GITLAB_PAT = Sys.getenv("GITLAB_PAT_PUBLIC")), {
-        test_gitstats <- create_gitstats() %>% set_gitlab_host(orgs = "mbtests")
+        test_gitstats <- set_gitlab_host(create_gitstats(), orgs = "mbtests")
       })
     Message
       i Using PAT from GITLAB_PAT envar.
@@ -40,7 +40,7 @@
 # Set GitHub host with particular repos vector instead of orgs
 
     Code
-      test_gitstats %>% set_github_host(token = Sys.getenv("GITHUB_PAT"), repos = c(
+      set_github_host(test_gitstats, token = Sys.getenv("GITHUB_PAT"), repos = c(
         "r-world-devs/GitStats", "r-world-devs/shinyCohortBuilder",
         "openpharma/GithubMetrics", "openpharma/DataFakeR"))
     Message
@@ -50,8 +50,8 @@
 # Set GitLab host with particular repos vector instead of orgs
 
     Code
-      test_gitstats %>% set_gitlab_host(token = Sys.getenv("GITLAB_PAT_PUBLIC"),
-      repos = c("mbtests/gitstatstesting", "mbtests/gitstats-testing-2"))
+      set_gitlab_host(test_gitstats, token = Sys.getenv("GITLAB_PAT_PUBLIC"), repos = c(
+        "mbtests/gitstatstesting", "mbtests/gitstats-testing-2"))
     Message
       > Checking repositories...
       v Set connection to GitLab.
@@ -59,7 +59,7 @@
 # When no organizations or repositories are set information is printed
 
     Code
-      test_gitstats %>% set_github_host(token = Sys.getenv("GITHUB_PAT"), verbose = TRUE)
+      set_github_host(test_gitstats, token = Sys.getenv("GITHUB_PAT"), verbose = TRUE)
     Message
       i No `orgs` nor `repos` specified.
       i Searching scope set to [all].
@@ -74,8 +74,8 @@
 # Error pops out, when two clients of the same url api are passed as input
 
     Code
-      test_gitstats %>% set_github_host(token = Sys.getenv("GITHUB_PAT"), orgs = "pharmaverse") %>%
-        set_github_host(token = Sys.getenv("GITHUB_PAT"), orgs = "openpharma")
+      set_github_host(set_github_host(test_gitstats, token = Sys.getenv("GITHUB_PAT"),
+      orgs = "pharmaverse"), token = Sys.getenv("GITHUB_PAT"), orgs = "openpharma")
     Message
       > Checking owners...
       v Set connection to GitHub.
@@ -88,7 +88,7 @@
 # Error pops out when `org` does not exist
 
     Code
-      test_gitstats <- create_gitstats() %>% set_github_host(token = Sys.getenv(
+      test_gitstats <- set_github_host(create_gitstats(), token = Sys.getenv(
         "GITHUB_PAT"), orgs = c("openparma"))
     Message
       > Checking owners...
@@ -102,7 +102,7 @@
 ---
 
     Code
-      test_gitstats <- create_gitstats() %>% set_gitlab_host(token = Sys.getenv(
+      test_gitstats <- set_gitlab_host(create_gitstats(), token = Sys.getenv(
         "GITLAB_PAT_PUBLIC"), orgs = c("openparma", "mbtests"))
     Message
       > Checking owners...
@@ -116,7 +116,7 @@
 ---
 
     Code
-      test_gitstats <- create_gitstats() %>% set_github_host(token = Sys.getenv(
+      test_gitstats <- set_github_host(create_gitstats(), token = Sys.getenv(
         "GITHUB_PAT"), orgs = c("openpharma", "r_world_devs"))
     Message
       > Checking owners...
@@ -130,7 +130,7 @@
 # When wrong orgs and repos are passed they are excluded but host is created
 
     Code
-      test_gitstats <- create_gitstats() %>% set_github_host(orgs = c("openpharma",
+      test_gitstats <- set_github_host(create_gitstats(), orgs = c("openpharma",
         "r_world_devs"), repos = c("r-world-devs/GitStats", "r-world-devs/GitMetrics"),
       verbose = TRUE, .error = FALSE)
     Message

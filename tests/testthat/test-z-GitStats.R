@@ -16,11 +16,11 @@ test_that("GitStats prints the proper info when connections are added.", {
 test_that("GitStats prints the proper info when repos are passed instead of orgs.", {
   skip_on_cran()
   suppressMessages(
-    test_gitstats <- create_gitstats() %>%
+    test_gitstats <- create_gitstats() |>
       set_github_host(
         token = Sys.getenv("GITHUB_PAT"),
         repos = c("r-world-devs/GitStats", "openpharma/GithubMetrics")
-      ) %>%
+      ) |>
       set_gitlab_host(
         token = Sys.getenv("GITLAB_PAT_PUBLIC"),
         repos = c("mbtests/gitstatstesting", "mbtests/gitstats-testing-2")
@@ -118,7 +118,7 @@ test_that("show_orgs print orgs properly", {
 test_that("show_orgs print subgroups properly", {
   skip_on_cran()
   suppressMessages(
-    test_gitstats <- create_gitstats() %>%
+    test_gitstats <- create_gitstats() |>
       set_gitlab_host(
         token = Sys.getenv("GITLAB_PAT_PUBLIC"),
         orgs = "mbtests/subgroup"
@@ -133,7 +133,7 @@ test_that("show_orgs print subgroups properly", {
 test_that("subgroups are cleanly printed in GitStats", {
   skip_on_cran()
   suppressMessages(
-    test_gitstats <- create_gitstats() %>%
+    test_gitstats <- create_gitstats() |>
       set_gitlab_host(
         token = Sys.getenv("GITLAB_PAT_PUBLIC"),
         orgs = "mbtests/subgroup"

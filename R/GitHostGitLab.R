@@ -431,7 +431,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           )
         }, .progress = set_progress_bar(progress, private))
         names(files_structure_list) <- orgs
-        files_structure_list <- files_structure_list %>%
+        files_structure_list <- files_structure_list |>
           purrr::discard(~ length(.) == 0)
         if (length(files_structure_list) == 0 && verbose) {
           cli::cli_alert_warning(

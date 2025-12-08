@@ -4,7 +4,7 @@
 \alias{get_users}
 \title{Get users data}
 \usage{
-get_users(gitstats, logins, cache = TRUE, verbose = is_verbose(gitstats))
+get_users(gitstats, logins, cache = TRUE, verbose = FALSE)
 }
 \arguments{
 \item{gitstats}{A GitStats object.}
@@ -25,11 +25,11 @@ Get users data
 }
 \examples{
 \dontrun{
- my_gitstats <- create_gitstats() \%>\%
+ my_gitstats <- create_gitstats() |>
   set_github_host(
     token = Sys.getenv("GITHUB_PAT"),
     orgs = c("r-world-devs")
-  ) \%>\%
+  ) |>
   set_gitlab_host(
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "mbtests"
