@@ -301,9 +301,11 @@ EngineGraphQLGitHub <- R6::R6Class(
         verbose = verbose
       )
       names(org_files_list) <- repositories
-      for (file_path in file_paths) {
-        org_files_list <- purrr::discard(org_files_list, ~ length(.[[file_path]]$file) == 0)
-      }
+      org_files_list <- purrr::map(org_files_list, function(repo_data) {
+        purrr::discard(repo_data, function(file_data) {
+          length(file_data$file) == 0
+        })
+      })
       return(org_files_list)
     },
 

@@ -41,6 +41,18 @@ test_that("get_repositories_with_files works", {
   test_mocker$cache(gh_repositories_with_files)
 })
 
+test_that("get_repositories_with_files works for two files even if some of them do not exist in one of repositories", {
+  gh_repositories_with_two_files <- test_graphql_github_priv$get_repositories_with_files(
+    repositories = c("GitStats", "GitAI", "cohortBuilder"),
+    def_branches = c("master", "main", "dev"),
+    org = "r-world-devs",
+    file_paths = c("DESCRIPTION", "project_metadata.yaml"),
+    host_files_structure = NULL
+  )
+  expect_type(gh_repositories_with_two_files, "list")
+  test_mocker$cache(gh_repositories_with_two_files)
+})
+
 test_that("GitHub GraphQL Engine pulls files from organization", {
   mockery::stub(
     test_graphql_github$get_files_from_org,
@@ -64,6 +76,24 @@ test_that("GitHub GraphQL Engine pulls files from organization", {
   test_mocker$cache(github_files_response)
 })
 
+test_that("GitHub GraphQL Engine pulls files from organization", {
+  mockery::stub(
+    test_graphql_github$get_files_from_org,
+    "private$get_repositories_with_files",
+    test_mocker$use("gh_repositories_with_two_files")
+  )
+  github_two_files_response <- test_graphql_github$get_files_from_org(
+    org = "r-world-devs",
+    owner_type = "organization",
+    repos = NULL,
+    file_paths = c("DESCRIPTION", "project_metadata.yaml"),
+    host_files_structure = NULL,
+    verbose = FALSE
+  )
+  expect_github_files_response(github_two_files_response)
+  test_mocker$cache(github_two_files_response)
+})
+
 test_that("GitHubHost prepares table from files response", {
   gh_files_table <- test_graphql_github$prepare_files_table(
     files_response = test_mocker$use("github_files_response"),
@@ -71,6 +101,16 @@ test_that("GitHubHost prepares table from files response", {
   )
   expect_files_table(gh_files_table)
   test_mocker$cache(gh_files_table)
+})
+
+test_that("GitHubHost prepares table from files response", {
+  gh_two_files_table <- test_graphql_github$prepare_files_table(
+    files_response = test_mocker$use("github_two_files_response"),
+    org = "r-world-devs"
+  )
+  expect_files_table(gh_two_files_table)
+  expect_true(all(unique(gh_two_files_table$repo_name) == c("GitStats", "GitAI", "cohortBuilder")))
+  test_mocker$cache(gh_two_files_table)
 })
 
 test_that("get_files_content_from_orgs for GitHub works", {
@@ -89,6 +129,24 @@ test_that("get_files_content_from_orgs for GitHub works", {
     with_cols = "api_url"
   )
   test_mocker$cache(gh_files_from_orgs)
+})
+
+test_that("get_files_content_from_orgs for GitHub works with two files", {
+  mockery::stub(
+    github_testhost_priv$get_files_content_from_orgs,
+    "graphql_engine$prepare_files_table",
+    test_mocker$use("gh_two_files_table")
+  )
+  github_testhost_priv$searching_scope <- "org"
+  gh_two_files_from_orgs <- github_testhost_priv$get_files_content_from_orgs(
+    file_path = c("DESCRIPTION", "project_metadata.yaml"),
+    verbose = FALSE
+  )
+  expect_files_table(
+    gh_two_files_from_orgs,
+    with_cols = "api_url"
+  )
+  test_mocker$cache(gh_two_files_from_orgs)
 })
 
 test_that("get_files_content_from_repos for GitHub works", {
@@ -162,4 +220,17 @@ test_that("`get_files_content()` pulls files in the table format", {
   )
   expect_files_table(gh_files_table, with_cols = "api_url")
   test_mocker$cache(gh_files_table)
+})
+
+test_that("`get_files_content()` pulls two files in the table format", {
+  github_testhost <- create_github_testhost(orgs = "r-world-devs")
+  mockery::stub(
+    github_testhost$get_files_content,
+    "private$get_files_content_from_orgs",
+    test_mocker$use("gh_two_files_from_orgs")
+  )
+  gh_files_table <- github_testhost$get_files_content(
+    file_path = c("DESCRIPTION", "project_metadata.yaml")
+  )
+  expect_files_table(gh_files_table, with_cols = "api_url")
 })
