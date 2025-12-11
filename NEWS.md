@@ -1,3 +1,5 @@
+# GitStats (development version)
+
 # GitStats 2.3.8
 
 This patch introduces the `show_hosts()` function to display host information, addresses empty GitLab project values in file tables, and updates `verbose` logic to default to `FALSE` while retaining critical messages.
