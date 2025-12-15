@@ -484,36 +484,41 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     get_files_content_from_files_structure = function(files_structure,
                                                       verbose = TRUE,
                                                       progress = TRUE) {
-      graphql_engine <- private$engines$graphql
-      result <- private$get_orgs_and_repos_from_files_structure(
-        files_structure = files_structure
-      )
-      orgs <- result$orgs
-      repos <- result$repos
-      files_table <- purrr::map(orgs, function(org) {
-        if (verbose) {
-          show_message(
-            host = private$host_name,
-            engine = "graphql",
-            scope = org,
-            information = "Pulling files from files structure"
-          )
-        }
-        owner_type <- attr(org, "type") %||% "organization"
-        graphql_engine$get_files_from_org_per_repo(
-          org = org,
-          owner_type = owner_type,
-          repos_data = list("paths" = repos),
-          host_files_structure = files_structure,
-          verbose = verbose
-        ) |>
-          graphql_engine$prepare_files_table(
-            org = org
-          )
-      }, .progress = set_progress_bar(progress, private)) |>
-        purrr::list_rbind() |>
-        private$add_repo_api_url()
-      return(files_table)
+      if (length(files_structure) > 0) {
+        graphql_engine <- private$engines$graphql
+        result <- private$get_orgs_and_repos_from_files_structure(
+          files_structure = files_structure
+        )
+        orgs <- result$orgs
+        repos <- result$repos
+        files_table <- purrr::map(orgs, function(org) {
+          if (verbose) {
+            show_message(
+              host = private$host_name,
+              engine = "graphql",
+              scope = org,
+              information = "Pulling files from files structure"
+            )
+          }
+          owner_type <- attr(org, "type") %||% "organization"
+          graphql_engine$get_files_from_org_per_repo(
+            org = org,
+            owner_type = owner_type,
+            repos_data = list("paths" = repos),
+            host_files_structure = files_structure,
+            verbose = verbose
+          ) |>
+            graphql_engine$prepare_files_table(
+              org = org
+            )
+        }, .progress = set_progress_bar(progress, private)) |>
+          purrr::list_rbind() |>
+          private$add_repo_api_url()
+        return(files_table)
+      } else {
+        cli::cli_alert_warning("[GitLab] No files found. Skipping pulling files content.")
+        return(NULL)
+      }
     }
   )
 )

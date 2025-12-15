@@ -299,41 +299,46 @@ GitHostGitHub <- R6::R6Class(
     get_files_content_from_files_structure = function(files_structure,
                                                       verbose,
                                                       progress) {
-      graphql_engine <- private$engines$graphql
-      result <- private$get_orgs_and_repos_from_files_structure(
-        files_structure = files_structure
-      )
-      orgs <- result$orgs
-      repos <- result$repos
-      files_table <- purrr::map(orgs, function(org) {
-        owner_type <- attr(org, "type") %||% "organization"
-        repos_data <- private$get_repos_data(
-          org = org,
-          repos = repos,
-          verbose = verbose
+      if (length(files_structure) > 0) {
+        graphql_engine <- private$engines$graphql
+        result <- private$get_orgs_and_repos_from_files_structure(
+          files_structure = files_structure
         )
-        if (verbose) {
-          show_message(
-            host = private$host_name,
-            engine = "graphql",
-            scope = org,
-            information = "Pulling files from files structure"
+        orgs <- result$orgs
+        repos <- result$repos
+        files_table <- purrr::map(orgs, function(org) {
+          owner_type <- attr(org, "type") %||% "organization"
+          repos_data <- private$get_repos_data(
+            org = org,
+            repos = repos,
+            verbose = verbose
           )
-        }
-        graphql_engine$get_files_from_org(
-          org = org,
-          owner_type = owner_type,
-          repos_data = repos_data,
-          host_files_structure = files_structure,
-          verbose = verbose
-        ) |>
-          graphql_engine$prepare_files_table(
-            org = org
-          )
-      }, .progress = set_progress_bar(progress, private)) |>
-        purrr::list_rbind() |>
-        private$add_repo_api_url()
-      return(files_table)
+          if (verbose) {
+            show_message(
+              host = private$host_name,
+              engine = "graphql",
+              scope = org,
+              information = "Pulling files from files structure"
+            )
+          }
+          graphql_engine$get_files_from_org(
+            org = org,
+            owner_type = owner_type,
+            repos_data = repos_data,
+            host_files_structure = files_structure,
+            verbose = verbose
+          ) |>
+            graphql_engine$prepare_files_table(
+              org = org
+            )
+        }, .progress = set_progress_bar(progress, private)) |>
+          purrr::list_rbind() |>
+          private$add_repo_api_url()
+        return(files_table)
+      } else {
+        cli::cli_alert_warning("[GitHub] No files found. Skipping pulling files content.")
+        return(NULL)
+      }
     },
 
     get_files_structure_from_repos = function(pattern,

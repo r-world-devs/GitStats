@@ -883,9 +883,6 @@ GitStats <- R6::R6Class(
             progress = progress
           ) |>
             purrr::discard(~ length(.) == 0)
-          if (length(files_structure) == 0) {
-            files_structure <- NULL
-          }
         } else {
           files_structure <- NULL
         }

@@ -369,3 +369,21 @@ test_that("get_files_structure runs when scope is set to scan whole host", {
     "r-world-devs"
   )
 })
+
+test_that("get_files_structure pulls empty files structure", {
+  gh_empty_files_stucture <- github_testhost$get_files_structure(
+    pattern = "\\.test",
+    depth = 1L,
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_type(
+    gh_empty_files_stucture,
+    "list"
+  )
+  expect_length(
+    gh_empty_files_stucture,
+    0L
+  )
+  test_mocker$cache(gh_empty_files_stucture)
+})

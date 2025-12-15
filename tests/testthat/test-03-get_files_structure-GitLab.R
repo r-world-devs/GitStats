@@ -299,3 +299,21 @@ test_that("get_files_structure pulls files structure for repositories in orgs", 
   })
   test_mocker$cache(gl_files_structure_from_orgs)
 })
+
+test_that("get_files_structure pulls empty files structure", {
+  gl_empty_files_stucture <- gitlab_testhost$get_files_structure(
+    pattern = "\\.test",
+    depth = 1L,
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_type(
+    gl_empty_files_stucture,
+    "list"
+  )
+  expect_length(
+    gl_empty_files_stucture,
+    0L
+  )
+  test_mocker$cache(gl_empty_files_stucture)
+})

@@ -14,3 +14,12 @@
     Message
       > [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling files from files structure...
 
+# get_files_content skips if no files found in files_structure
+
+    Code
+      files_content <- github_testhost_priv$get_files_content_from_files_structure(
+        files_structure = test_mocker$use("gh_empty_files_structure"), verbose = TRUE,
+        progress = FALSE)
+    Message
+      ! [GitHub] No files found. Skipping pulling files content.
+
