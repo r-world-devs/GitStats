@@ -42,6 +42,13 @@ test_that("get_repositories_with_files works", {
 })
 
 test_that("get_repositories_with_files works for two files even if some of them do not exist in one of repositories", {
+  if (integration_tests_skipped) {
+    mockery::stub(
+      test_graphql_github_priv$get_repositories_with_files,
+      "private$get_file_response",
+      test_mocker$use("github_file_response")
+    )
+  }  
   gh_repositories_with_two_files <- test_graphql_github_priv$get_repositories_with_files(
     repositories = c("GitStats", "GitAI", "cohortBuilder"),
     def_branches = c("master", "main", "dev"),
@@ -79,6 +86,11 @@ test_that("GitHub GraphQL Engine pulls files from organization", {
 test_that("GitHub GraphQL Engine pulls files from organization", {
   mockery::stub(
     test_graphql_github$get_files_from_org,
+    "private$get_repos_data",
+    test_mocker$use("gh_repos_data")
+  )
+  mockery::stub(
+    test_graphql_github$get_files_from_org,
     "private$get_repositories_with_files",
     test_mocker$use("gh_repositories_with_two_files")
   )
@@ -109,7 +121,9 @@ test_that("GitHubHost prepares table from files response", {
     org = "r-world-devs"
   )
   expect_files_table(gh_two_files_table)
-  expect_true(all(unique(gh_two_files_table$repo_name) == c("GitStats", "GitAI", "cohortBuilder")))
+  if (!integration_tests_skipped) {
+    expect_true(all(unique(gh_two_files_table$repo_name) == c("GitStats", "GitAI", "cohortBuilder")))
+  }  
   test_mocker$cache(gh_two_files_table)
 })
 
