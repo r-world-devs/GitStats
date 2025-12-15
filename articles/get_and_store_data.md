@@ -33,7 +33,7 @@ organizations.
 ``` r
 repos <- get_repos(git_stats, progress = FALSE)
 #> → Pulling repositories data...
-#> ✔ Data pulled in 36 secs
+#> ✔ Data pulled in 57.6 secs
 dplyr::glimpse(repos)
 #> Rows: 95
 #> Columns: 19
@@ -47,13 +47,13 @@ dplyr::glimpse(repos)
 #> $ last_activity_at <dttm> 2024-07-12, 2025-08-27, 2025-10-13, 2024-06-13, 2025…
 #> $ languages        <chr> "R, CSS, JavaScript", "R", "R, CSS, JavaScript, SCSS"…
 #> $ issues_open      <int> 6, 39, 39, 3, 102, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 11, …
-#> $ issues_closed    <int> 12, 5, 14, 0, 355, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 60, …
+#> $ issues_closed    <int> 12, 5, 14, 0, 356, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 60, …
 #> $ organization     <chr> "r-world-devs", "r-world-devs", "r-world-devs", "r-wo…
 #> $ repo_url         <chr> "https://github.com/r-world-devs/shinyGizmo", "https:…
 #> $ commit_sha       <chr> "735ec6ea367e6f9856eb0fe650d3c51c3a1aefb5", "adc27861…
 #> $ api_url          <chr> "https://api.github.com/repos/r-world-devs/shinyGizmo…
 #> $ githost          <chr> "github", "github", "github", "github", "github", "gi…
-#> $ last_activity    <drtn> 514.34 days, 103.34 days, 56.34 days, 543.34 days, 0…
+#> $ last_activity    <drtn> 521.39 days, 110.39 days, 63.39 days, 550.39 days, 0…
 #> $ contributors     <chr> "krystian8207, stla, galachad, stlagsk", "krystian820…
 #> $ contributors_n   <int> 4, 3, 4, 1, 4, 1, 6, 2, 1, 141, 2, 3, 1, 1, 1, 6, 44,…
 ```
@@ -82,10 +82,10 @@ release_logs <- get_release_logs(
   verbose = FALSE
 )
 #> → Pulling release logs..
-#> GitHub ■■■■■■■■■■■■■■■■                  50% |  ETA:  5s
-#> ✔ Data pulled in 33.4 secs
+#> GitHub ■■■■■■■■■■■■■■■■                  50% |  ETA:  7s
+#> ✔ Data pulled in 38.1 secs
 dplyr::glimpse(release_logs)
-#> Rows: 72
+#> Rows: 73
 #> Columns: 7
 #> $ repo_name    <chr> "cohortBuilder", "shinyCohortBuilder", "shinyCohortBuilde…
 #> $ repo_url     <chr> "https://github.com/r-world-devs/cohortBuilder", "https:/…
@@ -114,7 +114,7 @@ commits <- get_commits(
   progress = FALSE
 )
 #> → Pulling commits...
-#> ✔ Data pulled in 25.6 secs
+#> ✔ Data pulled in 33 secs
 dplyr::glimpse(commits)
 #> Rows: 188
 #> Columns: 11
@@ -170,7 +170,7 @@ commits <- get_commits(
   progress = FALSE
 )
 #> → Pulling commits...
-#> ✔ Data pulled in 23.3 secs
+#> ✔ Data pulled in 37.6 secs
 dplyr::glimpse(commits)
 #> Rows: 188
 #> Columns: 11
@@ -196,9 +196,9 @@ commits <- get_commits(
   progress = FALSE
 )
 #> → Pulling commits...
-#> ✔ Data pulled in 1.6 mins
+#> ✔ Data pulled in 1.9 mins
 dplyr::glimpse(commits)
-#> Rows: 3,985
+#> Rows: 4,002
 #> Columns: 11
 #> $ repo_name      <chr> "cohortBuilder", "cohortBuilder", "cohortBuilder", "coh…
 #> $ id             <chr> "C_kwDOHYNOFdoAKGFkYzI3ODYxNTQxY2M5MmMyYWJlMTNkZTAzNDNj…
@@ -226,8 +226,8 @@ git_stats
 #>  Repositories: [0] 
 #> Storage: 
 #>  Repositories: 95 
-#>  Commits: 3985 [date range: 2024-07-01 - 2025-12-09]
-#>  Release_logs: 72 [date range: 2024-01-01 - 2025-12-09]
+#>  Commits: 4002 [date range: 2024-07-01 - 2025-12-16]
+#>  Release_logs: 73 [date range: 2024-01-01 - 2025-12-16]
 #>  Repos_urls: 95 [type: api]
 ```
 
@@ -257,7 +257,7 @@ get_storage(git_stats)
 #> #   contributors_n <int>
 #> 
 #> $commits
-#> # A tibble: 3,985 × 11
+#> # A tibble: 4,002 × 11
 #>    repo_name id    committed_date      author author_login author_name additions
 #>    <chr>     <chr> <dttm>              <chr>  <chr>        <chr>           <int>
 #>  1 cohortBu… C_kw… 2025-05-02 10:45:58 Dawid… syroBx       Dawid Bory…       443
@@ -270,7 +270,7 @@ get_storage(git_stats)
 #>  8 cohortBu… C_kw… 2025-02-06 08:44:21 Adam … galachad     Adam Foryś         99
 #>  9 cohortBu… C_kw… 2025-02-04 15:05:46 Borys  syroBx       Dawid Bory…        99
 #> 10 cohortBu… C_kw… 2025-02-04 14:03:43 Borys  syroBx       Dawid Bory…       259
-#> # ℹ 3,975 more rows
+#> # ℹ 3,992 more rows
 #> # ℹ 4 more variables: deletions <int>, organization <chr>, repo_url <chr>,
 #> #   api_url <glue>
 #> 
@@ -284,7 +284,7 @@ get_storage(git_stats)
 #> NULL
 #> 
 #> $release_logs
-#> # A tibble: 72 × 7
+#> # A tibble: 73 × 7
 #>    repo_name   repo_url release_name release_tag published_at        release_url
 #>    <chr>       <chr>    <chr>        <chr>       <dttm>              <chr>      
 #>  1 cohortBuil… https:/… cohortBuild… v0.3.0      2024-09-27 11:35:06 https://gi…
@@ -297,7 +297,7 @@ get_storage(git_stats)
 #>  8 GitStats    https:/… GitStats 2.… v2.3.4      2025-07-08 13:33:50 https://gi…
 #>  9 GitStats    https:/… GitStats 2.… v2.3.3      2025-06-03 08:06:26 https://gi…
 #> 10 GitStats    https:/… GitStats 2.… v2.3.2      2025-05-20 09:21:19 https://gi…
-#> # ℹ 62 more rows
+#> # ℹ 63 more rows
 #> # ℹ 1 more variable: release_log <chr>
 #> 
 #> $repos_urls
@@ -446,8 +446,8 @@ commits_stats <- get_commits(
     group_var = author_name
   )
 #> → Pulling commits...
-#> GitHub ■■■■■■■■■■■■■■■■                  50% |  ETA:  4s
-#> ✔ Data pulled in 26 secs
+#> GitHub ■■■■■■■■■■■■■■■■                  50% |  ETA:  7s
+#> ✔ Data pulled in 33.3 secs
 dplyr::glimpse(commits_stats)
 #> Rows: 20
 #> Columns: 4

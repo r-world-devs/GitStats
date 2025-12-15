@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.8.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,11 +35,15 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/r-world-devs/GitStats/blob/v2.3.8/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/r-world-devs/GitStats/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.3.8" id="gitstats-238">GitStats 2.3.8<a class="anchor" aria-label="anchor" href="#gitstats-238"></a></h2>
+<h2 class="pkg-version" data-toc-text="development version" id="gitstats-development-version">GitStats (development version)<a class="anchor" aria-label="anchor" href="#gitstats-development-version"></a></h2>
+<ul><li>Handled getting multiple files for GitHub in case some of these files did not exist in scanned repositories (<a href="https://github.com/r-world-devs/GitStats/issues/713" class="external-link">#713</a>).</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.3.8" id="gitstats-238">GitStats 2.3.8<a class="anchor" aria-label="anchor" href="#gitstats-238"></a></h2><p class="text-muted">CRAN release: 2025-12-06</p>
 <p>This patch introduces the <code><a href="../reference/show_hosts.html">show_hosts()</a></code> function to display host information, addresses empty GitLab project values in file tables, and updates <code>verbose</code> logic to default to <code>FALSE</code> while retaining critical messages.</p>
 <ul><li>Added <code><a href="../reference/show_hosts.html">show_hosts()</a></code> function to print info on hosts set with <code>set_*_host()</code> functions (<a href="https://github.com/r-world-devs/GitStats/issues/672" class="external-link">#672</a>)</li>
 <li>Handled empty GitLab project values when generating a files table (<a href="https://github.com/r-world-devs/GitStats/issues/702" class="external-link">#702</a>).</li>
