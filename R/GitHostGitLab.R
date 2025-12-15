@@ -518,7 +518,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       } else {
         cli::cli_alert_warning("[GitLab] No files found. Skipping pulling files content.")
         return(NULL)
-      }      
+      }
     }
   )
 )

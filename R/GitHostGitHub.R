@@ -334,11 +334,11 @@ GitHostGitHub <- R6::R6Class(
         }, .progress = set_progress_bar(progress, private)) |>
           purrr::list_rbind() |>
           private$add_repo_api_url()
-        return(files_table)  
+        return(files_table)
       } else {
         cli::cli_alert_warning("[GitHub] No files found. Skipping pulling files content.")
         return(NULL)
-      }      
+      }
     },
 
     get_files_structure_from_repos = function(pattern,
