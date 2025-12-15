@@ -1,3 +1,7 @@
+# GitStats (development version)
+
+- Handled getting multiple files for GitHub in case some of these files did not exist in scanned repositories ([#713](https://github.com/r-world-devs/GitStats/issues/713)).
+
 # GitStats 2.3.8
 
 This patch introduces the `show_hosts()` function to display host information, addresses empty GitLab project values in file tables, and updates `verbose` logic to default to `FALSE` while retaining critical messages.
