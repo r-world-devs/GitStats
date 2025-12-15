@@ -49,3 +49,11 @@
     Message
       > [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling files from files structure...
 
+# get_files_content skips if files structure is empty
+
+    Code
+      files_content <- gitlab_testhost_priv$get_files_content_from_files_structure(
+        files_structure = test_mocker$use("gl_empty_files_structure"), verbose = TRUE)
+    Message
+      ! [GitLab] No files found. Skipping pulling files content.
+

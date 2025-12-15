@@ -80,11 +80,23 @@ test_that("get_files gets data from storage for the second time", {
       file_path = "meta_data.yaml",
       verbose = FALSE
     )
-  )  
+  )
   expect_files_table(
     files_table,
     with_cols = "api_url"
-  )  
+  )
+})
+
+test_that("get_files prints message when files structure is empty", {
+  skip_if(integration_tests_skipped)
+  expect_snapshot(
+    files_table <- test_gitstats$get_files(
+      pattern = "\\.test",
+      depth = 0L,
+      verbose = FALSE,
+      progress = FALSE
+    )
+  )
 })
 
 test_that("get_files function works", {

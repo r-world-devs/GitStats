@@ -217,6 +217,16 @@ test_that("get_files_content makes use of files_structure", {
   )
 })
 
+test_that("get_files_content skips if no files found in files_structure", {
+  expect_snapshot(
+    files_content <- github_testhost_priv$get_files_content_from_files_structure(
+      files_structure = test_mocker$use("gh_empty_files_structure"),
+      verbose = TRUE,
+      progress = FALSE
+    )
+  )
+})
+
 test_that("`get_files_content()` pulls files in the table format", {
   github_testhost <- create_github_testhost(orgs = "test_org")
   mockery::stub(

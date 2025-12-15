@@ -1,6 +1,7 @@
 # GitStats (development version)
 
 - Handled getting multiple files for GitHub in case some of these files did not exist in scanned repositories ([#713](https://github.com/r-world-devs/GitStats/issues/713)).
+- Added skipping files content when pulling files with `pattern` results with empty files structure ([#711](https://github.com/r-world-devs/GitStats/issues/711)).
 
 # GitStats 2.3.8
 
