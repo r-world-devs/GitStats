@@ -1,4 +1,6 @@
-# GitStats (development version)
+# GitStats 2.3.9
+
+This patch release covers some fixes for `get_files()` function.
 
 - Handled getting multiple files for GitHub in case some of these files did not exist in scanned repositories ([#713](https://github.com/r-world-devs/GitStats/issues/713)).
 - Added skipping files content when pulling files with `pattern` results with empty files structure ([#711](https://github.com/r-world-devs/GitStats/issues/711)).
