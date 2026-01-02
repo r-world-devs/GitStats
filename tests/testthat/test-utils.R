@@ -29,3 +29,10 @@ test_that("retrieve_githost works", {
     "gitlab"
   )
 })
+
+test_that("parse_until_param returns date + 1 day", {
+  expect_equal(
+    parse_until_param("2025-12-08"),
+    lubridate::as_datetime("2025-12-09")
+  )
+})

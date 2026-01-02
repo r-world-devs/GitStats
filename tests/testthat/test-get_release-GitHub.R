@@ -55,6 +55,18 @@ test_that("`get_release_logs_from_orgs()` works", {
   test_mocker$cache(releases_from_orgs)
 })
 
+test_that("get_release_logs_from_orgs() pulls data from one day", {
+  skip_if(integration_tests_skipped)
+  github_testhost_priv$searching_scope <- "org"
+  gitstats_release <- github_testhost_priv$get_release_logs_from_orgs(
+    since = "2025-12-08",
+    until = "2025-12-08",
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_releases_table(gitstats_release)
+})
+
 test_that("`get_release_logs_from_repos()` works", {
   mockery::stub(
     github_testhost_priv$get_release_logs_from_repos,

@@ -429,7 +429,7 @@ EngineGraphQLGitHub <- R6::R6Class(
           }) |>
           purrr::list_rbind() |>
           dplyr::filter(
-            published_at <= as.POSIXct(until)
+            published_at < parse_until_param(until)
           )
         if (!is.null(since)) {
           releases_table <- releases_table |>
