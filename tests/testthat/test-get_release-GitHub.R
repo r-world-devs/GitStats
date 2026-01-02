@@ -83,9 +83,9 @@ test_that("`get_release_logs_from_repos()` works", {
   github_testhost_priv$searching_scope <- "repo"
   github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
   releases_from_repos <- github_testhost_priv$get_release_logs_from_repos(
-    since    = "2023-05-01",
-    until    = "2023-09-30",
-    verbose  = FALSE,
+    since = "2023-05-01",
+    until = "2023-09-30",
+    verbose = FALSE,
     progress = FALSE
   )
   expect_releases_table(releases_from_repos)
@@ -134,9 +134,9 @@ test_that("`get_release_logs()` is set to scan whole git host", {
   )
   expect_releases_table(
     github_testhost_all$get_release_logs(
-      since    = "2023-01-01",
-      until    = "2023-02-28",
-      verbose  = TRUE,
+      since = "2023-01-01",
+      until = "2023-02-28",
+      verbose = TRUE,
       progress = FALSE
     )
   )
