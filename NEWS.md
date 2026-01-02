@@ -1,3 +1,5 @@
+# GitStats (development version)
+
 # GitStats 2.3.9
 
 This patch release covers some fixes for `get_files()` function.
