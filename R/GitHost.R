@@ -183,7 +183,7 @@ GitHost <- R6::R6Class(
 
     #' Get issues method
     get_issues = function(since,
-                          until = Sys.Date(),
+                          until,
                           state = NULL,
                           verbose = TRUE,
                           progress = TRUE) {
@@ -210,7 +210,7 @@ GitHost <- R6::R6Class(
       if (nrow(issues_table) > 0) {
         issues_table <- issues_table |>
           dplyr::filter(
-            created_at >= since & created_at <= until
+            created_at >= since & created_at <= parse_until_param(until)
           )
         if (!is.null(state)) {
           type <- state
