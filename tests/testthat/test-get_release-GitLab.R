@@ -24,13 +24,9 @@ test_that("`get_releases_from_org()` pulls releases from the repositories", {
 test_that("`prepare_releases_table()` prepares releases table", {
   releases_table <- test_graphql_gitlab$prepare_releases_table(
     releases_response = test_mocker$use("releases_from_repos"),
-    org = "test_org",
-    since = "2023-08-01",
-    until = "2024-06-30"
+    org = "test_org"
   )
   expect_releases_table(releases_table)
-  expect_gt(min(releases_table$published_at), as.POSIXct("2023-08-01"))
-  expect_lt(max(releases_table$published_at), as.POSIXct("2024-06-30"))
   test_mocker$cache(releases_table)
 })
 
@@ -47,8 +43,6 @@ test_that("`get_release_logs_from_orgs()` works", {
   )
   gitlab_testhost_priv$searching_scope <- "org"
   releases_from_orgs <- gitlab_testhost_priv$get_release_logs_from_orgs(
-    since = "2023-05-01",
-    until = "2023-09-30",
     verbose = FALSE,
     progress = FALSE
   )
@@ -70,8 +64,6 @@ test_that("`get_release_logs_from_orgs()` prints proper message", {
   gitlab_testhost_priv$searching_scope <- "org"
   expect_snapshot(
     releases_from_orgs <- gitlab_testhost_priv$get_release_logs_from_orgs(
-      since = "2023-05-01",
-      until = "2023-09-30",
       verbose = TRUE,
       progress = FALSE
     )
@@ -91,8 +83,6 @@ test_that("`get_release_logs_from_repos()` works", {
   gitlab_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
   expect_snapshot(
     releases_from_repos <- gitlab_testhost_priv$get_release_logs_from_repos(
-      since = "2023-05-01",
-      until = "2023-09-30",
       verbose = TRUE,
       progress = FALSE
     )
@@ -111,8 +101,6 @@ test_that("`get_release_logs_from_repos()` works", {
   )
   gitlab_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
   releases_from_repos <- gitlab_testhost_priv$get_release_logs_from_repos(
-    since = "2023-05-01",
-    until = "2023-09-30",
     verbose = FALSE,
     progress = FALSE
   )
