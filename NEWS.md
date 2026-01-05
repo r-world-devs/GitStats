@@ -1,10 +1,10 @@
 # GitStats 2.3.9
 
-This patch release covers fixes for `get_files()` function and updates for `until` parameter in `get_release_logs()` function.
+This patch release covers fixes for `get_files()` function and updates for `until` parameter in `get_release_logs()` and `get_commits()` functions.
 
 - Handled getting multiple files for GitHub in case some of these files did not exist in scanned repositories ([#713](https://github.com/r-world-devs/GitStats/issues/713)).
 - Added skipping files content when pulling files with `pattern` results with empty files structure ([#711](https://github.com/r-world-devs/GitStats/issues/711)).
-- Updated the logic for the `until` parameter in `get_release_logs()`. The function will now include records from the specified date (e.g., passing "2025-12-08" to `until` will include releases from December 8th, 2025), whereas previously, it only fetched data up to (but not including) that date ([#718](https://github.com/r-world-devs/GitStats/issues/718)).
+- Updated the logic for the `until` parameter in `get_release_logs()` and `get_commits()`. The function will now include records from the specified date (e.g., passing "2025-12-08" to `until` will include releases from December 8th, 2025), whereas previously, it only fetched data up to (but not including) that date ([#718](https://github.com/r-world-devs/GitStats/issues/718)).
 
 # GitStats 2.3.8
 

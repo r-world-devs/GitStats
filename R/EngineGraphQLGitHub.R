@@ -487,7 +487,7 @@ EngineGraphQLGitHub <- R6::R6Class(
           org = org,
           repo = repo,
           since = since,
-          until = until,
+          until = parse_until_param(until),
           commits_cursor = commits_cursor,
           verbose = verbose
         )
