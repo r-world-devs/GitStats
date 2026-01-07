@@ -28,7 +28,7 @@
 #' @export
 get_commits <- function(gitstats,
                         since = NULL,
-                        until = Sys.Date() + lubridate::days(1),
+                        until = Sys.Date(),
                         cache = TRUE,
                         verbose = FALSE,
                         progress = TRUE) {

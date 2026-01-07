@@ -30,7 +30,7 @@
 #' @export
 get_issues <- function(gitstats,
                        since = NULL,
-                       until = Sys.Date() + lubridate::days(1),
+                       until = Sys.Date(),
                        state = NULL,
                        cache = TRUE,
                        verbose = FALSE,

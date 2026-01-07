@@ -501,7 +501,7 @@ EngineGraphQLGitLab <- R6::R6Class(
     },
 
     # Prepare releases table.
-    prepare_releases_table = function(releases_response, org, since, until) {
+    prepare_releases_table = function(releases_response, org) {
       if (length(releases_response) > 0) {
         releases_table <-
           purrr::map(releases_response, function(release) {
@@ -525,16 +525,7 @@ EngineGraphQLGitLab <- R6::R6Class(
               )
             return(release_table)
           }) |>
-          purrr::list_rbind() |>
-          dplyr::filter(
-            published_at <= as.POSIXct(until)
-          )
-        if (!is.null(since)) {
-          releases_table <- releases_table |>
-            dplyr::filter(
-              published_at >= as.POSIXct(since)
-            )
-        }
+          purrr::list_rbind()
       } else {
         releases_table <- NULL
       }

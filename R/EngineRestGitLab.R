@@ -329,7 +329,7 @@ EngineRestGitLab <- R6::R6Class(
         commits_from_repo <- private$get_commits_from_one_repo(
           repo_path = repo_path,
           since = since,
-          until = until,
+          until = parse_until_param(until),
           verbose = verbose
         )
         return(commits_from_repo)
