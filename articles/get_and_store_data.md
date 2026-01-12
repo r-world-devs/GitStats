@@ -33,7 +33,7 @@ organizations.
 ``` r
 repos <- get_repos(git_stats, progress = FALSE)
 #> → Pulling repositories data...
-#> ✔ Data pulled in 34.7 secs
+#> ✔ Data pulled in 37.1 secs
 dplyr::glimpse(repos)
 #> Rows: 97
 #> Columns: 19
@@ -53,7 +53,7 @@ dplyr::glimpse(repos)
 #> $ commit_sha       <chr> "735ec6ea367e6f9856eb0fe650d3c51c3a1aefb5", "adc27861…
 #> $ api_url          <chr> "https://api.github.com/repos/r-world-devs/shinyGizmo…
 #> $ githost          <chr> "github", "github", "github", "github", "github", "gi…
-#> $ last_activity    <drtn> 549.33 days, 138.33 days, 91.33 days, 578.33 days, 0…
+#> $ last_activity    <drtn> 549.34 days, 138.34 days, 91.34 days, 578.34 days, 0…
 #> $ contributors     <chr> "krystian8207, stla, galachad, stlagsk", "krystian820…
 #> $ contributors_n   <int> 4, 3, 4, 1, 4, 1, 6, 2, 1, 141, 2, 3, 1, 1, 1, 6, 44,…
 ```
@@ -65,7 +65,7 @@ which will print you a vector of URLs instead of whole table.
 ``` r
 repos_urls <- get_repos_urls(git_stats)
 #> → Pulling repositories URLs...
-#> ✔ Data pulled in 2.6 secs
+#> ✔ Data pulled in 2.8 secs
 dplyr::glimpse(repos_urls)
 #>  'gitstats_repos_urls' chr [1:97] "https://api.github.com/repos/r-world-devs/shinyGizmo" ...
 #>  - attr(*, "type")= chr "api"
@@ -83,7 +83,7 @@ release_logs <- get_release_logs(
 )
 #> → Pulling release logs..
 #> GitHub ■■■■■■■■■■■■■■■■                  50% |  ETA:  5s
-#> ✔ Data pulled in 27.5 secs
+#> ✔ Data pulled in 29.1 secs
 dplyr::glimpse(release_logs)
 #> Rows: 81
 #> Columns: 7
@@ -114,7 +114,7 @@ commits <- get_commits(
   progress = FALSE
 )
 #> → Pulling commits...
-#> ✔ Data pulled in 24.6 secs
+#> ✔ Data pulled in 24.8 secs
 dplyr::glimpse(commits)
 #> Rows: 188
 #> Columns: 11
@@ -170,7 +170,7 @@ commits <- get_commits(
   progress = FALSE
 )
 #> → Pulling commits...
-#> ✔ Data pulled in 22.5 secs
+#> ✔ Data pulled in 26 secs
 dplyr::glimpse(commits)
 #> Rows: 188
 #> Columns: 11
@@ -196,7 +196,7 @@ commits <- get_commits(
   progress = FALSE
 )
 #> → Pulling commits...
-#> ✔ Data pulled in 2 mins
+#> ✔ Data pulled in 58.5 secs
 dplyr::glimpse(commits)
 #> Rows: 4,038
 #> Columns: 11
@@ -226,8 +226,8 @@ git_stats
 #>  Repositories: [0] 
 #> Storage: 
 #>  Repositories: 97 
-#>  Commits: 4038 [date range: 2024-07-01 - 2026-01-12]
-#>  Release_logs: 81 [date range: 2024-01-01 - 2026-01-12]
+#>  Commits: 4038 [date range: 2024-07-01 - 2026-01-13]
+#>  Release_logs: 81 [date range: 2024-01-01 - 2026-01-13]
 #>  Repos_urls: 97 [type: api]
 ```
 
@@ -449,7 +449,7 @@ commits_stats <- get_commits(
   )
 #> → Pulling commits...
 #> GitHub ■■■■■■■■■■■■■■■■                  50% |  ETA:  4s
-#> ✔ Data pulled in 22 secs
+#> ✔ Data pulled in 23.8 secs
 dplyr::glimpse(commits_stats)
 #> Rows: 20
 #> Columns: 4

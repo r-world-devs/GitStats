@@ -9,7 +9,7 @@ repositories.
 get_issues(
   gitstats,
   since = NULL,
-  until = Sys.Date(),
+  until = Sys.Date() + lubridate::days(1),
   state = NULL,
   cache = TRUE,
   verbose = FALSE,

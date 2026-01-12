@@ -4,14 +4,9 @@
 
 CRAN release: 2026-01-11
 
-This patch release covers fixes for
+This patch release covers some fixes for
 [`get_files()`](https://r-world-devs.github.io/GitStats/reference/get_files.md)
-function and updates for `until` parameter in
-[`get_release_logs()`](https://r-world-devs.github.io/GitStats/reference/get_release_logs.md),
-[`get_commits()`](https://r-world-devs.github.io/GitStats/reference/get_commits.md)
-and
-[`get_issues()`](https://r-world-devs.github.io/GitStats/reference/get_issues.md)
-functions.
+function.
 
 - Handled getting multiple files for GitHub in case some of these files
   did not exist in scanned repositories
@@ -19,16 +14,6 @@ functions.
 - Added skipping files content when pulling files with `pattern` results
   with empty files structure
   ([\#711](https://github.com/r-world-devs/GitStats/issues/711)).
-- Updated the logic for the `until` parameter in
-  [`get_release_logs()`](https://r-world-devs.github.io/GitStats/reference/get_release_logs.md),
-  [`get_commits()`](https://r-world-devs.github.io/GitStats/reference/get_commits.md)
-  and
-  [`get_issues()`](https://r-world-devs.github.io/GitStats/reference/get_issues.md).
-  Functions will now include records from the specified date (e.g.,
-  passing “2025-12-08” to `until` will include data from December 8th,
-  2025), whereas previously, it only fetched data up to (but not
-  including) that date
-  ([\#718](https://github.com/r-world-devs/GitStats/issues/718)).
 
 ## GitStats 2.3.8
 

@@ -8,7 +8,7 @@ Pull release logs from repositories.
 get_release_logs(
   gitstats,
   since = NULL,
-  until = Sys.Date(),
+  until = Sys.Date() + lubridate::days(1),
   cache = TRUE,
   verbose = FALSE,
   progress = TRUE
