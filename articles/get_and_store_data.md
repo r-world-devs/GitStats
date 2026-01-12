@@ -33,9 +33,9 @@ organizations.
 ``` r
 repos <- get_repos(git_stats, progress = FALSE)
 #> → Pulling repositories data...
-#> ✔ Data pulled in 54.8 secs
+#> ✔ Data pulled in 34.7 secs
 dplyr::glimpse(repos)
-#> Rows: 95
+#> Rows: 97
 #> Columns: 19
 #> $ repo_id          <chr> "R_kgDOHNMr2w", "R_kgDOHYNOFQ", "R_kgDOHYNrJw", "R_kg…
 #> $ repo_name        <chr> "shinyGizmo", "cohortBuilder", "shinyCohortBuilder", …
@@ -44,16 +44,16 @@ dplyr::glimpse(repos)
 #> $ stars            <int> 21, 9, 10, 0, 8, 3, 0, 2, 1, 0, 0, 0, 1, 1, 3, 8, 1, …
 #> $ forks            <int> 0, 2, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 6,…
 #> $ created_at       <dttm> 2022-04-20 10:04:32, 2022-05-22 18:31:55, 2022-05-22…
-#> $ last_activity_at <dttm> 2024-07-12, 2025-08-27, 2025-10-13, 2024-06-13, 2025…
+#> $ last_activity_at <dttm> 2024-07-12, 2025-08-27, 2025-10-13, 2024-06-13, 2026…
 #> $ languages        <chr> "R, CSS, JavaScript", "R", "R, CSS, JavaScript, SCSS"…
 #> $ issues_open      <int> 6, 39, 39, 3, 100, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 11, …
-#> $ issues_closed    <int> 12, 5, 14, 0, 358, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 60, …
+#> $ issues_closed    <int> 12, 5, 14, 0, 360, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 60, …
 #> $ organization     <chr> "r-world-devs", "r-world-devs", "r-world-devs", "r-wo…
 #> $ repo_url         <chr> "https://github.com/r-world-devs/shinyGizmo", "https:…
 #> $ commit_sha       <chr> "735ec6ea367e6f9856eb0fe650d3c51c3a1aefb5", "adc27861…
 #> $ api_url          <chr> "https://api.github.com/repos/r-world-devs/shinyGizmo…
 #> $ githost          <chr> "github", "github", "github", "github", "github", "gi…
-#> $ last_activity    <drtn> 521.55 days, 110.55 days, 63.55 days, 550.55 days, 0…
+#> $ last_activity    <drtn> 549.33 days, 138.33 days, 91.33 days, 578.33 days, 0…
 #> $ contributors     <chr> "krystian8207, stla, galachad, stlagsk", "krystian820…
 #> $ contributors_n   <int> 4, 3, 4, 1, 4, 1, 6, 2, 1, 141, 2, 3, 1, 1, 1, 6, 44,…
 ```
@@ -65,9 +65,9 @@ which will print you a vector of URLs instead of whole table.
 ``` r
 repos_urls <- get_repos_urls(git_stats)
 #> → Pulling repositories URLs...
-#> ✔ Data pulled in 2.8 secs
+#> ✔ Data pulled in 2.6 secs
 dplyr::glimpse(repos_urls)
-#>  'gitstats_repos_urls' chr [1:95] "https://api.github.com/repos/r-world-devs/shinyGizmo" ...
+#>  'gitstats_repos_urls' chr [1:97] "https://api.github.com/repos/r-world-devs/shinyGizmo" ...
 #>  - attr(*, "type")= chr "api"
 ```
 
@@ -82,15 +82,15 @@ release_logs <- get_release_logs(
   verbose = FALSE
 )
 #> → Pulling release logs..
-#> GitHub ■■■■■■■■■■■■■■■■                  50% |  ETA:  7s
-#> ✔ Data pulled in 41.1 secs
+#> GitHub ■■■■■■■■■■■■■■■■                  50% |  ETA:  5s
+#> ✔ Data pulled in 27.5 secs
 dplyr::glimpse(release_logs)
-#> Rows: 73
+#> Rows: 81
 #> Columns: 7
 #> $ repo_name    <chr> "cohortBuilder", "shinyCohortBuilder", "shinyCohortBuilde…
 #> $ repo_url     <chr> "https://github.com/r-world-devs/cohortBuilder", "https:/…
 #> $ release_name <chr> "cohortBuilder 0.3.0", "v0.3.1", "v0.3.0", "GitStats 2.3.…
-#> $ release_tag  <chr> "v0.3.0", "v0.3.1", "v0.3.0", "v2.3.8", "v2.3.7", "v2.3.6…
+#> $ release_tag  <chr> "v0.3.0", "v0.3.1", "v0.3.0", "v2.3.9", "v2.3.8", "v2.3.7…
 #> $ published_at <dttm> 2024-09-27 11:35:06, 2024-10-24 08:21:19, 2024-10-24 08:…
 #> $ release_url  <chr> "https://github.com/r-world-devs/cohortBuilder/releases/t…
 #> $ release_log  <chr> "* Add new filter of type `\"query\"` that allows to conf…
@@ -114,7 +114,7 @@ commits <- get_commits(
   progress = FALSE
 )
 #> → Pulling commits...
-#> ✔ Data pulled in 36.7 secs
+#> ✔ Data pulled in 24.6 secs
 dplyr::glimpse(commits)
 #> Rows: 188
 #> Columns: 11
@@ -170,7 +170,7 @@ commits <- get_commits(
   progress = FALSE
 )
 #> → Pulling commits...
-#> ✔ Data pulled in 43.4 secs
+#> ✔ Data pulled in 22.5 secs
 dplyr::glimpse(commits)
 #> Rows: 188
 #> Columns: 11
@@ -198,7 +198,7 @@ commits <- get_commits(
 #> → Pulling commits...
 #> ✔ Data pulled in 2 mins
 dplyr::glimpse(commits)
-#> Rows: 4,005
+#> Rows: 4,038
 #> Columns: 11
 #> $ repo_name      <chr> "cohortBuilder", "cohortBuilder", "cohortBuilder", "coh…
 #> $ id             <chr> "C_kwDOHYNOFdoAKGFkYzI3ODYxNTQxY2M5MmMyYWJlMTNkZTAzNDNj…
@@ -225,10 +225,10 @@ git_stats
 #>  Organizations: [3] r-world-devs, openpharma, mbtests
 #>  Repositories: [0] 
 #> Storage: 
-#>  Repositories: 95 
-#>  Commits: 4005 [date range: 2024-07-01 - 2025-12-16]
-#>  Release_logs: 73 [date range: 2024-01-01 - 2025-12-16]
-#>  Repos_urls: 95 [type: api]
+#>  Repositories: 97 
+#>  Commits: 4038 [date range: 2024-07-01 - 2026-01-12]
+#>  Release_logs: 81 [date range: 2024-01-01 - 2026-01-12]
+#>  Repos_urls: 97 [type: api]
 ```
 
 You can retrieve whole data from your `GitStats` object with:
@@ -236,7 +236,7 @@ You can retrieve whole data from your `GitStats` object with:
 ``` r
 get_storage(git_stats)
 #> $repositories
-#> # A tibble: 95 × 19
+#> # A tibble: 97 × 19
 #>    repo_id      repo_name               repo_fullpath default_branch stars forks
 #>    <chr>        <chr>                   <chr>         <chr>          <int> <int>
 #>  1 R_kgDOHNMr2w shinyGizmo              r-world-devs… dev               21     0
@@ -249,7 +249,7 @@ get_storage(git_stats)
 #>  8 R_kgDOJWYrCA hypothesis              r-world-devs… master             2     0
 #>  9 R_kgDOMHUIwg useR2024-mastering-plu… r-world-devs… main               1     0
 #> 10 R_kgDOMMESGQ dbplyr                  r-world-devs… main               0     0
-#> # ℹ 85 more rows
+#> # ℹ 87 more rows
 #> # ℹ 13 more variables: created_at <dttm>, last_activity_at <dttm>,
 #> #   languages <chr>, issues_open <int>, issues_closed <int>,
 #> #   organization <chr>, repo_url <chr>, commit_sha <chr>, api_url <chr>,
@@ -257,7 +257,7 @@ get_storage(git_stats)
 #> #   contributors_n <int>
 #> 
 #> $commits
-#> # A tibble: 4,005 × 11
+#> # A tibble: 4,038 × 11
 #>    repo_name id    committed_date      author author_login author_name additions
 #>    <chr>     <chr> <dttm>              <chr>  <chr>        <chr>           <int>
 #>  1 cohortBu… C_kw… 2025-05-02 10:45:58 Dawid… syroBx       Dawid Bory…       443
@@ -270,7 +270,7 @@ get_storage(git_stats)
 #>  8 cohortBu… C_kw… 2025-02-06 08:44:21 Adam … galachad     Adam Foryś         99
 #>  9 cohortBu… C_kw… 2025-02-04 15:05:46 Borys  syroBx       Dawid Bory…        99
 #> 10 cohortBu… C_kw… 2025-02-04 14:03:43 Borys  syroBx       Dawid Bory…       259
-#> # ℹ 3,995 more rows
+#> # ℹ 4,028 more rows
 #> # ℹ 4 more variables: deletions <int>, organization <chr>, repo_url <chr>,
 #> #   api_url <glue>
 #> 
@@ -284,20 +284,20 @@ get_storage(git_stats)
 #> NULL
 #> 
 #> $release_logs
-#> # A tibble: 73 × 7
+#> # A tibble: 81 × 7
 #>    repo_name   repo_url release_name release_tag published_at        release_url
 #>    <chr>       <chr>    <chr>        <chr>       <dttm>              <chr>      
 #>  1 cohortBuil… https:/… cohortBuild… v0.3.0      2024-09-27 11:35:06 https://gi…
 #>  2 shinyCohor… https:/… v0.3.1       v0.3.1      2024-10-24 08:21:19 https://gi…
 #>  3 shinyCohor… https:/… v0.3.0       v0.3.0      2024-10-24 08:20:32 https://gi…
-#>  4 GitStats    https:/… GitStats 2.… v2.3.8      2025-12-08 07:58:49 https://gi…
-#>  5 GitStats    https:/… GitStats 2.… v2.3.7      2025-10-16 07:24:36 https://gi…
-#>  6 GitStats    https:/… GitStats 2.… v2.3.6      2025-09-17 07:46:45 https://gi…
-#>  7 GitStats    https:/… GitStats 2.… v2.3.5      2025-08-19 05:40:37 https://gi…
-#>  8 GitStats    https:/… GitStats 2.… v2.3.4      2025-07-08 13:33:50 https://gi…
-#>  9 GitStats    https:/… GitStats 2.… v2.3.3      2025-06-03 08:06:26 https://gi…
-#> 10 GitStats    https:/… GitStats 2.… v2.3.2      2025-05-20 09:21:19 https://gi…
-#> # ℹ 63 more rows
+#>  4 GitStats    https:/… GitStats 2.… v2.3.9      2026-01-12 07:52:20 https://gi…
+#>  5 GitStats    https:/… GitStats 2.… v2.3.8      2025-12-08 07:58:49 https://gi…
+#>  6 GitStats    https:/… GitStats 2.… v2.3.7      2025-10-16 07:24:36 https://gi…
+#>  7 GitStats    https:/… GitStats 2.… v2.3.6      2025-09-17 07:46:45 https://gi…
+#>  8 GitStats    https:/… GitStats 2.… v2.3.5      2025-08-19 05:40:37 https://gi…
+#>  9 GitStats    https:/… GitStats 2.… v2.3.4      2025-07-08 13:33:50 https://gi…
+#> 10 GitStats    https:/… GitStats 2.… v2.3.3      2025-06-03 08:06:26 https://gi…
+#> # ℹ 71 more rows
 #> # ℹ 1 more variable: release_log <chr>
 #> 
 #> $repos_urls
@@ -385,17 +385,19 @@ get_storage(git_stats)
 #> [82] "https://api.github.com/repos/openpharma/BayesInDrugDevelopment"                
 #> [83] "https://api.github.com/repos/openpharma/graphical-multiple-comparisons"        
 #> [84] "https://api.github.com/repos/openpharma/bonsaiforest2"                         
-#> [85] "https://gitlab.com/api/v4/projects/73876499"                                   
-#> [86] "https://gitlab.com/api/v4/projects/61399846"                                   
-#> [87] "https://gitlab.com/api/v4/projects/47383376"                                   
-#> [88] "https://gitlab.com/api/v4/projects/45334037"                                   
-#> [89] "https://gitlab.com/api/v4/projects/45300912"                                   
-#> [90] "https://gitlab.com/api/v4/projects/44565479"                                   
-#> [91] "https://gitlab.com/api/v4/projects/44346961"                                   
-#> [92] "https://gitlab.com/api/v4/projects/44293594"                                   
-#> [93] "https://gitlab.com/api/v4/projects/43875717"                                   
-#> [94] "https://gitlab.com/api/v4/projects/43400864"                                   
-#> [95] "https://gitlab.com/api/v4/projects/43398933"                                   
+#> [85] "https://api.github.com/repos/openpharma/clinsight-reviews"                     
+#> [86] "https://api.github.com/repos/openpharma/clinsight-auditor"                     
+#> [87] "https://gitlab.com/api/v4/projects/73876499"                                   
+#> [88] "https://gitlab.com/api/v4/projects/61399846"                                   
+#> [89] "https://gitlab.com/api/v4/projects/47383376"                                   
+#> [90] "https://gitlab.com/api/v4/projects/45334037"                                   
+#> [91] "https://gitlab.com/api/v4/projects/45300912"                                   
+#> [92] "https://gitlab.com/api/v4/projects/44565479"                                   
+#> [93] "https://gitlab.com/api/v4/projects/44346961"                                   
+#> [94] "https://gitlab.com/api/v4/projects/44293594"                                   
+#> [95] "https://gitlab.com/api/v4/projects/43875717"                                   
+#> [96] "https://gitlab.com/api/v4/projects/43400864"                                   
+#> [97] "https://gitlab.com/api/v4/projects/43398933"                                   
 #> attr(,"class")
 #> [1] "gitstats_repos_urls" "character"          
 #> attr(,"type")
@@ -409,7 +411,7 @@ get_storage(
   gitstats = git_stats,
   storage = "repositories"
 )
-#> # A tibble: 95 × 19
+#> # A tibble: 97 × 19
 #>    repo_id      repo_name               repo_fullpath default_branch stars forks
 #>    <chr>        <chr>                   <chr>         <chr>          <int> <int>
 #>  1 R_kgDOHNMr2w shinyGizmo              r-world-devs… dev               21     0
@@ -422,7 +424,7 @@ get_storage(
 #>  8 R_kgDOJWYrCA hypothesis              r-world-devs… master             2     0
 #>  9 R_kgDOMHUIwg useR2024-mastering-plu… r-world-devs… main               1     0
 #> 10 R_kgDOMMESGQ dbplyr                  r-world-devs… main               0     0
-#> # ℹ 85 more rows
+#> # ℹ 87 more rows
 #> # ℹ 13 more variables: created_at <dttm>, last_activity_at <dttm>,
 #> #   languages <chr>, issues_open <int>, issues_closed <int>,
 #> #   organization <chr>, repo_url <chr>, commit_sha <chr>, api_url <chr>,
@@ -446,8 +448,8 @@ commits_stats <- get_commits(
     group_var = author_name
   )
 #> → Pulling commits...
-#> GitHub ■■■■■■■■■■■■■■■■                  50% |  ETA:  6s
-#> ✔ Data pulled in 33 secs
+#> GitHub ■■■■■■■■■■■■■■■■                  50% |  ETA:  4s
+#> ✔ Data pulled in 22 secs
 dplyr::glimpse(commits_stats)
 #> Rows: 20
 #> Columns: 4
