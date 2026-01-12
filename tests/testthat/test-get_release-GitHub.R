@@ -23,13 +23,9 @@ test_that("`get_releases_from_org()` pulls releases from the repositories", {
 test_that("`prepare_releases_table()` prepares releases table", {
   releases_table <- test_graphql_github$prepare_releases_table(
     releases_response = test_mocker$use("releases_from_repos"),
-    org = "r-world-devs",
-    since = "2023-05-01",
-    until = "2023-09-30"
+    org = "r-world-devs"
   )
   expect_releases_table(releases_table)
-  expect_gt(min(releases_table$published_at), as.POSIXct("2023-05-01"))
-  expect_lt(max(releases_table$published_at), as.POSIXct("2023-09-30"))
   test_mocker$cache(releases_table)
 })
 
@@ -46,8 +42,6 @@ test_that("`get_release_logs_from_orgs()` works", {
   )
   github_testhost_priv$searching_scope <- "org"
   releases_from_orgs <- github_testhost_priv$get_release_logs_from_orgs(
-    since = "2023-05-01",
-    until = "2023-09-30",
     verbose = FALSE,
     progress = FALSE
   )
@@ -71,9 +65,7 @@ test_that("`get_release_logs_from_repos()` works", {
   github_testhost_priv$searching_scope <- "repo"
   github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
   releases_from_repos <- github_testhost_priv$get_release_logs_from_repos(
-    since    = "2023-05-01",
-    until    = "2023-09-30",
-    verbose  = FALSE,
+    verbose = FALSE,
     progress = FALSE
   )
   expect_releases_table(releases_from_repos)
@@ -92,15 +84,33 @@ test_that("`get_release_logs()` pulls release logs in the table format", {
     test_mocker$use("releases_from_orgs")
   )
   releases_table <- github_testhost$get_release_logs(
-    since    = "2023-05-01",
-    until    = "2023-09-30",
-    verbose  = FALSE,
+    since = "2023-05-01",
+    until = "2023-09-30",
+    verbose = FALSE,
     progress = FALSE
   )
   expect_releases_table(releases_table)
   expect_gt(min(releases_table$published_at), as.POSIXct("2023-05-01"))
   expect_lt(max(releases_table$published_at), as.POSIXct("2023-09-30"))
   test_mocker$cache(releases_table)
+})
+
+test_that("get_release_logs_from_orgs() pulls data from one day", {
+  skip_if(integration_tests_skipped)
+  github_testhost <- create_github_testhost(
+    host = "github.com", 
+    orgs = "r-world-devs",
+    token = github_token
+  )
+  gitstats_release <- github_testhost$get_release_logs(
+    since = "2025-12-08",
+    until = "2025-12-08",
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_releases_table(gitstats_release)
+  expect_equal(nrow(gitstats_release), 1L)
+  expect_equal(as.Date(gitstats_release$published_at), as.Date("2025-12-08"))
 })
 
 test_that("`get_release_logs()` is set to scan whole git host", {
@@ -122,9 +132,9 @@ test_that("`get_release_logs()` is set to scan whole git host", {
   )
   expect_releases_table(
     github_testhost_all$get_release_logs(
-      since    = "2023-01-01",
-      until    = "2023-02-28",
-      verbose  = TRUE,
+      since = "2023-01-01",
+      until = "2024-01-01",
+      verbose = TRUE,
       progress = FALSE
     )
   )

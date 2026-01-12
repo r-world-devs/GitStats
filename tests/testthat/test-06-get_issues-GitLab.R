@@ -178,6 +178,7 @@ test_that("`get_issues()` retrieves open issues in the table format in a certain
   )
   gl_open_issues_table <- gitlab_testhost$get_issues(
     since = "2023-01-01",
+    until = "2024-01-01",
     state = "open",
     verbose = FALSE,
     progress = FALSE
@@ -190,6 +191,7 @@ test_that("`get_issues()` retrieves open issues in the table format in a certain
   )
   gl_closed_issues_table <- gitlab_testhost$get_issues(
     since = "2023-01-01",
+    until = "2024-01-01",
     state = "closed",
     verbose = FALSE,
     progress = FALSE

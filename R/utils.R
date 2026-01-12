@@ -75,3 +75,7 @@ set_progress_bar <- function(progress, private) {
     FALSE
   }
 }
+
+parse_until_param <- function(until) {
+  lubridate::as_datetime(until) + lubridate::days(1)
+}

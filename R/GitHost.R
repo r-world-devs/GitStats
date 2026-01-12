@@ -183,7 +183,7 @@ GitHost <- R6::R6Class(
 
     #' Get issues method
     get_issues = function(since,
-                          until = Sys.Date(),
+                          until,
                           state = NULL,
                           verbose = TRUE,
                           progress = TRUE) {
@@ -210,7 +210,7 @@ GitHost <- R6::R6Class(
       if (nrow(issues_table) > 0) {
         issues_table <- issues_table |>
           dplyr::filter(
-            created_at >= since & created_at <= until
+            created_at >= since & created_at <= parse_until_param(until)
           )
         if (!is.null(state)) {
           type <- state
@@ -312,16 +312,11 @@ GitHost <- R6::R6Class(
           verbose = verbose
         )
       }
-      until <- until %||% Sys.time()
       release_logs_from_orgs <- private$get_release_logs_from_orgs(
-        since = since,
-        until = until,
         verbose = verbose,
         progress = progress
       )
       release_logs_from_repos <- private$get_release_logs_from_repos(
-        since = since,
-        until = until,
         verbose = verbose,
         progress = progress
       )
@@ -330,6 +325,12 @@ GitHost <- R6::R6Class(
         release_logs_from_repos
       ) |>
         purrr::list_rbind()
+      if (nrow(release_logs_table) > 0) {
+        release_logs_table <- release_logs_table |>
+          dplyr::filter(
+            published_at >= since & published_at <= parse_until_param(until)
+          )
+      }
       return(release_logs_table)
     }
   ),
@@ -1445,7 +1446,7 @@ GitHost <- R6::R6Class(
       return(files_table)
     },
 
-    get_release_logs_from_orgs = function(since, until, verbose, progress) {
+    get_release_logs_from_orgs = function(verbose, progress) {
       if ("org" %in% private$searching_scope) {
         release_logs_table <- purrr::map(private$orgs, function(org) {
           org <- utils::URLdecode(org)
@@ -1470,9 +1471,7 @@ GitHost <- R6::R6Class(
               verbose = verbose
             ) |>
               graphql_engine$prepare_releases_table(
-                org = org,
-                since = since,
-                until = until
+                org = org
               )
           } else {
             releases_logs_table_org <- NULL
@@ -1484,7 +1483,7 @@ GitHost <- R6::R6Class(
       }
     },
 
-    get_release_logs_from_repos = function(since, until, verbose, progress) {
+    get_release_logs_from_repos = function(verbose, progress) {
       if ("repo" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
         orgs <- graphql_engine$set_owner_type(
@@ -1508,9 +1507,7 @@ GitHost <- R6::R6Class(
             verbose = verbose
           ) |>
             graphql_engine$prepare_releases_table(
-              org = org,
-              since = since,
-              until = until
+              org = org
             )
           return(release_logs_table_org)
         }, .progress = set_progress_bar(progress, private)) |>
