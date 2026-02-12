@@ -129,7 +129,7 @@ test_that("get_repos_urls prints time used to pull data", {
     test_mocker$use("repos_urls")
   )
   expect_snapshot(
-    repos_urls <- get_repos_urls(
+    get_repos_urls(
       gitstats = test_gitstats,
       with_code = "shiny",
       in_files = "DESCRIPTION",
