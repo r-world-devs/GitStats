@@ -137,3 +137,22 @@ test_that("get_repos_urls prints time used to pull data", {
     )
   )
 })
+
+test_that("get_repos_urls prints when data is longer than 5", {
+  test_gitstats <- create_test_gitstats(hosts = 2)
+  mocked_repos_urls <- rep(test_mocker$use("repos_urls"), 5)
+  class(mocked_repos_urls) <- c(class(mocked_repos_urls), "gitstats_repos_urls")
+  mockery::stub(
+    get_repos_urls,
+    "gitstats$get_repos_urls",
+    mocked_repos_urls
+  )
+  expect_snapshot(
+    get_repos_urls(
+      gitstats = test_gitstats,
+      with_code = "shiny",
+      in_files = "DESCRIPTION",
+      verbose = FALSE
+    )
+  )
+})

@@ -136,9 +136,6 @@ get_repos_urls <- function(gitstats,
 
 #' @export
 print.gitstats_repos_urls <- function(x, ...) {
-  if (!requireNamespace("cli", quietly = TRUE)) stop("The 'cli' package is required.")
-  if (!requireNamespace("urltools", quietly = TRUE)) stop("The 'urltools' package is required.")
-
   if (length(x) == 0) {
     cat("No repository URLs found.\n")
   } else {
