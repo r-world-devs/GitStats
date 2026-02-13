@@ -166,10 +166,6 @@ GitStats <- R6::R6Class(
           private$save_to_storage(
             table = repos_urls
           )
-        } else if (verbose) {
-          cli::cli_alert_warning(
-            cli::col_yellow("No findings.")
-          )
         }
       } else {
         repos_urls <- private$get_from_storage(

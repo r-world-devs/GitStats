@@ -1,3 +1,7 @@
+# GitStats (development version)
+
+- Prettified output of repositories URLs in `get_repos_urls()` function ([#710]((https://github.com/r-world-devs/GitStats/issues/710)).
+
 # GitStats 2.3.9
 
 This patch release covers fixes for `get_files()` function and updates for `until` parameter in `get_release_logs()`, `get_commits()` and `get_issues()` functions.

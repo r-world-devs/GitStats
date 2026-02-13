@@ -134,6 +134,29 @@ get_repos_urls <- function(gitstats,
   return(repos_urls)
 }
 
+#' @export
+print.gitstats_repos_urls <- function(x, ...) {
+  if (length(x) == 0) {
+    cat("No repository URLs found.\n")
+  } else {
+    hosts <- urltools::domain(x)
+    host_counts <- table(hosts)
+
+    if (length(x) > 5) {
+      cat(cli::col_grey("# Repository URLs (showing first 5 of ", length(x), "):\n"))
+      cat(paste0("- ", head(x, 5)), sep = "\n")
+    } else {
+      cat(cli::col_grey("# Repository URLs:\n"))
+      cat(paste0("- ", x), sep = "\n")
+    }
+
+    cat(cli::col_grey("\n# Host Summary:\n"))
+    for (host in names(host_counts)) {
+      cat(cli::col_grey("- ", host, ": ", host_counts[[host]], " URL(s)\n"))
+    }
+  }
+}
+
 #' @title Get data on files trees across repositories
 #' @name get_repos_trees
 #' @description Pulls files tree (structure) per repository. Files trees are
