@@ -33,9 +33,9 @@ organizations.
 ``` r
 repos <- get_repos(git_stats, progress = FALSE)
 #> → Pulling repositories data...
-#> ✔ Data pulled in 37.1 secs
+#> ✔ Data pulled in 47.7 secs
 dplyr::glimpse(repos)
-#> Rows: 97
+#> Rows: 99
 #> Columns: 19
 #> $ repo_id          <chr> "R_kgDOHNMr2w", "R_kgDOHYNOFQ", "R_kgDOHYNrJw", "R_kg…
 #> $ repo_name        <chr> "shinyGizmo", "cohortBuilder", "shinyCohortBuilder", …
@@ -44,16 +44,16 @@ dplyr::glimpse(repos)
 #> $ stars            <int> 21, 9, 10, 0, 8, 3, 0, 2, 1, 0, 0, 0, 1, 1, 3, 8, 1, …
 #> $ forks            <int> 0, 2, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 6,…
 #> $ created_at       <dttm> 2022-04-20 10:04:32, 2022-05-22 18:31:55, 2022-05-22…
-#> $ last_activity_at <dttm> 2024-07-12, 2025-08-27, 2025-10-13, 2024-06-13, 2026…
+#> $ last_activity_at <dttm> 2024-07-12, 2026-02-10, 2026-02-09, 2024-06-13, 2026…
 #> $ languages        <chr> "R, CSS, JavaScript", "R", "R, CSS, JavaScript, SCSS"…
-#> $ issues_open      <int> 6, 39, 39, 3, 100, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 11, …
-#> $ issues_closed    <int> 12, 5, 14, 0, 360, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 60, …
+#> $ issues_open      <int> 6, 39, 39, 3, 99, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 11, 0…
+#> $ issues_closed    <int> 12, 6, 14, 0, 362, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 60, …
 #> $ organization     <chr> "r-world-devs", "r-world-devs", "r-world-devs", "r-wo…
 #> $ repo_url         <chr> "https://github.com/r-world-devs/shinyGizmo", "https:…
-#> $ commit_sha       <chr> "735ec6ea367e6f9856eb0fe650d3c51c3a1aefb5", "adc27861…
+#> $ commit_sha       <chr> "735ec6ea367e6f9856eb0fe650d3c51c3a1aefb5", "a4ad4053…
 #> $ api_url          <chr> "https://api.github.com/repos/r-world-devs/shinyGizmo…
 #> $ githost          <chr> "github", "github", "github", "github", "github", "gi…
-#> $ last_activity    <drtn> 549.34 days, 138.34 days, 91.34 days, 578.34 days, 0…
+#> $ last_activity    <drtn> 581.34 days, 3.34 days, 4.34 days, 610.34 days, 0.34…
 #> $ contributors     <chr> "krystian8207, stla, galachad, stlagsk", "krystian820…
 #> $ contributors_n   <int> 4, 3, 4, 1, 4, 1, 6, 2, 1, 141, 2, 3, 1, 1, 1, 6, 44,…
 ```
@@ -65,9 +65,9 @@ which will print you a vector of URLs instead of whole table.
 ``` r
 repos_urls <- get_repos_urls(git_stats)
 #> → Pulling repositories URLs...
-#> ✔ Data pulled in 2.8 secs
+#> ✔ Data pulled in 3 secs
 dplyr::glimpse(repos_urls)
-#>  'gitstats_repos_urls' chr [1:97] "https://api.github.com/repos/r-world-devs/shinyGizmo" ...
+#>  'gitstats_repos_urls' chr [1:99] "https://api.github.com/repos/r-world-devs/shinyGizmo" ...
 #>  - attr(*, "type")= chr "api"
 ```
 
@@ -82,10 +82,10 @@ release_logs <- get_release_logs(
   verbose = FALSE
 )
 #> → Pulling release logs..
-#> GitHub ■■■■■■■■■■■■■■■■                  50% |  ETA:  5s
-#> ✔ Data pulled in 29.1 secs
+#> GitHub ■■■■■■■■■■■■■■■■                  50% |  ETA:  6s
+#> ✔ Data pulled in 36 secs
 dplyr::glimpse(release_logs)
-#> Rows: 81
+#> Rows: 93
 #> Columns: 7
 #> $ repo_name    <chr> "cohortBuilder", "shinyCohortBuilder", "shinyCohortBuilde…
 #> $ repo_url     <chr> "https://github.com/r-world-devs/cohortBuilder", "https:/…
@@ -114,7 +114,7 @@ commits <- get_commits(
   progress = FALSE
 )
 #> → Pulling commits...
-#> ✔ Data pulled in 24.8 secs
+#> ✔ Data pulled in 31.8 secs
 dplyr::glimpse(commits)
 #> Rows: 188
 #> Columns: 11
@@ -170,7 +170,7 @@ commits <- get_commits(
   progress = FALSE
 )
 #> → Pulling commits...
-#> ✔ Data pulled in 26 secs
+#> ✔ Data pulled in 30.7 secs
 dplyr::glimpse(commits)
 #> Rows: 188
 #> Columns: 11
@@ -196,18 +196,18 @@ commits <- get_commits(
   progress = FALSE
 )
 #> → Pulling commits...
-#> ✔ Data pulled in 58.5 secs
+#> ✔ Data pulled in 2.5 mins
 dplyr::glimpse(commits)
-#> Rows: 4,038
+#> Rows: 4,557
 #> Columns: 11
 #> $ repo_name      <chr> "cohortBuilder", "cohortBuilder", "cohortBuilder", "coh…
-#> $ id             <chr> "C_kwDOHYNOFdoAKGFkYzI3ODYxNTQxY2M5MmMyYWJlMTNkZTAzNDNj…
-#> $ committed_date <dttm> 2025-05-02 10:45:58, 2025-03-18 11:08:51, 2025-03-12 1…
-#> $ author         <chr> "Dawid Borysiak", "Adam Foryś", "Adam Foryś", "Adam For…
-#> $ author_login   <chr> "syroBx", "galachad", "galachad", "galachad", "syroBx",…
-#> $ author_name    <chr> "Dawid Borysiak", "Adam Foryś", "Adam Foryś", "Adam For…
-#> $ additions      <int> 443, 2, 24, 31, 404, 65, 35, 99, 99, 259, 207, 0, 83, 5…
-#> $ deletions      <int> 0, 1, 10, 1, 405, 0, 32, 0, 0, 1, 0, 3, 1, 1, 2, 1, 1, …
+#> $ id             <chr> "C_kwDOHYNOFdoAKGE0YWQ0MDUzYTUzYTc2ZWRhZjhkZTQ5MDhjM2Fk…
+#> $ committed_date <dttm> 2026-02-10 13:46:35, 2026-02-10 13:42:27, 2026-02-10 1…
+#> $ author         <chr> "Dawid Borysiak", "Dawid Borysiak", "Dawid Borysiak", "…
+#> $ author_login   <chr> "syroBx", "syroBx", "syroBx", "syroBx", "galachad", "ga…
+#> $ author_name    <chr> "Dawid Borysiak", "Dawid Borysiak", "Dawid Borysiak", "…
+#> $ additions      <int> 31, 130, 25, 443, 2, 24, 31, 404, 65, 35, 99, 99, 259, …
+#> $ deletions      <int> 5, 5, 2, 0, 1, 10, 1, 405, 0, 32, 0, 0, 1, 0, 3, 1, 1, …
 #> $ organization   <chr> "r-world-devs", "r-world-devs", "r-world-devs", "r-worl…
 #> $ repo_url       <chr> "https://github.com/r-world-devs/cohortBuilder", "https…
 #> $ api_url        <glue> "https://api.github.com/graphql", "https://api.github.…
@@ -225,10 +225,10 @@ git_stats
 #>  Organizations: [3] r-world-devs, openpharma, mbtests
 #>  Repositories: [0] 
 #> Storage: 
-#>  Repositories: 97 
-#>  Commits: 4038 [date range: 2024-07-01 - 2026-01-13]
-#>  Release_logs: 81 [date range: 2024-01-01 - 2026-01-13]
-#>  Repos_urls: 97 [type: api]
+#>  Repositories: 99 
+#>  Commits: 4557 [date range: 2024-07-01 - 2026-02-13]
+#>  Release_logs: 93 [date range: 2024-01-01 - 2026-02-13]
+#>  Repos_urls: 99 [type: api]
 ```
 
 You can retrieve whole data from your `GitStats` object with:
@@ -236,7 +236,7 @@ You can retrieve whole data from your `GitStats` object with:
 ``` r
 get_storage(git_stats)
 #> $repositories
-#> # A tibble: 97 × 19
+#> # A tibble: 99 × 19
 #>    repo_id      repo_name               repo_fullpath default_branch stars forks
 #>    <chr>        <chr>                   <chr>         <chr>          <int> <int>
 #>  1 R_kgDOHNMr2w shinyGizmo              r-world-devs… dev               21     0
@@ -249,7 +249,7 @@ get_storage(git_stats)
 #>  8 R_kgDOJWYrCA hypothesis              r-world-devs… master             2     0
 #>  9 R_kgDOMHUIwg useR2024-mastering-plu… r-world-devs… main               1     0
 #> 10 R_kgDOMMESGQ dbplyr                  r-world-devs… main               0     0
-#> # ℹ 87 more rows
+#> # ℹ 89 more rows
 #> # ℹ 13 more variables: created_at <dttm>, last_activity_at <dttm>,
 #> #   languages <chr>, issues_open <int>, issues_closed <int>,
 #> #   organization <chr>, repo_url <chr>, commit_sha <chr>, api_url <chr>,
@@ -257,20 +257,20 @@ get_storage(git_stats)
 #> #   contributors_n <int>
 #> 
 #> $commits
-#> # A tibble: 4,038 × 11
+#> # A tibble: 4,557 × 11
 #>    repo_name id    committed_date      author author_login author_name additions
 #>    <chr>     <chr> <dttm>              <chr>  <chr>        <chr>           <int>
-#>  1 cohortBu… C_kw… 2025-05-02 10:45:58 Dawid… syroBx       Dawid Bory…       443
-#>  2 cohortBu… C_kw… 2025-03-18 11:08:51 Adam … galachad     Adam Foryś          2
-#>  3 cohortBu… C_kw… 2025-03-12 12:17:22 Adam … galachad     Adam Foryś         24
-#>  4 cohortBu… C_kw… 2025-02-19 16:30:51 Adam … galachad     Adam Foryś         31
-#>  5 cohortBu… C_kw… 2025-02-19 12:37:13 Dawid… syroBx       Dawid Bory…       404
-#>  6 cohortBu… C_kw… 2025-02-18 16:20:50 Dawid… syroBx       Dawid Bory…        65
-#>  7 cohortBu… C_kw… 2025-02-10 11:52:23 Adam … galachad     Adam Foryś         35
-#>  8 cohortBu… C_kw… 2025-02-06 08:44:21 Adam … galachad     Adam Foryś         99
-#>  9 cohortBu… C_kw… 2025-02-04 15:05:46 Borys  syroBx       Dawid Bory…        99
-#> 10 cohortBu… C_kw… 2025-02-04 14:03:43 Borys  syroBx       Dawid Bory…       259
-#> # ℹ 4,028 more rows
+#>  1 cohortBu… C_kw… 2026-02-10 13:46:35 Dawid… syroBx       Dawid Bory…        31
+#>  2 cohortBu… C_kw… 2026-02-10 13:42:27 Dawid… syroBx       Dawid Bory…       130
+#>  3 cohortBu… C_kw… 2026-02-10 13:41:09 Dawid… syroBx       Dawid Bory…        25
+#>  4 cohortBu… C_kw… 2025-05-02 10:45:58 Dawid… syroBx       Dawid Bory…       443
+#>  5 cohortBu… C_kw… 2025-03-18 11:08:51 Adam … galachad     Adam Foryś          2
+#>  6 cohortBu… C_kw… 2025-03-12 12:17:22 Adam … galachad     Adam Foryś         24
+#>  7 cohortBu… C_kw… 2025-02-19 16:30:51 Adam … galachad     Adam Foryś         31
+#>  8 cohortBu… C_kw… 2025-02-19 12:37:13 Dawid… syroBx       Dawid Bory…       404
+#>  9 cohortBu… C_kw… 2025-02-18 16:20:50 Dawid… syroBx       Dawid Bory…        65
+#> 10 cohortBu… C_kw… 2025-02-10 11:52:23 Adam … galachad     Adam Foryś         35
+#> # ℹ 4,547 more rows
 #> # ℹ 4 more variables: deletions <int>, organization <chr>, repo_url <chr>,
 #> #   api_url <glue>
 #> 
@@ -284,7 +284,7 @@ get_storage(git_stats)
 #> NULL
 #> 
 #> $release_logs
-#> # A tibble: 81 × 7
+#> # A tibble: 93 × 7
 #>    repo_name   repo_url release_name release_tag published_at        release_url
 #>    <chr>       <chr>    <chr>        <chr>       <dttm>              <chr>      
 #>  1 cohortBuil… https:/… cohortBuild… v0.3.0      2024-09-27 11:35:06 https://gi…
@@ -297,111 +297,21 @@ get_storage(git_stats)
 #>  8 GitStats    https:/… GitStats 2.… v2.3.5      2025-08-19 05:40:37 https://gi…
 #>  9 GitStats    https:/… GitStats 2.… v2.3.4      2025-07-08 13:33:50 https://gi…
 #> 10 GitStats    https:/… GitStats 2.… v2.3.3      2025-06-03 08:06:26 https://gi…
-#> # ℹ 71 more rows
+#> # ℹ 83 more rows
 #> # ℹ 1 more variable: release_log <chr>
 #> 
 #> $repos_urls
-#>  [1] "https://api.github.com/repos/r-world-devs/shinyGizmo"                          
-#>  [2] "https://api.github.com/repos/r-world-devs/cohortBuilder"                       
-#>  [3] "https://api.github.com/repos/r-world-devs/shinyCohortBuilder"                  
-#>  [4] "https://api.github.com/repos/r-world-devs/cohortBuilder.db"                    
-#>  [5] "https://api.github.com/repos/r-world-devs/GitStats"                            
-#>  [6] "https://api.github.com/repos/r-world-devs/shinyTimelines"                      
-#>  [7] "https://api.github.com/repos/r-world-devs/ROhdsiWebApi"                        
-#>  [8] "https://api.github.com/repos/r-world-devs/hypothesis"                          
-#>  [9] "https://api.github.com/repos/r-world-devs/useR2024-mastering-plumber-api"      
-#> [10] "https://api.github.com/repos/r-world-devs/dbplyr"                              
-#> [11] "https://api.github.com/repos/r-world-devs/IncidencePrevalence"                 
-#> [12] "https://api.github.com/repos/r-world-devs/MegaStudy"                           
-#> [13] "https://api.github.com/repos/r-world-devs/useR2024-cohortBuilder-minidemo"     
-#> [14] "https://api.github.com/repos/r-world-devs/queryBuilder"                        
-#> [15] "https://api.github.com/repos/r-world-devs/shinyQueryBuilder"                   
-#> [16] "https://api.github.com/repos/r-world-devs/GitAI"                               
-#> [17] "https://api.github.com/repos/r-world-devs/ellmer"                              
-#> [18] "https://api.github.com/repos/openpharma/openpharma.github.io"                  
-#> [19] "https://api.github.com/repos/openpharma/crmPack"                               
-#> [20] "https://api.github.com/repos/openpharma/visR"                                  
-#> [21] "https://api.github.com/repos/openpharma/pypharma_nlp"                          
-#> [22] "https://api.github.com/repos/openpharma/RDO"                                   
-#> [23] "https://api.github.com/repos/openpharma/syntrial"                              
-#> [24] "https://api.github.com/repos/openpharma/simaerep"                              
-#> [25] "https://api.github.com/repos/openpharma/CTP"                                   
-#> [26] "https://api.github.com/repos/openpharma/sas7bdat"                              
-#> [27] "https://api.github.com/repos/openpharma/visR-docs"                             
-#> [28] "https://api.github.com/repos/openpharma/facetsr"                               
-#> [29] "https://api.github.com/repos/openpharma/GithubMetrics"                         
-#> [30] "https://api.github.com/repos/openpharma/BBS-causality-training"                
-#> [31] "https://api.github.com/repos/openpharma/synthetic.data.submission.shiny"       
-#> [32] "https://api.github.com/repos/openpharma/synthetic.data.archive"                
-#> [33] "https://api.github.com/repos/openpharma/tester"                                
-#> [34] "https://api.github.com/repos/openpharma/staged.dependencies"                   
-#> [35] "https://api.github.com/repos/openpharma/openpharma_log"                        
-#> [36] "https://api.github.com/repos/openpharma/quality_risk_assesment_clinical_trials"
-#> [37] "https://api.github.com/repos/openpharma/stageddeps.house"                      
-#> [38] "https://api.github.com/repos/openpharma/stageddeps.garden"                     
-#> [39] "https://api.github.com/repos/openpharma/stageddeps.food"                       
-#> [40] "https://api.github.com/repos/openpharma/stageddeps.electricity"                
-#> [41] "https://api.github.com/repos/openpharma/stageddeps.elecinfra"                  
-#> [42] "https://api.github.com/repos/openpharma/stageddeps.water"                      
-#> [43] "https://api.github.com/repos/openpharma/DataFakeR"                             
-#> [44] "https://api.github.com/repos/openpharma/rinpharma_workshop_2021_old"           
-#> [45] "https://api.github.com/repos/openpharma/rinpharma_workshop_2021"               
-#> [46] "https://api.github.com/repos/openpharma/elaborator"                            
-#> [47] "https://api.github.com/repos/openpharma/graphicalMCP"                          
-#> [48] "https://api.github.com/repos/openpharma/mmrm"                                  
-#> [49] "https://api.github.com/repos/openpharma/opensource_dashboard"                  
-#> [50] "https://api.github.com/repos/openpharma/phuse-scripts"                         
-#> [51] "https://api.github.com/repos/openpharma/trialreport"                           
-#> [52] "https://api.github.com/repos/openpharma/openpharma_ml"                         
-#> [53] "https://api.github.com/repos/openpharma/mtdesign"                              
-#> [54] "https://api.github.com/repos/openpharma/rbqmR"                                 
-#> [55] "https://api.github.com/repos/openpharma/.github"                               
-#> [56] "https://api.github.com/repos/openpharma/hta-collaborations"                    
-#> [57] "https://api.github.com/repos/openpharma/savvyr"                                
-#> [58] "https://api.github.com/repos/openpharma/roxytypes"                             
-#> [59] "https://api.github.com/repos/openpharma/roxylint"                              
-#> [60] "https://api.github.com/repos/openpharma/autoquarto"                            
-#> [61] "https://api.github.com/repos/openpharma/workshop-r-swe"                        
-#> [62] "https://api.github.com/repos/openpharma/brms.mmrm"                             
-#> [63] "https://api.github.com/repos/openpharma/workshop-r-swe-sf"                     
-#> [64] "https://api.github.com/repos/openpharma/RobinCar2"                             
-#> [65] "https://api.github.com/repos/openpharma/filters"                               
-#> [66] "https://api.github.com/repos/openpharma/workshop-r-swe-md"                     
-#> [67] "https://api.github.com/repos/openpharma/workshop-r-swe-mtl"                    
-#> [68] "https://api.github.com/repos/openpharma/CAMIS"                                 
-#> [69] "https://api.github.com/repos/openpharma/clindata"                              
-#> [70] "https://api.github.com/repos/openpharma/SafetySignalDetection.jl"              
-#> [71] "https://api.github.com/repos/openpharma/os-metadata"                           
-#> [72] "https://api.github.com/repos/openpharma/diffdf"                                
-#> [73] "https://api.github.com/repos/openpharma/clinsight"                             
-#> [74] "https://api.github.com/repos/openpharma/beeca"                                 
-#> [75] "https://api.github.com/repos/openpharma/beeca-simulations"                     
-#> [76] "https://api.github.com/repos/openpharma/DoseFinding"                           
-#> [77] "https://api.github.com/repos/openpharma/generate_badges"                       
-#> [78] "https://api.github.com/repos/openpharma/workshop-r-swe-rinpharma-2024"         
-#> [79] "https://api.github.com/repos/openpharma/rbmiUtils"                             
-#> [80] "https://api.github.com/repos/openpharma/bfboin"                                
-#> [81] "https://api.github.com/repos/openpharma/bunsen"                                
-#> [82] "https://api.github.com/repos/openpharma/BayesInDrugDevelopment"                
-#> [83] "https://api.github.com/repos/openpharma/graphical-multiple-comparisons"        
-#> [84] "https://api.github.com/repos/openpharma/bonsaiforest2"                         
-#> [85] "https://api.github.com/repos/openpharma/clinsight-reviews"                     
-#> [86] "https://api.github.com/repos/openpharma/clinsight-auditor"                     
-#> [87] "https://gitlab.com/api/v4/projects/73876499"                                   
-#> [88] "https://gitlab.com/api/v4/projects/61399846"                                   
-#> [89] "https://gitlab.com/api/v4/projects/47383376"                                   
-#> [90] "https://gitlab.com/api/v4/projects/45334037"                                   
-#> [91] "https://gitlab.com/api/v4/projects/45300912"                                   
-#> [92] "https://gitlab.com/api/v4/projects/44565479"                                   
-#> [93] "https://gitlab.com/api/v4/projects/44346961"                                   
-#> [94] "https://gitlab.com/api/v4/projects/44293594"                                   
-#> [95] "https://gitlab.com/api/v4/projects/43875717"                                   
-#> [96] "https://gitlab.com/api/v4/projects/43400864"                                   
-#> [97] "https://gitlab.com/api/v4/projects/43398933"                                   
-#> attr(,"class")
-#> [1] "gitstats_repos_urls" "character"          
-#> attr(,"type")
-#> [1] "api"
+#> # Repository URLs (showing first 5 of 99):
+#> - https://api.github.com/repos/r-world-devs/shinyGizmo
+#> - https://api.github.com/repos/r-world-devs/cohortBuilder
+#> - https://api.github.com/repos/r-world-devs/shinyCohortBuilder
+#> - https://api.github.com/repos/r-world-devs/cohortBuilder.db
+#> - https://api.github.com/repos/r-world-devs/GitStats
+#> 
+#> # Host Summary:
+#> - api.github.com: 88 URL(s)
+#> - gitlab.com: 11 URL(s)
+#> 
 ```
 
 Or particular data set:
@@ -411,7 +321,7 @@ get_storage(
   gitstats = git_stats,
   storage = "repositories"
 )
-#> # A tibble: 97 × 19
+#> # A tibble: 99 × 19
 #>    repo_id      repo_name               repo_fullpath default_branch stars forks
 #>    <chr>        <chr>                   <chr>         <chr>          <int> <int>
 #>  1 R_kgDOHNMr2w shinyGizmo              r-world-devs… dev               21     0
@@ -424,7 +334,7 @@ get_storage(
 #>  8 R_kgDOJWYrCA hypothesis              r-world-devs… master             2     0
 #>  9 R_kgDOMHUIwg useR2024-mastering-plu… r-world-devs… main               1     0
 #> 10 R_kgDOMMESGQ dbplyr                  r-world-devs… main               0     0
-#> # ℹ 87 more rows
+#> # ℹ 89 more rows
 #> # ℹ 13 more variables: created_at <dttm>, last_activity_at <dttm>,
 #> #   languages <chr>, issues_open <int>, issues_closed <int>,
 #> #   organization <chr>, repo_url <chr>, commit_sha <chr>, api_url <chr>,
@@ -448,8 +358,8 @@ commits_stats <- get_commits(
     group_var = author_name
   )
 #> → Pulling commits...
-#> GitHub ■■■■■■■■■■■■■■■■                  50% |  ETA:  4s
-#> ✔ Data pulled in 23.8 secs
+#> GitHub ■■■■■■■■■■■■■■■■                  50% |  ETA:  6s
+#> ✔ Data pulled in 32.2 secs
 dplyr::glimpse(commits_stats)
 #> Rows: 20
 #> Columns: 4
