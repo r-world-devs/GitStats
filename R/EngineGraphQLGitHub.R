@@ -501,7 +501,6 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(full_commits_list)
     },
 
-    # Wrapper over building GraphQL query and response.
     get_commits_page_from_repo = function(org,
                                           repo,
                                           since,
@@ -522,13 +521,41 @@ EngineGraphQLGitHub <- R6::R6Class(
         verbose = verbose
       )
       if (inherits(response, "graphql_error")) {
-        respone <- self$gql_response(
+        response <- self$gql_response(
           gql_query = commits_from_repo_query,
           vars = list(
             "org" = org,
             "repo" = repo,
             "since" = date_to_gts(since),
             "until" = date_to_gts(until)
+          ),
+          verbose = verbose
+        )
+      }
+      return(response)
+    },
+
+    get_pr_page_from_repo = function(org,
+                                     repo,
+                                     pr_cursor = "",
+                                     verbose = TRUE) {
+      pr_from_repo_query <- self$gql_query$pull_requests_from_repo(
+        pr_cursor = pr_cursor
+      )
+      response <- self$gql_response(
+        gql_query = pr_from_repo_query,
+        vars = list(
+          "org" = org,
+          "repo" = repo
+        ),
+        verbose = verbose
+      )
+      if (inherits(response, "graphql_error")) {
+        response <- self$gql_response(
+          gql_query = pr_from_repo_query,
+          vars = list(
+            "org" = org,
+            "repo" = repo
           ),
           verbose = verbose
         )

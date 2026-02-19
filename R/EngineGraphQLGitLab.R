@@ -656,6 +656,33 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(response)
     },
 
+    get_pr_page_from_repo = function(org,
+                                     repo,
+                                     pr_cursor = "",
+                                     verbose = TRUE) {
+      pr_from_repo_query <- self$gql_query$pull_requests_from_repo(
+        pr_cursor = pr_cursor
+      )
+      response <- self$gql_response(
+        gql_query = pr_from_repo_query,
+        vars = list(
+          "fullPath" = paste0(org, "/", repo)
+        ),
+        verbose = verbose
+      )
+      if (inherits(response, "graphql_error")) {
+        response <- self$gql_response(
+          gql_query = pr_from_repo_query,
+          vars = list(
+            "org" = org,
+            "repo" = repo
+          ),
+          verbose = verbose
+        )
+      }
+      return(response)
+    },
+
     get_files_tree_response = function(org, repo, file_path, verbose) {
       files_tree_response <- self$gql_response(
         gql_query = self$gql_query$files_tree_from_repo(),

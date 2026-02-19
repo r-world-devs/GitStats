@@ -107,6 +107,31 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
       ')
     },
 
+    pull_requests_from_repo = function(pr_cursor = "") {
+      paste0('
+      query getPullRequestsFromRepo ($fullPath: ID!) {
+          project(fullPath: $fullPath) {
+            mergeRequests(first: 100, ',
+             private$add_cursor(pr_cursor), ') {
+              edges {
+                node {
+                  iid
+                  created_at: createdAt
+                  merged_at: mergedAt
+                  state
+                  author {
+                    username
+                  }
+                  source_branch: sourceBranch
+                  target_branch: targetBranch
+                }
+              }
+            }
+          }
+        }
+      ')
+    },
+
     user = function() {
       paste0('
         query GetUser($user: String!) {

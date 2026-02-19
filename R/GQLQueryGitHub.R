@@ -180,6 +180,30 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       ')
     },
 
+    pull_requests_from_repo = function(pr_cursor = "") {
+      paste0(
+      'query GetPullRequestsFromRepo($org: String!, $repo: String!) {
+          repository(owner: $org, name: $repo) {
+            pullRequests(first: 100, ', private$add_cursor(pr_cursor), ') {
+              edges {
+                node {
+                  number
+                  created_at: createdAt
+                  merged_at: mergedAt
+                  state
+                  author {
+                    login
+                  }
+                  source_branch: baseRefName
+                  target_branch: headRefName
+                }
+              }
+            }
+          }
+        }'
+      )
+    },
+
     file_blob_from_repo = function() {
       'query GetFileBlobFromRepo($org: String!, $repo: String!, $expression: String!) {
           repository(owner: $org, name: $repo) {
