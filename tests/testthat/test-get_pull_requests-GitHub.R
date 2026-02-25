@@ -41,3 +41,33 @@ test_that("`get_pr_from_one_repo()` prepares formatted list", {
   )
   test_mocker$cache(pr_from_repo)
 })
+
+test_that("`get_pr_from_repos()` pulls pr from repos", {
+  if (integration_tests_skipped) {
+    mockery::stub(
+      test_graphql_github$get_pr_from_repos,
+      "private$get_pr_from_one_repo",
+      test_mocker$use("pr_from_repo")
+    )
+  }
+  pr_from_repos <- test_graphql_github$get_pr_from_repos(
+    org = "r-world-devs",
+    repo = c("GitStats", "GitAI")
+  )
+  expect_pr_full_list(
+    pr_from_repos[[1]]
+  )
+  test_mocker$cache(pr_from_repos)
+})
+
+test_that("`prepare_pr_table()` prepares pr table", {
+  gh_pr_table <- test_graphql_github$prepare_pr_table(
+    repos_list_with_pr = test_mocker$use("pr_from_repos"),
+    org = "r-world-devs"
+  )
+  expect_pr_table(
+    gh_pr_table
+  )
+  test_mocker$cache(gh_pr_table)
+})
+
