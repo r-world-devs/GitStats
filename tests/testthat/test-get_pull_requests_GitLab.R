@@ -44,14 +44,14 @@ test_that("`get_pr_from_one_repo()` prepares formatted list", {
 test_that("`get_pr_from_repos()` pulls pr from repos", {
   if (integration_tests_skipped) {
     mockery::stub(
-      test_graphql_github$get_pr_from_repos,
+      test_graphql_gitlab$get_pr_from_repos,
       "private$get_pr_from_one_repo",
       test_mocker$use("pr_from_repo")
     )
   }
-  pr_from_repos <- test_graphql_github$get_pr_from_repos(
-    org = "r-world-devs",
-    repo = c("GitStats", "GitAI")
+  pr_from_repos <- test_graphql_gitlab$get_pr_from_repos(
+    org = "mbtests",
+    repo = c("gitstatstesting", "graphql_tests")
   )
   expect_pr_full_list(
     pr_from_repos[[1]]
@@ -60,9 +60,9 @@ test_that("`get_pr_from_repos()` pulls pr from repos", {
 })
 
 test_that("`prepare_pr_table()` prepares pr table", {
-  gl_pr_table <- test_graphql_github$prepare_pr_table(
+  gl_pr_table <- test_graphql_gitlab$prepare_pr_table(
     repos_list_with_pr = test_mocker$use("pr_from_repos"),
-    org = "r-world-devs"
+    org = "mbtests"
   )
   expect_pr_table(
     gl_pr_table
@@ -145,7 +145,7 @@ test_that("`get_pull_requests()` retrieves pr in the table format in a certain t
   )
   gl_pr_table_shorter <- gitlab_testhost$get_pull_requests(
     since = "2026-02-01",
-    until = "2026-02-22",
+    until = "2026-02-24",
     verbose = FALSE,
     progress = FALSE
   )
