@@ -110,7 +110,7 @@ test_that("get_pr_from_repos for GitLab works", {
       test_org
     )
   } else {
-    gitlab_testhost_priv$orgs_repos <- list("r-world-devs" = "GitStats")
+    gitlab_testhost_priv$orgs_repos <- list("mbtests" = "gitstatstesting")
   }
   gitlab_testhost_priv$searching_scope <- "repo"
   gl_pr_from_repos <- gitlab_testhost_priv$get_pr_from_repos(
@@ -145,7 +145,7 @@ test_that("`get_pull_requests()` retrieves pr in the table format in a certain t
   )
   gl_pr_table_shorter <- gitlab_testhost$get_pull_requests(
     since = "2026-02-01",
-    until = "2026-02-28",
+    until = "2026-02-22",
     verbose = FALSE,
     progress = FALSE
   )
