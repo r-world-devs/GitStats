@@ -22,3 +22,21 @@ test_that("`get_pr_page_from_repo()` pulls pr page from repository", {
   )
   test_mocker$cache(gl_pr_page)
 })
+
+test_that("`get_pr_from_one_repo()` prepares formatted list", {
+  if (integration_tests_skipped) {
+    mockery::stub(
+      test_graphql_gitlab_priv$get_pr_from_one_repo,
+      "private$get_pr_page_from_repo",
+      test_mocker$use("pr_page")
+    )
+  }
+  pr_from_repo <- test_graphql_gitlab_priv$get_pr_from_one_repo(
+    org = "mbtests",
+    repo = "gitstatstesting"
+  )
+  expect_pr_full_list(
+    pr_from_repo
+  )
+  test_mocker$cache(pr_from_repo)
+})

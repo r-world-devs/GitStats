@@ -185,6 +185,10 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       'query GetPullRequestsFromRepo($org: String!, $repo: String!) {
           repository(owner: $org, name: $repo) {
             pullRequests(first: 100, ', private$add_cursor(pr_cursor), ') {
+              pageInfo {
+                 hasNextPage
+                endCursor
+              }
               edges {
                 node {
                   number

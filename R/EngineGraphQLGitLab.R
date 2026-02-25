@@ -656,6 +656,33 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(response)
     },
 
+    get_pr_from_one_repo = function(org,
+                                    repo,
+                                    verbose = TRUE) {
+      next_page <- TRUE
+      full_pr_list <- list()
+      pr_cursor <- ""
+      while (next_page) {
+        pr_response <- private$get_pr_page_from_repo(
+          org = org,
+          repo = repo,
+          pr_cursor = pr_cursor,
+          verbose = verbose
+        )
+        pr_list <- pr_response$data$project$mergeRequests$edges
+        next_page <- pr_response$data$project$mergeRequests$pageInfo$hasNextPage
+        if (is.null(next_page)) next_page <- FALSE
+        if (is.null(pr_list)) pr_list <- list()
+        if (next_page) {
+          pr_cursor <- pr_response$data$project$mergeRequests$pageInfo$endCursor
+        } else {
+          pr_cursor <- ""
+        }
+        full_pr_list <- append(full_pr_list, pr_list)
+      }
+      return(full_pr_list)
+    },
+
     get_pr_page_from_repo = function(org,
                                      repo,
                                      pr_cursor = "",

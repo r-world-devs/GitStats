@@ -113,9 +113,13 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
           project(fullPath: $fullPath) {
             mergeRequests(first: 100, ',
              private$add_cursor(pr_cursor), ') {
+              pageInfo {
+                endCursor
+                hasNextPage
+              }
               edges {
                 node {
-                  iid
+                  number: iid
                   created_at: createdAt
                   merged_at: mergedAt
                   state
