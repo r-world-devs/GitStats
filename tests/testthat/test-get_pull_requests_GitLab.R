@@ -73,18 +73,18 @@ test_that("`prepare_pr_table()` prepares pr table", {
 test_that("get_pr_from_orgs for GitLab works", {
   if (integration_tests_skipped) {
     mockery::stub(
-      github_testhost_priv$get_pr_from_orgs,
+      gitlab_testhost_priv$get_pr_from_orgs,
       "graphql_engine$prepare_pr_table",
       test_mocker$use("gl_pr_table")
     )
     mockery::stub(
-      github_testhost_priv$get_pr_from_orgs,
+      gitlab_testhost_priv$get_pr_from_orgs,
       "private$get_repos_names",
       test_mocker$use("gl_repos_names")
     )
   }
-  github_testhost_priv$searching_scope <- "org"
-  gl_pr_from_orgs <- github_testhost_priv$get_pr_from_orgs(
+  gitlab_testhost_priv$searching_scope <- "org"
+  gl_pr_from_orgs <- gitlab_testhost_priv$get_pr_from_orgs(
     verbose = FALSE,
     progress = FALSE
   )
@@ -97,23 +97,23 @@ test_that("get_pr_from_orgs for GitLab works", {
 test_that("get_pr_from_repos for GitLab works", {
   if (integration_tests_skipped) {
     mockery::stub(
-      github_testhost_priv$get_pr_from_repos,
+      gitlab_testhost_priv$get_pr_from_repos,
       "graphql_engine$prepare_pr_table",
       test_mocker$use("gl_pr_table")
     )
-    github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
+    gitlab_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
     test_org <- "test_org"
     attr(test_org, "type") <- "organization"
     mockery::stub(
-      github_testhost_priv$get_pr_from_repos,
+      gitlab_testhost_priv$get_pr_from_repos,
       "graphql_engine$set_owner_type",
       test_org
     )
   } else {
-    github_testhost_priv$orgs_repos <- list("r-world-devs" = "GitStats")
+    gitlab_testhost_priv$orgs_repos <- list("r-world-devs" = "GitStats")
   }
-  github_testhost_priv$searching_scope <- "repo"
-  gl_pr_from_repos <- github_testhost_priv$get_pr_from_repos(
+  gitlab_testhost_priv$searching_scope <- "repo"
+  gl_pr_from_repos <- gitlab_testhost_priv$get_pr_from_repos(
     verbose = FALSE,
     progress = FALSE
   )
@@ -121,4 +121,81 @@ test_that("get_pr_from_repos for GitLab works", {
     gl_pr_from_repos
   )
   test_mocker$cache(gl_pr_from_repos)
+})
+
+test_that("`get_pull_requests()` retrieves pr in the table format in a certain time span", {
+  mockery::stub(
+    gitlab_testhost$get_pull_requests,
+    "private$get_pr_from_orgs",
+    test_mocker$use("gl_pr_from_orgs")
+  )
+  mockery::stub(
+    gitlab_testhost$get_pull_requests,
+    "private$get_pr_from_repos",
+    test_mocker$use("gl_pr_from_repos")
+  )
+  gl_pr_table <- gitlab_testhost$get_pull_requests(
+    since = "2026-02-01",
+    until = "2026-02-28",
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_pr_table(
+    gl_pr_table
+  )
+  gl_pr_table_shorter <- gitlab_testhost$get_pull_requests(
+    since = "2026-02-01",
+    until = "2026-02-28",
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_true(
+    nrow(gl_pr_table) > nrow(gl_pr_table_shorter)
+  )
+  expect_true(
+    max(gl_pr_table_shorter$created_at) <= "2026-02-28"
+  )
+  expect_true(
+    min(gl_pr_table_shorter$created_at) >= "2026-02-01"
+  )
+  test_mocker$cache(gl_pr_table)
+})
+
+test_that("`get_pull_requests()` retrieves open pr in the table format in a certain time span", {
+  mockery::stub(
+    gitlab_testhost$get_pull_requests,
+    "private$get_pr_from_orgs",
+    test_mocker$use("gl_pr_from_orgs")
+  )
+  mockery::stub(
+    gitlab_testhost$get_pull_requests,
+    "private$get_pr_from_repos",
+    test_mocker$use("gl_pr_from_repos")
+  )
+  gl_open_pr_table <- gitlab_testhost$get_pull_requests(
+    since = "2026-02-01",
+    until = "2026-02-28",
+    state = "open",
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_pr_table(
+    gl_open_pr_table
+  )
+  expect_true(
+    all(gl_open_pr_table$state == "open")
+  )
+  gl_closed_pr_table <- gitlab_testhost$get_pull_requests(
+    since = "2026-02-01",
+    until = "2026-02-28",
+    state = "closed",
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_pr_table(
+    gl_closed_pr_table
+  )
+  expect_true(
+    all(gl_closed_pr_table$state == "closed")
+  )
 })

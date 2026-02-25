@@ -123,3 +123,81 @@ test_that("get_pr_from_repos for GitHub works", {
   )
   test_mocker$cache(gh_pr_from_repos)
 })
+
+test_that("`get_pull_requests()` retrieves pr in the table format in a certain time span", {
+  mockery::stub(
+    gitlab_testhost$get_pull_requests,
+    "private$get_pull_requests_from_orgs",
+    test_mocker$use("gl_pr_from_orgs")
+  )
+  mockery::stub(
+    gitlab_testhost$get_pull_requests,
+    "private$get_pull_requests_from_repos",
+    test_mocker$use("gl_pr_from_repos")
+  )
+  gl_pr_table <- gitlab_testhost$get_pull_requests(
+    since = "2023-01-01",
+    until = "2025-03-06",
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_pr_table(
+    gl_pr_table
+  )
+  gl_pr_table_shorter <- gitlab_testhost$get_pull_requests(
+    since = "2023-02-01",
+    until = "2024-01-01",
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_true(
+    nrow(gl_pr_table) > nrow(gl_pr_table_shorter)
+  )
+  expect_true(
+    max(gl_pr_table_shorter$created_at) <= "2024-01-01"
+  )
+  expect_true(
+    min(gl_pr_table_shorter$created_at) >= "2023-02-01"
+  )
+  test_mocker$cache(gl_pr_table)
+})
+
+test_that("`get_pull_requests()` retrieves open pr in the table format in a certain time span", {
+  mockery::stub(
+    gitlab_testhost$get_pull_requests,
+    "private$get_pull_requests_from_orgs",
+    test_mocker$use("gl_pr_from_orgs")
+  )
+  mockery::stub(
+    gitlab_testhost$get_pull_requests,
+    "private$get_pull_requests_from_repos",
+    test_mocker$use("gl_pr_from_repos")
+  )
+  gl_open_pr_table <- gitlab_testhost$get_pull_requests(
+    since = "2023-01-01",
+    until = "2024-01-01",
+    state = "open",
+    verbose = FALSE,
+    progress = FALSE
+  )
+  browser()
+  expect_pr_table(
+    gl_open_pr_table
+  )
+  expect_true(
+    all(gl_open_pr_table$state == "open")
+  )
+  gl_closed_pr_table <- gitlab_testhost$get_pull_requests(
+    since = "2023-01-01",
+    until = "2024-01-01",
+    state = "closed",
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_pr_table(
+    gl_closed_pr_table
+  )
+  expect_true(
+    all(gl_closed_pr_table$state == "closed")
+  )
+})

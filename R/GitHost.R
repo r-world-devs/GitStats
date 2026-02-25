@@ -223,6 +223,46 @@ GitHost <- R6::R6Class(
       return(issues_table)
     },
 
+    get_pull_requests = function(since,
+                                 until,
+                                 state = NULL,
+                                 verbose = TRUE,
+                                 progress = TRUE) {
+      if (private$scan_all && is.null(private$orgs)) {
+        private$orgs <- private$get_orgs_from_host(
+          output = "only_names",
+          verbose = verbose
+        )
+      }
+      pr_from_orgs <- private$get_pr_from_orgs(
+        verbose = verbose,
+        progress = progress
+      )
+      pr_from_repos <- private$get_pr_from_repos(
+        verbose = verbose,
+        progress = progress
+      )
+      pr_table <- list(
+        pr_from_orgs,
+        pr_from_repos
+      ) |>
+        purrr::list_rbind() |>
+        dplyr::distinct()
+      if (nrow(pr_table) > 0) {
+        pr_table <- pr_table |>
+          dplyr::filter(
+            created_at >= since & created_at <= parse_until_param(until)
+          )
+        if (!is.null(state)) {
+          type <- state
+          pr_table <- pr_table |>
+            dplyr::filter(
+              state == type
+            )
+        }
+      }
+      return(pr_table)
+    },
     #' Pull information about users.
     get_users = function(users) {
       graphql_engine <- private$engines$graphql

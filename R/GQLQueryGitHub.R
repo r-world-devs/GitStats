@@ -182,7 +182,7 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
 
     pull_requests_from_repo = function(pr_cursor = "") {
       paste0(
-      'query GetPullRequestsFromRepo($org: String!, $repo: String!) {
+        'query GetPullRequestsFromRepo($org: String!, $repo: String!) {
           repository(owner: $org, name: $repo) {
             pullRequests(first: 100, ', private$add_cursor(pr_cursor), ') {
               pageInfo {
