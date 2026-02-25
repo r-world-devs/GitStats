@@ -127,12 +127,12 @@ test_that("get_pr_from_repos for GitHub works", {
 test_that("`get_pull_requests()` retrieves pr in the table format in a certain time span", {
   mockery::stub(
     github_testhost$get_pull_requests,
-    "private$get_pull_requests_from_orgs",
+    "private$get_pr_from_orgs",
     test_mocker$use("gh_pr_from_orgs")
   )
   mockery::stub(
     github_testhost$get_pull_requests,
-    "private$get_pull_requests_from_repos",
+    "private$get_pr_from_repos",
     test_mocker$use("gh_pr_from_repos")
   )
   gh_pr_table <- github_testhost$get_pull_requests(
@@ -165,12 +165,12 @@ test_that("`get_pull_requests()` retrieves pr in the table format in a certain t
 test_that("`get_pull_requests()` retrieves open pr in the table format in a certain time span", {
   mockery::stub(
     github_testhost$get_pull_requests,
-    "private$get_pull_requests_from_orgs",
+    "private$get_pr_from_orgs",
     test_mocker$use("gh_pr_from_orgs")
   )
   mockery::stub(
     github_testhost$get_pull_requests,
-    "private$get_pull_requests_from_repos",
+    "private$get_pr_from_repos",
     test_mocker$use("gh_pr_from_repos")
   )
   gh_open_pr_table <- github_testhost$get_pull_requests(

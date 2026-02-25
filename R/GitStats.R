@@ -266,6 +266,54 @@ GitStats <- R6::R6Class(
       return(issues)
     },
 
+    get_pull_requests = function(since,
+                          until,
+                          state,
+                          cache    = TRUE,
+                          verbose  = TRUE,
+                          progress = TRUE) {
+      private$check_for_host()
+      args_list <- list(
+        "state" = state,
+        "date_range" = c(since, as.character(until))
+      )
+      trigger <- private$trigger_pulling(
+        cache = cache,
+        storage = "pull_requests",
+        args_list = args_list,
+        verbose = verbose
+      )
+      if (trigger) {
+        cli::cli_alert("Pulling pull requests...")
+        pr <- private$get_pull_requests_from_hosts(
+          since = since,
+          until = until,
+          state = state,
+          verbose = verbose,
+          progress = progress
+        )
+        if (nrow(pr) > 0) {
+          pr <- private$set_object_class(
+            object = pr,
+            class = "gitstats_pull_requests",
+            attr_list = args_list
+          )
+          private$save_to_storage(
+            table = pr
+          )
+        } else {
+          if (verbose) {
+            cli::cli_alert_warning("No pull requests found.")
+          }
+        }
+      } else {
+        pr <- private$get_from_storage(
+          table = "pull_requests"
+        )
+      }
+      return(pr)
+    },
+
     get_users = function(logins, cache = TRUE, verbose = TRUE) {
       private$check_for_host()
       args_list <- list("logins" = logins)
@@ -816,6 +864,22 @@ GitStats <- R6::R6Class(
         purrr::list_rbind() |>
         dplyr::as_tibble()
       return(issues_table)
+    },
+
+    # Get pr tables from hosts and bind them into one
+    get_pull_requests_from_hosts = function(since, until, state, verbose, progress) {
+      pr_table <- purrr::map(private$hosts, function(host) {
+        host$get_pull_requests(
+          since    = since,
+          until    = until,
+          state    = state,
+          verbose  = verbose,
+          progress = progress
+        )
+      }) |>
+        purrr::list_rbind() |>
+        dplyr::as_tibble()
+      return(pr_table)
     },
 
     # Pull information on unique users in a table form
