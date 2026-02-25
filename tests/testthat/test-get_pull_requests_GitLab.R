@@ -69,3 +69,56 @@ test_that("`prepare_pr_table()` prepares pr table", {
   )
   test_mocker$cache(gl_pr_table)
 })
+
+test_that("get_pr_from_orgs for GitLab works", {
+  if (integration_tests_skipped) {
+    mockery::stub(
+      github_testhost_priv$get_pr_from_orgs,
+      "graphql_engine$prepare_pr_table",
+      test_mocker$use("gl_pr_table")
+    )
+    mockery::stub(
+      github_testhost_priv$get_pr_from_orgs,
+      "private$get_repos_names",
+      test_mocker$use("gl_repos_names")
+    )
+  }
+  github_testhost_priv$searching_scope <- "org"
+  gl_pr_from_orgs <- github_testhost_priv$get_pr_from_orgs(
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_pr_table(
+    gl_pr_from_orgs
+  )
+  test_mocker$cache(gl_pr_from_orgs)
+})
+
+test_that("get_pr_from_repos for GitLab works", {
+  if (integration_tests_skipped) {
+    mockery::stub(
+      github_testhost_priv$get_pr_from_repos,
+      "graphql_engine$prepare_pr_table",
+      test_mocker$use("gl_pr_table")
+    )
+    github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
+    test_org <- "test_org"
+    attr(test_org, "type") <- "organization"
+    mockery::stub(
+      github_testhost_priv$get_pr_from_repos,
+      "graphql_engine$set_owner_type",
+      test_org
+    )
+  } else {
+    github_testhost_priv$orgs_repos <- list("r-world-devs" = "GitStats")
+  }
+  github_testhost_priv$searching_scope <- "repo"
+  gl_pr_from_repos <- github_testhost_priv$get_pr_from_repos(
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_pr_table(
+    gl_pr_from_repos
+  )
+  test_mocker$cache(gl_pr_from_repos)
+})

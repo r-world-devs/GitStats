@@ -1330,6 +1330,70 @@ GitHost <- R6::R6Class(
       }
     },
 
+    get_pr_from_orgs = function(verbose, progress) {
+      if ("org" %in% private$searching_scope) {
+        graphql_engine <- private$engines$graphql
+        pr_table <- purrr::map(private$orgs, function(org) {
+          pr_table_org <- NULL
+          repos_data <- private$get_repos_data(
+            org = org,
+            verbose = verbose
+          )
+          if (!private$scan_all && verbose) {
+            show_message(
+              host = private$host_name,
+              engine = "graphql",
+              scope = org,
+              information = "Pulling pr"
+            )
+          }
+          pr_table_org <- graphql_engine$get_pr_from_repos(
+            org = org,
+            repos_names = repos_data[["paths"]],
+            verbose = verbose
+          ) |>
+            graphql_engine$prepare_pr_table(
+              org = org
+            )
+          return(pr_table_org)
+        }, .progress = set_progress_bar(progress, private)) |>
+          purrr::list_rbind()
+        return(pr_table)
+      }
+    },
+
+    # Get pr from GitHub
+    get_pr_from_repos = function(verbose, progress) {
+      if ("repo" %in% private$searching_scope) {
+        graphql_engine <- private$engines$graphql
+        orgs <- graphql_engine$set_owner_type(
+          owners = names(private$orgs_repos),
+          verbose = verbose
+        )
+        pr_table <- purrr::map(orgs, function(org) {
+          pr_table_org <- NULL
+          if (!private$scan_all && verbose) {
+            show_message(
+              host = private$host_name,
+              engine = "graphql",
+              scope = set_repo_scope(org, private),
+              information = "Pulling pr"
+            )
+          }
+          pr_table_org <- graphql_engine$get_pr_from_repos(
+            org = org,
+            repos_names = private$orgs_repos[[org]],
+            verbose = verbose
+          ) |>
+            graphql_engine$prepare_pr_table(
+              org = org
+            )
+          return(pr_table_org)
+        }, .progress = set_progress_bar(progress, private)) |>
+          purrr::list_rbind()
+        return(pr_table)
+      }
+    },
     # Pull files content from organizations
     get_files_content_from_orgs = function(file_path,
                                            verbose = TRUE,
