@@ -12,13 +12,13 @@ test_that("`get_pr_page_from_repo()` pulls pr page from repository", {
   #   "self$gql_response",
   #   test_fixtures$GitLab_pr_response
   # )
-  pr_page <- test_graphql_gitlab_priv$get_pr_page_from_repo(
+  gl_pr_page <- test_graphql_gitlab_priv$get_pr_page_from_repo(
     org = "mbtests",
     repo = "gitstatstesting"
   )
 
   expect_pr_gql_response(
-    pr_page$data$project$mergeRequests$edges[[1]]
+    gl_pr_page$data$project$mergeRequests$edges[[1]]
   )
-  test_mocker$cache(pr_page)
+  test_mocker$cache(gl_pr_page)
 })
