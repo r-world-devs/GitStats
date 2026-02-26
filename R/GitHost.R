@@ -1384,7 +1384,7 @@ GitHost <- R6::R6Class(
               host = private$host_name,
               engine = "graphql",
               scope = org,
-              information = "Pulling pr"
+              information = "Pulling pull requests"
             )
           }
           pr_table_org <- graphql_engine$get_pr_from_repos(
@@ -1417,7 +1417,7 @@ GitHost <- R6::R6Class(
               host = private$host_name,
               engine = "graphql",
               scope = set_repo_scope(org, private),
-              information = "Pulling pr"
+              information = "Getting pull requests"
             )
           }
           pr_table_org <- graphql_engine$get_pr_from_repos(

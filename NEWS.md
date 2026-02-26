@@ -1,6 +1,7 @@
 # GitStats (development version)
 
 - Prettified output of repositories URLs in `get_repos_urls()` function ([#710]((https://github.com/r-world-devs/GitStats/issues/710)).
+- Added `get_pull_requests()` function for getting information about pull requests ([#722]((https://github.com/r-world-devs/GitStats/issues/722)).
 
 # GitStats 2.3.9
 

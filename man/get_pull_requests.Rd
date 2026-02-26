@@ -51,6 +51,6 @@ my_gitstats <- create_gitstats() |>
     token = Sys.getenv("GITLAB_PAT_PUBLIC"),
     orgs = "mbtests"
   )
- get_issues(my_gitstats, since = "2018-01-01", state = "open")
+ get_pull_requests(my_gitstats, since = "2018-01-01", state = "open")
 }
 }

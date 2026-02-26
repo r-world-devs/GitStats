@@ -267,11 +267,11 @@ GitStats <- R6::R6Class(
     },
 
     get_pull_requests = function(since,
-                          until,
-                          state,
-                          cache    = TRUE,
-                          verbose  = TRUE,
-                          progress = TRUE) {
+                                 until,
+                                 state,
+                                 cache    = TRUE,
+                                 verbose  = TRUE,
+                                 progress = TRUE) {
       private$check_for_host()
       args_list <- list(
         "state" = state,
@@ -1041,7 +1041,8 @@ GitStats <- R6::R6Class(
       }
       cat(paste0(
         cli::col_blue(paste0(item_name, ": ")),
-        ifelse(is.null(item_to_check),
+        ifelse(
+          is.null(item_to_check),
           cli::col_grey("<not defined>"),
           item_to_print
         ), "\n"
