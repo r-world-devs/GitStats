@@ -38,7 +38,7 @@ test_that("`get_pr_from_one_repo()` prepares formatted list", {
   )
   if (!integration_tests_skipped) {
     expect_gt(length(pr_from_repo), 100)
-  }  
+  }
   expect_pr_full_list(
     pr_from_repo
   )
@@ -147,21 +147,23 @@ test_that("`get_pull_requests()` retrieves pr in the table format in a certain t
   expect_pr_table(
     gh_pr_table
   )
-  gh_pr_table_shorter <- github_testhost$get_pull_requests(
-    since = "2024-02-01",
-    until = "2025-01-01",
-    verbose = FALSE,
-    progress = FALSE
-  )
-  expect_true(
-    nrow(gh_pr_table) > nrow(gh_pr_table_shorter)
-  )
-  expect_true(
-    max(gh_pr_table_shorter$created_at) <= "2025-01-01"
-  )
-  expect_true(
-    min(gh_pr_table_shorter$created_at) >= "2024-02-01"
-  )
+  if (!integration_tests_skipped) {
+    gh_pr_table_shorter <- github_testhost$get_pull_requests(
+      since = "2024-02-01",
+      until = "2025-01-01",
+      verbose = FALSE,
+      progress = FALSE
+    )
+    expect_true(
+      nrow(gh_pr_table) > nrow(gh_pr_table_shorter)
+    )
+    expect_true(
+      max(gh_pr_table_shorter$created_at) <= "2025-01-01"
+    )
+    expect_true(
+      min(gh_pr_table_shorter$created_at) >= "2024-02-01"
+    )
+  }
   test_mocker$cache(gh_pr_table)
 })
 
@@ -190,7 +192,7 @@ test_that("`get_pull_requests()` retrieves closed and open pr in the table forma
     expect_true(
       all(gh_open_pr_table$state == "open")
     )
-  }  
+  }
   gh_closed_pr_table <- github_testhost$get_pull_requests(
     since = "2024-01-01",
     until = "2025-01-01",
