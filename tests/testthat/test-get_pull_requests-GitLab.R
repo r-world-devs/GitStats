@@ -96,6 +96,28 @@ test_that("get_pr_from_orgs for GitLab works", {
   test_mocker$cache(gl_pr_from_orgs)
 })
 
+test_that("get_pr_from_orgs for GitLab prints message", {
+  if (integration_tests_skipped) {
+    mockery::stub(
+      gitlab_testhost_priv$get_pr_from_orgs,
+      "graphql_engine$prepare_pr_table",
+      test_mocker$use("gl_pr_table")
+    )
+    mockery::stub(
+      gitlab_testhost_priv$get_pr_from_orgs,
+      "private$get_repos_names",
+      test_mocker$use("gl_repos_names")
+    )
+  }
+  gitlab_testhost_priv$searching_scope <- "org"
+  expect_snapshot(
+    gl_pr_from_orgs <- gitlab_testhost_priv$get_pr_from_orgs(
+      verbose = TRUE,
+      progress = FALSE
+    )
+  )  
+})
+
 test_that("get_pr_from_repos for GitLab works", {
   if (integration_tests_skipped) {
     mockery::stub(
@@ -123,6 +145,31 @@ test_that("get_pr_from_repos for GitLab works", {
   test_mocker$cache(gl_pr_from_repos)
 })
 
+test_that("get_pr_from_repos for GitLab prints message", {
+  if (integration_tests_skipped) {
+    mockery::stub(
+      gitlab_testhost_priv$get_pr_from_repos,
+      "graphql_engine$prepare_pr_table",
+      test_mocker$use("gl_pr_table")
+    )
+    test_org <- "mbtests"
+    attr(test_org, "type") <- "organization"
+    mockery::stub(
+      gitlab_testhost_priv$get_pr_from_repos,
+      "graphql_engine$set_owner_type",
+      test_org
+    )
+  }
+  gitlab_testhost_priv$orgs_repos <- list("mbtests" = "gitstatstesting")
+  gitlab_testhost_priv$searching_scope <- "repo"
+  expect_snapshot(
+    gl_pr_from_repos <- gitlab_testhost_priv$get_pr_from_repos(
+      verbose = TRUE,
+      progress = FALSE
+    )
+  )  
+})
+
 test_that("`get_pull_requests()` retrieves pr in the table format in a certain time span", {
   mockery::stub(
     gitlab_testhost$get_pull_requests,
@@ -143,25 +190,28 @@ test_that("`get_pull_requests()` retrieves pr in the table format in a certain t
   expect_pr_table(
     gl_pr_table
   )
-  gl_pr_table_shorter <- gitlab_testhost$get_pull_requests(
-    since = "2026-02-01",
-    until = "2026-02-24",
-    verbose = FALSE,
-    progress = FALSE
-  )
-  expect_true(
-    nrow(gl_pr_table) > nrow(gl_pr_table_shorter)
-  )
-  expect_true(
-    max(gl_pr_table_shorter$created_at) <= "2026-02-28"
-  )
-  expect_true(
-    min(gl_pr_table_shorter$created_at) >= "2026-02-01"
-  )
+  if (!integration_tests_skipped) {
+    gl_pr_table_shorter <- gitlab_testhost$get_pull_requests(
+      since = "2026-02-01",
+      until = "2026-02-24",
+      verbose = FALSE,
+      progress = FALSE
+    )
+    expect_true(
+      nrow(gl_pr_table) > nrow(gl_pr_table_shorter)
+    )
+    expect_true(
+      max(gl_pr_table_shorter$created_at) <= "2026-02-24"
+    )
+    expect_true(
+      min(gl_pr_table_shorter$created_at) >= "2026-02-01"
+    )
+  }  
   test_mocker$cache(gl_pr_table)
 })
 
 test_that("`get_pull_requests()` retrieves open and closed pr in the table format in a certain time span", {
+  skip_if(integration_tests_skipped)
   mockery::stub(
     gitlab_testhost$get_pull_requests,
     "private$get_pr_from_orgs",
