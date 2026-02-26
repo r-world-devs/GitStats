@@ -236,7 +236,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        cli::cli_alert("Pulling issues...")
+        cli::cli_alert("Getting issues...")
         issues <- private$get_issues_from_hosts(
           since = since,
           until = until,
@@ -264,6 +264,54 @@ GitStats <- R6::R6Class(
         )
       }
       return(issues)
+    },
+
+    get_pull_requests = function(since,
+                                 until,
+                                 state,
+                                 cache    = TRUE,
+                                 verbose  = TRUE,
+                                 progress = TRUE) {
+      private$check_for_host()
+      args_list <- list(
+        "state" = state,
+        "date_range" = c(since, as.character(until))
+      )
+      trigger <- private$trigger_pulling(
+        cache = cache,
+        storage = "pull_requests",
+        args_list = args_list,
+        verbose = verbose
+      )
+      if (trigger) {
+        cli::cli_alert("Getting pull requests...")
+        pull_requests <- private$get_pull_requests_from_hosts(
+          since = since,
+          until = until,
+          state = state,
+          verbose = verbose,
+          progress = progress
+        )
+        if (nrow(pull_requests) > 0) {
+          pull_requests <- private$set_object_class(
+            object = pull_requests,
+            class = "gitstats_pull_requests",
+            attr_list = args_list
+          )
+          private$save_to_storage(
+            table = pull_requests
+          )
+        } else {
+          if (verbose) {
+            cli::cli_alert_warning("No pull requests found.")
+          }
+        }
+      } else {
+        pull_requests <- private$get_from_storage(
+          table = "pull_requests"
+        )
+      }
+      return(pull_requests)
     },
 
     get_users = function(logins, cache = TRUE, verbose = TRUE) {
@@ -818,6 +866,22 @@ GitStats <- R6::R6Class(
       return(issues_table)
     },
 
+    # Get pr tables from hosts and bind them into one
+    get_pull_requests_from_hosts = function(since, until, state, verbose, progress) {
+      pr_table <- purrr::map(private$hosts, function(host) {
+        host$get_pull_requests(
+          since    = since,
+          until    = until,
+          state    = state,
+          verbose  = verbose,
+          progress = progress
+        )
+      }) |>
+        purrr::list_rbind() |>
+        dplyr::as_tibble()
+      return(pr_table)
+    },
+
     # Pull information on unique users in a table form
     get_users_from_hosts = function(logins) {
       purrr::map(private$hosts, function(host) {
@@ -977,7 +1041,8 @@ GitStats <- R6::R6Class(
       }
       cat(paste0(
         cli::col_blue(paste0(item_name, ": ")),
-        ifelse(is.null(item_to_check),
+        ifelse(
+          is.null(item_to_check),
           cli::col_grey("<not defined>"),
           item_to_print
         ), "\n"
@@ -1048,6 +1113,7 @@ GitStats <- R6::R6Class(
                                "files" = "file_pattern",
                                "commits" = "date_range",
                                "issues" = "date_range",
+                               "pull_requests" = "date_range",
                                "release_logs" = "date_range",
                                "users" = "logins")
         attr_data <- attr(storage_data, storage_attr)

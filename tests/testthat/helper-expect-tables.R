@@ -47,6 +47,16 @@ expect_issues_table <- function(get_issues_object, with_stats = TRUE, exp_author
   expect_s3_class(get_issues_object$closed_at, "POSIXt")
 }
 
+expect_pr_table <- function(get_pr_object, with_stats = TRUE, exp_author = TRUE) {
+  pr_cols <- c("repo_name", "number", "created_at", "merged_at", "state", "author",
+                  "source_branch", "target_branch", "organization","api_url")
+
+  expect_s3_class(get_pr_object, "data.frame")
+  expect_named(get_pr_object, pr_cols)
+  expect_gt(nrow(get_pr_object), 0)
+  expect_s3_class(get_pr_object$created_at, "POSIXt")
+  expect_s3_class(get_pr_object$merged_at, "POSIXt")
+}
 
 expect_commits_table <- function(get_commits_object, with_stats = TRUE, exp_author = TRUE) {
   commit_cols <- if (exp_author) {

@@ -21,6 +21,7 @@ reference:
   - get_repos_trees
   - get_commits
   - get_issues
+  - get_pull_requests
   - get_release_logs
   - get_files
   - get_users

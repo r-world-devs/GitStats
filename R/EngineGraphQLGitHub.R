@@ -501,7 +501,6 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(full_commits_list)
     },
 
-    # Wrapper over building GraphQL query and response.
     get_commits_page_from_repo = function(org,
                                           repo,
                                           since,
@@ -522,7 +521,7 @@ EngineGraphQLGitHub <- R6::R6Class(
         verbose = verbose
       )
       if (inherits(response, "graphql_error")) {
-        respone <- self$gql_response(
+        response <- self$gql_response(
           gql_query = commits_from_repo_query,
           vars = list(
             "org" = org,
@@ -534,6 +533,61 @@ EngineGraphQLGitHub <- R6::R6Class(
         )
       }
       return(response)
+    },
+
+    get_pr_page_from_repo = function(org,
+                                     repo,
+                                     pr_cursor = "",
+                                     verbose = TRUE) {
+      pr_from_repo_query <- self$gql_query$pull_requests_from_repo(
+        pr_cursor = pr_cursor
+      )
+      response <- self$gql_response(
+        gql_query = pr_from_repo_query,
+        vars = list(
+          "org" = org,
+          "repo" = repo
+        ),
+        verbose = verbose
+      )
+      if (inherits(response, "graphql_error")) {
+        response <- self$gql_response(
+          gql_query = pr_from_repo_query,
+          vars = list(
+            "org" = org,
+            "repo" = repo
+          ),
+          verbose = verbose
+        )
+      }
+      return(response)
+    },
+
+    get_pr_from_one_repo = function(org,
+                                    repo,
+                                    verbose = TRUE) {
+      next_page <- TRUE
+      full_pr_list <- list()
+      pr_cursor <- ""
+      while (next_page) {
+        pr_response <- private$get_pr_page_from_repo(
+          org = org,
+          repo = repo,
+          pr_cursor = pr_cursor,
+          verbose = verbose
+        )
+        pr_list <- pr_response$data$repository$pullRequests$edges
+        next_page <- pr_response$data$repository$pullRequests$pageInfo$hasNextPage
+        if (is.null(next_page)) next_page <- FALSE
+        if (is.null(pr_list)) pr_list <- list()
+        if (next_page) {
+          pr_cursor <- pr_response$data$repository$pullRequests$pageInfo$endCursor
+        } else {
+          pr_cursor <- ""
+        }
+        full_pr_list <- append(full_pr_list, pr_list)
+      }
+      return(full_pr_list)
     },
 
     # An iterator over pulling issues pages from one repository.

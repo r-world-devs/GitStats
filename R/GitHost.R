@@ -223,6 +223,46 @@ GitHost <- R6::R6Class(
       return(issues_table)
     },
 
+    get_pull_requests = function(since,
+                                 until,
+                                 state = NULL,
+                                 verbose = TRUE,
+                                 progress = TRUE) {
+      if (private$scan_all && is.null(private$orgs)) {
+        private$orgs <- private$get_orgs_from_host(
+          output = "only_names",
+          verbose = verbose
+        )
+      }
+      pr_from_orgs <- private$get_pr_from_orgs(
+        verbose = verbose,
+        progress = progress
+      )
+      pr_from_repos <- private$get_pr_from_repos(
+        verbose = verbose,
+        progress = progress
+      )
+      pr_table <- list(
+        pr_from_orgs,
+        pr_from_repos
+      ) |>
+        purrr::list_rbind() |>
+        dplyr::distinct()
+      if (nrow(pr_table) > 0) {
+        pr_table <- pr_table |>
+          dplyr::filter(
+            created_at >= since & created_at <= parse_until_param(until)
+          )
+        if (!is.null(state)) {
+          type <- state
+          pr_table <- pr_table |>
+            dplyr::filter(
+              state == type
+            )
+        }
+      }
+      return(pr_table)
+    },
     #' Pull information about users.
     get_users = function(users) {
       graphql_engine <- private$engines$graphql
@@ -1279,7 +1319,7 @@ GitHost <- R6::R6Class(
               host = private$host_name,
               engine = "graphql",
               scope = org,
-              information = "Pulling issues"
+              information = "Getting issues"
             )
           }
           issues_table_org <- graphql_engine$get_issues_from_repos(
@@ -1312,7 +1352,7 @@ GitHost <- R6::R6Class(
               host = private$host_name,
               engine = "graphql",
               scope = set_repo_scope(org, private),
-              information = "Pulling issues"
+              information = "Gettiing issues"
             )
           }
           issues_table_org <- graphql_engine$get_issues_from_repos(
@@ -1330,6 +1370,70 @@ GitHost <- R6::R6Class(
       }
     },
 
+    get_pr_from_orgs = function(verbose, progress) {
+      if ("org" %in% private$searching_scope) {
+        graphql_engine <- private$engines$graphql
+        pr_table <- purrr::map(private$orgs, function(org) {
+          pr_table_org <- NULL
+          repos_data <- private$get_repos_data(
+            org = org,
+            verbose = verbose
+          )
+          if (!private$scan_all && verbose) {
+            show_message(
+              host = private$host_name,
+              engine = "graphql",
+              scope = org,
+              information = "Pulling pull requests"
+            )
+          }
+          pr_table_org <- graphql_engine$get_pr_from_repos(
+            org = org,
+            repos_names = repos_data[["paths"]],
+            verbose = verbose
+          ) |>
+            graphql_engine$prepare_pr_table(
+              org = org
+            )
+          return(pr_table_org)
+        }, .progress = set_progress_bar(progress, private)) |>
+          purrr::list_rbind()
+        return(pr_table)
+      }
+    },
+
+    # Get pr from GitHub
+    get_pr_from_repos = function(verbose, progress) {
+      if ("repo" %in% private$searching_scope) {
+        graphql_engine <- private$engines$graphql
+        orgs <- graphql_engine$set_owner_type(
+          owners = names(private$orgs_repos),
+          verbose = verbose
+        )
+        pr_table <- purrr::map(orgs, function(org) {
+          pr_table_org <- NULL
+          if (!private$scan_all && verbose) {
+            show_message(
+              host = private$host_name,
+              engine = "graphql",
+              scope = set_repo_scope(org, private),
+              information = "Getting pull requests"
+            )
+          }
+          pr_table_org <- graphql_engine$get_pr_from_repos(
+            org = org,
+            repos_names = private$orgs_repos[[org]],
+            verbose = verbose
+          ) |>
+            graphql_engine$prepare_pr_table(
+              org = org
+            )
+          return(pr_table_org)
+        }, .progress = set_progress_bar(progress, private)) |>
+          purrr::list_rbind()
+        return(pr_table)
+      }
+    },
     # Pull files content from organizations
     get_files_content_from_orgs = function(file_path,
                                            verbose = TRUE,

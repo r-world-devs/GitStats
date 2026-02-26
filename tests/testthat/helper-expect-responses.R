@@ -102,6 +102,24 @@ expect_gh_commit_gql_response <- function(object) {
   )
 }
 
+expect_pr_gql_response <- function(object) {
+  expect_type(
+    object,
+    "list"
+  )
+  expect_list_contains(
+    object$node,
+    c("number", "created_at", "merged_at", "state", "author", "source_branch", "target_branch")
+  )
+}
+
+expect_pr_full_list <- function(object) {
+  expect_named(
+    object[[1]]$node,
+    c("number", "created_at", "merged_at", "state", "author", "source_branch", "target_branch")
+  )
+}
+
 expect_user_gql_response <- function(object) {
   expect_list_contains(
     object,
