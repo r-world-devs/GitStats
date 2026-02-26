@@ -7,16 +7,17 @@ test_that("pr_by_repo GitHub query is built properly", {
 })
 
 test_that("`get_pr_page_from_repo()` pulls pr page from repository", {
-  # mockery::stub(
-  #   test_graphql_github_priv$get_pr_page_from_repo,
-  #   "self$gql_response",
-  #   test_fixtures$github_pr_response
-  # )
+  if (integration_tests_skipped) {
+    mockery::stub(
+      test_graphql_github_priv$get_pr_page_from_repo,
+      "self$gql_response",
+      test_fixtures_pr$github_graphql_pr_response
+    )
+  }
   pr_page <- test_graphql_github_priv$get_pr_page_from_repo(
     org = "r-world-devs",
     repo = "GitStats"
   )
-
   expect_pr_gql_response(
     pr_page$data$repository$pullRequests$edges[[1]]
   )
@@ -35,7 +36,9 @@ test_that("`get_pr_from_one_repo()` prepares formatted list", {
     org = "r-world-devs",
     repo = "GitStats"
   )
-  expect_gt(length(pr_from_repo), 100)
+  if (!integration_tests_skipped) {
+    expect_gt(length(pr_from_repo), 100)
+  }  
   expect_pr_full_list(
     pr_from_repo
   )
@@ -136,8 +139,8 @@ test_that("`get_pull_requests()` retrieves pr in the table format in a certain t
     test_mocker$use("gh_pr_from_repos")
   )
   gh_pr_table <- github_testhost$get_pull_requests(
-    since = "2023-01-01",
-    until = "2025-03-06",
+    since = "2024-01-01",
+    until = "2026-03-06",
     verbose = FALSE,
     progress = FALSE
   )
@@ -145,8 +148,8 @@ test_that("`get_pull_requests()` retrieves pr in the table format in a certain t
     gh_pr_table
   )
   gh_pr_table_shorter <- github_testhost$get_pull_requests(
-    since = "2023-02-01",
-    until = "2024-01-01",
+    since = "2024-02-01",
+    until = "2025-01-01",
     verbose = FALSE,
     progress = FALSE
   )
@@ -154,10 +157,10 @@ test_that("`get_pull_requests()` retrieves pr in the table format in a certain t
     nrow(gh_pr_table) > nrow(gh_pr_table_shorter)
   )
   expect_true(
-    max(gh_pr_table_shorter$created_at) <= "2024-01-01"
+    max(gh_pr_table_shorter$created_at) <= "2025-01-01"
   )
   expect_true(
-    min(gh_pr_table_shorter$created_at) >= "2023-02-01"
+    min(gh_pr_table_shorter$created_at) >= "2024-02-01"
   )
   test_mocker$cache(gh_pr_table)
 })
@@ -174,8 +177,8 @@ test_that("`get_pull_requests()` retrieves open pr in the table format in a cert
     test_mocker$use("gh_pr_from_repos")
   )
   gh_open_pr_table <- github_testhost$get_pull_requests(
-    since = "2023-01-01",
-    until = "2024-01-01",
+    since = "2024-01-01",
+    until = "2025-01-01",
     state = "open",
     verbose = FALSE,
     progress = FALSE
@@ -187,8 +190,8 @@ test_that("`get_pull_requests()` retrieves open pr in the table format in a cert
     all(gh_open_pr_table$state == "open")
   )
   gh_closed_pr_table <- github_testhost$get_pull_requests(
-    since = "2023-01-01",
-    until = "2024-01-01",
+    since = "2024-01-01",
+    until = "2025-01-01",
     state = "closed",
     verbose = FALSE,
     progress = FALSE

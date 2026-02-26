@@ -7,14 +7,21 @@ test_that("pr_by_repo GitLab query is built properly", {
 })
 
 test_that("`get_pr_page_from_repo()` pulls pr page from repository", {
-  # mockery::stub(
-  #   test_graphql_GitLab_priv$get_pr_page_from_repo,
-  #   "self$gql_response",
-  #   test_fixtures$GitLab_pr_response
-  # )
+  if (integration_tests_skipped) {
+    mockery::stub(
+      test_graphql_gitlab_priv$get_pr_page_from_repo,
+      "self$gql_response",
+      test_fixtures_pr$gitlab_graphql_pr_response
+    )
+    org <- "test_org"
+    repo <- "TestRepo"
+  } else {
+    org <- "mbtests"
+    repo <- "gitstatstesting"
+  }
   gl_pr_page <- test_graphql_gitlab_priv$get_pr_page_from_repo(
-    org = "mbtests",
-    repo = "gitstatstesting"
+    org = org,
+    repo = repo
   )
 
   expect_pr_gql_response(
@@ -28,17 +35,17 @@ test_that("`get_pr_from_one_repo()` prepares formatted list", {
     mockery::stub(
       test_graphql_gitlab_priv$get_pr_from_one_repo,
       "private$get_pr_page_from_repo",
-      test_mocker$use("pr_page")
+      test_mocker$use("gl_pr_page")
     )
   }
-  pr_from_repo <- test_graphql_gitlab_priv$get_pr_from_one_repo(
+  gl_pr_from_repo <- test_graphql_gitlab_priv$get_pr_from_one_repo(
     org = "mbtests",
     repo = "gitstatstesting"
   )
   expect_pr_full_list(
-    pr_from_repo
+    gl_pr_from_repo
   )
-  test_mocker$cache(pr_from_repo)
+  test_mocker$cache(gl_pr_from_repo)
 })
 
 test_that("`get_pr_from_repos()` pulls pr from repos", {
@@ -46,7 +53,7 @@ test_that("`get_pr_from_repos()` pulls pr from repos", {
     mockery::stub(
       test_graphql_gitlab$get_pr_from_repos,
       "private$get_pr_from_one_repo",
-      test_mocker$use("pr_from_repo")
+      test_mocker$use("gl_pr_from_repo")
     )
   }
   pr_from_repos <- test_graphql_gitlab$get_pr_from_repos(
