@@ -13,15 +13,10 @@ test_that("`get_pr_page_from_repo()` pulls pr page from repository", {
       "self$gql_response",
       test_fixtures_pr$gitlab_graphql_pr_response
     )
-    org <- "test_org"
-    repo <- "TestRepo"
-  } else {
-    org <- "mbtests"
-    repo <- "gitstatstesting"
   }
   gl_pr_page <- test_graphql_gitlab_priv$get_pr_page_from_repo(
-    org = org,
-    repo = repo
+    org = "mbtests",
+    repo = "gitstatstesting"
   )
 
   expect_pr_gql_response(
