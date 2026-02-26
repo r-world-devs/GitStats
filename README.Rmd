@@ -31,7 +31,8 @@ With `GitStats` you can pull git data in a uniform way from GitHub and GitLab. F
 * users,
 * release logs,
 * files tree (structure),
-* text files content.
+* text files content,
+* pull requests.
 
 You can also prepare basic statistics with `get_*_stats()` functions for commits and issues.
 
@@ -103,6 +104,16 @@ git_stats |>
     depth = 2L
   )
 ```
+
+Get pull requests:
+
+```{r}
+git_stats |>
+  get_pull_requests(
+    since = "2022-01-01"
+  )
+```
+
 
 Print `GitStats` to see what it stores:
 
