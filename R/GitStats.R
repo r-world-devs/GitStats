@@ -1112,6 +1112,7 @@ GitStats <- R6::R6Class(
                                "files" = "file_pattern",
                                "commits" = "date_range",
                                "issues" = "date_range",
+                               "pull_requests" = "date_range",
                                "release_logs" = "date_range",
                                "users" = "logins")
         attr_data <- attr(storage_data, storage_attr)
