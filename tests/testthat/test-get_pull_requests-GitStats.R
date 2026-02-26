@@ -54,20 +54,19 @@ test_that("get_pull_requests works properly", {
   test_mocker$cache(pr_table)
 })
 
-# test_that("get_pull_requests gets data from storage for the second time", {
-#   browser()
-#   expect_snapshot(
-#     pr_table <- test_gitstats$get_pull_requests(
-#       since = "2023-01-01",
-#       until = "2025-03-06",
-#       state = NULL,
-#       verbose = FALSE
-#     )
-#   )
-#   expect_pr_table(pr_table)
-# })
-#
-test_that("get_pull_requests() returns warning if issues table is empty", {
+test_that("get_pull_requests gets data from storage for the second time", {
+  expect_snapshot(
+    pr_table <- test_gitstats$get_pull_requests(
+      since = "2023-01-01",
+      until = "2025-03-06",
+      state = NULL,
+      verbose = FALSE
+    )
+  )
+  expect_pr_table(pr_table)
+})
+
+test_that("get_pull_requests() returns warning if PR table is empty", {
   mockery::stub(
     test_gitstats$get_pull_requests,
     "private$get_pull_requests_from_hosts",

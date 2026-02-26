@@ -285,21 +285,21 @@ GitStats <- R6::R6Class(
       )
       if (trigger) {
         cli::cli_alert("Pulling pull requests...")
-        pr <- private$get_pull_requests_from_hosts(
+        pull_requests <- private$get_pull_requests_from_hosts(
           since = since,
           until = until,
           state = state,
           verbose = verbose,
           progress = progress
         )
-        if (nrow(pr) > 0) {
-          pr <- private$set_object_class(
-            object = pr,
+        if (nrow(pull_requests) > 0) {
+          pull_requests <- private$set_object_class(
+            object = pull_requests,
             class = "gitstats_pull_requests",
             attr_list = args_list
           )
           private$save_to_storage(
-            table = pr
+            table = pull_requests
           )
         } else {
           if (verbose) {
@@ -307,11 +307,11 @@ GitStats <- R6::R6Class(
           }
         }
       } else {
-        pr <- private$get_from_storage(
+        pull_requests <- private$get_from_storage(
           table = "pull_requests"
         )
       }
-      return(pr)
+      return(pull_requests)
     },
 
     get_users = function(logins, cache = TRUE, verbose = TRUE) {
