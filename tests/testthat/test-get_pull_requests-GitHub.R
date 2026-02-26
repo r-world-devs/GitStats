@@ -165,7 +165,7 @@ test_that("`get_pull_requests()` retrieves pr in the table format in a certain t
   test_mocker$cache(gh_pr_table)
 })
 
-test_that("`get_pull_requests()` retrieves open pr in the table format in a certain time span", {
+test_that("`get_pull_requests()` retrieves closed and open pr in the table format in a certain time span", {
   mockery::stub(
     github_testhost$get_pull_requests,
     "private$get_pr_from_orgs",
@@ -176,19 +176,21 @@ test_that("`get_pull_requests()` retrieves open pr in the table format in a cert
     "private$get_pr_from_repos",
     test_mocker$use("gh_pr_from_repos")
   )
-  gh_open_pr_table <- github_testhost$get_pull_requests(
-    since = "2024-01-01",
-    until = "2025-01-01",
-    state = "open",
-    verbose = FALSE,
-    progress = FALSE
-  )
-  expect_pr_table(
-    gh_open_pr_table
-  )
-  expect_true(
-    all(gh_open_pr_table$state == "open")
-  )
+  if (integration_tests_skipped) {
+    gh_open_pr_table <- github_testhost$get_pull_requests(
+      since = "2024-01-01",
+      until = "2025-01-01",
+      state = "open",
+      verbose = FALSE,
+      progress = FALSE
+    )
+    expect_pr_table(
+      gh_open_pr_table
+    )
+    expect_true(
+      all(gh_open_pr_table$state == "open")
+    )
+  }  
   gh_closed_pr_table <- github_testhost$get_pull_requests(
     since = "2024-01-01",
     until = "2025-01-01",

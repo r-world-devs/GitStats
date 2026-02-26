@@ -163,7 +163,7 @@ test_that("`get_pull_requests()` retrieves pr in the table format in a certain t
   test_mocker$cache(gl_pr_table)
 })
 
-test_that("`get_pull_requests()` retrieves open pr in the table format in a certain time span", {
+test_that("`get_pull_requests()` retrieves open and closed pr in the table format in a certain time span", {
   mockery::stub(
     gitlab_testhost$get_pull_requests,
     "private$get_pr_from_orgs",
