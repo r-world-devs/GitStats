@@ -103,17 +103,15 @@ test_that("get_pr_from_repos for GitLab works", {
       "graphql_engine$prepare_pr_table",
       test_mocker$use("gl_pr_table")
     )
-    gitlab_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
-    test_org <- "test_org"
+    test_org <- "mbtests"
     attr(test_org, "type") <- "organization"
     mockery::stub(
       gitlab_testhost_priv$get_pr_from_repos,
       "graphql_engine$set_owner_type",
       test_org
     )
-  } else {
-    gitlab_testhost_priv$orgs_repos <- list("mbtests" = "gitstatstesting")
   }
+  gitlab_testhost_priv$orgs_repos <- list("mbtests" = "gitstatstesting")
   gitlab_testhost_priv$searching_scope <- "repo"
   gl_pr_from_repos <- gitlab_testhost_priv$get_pr_from_repos(
     verbose = FALSE,
