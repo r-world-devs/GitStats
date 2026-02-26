@@ -236,7 +236,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        cli::cli_alert("Pulling issues...")
+        cli::cli_alert("Getting issues...")
         issues <- private$get_issues_from_hosts(
           since = since,
           until = until,
@@ -284,7 +284,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        cli::cli_alert("Pulling pull requests...")
+        cli::cli_alert("Getting pull requests...")
         pull_requests <- private$get_pull_requests_from_hosts(
           since = since,
           until = until,

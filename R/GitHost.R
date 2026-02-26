@@ -1319,7 +1319,7 @@ GitHost <- R6::R6Class(
               host = private$host_name,
               engine = "graphql",
               scope = org,
-              information = "Pulling issues"
+              information = "Getting issues"
             )
           }
           issues_table_org <- graphql_engine$get_issues_from_repos(
@@ -1352,7 +1352,7 @@ GitHost <- R6::R6Class(
               host = private$host_name,
               engine = "graphql",
               scope = set_repo_scope(org, private),
-              information = "Pulling issues"
+              information = "Gettiing issues"
             )
           }
           issues_table_org <- graphql_engine$get_issues_from_repos(
