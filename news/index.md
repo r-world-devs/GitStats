@@ -5,6 +5,9 @@
 - Prettified output of repositories URLs in
   [`get_repos_urls()`](https://r-world-devs.github.io/GitStats/reference/get_repos_urls.md)
   function ([\#710](NA).
+- Added
+  [`get_pull_requests()`](https://r-world-devs.github.io/GitStats/reference/get_pull_requests.md)
+  function for getting information about pull requests ([\#722](NA).
 
 ## GitStats 2.3.9
 

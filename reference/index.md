@@ -53,6 +53,8 @@ Functions to get git data in a tibble format.
   : Get data on commits
 - [`get_issues()`](https://r-world-devs.github.io/GitStats/reference/get_issues.md)
   : Get data on issues
+- [`get_pull_requests()`](https://r-world-devs.github.io/GitStats/reference/get_pull_requests.md)
+  : Get data on pull requests
 - [`get_release_logs()`](https://r-world-devs.github.io/GitStats/reference/get_release_logs.md)
   : Get release logs
 - [`get_files()`](https://r-world-devs.github.io/GitStats/reference/get_files.md)
