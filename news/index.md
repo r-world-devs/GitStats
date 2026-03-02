@@ -8,6 +8,8 @@
 - Added
   [`get_pull_requests()`](https://r-world-devs.github.io/GitStats/reference/get_pull_requests.md)
   function for getting information about pull requests ([\#722](NA).
+- Cleaned up unnecessary comments
+  ([\#723](https://github.com/r-world-devs/GitStats/issues/723)).
 
 ## GitStats 2.3.9
 
