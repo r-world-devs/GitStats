@@ -112,8 +112,6 @@ get_issues_stats <- function(issues,
   return(issues_stats)
 }
 
-#' @noRd
-#' @description A constructor for `issues_stats` class.
 set_issues_stats_class <- function(object, time_aggregation) {
   stopifnot(inherits(object, "grouped_df"))
   object <- dplyr::ungroup(object)

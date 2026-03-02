@@ -1,11 +1,7 @@
-#' @noRd
-#' @description A class for methods wrapping GitLab's GraphQL API responses.
 EngineGraphQLGitLab <- R6::R6Class(
   classname = "EngineGraphQLGitLab",
   inherit = EngineGraphQL,
   public = list(
-
-    #' Create `EngineGraphQLGitLab` object.
     initialize = function(gql_api_url,
                           token,
                           scan_all = FALSE) {
@@ -17,7 +13,6 @@ EngineGraphQLGitLab <- R6::R6Class(
       self$gql_query <- GQLQueryGitLab$new()
     },
 
-    # Set owner type
     set_owner_type = function(owners, verbose = TRUE) {
       user_or_org_query <- self$gql_query$user_or_org_query
       login_types <- purrr::map(owners, function(owner) {
@@ -44,7 +39,6 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(login_types)
     },
 
-    #' Get all groups from GitLab.
     get_orgs = function(orgs_count,
                         output = c("only_names", "full_table"),
                         verbose,
@@ -120,7 +114,6 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(orgs_table)
     },
 
-    # Iterator over pulling pages of repositories.
     get_repos = function(repos_ids, verbose) {
       full_repos_list <- list()
       next_page <- TRUE
@@ -161,7 +154,6 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(full_repos_list)
     },
 
-    # Iterator over pulling pages of repositories.
     get_repos_from_org = function(org  = NULL,
                                   owner_type = c("organization", "user"),
                                   verbose = TRUE) {
@@ -201,7 +193,6 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(full_repos_list)
     },
 
-    # Parses repositories list into table.
     prepare_repos_table = function(repos_list, org) {
       if (length(repos_list) > 0) {
         repos_table <- purrr::map(repos_list, function(repo) {
@@ -244,12 +235,6 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(repos_table)
     },
 
-    # Pull all given files from all repositories of a group.
-    # This is a one query way to get all the necessary info.
-    # However it may fail if query is too complex (too many files in file_paths).
-    # This may be especially the case when trying to pull the data from earlier
-    # pulled files_structure. In such a case GitStats will switch from this function
-    # to iterator over repositories (multiple queries), as it is done for GitHub.
     get_files_from_org = function(org,
                                   owner_type,
                                   repos_data,
@@ -346,9 +331,6 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(full_files_list)
     },
 
-    # This method is a kind of support to the method above. It is only run when
-    # one query way applied with get_files_from_org() fails due to its complexity.
-    # For more info see docs above.
     get_files_from_org_per_repo = function(org,
                                            owner_type,
                                            repos_data,
@@ -413,7 +395,6 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(org_files_list)
     },
 
-    # Prepare files table.
     prepare_files_table = function(files_response, org) {
       if (!is.null(files_response)) {
         if (private$response_prepared_by_iteration(files_response)) {
@@ -459,7 +440,6 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(files_structure)
     },
 
-    # Prepare user table.
     prepare_user_table = function(user_response) {
       if (!is.null(user_response$data$user)) {
         user_data <- user_response$data$user
@@ -483,7 +463,6 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(user_table)
     },
 
-    # Pull all releases from all repositories of an organization.
     get_release_logs_from_org = function(repos_names, org, verbose = TRUE) {
       release_responses <- purrr::map(repos_names, function(repository) {
         releases_from_repo_query <- self$gql_query$releases_from_repo()
@@ -500,7 +479,6 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(release_responses)
     },
 
-    # Prepare releases table.
     prepare_releases_table = function(releases_response, org) {
       if (length(releases_response) > 0) {
         releases_table <-
@@ -533,7 +511,6 @@ EngineGraphQLGitLab <- R6::R6Class(
     }
   ),
   private = list(
-    # Wrapper over building GraphQL query and response.
     get_repos_page = function(org = NULL,
                               projects_ids = NULL,
                               type = "organization",
@@ -569,7 +546,6 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(response)
     },
 
-    # Helper
     get_repo_name_from_url = function(web_url) {
       url_split <- stringr::str_split(web_url, ":|/")[[1]]
       repo_name <- url_split[length(url_split)]
@@ -610,7 +586,6 @@ EngineGraphQLGitLab <- R6::R6Class(
         purrr::list_rbind()
     },
 
-    # An iterator over pulling issues pages from one repository.
     get_issues_from_one_repo = function(org,
                                         repo,
                                         verbose = TRUE) {
@@ -638,7 +613,6 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(full_issues_list)
     },
 
-    # Wrapper over building GraphQL query and response.
     get_issues_page_from_repo = function(org,
                                          repo,
                                          issues_cursor = "",

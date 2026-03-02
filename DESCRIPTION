@@ -22,7 +22,6 @@ Imports:
     glue,
     httr2,
     lubridate (>= 1.8.0),
-    magrittr,
     rlang (>= 1.1.0),
     R6,
     purrr (>= 1.0.0),

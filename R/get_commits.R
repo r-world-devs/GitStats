@@ -108,8 +108,6 @@ get_commits_stats <- function(commits,
   return(commits_stats)
 }
 
-#' @noRd
-#' @description A constructor for `commits_stats` class.
 set_commits_stats_class <- function(object, time_aggregation) {
   stopifnot(inherits(object, "grouped_df"))
   object <- dplyr::ungroup(object)

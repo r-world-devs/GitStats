@@ -1,4 +1,3 @@
-
 #' @title Get users data
 #' @name get_users
 #' @param gitstats A GitStats object.

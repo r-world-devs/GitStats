@@ -1,17 +1,11 @@
-#' @noRd
-#' @description A class for methods wrapping GitHub's GraphQL API responses.
 EngineGraphQL <- R6::R6Class(
   "EngineGraphQL",
   inherit = Engine,
   public = list(
-
-    #' @field gql_api_url A character, url of GraphQL API.
     gql_api_url = NULL,
 
-    #' @field gql_query An environment for GraphQL queries.
     gql_query = NULL,
 
-    #' Create `EngineGraphQL` object.
     initialize = function(gql_api_url = NA,
                           token = NA,
                           scan_all = FALSE) {
@@ -21,7 +15,6 @@ EngineGraphQL <- R6::R6Class(
       private$scan_all <- scan_all
     },
 
-    #' Wrapper of GraphQL API request and response.
     gql_response = function(gql_query, vars = "null", verbose) {
       response <- private$perform_request(
         gql_query = gql_query,
@@ -33,7 +26,6 @@ EngineGraphQL <- R6::R6Class(
       return(response_list)
     },
 
-    # A method to pull information on user.
     get_user = function(username) {
       response <- self$gql_response(
         gql_query = self$gql_query$user(),
@@ -42,7 +34,6 @@ EngineGraphQL <- R6::R6Class(
       return(response)
     },
 
-    # Iterator over pulling issues from all repositories.
     get_issues_from_repos = function(org,
                                      repos_names,
                                      verbose) {
@@ -59,7 +50,6 @@ EngineGraphQL <- R6::R6Class(
       return(repos_list_with_issues)
     },
 
-    # Parses repositories' list with issues into table of issues.
     prepare_issues_table = function(repos_list_with_issues,
                                     org) {
       issues_table <- purrr::imap(repos_list_with_issues, function(repo, repo_name) {
@@ -118,7 +108,6 @@ EngineGraphQL <- R6::R6Class(
       return(repos_list_with_pr)
     },
 
-    # Parses repositories' list with pr into table of pr.
     prepare_pr_table = function(repos_list_with_pr,
                                 org) {
       pr_table <- purrr::imap(repos_list_with_pr, function(repo, repo_name) {
@@ -159,11 +148,8 @@ EngineGraphQL <- R6::R6Class(
       }
       return(pr_table)
     }
-
   ),
   private = list(
-
-    # GraphQL method for pulling response from API
     perform_request = function(gql_query, vars, token = private$token, verbose = TRUE) {
       response <- NULL
       response <- httr2::request(paste0(self$gql_api_url, "?")) |>
