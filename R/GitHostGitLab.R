@@ -1,4 +1,3 @@
-#' @noRd
 GitHostGitLab <- R6::R6Class("GitHostGitLab",
   inherit = GitHost,
   public = list(
@@ -27,22 +26,12 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
   ),
   private = list(
 
-    # Host
     host_name = "GitLab",
-
-    # API version
     api_version = 4,
-
-    # Default token name
     token_name = "GITLAB_PAT",
-
-    # Minimum access scopes for token
     min_access_scopes = c("read_api"),
-
-    # Access scopes for token
     access_scopes = c("api", "read_api"),
 
-    # Methods for engines
     engine_methods = list(
       "graphql" = list(
         "repos",
@@ -55,7 +44,6 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       )
     ),
 
-    # Set API URL
     set_api_url = function(host) {
       if (is.null(host)) {
         private$api_url <- glue::glue(
@@ -66,7 +54,6 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       }
     },
 
-    # Set web URL
     set_web_url = function(host) {
       if (is.null(host)) {
         private$web_url <- glue::glue(
@@ -77,33 +64,27 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       }
     },
 
-    # Check whether Git platform is public or internal.
     check_if_public = function(host) {
       private$is_public <- is.null(host) || grepl("gitlab.com", host)
     },
 
-    # Set endpoint for basic checks
     set_test_endpoint = function() {
       private$test_endpoint <- glue::glue("{private$api_url}/projects")
     },
 
-    # Set tokens endpoint
     set_tokens_endpoint = function() {
       private$endpoints$tokens <- glue::glue("{private$api_url}/personal_access_tokens")
     },
 
-    # Set groups endpoint
     set_orgs_endpoint = function() {
       private$endpoints$orgs <- glue::glue("{private$api_url}/groups")
       private$endpoints$users <- glue::glue("{private$api_url}/users?username=")
     },
 
-    # Set projects endpoint
     set_repositories_endpoint = function() {
       private$endpoints$repositories <- glue::glue("{private$api_url}/projects")
     },
 
-    # Setup REST and GraphQL engines
     setup_engines = function() {
       private$engines$rest <- EngineRestGitLab$new(
         rest_api_url = private$api_url,
@@ -117,12 +98,10 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       )
     },
 
-    # An empty method to fullfill call from super class.
     check_token_scopes = function(response = NULL, token) {
       TRUE
     },
 
-    # Add `api_url` column to table.
     add_repo_api_url = function(repos_table) {
       if (!is.null(repos_table) && nrow(repos_table) > 0) {
         repos_table <- dplyr::mutate(
@@ -228,7 +207,6 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       purrr::map_vec(search_response, ~.$project_id) |> unique()
     },
 
-    # Get projects API URL from search response
     get_repo_url_from_response = function(search_response,
                                           type,
                                           repos_fullnames = NULL,
@@ -339,7 +317,6 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       }
     },
 
-    # Use repositories either from parameter or, if not set, pull them from API
     get_repos_data = function(org, repos = NULL, verbose) {
       if (!is.null(repos)) {
         repos_names <- repos
@@ -444,7 +421,6 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       }
     },
 
-    # Pull files content from organizations
     get_files_content_from_repos = function(file_path,
                                             verbose = TRUE,
                                             progress = TRUE) {

@@ -1,7 +1,3 @@
-#' @noRd
-#' @title A GQLQueryGitHub class
-#' @description A class with methods to build GraphQL Queries for GitHub.
-
 GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
   public = list(
 
@@ -292,7 +288,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       avatarUrl
     ',
 
-    # @description Helper to prepare repository query.
     repositories_field = function(repo_cursor) {
       paste0('
       repositories(first: 100', private$add_cursor(repo_cursor), ') {

@@ -1,11 +1,8 @@
-#' @noRd
-#' @description A class for methods wrapping GitHub's REST API responses.
 EngineRestGitHub <- R6::R6Class(
   classname = "EngineRestGitHub",
   inherit = EngineRest,
   public = list(
 
-    # Pull repositories with files
     get_files = function(file_paths, verbose = TRUE) {
       files_list <- list()
       for (filename in file_paths) {
@@ -28,7 +25,6 @@ EngineRestGitHub <- R6::R6Class(
       return(files_list)
     },
 
-    # Prepare files table from REST API.
     prepare_files_table = function(files_list) {
       files_table <- NULL
       if (!is.null(files_list)) {
@@ -125,7 +121,6 @@ EngineRestGitHub <- R6::R6Class(
       return(search_result)
     },
 
-    #' Pull all repositories URLS from organization
     get_repos_urls = function(type, org, repos, verbose = TRUE) {
       owner_type <- attr(org, "type") %||% "organization"
       if (owner_type == "user") {
@@ -152,7 +147,6 @@ EngineRestGitHub <- R6::R6Class(
       return(repos_urls)
     },
 
-    #' Add information on repository contributors.
     get_repos_contributors = function(repos_table, verbose = TRUE, progress) {
       if (nrow(repos_table) > 0) {
         repo_iterator <- paste0(repos_table$organization, "/", repos_table$repo_name)
@@ -177,14 +171,12 @@ EngineRestGitHub <- R6::R6Class(
   ),
   private = list(
 
-    # List of endpoints
     endpoints = list(
       search = NULL,
       organizations = NULL,
       repositories = NULL
     ),
 
-    # Set endpoints for the API
     set_endpoints = function() {
       private$endpoints[["search"]] <- paste0(
         self$rest_api_url,
@@ -204,9 +196,6 @@ EngineRestGitHub <- R6::R6Class(
       )
     },
 
-    # A wrapper for proper pagination of GitHub search REST API
-    # @param search_endpoint A character, a search endpoint
-    # @param total_n Number of results
     # @param byte_max According to GitHub documentation only files smaller than
     #   384 KB are searchable. See
     #   \link{https://docs.github.com/en/rest/search?apiVersion=2022-11-28#search-code}
@@ -296,14 +285,12 @@ EngineRestGitHub <- R6::R6Class(
       }
     },
 
-    # Get files content
     get_files_content = function(search_result, filename) {
       purrr::map(search_result, ~ self$response(.$url),
                  .progress = glue::glue("Adding file [{filename}] info...")) |>
         unique()
     },
 
-    # Get repository full name
     get_repo_fullname = function(file_url) {
       stringr::str_remove_all(file_url,
                               paste0(private$endpoints$repositories, "/")) |>

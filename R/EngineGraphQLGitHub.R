@@ -1,11 +1,7 @@
-#' @noRd
-#' @description A class for methods wrapping GitHub's GraphQL API responses.
 EngineGraphQLGitHub <- R6::R6Class(
   classname = "EngineGraphQLGitHub",
   inherit = EngineGraphQL,
   public = list(
-
-    #' Create `EngineGraphQLGitHub` object.
     initialize = function(gql_api_url,
                           token,
                           scan_all = FALSE) {
@@ -17,7 +13,6 @@ EngineGraphQLGitHub <- R6::R6Class(
       self$gql_query <- GQLQueryGitHub$new()
     },
 
-    # Set owner type
     set_owner_type = function(owners, verbose) {
       user_or_org_query <- self$gql_query$user_or_org_query
       login_types <- purrr::map(owners, function(owner) {
@@ -40,7 +35,6 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(login_types)
     },
 
-    #' Get all orgs from GitHub.
     get_orgs = function(output = c("only_names", "full_table"), verbose) {
       if (verbose) {
         cli::cli_alert("[Host:GitHub][Engine:{cli::col_yellow('GraphQL')}] Pulling organizations...")
@@ -94,7 +88,6 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(orgs_table)
     },
 
-    # This method is for pulling orgs when host has set orgs
     get_org = function(org, verbose = TRUE) {
       response <- self$gql_response(
         gql_query = self$gql_query$org(),
@@ -104,7 +97,6 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(response$data$organization)
     },
 
-    # Pull all repositories from organization
     get_repos = function(repos_ids, verbose) {
       repos_query <- self$gql_query$repos_by_ids()
       if (length(repos_ids) > 100) {
@@ -140,7 +132,6 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(repos_nodes)
     },
 
-    # Pull all repositories from organization
     get_repos_from_org = function(org = NULL,
                                   owner_type = c("organization", "user"),
                                   verbose = TRUE) {
@@ -173,8 +164,6 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(full_repos_list)
     },
 
-    # Parses repositories list into table.
-    # org parameter is empty for GitHub but is needed for GitLab class.
     prepare_repos_table = function(repos_list, org) {
       if (length(repos_list) > 0) {
         repos_table <- purrr::map(repos_list, function(repo) {
@@ -212,7 +201,6 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(repos_table)
     },
 
-    # Iterator over pulling commits from all repositories.
     get_commits_from_repos = function(org,
                                       repos_names,
                                       since,
@@ -233,7 +221,6 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(repos_list_with_commits)
     },
 
-    # Parses repositories' list with commits into table of commits.
     prepare_commits_table = function(repos_list_with_commits,
                                      org) {
       commits_table <- purrr::imap(repos_list_with_commits, function(repo, repo_name) {
@@ -283,7 +270,6 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(commits_table)
     },
 
-    # Pull all given files from all repositories of an organization.
     get_files_from_org = function(org,
                                   owner_type,
                                   repos_data,
@@ -309,7 +295,6 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(org_files_list)
     },
 
-    # Prepare files table.
     prepare_files_table = function(files_response, org) {
       if (!is.null(files_response)) {
         files_table <- purrr::map(files_response, function(repository) {
@@ -336,7 +321,6 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(files_table)
     },
 
-    # Pull all files from all repositories of an organization.
     get_files_structure_from_org = function(org,
                                             owner_type,
                                             repos_data,
@@ -360,7 +344,6 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(files_structure)
     },
 
-    # Prepare user table.
     prepare_user_table = function(user_response) {
       if (!is.null(user_response$data$user)) {
         user_data <- user_response$data$user
@@ -384,7 +367,6 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(user_table)
     },
 
-    # Pull release logs from organization
     get_release_logs_from_org = function(repos_names, org, verbose = TRUE) {
       release_responses <- purrr::map(repos_names, function(repository) {
         releases_from_repo_query <- self$gql_query$releases_from_repo()
@@ -402,7 +384,6 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(release_responses)
     },
 
-    # Prepare releases table.
     prepare_releases_table = function(releases_response, org) {
       if (length(releases_response) > 0) {
         releases_table <-
@@ -435,8 +416,6 @@ EngineGraphQLGitHub <- R6::R6Class(
     }
   ),
   private = list(
-
-    # Wrapper over building GraphQL query and response.
     get_repos_page = function(login = NULL,
                               type = c("organization"),
                               repo_cursor = "",
@@ -464,7 +443,6 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(response)
     },
 
-    # An iterator over pulling commit pages from one repository.
     get_commits_from_one_repo = function(org,
                                          repo,
                                          since,
@@ -590,7 +568,6 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(full_pr_list)
     },
 
-    # An iterator over pulling issues pages from one repository.
     get_issues_from_one_repo = function(org,
                                         repo,
                                         verbose = TRUE) {
@@ -618,7 +595,6 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(full_issues_list)
     },
 
-    # Wrapper over building GraphQL query and response.
     get_issues_page_from_repo = function(org,
                                          repo,
                                          issues_cursor = "",

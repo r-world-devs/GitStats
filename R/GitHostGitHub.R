@@ -1,4 +1,3 @@
-#' @noRd
 GitHostGitHub <- R6::R6Class(
   classname = "GitHostGitHub",
   inherit = GitHost,
@@ -22,26 +21,17 @@ GitHostGitHub <- R6::R6Class(
   ),
   private = list(
 
-    # Host
     host_name = "GitHub",
-
-    # API version
     api_version = 3,
-
-    # Default token name
     token_name = "GITHUB_PAT",
-
-    # Minimum access scopes for token
     min_access_scopes = c("public_repo", "read:org", "read:user"),
 
-    # Access scopes for token
     access_scopes = list(
       org = c("read:org", "admin:org"),
       repo = c("public_repo", "repo"),
       user = c("read:user", "user")
     ),
 
-    # Methods for engines
     engine_methods = list(
       "graphql" = list(
         "repos",
@@ -54,7 +44,6 @@ GitHostGitHub <- R6::R6Class(
       )
     ),
 
-    # Set API URL
     set_api_url = function(host) {
       if (is.null(host) ||
             host == "https://github.com" ||
@@ -66,7 +55,6 @@ GitHostGitHub <- R6::R6Class(
       }
     },
 
-    # Set web URL
     set_web_url = function(host) {
       if (is.null(host)) {
         private$web_url <- "https://github.com"
@@ -75,33 +63,27 @@ GitHostGitHub <- R6::R6Class(
       }
     },
 
-    # Check whether Git platform is public or internal.
     check_if_public = function(host) {
       private$is_public <- is.null(host) || grepl("github.com", host)
     },
 
-    # Set endpoint for basic checks
     set_test_endpoint = function() {
       private$test_endpoint <- private$api_url
     },
 
-    # Set tokens endpoint
     set_tokens_endpoint = function() {
       private$endpoints$tokens <- NULL
     },
 
-    # Set groups endpoint
     set_orgs_endpoint = function() {
       private$endpoints$orgs <- glue::glue("{private$api_url}/orgs")
       private$endpoints$users <- glue::glue("{private$api_url}/users")
     },
 
-    # Set projects endpoint
     set_repositories_endpoint = function() {
       private$endpoints$repositories <- glue::glue("{private$api_url}/repos")
     },
 
-    # Setup REST and GraphQL engines
     setup_engines = function() {
       private$engines$rest <- EngineRestGitHub$new(
         rest_api_url = private$api_url,
@@ -115,8 +97,6 @@ GitHostGitHub <- R6::R6Class(
       )
     },
 
-    # Check token scopes
-    # token parameter only for need of super method
     check_token_scopes = function(response, token = NULL) {
       private$token_scopes <- response$headers$`x-oauth-scopes` |>
         stringr::str_split(", ") |>
@@ -127,7 +107,6 @@ GitHostGitHub <- R6::R6Class(
       all(c(org_scopes, repo_scopes, user_scopes))
     },
 
-    # Add `api_url` column to table.
     add_repo_api_url = function(repos_table) {
       if (!is.null(repos_table) && nrow(repos_table) > 0) {
         repos_table <- dplyr::mutate(
@@ -162,7 +141,6 @@ GitHostGitHub <- R6::R6Class(
       purrr::map_vec(search_response, ~.$repository$node_id) |> unique()
     },
 
-    # Get projects URL from search response
     get_repo_url_from_response = function(search_response,
                                           repos_fullnames = NULL,
                                           type,
@@ -181,7 +159,6 @@ GitHostGitHub <- R6::R6Class(
       })
     },
 
-    # Pull commits from GitHub
     get_commits_from_orgs = function(since,
                                      until,
                                      verbose,
@@ -218,7 +195,6 @@ GitHostGitHub <- R6::R6Class(
       }
     },
 
-    # Pull commits from GitHub
     get_commits_from_repos = function(since,
                                       until,
                                       verbose,
@@ -396,7 +372,6 @@ GitHostGitHub <- R6::R6Class(
       }
     },
 
-    # Use repositories either from parameter or, if not set, pull them from API
     get_repos_data = function(org, repos = NULL, verbose) {
       cached_repos <- private$get_cached_repos(org)
       if (is.null(cached_repos)) {
@@ -425,7 +400,6 @@ GitHostGitHub <- R6::R6Class(
       return(repos_data)
     },
 
-    # Get repository url
     set_repo_url = function(repo_fullname) {
       paste0(private$endpoints$repositories, "/", repo_fullname)
     }

@@ -1,4 +1,3 @@
-#' @noRd
 show_message <- function(host,
                          engine,
                          scope = NULL,

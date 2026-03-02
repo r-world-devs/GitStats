@@ -1,18 +1,7 @@
-#' @noRd
-#' @description A class to manage which engine to use for pulling data
 GitHost <- R6::R6Class(
   classname = "GitHost",
   public = list(
 
-    #' @description Create a new `GitHost` object.
-    #' @param orgs A character vector of organisations (owners of repositories
-    #'   in case of GitHub and groups of projects in case of GitLab).
-    #' @param repos A character vector of repositories.
-    #' @param token A token.
-    #' @param host A host.
-    #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
-    #'   output is switched off.
-    #' @return A new `GitHost` object.
     initialize = function(orgs = NA,
                           repos = NA,
                           token = NA,
@@ -117,7 +106,6 @@ GitHost <- R6::R6Class(
       return(repos_table)
     },
 
-    # Get repositories URLS from the Git host
     get_repos_urls = function(type = "web",
                               with_code = NULL,
                               in_files = NULL,
@@ -150,7 +138,6 @@ GitHost <- R6::R6Class(
       return(repo_urls)
     },
 
-    #' Pull commits method
     get_commits = function(since,
                            until,
                            verbose = TRUE,
@@ -181,7 +168,6 @@ GitHost <- R6::R6Class(
       return(commits_table)
     },
 
-    #' Get issues method
     get_issues = function(since,
                           until,
                           state = NULL,
@@ -263,7 +249,7 @@ GitHost <- R6::R6Class(
       }
       return(pr_table)
     },
-    #' Pull information about users.
+
     get_users = function(users) {
       graphql_engine <- private$engines$graphql
       users_table <-  purrr::map(users, function(user) {
@@ -274,8 +260,6 @@ GitHost <- R6::R6Class(
       return(users_table)
     },
 
-    #' Retrieve content of given text files from all repositories for a host in
-    #' a table format.
     get_files_content = function(file_path,
                                  files_structure = NULL,
                                  verbose = TRUE,
@@ -314,7 +298,6 @@ GitHost <- R6::R6Class(
       return(files_table)
     },
 
-    #' Get files structure
     get_files_structure = function(pattern,
                                    depth,
                                    verbose  = TRUE,
@@ -344,7 +327,6 @@ GitHost <- R6::R6Class(
       return(files_structure)
     },
 
-    #' Iterator over pulling release logs from engines
     get_release_logs = function(since, until, verbose, progress) {
       if (private$scan_all && is.null(private$orgs)) {
         private$orgs <- private$get_orgs_from_host(
@@ -376,58 +358,22 @@ GitHost <- R6::R6Class(
   ),
   private = list(
 
-    # A REST API URL.
     api_url = NULL,
-
-    # Web URL.
     web_url = NULL,
-
-    # A GraphQL API url.
     graphql_api_url = NULL,
-
-    # Either repos, orgs or whole platform
     searching_scope = NULL,
-
-    # An endpoint for basic checks.
     test_endpoint = NULL,
-
-    # List of endpoints
-    endpoints = list(
-      tokens = NULL,
-      orgs = NULL,
-      repositories = NULL
-    ),
-
-    # A token.
+    endpoints = list(tokens = NULL, orgs = NULL, repositories = NULL),
     token = NULL,
-
-    # Actual token scopes
     token_scopes = NULL,
-
-    # public A boolean.
     is_public = NULL,
-
-    # orgs A character vector of repo organizations.
     orgs = NULL,
-
-    # repos A character vector of repositories.
     repos = NULL,
-
-    # repos_fullnames A character vector of repositories with full names.
     repos_fullnames = NULL,
-
-    # orgs_repos A named list of organizations with repositories.
     orgs_repos = NULL,
-
-    # A boolean.
     scan_all = FALSE,
-
-    # Show messages or not.
     verbose = TRUE,
-
-    # engines A placeholder for REST and GraphQL Engine classes.
     engines = list(),
-
     cached_repos = list(),
 
     get_cached_repos = function(org) {
@@ -441,7 +387,6 @@ GitHost <- R6::R6Class(
       private$cached_repos[[org]] <- repos
     },
 
-    # Set API url
     set_custom_api_url = function(host) {
       private$api_url <- if (!grepl("https|http", host)) {
         glue::glue(
@@ -457,7 +402,6 @@ GitHost <- R6::R6Class(
       }
     },
 
-    # Set web url
     set_custom_web_url = function(host) {
       private$web_url <- if (!grepl("https://", host)) {
         glue::glue(
@@ -468,7 +412,6 @@ GitHost <- R6::R6Class(
       }
     },
 
-    # Set endpoints
     set_endpoints = function() {
       private$set_test_endpoint()
       private$set_tokens_endpoint()
@@ -476,7 +419,6 @@ GitHost <- R6::R6Class(
       private$set_repositories_endpoint()
     },
 
-    # Set authorizing token
     set_token = function(token, verbose) {
       if (is.null(token)) {
         token <- private$set_default_token(
@@ -488,7 +430,6 @@ GitHost <- R6::R6Class(
       private$token <- token
     },
 
-    # Check whether the token exists.
     check_token = function(token) {
       if (nchar(token) == 0) {
         cli::cli_abort(c(
@@ -508,7 +449,6 @@ GitHost <- R6::R6Class(
       }
     },
 
-    # Check if both repos and orgs are defined or not.
     set_searching_scope = function(orgs, repos, verbose) {
       if (is.null(repos) && is.null(orgs)) {
         if (verbose) {
@@ -530,7 +470,6 @@ GitHost <- R6::R6Class(
       }
     },
 
-    # Set organization or repositories
     set_orgs_and_repos = function(orgs, repos, verbose, .error) {
       if (!private$scan_all) {
         if (!is.null(orgs)) {
@@ -554,7 +493,6 @@ GitHost <- R6::R6Class(
       }
     },
 
-    # Check if repositories exist
     check_repositories = function(repos, verbose, .error) {
       if (verbose) {
         cli::cli_alert(cli::col_grey("Checking repositories..."))
@@ -580,7 +518,6 @@ GitHost <- R6::R6Class(
       repos
     },
 
-    # Check if organizations or users exist
     check_organizations = function(orgs, verbose, .error) {
       if (verbose) {
         cli::cli_alert(cli::col_grey("Checking owners..."))
@@ -621,7 +558,6 @@ GitHost <- R6::R6Class(
       orgs
     },
 
-    # Check whether the endpoint exists.
     check_endpoint = function(endpoint, type, verbose, .error) {
       check <- TRUE
       endpoint_response <- private$engines$rest$perform_request(
@@ -656,13 +592,11 @@ GitHost <- R6::R6Class(
       return(check)
     },
 
-    # Set url of GraphQL API
     set_graphql_url = function() {
       clean_api_url <- gsub("/v+.*", "", private$api_url)
       private$graphql_api_url <- glue::glue("{clean_api_url}/graphql")
     },
 
-    # Set default token if none exists.
     set_default_token = function(verbose) {
       primary_token_name <- private$token_name
       token <- Sys.getenv(primary_token_name)
@@ -694,7 +628,6 @@ GitHost <- R6::R6Class(
       return(token)
     },
 
-    # Helper to test if a token works
     test_token = function(token) {
       response <- NULL
       test_endpoint <- private$test_endpoint
@@ -718,8 +651,6 @@ GitHost <- R6::R6Class(
       return(check)
     },
 
-    # Helper to extract organizations and repositories from vector of full names
-    # of repositories
     extract_repos_and_orgs = function(repos_fullnames = NULL) {
       repos_fullnames <- URLdecode(repos_fullnames)
       repos_vec <- stringr::str_split(repos_fullnames, "/") |>
@@ -737,7 +668,6 @@ GitHost <- R6::R6Class(
       return(orgs_repo_list)
     },
 
-    # Filter repositories table by host
     filter_repos_by_host = function(repos_table) {
       dplyr::filter(
         repos_table,
@@ -905,7 +835,6 @@ GitHost <- R6::R6Class(
       }
     },
 
-    # Pull repositories with specific code
     get_repos_with_code = function(code,
                                    in_files = NULL,
                                    in_path = FALSE,
@@ -946,7 +875,6 @@ GitHost <- R6::R6Class(
       return(repos_table)
     },
 
-    # Pull all repositories URLs from organizations
     get_all_repos_urls = function(type, verbose = TRUE, progress = TRUE) {
       if (private$scan_all && is.null(private$orgs)) {
         private$orgs <- private$get_orgs_from_host(
@@ -1284,7 +1212,6 @@ GitHost <- R6::R6Class(
       }
     },
 
-    #' Add information on repository contributors.
     get_repos_contributors = function(repos_table, verbose, progress) {
       if (!is.null(repos_table) && nrow(repos_table) > 0) {
         if (!private$scan_all && verbose) {
@@ -1337,7 +1264,6 @@ GitHost <- R6::R6Class(
       }
     },
 
-    # Get issues from GitHub
     get_issues_from_repos = function(verbose, progress) {
       if ("repo" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
@@ -1402,7 +1328,6 @@ GitHost <- R6::R6Class(
       }
     },
 
-    # Get pr from GitHub
     get_pr_from_repos = function(verbose, progress) {
       if ("repo" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
@@ -1434,7 +1359,7 @@ GitHost <- R6::R6Class(
         return(pr_table)
       }
     },
-    # Pull files content from organizations
+
     get_files_content_from_orgs = function(file_path,
                                            verbose = TRUE,
                                            progress = TRUE) {
@@ -1529,7 +1454,6 @@ GitHost <- R6::R6Class(
       }
     },
 
-    # Pull files from host
     get_files_content_from_host = function(file_path,
                                            verbose  = TRUE,
                                            progress = TRUE) {
