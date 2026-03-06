@@ -71,8 +71,8 @@ get_pull_requests <- function(gitstats,
 #' }
 #' @export
 get_pull_requests_stats <- function(pull_requests,
-                             time_aggregation = c("year", "month", "week", "day"),
-                             group_var) {
+                                    time_aggregation = c("year", "month", "week", "day"),
+                                    group_var) {
   if (!inherits(pull_requests, "gitstats_pull_requests")) {
     cli::cli_abort(c(
       "x" = "`pull_requests` must be a `gitstats_issues` object.",
