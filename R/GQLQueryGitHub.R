@@ -194,8 +194,8 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
                   author {
                     login
                   }
-                  source_branch: baseRefName
-                  target_branch: headRefName
+                  source_branch: headRefName
+                  target_branch: baseRefName
                 }
               }
             }
