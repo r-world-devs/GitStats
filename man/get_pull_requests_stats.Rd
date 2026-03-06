@@ -12,6 +12,14 @@ get_pull_requests_stats(
 }
 \arguments{
 \item{pull_requests}{A \code{gitstats_pr_stats} S3 class table object (output of \code{get_pull_requests()}).}
+
+\item{time_aggregation}{A character, specifying time aggregation of
+statistics.}
+
+\item{group_var}{Other grouping variable to be passed to \code{dplyr::group_by()}
+function apart from \code{stats_date} and \code{githost}. Could be: \code{author},
+\code{state} or \code{organization}. Should be passed without
+quotation marks.}
 }
 \value{
 A table of \code{pull_requests_stats} class.

@@ -49,7 +49,7 @@ get_pull_requests <- function(gitstats,
 #' @details To make function work, you need first to get pull requests data with
 #'   `GitStats`. See examples section.
 #' @param pull_requests A `gitstats_pr_stats` S3 class table object (output of `get_pull_requests()`).
-#' @inheritParams get_issues
+#' @inheritParams get_issues_stats
 #' @return A table of `pull_requests_stats` class.
 #' @examples
 #' \dontrun{
