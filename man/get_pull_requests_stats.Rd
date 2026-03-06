@@ -11,24 +11,16 @@ get_pull_requests_stats(
 )
 }
 \arguments{
-\item{time_aggregation}{A character, specifying time aggregation of
-statistics.}
-
-\item{group_var}{Other grouping variable to be passed to \code{dplyr::group_by()}
-function apart from \code{stats_date} and \code{githost}. Could be: \code{author},
-\code{state} or \code{organization}. Should be passed without
-quotation marks.}
-
-\item{issues}{A \code{gitstats_issue} S3 class table object (output of \code{get_issues()}).}
+\item{pull_requests}{A \code{gitstats_pr_stats} S3 class table object (output of \code{get_pull_requests()}).}
 }
 \value{
-A table of \code{issues_stats} class.
+A table of \code{pull_requests_stats} class.
 }
 \description{
-Prepare statistics from the pulled issues data.
+Prepare statistics from the pulled pull requests data.
 }
 \details{
-To make function work, you need first to get issues data with
+To make function work, you need first to get pull requests data with
 \code{GitStats}. See examples section.
 }
 \examples{
