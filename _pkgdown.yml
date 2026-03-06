@@ -31,6 +31,7 @@ reference:
 - contents:
   - get_commits_stats
   - get_issues_stats
+  - get_pull_requests_stats
 articles:
 - title: Articles
   navbar: ~
