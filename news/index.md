@@ -10,6 +10,10 @@
   function for getting information about pull requests ([\#722](NA).
 - Cleaned up unnecessary comments
   ([\#723](https://github.com/r-world-devs/GitStats/issues/723)).
+- Added
+  [`get_pull_requests_stats()`](https://r-world-devs.github.io/GitStats/reference/get_pull_requests_stats.md)
+  function
+  ([\#726](https://github.com/r-world-devs/GitStats/issues/726)).
 
 ## GitStats 2.3.9
 

@@ -70,3 +70,5 @@ Functions summarizing git data.
   : Get commits statistics
 - [`get_issues_stats()`](https://r-world-devs.github.io/GitStats/reference/get_issues_stats.md)
   : Get issues statistics
+- [`get_pull_requests_stats()`](https://r-world-devs.github.io/GitStats/reference/get_pull_requests_stats.md)
+  : Get pull requests statistics
