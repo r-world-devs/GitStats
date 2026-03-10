@@ -13,9 +13,9 @@
       files_table <- test_gitstats$get_files(pattern = "\\.test", depth = 0L,
         verbose = FALSE, progress = FALSE)
     Message
-      > Pulling files content...
-      ! [GitHub] No files found. Skipping pulling files content.
-      ! [GitLab] No files found. Skipping pulling files content.
+      > Pulling files 📄 content...
+      ! [GitHub] No files 📄 found. Skipping pulling files content.
+      ! [GitLab] No files 📄 found. Skipping pulling files content.
 
 # error shows when file_path and pattern are defined at the same time
 
