@@ -23,7 +23,7 @@ test_that("issues page is pulled from repository", {
     org = org,
     repo = repo
   )
-  expect_github_issues_page(issues_page)
+  expect_issues_github_page(issues_page)
   test_mocker$cache(issues_page)
 })
 
@@ -53,7 +53,7 @@ test_that("issues page with cursor is pulled from repository", {
       repo = "GitStats",
       issues_cursor = "Y3Vyc29yOnYyOpK5MjAyNC0xMS0wN1QxMzowNTowOSswMTowMM6dZ-dm"
     )
-    expect_github_issues_page(issues_page)
+    expect_issues_github_page(issues_page)
   }
 })
 

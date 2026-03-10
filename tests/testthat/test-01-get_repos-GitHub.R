@@ -48,7 +48,7 @@ test_that("`get_repos_page()` pulls repos page from GitHub organization", {
     login = gh_org,
     type = "organization"
   )
-  expect_gh_repos_gql_response(
+  expect_repos_github_gql_response(
     gh_repos_page$data$repositoryOwner$repositories$nodes[[1]]
   )
   test_mocker$cache(gh_repos_page)
@@ -63,7 +63,7 @@ test_that("get_repos() pulls repositories by ids", {
   gh_repos_by_ids <- test_graphql_github$get_repos(
     repos_ids = c("repo_1", "repo_2", "repo_3")
   )
-  expect_gh_repos_gql_response(
+  expect_repos_github_gql_response(
     gh_repos_by_ids[[1]]
   )
   test_mocker$cache(gh_repos_by_ids)
@@ -100,7 +100,7 @@ test_that("`get_repos_page()` pulls repos page from GitHub user", {
     login = gh_user,
     type = "user"
   )
-  expect_gh_repos_gql_response(
+  expect_repos_github_gql_response(
     gh_repos_user_page$data$user$repositories$nodes[[1]]
   )
   test_mocker$cache(gh_repos_user_page)
@@ -140,7 +140,7 @@ test_that("`search_response()` performs search with limit under 1000", {
     search_endpoint = test_mocker$use("search_endpoint"),
     total_n = total_n
   )
-  expect_gh_search_response(gh_search_repos_response)
+  expect_search_github_response(gh_search_repos_response)
   test_mocker$cache(gh_search_repos_response)
 })
 
@@ -155,7 +155,7 @@ test_that("`search_response()` performs search with limit over 1000", {
     search_endpoint = test_mocker$use("search_endpoint"),
     total_n = total_n
   )
-  expect_gh_search_response(gh_search_repos_response_large)
+  expect_search_github_response(gh_search_repos_response_large)
 })
 
 test_that("`search_for_code()` returns repos output for code search in files", {
@@ -178,7 +178,7 @@ test_that("`search_for_code()` returns repos output for code search in files", {
     org = gh_org,
     verbose = FALSE
   )
-  expect_gh_search_response(gh_search_for_code)
+  expect_search_github_response(gh_search_for_code)
   test_mocker$cache(gh_search_for_code)
 })
 
@@ -202,7 +202,7 @@ test_that("`search_repos_for_code()` returns repos output for code search in fil
     repos = paste0(gh_org, "/", gh_repo),
     verbose = FALSE
   )
-  expect_gh_search_response(gh_search_repos_for_code)
+  expect_search_github_response(gh_search_repos_for_code)
   test_mocker$cache(gh_search_repos_for_code)
 })
 
@@ -225,7 +225,7 @@ test_that("`search_for_code()` works with language filter", {
       language = "R",
       verbose = FALSE
     )
-    expect_gh_search_response(gh_search_for_code_language)
+    expect_search_github_response(gh_search_for_code_language)
   }
 })
 
@@ -264,7 +264,7 @@ test_that("parse_search_response parses search response into repositories output
     output = "raw",
     verbose = FALSE
   )
-  expect_gh_repos_gql_response(gh_repos_raw_output[[1]])
+  expect_repos_github_gql_response(gh_repos_raw_output[[1]])
   test_mocker$cache(gh_repos_raw_output)
 })
 

@@ -25,7 +25,7 @@ test_that("`get_repos_page()` pulls repos page from GitLab group", {
     org = "mbtests",
     type = "organization"
   )
-  expect_gl_repos_gql_response(
+  expect_repos_gitlab_gql_response(
     gl_repos_page
   )
   test_mocker$cache(gl_repos_page)
@@ -62,7 +62,7 @@ test_that("`get_repos_page()` pulls repos page from GitLab user", {
     org = "test_user",
     type = "user"
   )
-  expect_gl_repos_gql_response(
+  expect_repos_gitlab_gql_response(
     gl_repos_user_page,
     type = "user"
   )

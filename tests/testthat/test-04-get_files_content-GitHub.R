@@ -20,7 +20,7 @@ test_that("GitHub GraphQL Engine pulls file response", {
     file_path   = "LICENSE",
     files_query = test_mocker$use("gh_file_blobs_from_repo_query")
   )
-  expect_github_files_response(github_file_response)
+  expect_files_github_response(github_file_response)
   test_mocker$cache(github_file_response)
 })
 
@@ -79,7 +79,7 @@ test_that("GitHub GraphQL Engine pulls files from organization", {
     host_files_structure = NULL,
     verbose = FALSE
   )
-  expect_github_files_response(github_files_response)
+  expect_files_github_response(github_files_response)
   test_mocker$cache(github_files_response)
 })
 
@@ -102,7 +102,7 @@ test_that("GitHub GraphQL Engine pulls files from organization", {
     host_files_structure = NULL,
     verbose = FALSE
   )
-  expect_github_files_response(github_two_files_response)
+  expect_files_github_response(github_two_files_response)
   test_mocker$cache(github_two_files_response)
 })
 

@@ -20,7 +20,7 @@ test_that("get_files_tree_response() works", {
     repo = "graphql_tests",
     file_path = ""
   )
-  expect_gitlab_files_tree_response(gl_files_tree_response)
+  expect_files_gitlab_tree_response(gl_files_tree_response)
   test_mocker$cache(gl_files_tree_response)
 })
 

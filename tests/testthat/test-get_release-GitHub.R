@@ -16,7 +16,7 @@ test_that("`get_releases_from_org()` pulls releases from the repositories", {
     repos_names = c("TestProject1", "TestProject2"),
     org = "test_org"
   )
-  expect_github_releases_response(releases_from_repos)
+  expect_releases_github_response(releases_from_repos)
   test_mocker$cache(releases_from_repos)
 })
 
