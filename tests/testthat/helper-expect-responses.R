@@ -30,19 +30,6 @@ expect_commits_tailored_list <- function(object) {
   )
 }
 
-expect_search_gitlab_response <- function(object) {
-  expect_type(
-    object,
-    "list"
-  )
-  purrr::walk(object, ~ {
-    expect_list_contains(
-      .,
-      c("basename", "data", "path", "filename", "id", "ref", "startline", "project_id")
-    )
-  })
-}
-
 expect_search_github_response <- function(object) {
   expect_type(
     object,
@@ -52,32 +39,6 @@ expect_search_github_response <- function(object) {
     object[[1]],
     c("name", "path", "sha", "url", "git_url", "html_url", "repository", "score")
   )
-}
-
-expect_repos_gitlab_rest_response <- function(object) {
-  expect_type(
-    object,
-    "list"
-  )
-  purrr::walk(object, ~ {
-    expect_list_contains(
-      .,
-      c("id", "description", "name", "name_with_namespace", "path")
-    )
-  })
-}
-
-expect_repos_github_rest_response <- function(object) {
-  expect_type(
-    object,
-    "list"
-  )
-  purrr::walk(object, ~ {
-    expect_list_contains(
-      .,
-      c("id", "node_id", "name", "full_name")
-    )
-  })
 }
 
 expect_repos_gitlab_gql_response <- function(object, type = "organization") {
