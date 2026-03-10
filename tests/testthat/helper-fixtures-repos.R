@@ -268,7 +268,6 @@ test_fixtures$gitlab_repos_by_user_response <- list(
   )
 )
 
-
 test_fixtures$gitlab_repos_response_flawed <- list(
   "data" = list(
     "projects" = list(

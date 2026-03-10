@@ -1,5 +1,4 @@
 # ---- Integration test utils ----
-
 skip_integration_tests <- function() {
   Sys.setenv(GITSTATS_INTEGRATION_TEST_SKIPPED = "true")
 }
@@ -13,7 +12,6 @@ are_integrations_tests_skipped <- function() {
 }
 
 # ---- Mocker ----
-
 Mocker <- R6::R6Class("Mocker",
   public = list(
 
@@ -31,7 +29,6 @@ Mocker <- R6::R6Class("Mocker",
 )
 
 # ---- Test host classes and factories ----
-
 GitHostGitHubTest <- R6::R6Class(
   classname = "GitHostGitHubTest",
   inherit = GitHostGitHub,
@@ -178,7 +175,6 @@ create_gitlab_testhost <- function(host  = NULL,
 }
 
 # ---- Test engine classes and factories ----
-
 TestEngineRest <- R6::R6Class("TestEngineRest",
   inherit = EngineRest,
   public = list(
@@ -228,7 +224,6 @@ create_testrest <- function(rest_api_url = "https://api.github.com",
 }
 
 # ---- Random data generators ----
-
 generate_random_timestamps <- function(n, start_year, end_year) {
   start_date <- as.POSIXct(paste0(start_year, "-01-01 00:00:00"), tz = "UTC")
   end_date <- as.POSIXct(paste0(end_year, "-12-31 23:59:59"), tz = "UTC")
