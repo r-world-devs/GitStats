@@ -14,10 +14,9 @@
   [`get_pull_requests_stats()`](https://r-world-devs.github.io/GitStats/reference/get_pull_requests_stats.md)
   function
   ([\#726](https://github.com/r-world-devs/GitStats/issues/726)).
-
-## GitStats 2.3.9
-
-CRAN release: 2026-01-11
+- Reorganized fixtures and test helpers
+  ([\#727](https://github.com/r-world-devs/GitStats/issues/727)). \#
+  GitStats 2.3.9
 
 This patch release covers fixes for
 [`get_files()`](https://r-world-devs.github.io/GitStats/reference/get_files.md)
