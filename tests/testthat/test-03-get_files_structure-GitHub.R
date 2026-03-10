@@ -25,7 +25,7 @@ test_that("get_file_response works", {
     file_path = "",
     files_query = test_mocker$use("gh_files_tree_query")
   )
-  expect_github_files_raw_response(
+  expect_files_github_raw_response(
     gh_files_tree_response
   )
   test_mocker$cache(gh_files_tree_response)

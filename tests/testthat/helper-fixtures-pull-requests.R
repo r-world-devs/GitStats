@@ -53,7 +53,6 @@ test_fixtures_pr$github_graphql_pr_response <- list(
   )
 )
 
-
 test_fixtures_pr$gitlab_graphql_pr_response <- list(
   "data" = list(
     "project" = list(

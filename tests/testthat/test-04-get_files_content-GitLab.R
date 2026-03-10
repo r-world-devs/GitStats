@@ -23,7 +23,7 @@ test_that("get_file_blobs_response() works", {
     repo = "graphql_tests",
     file_path = c("project_metadata.yaml", "README.md")
   )
-  expect_gitlab_files_blob_response(gl_file_blobs_response)
+  expect_files_gitlab_blob_response(gl_file_blobs_response)
   test_mocker$cache(gl_file_blobs_response)
 })
 
@@ -40,7 +40,7 @@ test_that("GitLab GraphQL Engine pulls files from a group", {
     file_paths = "meta_data.yaml",
     host_files_structure = NULL
   )
-  expect_gitlab_files_from_org_response(gitlab_files_response)
+  expect_files_gitlab_from_org_response(gitlab_files_response)
   test_mocker$cache(gitlab_files_response)
 })
 
@@ -56,7 +56,7 @@ test_that("GitLab GraphQL Engine pulls files from org by iterating over repos", 
     repos_data = list("paths" = "TestProject"),
     file_paths = c("project_metadata.yaml", "README.md")
   )
-  expect_gitlab_files_from_org_by_repos_response(
+  expect_files_gitlab_from_org_by_repos_response(
     response = gl_files_from_org_per_repo,
     expected_files = c("project_metadata.yaml", "README.md")
   )
@@ -82,7 +82,7 @@ test_that("GitLab GraphQL Engine switches to pulliing files per repo when owner 
     file_paths = "project_metadata.yaml",
     host_files_structure = NULL
   )
-  expect_gitlab_files_from_org_by_repos_response(
+  expect_files_gitlab_from_org_by_repos_response(
     response = gitlab_files_response,
     expected_files = "project_metadata.yaml"
   )
@@ -112,7 +112,7 @@ test_that("Gitlab GraphQL switches to pulling files per repositories when query 
     host_files_structure = NULL,
     verbose = FALSE
   )
-  expect_gitlab_files_from_org_by_repos_response(
+  expect_files_gitlab_from_org_by_repos_response(
     response = gitlab_files_response_by_repos,
     expected_files = c("project_metadata.yaml", "README.md")
   )

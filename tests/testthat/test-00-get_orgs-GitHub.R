@@ -39,7 +39,7 @@ test_that("get_orgs pulls responses from GraphQL", {
     gh_orgs_full_response,
     "list"
   )
-  expect_github_orgs_full_list(gh_orgs_full_response)
+  expect_orgs_github_full_list(gh_orgs_full_response)
   test_mocker$cache(gh_orgs_full_response)
 })
 

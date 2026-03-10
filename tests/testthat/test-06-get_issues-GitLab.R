@@ -23,7 +23,7 @@ test_that("issues page is pulled from repository", {
     org = org,
     repo = repo
   )
-  expect_gitlab_issues_page(issues_page)
+  expect_issues_gitlab_page(issues_page)
   test_mocker$cache(issues_page)
 })
 

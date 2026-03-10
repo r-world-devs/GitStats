@@ -1,17 +1,26 @@
-expect_gl_search_response <- function(object) {
-  expect_type(
-    object,
-    "list"
+expect_list_contains <- function(object, elements) {
+  act <- quasi_label(rlang::enquo(object), arg = "object")
+  act$check <- any(elements %in% names(act$val))
+  expect(
+    act$check == TRUE,
+    sprintf("%s does not contain specified elements", act$lab)
   )
-  purrr::walk(object, ~ {
-    expect_list_contains(
-      .,
-      c("basename", "data", "path", "filename", "id", "ref", "startline", "project_id")
-    )
-  })
+
+  invisible(act$val)
 }
 
-expect_gh_search_response <- function(object) {
+expect_list_contains_only <- function(object, elements) {
+  act <- quasi_label(rlang::enquo(object), arg = "object")
+  act$check <- all(elements %in% names(act$val))
+  expect(
+    act$check == TRUE,
+    sprintf("%s does not contain specified elements", act$lab)
+  )
+
+  invisible(act$val)
+}
+
+expect_search_github_response <- function(object) {
   expect_type(
     object,
     "list"
@@ -22,33 +31,7 @@ expect_gh_search_response <- function(object) {
   )
 }
 
-expect_gl_repos_rest_response <- function(object) {
-  expect_type(
-    object,
-    "list"
-  )
-  purrr::walk(object, ~ {
-    expect_list_contains(
-      .,
-      c("id", "description", "name", "name_with_namespace", "path")
-    )
-  })
-}
-
-expect_gh_repos_rest_response <- function(object) {
-  expect_type(
-    object,
-    "list"
-  )
-  purrr::walk(object, ~ {
-    expect_list_contains(
-      .,
-      c("id", "node_id", "name", "full_name")
-    )
-  })
-}
-
-expect_gl_repos_gql_response <- function(object, type = "organization") {
+expect_repos_gitlab_gql_response <- function(object, type = "organization") {
   expect_type(
     object,
     "list"
@@ -66,7 +49,7 @@ expect_gl_repos_gql_response <- function(object, type = "organization") {
   )
 }
 
-expect_gh_repos_gql_response <- function(repo_node) {
+expect_repos_github_gql_response <- function(repo_node) {
   expect_true(
     all(
       colnames(repo_node) %in% c("repo_id", "repo_name", "stars", "forks", "created_at",
@@ -76,7 +59,7 @@ expect_gh_repos_gql_response <- function(repo_node) {
   )
 }
 
-expect_gl_commit_rest_response <- function(object) {
+expect_commit_gitlab_rest_response <- function(object) {
   expect_type(
     object,
     "list"
@@ -91,7 +74,7 @@ expect_gl_commit_rest_response <- function(object) {
   )
 }
 
-expect_gh_commit_gql_response <- function(object) {
+expect_commit_github_gql_response <- function(object) {
   expect_type(
     object,
     "list"
@@ -135,7 +118,7 @@ expect_user_gql_response <- function(object) {
   )
 }
 
-expect_github_files_raw_response <- function(object) {
+expect_files_github_raw_response <- function(object) {
   purrr::walk(object$data$repository$object$entries, function(entry) {
     expect_equal(
       names(entry),
@@ -144,7 +127,7 @@ expect_github_files_raw_response <- function(object) {
   })
 }
 
-expect_gitlab_files_blob_response <- function(object) {
+expect_files_gitlab_blob_response <- function(object) {
   purrr::walk(object$data$project$repository$blobs$nodes, function(node) {
     expect_equal(
       names(node),
@@ -153,7 +136,7 @@ expect_gitlab_files_blob_response <- function(object) {
   })
 }
 
-expect_gitlab_files_tree_response <- function(object) {
+expect_files_gitlab_tree_response <- function(object) {
   purrr::walk(object$data$project$repository$tree$blobs$nodes, function(node) {
     expect_equal(
       names(node),
@@ -162,7 +145,7 @@ expect_gitlab_files_tree_response <- function(object) {
   })
 }
 
-expect_github_files_response <- function(object) {
+expect_files_github_response <- function(object) {
   expect_type(
     object,
     "list"
@@ -185,7 +168,7 @@ expect_github_files_response <- function(object) {
   })
 }
 
-expect_gitlab_files_from_org_response <- function(object) {
+expect_files_gitlab_from_org_response <- function(object) {
   expect_type(
     object,
     "list"
@@ -208,7 +191,7 @@ expect_gitlab_files_from_org_response <- function(object) {
   })
 }
 
-expect_gitlab_files_from_org_by_repos_response <- function(response, expected_files) {
+expect_files_gitlab_from_org_by_repos_response <- function(response, expected_files) {
   expect_type(
     response,
     "list"
@@ -233,7 +216,7 @@ expect_gitlab_files_from_org_by_repos_response <- function(response, expected_fi
   )
 }
 
-expect_github_releases_response <- function(object) {
+expect_releases_github_response <- function(object) {
   expect_type(
     object,
     "list"
@@ -253,7 +236,7 @@ expect_github_releases_response <- function(object) {
   })
 }
 
-expect_gitlab_releases_response <- function(object) {
+expect_releases_gitlab_response <- function(object) {
   expect_type(
     object,
     "list"
@@ -276,7 +259,7 @@ expect_gitlab_releases_response <- function(object) {
 issue_fields <- c("number", "title", "description", "created_at", "closed_at",
                   "state", "url", "author")
 
-expect_github_issues_page <- function(object) {
+expect_issues_github_page <- function(object) {
   expect_type(
     object,
     "list"
@@ -295,7 +278,7 @@ expect_github_issues_page <- function(object) {
   )
 }
 
-expect_gitlab_issues_page <- function(object) {
+expect_issues_gitlab_page <- function(object) {
   expect_type(
     object,
     "list"
@@ -324,7 +307,7 @@ expect_issues_full_list <- function(object) {
 github_orgs_fields <- c("name", "description", "login", "url", "repositories",
                         "membersWithRole", "avatarUrl")
 
-expect_github_orgs_full_list <- function(object) {
+expect_orgs_github_full_list <- function(object) {
   expect_named(
     object[[1]],
     github_orgs_fields
@@ -334,7 +317,7 @@ expect_github_orgs_full_list <- function(object) {
 gitlab_orgs_fields <- c("name", "description", "fullPath", "webUrl", "projectsCount",
                         "groupMembersCount", "avatarUrl")
 
-expect_gitlab_orgs_full_list <- function(object) {
+expect_orgs_gitlab_full_list <- function(object) {
   expect_named(
     object[[1]],
     gitlab_orgs_fields

@@ -18,7 +18,7 @@ test_that("`get_commits_page_from_repo()` pulls commits page from repository", {
     since = "2023-01-01",
     until = "2023-02-28"
   )
-  expect_gh_commit_gql_response(
+  expect_commit_github_gql_response(
     commits_page$data$repository$defaultBranchRef$target$history$edges[[1]]
   )
   test_mocker$cache(commits_page)
@@ -54,7 +54,7 @@ test_that("`get_commits_from_one_repo()` prepares formatted list", {
     since = "2023-01-01",
     until = "2023-02-28"
   )
-  expect_gh_commit_gql_response(
+  expect_commit_github_gql_response(
     commits_from_repo[[1]]
   )
   test_mocker$cache(commits_from_repo)
@@ -92,7 +92,7 @@ test_that("`get_commits_from_repos()` pulls commits from repos", {
     since = "2023-01-01",
     until = "2023-02-28"
   )
-  expect_gh_commit_gql_response(
+  expect_commit_github_gql_response(
     commits_from_repos[[1]][[1]]
   )
   test_mocker$cache(commits_from_repos)
