@@ -1,3 +1,35 @@
+expect_list_contains <- function(object, elements) {
+  act <- quasi_label(rlang::enquo(object), arg = "object")
+  act$check <- any(elements %in% names(act$val))
+  expect(
+    act$check == TRUE,
+    sprintf("%s does not contain specified elements", act$lab)
+  )
+
+  invisible(act$val)
+}
+
+expect_list_contains_only <- function(object, elements) {
+  act <- quasi_label(rlang::enquo(object), arg = "object")
+  act$check <- all(elements %in% names(act$val))
+  expect(
+    act$check == TRUE,
+    sprintf("%s does not contain specified elements", act$lab)
+  )
+
+  invisible(act$val)
+}
+
+expect_tailored_commits_list <- function(object) {
+  expect_list_contains_only(
+    object,
+    c(
+      "repo_name", "id", "organization", "additions", "deletions",
+      "committed_date", "author"
+    )
+  )
+}
+
 expect_gl_search_response <- function(object) {
   expect_type(
     object,
