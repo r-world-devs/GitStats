@@ -37,7 +37,7 @@ EngineGraphQLGitHub <- R6::R6Class(
 
     get_orgs = function(output = c("only_names", "full_table"), verbose) {
       if (verbose) {
-        cli::cli_alert("[Host:GitHub][Engine:{cli::col_yellow('GraphQL')}] Pulling organizations...")
+        cli::cli_alert("[Host:GitHub][Engine:{cli::col_yellow('GraphQL')}] Pulling organizations {cli_icons$org}...")
       }
       end_cursor <- ""
       has_next_page <- TRUE

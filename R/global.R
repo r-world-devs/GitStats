@@ -7,6 +7,18 @@ globalVariables(c(
   "contributors_n", "githost", "head", "state", "merged_at"
 ))
 
+cli_icons <- list(
+  org          = "\U1F3DB\UFE0F",
+  repo         = "\U1F4D8",
+  commit       = "\U1F552",
+  issue        = "\U1F41B",
+  pull_request = "\U1F500",
+  user         = "\U1F64D",
+  file         = "\U1F4C4",
+  tree         = "\U1F333",
+  release      = "\U1F3F7\UFE0F"
+)
+
 text_ext_files <- "\\.(txt|md|qmd|Rmd|markdown|yaml|yml|csv|json|xml|html|htm|css|js|R|r|py|sh|bat|ini|conf|log|sql|tsv|mdx)$"
 no_ext_files <- "^[^\\.]+$"
 

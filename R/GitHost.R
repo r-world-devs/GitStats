@@ -734,7 +734,7 @@ GitHost <- R6::R6Class(
               host = private$host_name,
               engine = "graphql",
               scope = utils::URLdecode(org),
-              information = "Pulling repositories"
+              information = paste0("Pulling repositories ", cli_icons$repo)
             )
           }
           repos_from_org <- graphql_engine$get_repos_from_org(
@@ -759,7 +759,7 @@ GitHost <- R6::R6Class(
                 host = private$host_name,
                 engine = "rest",
                 scope = org,
-                information = "Pulling repositories"
+                information = paste0("Pulling repositories ", cli_icons$repo)
               )
             }
             rest_engine <- private$engines$rest
@@ -792,7 +792,7 @@ GitHost <- R6::R6Class(
               host = private$host_name,
               engine = "graphql",
               scope = set_repo_scope(utils::URLdecode(org), private),
-              information = "Pulling repositories"
+              information = paste0("Pulling repositories ", cli_icons$repo)
             )
           }
           repos_from_org <- graphql_engine$get_repos_from_org(
@@ -815,7 +815,7 @@ GitHost <- R6::R6Class(
                 host = private$host_name,
                 engine = "rest",
                 scope = org,
-                information = "Pulling repositories"
+                information = paste0("Pulling repositories ", cli_icons$repo)
               )
             }
             rest_engine <- private$engines$rest
@@ -908,7 +908,7 @@ GitHost <- R6::R6Class(
               host = private$host_name,
               engine = "rest",
               scope = utils::URLdecode(org),
-              information = "Pulling repositories (URLs)"
+              information = paste0("Pulling repositories ", cli_icons$repo, " (URLs)")
             )
           }
           repos_urls <- rest_engine$get_repos_urls(
@@ -936,7 +936,7 @@ GitHost <- R6::R6Class(
               host = private$host_name,
               engine = "rest",
               scope = paste0(org, "/", private$orgs_repos[[org]], collapse = ", "),
-              information = "Pulling repositories (URLs)"
+              information = paste0("Pulling repositories ", cli_icons$repo, " (URLs)")
             )
           }
           repos_urls <- rest_engine$get_repos_urls(
@@ -960,7 +960,7 @@ GitHost <- R6::R6Class(
         show_message(
           host = private$host_name,
           engine = "rest",
-          information = "Pulling repositories"
+          information = paste0("Pulling repositories ", cli_icons$repo)
         )
       }
       rest_engine <- private$engines$rest
@@ -1006,7 +1006,7 @@ GitHost <- R6::R6Class(
               engine = "rest",
               scope = utils::URLdecode(org),
               code = code,
-              information = "Pulling repositories"
+              information = paste0("Pulling repositories ", cli_icons$repo)
             )
           }
           rest_engine <- private$engines$rest
@@ -1061,7 +1061,7 @@ GitHost <- R6::R6Class(
             engine = "rest",
             scope = utils::URLdecode(paste0(orgs, collapse = "|")),
             code = code,
-            information = "Pulling repositories"
+            information = paste0("Pulling repositories ", cli_icons$repo)
           )
         }
         rest_engine <- private$engines$rest
@@ -1218,7 +1218,7 @@ GitHost <- R6::R6Class(
           show_message(
             host = private$host_name,
             engine = "rest",
-            information = "Pulling contributors"
+            information = paste0("Pulling contributors ", cli_icons$user)
           )
         }
         repos_table <- private$filter_repos_by_host(repos_table)
@@ -1246,7 +1246,7 @@ GitHost <- R6::R6Class(
               host = private$host_name,
               engine = "graphql",
               scope = org,
-              information = "Getting issues"
+              information = paste0("Getting issues ", cli_icons$issue)
             )
           }
           issues_table_org <- graphql_engine$get_issues_from_repos(
@@ -1278,7 +1278,7 @@ GitHost <- R6::R6Class(
               host = private$host_name,
               engine = "graphql",
               scope = set_repo_scope(org, private),
-              information = "Gettiing issues"
+              information = paste0("Getting issues ", cli_icons$issue)
             )
           }
           issues_table_org <- graphql_engine$get_issues_from_repos(
@@ -1310,7 +1310,7 @@ GitHost <- R6::R6Class(
               host = private$host_name,
               engine = "graphql",
               scope = org,
-              information = "Pulling pull requests"
+              information = paste0("Pulling pull requests ", cli_icons$pull_request)
             )
           }
           pr_table_org <- graphql_engine$get_pr_from_repos(
@@ -1342,7 +1342,7 @@ GitHost <- R6::R6Class(
               host = private$host_name,
               engine = "graphql",
               scope = set_repo_scope(org, private),
-              information = "Getting pull requests"
+              information = paste0("Getting pull requests ", cli_icons$pull_request)
             )
           }
           pr_table_org <- graphql_engine$get_pr_from_repos(
@@ -1376,7 +1376,7 @@ GitHost <- R6::R6Class(
               host = private$host_name,
               engine = "graphql",
               scope = org,
-              information = glue::glue("Pulling files content: [{paste0(file_path, collapse = ', ')}]")
+              information = glue::glue("Pulling files {cli_icons$file} content: [{paste0(file_path, collapse = ', ')}]")
             )
           }
           graphql_engine$get_files_from_org(
@@ -1419,10 +1419,10 @@ GitHost <- R6::R6Class(
           if (verbose) {
             user_info <- if (!is.null(pattern)) {
               glue::glue(
-                "Pulling repos \U1F333 [files matching pattern: '{paste0(pattern, collapse = '|')}']"
+                "Pulling repos {cli_icons$tree} [files matching pattern: '{paste0(pattern, collapse = '|')}']"
               )
             } else {
-              glue::glue("Pulling repos \U1F333")
+              glue::glue("Pulling repos {cli_icons$tree}")
             }
             show_message(
               host = private$host_name,
@@ -1462,7 +1462,7 @@ GitHost <- R6::R6Class(
         show_message(
           host = private$host_name,
           engine = "rest",
-          information = glue::glue("Pulling files: [{paste0(file_path, collapse = ', ')}]")
+          information = glue::glue("Pulling files {cli_icons$file}: [{paste0(file_path, collapse = ', ')}]")
         )
       }
       files_table <- rest_engine$get_files(
@@ -1488,7 +1488,7 @@ GitHost <- R6::R6Class(
               host = private$host_name,
               engine = "graphql",
               scope = org,
-              information = "Pulling release logs"
+              information = paste0("Pulling release logs ", cli_icons$release)
             )
           }
           graphql_engine <- private$engines$graphql
@@ -1526,7 +1526,7 @@ GitHost <- R6::R6Class(
               host = private$host_name,
               engine = "graphql",
               scope = set_repo_scope(org, private),
-              information = "Pulling release logs"
+              information = paste0("Pulling release logs ", cli_icons$release)
             )
           }
           release_logs_table_org <- graphql_engine$get_release_logs_from_org(
