@@ -5,6 +5,8 @@
 - Cleaned up unnecessary comments ([#723](https://github.com/r-world-devs/GitStats/issues/723)).
 - Added `get_pull_requests_stats()` function ([#726](https://github.com/r-world-devs/GitStats/issues/726)).
 - Reorganized fixtures and test helpers ([#727](https://github.com/r-world-devs/GitStats/issues/727)).
+- Prettified messages with new icons ([#148](https://github.com/r-world-devs/GitStats/issues/148), [#361](https://github.com/r-world-devs/GitStats/issues/361)).
+
 # GitStats 2.3.9
 
 This patch release covers fixes for `get_files()` function and updates for `until` parameter in `get_release_logs()`, `get_commits()` and `get_issues()` functions.
