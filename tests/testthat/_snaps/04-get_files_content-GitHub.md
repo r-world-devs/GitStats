@@ -12,7 +12,7 @@
         files_structure = test_mocker$use("gh_files_structure_from_orgs"), verbose = TRUE,
         progress = FALSE)
     Message
-      > [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling files from files structure...
+      > [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling files 📄 from files structure...
 
 # get_files_content skips if no files found in files_structure
 
@@ -21,5 +21,5 @@
         files_structure = test_mocker$use("gh_empty_files_structure"), verbose = TRUE,
         progress = FALSE)
     Message
-      ! [GitHub] No files found. Skipping pulling files content.
+      ! [GitHub] No files 📄 found. Skipping pulling files content.
 

@@ -14,8 +14,8 @@
         cache = FALSE, state = NULL, verbose = TRUE)
     Message
       i Cache set to FALSE, I will pull data from API.
-      > Getting issues...
-      ! No issues found.
+      > Getting issues 🐛...
+      ! No issues 🐛 found.
 
 # get_issues() prints data on time used
 

@@ -11,7 +11,7 @@
       releases_from_orgs <- gitlab_testhost_priv$get_release_logs_from_orgs(verbose = TRUE,
         progress = FALSE)
     Message
-      > [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling release logs...
+      > [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling release logs 🏷️...
 
 # `get_release_logs_from_repos()` works
 
@@ -19,5 +19,5 @@
       releases_from_repos <- gitlab_testhost_priv$get_release_logs_from_repos(
         verbose = TRUE, progress = FALSE)
     Message
-      > [Host:GitLab][Engine:GraphQl][Scope:test_org: 1 repos] Pulling release logs...
+      > [Host:GitLab][Engine:GraphQl][Scope:test_org: 1 repos] Pulling release logs 🏷️...
 

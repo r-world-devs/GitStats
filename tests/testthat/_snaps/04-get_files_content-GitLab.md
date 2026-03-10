@@ -39,7 +39,7 @@
       gl_files_table <- gitlab_testhost_priv$get_files_content_from_repos(file_path = "meta_data.yaml",
         verbose = TRUE)
     Message
-      > [Host:GitLab][Engine:GraphQl][Scope:test_group: 0 repos] Pulling files content: [meta_data.yaml]...
+      > [Host:GitLab][Engine:GraphQl][Scope:test_group: 0 repos] Pulling files 📄 content: [meta_data.yaml]...
 
 # get_files_content makes use of files_structure
 
@@ -47,7 +47,7 @@
       files_content <- gitlab_testhost_priv$get_files_content_from_files_structure(
         files_structure = test_mocker$use("gl_files_structure_from_orgs"), verbose = TRUE)
     Message
-      > [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling files from files structure...
+      > [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling files 📄 from files structure...
 
 # get_files_content skips if files structure is empty
 
@@ -55,5 +55,5 @@
       files_content <- gitlab_testhost_priv$get_files_content_from_files_structure(
         files_structure = test_mocker$use("gl_empty_files_structure"), verbose = TRUE)
     Message
-      ! [GitLab] No files found. Skipping pulling files content.
+      ! [GitLab] No files 📄 found. Skipping pulling files content.
 
