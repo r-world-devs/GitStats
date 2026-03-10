@@ -14,15 +14,15 @@ coverage](https://codecov.io/gh/r-world-devs/GitStats/branch/devel/graph/badge.s
 With `GitStats` you can pull git data in a uniform way from GitHub and
 GitLab. For the time-being you can get data on:
 
-- organizations,
-- repositories,
-- commits,
-- issues,
-- users,
-- release logs,
-- files tree (structure),
-- text files content,
-- pull requests.
+- 🏛️ organizations,
+- 📘 repositories,
+- 🕒 commits,
+- 🐛 issues,
+- 🔂 pull requests,
+- 🙍 users,
+- 🚀 release logs,
+- 🌲 files tree (structure),
+- 📄 text files content.
 
 You can also prepare basic statistics with `get_*_stats()` functions for
 commits and issues.
@@ -67,7 +67,7 @@ commits <- git_stats |>
   )
 
 commits
-#> # A tibble: 3,434 × 11
+#> # A tibble: 3,473 × 11
 #>    repo_name id    committed_date      author author_login author_name additions
 #>    <chr>     <chr> <dttm>              <chr>  <chr>        <chr>           <int>
 #>  1 gitstats… 7f48… 2024-09-10 11:12:59 Macie… maciekbanas  Maciej Ban…         0
@@ -80,7 +80,7 @@ commits
 #>  8 shinyGiz… C_kw… 2023-05-08 09:43:31 Kryst… krystian8207 Krystian I…        18
 #>  9 shinyGiz… C_kw… 2023-04-28 12:30:40 Kamil… <NA>         Kamil Kozi…        18
 #> 10 shinyGiz… C_kw… 2023-03-01 15:05:10 Kryst… krystian8207 Krystian I…       296
-#> # ℹ 3,424 more rows
+#> # ℹ 3,463 more rows
 #> # ℹ 4 more variables: deletions <int>, organization <chr>, repo_url <chr>,
 #> #   api_url <glue>
 
@@ -89,7 +89,7 @@ commits |>
     time_aggregation = "month",
     group_var = author
   )
-#> # A tibble: 374 × 4
+#> # A tibble: 378 × 4
 #>    stats_date          githost author             stats
 #>    <dttm>              <chr>   <chr>              <int>
 #>  1 2022-01-01 00:00:00 github  Admin_mschuemi         1
@@ -102,7 +102,7 @@ commits |>
 #>  8 2022-02-01 00:00:00 github  Reijo Sund             1
 #>  9 2022-02-01 00:00:00 github  eitsupi                1
 #> 10 2022-03-01 00:00:00 github  Maximilian Girlich    14
-#> # ℹ 364 more rows
+#> # ℹ 368 more rows
 ```
 
 Get repositories with specific code:
@@ -162,7 +162,7 @@ git_stats |>
   get_pull_requests(
     since = "2022-01-01"
   )
-#> # A tibble: 411 × 10
+#> # A tibble: 415 × 10
 #>    repo_name       number created_at          merged_at           state  author 
 #>    <chr>           <chr>  <dttm>              <dttm>              <chr>  <chr>  
 #>  1 gitstatstesting 2      2026-02-25 09:34:18 NA                  closed <NA>   
@@ -175,7 +175,7 @@ git_stats |>
 #>  8 shinyGizmo      16     2022-06-15 13:48:08 2022-06-15 14:12:52 merged krysti…
 #>  9 shinyGizmo      17     2022-06-17 10:55:10 2022-06-17 10:56:09 merged krysti…
 #> 10 shinyGizmo      19     2022-07-05 10:01:44 2022-07-05 11:05:30 merged krysti…
-#> # ℹ 401 more rows
+#> # ℹ 405 more rows
 #> # ℹ 4 more variables: source_branch <chr>, target_branch <chr>,
 #> #   organization <chr>, api_url <glue>
 ```
@@ -191,9 +191,9 @@ git_stats
 #>  Repositories: [2] mbtests/gitstatstesting, openpharma/DataFakeR
 #> Storage: 
 #>  Repositories: 9 
-#>  Commits: 3434 [date range: 2022-01-01 - 2026-02-26]
+#>  Commits: 3473 [date range: 2022-01-01 - 2026-03-10]
 #>  Files: 68 [file pattern: \.md]
-#>  Pull_requests: 411 [date range: 2022-01-01 - 2026-02-26]
+#>  Pull_requests: 415 [date range: 2022-01-01 - 2026-03-10]
 ```
 
 ## See also
