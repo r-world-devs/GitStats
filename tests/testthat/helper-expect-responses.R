@@ -20,16 +20,6 @@ expect_list_contains_only <- function(object, elements) {
   invisible(act$val)
 }
 
-expect_commits_tailored_list <- function(object) {
-  expect_list_contains_only(
-    object,
-    c(
-      "repo_name", "id", "organization", "additions", "deletions",
-      "committed_date", "author"
-    )
-  )
-}
-
 expect_search_github_response <- function(object) {
   expect_type(
     object,

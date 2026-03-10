@@ -38,8 +38,12 @@ test_that("`tailor_commits_info()` retrieves only necessary info", {
     gl_commits_list,
     org = "mbtests"
   )
-  expect_commits_tailored_list(
-    gl_commits_list_cut[[1]][[1]]
+  expect_list_contains_only(
+    gl_commits_list_cut[[1]][[1]],
+    c(
+      "repo_name", "id", "organization", "additions", "deletions",
+      "committed_date", "author"
+    )
   )
   test_mocker$cache(gl_commits_list_cut)
 })
