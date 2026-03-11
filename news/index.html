@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.9.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.9.9005</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,8 +44,12 @@
 <li>Added <code><a href="../reference/get_pull_requests.html">get_pull_requests()</a></code> function for getting information about pull requests (<a href="(https://github.com/r-world-devs/GitStats/issues/722)" class="external-link">#722</a>.</li>
 <li>Cleaned up unnecessary comments (<a href="https://github.com/r-world-devs/GitStats/issues/723" class="external-link">#723</a>).</li>
 <li>Added <code><a href="../reference/get_pull_requests_stats.html">get_pull_requests_stats()</a></code> function (<a href="https://github.com/r-world-devs/GitStats/issues/726" class="external-link">#726</a>).</li>
-<li>Reorganized fixtures and test helpers (<a href="https://github.com/r-world-devs/GitStats/issues/727" class="external-link">#727</a>). # GitStats 2.3.9</li>
-</ul><p>This patch release covers fixes for <code><a href="../reference/get_files.html">get_files()</a></code> function and updates for <code>until</code> parameter in <code><a href="../reference/get_release_logs.html">get_release_logs()</a></code>, <code><a href="../reference/get_commits.html">get_commits()</a></code> and <code><a href="../reference/get_issues.html">get_issues()</a></code> functions.</p>
+<li>Reorganized fixtures and test helpers (<a href="https://github.com/r-world-devs/GitStats/issues/727" class="external-link">#727</a>).</li>
+<li>Prettified messages with new icons (<a href="https://github.com/r-world-devs/GitStats/issues/148" class="external-link">#148</a>, <a href="https://github.com/r-world-devs/GitStats/issues/361" class="external-link">#361</a>).</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.3.9" id="gitstats-239">GitStats 2.3.9<a class="anchor" aria-label="anchor" href="#gitstats-239"></a></h2><p class="text-muted">CRAN release: 2026-01-11</p>
+<p>This patch release covers fixes for <code><a href="../reference/get_files.html">get_files()</a></code> function and updates for <code>until</code> parameter in <code><a href="../reference/get_release_logs.html">get_release_logs()</a></code>, <code><a href="../reference/get_commits.html">get_commits()</a></code> and <code><a href="../reference/get_issues.html">get_issues()</a></code> functions.</p>
 <ul><li>Handled getting multiple files for GitHub in case some of these files did not exist in scanned repositories (<a href="https://github.com/r-world-devs/GitStats/issues/713" class="external-link">#713</a>).</li>
 <li>Added skipping files content when pulling files with <code>pattern</code> results with empty files structure (<a href="https://github.com/r-world-devs/GitStats/issues/711" class="external-link">#711</a>).</li>
 <li>Updated the logic for the <code>until</code> parameter in <code><a href="../reference/get_release_logs.html">get_release_logs()</a></code>, <code><a href="../reference/get_commits.html">get_commits()</a></code> and <code><a href="../reference/get_issues.html">get_issues()</a></code>. Functions will now include records from the specified date (e.g., passing “2025-12-08” to <code>until</code> will include data from December 8th, 2025), whereas previously, it only fetched data up to (but not including) that date (<a href="https://github.com/r-world-devs/GitStats/issues/718" class="external-link">#718</a>).</li>

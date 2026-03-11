@@ -15,8 +15,14 @@
   function
   ([\#726](https://github.com/r-world-devs/GitStats/issues/726)).
 - Reorganized fixtures and test helpers
-  ([\#727](https://github.com/r-world-devs/GitStats/issues/727)). \#
-  GitStats 2.3.9
+  ([\#727](https://github.com/r-world-devs/GitStats/issues/727)).
+- Prettified messages with new icons
+  ([\#148](https://github.com/r-world-devs/GitStats/issues/148),
+  [\#361](https://github.com/r-world-devs/GitStats/issues/361)).
+
+## GitStats 2.3.9
+
+CRAN release: 2026-01-11
 
 This patch release covers fixes for
 [`get_files()`](https://r-world-devs.github.io/GitStats/reference/get_files.md)
