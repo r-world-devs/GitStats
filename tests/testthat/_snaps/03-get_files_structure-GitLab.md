@@ -11,6 +11,7 @@
       gl_files_structure <- gitlab_testhost_priv$get_files_structure_from_orgs(
         pattern = NULL, depth = Inf, verbose = TRUE, progress = FALSE)
     Message
+      > Using cached repositories data...
       > [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling repos 🌳...
 
 # get_files_structure_from_orgs warns when no structure found
@@ -19,8 +20,9 @@
       gl_files_structure <- gitlab_testhost_priv$get_files_structure_from_orgs(
         pattern = NULL, depth = Inf, verbose = TRUE, progress = FALSE)
     Message
+      > Using cached repositories data...
       > [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling repos 🌳...
-      ! For GitLab no files 🌳 structure found.
+      ! For GitLab no files structure found.
 
 # get_files_structure_from_repos prints message
 
