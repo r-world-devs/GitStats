@@ -184,7 +184,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       orgs_list <- purrr::map(total_orgs_names, function(org) {
         type <- attr(org, "type") %||% "organization"
         org_response <- graphql_engine$get_org(
-          org = utils::URLdecode(org),
+          org = url_decode(org),
           verbose = verbose
         )
         if (inherits(org_response, "graphql_error")) {
@@ -192,7 +192,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             cli::cli_alert_info("Switching to REST API")
           }
           org_response <- rest_engine$get_org(
-            org = utils::URLencode(org, reserved = TRUE),
+            org = url_encode(org),
             verbose = verbose
           )
           default_engine <<- rest_engine
@@ -249,12 +249,12 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             show_message(
               host = private$host_name,
               engine = "rest",
-              scope = utils::URLdecode(org),
+              scope = url_decode(org),
               information = paste0("Pulling commits ", cli_icons$commit)
             )
           }
           full_repos_encoded <- paste0(
-            utils::URLencode(org, reserved = TRUE),
+            url_encode(org),
             "%2f",
             repos_data[["paths"]]
           )
@@ -290,7 +290,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         commits_table <- purrr::map(orgs, function(org) {
           commits_table_org <- NULL
           repos <- private$orgs_repos[[org]]
-          full_repos_names <- paste0(utils::URLencode(org, reserved = TRUE), "%2f", repos)
+          full_repos_names <- paste0(url_encode(org), "%2f", repos)
           if (!private$scan_all && verbose) {
             show_message(
               host = private$host_name,
@@ -327,7 +327,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           graphql_engine <- private$engines$graphql
           owner_type <- attr(org, "type") %||% "organization"
           repos_from_org <- graphql_engine$get_repos_from_org(
-            org = utils::URLdecode(org),
+            org = url_decode(org),
             owner_type = owner_type,
             verbose = verbose
           )
@@ -337,7 +337,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             }
             rest_engine <- private$engines$rest
             repos_from_org <- rest_engine$get_repos_from_org(
-              org = utils::URLencode(org, reserved = TRUE),
+              org = url_encode(org),
               output = "raw",
               verbose = verbose
             )
