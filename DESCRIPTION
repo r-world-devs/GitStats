@@ -25,8 +25,7 @@ Imports:
     rlang (>= 1.1.0),
     R6,
     purrr (>= 1.0.0),
-    stringr,
-    urltools
+    stringr
 Suggests:
     spelling,
     knitr,

@@ -139,7 +139,7 @@ print.gitstats_repos_urls <- function(x, ...) {
   if (length(x) == 0) {
     cat("No repository URLs found.\n")
   } else {
-    hosts <- urltools::domain(x)
+    hosts <- sub("^https?://([^/]+).*", "\\1", x)
     host_counts <- table(hosts)
 
     if (length(x) > 5) {
