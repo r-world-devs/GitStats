@@ -46,18 +46,16 @@ standardize_dates <- function(dates) {
     purrr::map_vec(lubridate::as_datetime)
 }
 
-#' @importFrom utils URLencode URLdecode
-
 #' @noRd
 #' @description Apply url encoding to string
 url_encode <- function(url) {
-  URLencode(url, reserved = TRUE)
+  utils::URLencode(url, reserved = TRUE)
 }
 
 #' @noRd
 #' @description Apply url decoding to string
 url_decode <- function(url) {
-  URLdecode(url)
+  utils::URLdecode(url)
 }
 
 #' @noRd
