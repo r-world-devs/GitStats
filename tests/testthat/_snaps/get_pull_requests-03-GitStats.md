@@ -14,8 +14,8 @@
         cache = FALSE, state = NULL, verbose = TRUE)
     Message
       i Cache set to FALSE, I will pull data from API.
-      > Getting pull requests...
-      ! No pull requests found.
+      > Getting pull requests 🔀...
+      ! No pull requests 🔀 found.
 
 # get_pull_requests() prints data on time used
 

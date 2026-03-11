@@ -5,6 +5,25 @@
     Output
       [1] "\n      query GetFilesTree ($fullPath: ID!, $file_path: String!) {\n        project(fullPath: $fullPath) {\n          id\n          repository {\n            tree(path: $file_path) {\n              trees (first: 100) {\n                pageInfo{\n                  endCursor\n                  hasNextPage\n                }\n                nodes {\n                  name\n                }\n              }\n              blobs (first: 100) {\n                pageInfo{\n                  endCursor\n                  hasNextPage\n                }\n                nodes {\n                  name\n                }\n              }\n            }\n            lastCommit {\n              sha\n            }\n          }\n        }\n      }\n      "
 
+# get_files_structure_from_orgs prints messages without pattern
+
+    Code
+      gl_files_structure <- gitlab_testhost_priv$get_files_structure_from_orgs(
+        pattern = NULL, depth = Inf, verbose = TRUE, progress = FALSE)
+    Message
+      > Using cached repositories data...
+      > [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling repos 🌳...
+
+# get_files_structure_from_orgs warns when no structure found
+
+    Code
+      gl_files_structure <- gitlab_testhost_priv$get_files_structure_from_orgs(
+        pattern = NULL, depth = Inf, verbose = TRUE, progress = FALSE)
+    Message
+      > Using cached repositories data...
+      > [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling repos 🌳...
+      ! For GitLab no files structure found.
+
 # get_files_structure_from_repos prints message
 
     Code

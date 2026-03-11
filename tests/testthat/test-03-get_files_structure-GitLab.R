@@ -209,6 +209,40 @@ test_that("get_files_structure_from_orgs pulls files structure for repositories 
   test_mocker$cache(gl_files_structure_from_orgs)
 })
 
+test_that("get_files_structure_from_orgs prints messages without pattern", {
+  mockery::stub(
+    gitlab_testhost_priv$get_files_structure_from_orgs,
+    "graphql_engine$get_files_structure_from_org",
+    test_mocker$use("gl_files_structure_shallow")
+  )
+  gitlab_testhost_priv$searching_scope <- "org"
+  expect_snapshot(
+    gl_files_structure <- gitlab_testhost_priv$get_files_structure_from_orgs(
+      pattern = NULL,
+      depth = Inf,
+      verbose = TRUE,
+      progress = FALSE
+    )
+  )
+})
+
+test_that("get_files_structure_from_orgs warns when no structure found", {
+  mockery::stub(
+    gitlab_testhost_priv$get_files_structure_from_orgs,
+    "graphql_engine$get_files_structure_from_org",
+    list()
+  )
+  gitlab_testhost_priv$searching_scope <- "org"
+  expect_snapshot(
+    gl_files_structure <- gitlab_testhost_priv$get_files_structure_from_orgs(
+      pattern = NULL,
+      depth = Inf,
+      verbose = TRUE,
+      progress = FALSE
+    )
+  )
+})
+
 test_that("get_files_structure_from_repos pulls files structure for repositories", {
   mockery::stub(
     gitlab_testhost_priv$get_files_structure_from_repos,

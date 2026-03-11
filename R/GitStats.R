@@ -46,7 +46,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        cli::cli_alert("Pulling organizations data...")
+        cli::cli_alert("Pulling organizations {cli_icons$org} data...")
         organizations <- private$get_orgs_from_hosts(
           output = output,
           verbose = verbose
@@ -90,7 +90,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        cli::cli_alert("Pulling repositories data...")
+        cli::cli_alert("Pulling repositories {cli_icons$repo} data...")
         repositories <- private$get_repos_from_hosts(
           add_contributors = add_contributors,
           with_code = with_code,
@@ -111,7 +111,7 @@ GitStats <- R6::R6Class(
           )
         } else {
           if (verbose) {
-            cli::cli_alert_warning("No repositories found.")
+            cli::cli_alert_warning("No repositories {cli_icons$repo} found.")
           }
         }
       } else {
@@ -146,7 +146,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        cli::cli_alert("Pulling repositories URLs...")
+        cli::cli_alert("Pulling repositories {cli_icons$repo} URLs...")
         repos_urls <- private$get_repos_urls_from_hosts(
           type = type,
           with_code = with_code,
@@ -187,7 +187,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        cli::cli_alert("Pulling commits...")
+        cli::cli_alert("Pulling commits {cli_icons$commit}...")
         commits <- private$get_commits_from_hosts(
           since = since,
           until = until,
@@ -205,7 +205,7 @@ GitStats <- R6::R6Class(
           )
         } else {
           if (verbose) {
-            cli::cli_alert_warning("No commits found.")
+            cli::cli_alert_warning("No commits {cli_icons$commit} found.")
           }
         }
       } else {
@@ -234,7 +234,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        cli::cli_alert("Getting issues...")
+        cli::cli_alert("Getting issues {cli_icons$issue}...")
         issues <- private$get_issues_from_hosts(
           since = since,
           until = until,
@@ -253,7 +253,7 @@ GitStats <- R6::R6Class(
           )
         } else {
           if (verbose) {
-            cli::cli_alert_warning("No issues found.")
+            cli::cli_alert_warning("No issues {cli_icons$issue} found.")
           }
         }
       } else {
@@ -282,7 +282,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        cli::cli_alert("Getting pull requests...")
+        cli::cli_alert("Getting pull requests {cli_icons$pull_request}...")
         pull_requests <- private$get_pull_requests_from_hosts(
           since = since,
           until = until,
@@ -301,7 +301,7 @@ GitStats <- R6::R6Class(
           )
         } else {
           if (verbose) {
-            cli::cli_alert_warning("No pull requests found.")
+            cli::cli_alert_warning("No pull requests {cli_icons$pull_request} found.")
           }
         }
       } else {
@@ -322,7 +322,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        cli::cli_alert("Pulling users data...")
+        cli::cli_alert("Pulling users {cli_icons$user} data...")
         users <- private$get_users_from_hosts(logins) |>
           private$set_object_class(
             class = "gitstats_users",
@@ -355,7 +355,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        cli::cli_alert("Pulling files content...")
+        cli::cli_alert("Pulling files {cli_icons$file} content...")
         files <- private$get_files_from_hosts(
           pattern = pattern,
           depth = depth,
@@ -372,7 +372,7 @@ GitStats <- R6::R6Class(
           private$save_to_storage(files)
         } else {
           if (verbose) {
-            cli::cli_alert_warning("No files found.")
+            cli::cli_alert_warning("No files {cli_icons$file} found.")
           }
         }
       } else {
@@ -400,7 +400,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        cli::cli_alert("Pulling repositories structure...")
+        cli::cli_alert("Pulling repositories {cli_icons$tree} structure...")
         repos_trees <- private$get_repos_trees_from_hosts(
           pattern = pattern,
           depth = depth,
@@ -416,7 +416,7 @@ GitStats <- R6::R6Class(
           private$save_to_storage(repos_trees)
         } else {
           if (verbose) {
-            cli::cli_alert_warning("No repos \U1F333 trees found.")
+            cli::cli_alert_warning("No repos {cli_icons$tree} trees found.")
           }
         }
       } else {
@@ -441,7 +441,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        cli::cli_alert("Pulling release logs..")
+        cli::cli_alert("Pulling release logs {cli_icons$release}..")
         release_logs <- private$get_release_logs_from_hosts(
           since = since,
           until = until,
@@ -457,7 +457,7 @@ GitStats <- R6::R6Class(
           private$save_to_storage(release_logs)
         } else {
           if (verbose) {
-            cli::cli_alert_warning("No release logs found.")
+            cli::cli_alert_warning("No release logs {cli_icons$release} found.")
           }
         }
       } else {

@@ -14,6 +14,6 @@
         cache = FALSE, verbose = TRUE, progress = FALSE)
     Message
       i Cache set to FALSE, I will pull data from API.
-      > Pulling repositories structure...
+      > Pulling repositories 🌳 structure...
       ! No repos 🌳 trees found.
 

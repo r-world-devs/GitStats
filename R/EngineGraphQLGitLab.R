@@ -44,7 +44,7 @@ EngineGraphQLGitLab <- R6::R6Class(
                         verbose,
                         progress = verbose) {
       if (verbose) {
-        cli::cli_alert("[Host:GitLab][Engine:{cli::col_yellow('GraphQL')}] Pulling organizations...")
+        cli::cli_alert("[Host:GitLab][Engine:{cli::col_yellow('GraphQL')}] Pulling organizations {cli_icons$org}...")
       }
       group_cursor <- ""
       iterations_number <- round(orgs_count / 100)
@@ -83,7 +83,7 @@ EngineGraphQLGitLab <- R6::R6Class(
 
     get_org = function(org, verbose) {
       if (verbose) {
-        cli::cli_alert("[Host:GitLab][Engine:{cli::col_yellow('GraphQL')}] Pulling {org} organization...")
+        cli::cli_alert("[Host:GitLab][Engine:{cli::col_yellow('GraphQL')}] Pulling {org} organization {cli_icons$org}...")
       }
       response <- self$gql_response(
         gql_query = self$gql_query$group(),

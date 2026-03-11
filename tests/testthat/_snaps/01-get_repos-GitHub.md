@@ -35,7 +35,7 @@
         get_repos_with_code_from_orgs(code = "shiny", in_files = c("DESCRIPTION",
         "NAMESPACE"), language = "R", output = "raw", verbose = TRUE)
     Message
-      > [Host:GitHub][Engine:REST][Scope:r-world-devs] Pulling repositories...
+      > [Host:GitHub][Engine:REST][Scope:r-world-devs] Pulling repositories 🌐...
 
 # `get_repos_with_code_from_host()` pulls and parses output into table
 
@@ -44,7 +44,7 @@
         get_repos_with_code_from_host(code = "DESCRIPTION", in_path = TRUE, output = "table_full",
         verbose = TRUE)
     Message
-      > [Host:GitHub][Engine:REST] Pulling repositories...
+      > [Host:GitHub][Engine:REST] Pulling repositories 🌐...
 
 # `get_repos_with_code_from_repos()` works
 
@@ -52,7 +52,7 @@
       repos_with_code_from_repos_full <- github_testhost_priv$
         get_repos_with_code_from_repos(code = "tests", output = "table", verbose = TRUE)
     Message
-      > [Host:GitHub][Engine:REST][Scope:] Pulling repositories...
+      > [Host:GitHub][Engine:REST][Scope:] Pulling repositories 🌐...
 
 # get_repos_from_repos works
 
@@ -60,7 +60,7 @@
       gh_repos_individual <- github_testhost_priv$get_repos_from_repos(verbose = TRUE,
         progress = FALSE)
     Message
-      > [Host:GitHub][Engine:GraphQl][Scope:r-world-devs: 1 repos] Pulling repositories...
+      > [Host:GitHub][Engine:GraphQl][Scope:r-world-devs: 1 repos] Pulling repositories 🌐...
 
 # `get_repos_contributors()` works on GitHost level
 
@@ -69,7 +69,7 @@
         repos_table = test_mocker$use("gh_repos_table_with_platform"), verbose = TRUE,
         progress = FALSE)
     Message
-      > [Host:GitHub][Engine:REST] Pulling contributors...
+      > [Host:GitHub][Engine:REST] Pulling contributors 🙍...
 
 # `get_repos_data` pulls repos data from cache for the second time
 

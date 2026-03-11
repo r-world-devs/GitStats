@@ -176,7 +176,7 @@ GitHostGitHub <- R6::R6Class(
               host = private$host_name,
               engine = "graphql",
               scope = org,
-              information = "Pulling commits"
+              information = paste0("Pulling commits ", cli_icons$commit)
             )
           }
           commits_table_org <- graphql_engine$get_commits_from_repos(
@@ -212,7 +212,7 @@ GitHostGitHub <- R6::R6Class(
               host = private$host_name,
               engine = "graphql",
               scope = set_repo_scope(org, private),
-              information = "Pulling commits"
+              information = paste0("Pulling commits ", cli_icons$commit)
             )
           }
           commits_table_org <- graphql_engine$get_commits_from_repos(
@@ -252,7 +252,7 @@ GitHostGitHub <- R6::R6Class(
               host = private$host_name,
               engine = "graphql",
               scope = set_repo_scope(org, private),
-              information = glue::glue("Pulling files content: [{paste0(file_path, collapse = ', ')}]")
+              information = glue::glue("Pulling files {cli_icons$file} content: [{paste0(file_path, collapse = ', ')}]")
             )
           }
           graphql_engine$get_files_from_org(
@@ -294,7 +294,7 @@ GitHostGitHub <- R6::R6Class(
               host = private$host_name,
               engine = "graphql",
               scope = org,
-              information = "Pulling files from files structure"
+              information = paste0("Pulling files ", cli_icons$file, " from files structure")
             )
           }
           graphql_engine$get_files_from_org(
@@ -312,7 +312,7 @@ GitHostGitHub <- R6::R6Class(
           private$add_repo_api_url()
         return(files_table)
       } else {
-        cli::cli_alert_warning("[GitHub] No files found. Skipping pulling files content.")
+        cli::cli_alert_warning("[GitHub] No files {cli_icons$file} found. Skipping pulling files content.")
         return(NULL)
       }
     },
@@ -337,10 +337,10 @@ GitHostGitHub <- R6::R6Class(
           if (verbose) {
             user_info <- if (!is.null(pattern)) {
               glue::glue(
-                "Pulling repos \U1F333 [files matching pattern: '{paste0(pattern, collapse = '|')}']"
+                "Pulling repos {cli_icons$tree} [files matching pattern: '{paste0(pattern, collapse = '|')}']"
               )
             } else {
-              glue::glue("Pulling repos \U1F333")
+              glue::glue("Pulling repos {cli_icons$tree}")
             }
             show_message(
               host = private$host_name,
@@ -364,7 +364,7 @@ GitHostGitHub <- R6::R6Class(
         if (length(files_structure_list) == 0 && verbose) {
           cli::cli_alert_warning(
             cli::col_yellow(
-              "For {private$host_name} no files structure found."
+              "For {private$host_name} no files {cli_icons$tree} structure found."
             )
           )
         }
@@ -375,7 +375,7 @@ GitHostGitHub <- R6::R6Class(
     get_repos_data = function(org, repos = NULL, verbose) {
       cached_repos <- private$get_cached_repos(org)
       if (is.null(cached_repos)) {
-        if (verbose) cli::cli_alert("[{org}] Pulling repositories data...")
+        if (verbose) cli::cli_alert("[{org}] Pulling repositories {cli_icons$repo} data...")
         owner_type <- attr(org, "type") %||% "organization"
         org <- utils::URLdecode(org)
         graphql_engine <- private$engines$graphql

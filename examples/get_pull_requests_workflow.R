@@ -17,6 +17,12 @@ pr <- get_pull_requests(
   verbose = TRUE
 )
 
+get_pull_requests_stats(
+  pr,
+  time_aggregation = "month",
+  group_var = author
+)
+
 pr
 
 open_pr <- get_pull_requests(

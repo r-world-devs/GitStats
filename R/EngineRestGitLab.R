@@ -5,7 +5,7 @@ EngineRestGitLab <- R6::R6Class(
 
     get_orgs_count = function(verbose) {
       if (verbose) {
-        cli::cli_alert("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling number of all organizations...")
+        cli::cli_alert("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling number of all organizations {cli_icons$org}...")
       }
       orgs_response <- self$perform_request(paste0(private$endpoints$organizations, "?all_available=True"),
                                             token = private$token,
@@ -15,7 +15,7 @@ EngineRestGitLab <- R6::R6Class(
 
     get_orgs = function(orgs_count, verbose, progress = verbose) {
       if (verbose) {
-        cli::cli_alert("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling organizations...")
+        cli::cli_alert("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling organizations {cli_icons$org}...")
       }
       iterations_number <- ceiling(orgs_count / 100)
       orgs_list <- purrr::map(1:iterations_number, function(page) {
@@ -36,7 +36,7 @@ EngineRestGitLab <- R6::R6Class(
 
     get_org = function(org, verbose) {
       if (verbose) {
-        cli::cli_alert("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling {utils::URLdecode(org)} organization...")
+        cli::cli_alert("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling {utils::URLdecode(org)} organization {cli_icons$org}...")
       }
       self$response(
         endpoint = paste0(private$endpoints[["organizations"]], org),
@@ -374,7 +374,7 @@ EngineRestGitLab <- R6::R6Class(
                                                      verbose) {
       if (nrow(commits_table) > 0) {
         if (verbose) {
-          cli::cli_alert("Looking up for authors' names and logins...")
+          cli::cli_alert("Looking up for authors' {cli_icons$user} names and logins...")
         }
         authors_dict <- private$get_authors_dict(
           commits_table = commits_table,
