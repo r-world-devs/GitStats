@@ -52,19 +52,10 @@ EngineRestGitHub <- R6::R6Class(
                                in_path = FALSE,
                                language = NULL,
                                verbose = TRUE) {
-      query <- utils::URLencode(code)
-      if (in_path) {
-        query <- paste0(query, '+in:path')
-      }
-      if (!is.null(org)) {
-        query <- paste0(query, '+user:', org)
-      }
-      if (!is.null(filename)) {
-        query <- paste0(query, '+in:file+filename:', filename)
-      }
-      if (!is.null(language)) {
-        query <- paste0(query, '+language:', language)
-      }
+      query <- private$build_search_query(
+        code, org = org, filename = filename,
+        in_path = in_path, language = language
+      )
       search_endpoint <- paste0(private$endpoints[["search"]], query)
       if (verbose) cli::cli_alert("Searching for code [{code}]...")
       total_n <- self$response(
@@ -91,16 +82,10 @@ EngineRestGitHub <- R6::R6Class(
                                      verbose = TRUE) {
       if (verbose) cli::cli_alert("Searching for code [{code}]...")
       search_result <- purrr::map(repos, function(repo) {
-        query <- paste0(utils::URLencode(code), '+repo:', repo)
-        if (in_path) {
-          query <- paste0(query, '+in:path')
-        }
-        if (!is.null(filename)) {
-          query <- paste0(query, '+in:file+filename:', filename)
-        }
-        if (!is.null(language)) {
-          query <- paste0(query, '+language:', language)
-        }
+        query <- private$build_search_query(
+          code, repo = repo, filename = filename,
+          in_path = in_path, language = language
+        )
         search_endpoint <- paste0(private$endpoints[["search"]], query)
         total_n <- self$response(
           endpoint = search_endpoint,
@@ -176,6 +161,18 @@ EngineRestGitHub <- R6::R6Class(
       organizations = NULL,
       repositories = NULL
     ),
+
+    build_search_query = function(code, org = NULL, repo = NULL,
+                                  filename = NULL, in_path = FALSE,
+                                  language = NULL) {
+      query <- utils::URLencode(code)
+      if (!is.null(repo)) query <- paste0(query, '+repo:', repo)
+      if (!is.null(org)) query <- paste0(query, '+user:', org)
+      if (in_path) query <- paste0(query, '+in:path')
+      if (!is.null(filename)) query <- paste0(query, '+in:file+filename:', filename)
+      if (!is.null(language)) query <- paste0(query, '+language:', language)
+      return(query)
+    },
 
     set_endpoints = function() {
       private$endpoints[["search"]] <- paste0(

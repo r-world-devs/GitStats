@@ -950,6 +950,36 @@ GitHost <- R6::R6Class(
       }
     },
 
+    # Run a search function with optional in_files iteration, then parse the response.
+    search_and_parse = function(search_fn, code, in_files, in_path, language,
+                                output, verbose, org = NULL) {
+      if (is.null(in_files)) {
+        search_response <- search_fn(
+          code = code,
+          in_path = in_path,
+          language = language,
+          verbose = verbose
+        )
+      } else {
+        search_response <- purrr::map(in_files, function(filename) {
+          search_fn(
+            code = code,
+            filename = filename,
+            in_path = in_path,
+            language = language,
+            verbose = verbose
+          )
+        }) |>
+          purrr::list_flatten()
+      }
+      private$parse_search_response(
+        search_response = search_response,
+        org = org,
+        output = output,
+        verbose = verbose
+      )
+    },
+
     get_repos_with_code_from_host = function(code,
                                              in_files = NULL,
                                              in_path = FALSE,
@@ -964,29 +994,11 @@ GitHost <- R6::R6Class(
         )
       }
       rest_engine <- private$engines$rest
-      if (is.null(in_files)) {
-        search_response <- rest_engine$search_for_code(
-          code = code,
-          in_path = in_path,
-          language = language,
-          verbose = verbose
-        )
-      } else {
-        search_response <- purrr::map(in_files, function(filename) {
-          rest_engine$search_for_code(
-            code = code,
-            filename = filename,
-            in_path = in_path,
-            language = language,
-            verbose = verbose
-          )
-        }) |>
-          purrr::list_flatten()
-      }
-      repos_output <- private$parse_search_response(
-        search_response = search_response,
-        output = output,
-        verbose = verbose
+      search_fn <- function(...) rest_engine$search_for_code(...)
+      repos_output <- private$search_and_parse(
+        search_fn = search_fn,
+        code = code, in_files = in_files, in_path = in_path,
+        language = language, output = output, verbose = verbose
       )
       return(repos_output)
     },
@@ -1010,32 +1022,12 @@ GitHost <- R6::R6Class(
             )
           }
           rest_engine <- private$engines$rest
-          if (is.null(in_files)) {
-            search_response <- rest_engine$search_for_code(
-              org = org,
-              code = code,
-              in_path = in_path,
-              language = language,
-              verbose = verbose
-            )
-          } else {
-            search_response <- purrr::map(in_files, function(filename) {
-              rest_engine$search_for_code(
-                org = org,
-                code = code,
-                filename = filename,
-                in_path = in_path,
-                language = language,
-                verbose = verbose
-              )
-            }) |>
-              purrr::list_flatten()
-          }
-          private$parse_search_response(
-            search_response = search_response,
-            org = org,
-            output = output,
-            verbose = verbose
+          search_fn <- function(...) rest_engine$search_for_code(org = org, ...)
+          private$search_and_parse(
+            search_fn = search_fn,
+            code = code, in_files = in_files, in_path = in_path,
+            language = language, output = output, verbose = verbose,
+            org = org
           )
         }, .progress = set_progress_bar(progress, private))
         if (output != "raw") {
@@ -1065,31 +1057,13 @@ GitHost <- R6::R6Class(
           )
         }
         rest_engine <- private$engines$rest
-        if (is.null(in_files)) {
-          search_response <- rest_engine$search_repos_for_code(
-            repos = private$repos_fullnames,
-            code = code,
-            in_path = in_path,
-            language = language,
-            verbose = verbose
-          )
-        } else {
-          search_response <- purrr::map(in_files, function(filename) {
-            rest_engine$search_repos_for_code(
-              repos = private$repos_fullnames,
-              code = code,
-              filename = filename,
-              in_path = in_path,
-              language = language,
-              verbose = verbose
-            )
-          }) |>
-            purrr::list_flatten()
+        search_fn <- function(...) {
+          rest_engine$search_repos_for_code(repos = private$repos_fullnames, ...)
         }
-        repos_output <- private$parse_search_response(
-          search_response = search_response,
-          output = output,
-          verbose = verbose
+        repos_output <- private$search_and_parse(
+          search_fn = search_fn,
+          code = code, in_files = in_files, in_path = in_path,
+          language = language, output = output, verbose = verbose
         )
         return(repos_output)
       }

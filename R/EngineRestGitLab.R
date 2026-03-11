@@ -224,15 +224,7 @@ EngineRestGitLab <- R6::R6Class(
       full_repos_list <- list()
       search_endpoint <- private$set_search_endpoint(org, verbose)
       if (verbose) cli::cli_alert("Searching for code [{code}]...")
-      code <- utils::URLencode(code, reserved = TRUE)
-      if (in_path) {
-        query <- paste0("path:", code)
-      } else {
-        query <- code
-      }
-      if (!is.null(filename)) {
-        query <- paste0(query, "%20filename:", filename)
-      }
+      query <- private$build_search_query(code, filename = filename, in_path = in_path)
       while (still_more_hits | page < page_max) {
         search_result <- tryCatch({
           self$response(
@@ -275,15 +267,7 @@ EngineRestGitLab <- R6::R6Class(
                                      page_max = 1e6,
                                      verbose = TRUE) {
       if (verbose) cli::cli_alert("Searching for code [{code}]...")
-      code <- utils::URLencode(code, reserved = TRUE)
-      if (in_path) {
-        query <- paste0("path:", code)
-      } else {
-        query <- code
-      }
-      if (!is.null(filename)) {
-        query <- paste0(query, "%20filename:", filename)
-      }
+      query <- private$build_search_query(code, filename = filename, in_path = in_path)
       search_response <- purrr::map(repos, function(repo) {
         page <- 1
         still_more_hits <- TRUE
@@ -410,6 +394,19 @@ EngineRestGitLab <- R6::R6Class(
       projects = NULL,
       search = NULL
     ),
+
+    build_search_query = function(code, filename = NULL, in_path = FALSE) {
+      code <- utils::URLencode(code, reserved = TRUE)
+      if (in_path) {
+        query <- paste0("path:", code)
+      } else {
+        query <- code
+      }
+      if (!is.null(filename)) {
+        query <- paste0(query, "%20filename:", filename)
+      }
+      return(query)
+    },
 
     set_endpoints = function() {
       private$set_projects_endpoint()
