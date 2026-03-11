@@ -5,6 +5,22 @@
     Output
       [1] "query GetFileBlobFromRepo($org: String!, $repo: String!, $expression: String!) {\n          repository(owner: $org, name: $repo) {\n            repo_id: id\n            repo_name: name\n            repo_url: url\n            defaultBranchRef {\n              target {\n                ... on Commit {\n                  oid\n                }\n              }\n            }\n            file: object(expression: $expression) {\n              ... on Blob {\n                text\n                byteSize\n                oid\n              }\n            }\n          }\n      }"
 
+# get_files_content_from_orgs for GitHub prints messages
+
+    Code
+      gh_files_from_orgs <- github_testhost_priv$get_files_content_from_orgs(
+        file_path = "DESCRIPTION", verbose = TRUE)
+    Message
+      > [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling files 📄 content: [DESCRIPTION]...
+
+# get_files_content_from_repos for GitHub prints messages
+
+    Code
+      gh_files_from_repos <- github_testhost_priv$get_files_content_from_repos(
+        file_path = "DESCRIPTION", verbose = TRUE)
+    Message
+      > [Host:GitHub][Engine:GraphQl][Scope:test_org: 1 repos] Pulling files 📄 content: [DESCRIPTION]...
+
 # get_files_content makes use of files_structure
 
     Code

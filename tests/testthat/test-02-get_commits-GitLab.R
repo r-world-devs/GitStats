@@ -139,6 +139,20 @@ test_that("`get_commits_authors_handles_and_names()` adds author logis and names
   test_mocker$cache(gl_commits_table)
 })
 
+test_that("`get_commits_authors_handles_and_names()` prints messages", {
+  mockery::stub(
+    test_rest_gitlab$get_commits_authors_handles_and_names,
+    "private$get_authors_dict",
+    test_mocker$use("authors_dict")
+  )
+  expect_snapshot(
+    gl_commits_table <- test_rest_gitlab$get_commits_authors_handles_and_names(
+      commits_table = test_mocker$use("gl_commits_table"),
+      verbose = TRUE
+    )
+  )
+})
+
 test_that("get_commits_from_orgs works", {
   mockery::stub(
     gitlab_testhost_priv$get_commits_from_orgs,
