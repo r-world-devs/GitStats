@@ -1,3 +1,19 @@
+# get_commits_from_orgs for GitHub prints messages
+
+    Code
+      gh_commits_from_orgs <- github_testhost_priv$get_commits_from_orgs(since = "2023-03-01",
+        until = "2023-04-01", verbose = TRUE, progress = FALSE)
+    Message
+      > [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling commits 🕒...
+
+# get_commits_from_repos for GitHub prints messages
+
+    Code
+      gh_commits_from_repos <- github_testhost_priv$get_commits_from_repos(since = "2023-03-01",
+        until = "2023-04-01", verbose = TRUE, progress = FALSE)
+    Message
+      > [Host:GitHub][Engine:GraphQl][Scope:test_org: 1 repos] Pulling commits 🕒...
+
 # commits_by_repo GitHub query is built properly
 
     Code

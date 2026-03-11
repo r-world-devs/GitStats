@@ -1,3 +1,19 @@
+# get_issues_from_orgs for GitHub prints messages
+
+    Code
+      gh_issues_from_orgs <- github_testhost_priv$get_issues_from_orgs(verbose = TRUE,
+        progress = FALSE)
+    Message
+      > [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Getting issues 🐛...
+
+# get_issues_from_repos for GitHub prints messages
+
+    Code
+      gh_issues_from_repos <- github_testhost_priv$get_issues_from_repos(
+        verbose = TRUE, progress = FALSE)
+    Message
+      > [Host:GitHub][Engine:GraphQl][Scope:test_org: 1 repos] Getting issues 🐛...
+
 # issues_by_repo GitHub query is built properly
 
     Code

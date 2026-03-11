@@ -128,6 +128,26 @@ test_that("get_issues_from_orgs for GitHub works", {
   test_mocker$cache(gh_issues_from_orgs)
 })
 
+test_that("get_issues_from_orgs for GitHub prints messages", {
+  mockery::stub(
+    github_testhost_priv$get_issues_from_orgs,
+    "graphql_engine$prepare_issues_table",
+    test_mocker$use("gh_issues_table")
+  )
+  mockery::stub(
+    github_testhost_priv$get_issues_from_orgs,
+    "private$get_repos_data",
+    test_mocker$use("gh_repos_data")
+  )
+  github_testhost_priv$searching_scope <- "org"
+  expect_snapshot(
+    gh_issues_from_orgs <- github_testhost_priv$get_issues_from_orgs(
+      verbose = TRUE,
+      progress = FALSE
+    )
+  )
+})
+
 test_that("get_issues_from_repos for GitHub works", {
   if (integration_tests_skipped) {
     mockery::stub(
@@ -155,6 +175,29 @@ test_that("get_issues_from_repos for GitHub works", {
     gh_issues_from_repos
   )
   test_mocker$cache(gh_issues_from_repos)
+})
+
+test_that("get_issues_from_repos for GitHub prints messages", {
+  mockery::stub(
+    github_testhost_priv$get_issues_from_repos,
+    "graphql_engine$prepare_issues_table",
+    test_mocker$use("gh_issues_table")
+  )
+  github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
+  test_org <- "test_org"
+  attr(test_org, "type") <- "organization"
+  mockery::stub(
+    github_testhost_priv$get_issues_from_repos,
+    "graphql_engine$set_owner_type",
+    test_org
+  )
+  github_testhost_priv$searching_scope <- "repo"
+  expect_snapshot(
+    gh_issues_from_repos <- github_testhost_priv$get_issues_from_repos(
+      verbose = TRUE,
+      progress = FALSE
+    )
+  )
 })
 
 test_that("`get_issues()` retrieves issues in the table format in a certain time span", {

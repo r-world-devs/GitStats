@@ -147,6 +147,28 @@ test_that("get_commits_from_orgs for GitHub works", {
 })
 
 
+test_that("get_commits_from_orgs for GitHub prints messages", {
+  mockery::stub(
+    github_testhost_priv$get_commits_from_orgs,
+    "graphql_engine$prepare_commits_table",
+    test_mocker$use("gh_commits_table")
+  )
+  mockery::stub(
+    github_testhost_priv$get_commits_from_orgs,
+    "private$get_repos_data",
+    test_mocker$use("gh_repos_data")
+  )
+  github_testhost_priv$searching_scope <- "org"
+  expect_snapshot(
+    gh_commits_from_orgs <- github_testhost_priv$get_commits_from_orgs(
+      since = "2023-03-01",
+      until = "2023-04-01",
+      verbose = TRUE,
+      progress = FALSE
+    )
+  )
+})
+
 test_that("get_commits_from_repos for GitHub works", {
   mockery::stub(
     github_testhost_priv$get_commits_from_repos,
@@ -172,6 +194,31 @@ test_that("get_commits_from_repos for GitHub works", {
     gh_commits_from_repos
   )
   test_mocker$cache(gh_commits_from_repos)
+})
+
+test_that("get_commits_from_repos for GitHub prints messages", {
+  mockery::stub(
+    github_testhost_priv$get_commits_from_repos,
+    "graphql_engine$prepare_commits_table",
+    test_mocker$use("gh_commits_table")
+  )
+  github_testhost_priv$searching_scope <- "repo"
+  github_testhost_priv$orgs_repos <- list("test_org" = "TestRepo")
+  test_org <- "test_org"
+  attr(test_org, "type") <- "organization"
+  mockery::stub(
+    github_testhost_priv$get_commits_from_repos,
+    "graphql_engine$set_owner_type",
+    test_org
+  )
+  expect_snapshot(
+    gh_commits_from_repos <- github_testhost_priv$get_commits_from_repos(
+      since    = "2023-03-01",
+      until    = "2023-04-01",
+      verbose  = TRUE,
+      progress = FALSE
+    )
+  )
 })
 
 test_that("`get_commits()` retrieves commits in the table format", {

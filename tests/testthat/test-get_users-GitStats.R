@@ -26,6 +26,21 @@ test_that("GitStats get users info", {
   test_mocker$cache(users_result)
 })
 
+test_that("GitStats get_users prints messages", {
+  test_gitstats <- create_test_gitstats(hosts = 2)
+  mockery::stub(
+    test_gitstats$get_users,
+    "private$get_users_from_hosts",
+    test_mocker$use("users_from_hosts")
+  )
+  expect_snapshot(
+    users_result <- test_gitstats$get_users(
+      c("test_user1", "test_user2"),
+      verbose = TRUE
+    )
+  )
+})
+
 test_that("get users works correctly", {
   test_gitstats <- create_test_gitstats(hosts = 2)
   mockery::stub(

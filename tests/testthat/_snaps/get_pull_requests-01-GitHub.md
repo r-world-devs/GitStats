@@ -1,3 +1,19 @@
+# get_pr_from_orgs for GitHub prints messages
+
+    Code
+      gh_pr_from_orgs <- github_testhost_priv$get_pr_from_orgs(verbose = TRUE,
+        progress = FALSE)
+    Message
+      > [Host:GitHub][Engine:GraphQl][Scope:r-world-devs] Pulling pull requests 🔀...
+
+# get_pr_from_repos for GitHub prints messages
+
+    Code
+      gh_pr_from_repos <- github_testhost_priv$get_pr_from_repos(verbose = TRUE,
+        progress = FALSE)
+    Message
+      > [Host:GitHub][Engine:GraphQl][Scope:test_org: 1 repos] Getting pull requests 🔀...
+
 # pr_by_repo GitHub query is built properly
 
     Code

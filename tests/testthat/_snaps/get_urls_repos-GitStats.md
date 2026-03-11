@@ -1,3 +1,10 @@
+# get_repos_urls prints messages
+
+    Code
+      repo_urls <- test_gitstats$get_repos_urls(verbose = TRUE)
+    Message
+      > Pulling repositories 🌐 URLs...
+
 # get_repos_urls prints time used to pull data
 
     Code

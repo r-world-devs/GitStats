@@ -75,6 +75,20 @@ test_that("get_repos_urls gets vector of repository URLS", {
   )
 })
 
+test_that("get_repos_urls prints messages", {
+  test_gitstats <- create_test_gitstats(hosts = 2)
+  mockery::stub(
+    test_gitstats$get_repos_urls,
+    "private$get_repos_urls_from_hosts",
+    test_mocker$use("repos_urls_from_hosts")
+  )
+  expect_snapshot(
+    repo_urls <- test_gitstats$get_repos_urls(
+      verbose = TRUE
+    )
+  )
+})
+
 test_that("get_repos_urls gets vector of repository URLS", {
   test_gitstats <- create_test_gitstats(hosts = 2)
   mockery::stub(
