@@ -1,8 +1,7 @@
 # GitStats get_users prints messages
 
     Code
-      users_result <- test_gitstats$get_users(c("test_user1", "test_user2"),
-        verbose = TRUE)
+      users_result <- test_gitstats$get_users(c("test_user1", "test_user2"), verbose = TRUE)
     Message
       > Pulling users 🙍 data...
 
