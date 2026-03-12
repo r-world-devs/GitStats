@@ -851,8 +851,7 @@ GitHost <- R6::R6Class(
           output = output,
           verbose = verbose
         )
-      }
-      if (!private$scan_all) {
+      } else {
         repos_from_org <- private$get_repos_with_code_from_orgs(
           code = code,
           in_files = in_files,
