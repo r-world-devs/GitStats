@@ -1,4 +1,6 @@
-# GitStats (development version)
+# GitStats 2.4.0
+
+The newest minor release includes new functions for retrieving pull requests (`get_pull_requests()`) and their statistics (`get_pull_requests_stats()`),  prettified repository URL outputs in `get_repos_urls()`, along with refactoring and code cleanup.
 
 - Prettified output of repositories URLs in `get_repos_urls()` function ([#710]((https://github.com/r-world-devs/GitStats/issues/710)).
 - Added `get_pull_requests()` function for getting information about pull requests ([#722]((https://github.com/r-world-devs/GitStats/issues/722)).
