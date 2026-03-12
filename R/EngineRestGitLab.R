@@ -216,15 +216,16 @@ EngineRestGitLab <- R6::R6Class(
                                language = NULL,
                                page_max = 1e6,
                                verbose = TRUE) {
-      if (!is.null(org)) {
-        org <- url_encode(org)
-      }
       page <- 1
       still_more_hits <- TRUE
       full_repos_list <- list()
       search_endpoint <- private$set_search_endpoint(org, verbose)
       if (verbose) cli::cli_alert("Searching for code [{code}]...")
-      query <- private$build_search_query(code, filename = filename, in_path = in_path)
+      query <- private$build_search_query(
+        code = code, 
+        filename = filename, 
+        in_path = in_path
+      )
       while (still_more_hits | page < page_max) {
         search_result <- tryCatch({
           self$response(
@@ -430,7 +431,7 @@ EngineRestGitLab <- R6::R6Class(
 
     set_search_endpoint = function(org = NULL, verbose = TRUE) {
       scope_endpoint <- if (!is.null(org)) {
-        paste0("/groups/", private$get_group_id(org, verbose))
+        paste0("/groups/", private$get_group_id(url_encode(org), verbose))
       } else {
         ""
       }
