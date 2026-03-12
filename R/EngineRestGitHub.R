@@ -53,10 +53,9 @@ EngineRestGitHub <- R6::R6Class(
                                language = NULL,
                                verbose = TRUE) {
       query <- private$build_search_query(
-        code, org = org, filename = filename,
+        code = code, org = org, filename = filename,
         in_path = in_path, language = language
       )
-      query <- url_encode(code)
       search_endpoint <- paste0(private$endpoints[["search"]], query)
       if (verbose) cli::cli_alert("Searching for code [{code}]...")
       total_n <- self$response(
@@ -84,7 +83,7 @@ EngineRestGitHub <- R6::R6Class(
       if (verbose) cli::cli_alert("Searching for code [{code}]...")
       search_result <- purrr::map(repos, function(repo) {
         query <- private$build_search_query(
-          code, repo = repo, filename = filename,
+          code = code, repo = repo, filename = filename,
           in_path = in_path, language = language
         )
         search_endpoint <- paste0(private$endpoints[["search"]], query)
