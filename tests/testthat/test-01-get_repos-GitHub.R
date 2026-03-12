@@ -303,12 +303,7 @@ test_that("parse_search_response prints message", {
 test_that("`get_repos_with_code_from_orgs()` works", {
   mockery::stub(
     github_testhost_priv$get_repos_with_code_from_orgs,
-    "rest_engine$search_for_code",
-    test_mocker$use("gh_search_repos_for_code")
-  )
-  mockery::stub(
-    github_testhost_priv$get_repos_with_code_from_orgs,
-    "private$parse_search_response",
+    "private$search_and_parse",
     test_mocker$use("gh_repos_by_code_table")
   )
   repos_with_code_from_orgs_full <- github_testhost_priv$get_repos_with_code_from_orgs(
@@ -323,12 +318,7 @@ test_that("`get_repos_with_code_from_orgs()` works", {
 test_that("`get_repos_with_code_from_orgs()` pulls raw response", {
   mockery::stub(
     github_testhost_priv$get_repos_with_code_from_orgs,
-    "rest_engine$search_for_code",
-    test_mocker$use("gh_search_repos_for_code")
-  )
-  mockery::stub(
-    github_testhost_priv$get_repos_with_code_from_orgs,
-    "private$parse_search_response",
+    "private$search_and_parse",
     test_mocker$use("gh_repos_raw_output")
   )
   github_testhost_priv$orgs <- gh_org
@@ -348,12 +338,7 @@ test_that("`get_repos_with_code_from_orgs()` pulls raw response", {
 test_that("`get_repos_with_code_from_host()` pulls and parses output into table", {
   mockery::stub(
     github_testhost_priv$get_repos_with_code_from_host,
-    "rest_engine$search_for_code",
-    test_mocker$use("gh_search_repos_for_code")
-  )
-  mockery::stub(
-    github_testhost_priv$get_repos_with_code_from_host,
-    "private$parse_search_response",
+    "private$search_and_parse",
     test_mocker$use("gh_repos_by_code_table")
   )
   github_testhost_priv$searching_scope <- "all"
@@ -375,12 +360,7 @@ test_that("`get_repos_with_code_from_repos()` works", {
   )
   mockery::stub(
     github_testhost_priv$get_repos_with_code_from_repos,
-    "rest_engine$search_repos_for_code",
-    test_mocker$use("gh_search_repos_for_code")
-  )
-  mockery::stub(
-    github_testhost_priv$get_repos_with_code_from_repos,
-    "private$parse_search_response",
+    "private$search_and_parse",
     test_mocker$use("gh_repos_by_code_table")
   )
   github_testhost_priv$searching_scope <- c("repo")
@@ -397,12 +377,7 @@ test_that("`get_repos_with_code_from_repos()` works", {
 test_that("`get_repos_with_code_from_host()` pulls raw response", {
   mockery::stub(
     github_testhost_priv$get_repos_with_code_from_host,
-    "rest_engine$search_for_code",
-    test_mocker$use("gh_search_repos_for_code")
-  )
-  mockery::stub(
-    github_testhost_priv$get_repos_with_code_from_host,
-    "private$parse_search_response",
+    "private$search_and_parse",
     test_mocker$use("gh_repos_raw_output")
   )
   repos_with_code_from_host_raw <- github_testhost_priv$get_repos_with_code_from_host(
