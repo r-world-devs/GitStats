@@ -398,7 +398,7 @@ EngineRestGitLab <- R6::R6Class(
     ),
 
     build_search_query = function(code, filename = NULL, in_path = FALSE) {
-      code <- utils::URLencode(code, reserved = TRUE)
+      code <- url_encode(code)
       if (in_path) {
         query <- paste0("path:", code)
       } else {
