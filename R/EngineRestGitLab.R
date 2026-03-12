@@ -222,8 +222,8 @@ EngineRestGitLab <- R6::R6Class(
       search_endpoint <- private$set_search_endpoint(org, verbose)
       if (verbose) cli::cli_alert("Searching for code [{code}]...")
       query <- private$build_search_query(
-        code = code, 
-        filename = filename, 
+        code = code,
+        filename = filename,
         in_path = in_path
       )
       while (still_more_hits | page < page_max) {
