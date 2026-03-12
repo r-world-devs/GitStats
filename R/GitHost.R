@@ -523,7 +523,7 @@ GitHost <- R6::R6Class(
         cli::cli_alert(cli::col_grey("Checking owners..."))
       }
       orgs <- private$engines$graphql$set_owner_type(
-        owners = utils::URLdecode(orgs),
+        owners = url_decode(orgs),
         verbose = verbose
       ) |>
         purrr::map(function(org) {
@@ -532,7 +532,7 @@ GitHost <- R6::R6Class(
               cli::cli_abort(
                 c(
                   "x" = "Org/user you provided does not exist or its name was passed
-                  in a wrong way: {cli::col_red({utils::URLdecode(org)})}",
+                  in a wrong way: {cli::col_red({url_decode(org)})}",
                   "!" = "Please type your org/user name the way you see it in
                   web URL."
                 ),
@@ -570,7 +570,7 @@ GitHost <- R6::R6Class(
           cli::cli_abort(
             c(
               "x" = "{type} you provided does not exist or its name was passed
-                in a wrong way: {cli::col_red({utils::URLdecode(endpoint)})}",
+                in a wrong way: {cli::col_red({url_decode(endpoint)})}",
               "!" = "Please type your {tolower(type)} name as you see it in
                 web URL.",
               "i" = "E.g. do not use spaces. {type} names as you see on the
@@ -582,7 +582,7 @@ GitHost <- R6::R6Class(
           if (verbose) {
             cli::cli_alert_warning(
               cli::col_yellow(
-                "{type} you provided does not exist: {cli::col_red({utils::URLdecode(endpoint)})}"
+                "{type} you provided does not exist: {cli::col_red({url_decode(endpoint)})}"
               )
             )
           }
@@ -652,7 +652,7 @@ GitHost <- R6::R6Class(
     },
 
     extract_repos_and_orgs = function(repos_fullnames = NULL) {
-      repos_fullnames <- URLdecode(repos_fullnames)
+      repos_fullnames <- url_decode(repos_fullnames)
       repos_vec <- stringr::str_split(repos_fullnames, "/") |>
         purrr::map(~ paste0(.[length(.)], collapse = "/")) |>
         unlist()
@@ -698,7 +698,7 @@ GitHost <- R6::R6Class(
       total_orgs_names <- c(orgs_names, orgs_names_from_repos)
       orgs_table <- purrr::map(total_orgs_names, function(org) {
         type <- attr(org, "type") %||% "organization"
-        org <- utils::URLdecode(org)
+        org <- url_decode(org)
         graphql_engine$get_org(
           org = org,
           verbose = verbose
@@ -733,12 +733,12 @@ GitHost <- R6::R6Class(
             show_message(
               host = private$host_name,
               engine = "graphql",
-              scope = utils::URLdecode(org),
+              scope = url_decode(org),
               information = paste0("Pulling repositories ", cli_icons$repo)
             )
           }
           repos_from_org <- graphql_engine$get_repos_from_org(
-            org = utils::URLdecode(org),
+            org = url_decode(org),
             owner_type = owner_type,
             verbose = verbose
           )
@@ -746,9 +746,9 @@ GitHost <- R6::R6Class(
             if (length(repos_from_org) > 0) {
               repos_table <- repos_from_org |>
                 graphql_engine$prepare_repos_table(
-                  org = unclass(utils::URLdecode(org))
+                  org = unclass(url_decode(org))
                 ) |>
-                dplyr::filter(organization == unclass(utils::URLdecode(org)))
+                dplyr::filter(organization == unclass(url_decode(org)))
             } else {
               repos_table <- NULL
             }
@@ -791,12 +791,12 @@ GitHost <- R6::R6Class(
             show_message(
               host = private$host_name,
               engine = "graphql",
-              scope = set_repo_scope(utils::URLdecode(org), private),
+              scope = set_repo_scope(url_decode(org), private),
               information = paste0("Pulling repositories ", cli_icons$repo)
             )
           }
           repos_from_org <- graphql_engine$get_repos_from_org(
-            org = utils::URLdecode(org),
+            org = url_decode(org),
             owner_type = owner_type,
             verbose = verbose
           )
@@ -804,7 +804,7 @@ GitHost <- R6::R6Class(
             if (length(repos_from_org) > 0) {
               repos_table <- repos_from_org |>
                 graphql_engine$prepare_repos_table() |>
-                dplyr::filter(repo_name %in% private$orgs_repos[[utils::URLdecode(org)]])
+                dplyr::filter(repo_name %in% private$orgs_repos[[url_decode(org)]])
             } else {
               repos_table <- NULL
             }
@@ -906,7 +906,7 @@ GitHost <- R6::R6Class(
             show_message(
               host = private$host_name,
               engine = "rest",
-              scope = utils::URLdecode(org),
+              scope = url_decode(org),
               information = paste0("Pulling repositories ", cli_icons$repo, " (URLs)")
             )
           }
@@ -1015,7 +1015,7 @@ GitHost <- R6::R6Class(
             show_message(
               host = private$host_name,
               engine = "rest",
-              scope = utils::URLdecode(org),
+              scope = url_decode(org),
               code = code,
               information = paste0("Pulling repositories ", cli_icons$repo)
             )
@@ -1050,7 +1050,7 @@ GitHost <- R6::R6Class(
           show_message(
             host = private$host_name,
             engine = "rest",
-            scope = utils::URLdecode(paste0(orgs, collapse = "|")),
+            scope = url_decode(paste0(orgs, collapse = "|")),
             code = code,
             information = paste0("Pulling repositories ", cli_icons$repo)
           )
@@ -1450,7 +1450,7 @@ GitHost <- R6::R6Class(
     get_release_logs_from_orgs = function(verbose, progress) {
       if ("org" %in% private$searching_scope) {
         release_logs_table <- purrr::map(private$orgs, function(org) {
-          org <- utils::URLdecode(org)
+          org <- url_decode(org)
           release_logs_table_org <- NULL
           repos_data <- private$get_repos_data(
             org = org,
@@ -1492,7 +1492,7 @@ GitHost <- R6::R6Class(
           verbose = verbose
         )
         release_logs_table <- purrr::map(orgs, function(org) {
-          org <- utils::URLdecode(org)
+          org <- url_decode(org)
           release_logs_table_org <- NULL
           if (!private$scan_all && verbose) {
             show_message(

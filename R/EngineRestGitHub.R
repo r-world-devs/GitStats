@@ -56,6 +56,7 @@ EngineRestGitHub <- R6::R6Class(
         code, org = org, filename = filename,
         in_path = in_path, language = language
       )
+      query <- url_encode(code)
       search_endpoint <- paste0(private$endpoints[["search"]], query)
       if (verbose) cli::cli_alert("Searching for code [{code}]...")
       total_n <- self$response(
@@ -109,9 +110,9 @@ EngineRestGitHub <- R6::R6Class(
     get_repos_urls = function(type, org, repos, verbose = TRUE) {
       owner_type <- attr(org, "type") %||% "organization"
       if (owner_type == "user") {
-        repo_endpoint <- paste0(private$endpoints[["users"]], utils::URLdecode(org), "/repos")
+        repo_endpoint <- paste0(private$endpoints[["users"]], url_decode(org), "/repos")
       } else {
-        repo_endpoint <- paste0(private$endpoints[["organizations"]], utils::URLdecode(org), "/repos")
+        repo_endpoint <- paste0(private$endpoints[["organizations"]], url_decode(org), "/repos")
       }
       repos_response <- private$paginate_results(
         endpoint = repo_endpoint,

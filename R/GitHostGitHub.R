@@ -377,7 +377,7 @@ GitHostGitHub <- R6::R6Class(
       if (is.null(cached_repos)) {
         if (verbose) cli::cli_alert("[{org}] Pulling repositories {cli_icons$repo} data...")
         owner_type <- attr(org, "type") %||% "organization"
-        org <- utils::URLdecode(org)
+        org <- url_decode(org)
         graphql_engine <- private$engines$graphql
         repos_from_org <- graphql_engine$get_repos_from_org(
           org = org,

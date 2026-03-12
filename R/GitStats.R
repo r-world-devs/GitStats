@@ -482,7 +482,7 @@ GitStats <- R6::R6Class(
     show_orgs = function() {
       purrr::map(private$hosts, function(host) {
         orgs <- host$.__enclos_env__$private$orgs
-        purrr::map_vec(orgs, ~ URLdecode(.))
+        purrr::map_vec(orgs, ~ url_decode(.))
       }) |>
         unlist()
     },
@@ -998,7 +998,7 @@ GitStats <- R6::R6Class(
       if (item_name %in% c(" Organizations", " Repositories")) {
         item_to_print <- unlist(item_to_print)
         item_to_print <- purrr::map_vec(item_to_print, function(element) {
-          URLdecode(element)
+          url_decode(element)
         })
         list_items <- cut_item_to_print(item_to_print)
         item_to_print <- paste0("[", cli::col_green(length(item_to_print)), "] ", list_items)
