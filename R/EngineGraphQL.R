@@ -37,7 +37,7 @@ EngineGraphQL <- R6::R6Class(
     get_issues_from_repos = function(org,
                                      repos_names,
                                      verbose) {
-      repos_list_with_issues <- purrr::map(repos_names, function(repo) {
+      repos_list_with_issues <- gitstats_map(repos_names, function(repo) {
         private$get_issues_from_one_repo(
           org = org,
           repo = repo,
@@ -95,7 +95,7 @@ EngineGraphQL <- R6::R6Class(
     get_pr_from_repos = function(org,
                                  repos_names,
                                  verbose) {
-      repos_list_with_pr <- purrr::map(repos_names, function(repo) {
+      repos_list_with_pr <- gitstats_map(repos_names, function(repo) {
         private$get_pr_from_one_repo(
           org = org,
           repo = repo,

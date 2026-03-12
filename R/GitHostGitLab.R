@@ -239,7 +239,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
                                      progress) {
       if ("org" %in% private$searching_scope) {
         rest_engine <- private$engines$rest
-        commits_table <- purrr::map(private$orgs, function(org) {
+        commits_table <- gitstats_map(private$orgs, function(org) {
           commits_table_org <- NULL
           repos_data <- private$get_repos_data(
             org = org,
@@ -287,7 +287,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           owners = names(private$orgs_repos),
           verbose = verbose
         )
-        commits_table <- purrr::map(orgs, function(org) {
+        commits_table <- gitstats_map(orgs, function(org) {
           commits_table_org <- NULL
           repos <- private$orgs_repos[[org]]
           full_repos_names <- paste0(url_encode(org), "%2f", repos)
@@ -381,7 +381,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           owners = names(private$orgs_repos),
           verbose = verbose
         )
-        files_structure_list <- purrr::map(orgs, function(org) {
+        files_structure_list <- gitstats_map(orgs, function(org) {
           if (verbose) {
             user_info <- if (!is.null(pattern)) {
               glue::glue(
@@ -430,7 +430,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           owners = names(private$orgs_repos),
           verbose = verbose
         )
-        files_table <- purrr::map(orgs, function(org) {
+        files_table <- gitstats_map(orgs, function(org) {
           if (verbose) {
             show_message(
               host = private$host_name,
@@ -467,7 +467,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         )
         orgs <- result$orgs
         repos <- result$repos
-        files_table <- purrr::map(orgs, function(org) {
+        files_table <- gitstats_map(orgs, function(org) {
           if (verbose) {
             show_message(
               host = private$host_name,

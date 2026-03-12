@@ -20,6 +20,8 @@ BugReports: https://github.com/r-world-devs/GitStats/issues
 Imports:
     cli,
     dplyr,
+    furrr,
+    future,
     glue,
     httr2,
     lubridate (>= 1.8.0),
