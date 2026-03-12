@@ -36,3 +36,13 @@ test_that("parse_until_param returns date + 1 day", {
     lubridate::as_datetime("2025-12-09")
   )
 })
+
+test_that("url_encode encodes reserved characters", {
+  expect_equal(url_encode("my/path"), "my%2Fpath")
+  expect_equal(url_encode("a b"), "a%20b")
+})
+
+test_that("url_decode decodes encoded strings", {
+  expect_equal(url_decode("my%2Fpath"), "my/path")
+  expect_equal(url_decode("a%20b"), "a b")
+})
