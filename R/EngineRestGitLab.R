@@ -166,7 +166,7 @@ EngineRestGitLab <- R6::R6Class(
       if (nrow(repos_table) > 0) {
         repo_urls <- repos_table$api_url
         user_name <- rlang::expr(.$name)
-        repos_table$contributors <- purrr::map_chr(repo_urls, function(repo_url) {
+        repos_table$contributors <- gitstats_map_chr(repo_urls, function(repo_url) {
           contributors_endpoint <- paste0(
             repo_url,
             "/repository/contributors"
@@ -284,7 +284,7 @@ EngineRestGitLab <- R6::R6Class(
       if (!is.null(filename)) {
         query <- paste0(query, "%20filename:", filename)
       }
-      search_response <- purrr::map(repos, function(repo) {
+      search_response <- gitstats_map(repos, function(repo) {
         page <- 1
         still_more_hits <- TRUE
         full_repos_list <- list()
@@ -317,7 +317,7 @@ EngineRestGitLab <- R6::R6Class(
                                       since,
                                       until,
                                       verbose) {
-      repos_list_with_commits <- purrr::map(full_repos_names, function(repo_path) {
+      repos_list_with_commits <- gitstats_map(full_repos_names, function(repo_path) {
         commits_from_repo <- private$get_commits_from_one_repo(
           repo_path = repo_path,
           since = since,

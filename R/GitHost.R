@@ -252,7 +252,7 @@ GitHost <- R6::R6Class(
 
     get_users = function(users) {
       graphql_engine <- private$engines$graphql
-      users_table <-  purrr::map(users, function(user) {
+      users_table <-  gitstats_map(users, function(user) {
         graphql_engine$get_user(user) |>
           graphql_engine$prepare_user_table()
       }) |>
@@ -696,7 +696,7 @@ GitHost <- R6::R6Class(
           })
       }
       total_orgs_names <- c(orgs_names, orgs_names_from_repos)
-      orgs_table <- purrr::map(total_orgs_names, function(org) {
+      orgs_table <- gitstats_map(total_orgs_names, function(org) {
         type <- attr(org, "type") %||% "organization"
         org <- url_decode(org)
         graphql_engine$get_org(
@@ -727,7 +727,7 @@ GitHost <- R6::R6Class(
     get_repos_from_orgs = function(verbose, progress) {
       if (any(c("all", "org") %in% private$searching_scope)) {
         graphql_engine <- private$engines$graphql
-        purrr::map(private$orgs, function(org) {
+        gitstats_map(private$orgs, function(org) {
           owner_type <- attr(org, "type") %||% "organization"
           if (!private$scan_all && verbose) {
             show_message(
@@ -785,7 +785,7 @@ GitHost <- R6::R6Class(
           owners = names(private$orgs_repos),
           verbose = verbose
         )
-        purrr::map(orgs, function(org) {
+        gitstats_map(orgs, function(org) {
           owner_type <- attr(org, "type") %||% "organization"
           if (!private$scan_all && verbose) {
             show_message(
@@ -902,7 +902,7 @@ GitHost <- R6::R6Class(
     get_repos_urls_from_orgs = function(type, verbose, progress) {
       if (any(c("all", "org") %in% private$searching_scope)) {
         rest_engine <- private$engines$rest
-        repos_vector <- purrr::map(private$orgs, function(org) {
+        repos_vector <- gitstats_map(private$orgs, function(org) {
           if (!private$scan_all && verbose) {
             show_message(
               host = private$host_name,
@@ -930,7 +930,7 @@ GitHost <- R6::R6Class(
           owners = names(private$orgs_repos),
           verbose = verbose
         )
-        repos_vector <- purrr::map(orgs, function(org) {
+        repos_vector <- gitstats_map(orgs, function(org) {
           if (!private$scan_all && verbose) {
             show_message(
               host = private$host_name,
@@ -999,7 +999,7 @@ GitHost <- R6::R6Class(
                                              verbose = TRUE,
                                              progress = TRUE) {
       if (any(private$searching_scope %in% c("org", "all"))) {
-        repos_list <- purrr::map(private$orgs, function(org) {
+        repos_list <- gitstats_map(private$orgs, function(org) {
           if (verbose) {
             show_message(
               host = private$host_name,
@@ -1235,7 +1235,7 @@ GitHost <- R6::R6Class(
     get_issues_from_orgs = function(verbose, progress) {
       if ("org" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
-        issues_table <- purrr::map(private$orgs, function(org) {
+        issues_table <- gitstats_map(private$orgs, function(org) {
           issues_table_org <- NULL
           repos_data <- private$get_repos_data(
             org = org,
@@ -1271,7 +1271,7 @@ GitHost <- R6::R6Class(
           owners = names(private$orgs_repos),
           verbose = verbose
         )
-        issues_table <- purrr::map(orgs, function(org) {
+        issues_table <- gitstats_map(orgs, function(org) {
           issues_table_org <- NULL
           if (!private$scan_all && verbose) {
             show_message(
@@ -1299,7 +1299,7 @@ GitHost <- R6::R6Class(
     get_pr_from_orgs = function(verbose, progress) {
       if ("org" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
-        pr_table <- purrr::map(private$orgs, function(org) {
+        pr_table <- gitstats_map(private$orgs, function(org) {
           pr_table_org <- NULL
           repos_data <- private$get_repos_data(
             org = org,
@@ -1335,7 +1335,7 @@ GitHost <- R6::R6Class(
           owners = names(private$orgs_repos),
           verbose = verbose
         )
-        pr_table <- purrr::map(orgs, function(org) {
+        pr_table <- gitstats_map(orgs, function(org) {
           pr_table_org <- NULL
           if (!private$scan_all && verbose) {
             show_message(
@@ -1365,7 +1365,7 @@ GitHost <- R6::R6Class(
                                            progress = TRUE) {
       if ("org" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
-        files_table <- purrr::map(private$orgs, function(org) {
+        files_table <- gitstats_map(private$orgs, function(org) {
           owner_type <- attr(org, "type") %||% "organization"
           repos_data <- private$get_repos_data(
             org = org,
@@ -1410,7 +1410,7 @@ GitHost <- R6::R6Class(
                                              progress = TRUE) {
       if (any(c("all", "org") %in% private$searching_scope)) {
         graphql_engine <- private$engines$graphql
-        files_structure_list <- purrr::map(private$orgs, function(org) {
+        files_structure_list <- gitstats_map(private$orgs, function(org) {
           owner_type <- attr(org, "type") %||% "organization"
           repos_data <- private$get_repos_data(
             org = org,
@@ -1476,7 +1476,7 @@ GitHost <- R6::R6Class(
 
     get_release_logs_from_orgs = function(verbose, progress) {
       if ("org" %in% private$searching_scope) {
-        release_logs_table <- purrr::map(private$orgs, function(org) {
+        release_logs_table <- gitstats_map(private$orgs, function(org) {
           org <- url_decode(org)
           release_logs_table_org <- NULL
           repos_data <- private$get_repos_data(
@@ -1518,7 +1518,7 @@ GitHost <- R6::R6Class(
           owners = names(private$orgs_repos),
           verbose = verbose
         )
-        release_logs_table <- purrr::map(orgs, function(org) {
+        release_logs_table <- gitstats_map(orgs, function(org) {
           org <- url_decode(org)
           release_logs_table_org <- NULL
           if (!private$scan_all && verbose) {

@@ -8,6 +8,43 @@ create_gitstats <- function() {
   GitStats$new()
 }
 
+#' @title Enable parallel processing
+#' @name set_parallel
+#' @description Set up parallel processing for API calls. When enabled,
+#'   GitStats will fetch data from multiple repositories concurrently.
+#'   Call `set_parallel(FALSE)` or `set_parallel(0)` to revert to sequential
+#'   execution.
+#' @param workers Number of parallel workers. Set to `TRUE` for automatic
+#'   detection (uses `future::availableCores()`), a positive integer for a
+#'   specific count, or `FALSE`/`0` to disable parallelism.
+#' @return Invisibly returns the previous plan.
+#' @examples
+#' \dontrun{
+#'   set_parallel(4)
+#'   get_commits(my_gitstats, since = "2024-01-01")
+#'   set_parallel(FALSE) # revert to sequential
+#' }
+#' @export
+set_parallel <- function(workers = TRUE) {
+  if (isFALSE(workers) || identical(workers, 0L) || identical(workers, 0)) {
+    old_plan <- future::plan(future::sequential)
+    cli::cli_alert_info("Parallel processing disabled (sequential mode).")
+  } else {
+    if (isTRUE(workers)) {
+      old_plan <- future::plan(future::multisession)
+      cli::cli_alert_success(
+        "Parallel processing enabled with {future::nbrOfWorkers()} workers."
+      )
+    } else {
+      old_plan <- future::plan(future::multisession, workers = workers)
+      cli::cli_alert_success(
+        "Parallel processing enabled with {workers} workers."
+      )
+    }
+  }
+  return(invisible(old_plan))
+}
+
 #' @title Show hosts set in `GitStats`
 #' @name show_hosts
 #' @description Retrieves hosts set by `GitStats` with `set_*_host()` functions.
