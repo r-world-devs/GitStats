@@ -165,7 +165,7 @@ GitHostGitHub <- R6::R6Class(
                                      progress) {
       if ("org" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
-        commits_table <- purrr::map(private$orgs, function(org) {
+        commits_table <- gitstats_map(private$orgs, function(org) {
           commits_table_org <- NULL
           repos_data <- private$get_repos_data(
             org = org,
@@ -205,7 +205,7 @@ GitHostGitHub <- R6::R6Class(
           owners = names(private$orgs_repos),
           verbose = verbose
         )
-        commits_table <- purrr::map(orgs, function(org) {
+        commits_table <- gitstats_map(orgs, function(org) {
           commits_table_org <- NULL
           if (!private$scan_all && verbose) {
             show_message(
@@ -240,7 +240,7 @@ GitHostGitHub <- R6::R6Class(
           owners = names(private$orgs_repos),
           verbose = verbose
         )
-        files_table <- purrr::map(orgs, function(org) {
+        files_table <- gitstats_map(orgs, function(org) {
           owner_type <- attr(org, "type") %||% "organization"
           repos_data <- private$get_repos_data(
             org = org,
@@ -282,7 +282,7 @@ GitHostGitHub <- R6::R6Class(
         )
         orgs <- result$orgs
         repos <- result$repos
-        files_table <- purrr::map(orgs, function(org) {
+        files_table <- gitstats_map(orgs, function(org) {
           owner_type <- attr(org, "type") %||% "organization"
           repos_data <- private$get_repos_data(
             org = org,
@@ -327,7 +327,7 @@ GitHostGitHub <- R6::R6Class(
           owners = names(private$orgs_repos),
           verbose = verbose
         )
-        files_structure_list <- purrr::map(orgs, function(org) {
+        files_structure_list <- gitstats_map(orgs, function(org) {
           owner_type <- attr(org, "type") %||% "organization"
           repos_data <- private$get_repos_data(
             org = org,

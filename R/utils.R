@@ -80,6 +80,39 @@ set_progress_bar <- function(progress, private) {
   }
 }
 
+#' @noRd
+#' @description Parallel-aware map over elements. Uses furrr::future_map when
+#'   a non-sequential future plan is active, otherwise falls back to purrr::map.
+#'   This avoids furrr overhead when parallelism is not configured.
+gitstats_map <- function(.x, .f, ..., .progress = FALSE) {
+  if (inherits(future::plan(), "sequential")) {
+    purrr::map(.x, .f, ..., .progress = .progress)
+  } else {
+    furrr::future_map(.x, .f, ..., .progress = .progress,
+                      .options = furrr::furrr_options(seed = NULL))
+  }
+}
+
+#' @noRd
+gitstats_map2 <- function(.x, .y, .f, ...) {
+  if (inherits(future::plan(), "sequential")) {
+    purrr::map2(.x, .y, .f, ...)
+  } else {
+    furrr::future_map2(.x, .y, .f, ...,
+                       .options = furrr::furrr_options(seed = NULL))
+  }
+}
+
+#' @noRd
+gitstats_map_chr <- function(.x, .f, ..., .progress = FALSE) {
+  if (inherits(future::plan(), "sequential")) {
+    purrr::map_chr(.x, .f, ..., .progress = .progress)
+  } else {
+    furrr::future_map_chr(.x, .f, ..., .progress = .progress,
+                          .options = furrr::furrr_options(seed = NULL))
+  }
+}
+
 parse_until_param <- function(until) {
   lubridate::as_datetime(until) + lubridate::days(1)
 }
