@@ -18,3 +18,9 @@ gitlab_repos_with_gitstats <-
   get_repos(add_contributors = FALSE,
             with_code = "GitStats",
             language = "R")
+
+rwd_stats <- create_gitstats() |>
+  set_github_host(org = "r-world-devs")
+
+rwd_stats |>
+  get_repos(with_code = "purrr", add_contributors = FALSE)
