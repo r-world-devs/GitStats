@@ -52,7 +52,7 @@ EngineRestGitHub <- R6::R6Class(
                                in_path = FALSE,
                                language = NULL,
                                verbose = TRUE) {
-      query <- utils::URLencode(code)
+      query <- url_encode(code)
       if (in_path) {
         query <- paste0(query, '+in:path')
       }
@@ -91,7 +91,7 @@ EngineRestGitHub <- R6::R6Class(
                                      verbose = TRUE) {
       if (verbose) cli::cli_alert("Searching for code [{code}]...")
       search_result <- purrr::map(repos, function(repo) {
-        query <- paste0(utils::URLencode(code), '+repo:', repo)
+        query <- paste0(url_encode(code), '+repo:', repo)
         if (in_path) {
           query <- paste0(query, '+in:path')
         }
@@ -124,9 +124,9 @@ EngineRestGitHub <- R6::R6Class(
     get_repos_urls = function(type, org, repos, verbose = TRUE) {
       owner_type <- attr(org, "type") %||% "organization"
       if (owner_type == "user") {
-        repo_endpoint <- paste0(private$endpoints[["users"]], utils::URLdecode(org), "/repos")
+        repo_endpoint <- paste0(private$endpoints[["users"]], url_decode(org), "/repos")
       } else {
-        repo_endpoint <- paste0(private$endpoints[["organizations"]], utils::URLdecode(org), "/repos")
+        repo_endpoint <- paste0(private$endpoints[["organizations"]], url_decode(org), "/repos")
       }
       repos_response <- private$paginate_results(
         endpoint = repo_endpoint,

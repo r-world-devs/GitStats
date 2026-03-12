@@ -1,6 +1,6 @@
 Package: GitStats
 Title: Standardized Git Repository Data
-Version: 2.3.9.9005
+Version: 2.3.9.9006
 Authors@R: c(
     person(given = "Maciej", family = "Banas", email = "banasmaciek@gmail.com", role = c("aut", "cre")),
     person(given = "Kamil", family = "Koziej", email = "koziej.k@gmail.com", role = "aut"),
@@ -25,8 +25,7 @@ Imports:
     rlang (>= 1.1.0),
     R6,
     purrr (>= 1.0.0),
-    stringr,
-    urltools
+    stringr
 Suggests:
     spelling,
     knitr,

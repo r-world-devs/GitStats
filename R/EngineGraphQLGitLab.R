@@ -241,7 +241,7 @@ EngineGraphQLGitLab <- R6::R6Class(
                                   file_paths = NULL,
                                   host_files_structure = NULL,
                                   verbose = FALSE) {
-      org <- URLdecode(org)
+      org <- url_decode(org)
       full_files_list <- list()
       next_page <- TRUE
       end_cursor <- ""
@@ -469,7 +469,7 @@ EngineGraphQLGitLab <- R6::R6Class(
         response <- self$gql_response(
           gql_query = releases_from_repo_query,
           vars = list(
-            "project_path" = paste0(org, "/", utils::URLdecode(repository))
+            "project_path" = paste0(org, "/", url_decode(repository))
           ),
           verbose = verbose
         )

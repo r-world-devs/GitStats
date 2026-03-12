@@ -36,7 +36,7 @@ EngineRestGitLab <- R6::R6Class(
 
     get_org = function(org, verbose) {
       if (verbose) {
-        cli::cli_alert("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling {utils::URLdecode(org)} organization {cli_icons$org}...")
+        cli::cli_alert("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling {url_decode(org)} organization {cli_icons$org}...")
       }
       self$response(
         endpoint = paste0(private$endpoints[["organizations"]], org),
@@ -65,7 +65,7 @@ EngineRestGitLab <- R6::R6Class(
                          verbose = TRUE,
                          progress = TRUE) {
       files_list <- list()
-      file_paths <- utils::URLencode(file_paths, reserved = TRUE)
+      file_paths <- url_encode(file_paths)
       files_list <- purrr::map(file_paths, function(filename) {
         files_search_result <- self$search_for_code(
           code = filename,
@@ -96,7 +96,7 @@ EngineRestGitLab <- R6::R6Class(
       }
       repos_response <- private$paginate_results(
         endpoint = paste0(owner_endpoint,
-                          utils::URLencode(org, reserved = TRUE),
+                          url_encode(org),
                           "/projects"),
         verbose = verbose
       )
@@ -217,14 +217,14 @@ EngineRestGitLab <- R6::R6Class(
                                page_max = 1e6,
                                verbose = TRUE) {
       if (!is.null(org)) {
-        org <- utils::URLencode(org, reserved = TRUE)
+        org <- url_encode(org)
       }
       page <- 1
       still_more_hits <- TRUE
       full_repos_list <- list()
       search_endpoint <- private$set_search_endpoint(org, verbose)
       if (verbose) cli::cli_alert("Searching for code [{code}]...")
-      code <- utils::URLencode(code, reserved = TRUE)
+      code <- url_encode(code)
       if (in_path) {
         query <- paste0("path:", code)
       } else {
@@ -275,7 +275,7 @@ EngineRestGitLab <- R6::R6Class(
                                      page_max = 1e6,
                                      verbose = TRUE) {
       if (verbose) cli::cli_alert("Searching for code [{code}]...")
-      code <- utils::URLencode(code, reserved = TRUE)
+      code <- url_encode(code)
       if (in_path) {
         query <- paste0("path:", code)
       } else {
@@ -447,7 +447,7 @@ EngineRestGitLab <- R6::R6Class(
       paste0(
         self$rest_api_url,
         "/projects/",
-        utils::URLencode(repo, reserved = TRUE),
+        url_encode(repo),
         "/search?scope=blobs&search="
       )
     },
@@ -475,7 +475,7 @@ EngineRestGitLab <- R6::R6Class(
                                          verbose = TRUE) {
       commits_endpoint <- paste0(
         private$endpoints$projects,
-        utils::URLencode(repo_path, reserved = TRUE),
+        url_encode(repo_path),
         "/repository/commits?since='",
         as.Date(since),
         "'&until='",
@@ -596,7 +596,7 @@ EngineRestGitLab <- R6::R6Class(
         purrr::list_rbind()
       authors_dict <- authors_dict |>
         dplyr::mutate(author = author |>
-            utils::URLdecode()
+            url_decode()
         ) |>
         private$clean_authors_dict()
       return(authors_dict)
