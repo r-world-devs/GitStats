@@ -81,6 +81,21 @@ set_progress_bar <- function(progress, private) {
 }
 
 #' @noRd
+#' @description Get furrr options that ensure workers have access to GitStats
+#'   internals. When the package is installed, loads it on workers. Otherwise
+#'   (e.g. devtools::load_all), exports the namespace contents as globals.
+get_furrr_options <- function() {
+  pkg_installed <- nzchar(system.file(package = "GitStats"))
+  if (pkg_installed) {
+    furrr::furrr_options(seed = NULL, packages = "GitStats")
+  } else {
+    ns <- asNamespace("GitStats")
+    ns_exports <- as.list(ns, all.names = TRUE)
+    furrr::furrr_options(seed = NULL, globals = ns_exports)
+  }
+}
+
+#' @noRd
 #' @description Parallel-aware map over elements. Uses furrr::future_map when
 #'   a non-sequential future plan is active, otherwise falls back to purrr::map.
 #'   This avoids furrr overhead when parallelism is not configured.
@@ -90,11 +105,8 @@ gitstats_map <- function(.x, .f, ..., .progress = FALSE) {
   } else {
     # furrr requires .progress to be a single logical, while purrr also
     # accepts a character label. Coerce: character/TRUE -> TRUE, FALSE -> FALSE.
-    # packages = "GitStats" ensures workers can access internal functions.
     furrr::future_map(.x, .f, ..., .progress = !isFALSE(.progress),
-                      .options = furrr::furrr_options(
-                        seed = NULL, packages = "GitStats"
-                      ))
+                      .options = get_furrr_options())
   }
 }
 
@@ -104,9 +116,7 @@ gitstats_map2 <- function(.x, .y, .f, ...) {
     purrr::map2(.x, .y, .f, ...)
   } else {
     furrr::future_map2(.x, .y, .f, ...,
-                       .options = furrr::furrr_options(
-                         seed = NULL, packages = "GitStats"
-                       ))
+                       .options = get_furrr_options())
   }
 }
 
@@ -116,9 +126,7 @@ gitstats_map_chr <- function(.x, .f, ..., .progress = FALSE) {
     purrr::map_chr(.x, .f, ..., .progress = .progress)
   } else {
     furrr::future_map_chr(.x, .f, ..., .progress = !isFALSE(.progress),
-                          .options = furrr::furrr_options(
-                            seed = NULL, packages = "GitStats"
-                          ))
+                          .options = get_furrr_options())
   }
 }
 
