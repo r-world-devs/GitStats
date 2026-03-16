@@ -90,8 +90,11 @@ gitstats_map <- function(.x, .f, ..., .progress = FALSE) {
   } else {
     # furrr requires .progress to be a single logical, while purrr also
     # accepts a character label. Coerce: character/TRUE -> TRUE, FALSE -> FALSE.
+    # packages = "GitStats" ensures workers can access internal functions.
     furrr::future_map(.x, .f, ..., .progress = !isFALSE(.progress),
-                      .options = furrr::furrr_options(seed = NULL))
+                      .options = furrr::furrr_options(
+                        seed = NULL, packages = "GitStats"
+                      ))
   }
 }
 
@@ -101,7 +104,9 @@ gitstats_map2 <- function(.x, .y, .f, ...) {
     purrr::map2(.x, .y, .f, ...)
   } else {
     furrr::future_map2(.x, .y, .f, ...,
-                       .options = furrr::furrr_options(seed = NULL))
+                       .options = furrr::furrr_options(
+                         seed = NULL, packages = "GitStats"
+                       ))
   }
 }
 
@@ -111,7 +116,9 @@ gitstats_map_chr <- function(.x, .f, ..., .progress = FALSE) {
     purrr::map_chr(.x, .f, ..., .progress = .progress)
   } else {
     furrr::future_map_chr(.x, .f, ..., .progress = !isFALSE(.progress),
-                          .options = furrr::furrr_options(seed = NULL))
+                          .options = furrr::furrr_options(
+                            seed = NULL, packages = "GitStats"
+                          ))
   }
 }
 
