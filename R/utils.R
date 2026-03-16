@@ -88,7 +88,9 @@ gitstats_map <- function(.x, .f, ..., .progress = FALSE) {
   if (inherits(future::plan(), "sequential")) {
     purrr::map(.x, .f, ..., .progress = .progress)
   } else {
-    furrr::future_map(.x, .f, ..., .progress = .progress,
+    # furrr requires .progress to be a single logical, while purrr also
+    # accepts a character label. Coerce: character/TRUE -> TRUE, FALSE -> FALSE.
+    furrr::future_map(.x, .f, ..., .progress = !isFALSE(.progress),
                       .options = furrr::furrr_options(seed = NULL))
   }
 }
@@ -108,7 +110,7 @@ gitstats_map_chr <- function(.x, .f, ..., .progress = FALSE) {
   if (inherits(future::plan(), "sequential")) {
     purrr::map_chr(.x, .f, ..., .progress = .progress)
   } else {
-    furrr::future_map_chr(.x, .f, ..., .progress = .progress,
+    furrr::future_map_chr(.x, .f, ..., .progress = !isFALSE(.progress),
                           .options = furrr::furrr_options(seed = NULL))
   }
 }
