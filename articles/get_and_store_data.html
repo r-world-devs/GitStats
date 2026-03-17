@@ -61,7 +61,7 @@
       <h1>Get and store your data</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/r-world-devs/GitStats/blob/master/vignettes/get_and_store_data.Rmd" class="external-link"><code>vignettes/get_and_store_data.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/r-world-devs/GitStats/blob/v2.4.0/vignettes/get_and_store_data.Rmd" class="external-link"><code>vignettes/get_and_store_data.Rmd</code></a></small>
       <div class="d-none name"><code>get_and_store_data.Rmd</code></div>
     </div>
 
@@ -97,7 +97,7 @@ organizations.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">repos</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_repos.html">get_repos</a></span><span class="op">(</span><span class="va">git_stats</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; → Pulling repositories 🌐 data...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 38.4 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 39.2 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">repos</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 99</span></span>
 <span><span class="co">#&gt; Columns: 19</span></span>
@@ -117,7 +117,7 @@ organizations.</p>
 <span><span class="co">#&gt; $ commit_sha       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "735ec6ea367e6f9856eb0fe650d3c51c3a1aefb5"<span style="color: #949494;">, </span>"a404b64e…</span></span>
 <span><span class="co">#&gt; $ api_url          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://api.github.com/repos/r-world-devs/shinyGizmo…</span></span>
 <span><span class="co">#&gt; $ githost          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "github"<span style="color: #949494;">, </span>"github"<span style="color: #949494;">, </span>"github"<span style="color: #949494;">, </span>"github"<span style="color: #949494;">, </span>"github"<span style="color: #949494;">, </span>"gi…</span></span>
-<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 613.37 days<span style="color: #949494;">, </span>19.37 days<span style="color: #949494;">, </span>19.37 days<span style="color: #949494;">, </span>642.37 days<span style="color: #949494;">, </span>0.…</span></span>
+<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 613.38 days<span style="color: #949494;">, </span>19.38 days<span style="color: #949494;">, </span>19.38 days<span style="color: #949494;">, </span>642.38 days<span style="color: #949494;">, </span>0.…</span></span>
 <span><span class="co">#&gt; $ contributors     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "krystian8207, stla, galachad, stlagsk"<span style="color: #949494;">, </span>"krystian820…</span></span>
 <span><span class="co">#&gt; $ contributors_n   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 4<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>4<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>5<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>6<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>141<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>6<span style="color: #949494;">, </span>44<span style="color: #949494;">,</span>…</span></span></code></pre></div>
 <p>You can always go for the lighter version of <code>get_repos</code>,
@@ -126,7 +126,7 @@ instead of whole table.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">repos_urls</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_repos_urls.html">get_repos_urls</a></span><span class="op">(</span><span class="va">git_stats</span><span class="op">)</span></span>
 <span><span class="co">#&gt; → Pulling repositories 🌐 URLs...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 2.6 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 2.7 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">repos_urls</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  'gitstats_repos_urls' chr [1:99] "https://api.github.com/repos/r-world-devs/shinyGizmo" ...</span></span>
 <span><span class="co">#&gt;  - attr(*, "type")= chr "api"</span></span></code></pre></div>
@@ -142,8 +142,8 @@ function:</p>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; → Pulling release logs 🏷️..</span></span>
-<span><span class="co">#&gt; GitHub <span style="color: #00BB00;">■■■■■■■■■■■■■■■■                </span>  50% |  ETA:  5s</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 31.7 secs</span></span>
+<span><span class="co">#&gt; GitHub <span style="color: #00BB00;">■■■■■■■■■■■■■■■■                </span>  50% |  ETA:  7s</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 34.7 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">release_logs</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 99</span></span>
 <span><span class="co">#&gt; Columns: 7</span></span>
@@ -170,7 +170,7 @@ function:</p>
 <span>  progress <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; → Pulling commits 🕒...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 22.4 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 26.3 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 188</span></span>
 <span><span class="co">#&gt; Columns: 11</span></span>
@@ -221,7 +221,7 @@ function:</p>
 <span>  progress <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; → Pulling commits 🕒...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 21.6 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 25.7 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 188</span></span>
 <span><span class="co">#&gt; Columns: 11</span></span>
@@ -399,8 +399,8 @@ with:</p>
 <span>    group_var <span class="op">=</span> <span class="va">author_name</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="co">#&gt; → Pulling commits 🕒...</span></span>
-<span><span class="co">#&gt; GitHub <span style="color: #00BB00;">■■■■■■■■■■■■■■■■                </span>  50% |  ETA:  4s</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 21.6 secs</span></span>
+<span><span class="co">#&gt; GitHub <span style="color: #00BB00;">■■■■■■■■■■■■■■■■                </span>  50% |  ETA:  7s</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 27.8 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits_stats</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 20</span></span>
 <span><span class="co">#&gt; Columns: 4</span></span>

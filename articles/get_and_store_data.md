@@ -33,7 +33,7 @@ organizations.
 ``` r
 repos <- get_repos(git_stats, progress = FALSE)
 #> → Pulling repositories 🌐 data...
-#> ✔ Data pulled in 38.4 secs
+#> ✔ Data pulled in 39.2 secs
 dplyr::glimpse(repos)
 #> Rows: 99
 #> Columns: 19
@@ -53,7 +53,7 @@ dplyr::glimpse(repos)
 #> $ commit_sha       <chr> "735ec6ea367e6f9856eb0fe650d3c51c3a1aefb5", "a404b64e…
 #> $ api_url          <chr> "https://api.github.com/repos/r-world-devs/shinyGizmo…
 #> $ githost          <chr> "github", "github", "github", "github", "github", "gi…
-#> $ last_activity    <drtn> 613.37 days, 19.37 days, 19.37 days, 642.37 days, 0.…
+#> $ last_activity    <drtn> 613.38 days, 19.38 days, 19.38 days, 642.38 days, 0.…
 #> $ contributors     <chr> "krystian8207, stla, galachad, stlagsk", "krystian820…
 #> $ contributors_n   <int> 4, 3, 4, 1, 5, 1, 6, 2, 1, 141, 2, 3, 1, 1, 1, 6, 44,…
 ```
@@ -65,7 +65,7 @@ which will print you a vector of URLs instead of whole table.
 ``` r
 repos_urls <- get_repos_urls(git_stats)
 #> → Pulling repositories 🌐 URLs...
-#> ✔ Data pulled in 2.6 secs
+#> ✔ Data pulled in 2.7 secs
 dplyr::glimpse(repos_urls)
 #>  'gitstats_repos_urls' chr [1:99] "https://api.github.com/repos/r-world-devs/shinyGizmo" ...
 #>  - attr(*, "type")= chr "api"
@@ -82,8 +82,8 @@ release_logs <- get_release_logs(
   verbose = FALSE
 )
 #> → Pulling release logs 🏷️..
-#> GitHub ■■■■■■■■■■■■■■■■                  50% |  ETA:  5s
-#> ✔ Data pulled in 31.7 secs
+#> GitHub ■■■■■■■■■■■■■■■■                  50% |  ETA:  7s
+#> ✔ Data pulled in 34.7 secs
 dplyr::glimpse(release_logs)
 #> Rows: 99
 #> Columns: 7
@@ -114,7 +114,7 @@ commits <- get_commits(
   progress = FALSE
 )
 #> → Pulling commits 🕒...
-#> ✔ Data pulled in 22.4 secs
+#> ✔ Data pulled in 26.3 secs
 dplyr::glimpse(commits)
 #> Rows: 188
 #> Columns: 11
@@ -170,7 +170,7 @@ commits <- get_commits(
   progress = FALSE
 )
 #> → Pulling commits 🕒...
-#> ✔ Data pulled in 21.6 secs
+#> ✔ Data pulled in 25.7 secs
 dplyr::glimpse(commits)
 #> Rows: 188
 #> Columns: 11
@@ -358,8 +358,8 @@ commits_stats <- get_commits(
     group_var = author_name
   )
 #> → Pulling commits 🕒...
-#> GitHub ■■■■■■■■■■■■■■■■                  50% |  ETA:  4s
-#> ✔ Data pulled in 21.6 secs
+#> GitHub ■■■■■■■■■■■■■■■■                  50% |  ETA:  7s
+#> ✔ Data pulled in 27.8 secs
 dplyr::glimpse(commits_stats)
 #> Rows: 20
 #> Columns: 4
