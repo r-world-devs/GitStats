@@ -1,3 +1,7 @@
+# GitStats (development version)
+
+- Added optional parallel execution for functions to speed up the process of pulling data from API. Parallel execution is triggered with `set_parallel()` (you can pass number of workers or leave it to be detected automatically) and disabled with `set_parallel(FALSE)` ([#736](https://github.com/r-world-devs/GitStats/issues/736)).
+
 # GitStats 2.4.0
 
 The newest minor release includes new functions for retrieving pull requests (`get_pull_requests()`) and their statistics (`get_pull_requests_stats()`),  prettified repository URL outputs in `get_repos_urls()`, along with refactoring and code cleanup.
