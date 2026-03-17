@@ -270,19 +270,7 @@ EngineRestGitLab <- R6::R6Class(
       if (verbose) cli::cli_alert("Searching for code [{code}]...")
       query <- private$build_search_query(code, filename = filename, in_path = in_path)
       code <- url_encode(code)
-<<<<<<< mb/mirai-parallel-api-calls
-      if (in_path) {
-        query <- paste0("path:", code)
-      } else {
-        query <- code
-      }
-      if (!is.null(filename)) {
-        query <- paste0(query, "%20filename:", filename)
-      }
-      search_response <- gitstats_map(repos, function(repo) {
-=======
       search_response <- purrr::map(repos, function(repo) {
->>>>>>> master
         page <- 1
         still_more_hits <- TRUE
         full_repos_list <- list()
