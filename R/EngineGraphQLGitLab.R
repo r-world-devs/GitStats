@@ -337,7 +337,7 @@ EngineGraphQLGitLab <- R6::R6Class(
                                            file_paths = NULL,
                                            host_files_structure = NULL,
                                            verbose = FALSE) {
-      org_files_list <- purrr::map(repos_data$paths, function(repo) {
+      org_files_list <- gitstats_map(repos_data$paths, function(repo) {
         if (!is.null(host_files_structure)) {
           file_paths <- private$get_path_from_files_structure(
             host_files_structure = host_files_structure,
@@ -426,7 +426,7 @@ EngineGraphQLGitLab <- R6::R6Class(
                                             pattern,
                                             depth,
                                             verbose) {
-      files_structure <- purrr::map(repos_data$paths, function(repo) {
+      files_structure <- gitstats_map(repos_data$paths, function(repo) {
         private$get_files_structure_from_repo(
           org = org,
           repo = repo,
@@ -464,7 +464,7 @@ EngineGraphQLGitLab <- R6::R6Class(
     },
 
     get_release_logs_from_org = function(repos_names, org, verbose = TRUE) {
-      release_responses <- purrr::map(repos_names, function(repository) {
+      release_responses <- gitstats_map(repos_names, function(repository) {
         releases_from_repo_query <- self$gql_query$releases_from_repo()
         response <- self$gql_response(
           gql_query = releases_from_repo_query,

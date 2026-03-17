@@ -8,6 +8,50 @@ create_gitstats <- function() {
   GitStats$new()
 }
 
+#' @title Enable parallel processing
+#' @name set_parallel
+#' @description Set up parallel processing for API calls using mirai daemons.
+#'   When enabled, GitStats fetches data from multiple repositories
+#'   concurrently. Call `set_parallel(FALSE)` or `set_parallel(0)` to revert
+#'   to sequential execution.
+#' @param workers Number of parallel workers. Set to `TRUE` for automatic
+#'   detection, a positive integer for a specific count, or `FALSE`/`0` to
+#'   disable parallelism.
+#' @return Invisibly returns the status from `mirai::daemons()`.
+#' @examples
+#' \dontrun{
+#'   set_parallel(4)
+#'   get_commits(my_gitstats, since = "2024-01-01")
+#'   set_parallel(FALSE) # revert to sequential
+#' }
+#' @export
+set_parallel <- function(workers = TRUE) {
+  if (isFALSE(workers) || identical(workers, 0L) || identical(workers, 0)) {
+    status <- mirai::daemons(0)
+    cli::cli_alert_info("Parallel processing disabled.")
+  } else {
+    if (isTRUE(workers)) {
+      workers <- parallel::detectCores(logical = FALSE)
+      if (is.na(workers) || workers < 2L) workers <- 2L
+    }
+    status <- mirai::daemons(workers)
+    pkg_installed <- nzchar(system.file(package = "GitStats"))
+    if (pkg_installed) {
+      mirai::everywhere({
+        library(GitStats)
+      })
+    } else {
+      # devtools::load_all scenario: export namespace objects to daemons
+      ns_objects <- as.list(asNamespace("GitStats"), all.names = TRUE)
+      mirai::everywhere({}, .args = ns_objects)
+    }
+    cli::cli_alert_success(
+      "Parallel processing enabled with {workers} workers."
+    )
+  }
+  return(invisible(status))
+}
+
 #' @title Show hosts set in `GitStats`
 #' @name show_hosts
 #' @description Retrieves hosts set by `GitStats` with `set_*_host()` functions.
