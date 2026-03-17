@@ -288,6 +288,24 @@ test_that("REST engine prepares repositories table", {
   test_mocker$cache(gitlab_rest_repos_table)
 })
 
+test_that("GitLab build_search_query builds query with code only", {
+  query <- test_rest_gitlab_priv$build_search_query(code = "test")
+  expect_equal(query, utils::URLencode("test", reserved = TRUE))
+})
+
+test_that("GitLab build_search_query builds query with in_path", {
+  query <- test_rest_gitlab_priv$build_search_query(code = "src/main", in_path = TRUE)
+  expect_true(grepl("^path:", query))
+})
+
+test_that("GitLab build_search_query builds query with filename", {
+  query <- test_rest_gitlab_priv$build_search_query(
+    code = "test",
+    filename = "DESCRIPTION"
+  )
+  expect_true(grepl("filename:DESCRIPTION$", query))
+})
+
 test_that("`search_for_code()` works", {
   mockery::stub(
     test_rest_gitlab$search_for_code,
