@@ -1,13 +1,24 @@
 # Changelog
 
-## GitStats (development version)
+## GitStats 2.4.0
+
+The newest minor release includes new functions for retrieving pull
+requests
+([`get_pull_requests()`](https://r-world-devs.github.io/GitStats/reference/get_pull_requests.md))
+and their statistics
+([`get_pull_requests_stats()`](https://r-world-devs.github.io/GitStats/reference/get_pull_requests_stats.md)),
+prettified repository URL outputs in
+[`get_repos_urls()`](https://r-world-devs.github.io/GitStats/reference/get_repos_urls.md),
+along with refactoring and code cleanup.
 
 - Prettified output of repositories URLs in
   [`get_repos_urls()`](https://r-world-devs.github.io/GitStats/reference/get_repos_urls.md)
-  function ([\#710](NA).
+  function
+  ([\#710](https://github.com/r-world-devs/GitStats/issues/710)).
 - Added
   [`get_pull_requests()`](https://r-world-devs.github.io/GitStats/reference/get_pull_requests.md)
-  function for getting information about pull requests ([\#722](NA).
+  function for getting information about pull requests
+  ([\#722](https://github.com/r-world-devs/GitStats/issues/722)).
 - Cleaned up unnecessary comments
   ([\#723](https://github.com/r-world-devs/GitStats/issues/723)).
 - Added
@@ -19,6 +30,9 @@
 - Prettified messages with new icons
   ([\#148](https://github.com/r-world-devs/GitStats/issues/148),
   [\#361](https://github.com/r-world-devs/GitStats/issues/361)).
+- Refactored code for getting repositories with code to make it more
+  readable
+  (\[#612\]<https://github.com/r-world-devs/GitStats/issues/612>)).
 
 ## GitStats 2.3.9
 
