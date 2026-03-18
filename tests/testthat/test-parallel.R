@@ -94,3 +94,30 @@ test_that("`set_parallel(TRUE)` auto-detects workers", {
   expect_message(set_parallel(TRUE), "Parallel processing enabled with \\d+ workers")
   expect_true(mirai_active())
 })
+
+# ---- parallel execution paths (single daemon startup) ----
+
+test_that("gitstats_map/map2/map_chr work via mirai_map when daemons are active", {
+  withr::defer(mirai::daemons(0))
+  set_parallel(2)
+
+  # gitstats_map without progress
+  result <- gitstats_map(1:3, function(x) x * 2)
+  expect_equal(result, list(2L, 4L, 6L))
+
+  # gitstats_map with progress
+  result <- gitstats_map(1:3, function(x) x + 1, .progress = TRUE)
+  expect_equal(result, list(2L, 3L, 4L))
+
+  # gitstats_map2
+  result <- gitstats_map2(1:3, 4:6, function(a, b) a + b)
+  expect_equal(result, list(5L, 7L, 9L))
+
+  # gitstats_map_chr without progress
+  result <- gitstats_map_chr(c("a", "b"), function(x) toupper(x))
+  expect_equal(result, c("A", "B"))
+
+  # gitstats_map_chr with progress
+  result <- gitstats_map_chr(c("x", "y"), function(x) toupper(x), .progress = TRUE)
+  expect_equal(result, c("X", "Y"))
+})
