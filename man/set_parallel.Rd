@@ -22,6 +22,11 @@ to sequential execution.
 }
 \examples{
 \dontrun{
+  my_gitstats <- create_gitstats() |>
+    set_github_host(
+      token = Sys.getenv("GITHUB_PAT"),
+      orgs = c("r-world-devs", "openpharma")
+    )
   set_parallel(4)
   get_commits(my_gitstats, since = "2024-01-01")
   set_parallel(FALSE) # revert to sequential
