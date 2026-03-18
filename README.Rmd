@@ -68,6 +68,12 @@ git_stats <- create_gitstats() |>
   ) 
 ```
 
+Optionally, you can run GitStats functions in parallel:
+
+```{r}
+set_parallel()
+```
+
 Get commits:
 
 ```{r}
