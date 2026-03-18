@@ -35,16 +35,13 @@ set_parallel <- function(workers = TRUE) {
       if (is.na(workers) || workers < 2L) workers <- 2L
     }
     status <- mirai::daemons(workers)
-    pkg_installed <- nzchar(system.file(package = "GitStats"))
-    if (pkg_installed) {
-      mirai::everywhere({
-        library(GitStats)
-      })
-    } else {
-      # devtools::load_all scenario: export namespace objects to daemons
-      ns_objects <- as.list(asNamespace("GitStats"), all.names = TRUE)
-      mirai::everywhere({}, .args = ns_objects)
-    }
+    # Export all GitStats namespace objects to daemon global environments.
+    # This works regardless of whether the package is installed or loaded
+    # via devtools::load_all(). Using ... (not .args) so objects are
+    # assigned to the daemon's global env where they can be found by name.
+    ns <- asNamespace("GitStats")
+    ns_objects <- as.list(ns, all.names = TRUE)
+    do.call(mirai::everywhere, c(list(expr = quote({})), ns_objects))
     cli::cli_alert_success(
       "Parallel processing enabled with {workers} workers."
     )
