@@ -41,7 +41,7 @@ set_parallel <- function(workers = TRUE) {
     # assigned to the daemon's global env where they can be found by name.
     ns <- asNamespace("GitStats")
     ns_objects <- as.list(ns, all.names = TRUE)
-    do.call(mirai::everywhere, c(list(expr = quote({})), ns_objects))
+    do.call(mirai::everywhere, c(list(quote({})), ns_objects))
     cli::cli_alert_success(
       "Parallel processing enabled with {workers} workers."
     )
