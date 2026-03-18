@@ -2,6 +2,7 @@
 #' @importFrom cli cli_alert_info cli_alert_success cli_alert_warning col_yellow cli_alert_danger cli_abort col_green
 #' @importFrom dplyr glimpse distinct mutate relocate filter
 #' @importFrom lubridate floor_date
+#' @importFrom mirai daemons mirai_map everywhere
 #' @importFrom purrr map map_chr keep
 #' @importFrom rlang expr %||%
 #' @importFrom httr2 request req_headers req_perform resp_body_json

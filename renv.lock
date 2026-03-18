@@ -1788,6 +1788,12 @@
       "Maintainer": "Joe Cheng <joe@posit.co>",
       "Repository": "RSPM"
     },
+    "mirai": {
+      "Package": "mirai",
+      "Version": "2.6.1",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
     "mockery": {
       "Package": "mockery",
       "Version": "0.4.5",
@@ -1817,6 +1823,12 @@
       "Author": "Noam Finkelstein [aut], Lukasz Bartnik [aut], Jim Hester [aut], Hadley Wickham [aut, cre]",
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
       "Repository": "RSPM"
+    },
+    "nanonext": {
+      "Package": "nanonext",
+      "Version": "1.8.1",
+      "Source": "Repository",
+      "Repository": "CRAN"
     },
     "openssl": {
       "Package": "openssl",

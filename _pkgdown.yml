@@ -25,6 +25,9 @@ reference:
   - get_release_logs
   - get_files
   - get_users
+- title: Parallel processing
+- contents:
+  - set_parallel
 - title: Get statistics
   desc: >
       Functions summarizing git data.

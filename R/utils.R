@@ -80,6 +80,57 @@ set_progress_bar <- function(progress, private) {
   }
 }
 
+#' @noRd
+#' @description Check whether mirai daemons are active.
+mirai_active <- function() {
+  tryCatch(
+    mirai::daemons_set(),
+    error = function(e) FALSE
+  )
+}
+
+#' @noRd
+#' @description Parallel-aware map over elements. Uses mirai::mirai_map when
+#'   daemons are active (via set_parallel), otherwise falls back to purrr::map.
+gitstats_map <- function(.x, .f, ..., .progress = FALSE) {
+  if (!mirai_active()) {
+    purrr::map(.x, .f, ..., .progress = .progress)
+  } else {
+    if (!isFALSE(.progress)) {
+      mirai::mirai_map(.x, .f, ...)[.progress]
+    } else {
+      mirai::mirai_map(.x, .f, ...)[]
+    }
+  }
+}
+
+#' @noRd
+gitstats_map2 <- function(.x, .y, .f, ...) {
+  if (!mirai_active()) {
+    purrr::map2(.x, .y, .f, ...)
+  } else {
+    # mirai_map has no map2 variant. Zip inputs and use indexed access.
+    # .f is passed as a named arg so the worker can resolve it.
+    pairs <- purrr::map2(.x, .y, function(a, b) list(a = a, b = b))
+    mirai::mirai_map(pairs, function(pair, .fn) .fn(pair$a, pair$b),
+                     .fn = .f)[]
+  }
+}
+
+#' @noRd
+gitstats_map_chr <- function(.x, .f, ..., .progress = FALSE) {
+  if (!mirai_active()) {
+    purrr::map_chr(.x, .f, ..., .progress = .progress)
+  } else {
+    result <- if (!isFALSE(.progress)) {
+      mirai::mirai_map(.x, .f, ...)[.progress]
+    } else {
+      mirai::mirai_map(.x, .f, ...)[]
+    }
+    purrr::map_chr(result, identity)
+  }
+}
+
 parse_until_param <- function(until) {
   lubridate::as_datetime(until) + lubridate::days(1)
 }

@@ -206,7 +206,7 @@ EngineGraphQLGitHub <- R6::R6Class(
                                       since,
                                       until,
                                       verbose) {
-      repos_list_with_commits <- purrr::map(repos_names, function(repo) {
+      repos_list_with_commits <- gitstats_map(repos_names, function(repo) {
         private$get_commits_from_one_repo(
           org   = org,
           repo  = repo,
@@ -329,7 +329,7 @@ EngineGraphQLGitHub <- R6::R6Class(
                                             verbose) {
       repositories <- repos_data[["paths"]]
       def_branches <- repos_data[["def_branches"]]
-      files_structure <- purrr::map2(repositories, def_branches, function(repo, def_branch) {
+      files_structure <- gitstats_map2(repositories, def_branches, function(repo, def_branch) {
         private$get_files_structure_from_repo(
           org = org,
           repo = repo,
@@ -368,7 +368,7 @@ EngineGraphQLGitHub <- R6::R6Class(
     },
 
     get_release_logs_from_org = function(repos_names, org, verbose = TRUE) {
-      release_responses <- purrr::map(repos_names, function(repository) {
+      release_responses <- gitstats_map(repos_names, function(repository) {
         releases_from_repo_query <- self$gql_query$releases_from_repo()
         response <- self$gql_response(
           gql_query = releases_from_repo_query,
@@ -629,7 +629,7 @@ EngineGraphQLGitHub <- R6::R6Class(
                                            host_files_structure,
                                            file_paths,
                                            verbose) {
-      purrr::map2(repositories, def_branches, function(repo, def_branch) {
+      gitstats_map2(repositories, def_branches, function(repo, def_branch) {
         if (!is.null(host_files_structure)) {
           file_paths <- private$get_path_from_files_structure(
             host_files_structure = host_files_structure,
