@@ -110,8 +110,10 @@ gitstats_map2 <- function(.x, .y, .f, ...) {
     purrr::map2(.x, .y, .f, ...)
   } else {
     # mirai_map has no map2 variant. Zip inputs and use indexed access.
+    # .f is passed as a named arg so the worker can resolve it.
     pairs <- purrr::map2(.x, .y, function(a, b) list(a = a, b = b))
-    mirai::mirai_map(pairs, function(pair) .f(pair$a, pair$b), .f = .f)[]
+    mirai::mirai_map(pairs, function(pair, .fn) .fn(pair$a, pair$b),
+                     .fn = .f)[]
   }
 }
 
