@@ -35,6 +35,42 @@ test_that("`gitstats_map_chr` falls back to purrr::map_chr when no daemons are s
   expect_equal(result, c("A", "B", "C"))
 })
 
+# ---- gitstats_map with .progress = TRUE (sequential) ----
+
+test_that("`gitstats_map` works with character .progress in sequential mode", {
+  mirai::daemons(0)
+  result <- gitstats_map(1:3, function(x) x * 10, .progress = "GitHub")
+  expect_equal(result, list(10L, 20L, 30L))
+})
+
+# ---- gitstats_map_chr with .progress (sequential) ----
+
+test_that("`gitstats_map_chr` works with .progress = TRUE in sequential mode", {
+  mirai::daemons(0)
+  result <- gitstats_map_chr(1:3, function(x) as.character(x), .progress = TRUE)
+  expect_equal(result, c("1", "2", "3"))
+})
+
+# ---- gitstats_map with empty input (sequential) ----
+
+test_that("`gitstats_map` handles empty input in sequential mode", {
+  mirai::daemons(0)
+  result <- gitstats_map(list(), function(x) x)
+  expect_equal(result, list())
+})
+
+test_that("`gitstats_map2` handles empty input in sequential mode", {
+  mirai::daemons(0)
+  result <- gitstats_map2(list(), list(), function(a, b) a + b)
+  expect_equal(result, list())
+})
+
+test_that("`gitstats_map_chr` handles empty input in sequential mode", {
+  mirai::daemons(0)
+  result <- gitstats_map_chr(character(0), function(x) x)
+  expect_equal(result, character(0))
+})
+
 # ---- set_parallel ----
 
 test_that("`set_parallel` enables and disables daemons", {
