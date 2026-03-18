@@ -1,6 +1,17 @@
 # Changelog
 
+## GitStats 2.4.0.9000
+
+- Added optional parallel processing for API calls via `mirai` package.
+  Use
+  [`set_parallel()`](https://r-world-devs.github.io/GitStats/reference/set_parallel.md)
+  to enable concurrent data fetching across repositories and
+  organizations
+  ([\#736](https://github.com/r-world-devs/GitStats/issues/736)).
+
 ## GitStats 2.4.0
+
+CRAN release: 2026-03-17
 
 The newest minor release includes new functions for retrieving pull
 requests

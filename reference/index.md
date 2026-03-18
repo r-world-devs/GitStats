@@ -13,6 +13,9 @@
 - [`set_gitlab_host()`](https://r-world-devs.github.io/GitStats/reference/set_gitlab_host.md)
   : Set GitLab host
 
+- [`set_parallel()`](https://r-world-devs.github.io/GitStats/reference/set_parallel.md)
+  : Enable parallel processing
+
 - [`is_verbose()`](https://r-world-devs.github.io/GitStats/reference/is_verbose.md)
   : Is verbose mode switched on
 
@@ -61,6 +64,11 @@ Functions to get git data in a tibble format.
   : Get files
 - [`get_users()`](https://r-world-devs.github.io/GitStats/reference/get_users.md)
   : Get users data
+
+## Parallel processing
+
+- [`set_parallel()`](https://r-world-devs.github.io/GitStats/reference/set_parallel.md)
+  : Enable parallel processing
 
 ## Get statistics
 

@@ -47,6 +47,13 @@ git_stats <- create_gitstats() |>
   ) 
 ```
 
+Optionally, you can run `GitStats` functions in parallel (with `mirai`
+package underneath):
+
+``` r
+set_parallel()
+```
+
 Get commits:
 
 ``` r
@@ -56,20 +63,20 @@ commits <- git_stats |>
   )
 
 commits
-#> # A tibble: 3,473 × 11
+#> # A tibble: 3,510 × 11
 #>    repo_name id    committed_date      author author_login author_name additions
 #>    <chr>     <chr> <dttm>              <chr>  <chr>        <chr>           <int>
-#>  1 gitstats… 7f48… 2024-09-10 11:12:59 Macie… maciekbanas  Maciej Ban…         0
-#>  2 gitstats… 9c66… 2024-09-10 10:35:37 Macie… maciekbanas  Maciej Ban…         0
-#>  3 gitstats… fca2… 2024-09-10 10:31:24 Macie… maciekbanas  Maciej Ban…         0
-#>  4 gitstats… e8f2… 2023-03-30 14:15:33 Macie… maciekbanas  Maciej Ban…         1
-#>  5 gitstats… 7e87… 2023-02-10 09:48:55 Macie… maciekbanas  Maciej Ban…         1
-#>  6 gitstats… 62c4… 2023-02-10 09:17:24 Macie… maciekbanas  Maciej Ban…         2
-#>  7 gitstats… 55cf… 2023-02-10 09:07:54 Macie… maciekbanas  Maciej Ban…        92
+#>  1 gitstats… 7f48… 2024-09-10 11:12:59 Macie… <NA>         Maciej Ban…         0
+#>  2 gitstats… 9c66… 2024-09-10 10:35:37 Macie… <NA>         Maciej Ban…         0
+#>  3 gitstats… fca2… 2024-09-10 10:31:24 Macie… <NA>         Maciej Ban…         0
+#>  4 gitstats… e8f2… 2023-03-30 14:15:33 Macie… <NA>         Maciej Ban…         1
+#>  5 gitstats… 7e87… 2023-02-10 09:48:55 Macie… <NA>         Maciej Ban…         1
+#>  6 gitstats… 62c4… 2023-02-10 09:17:24 Macie… <NA>         Maciej Ban…         2
+#>  7 gitstats… 55cf… 2023-02-10 09:07:54 Macie… <NA>         Maciej Ban…        92
 #>  8 shinyGiz… C_kw… 2023-05-08 09:43:31 Kryst… krystian8207 Krystian I…        18
 #>  9 shinyGiz… C_kw… 2023-04-28 12:30:40 Kamil… <NA>         Kamil Kozi…        18
 #> 10 shinyGiz… C_kw… 2023-03-01 15:05:10 Kryst… krystian8207 Krystian I…       296
-#> # ℹ 3,463 more rows
+#> # ℹ 3,500 more rows
 #> # ℹ 4 more variables: deletions <int>, organization <chr>, repo_url <chr>,
 #> #   api_url <glue>
 
@@ -151,7 +158,7 @@ git_stats |>
   get_pull_requests(
     since = "2022-01-01"
   )
-#> # A tibble: 415 × 10
+#> # A tibble: 420 × 10
 #>    repo_name       number created_at          merged_at           state  author 
 #>    <chr>           <chr>  <dttm>              <dttm>              <chr>  <chr>  
 #>  1 gitstatstesting 2      2026-02-25 09:34:18 NA                  closed <NA>   
@@ -164,7 +171,7 @@ git_stats |>
 #>  8 shinyGizmo      16     2022-06-15 13:48:08 2022-06-15 14:12:52 merged krysti…
 #>  9 shinyGizmo      17     2022-06-17 10:55:10 2022-06-17 10:56:09 merged krysti…
 #> 10 shinyGizmo      19     2022-07-05 10:01:44 2022-07-05 11:05:30 merged krysti…
-#> # ℹ 405 more rows
+#> # ℹ 410 more rows
 #> # ℹ 4 more variables: source_branch <chr>, target_branch <chr>,
 #> #   organization <chr>, api_url <glue>
 ```
@@ -180,9 +187,9 @@ git_stats
 #>  Repositories: [2] mbtests/gitstatstesting, openpharma/DataFakeR
 #> Storage: 
 #>  Repositories: 9 
-#>  Commits: 3473 [date range: 2022-01-01 - 2026-03-10]
+#>  Commits: 3510 [date range: 2022-01-01 - 2026-03-18]
 #>  Files: 68 [file pattern: \.md]
-#>  Pull_requests: 415 [date range: 2022-01-01 - 2026-03-10]
+#>  Pull_requests: 420 [date range: 2022-01-01 - 2026-03-18]
 ```
 
 ## See also
