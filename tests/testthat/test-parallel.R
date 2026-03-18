@@ -74,6 +74,7 @@ test_that("`gitstats_map_chr` handles empty input in sequential mode", {
 # ---- set_parallel ----
 
 test_that("`set_parallel` enables and disables daemons", {
+  skip_if(Sys.getenv("R_COVR") == "true", "mirai daemons conflict with covr tracing")
   withr::defer(mirai::daemons(0))
 
   expect_message(set_parallel(2), "Parallel processing enabled with 2 workers")
@@ -90,6 +91,7 @@ test_that("`set_parallel` enables and disables daemons", {
 })
 
 test_that("`set_parallel(TRUE)` auto-detects workers", {
+  skip_if(Sys.getenv("R_COVR") == "true", "mirai daemons conflict with covr tracing")
   withr::defer(mirai::daemons(0))
   expect_message(set_parallel(TRUE), "Parallel processing enabled with \\d+ workers")
   expect_true(mirai_active())
@@ -98,6 +100,7 @@ test_that("`set_parallel(TRUE)` auto-detects workers", {
 # ---- parallel execution paths (single daemon startup) ----
 
 test_that("gitstats_map/map_chr work via mirai_map when daemons are active", {
+  skip_if(Sys.getenv("R_COVR") == "true", "mirai daemons conflict with covr tracing")
   withr::defer(mirai::daemons(0))
   set_parallel(2)
 
