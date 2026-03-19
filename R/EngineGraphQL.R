@@ -150,6 +150,8 @@ EngineGraphQL <- R6::R6Class(
     }
   ),
   private = list(
+    owner_types_cache = list(),
+
     perform_request = function(gql_query, vars, token = private$token, verbose = TRUE) {
       response <- NULL
       response <- httr2::request(paste0(self$gql_api_url, "?")) |>

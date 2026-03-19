@@ -22,6 +22,43 @@ test_that("set_owner_types sets attributes to owners list", {
   expect_equal(owner[[1]], "test_org", ignore_attr = TRUE)
 })
 
+test_that("set_owner_type returns cached result on second call for GitHub", {
+  test_engine <- EngineGraphQLGitHub$new(
+    gql_api_url = "https://api.github.com/graphql",
+    token = "test_token"
+  )
+  mockery::stub(
+    test_engine$set_owner_type,
+    "self$gql_response",
+    test_fixtures$github_user_login
+  )
+  owner_first <- test_engine$set_owner_type(owners = c("cached_user"))
+  owner_second <- test_engine$set_owner_type(owners = c("cached_user"))
+  expect_equal(owner_first, owner_second)
+  expect_equal(attr(owner_second[[1]], "type"), "user")
+})
+
+test_that("set_owner_type returns cached result on second call for GitLab", {
+  test_engine <- EngineGraphQLGitLab$new(
+    gql_api_url = "https://gitlab.com/api/graphql",
+    token = "test_token"
+  )
+  mockery::stub(
+    test_engine$set_owner_type,
+    "self$gql_response",
+    list(
+      "data" = list(
+        "user" = list("username" = "cached_user"),
+        "group" = NULL
+      )
+    )
+  )
+  owner_first <- test_engine$set_owner_type(owners = c("cached_user"))
+  owner_second <- test_engine$set_owner_type(owners = c("cached_user"))
+  expect_equal(owner_first, owner_second)
+  expect_equal(attr(owner_second[[1]], "type"), "user")
+})
+
 test_that("set_api_url works", {
   expect_equal({
     github_testhost_priv$set_api_url(
