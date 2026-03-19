@@ -8,6 +8,9 @@
   to enable concurrent data fetching across repositories and
   organizations
   ([\#736](https://github.com/r-world-devs/GitStats/issues/736)).
+- Cached `set_owner_type()` results to avoid redundant GraphQL calls
+  when multiple `get_*` functions are used in the same session
+  ([\#738](https://github.com/r-world-devs/GitStats/issues/738)).
 
 ## GitStats 2.4.0
 
