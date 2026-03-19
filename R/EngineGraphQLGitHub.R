@@ -16,7 +16,7 @@ EngineGraphQLGitHub <- R6::R6Class(
     set_owner_type = function(owners, verbose) {
       user_or_org_query <- self$gql_query$user_or_org_query
       login_types <- purrr::map(owners, function(owner) {
-        cached <- private$owner_types_cache[[owner]]
+        cached <- private[["owner_types_cache"]][[owner]]
         if (!is.null(cached)) {
           return(cached)
         }
@@ -34,7 +34,7 @@ EngineGraphQLGitHub <- R6::R6Class(
         } else {
           attr(owner, "type") <- "not found"
         }
-        private$owner_types_cache[[owner]] <- owner
+        private[["owner_types_cache"]][[owner]] <- owner
         return(owner)
       })
       return(login_types)
