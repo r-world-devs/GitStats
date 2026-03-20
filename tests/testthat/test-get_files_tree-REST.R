@@ -29,7 +29,6 @@ test_that("get_files_tree for GitHub returns file paths from tree response", {
   expect_equal(length(result), 4)
   expect_true(all(c("R/main.R", "R/utils.R", "tests/test-main.R", "README.md") %in% result))
   expect_false("R" %in% result)
-  expect_equal(attr(result, "repo_id"), "abc123")
 })
 
 test_that("get_files_tree for GitHub filters by depth", {

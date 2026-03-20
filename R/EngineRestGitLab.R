@@ -193,7 +193,6 @@ EngineRestGitLab <- R6::R6Class(
         })
       }
       if (length(files) == 0) return(NULL)
-      attr(files, "repo_id") <- response[[1]]$id
       return(files)
     },
 

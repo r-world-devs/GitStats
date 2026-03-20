@@ -170,7 +170,7 @@ test_that("GitHub GraphQL Engine pulls files structure with pattern from reposit
 
 test_that("get_files_structure_from_orgs() works", {
   gh_md_files_with_ids <- purrr::imap(test_mocker$use("gh_md_files_structure"), function(files, repo_name) {
-    attr(files, "repo_id") <- paste0("sha_", repo_name)
+    attr(files, "repo_id") <- paste0("R_", repo_name)
     files
   })
   mockery::stub(

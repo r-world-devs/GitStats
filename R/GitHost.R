@@ -1434,6 +1434,7 @@ GitHost <- R6::R6Class(
                                                    verbose) {
       repositories <- repos_data[["paths"]]
       def_branches <- repos_data[["def_branches"]]
+      repo_ids <- repos_data[["repo_ids"]]
       if (!is.null(def_branches)) {
         files_structure <- gitstats_map2(repositories, def_branches,
           function(repo, def_branch) {
@@ -1461,6 +1462,13 @@ GitHost <- R6::R6Class(
         )
       }
       names(files_structure) <- repositories
+      if (!is.null(repo_ids)) {
+        for (i in seq_along(files_structure)) {
+          if (!is.null(files_structure[[i]])) {
+            attr(files_structure[[i]], "repo_id") <- repo_ids[[i]]
+          }
+        }
+      }
       files_structure <- purrr::discard(files_structure, ~ length(.) == 0)
       return(files_structure)
     },

@@ -160,7 +160,6 @@ EngineRestGitHub <- R6::R6Class(
         })
       }
       if (length(files) == 0) return(NULL)
-      attr(files, "repo_id") <- response$sha
       return(files)
     },
 

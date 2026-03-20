@@ -395,7 +395,8 @@ GitHostGitHub <- R6::R6Class(
       }
       repos_data <- list(
         "paths" = purrr::map(repos_from_org, ~ .$repo_path),
-        "def_branches" = purrr::map(repos_from_org, ~ .$default_branch$name)
+        "def_branches" = purrr::map(repos_from_org, ~ .$default_branch$name),
+        "repo_ids" = purrr::map_chr(repos_from_org, ~ .$repo_id)
       )
       return(repos_data)
     },
