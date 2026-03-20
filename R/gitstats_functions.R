@@ -105,6 +105,38 @@ is_verbose <- function(gitstats) {
   gitstats$is_verbose()
 }
 
+#' @title Set storage backend
+#' @name set_storage
+#' @description Set the storage backend for a `GitStats` object. By default,
+#'   data is stored in memory. Use `type = "postgres"` to persist data in a
+#'   PostgreSQL database.
+#' @param gitstats A GitStats object.
+#' @param type A character, either `"local"` (default, in-memory) or
+#'   `"postgres"` (PostgreSQL database).
+#' @param ... Additional arguments passed to the storage backend constructor.
+#'   For `"postgres"`: `conn` (a DBI connection object, required) and
+#'   `schema` (character, defaults to `"git_stats"`).
+#' @return A `GitStats` object.
+#' @examples
+#' \dontrun{
+#'   my_gitstats <- create_gitstats() |>
+#'     set_storage(
+#'       type = "postgres",
+#'       conn = DBI::dbConnect(
+#'         RPostgres::Postgres(),
+#'         dbname = "my_database"
+#'       ),
+#'       schema = "git_stats"
+#'     )
+#' }
+#' @export
+set_storage <- function(gitstats, type = "local", ...) {
+  gitstats$set_storage(
+    type = type,
+    ...
+  )
+}
+
 #' @title Get data from `GitStats` storage
 #' @name get_storage
 #' @description Retrieves whole or particular data (see `storage` parameter)

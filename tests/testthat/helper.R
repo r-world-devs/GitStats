@@ -21,23 +21,24 @@ create_test_gitstats <- function(hosts = 0,
       orgs = "gitlab_test_group"
     )
   }
+  storage <- test_gitstats$.__enclos_env__$private$storage_backend
   if (!is.null(inject_repos)) {
-    test_gitstats$.__enclos_env__$private$storage$repositories <- test_mocker$use(inject_repos)
+    storage$save("repositories", test_mocker$use(inject_repos))
   }
   if (!is.null(inject_commits)) {
-    test_gitstats$.__enclos_env__$private$storage$commits <- test_mocker$use(inject_commits)
+    storage$save("commits", test_mocker$use(inject_commits))
   }
   if (!is.null(inject_files)) {
-    test_gitstats$.__enclos_env__$private$storage$files <- test_mocker$use(inject_files)
+    storage$save("files", test_mocker$use(inject_files))
   }
   if (!is.null(inject_files_structure)) {
-    test_gitstats$.__enclos_env__$private$storage$files_structure <- test_mocker$use(inject_files_structure)
+    storage$save("files_structure", test_mocker$use(inject_files_structure))
   }
   if (!is.null(inject_users)) {
-    test_gitstats$.__enclos_env__$private$storage$users <- test_mocker$use(inject_users)
+    storage$save("users", test_mocker$use(inject_users))
   }
   if (!is.null(inject_package_usage)) {
-    test_gitstats$.__enclos_env__$private$storage$R_package_usage <- test_mocker$use(inject_package_usage)
+    storage$save("R_package_usage", test_mocker$use(inject_package_usage))
   }
   if (priv_mode) {
     test_gitstats <- environment(test_gitstats$print)$private

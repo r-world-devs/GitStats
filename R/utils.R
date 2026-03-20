@@ -134,3 +134,12 @@ gitstats_map_chr <- function(.x, .f, ..., .progress = FALSE) {
 parse_until_param <- function(until) {
   lubridate::as_datetime(until) + lubridate::days(1)
 }
+
+check_if_package_installed <- function(package) {
+  if (!requireNamespace(package, quietly = TRUE)) {
+    cli::cli_abort(
+      "Package {.pkg {package}} is required but not installed. Install it with {.code install.packages(\"{package}\")}."
+    )
+  }
+}
+

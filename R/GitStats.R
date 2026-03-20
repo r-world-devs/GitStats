@@ -2,6 +2,10 @@ GitStats <- R6::R6Class(
   classname = "GitStats",
   public = list(
 
+    initialize = function() {
+      private$storage_backend <- StorageLocal$new()
+    },
+
     set_github_host = function(host,
                                token = NULL,
                                orgs = NULL,
@@ -499,11 +503,26 @@ GitStats <- R6::R6Class(
       private$settings$verbose
     },
 
+    set_storage = function(type = "local", ...) {
+      private$storage_backend <- switch(type,
+        "local" = StorageLocal$new(),
+        "postgres" = StoragePostgres$new(...),
+        cli::cli_abort("Unknown storage type: {.val {type}}. Use {.val local} or {.val postgres}.")
+      )
+      if (type != "local") {
+        cli::cli_alert_success("Storage set to {.val {type}}.")
+      }
+      invisible(self)
+    },
+
     get_storage = function(storage) {
       if (is.null(storage)) {
-        private$storage
+        stored <- private$storage_backend$list()
+        result <- purrr::map(stored, ~ private$storage_backend$load(.))
+        names(result) <- stored
+        return(result)
       } else {
-        private$storage[[storage]]
+        private$storage_backend$load(storage)
       }
     },
 
@@ -524,14 +543,7 @@ GitStats <- R6::R6Class(
       cache   = TRUE
     ),
 
-    storage = list(
-      repositories = NULL,
-      commits = NULL,
-      users = NULL,
-      files = NULL,
-      repos_trees = NULL,
-      release_logs = NULL
-    ),
+    storage_backend = NULL,
 
     add_new_host = function(new_host) {
       if (!is.null(new_host)) {
@@ -576,12 +588,12 @@ GitStats <- R6::R6Class(
     },
 
     storage_is_empty = function(table) {
-      is.null(private$storage[[table]])
+      !private$storage_backend$exists(table)
     },
 
     save_to_storage = function(table) {
       table_name <- deparse(substitute(table))
-      private$storage[[paste0(table_name)]] <- table
+      private$storage_backend$save(table_name, table)
     },
 
     get_from_storage = function(table) {
@@ -591,7 +603,7 @@ GitStats <- R6::R6Class(
       cli::cli_alert_info(cli::col_cyan(
         "If you wish to pull the data from API once more, set `cache` parameter to `FALSE`."
       ))
-      private$storage[[table]]
+      private$storage_backend$load(table)
     },
 
     trigger_pulling = function(cache, storage, args_list = NULL, verbose) {
@@ -625,7 +637,7 @@ GitStats <- R6::R6Class(
     },
 
     check_if_args_changed = function(storage, args_list) {
-      storage_data <- private$storage[[paste0(storage)]]
+      storage_data <- private$storage_backend$load(storage)
       stored_params <- purrr::map(names(args_list), ~ attr(storage_data, .) %||% "")
       new_params <- purrr::map(args_list, ~ . %||% "")
       !all(purrr::map2_lgl(new_params, stored_params, ~ identical(.x, .y)))
@@ -1039,7 +1051,9 @@ GitStats <- R6::R6Class(
     },
 
     print_storage = function() {
-      gitstats_storage <- purrr::imap(private$storage, function(storage_object, storage_name) {
+      stored_names <- private$storage_backend$list()
+      gitstats_storage <- purrr::map(stored_names, function(storage_name) {
+        storage_object <- private$storage_backend$load(storage_name)
         if (!is.null(storage_object)) {
           storage_size <- if (inherits(storage_object, "data.frame")) {
             nrow(storage_object)
