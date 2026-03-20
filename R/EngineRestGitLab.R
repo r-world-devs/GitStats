@@ -162,6 +162,41 @@ EngineRestGitLab <- R6::R6Class(
       }
     },
 
+    get_files_tree = function(org, repo, pattern, depth, verbose) {
+      repo_path <- paste0(url_encode(org), "%2F", repo)
+      endpoint <- paste0(
+        private$endpoints[["projects"]],
+        repo_path,
+        "/repository/tree?recursive=true&per_page=100"
+      )
+      response <- tryCatch(
+        private$paginate_results(
+          endpoint = endpoint,
+          joining_sign = "&",
+          verbose = verbose
+        ),
+        error = function(e) NULL
+      )
+      if (is.null(response) || length(response) == 0) {
+        return(NULL)
+      }
+      files <- purrr::keep(response, ~ .$type == "blob") |>
+        purrr::map_chr(~ .$path)
+      if (!is.null(depth) && depth < Inf) {
+        files <- purrr::keep(files, function(path) {
+          stringr::str_count(path, "/") < depth
+        })
+      }
+      if (!is.null(pattern)) {
+        files <- purrr::keep(files, function(path) {
+          any(stringr::str_detect(path, pattern))
+        })
+      }
+      if (length(files) == 0) return(NULL)
+      attr(files, "repo_id") <- response[[1]]$id
+      return(files)
+    },
+
     get_repos_contributors = function(repos_table, verbose = TRUE, progress) {
       if (nrow(repos_table) > 0) {
         repo_urls <- repos_table$api_url

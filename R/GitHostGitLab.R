@@ -376,6 +376,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
                                               verbose  = TRUE,
                                               progress = TRUE) {
       if ("repo" %in% private$searching_scope) {
+        rest_engine <- private$engines$rest
         graphql_engine <- private$engines$graphql
         orgs <- graphql_engine$set_owner_type(
           owners = names(private$orgs_repos),
@@ -392,15 +393,14 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             }
             show_message(
               host = private$host_name,
-              engine = "graphql",
+              engine = "rest",
               scope = set_repo_scope(org, private),
               information = user_info
             )
           }
-          owner_type <- attr(org, "type") %||% "organization"
-          graphql_engine$get_files_structure_from_org(
+          private$get_files_structure_from_repos_data(
+            rest_engine = rest_engine,
             org = org,
-            owner_type = owner_type,
             repos_data = list("paths" = private$orgs_repos[[org]]),
             pattern = pattern,
             depth = depth,

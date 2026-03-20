@@ -132,6 +132,38 @@ EngineRestGitHub <- R6::R6Class(
       return(repos_urls)
     },
 
+    get_files_tree = function(org, repo, def_branch, pattern, depth, verbose) {
+      endpoint <- paste0(
+        private$endpoints[["repositories"]],
+        org, "/", repo,
+        "/git/trees/", def_branch,
+        "?recursive=1"
+      )
+      response <- tryCatch(
+        self$response(endpoint = endpoint, verbose = verbose),
+        error = function(e) NULL
+      )
+      if (is.null(response) || inherits(response, "rest_api_error")) {
+        return(NULL)
+      }
+      tree <- response$tree
+      files <- purrr::keep(tree, ~ .$type == "blob") |>
+        purrr::map_chr(~ .$path)
+      if (!is.null(depth) && depth < Inf) {
+        files <- purrr::keep(files, function(path) {
+          stringr::str_count(path, "/") < depth
+        })
+      }
+      if (!is.null(pattern)) {
+        files <- purrr::keep(files, function(path) {
+          any(stringr::str_detect(path, pattern))
+        })
+      }
+      if (length(files) == 0) return(NULL)
+      attr(files, "repo_id") <- response$sha
+      return(files)
+    },
+
     get_repos_contributors = function(repos_table, verbose = TRUE, progress) {
       if (nrow(repos_table) > 0) {
         repo_iterator <- paste0(repos_table$organization, "/", repos_table$repo_name)
