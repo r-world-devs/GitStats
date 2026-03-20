@@ -1,178 +1,24 @@
-test_that("files tree query for GitHub are built properly", {
-  gh_files_tree_query <-
-    test_gqlquery_gh$files_tree_from_repo()
-  expect_snapshot(
-    gh_files_tree_query
-  )
-  test_mocker$cache(gh_files_tree_query)
-})
-
 gh_org <- "r-world-devs"
 gh_repo <- "GitStats"
 
-test_that("get_file_response works", {
-  if (integration_tests_skipped) {
-    mockery::stub(
-      test_graphql_github_priv$get_file_response,
-      "self$gql_response",
-      test_fixtures$github_files_tree_response
-    )
-  }
-  gh_files_tree_response <- test_graphql_github_priv$get_file_response(
-    org = gh_org,
-    repo = gh_repo,
-    def_branch = "master",
-    file_path = "",
-    files_query = test_mocker$use("gh_files_tree_query")
-  )
-  expect_files_github_raw_response(
-    gh_files_tree_response
-  )
-  test_mocker$cache(gh_files_tree_response)
-})
-
-test_that("get_dirs_and_files returns list with directories and files", {
-  files_and_dirs_list <- test_graphql_github_priv$get_files_and_dirs(
-    files_tree_response = test_mocker$use("gh_files_tree_response")
-  )
-  expect_type(
-    files_and_dirs_list,
-    "list"
-  )
-  expect_list_contains(
-    files_and_dirs_list,
-    c("files", "dirs")
-  )
-  test_mocker$cache(files_and_dirs_list)
-})
-
-test_that("get_files_structure_from_repo returns list with files and dirs vectors", {
-  if (integration_tests_skipped) {
-    mockery::stub(
-      test_graphql_github_priv$get_files_structure_from_repo,
-      "private$get_file_response",
-      test_mocker$use("gh_files_tree_response")
-    )
-    files_and_dirs <- test_mocker$use("files_and_dirs_list")
-    files_and_dirs$dirs <- character()
-    mockery::stub(
-      test_graphql_github_priv$get_files_structure_from_repo,
-      "private$get_files_and_dirs",
-      files_and_dirs
-    )
-  }
-  files_structure <- test_graphql_github_priv$get_files_structure_from_repo(
-    org = gh_org,
-    repo = gh_repo,
-    pattern = NULL,
-    depth = 1L,
-    def_branch = "master",
-    verbose = FALSE
-  )
-  expect_type(
-    files_structure,
-    "character"
-  )
-})
-
-test_that("get_files_structure_from_repo returns list of files up to 2 tier of dirs", {
-  mockery::stub(
-    test_graphql_github_priv$get_files_structure_from_repo,
-    "private$get_file_response",
-    test_mocker$use("gh_files_tree_response")
-  )
-  mockery::stub(
-    test_graphql_github_priv$get_files_structure_from_repo,
-    "private$get_files_and_dirs",
-    files_and_dirs <- test_mocker$use("files_and_dirs_list")
-  )
-  files_structure_very_shallow <- test_graphql_github_priv$get_files_structure_from_repo(
-    org = gh_org,
-    repo = gh_repo,
-    pattern = NULL,
-    def_branch = "master",
-    depth = 1L
-  )
-  files_structure_shallow <- test_graphql_github_priv$get_files_structure_from_repo(
-    org = gh_org,
-    repo = gh_repo,
-    pattern = NULL,
-    def_branch = "master",
-    depth = 2L
-  )
-  expect_type(
-    files_structure_shallow,
-    "character"
-  )
-  expect_true(
-    length(files_structure_very_shallow) < length(files_structure_shallow)
-  )
-  files_structure <- files_structure_shallow
-  test_mocker$cache(files_structure)
-})
-
-test_that("only files with certain pattern are retrieved", {
-  md_files_structure <- test_graphql_github_priv$filter_files_by_pattern(
-    files_structure = test_mocker$use("files_structure"),
-    pattern = "\\.md|\\.qmd|\\.Rmd"
-  )
-  files_structure <- test_mocker$use("files_structure")
-  expect_true(
-    length(md_files_structure) > 0
-  )
-  expect_true(
-    length(md_files_structure) < length(files_structure)
-  )
-  test_mocker$cache(md_files_structure)
-})
-
-test_that("GitHub GraphQL Engine pulls files structure from repositories", {
-  if (integration_tests_skipped) {
-    mockery::stub(
-      test_graphql_github$get_files_structure_from_org,
-      "private$get_files_structure_from_repo",
-      test_mocker$use("files_structure")
-    )
-  }
-  gh_repos <- c("GitStats", "GitAI", "cohortBuilder", "shinyCohortBuilder", "shinyGizmo")
-  gh_repos_data <- test_mocker$use("gh_repos_data")
-  gh_files_structure <- test_graphql_github$get_files_structure_from_org(
-    org = gh_org,
-    repos_data = gh_repos_data,
-    owner_type = "organization",
-    pattern = NULL,
-    depth = 1L,
-    verbose = FALSE
-  )
-  purrr::walk(gh_files_structure, ~ expect_true(length(.) > 0))
-  expect_equal(
-    names(gh_files_structure),
-    unlist(gh_repos_data$paths)
-  )
-  test_mocker$cache(gh_files_structure)
-})
-
-test_that("GitHub GraphQL Engine pulls files structure with pattern from repositories", {
-  mockery::stub(
-    test_graphql_github$get_files_structure_from_org,
-    "private$get_files_structure_from_repo",
-    test_mocker$use("md_files_structure")
-  )
-  gh_md_files_structure <- test_graphql_github$get_files_structure_from_org(
-    org = gh_org,
-    owner_type = "organization",
-    repos_data = test_mocker$use("gh_repos_data"),
-    pattern = "\\.md|\\.qmd|\\.Rmd"
-  )
-  purrr::walk(gh_md_files_structure, ~ expect_true(all(grepl("\\.md|\\.qmd|\\.Rmd", .))))
-  test_mocker$cache(gh_md_files_structure)
-})
+gh_md_files_structure <- list(
+  "GitStats" = c("README.md", "CONTRIBUTING.md", "NEWS.md"),
+  "GitAI" = c("README.md"),
+  "cohortBuilder" = c("README.md", "vignettes/overview.Rmd"),
+  "shinyCohortBuilder" = c("README.md"),
+  "shinyGizmo" = c("README.md")
+)
+test_mocker$cache(gh_md_files_structure)
 
 test_that("get_files_structure_from_orgs() works", {
+  gh_md_files_with_ids <- purrr::imap(test_mocker$use("gh_md_files_structure"), function(files, repo_name) {
+    attr(files, "repo_id") <- paste0("R_", repo_name)
+    files
+  })
   mockery::stub(
     github_testhost_priv$get_files_structure_from_orgs,
-    "graphql_engine$get_files_structure_from_org",
-    test_mocker$use("gh_md_files_structure")
+    "private$get_files_structure_from_repos_data",
+    gh_md_files_with_ids
   )
   github_testhost_priv$searching_scope <- "org"
   gh_files_structure_from_orgs <- github_testhost_priv$get_files_structure_from_orgs(
@@ -194,7 +40,7 @@ test_that("get_files_structure_from_orgs() works", {
 test_that("get_files_structure_from_orgs() prints message", {
   mockery::stub(
     github_testhost_priv$get_files_structure_from_orgs,
-    "graphql_engine$get_files_structure_from_org",
+    "private$get_files_structure_from_repos_data",
     test_mocker$use("gh_md_files_structure")
   )
   github_testhost_priv$searching_scope <- "org"
@@ -226,7 +72,7 @@ test_that("get_files_structure_from_repos() works", {
   )
   mockery::stub(
     github_testhost_priv$get_files_structure_from_repos,
-    "graphql_engine$get_files_structure_from_org",
+    "private$get_files_structure_from_repos_data",
     test_mocker$use("gh_md_files_structure")
   )
   github_testhost_priv$searching_scope <- "repo"
@@ -256,7 +102,7 @@ test_that("get_files_structure_from_repos() prints message", {
   )
   mockery::stub(
     github_testhost_priv$get_files_structure_from_repos,
-    "graphql_engine$get_files_structure_from_org",
+    "private$get_files_structure_from_repos_data",
     test_mocker$use("gh_md_files_structure")
   )
   github_testhost_priv$searching_scope <- "repo"
@@ -296,7 +142,7 @@ test_that("when files_structure is empty, appropriate message is returned", {
   )
   mockery::stub(
     github_testhost_priv$get_files_structure_from_repos,
-    "graphql_engine$get_files_structure_from_org",
+    "private$get_files_structure_from_repos_data",
     list() |>
       purrr::set_names()
   )

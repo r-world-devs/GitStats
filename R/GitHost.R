@@ -1382,9 +1382,8 @@ GitHost <- R6::R6Class(
                                              verbose  = TRUE,
                                              progress = TRUE) {
       if (any(c("all", "org") %in% private$searching_scope)) {
-        graphql_engine <- private$engines$graphql
+        rest_engine <- private$engines$rest
         files_structure_list <- gitstats_map(private$orgs, function(org) {
-          owner_type <- attr(org, "type") %||% "organization"
           repos_data <- private$get_repos_data(
             org = org,
             verbose = verbose
@@ -1399,14 +1398,14 @@ GitHost <- R6::R6Class(
             }
             show_message(
               host = private$host_name,
-              engine = "graphql",
+              engine = "rest",
               scope = org,
               information = user_info
             )
           }
-          graphql_engine$get_files_structure_from_org(
+          private$get_files_structure_from_repos_data(
+            rest_engine = rest_engine,
             org = org,
-            owner_type = owner_type,
             repos_data = repos_data,
             pattern = pattern,
             depth = depth,
@@ -1425,6 +1424,53 @@ GitHost <- R6::R6Class(
         }
         return(files_structure_list)
       }
+    },
+
+    get_files_structure_from_repos_data = function(rest_engine,
+                                                   org,
+                                                   repos_data,
+                                                   pattern,
+                                                   depth,
+                                                   verbose) {
+      repositories <- repos_data[["paths"]]
+      def_branches <- repos_data[["def_branches"]]
+      repo_ids <- repos_data[["repo_ids"]]
+      if (!is.null(def_branches)) {
+        files_structure <- gitstats_map2(repositories, def_branches,
+          function(repo, def_branch) {
+            rest_engine$get_files_tree(
+              org = org,
+              repo = repo,
+              def_branch = def_branch,
+              pattern = pattern,
+              depth = depth,
+              verbose = verbose
+            )
+          }
+        )
+      } else {
+        files_structure <- gitstats_map(repositories,
+          function(repo) {
+            rest_engine$get_files_tree(
+              org = org,
+              repo = repo,
+              pattern = pattern,
+              depth = depth,
+              verbose = verbose
+            )
+          }
+        )
+      }
+      names(files_structure) <- repositories
+      if (!is.null(repo_ids)) {
+        for (i in seq_along(files_structure)) {
+          if (!is.null(files_structure[[i]])) {
+            attr(files_structure[[i]], "repo_id") <- repo_ids[[i]]
+          }
+        }
+      }
+      files_structure <- purrr::discard(files_structure, ~ length(.) == 0)
+      return(files_structure)
     },
 
     get_files_content_from_host = function(file_path,

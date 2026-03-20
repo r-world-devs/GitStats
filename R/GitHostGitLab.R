@@ -318,45 +318,52 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     },
 
     get_repos_data = function(org, repos = NULL, verbose) {
-      if (!is.null(repos)) {
-        repos_names <- repos
-      } else {
-        cached_repos <- private$get_cached_repos(org)
-        if (is.null(cached_repos)) {
-          if (verbose) cli::cli_alert("[{org}] Pulling repositories {cli_icons$repo} data...")
-          graphql_engine <- private$engines$graphql
-          owner_type <- attr(org, "type") %||% "organization"
-          repos_from_org <- graphql_engine$get_repos_from_org(
-            org = url_decode(org),
-            owner_type = owner_type,
+      cached_repos <- private$get_cached_repos(org)
+      if (is.null(cached_repos)) {
+        if (verbose) cli::cli_alert("[{org}] Pulling repositories {cli_icons$repo} data...")
+        graphql_engine <- private$engines$graphql
+        owner_type <- attr(org, "type") %||% "organization"
+        repos_from_org <- graphql_engine$get_repos_from_org(
+          org = url_decode(org),
+          owner_type = owner_type,
+          verbose = verbose
+        )
+        if (inherits(repos_from_org, "graphql_error")) {
+          if (verbose) {
+            cli::cli_alert_info("Switching to REST API...")
+          }
+          rest_engine <- private$engines$rest
+          repos_from_org <- rest_engine$get_repos_from_org(
+            org = url_encode(org),
+            output = "raw",
             verbose = verbose
           )
-          if (inherits(repos_from_org, "graphql_error")) {
-            if (verbose) {
-              cli::cli_alert_info("Switching to REST API...")
-            }
-            rest_engine <- private$engines$rest
-            repos_from_org <- rest_engine$get_repos_from_org(
-              org = url_encode(org),
-              output = "raw",
-              verbose = verbose
-            )
-          } else {
-            repos_from_org <- purrr::map(repos_from_org, function(repos_data) {
-              repos_data$path <- repos_data$node$repo_path
-              repos_data
-            })
-          }
-          private$set_cached_repos(repos_from_org, org, verbose)
         } else {
-          if (verbose) cli::cli_alert("Using cached repositories data...")
-          repos_from_org <- cached_repos
+          repos_from_org <- purrr::map(repos_from_org, function(repos_data) {
+            repos_data$path <- repos_data$node$repo_path
+            repos_data
+          })
         }
-        repos_names <- repos_from_org |>
-          purrr::map_vec(~ .$path)
+        private$set_cached_repos(repos_from_org, org, verbose)
+      } else {
+        if (verbose) cli::cli_alert("Using cached repositories data...")
+        repos_from_org <- cached_repos
       }
+      if (!is.null(repos)) {
+        repos_from_org <- purrr::keep(repos_from_org, ~ .$path %in% repos)
+      }
+      repos_names <- repos_from_org |>
+        purrr::map_vec(~ .$path)
+      repo_ids <- purrr::map_chr(repos_from_org, function(repo) {
+        if (!is.null(repo$node$repo_id)) {
+          get_gitlab_repo_id(repo$node$repo_id)
+        } else {
+          as.character(repo$id)
+        }
+      })
       repos_data <- list(
-        "paths" = repos_names
+        "paths" = repos_names,
+        "repo_ids" = repo_ids
       )
       return(repos_data)
     },
@@ -376,6 +383,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
                                               verbose  = TRUE,
                                               progress = TRUE) {
       if ("repo" %in% private$searching_scope) {
+        rest_engine <- private$engines$rest
         graphql_engine <- private$engines$graphql
         orgs <- graphql_engine$set_owner_type(
           owners = names(private$orgs_repos),
@@ -392,15 +400,14 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             }
             show_message(
               host = private$host_name,
-              engine = "graphql",
+              engine = "rest",
               scope = set_repo_scope(org, private),
               information = user_info
             )
           }
-          owner_type <- attr(org, "type") %||% "organization"
-          graphql_engine$get_files_structure_from_org(
+          private$get_files_structure_from_repos_data(
+            rest_engine = rest_engine,
             org = org,
-            owner_type = owner_type,
             repos_data = list("paths" = private$orgs_repos[[org]]),
             pattern = pattern,
             depth = depth,

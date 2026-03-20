@@ -326,29 +326,6 @@ EngineGraphQLGitHub <- R6::R6Class(
       return(files_table)
     },
 
-    get_files_structure_from_org = function(org,
-                                            owner_type,
-                                            repos_data,
-                                            pattern,
-                                            depth,
-                                            verbose) {
-      repositories <- repos_data[["paths"]]
-      def_branches <- repos_data[["def_branches"]]
-      files_structure <- gitstats_map2(repositories, def_branches, function(repo, def_branch) {
-        private$get_files_structure_from_repo(
-          org = org,
-          repo = repo,
-          def_branch = def_branch,
-          pattern = pattern,
-          depth = depth,
-          verbose = verbose
-        )
-      })
-      names(files_structure) <- repositories
-      files_structure <- purrr::discard(files_structure, ~ length(.) == 0)
-      return(files_structure)
-    },
-
     prepare_user_table = function(user_response) {
       if (!is.null(user_response$data$user)) {
         user_data <- user_response$data$user
@@ -672,88 +649,6 @@ EngineGraphQLGitHub <- R6::R6Class(
         verbose = verbose
       )
       return(files_response)
-    },
-
-    get_files_structure_from_repo = function(org,
-                                             repo,
-                                             def_branch,
-                                             pattern,
-                                             depth,
-                                             verbose) {
-      files_tree_response <- private$get_file_response(
-        org = org,
-        repo = repo,
-        def_branch = def_branch,
-        file_path = "",
-        files_query = self$gql_query$files_tree_from_repo(),
-        verbose = verbose
-      )
-      files_and_dirs_list <- private$get_files_and_dirs(
-        files_tree_response = files_tree_response
-      )
-      if (length(files_and_dirs_list$dirs) > 0) {
-        folders_exist <- TRUE
-      } else {
-        folders_exist <- FALSE
-      }
-      all_files_and_dirs_list <- files_and_dirs_list
-      dirs <- files_and_dirs_list$dirs
-      tier <- 1
-      while (folders_exist && tier <= depth) {
-        new_dirs_list <- c()
-        for (dir in dirs) {
-          files_tree_response <- private$get_file_response(
-            org = org,
-            repo = repo,
-            def_branch = def_branch,
-            file_path = dir,
-            files_query = self$gql_query$files_tree_from_repo(),
-            verbose = verbose
-          )
-          files_and_dirs_list <- private$get_files_and_dirs(
-            files_tree_response = files_tree_response
-          )
-          all_files_and_dirs_list$files <- append(
-            all_files_and_dirs_list$files,
-            paste0(dir, "/", files_and_dirs_list$files)
-          )
-          if (length(files_and_dirs_list$dirs) > 0) {
-            new_dirs_list <- c(new_dirs_list, paste0(dir, "/", files_and_dirs_list$dirs))
-          }
-        }
-        if (length(new_dirs_list) > 0) {
-          dirs <- new_dirs_list
-          folders_exist <- TRUE
-          tier <- tier + 1
-        } else {
-          folders_exist <- FALSE
-        }
-      }
-      if (!is.null(pattern)) {
-        files_structure <- private$filter_files_by_pattern(
-          files_structure = all_files_and_dirs_list$files,
-          pattern = pattern
-        )
-      } else {
-        files_structure <- all_files_and_dirs_list$files
-      }
-      if (!is.null(files_structure)) {
-        attr(files_structure, "repo_id") <- files_tree_response$data$repository$id
-      }
-      return(files_structure)
-    },
-
-    get_files_and_dirs = function(files_tree_response) {
-      entries <- files_tree_response$data$repository$object$entries
-      dirs <- purrr::keep(entries, ~ .$type == "tree") |>
-        purrr::map_vec(~ .$name)
-      files <- purrr::discard(entries, ~ .$type == "tree") |>
-        purrr::map_vec(~ .$name)
-      result <- list(
-        "dirs" = dirs,
-        "files" = files
-      )
-      return(result)
     },
 
     fill_empty_authors = function(commits_table) {

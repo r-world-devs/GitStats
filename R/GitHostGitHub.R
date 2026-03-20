@@ -322,13 +322,13 @@ GitHostGitHub <- R6::R6Class(
                                               verbose  = TRUE,
                                               progress = TRUE) {
       if ("repo" %in% private$searching_scope) {
+        rest_engine <- private$engines$rest
         graphql_engine <- private$engines$graphql
         orgs <- graphql_engine$set_owner_type(
           owners = names(private$orgs_repos),
           verbose = verbose
         )
         files_structure_list <- gitstats_map(orgs, function(org) {
-          owner_type <- attr(org, "type") %||% "organization"
           repos_data <- private$get_repos_data(
             org = org,
             repos = private$orgs_repos[[org]],
@@ -344,14 +344,14 @@ GitHostGitHub <- R6::R6Class(
             }
             show_message(
               host = private$host_name,
-              engine = "graphql",
+              engine = "rest",
               scope = set_repo_scope(org, private),
               information = user_info
             )
           }
-          graphql_engine$get_files_structure_from_org(
+          private$get_files_structure_from_repos_data(
+            rest_engine = rest_engine,
             org = org,
-            owner_type = owner_type,
             repos_data = repos_data,
             pattern = pattern,
             depth = depth,
@@ -395,7 +395,8 @@ GitHostGitHub <- R6::R6Class(
       }
       repos_data <- list(
         "paths" = purrr::map(repos_from_org, ~ .$repo_path),
-        "def_branches" = purrr::map(repos_from_org, ~ .$default_branch$name)
+        "def_branches" = purrr::map(repos_from_org, ~ .$default_branch$name),
+        "repo_ids" = purrr::map_chr(repos_from_org, ~ .$repo_id)
       )
       return(repos_data)
     },

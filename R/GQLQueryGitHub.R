@@ -228,24 +228,6 @@ GQLQueryGitHub <- R6::R6Class("GQLQueryGitHub",
       }'
     },
 
-    files_tree_from_repo = function() {
-      'query GetFilesFromRepo($org: String!, $repo: String!, $expression: String!) {
-          repository(owner: $org, name: $repo) {
-            id
-            name
-            url
-            object(expression: $expression) {
-              ... on Tree {
-                entries {
-                  name
-                  type
-                }
-              }
-            }
-          }
-      }'
-    },
-
     releases_from_repo = function() {
       'query GetReleasesFromRepo ($org: String!, $repo: String!) {
           repository(owner:$org, name:$repo){
