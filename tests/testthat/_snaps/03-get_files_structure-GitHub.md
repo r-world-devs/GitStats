@@ -1,10 +1,3 @@
-# files tree query for GitHub are built properly
-
-    Code
-      gh_files_tree_query
-    Output
-      [1] "query GetFilesFromRepo($org: String!, $repo: String!, $expression: String!) {\n          repository(owner: $org, name: $repo) {\n            id\n            name\n            url\n            object(expression: $expression) {\n              ... on Tree {\n                entries {\n                  name\n                  type\n                }\n              }\n            }\n          }\n      }"
-
 # get_files_structure_from_orgs() prints message
 
     Code

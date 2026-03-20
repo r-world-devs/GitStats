@@ -222,41 +222,6 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
       '
     },
 
-    files_tree_from_repo = function() {
-      '
-      query GetFilesTree ($fullPath: ID!, $file_path: String!) {
-        project(fullPath: $fullPath) {
-          id
-          repository {
-            tree(path: $file_path) {
-              trees (first: 100) {
-                pageInfo{
-                  endCursor
-                  hasNextPage
-                }
-                nodes {
-                  name
-                }
-              }
-              blobs (first: 100) {
-                pageInfo{
-                  endCursor
-                  hasNextPage
-                }
-                nodes {
-                  name
-                }
-              }
-            }
-            lastCommit {
-              sha
-            }
-          }
-        }
-      }
-      '
-    },
-
     releases_from_repo = function() {
       'query GetReleasesFromRepo($project_path: ID!) {
               project(fullPath: $project_path) {
