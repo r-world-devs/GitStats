@@ -67,7 +67,7 @@ test_that("set_storage('postgres') errors without DBI packages", {
           "RPostgres is installed, cannot test missing package error")
   gs <- create_gitstats()
   expect_error(
-    gs$set_storage(type = "postgres", conn = NULL),
+    gs$set_storage(type = "postgres", dbname = "test"),
     "RPostgres"
   )
 })
@@ -83,8 +83,8 @@ test_that("StoragePostgres saves and loads data with metadata", {
   skip_if_not_installed("DBI")
   skip_if_not_installed("jsonlite")
 
-  conn <- DBI::dbConnect(
-    RPostgres::Postgres(),
+  storage <- StoragePostgres$new(
+    schema = "git_stats_test",
     dbname = Sys.getenv("GITSTATS_TEST_DB"),
     host = Sys.getenv("GITSTATS_TEST_DB_HOST", "localhost"),
     port = as.integer(Sys.getenv("GITSTATS_TEST_DB_PORT", "5432")),
@@ -92,11 +92,11 @@ test_that("StoragePostgres saves and loads data with metadata", {
     password = Sys.getenv("GITSTATS_TEST_DB_PASSWORD", "")
   )
   withr::defer({
-    DBI::dbExecute(conn, "DROP SCHEMA IF EXISTS git_stats_test CASCADE")
-    DBI::dbDisconnect(conn)
+    DBI::dbExecute(
+      storage$.__enclos_env__$private$conn,
+      "DROP SCHEMA IF EXISTS git_stats_test CASCADE"
+    )
   })
-
-  storage <- StoragePostgres$new(conn = conn, schema = "git_stats_test")
 
   test_data <- dplyr::tibble(
     repo_name = c("GitStats", "GitAI"),
@@ -113,4 +113,33 @@ test_that("StoragePostgres saves and loads data with metadata", {
   expect_equal(nrow(result), 2)
   expect_equal(result$repo_name, c("GitStats", "GitAI"))
   expect_equal(attr(result, "date_range"), c("2024-01-01", "2024-12-31"))
+})
+
+test_that("set_storage('postgres') creates connection from arguments", {
+  skip_if_not(
+    nzchar(Sys.getenv("GITSTATS_TEST_DB")),
+    "Set GITSTATS_TEST_DB to run Postgres storage tests"
+  )
+  skip_if_not_installed("RPostgres")
+  skip_if_not_installed("DBI")
+
+  gs <- create_gitstats()
+  gs$set_storage(
+    type = "postgres",
+    dbname = Sys.getenv("GITSTATS_TEST_DB"),
+    host = Sys.getenv("GITSTATS_TEST_DB_HOST", "localhost"),
+    port = as.integer(Sys.getenv("GITSTATS_TEST_DB_PORT", "5432")),
+    user = Sys.getenv("GITSTATS_TEST_DB_USER", "postgres"),
+    password = Sys.getenv("GITSTATS_TEST_DB_PASSWORD", ""),
+    schema = "git_stats_test2"
+  )
+  gs_priv <- environment(gs$print)$private
+  expect_s3_class(gs_priv$storage_backend, "StoragePostgres")
+
+  withr::defer({
+    DBI::dbExecute(
+      gs_priv$storage_backend$.__enclos_env__$private$conn,
+      "DROP SCHEMA IF EXISTS git_stats_test2 CASCADE"
+    )
+  })
 })

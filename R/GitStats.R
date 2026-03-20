@@ -506,7 +506,12 @@ GitStats <- R6::R6Class(
     set_storage = function(type = "local", ...) {
       private$storage_backend <- switch(type,
         "local" = StorageLocal$new(),
-        "postgres" = StoragePostgres$new(...),
+        "postgres" = {
+          args <- list(...)
+          schema <- args$schema %||% "git_stats"
+          args$schema <- NULL
+          do.call(StoragePostgres$new, c(list(schema = schema), args))
+        },
         cli::cli_abort("Unknown storage type: {.val {type}}. Use {.val local} or {.val postgres}.")
       )
       if (type != "local") {

@@ -51,17 +51,22 @@ StoragePostgres <- R6::R6Class(
   classname = "StoragePostgres",
   inherit = Storage,
   public = list(
-    initialize = function(conn, schema = "git_stats") {
+    initialize = function(schema = "git_stats", ...) {
       check_if_package_installed("DBI")
       check_if_package_installed("RPostgres")
       check_if_package_installed("jsonlite")
-      if (!DBI::dbIsValid(conn)) {
-        cli::cli_abort("Database connection is not valid.")
+      private$conn <- DBI::dbConnect(RPostgres::Postgres(), ...)
+      if (!DBI::dbIsValid(private$conn)) {
+        cli::cli_abort("Failed to connect to the database.")
       }
-      private$conn <- conn
       private$schema <- schema
       private$ensure_schema()
       private$ensure_metadata_table()
+    },
+    finalize = function() {
+      if (!is.null(private$conn) && DBI::dbIsValid(private$conn)) {
+        DBI::dbDisconnect(private$conn)
+      }
     },
     save = function(name, data) {
       qualified <- private$qualified_name(name)

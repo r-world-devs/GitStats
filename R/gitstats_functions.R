@@ -113,20 +113,20 @@ is_verbose <- function(gitstats) {
 #' @param gitstats A GitStats object.
 #' @param type A character, either `"local"` (default, in-memory) or
 #'   `"postgres"` (PostgreSQL database).
-#' @param ... Additional arguments passed to the storage backend constructor.
-#'   For `"postgres"`: `conn` (a DBI connection object, required) and
-#'   `schema` (character, defaults to `"git_stats"`).
+#' @param ... For `"postgres"`: connection arguments passed to
+#'   `DBI::dbConnect(RPostgres::Postgres(), ...)` (e.g. `dbname`, `host`,
+#'   `port`, `user`, `password`) and optionally `schema` (character, defaults
+#'   to `"git_stats"`).
 #' @return A `GitStats` object.
 #' @examples
 #' \dontrun{
 #'   my_gitstats <- create_gitstats() |>
 #'     set_storage(
 #'       type = "postgres",
-#'       conn = DBI::dbConnect(
-#'         RPostgres::Postgres(),
-#'         dbname = "my_database"
-#'       ),
-#'       schema = "git_stats"
+#'       dbname = "my_database",
+#'       host = "localhost",
+#'       user = "postgres",
+#'       password = "secret"
 #'     )
 #' }
 #' @export
