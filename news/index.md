@@ -11,6 +11,11 @@
 - Cached `set_owner_type()` results to avoid redundant GraphQL calls
   when multiple `get_*` functions are used in the same session
   ([\#738](https://github.com/r-world-devs/GitStats/issues/738)).
+- Replaced per-directory GraphQL file tree traversal with single-call
+  REST recursive tree API for
+  [`get_repos_trees()`](https://r-world-devs.github.io/GitStats/reference/get_repos_trees.md),
+  substantially improving speed of retrieving repository file trees
+  ([\#740](https://github.com/r-world-devs/GitStats/issues/740)).
 
 ## GitStats 2.4.0
 
