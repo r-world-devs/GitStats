@@ -1427,11 +1427,11 @@ GitHost <- R6::R6Class(
     },
 
     get_files_structure_from_repos_data = function(rest_engine,
-                                                    org,
-                                                    repos_data,
-                                                    pattern,
-                                                    depth,
-                                                    verbose) {
+                                                   org,
+                                                   repos_data,
+                                                   pattern,
+                                                   depth,
+                                                   verbose) {
       repositories <- repos_data[["paths"]]
       def_branches <- repos_data[["def_branches"]]
       if (!is.null(def_branches)) {

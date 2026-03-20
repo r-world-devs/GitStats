@@ -189,7 +189,7 @@ test_that("get_files_structure_from_orgs pulls files structure for repositories 
   if (integration_tests_skipped) {
     mockery::stub(
       gitlab_testhost_priv$get_files_structure_from_orgs,
-      "graphql_engine$get_files_structure_from_org",
+      "private$get_files_structure_from_repos_data",
       test_mocker$use("gl_files_structure_shallow")
     )
   }
@@ -212,7 +212,7 @@ test_that("get_files_structure_from_orgs pulls files structure for repositories 
 test_that("get_files_structure_from_orgs prints messages without pattern", {
   mockery::stub(
     gitlab_testhost_priv$get_files_structure_from_orgs,
-    "graphql_engine$get_files_structure_from_org",
+    "private$get_files_structure_from_repos_data",
     test_mocker$use("gl_files_structure_shallow")
   )
   gitlab_testhost_priv$searching_scope <- "org"
@@ -229,7 +229,7 @@ test_that("get_files_structure_from_orgs prints messages without pattern", {
 test_that("get_files_structure_from_orgs warns when no structure found", {
   mockery::stub(
     gitlab_testhost_priv$get_files_structure_from_orgs,
-    "graphql_engine$get_files_structure_from_org",
+    "private$get_files_structure_from_repos_data",
     list()
   )
   gitlab_testhost_priv$searching_scope <- "org"
@@ -246,7 +246,7 @@ test_that("get_files_structure_from_orgs warns when no structure found", {
 test_that("get_files_structure_from_repos pulls files structure for repositories", {
   mockery::stub(
     gitlab_testhost_priv$get_files_structure_from_repos,
-    "graphql_engine$get_files_structure_from_org",
+    "private$get_files_structure_from_repos_data",
     test_mocker$use("gl_files_structure_shallow")
   )
   test_org <- "mbtests"
@@ -276,7 +276,7 @@ test_that("get_files_structure_from_repos pulls files structure for repositories
 test_that("get_files_structure_from_repos prints message", {
   mockery::stub(
     gitlab_testhost_priv$get_files_structure_from_repos,
-    "graphql_engine$get_files_structure_from_org",
+    "private$get_files_structure_from_repos_data",
     test_mocker$use("gl_files_structure_shallow")
   )
   test_org <- "test_group"

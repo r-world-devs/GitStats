@@ -169,10 +169,14 @@ test_that("GitHub GraphQL Engine pulls files structure with pattern from reposit
 })
 
 test_that("get_files_structure_from_orgs() works", {
+  gh_md_files_with_ids <- purrr::imap(test_mocker$use("gh_md_files_structure"), function(files, repo_name) {
+    attr(files, "repo_id") <- paste0("sha_", repo_name)
+    files
+  })
   mockery::stub(
     github_testhost_priv$get_files_structure_from_orgs,
-    "graphql_engine$get_files_structure_from_org",
-    test_mocker$use("gh_md_files_structure")
+    "private$get_files_structure_from_repos_data",
+    gh_md_files_with_ids
   )
   github_testhost_priv$searching_scope <- "org"
   gh_files_structure_from_orgs <- github_testhost_priv$get_files_structure_from_orgs(
@@ -194,7 +198,7 @@ test_that("get_files_structure_from_orgs() works", {
 test_that("get_files_structure_from_orgs() prints message", {
   mockery::stub(
     github_testhost_priv$get_files_structure_from_orgs,
-    "graphql_engine$get_files_structure_from_org",
+    "private$get_files_structure_from_repos_data",
     test_mocker$use("gh_md_files_structure")
   )
   github_testhost_priv$searching_scope <- "org"
@@ -226,7 +230,7 @@ test_that("get_files_structure_from_repos() works", {
   )
   mockery::stub(
     github_testhost_priv$get_files_structure_from_repos,
-    "graphql_engine$get_files_structure_from_org",
+    "private$get_files_structure_from_repos_data",
     test_mocker$use("gh_md_files_structure")
   )
   github_testhost_priv$searching_scope <- "repo"
@@ -256,7 +260,7 @@ test_that("get_files_structure_from_repos() prints message", {
   )
   mockery::stub(
     github_testhost_priv$get_files_structure_from_repos,
-    "graphql_engine$get_files_structure_from_org",
+    "private$get_files_structure_from_repos_data",
     test_mocker$use("gh_md_files_structure")
   )
   github_testhost_priv$searching_scope <- "repo"
@@ -296,7 +300,7 @@ test_that("when files_structure is empty, appropriate message is returned", {
   )
   mockery::stub(
     github_testhost_priv$get_files_structure_from_repos,
-    "graphql_engine$get_files_structure_from_org",
+    "private$get_files_structure_from_repos_data",
     list() |>
       purrr::set_names()
   )
