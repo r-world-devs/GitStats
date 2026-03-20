@@ -62,6 +62,54 @@ test_that("set_storage('local') resets to in-memory storage", {
   expect_s3_class(gs_priv$storage_backend, "StorageLocal")
 })
 
+# ---- StorageSQLite ----
+
+test_that("StorageSQLite saves and loads data", {
+  skip_if_not_installed("RSQLite")
+  skip_if_not_installed("DBI")
+  skip_if_not_installed("jsonlite")
+  storage <- StorageSQLite$new()
+  test_data <- dplyr::tibble(a = 1:3, b = c("x", "y", "z"))
+  storage$save("test_table", test_data)
+  result <- storage$load("test_table")
+  expect_equal(result$a, test_data$a)
+  expect_equal(result$b, test_data$b)
+})
+
+test_that("StorageSQLite preserves R classes and attributes", {
+  skip_if_not_installed("RSQLite")
+  skip_if_not_installed("DBI")
+  skip_if_not_installed("jsonlite")
+  storage <- StorageSQLite$new()
+  test_data <- dplyr::tibble(repo = c("A", "B"), stars = c(10L, 5L))
+  class(test_data) <- c("gitstats_repositories", class(test_data))
+  attr(test_data, "date_range") <- c("2024-01-01", "2024-12-31")
+  storage$save("repositories", test_data)
+  result <- storage$load("repositories")
+  expect_s3_class(result, "gitstats_repositories")
+  expect_equal(attr(result, "date_range"), c("2024-01-01", "2024-12-31"))
+})
+
+test_that("StorageSQLite$exists and $list work", {
+  skip_if_not_installed("RSQLite")
+  skip_if_not_installed("DBI")
+  storage <- StorageSQLite$new()
+  expect_false(storage$exists("missing"))
+  expect_length(storage$list(), 0)
+  storage$save("commits", dplyr::tibble(x = 1))
+  storage$save("repos", dplyr::tibble(y = 2))
+  expect_true(storage$exists("commits"))
+  expect_equal(sort(storage$list()), c("commits", "repos"))
+})
+
+test_that("set_storage('sqlite') works", {
+  skip_if_not_installed("RSQLite")
+  gs <- create_gitstats()
+  gs$set_storage(type = "sqlite")
+  gs_priv <- environment(gs$print)$private
+  expect_s3_class(gs_priv$storage_backend, "StorageSQLite")
+})
+
 test_that("set_storage('postgres') errors without DBI packages", {
   skip_if(requireNamespace("RPostgres", quietly = TRUE),
           "RPostgres is installed, cannot test missing package error")

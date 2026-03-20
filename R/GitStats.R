@@ -512,7 +512,12 @@ GitStats <- R6::R6Class(
           args$schema <- NULL
           do.call(StoragePostgres$new, c(list(schema = schema), args))
         },
-        cli::cli_abort("Unknown storage type: {.val {type}}. Use {.val local} or {.val postgres}.")
+        "sqlite" = {
+          args <- list(...)
+          dbname <- args$dbname %||% ":memory:"
+          StorageSQLite$new(dbname = dbname)
+        },
+        cli::cli_abort("Unknown storage type: {.val {type}}. Use {.val local}, {.val postgres}, or {.val sqlite}.")
       )
       if (type != "local") {
         cli::cli_alert_success("Storage set to {.val {type}}.")

@@ -111,12 +111,13 @@ is_verbose <- function(gitstats) {
 #'   data is stored in memory. Use `type = "postgres"` to persist data in a
 #'   PostgreSQL database.
 #' @param gitstats A GitStats object.
-#' @param type A character, either `"local"` (default, in-memory) or
-#'   `"postgres"` (PostgreSQL database).
+#' @param type A character: `"local"` (default, in-memory), `"postgres"`
+#'   (PostgreSQL database), or `"sqlite"` (SQLite file or in-memory database).
 #' @param ... For `"postgres"`: connection arguments passed to
 #'   `DBI::dbConnect(RPostgres::Postgres(), ...)` (e.g. `dbname`, `host`,
 #'   `port`, `user`, `password`) and optionally `schema` (character, defaults
-#'   to `"git_stats"`).
+#'   to `"git_stats"`). For `"sqlite"`: `dbname` (path to SQLite file,
+#'   defaults to `":memory:"`).
 #' @return A `GitStats` object.
 #' @examples
 #' \dontrun{

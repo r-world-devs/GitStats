@@ -142,4 +142,3 @@ check_if_package_installed <- function(package) {
     )
   }
 }
-

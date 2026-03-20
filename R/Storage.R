@@ -184,3 +184,108 @@ StoragePostgres <- R6::R6Class(
     }
   )
 )
+
+#' @noRd
+StorageSQLite <- R6::R6Class(
+  classname = "StorageSQLite",
+  inherit = Storage,
+  public = list(
+    initialize = function(dbname = ":memory:") {
+      check_if_package_installed("DBI")
+      check_if_package_installed("RSQLite")
+      check_if_package_installed("jsonlite")
+      private$conn <- DBI::dbConnect(RSQLite::SQLite(), dbname = dbname)
+      private$ensure_metadata_table()
+    },
+    finalize = function() {
+      if (!is.null(private$conn) && DBI::dbIsValid(private$conn)) {
+        DBI::dbDisconnect(private$conn)
+      }
+    },
+    save = function(name, data) {
+      meta <- list(
+        class = class(data),
+        attributes = list()
+      )
+      custom_attrs <- setdiff(
+        names(attributes(data)),
+        c("names", "row.names", "class")
+      )
+      for (attr_name in custom_attrs) {
+        meta$attributes[[attr_name]] <- attr(data, attr_name)
+      }
+      plain_data <- data
+      class(plain_data) <- class(plain_data)[!grepl("^gitstats_", class(plain_data))]
+      DBI::dbWriteTable(private$conn, name, plain_data, overwrite = TRUE)
+      private$save_metadata(name, meta)
+    },
+    load = function(name) {
+      if (!self$exists(name)) {
+        return(NULL)
+      }
+      data <- DBI::dbReadTable(private$conn, name) |>
+        dplyr::as_tibble()
+      meta <- private$load_metadata(name)
+      if (!is.null(meta)) {
+        if (!is.null(meta$class)) {
+          class(data) <- meta$class
+        }
+        if (!is.null(meta$attributes)) {
+          for (attr_name in names(meta$attributes)) {
+            attr(data, attr_name) <- meta$attributes[[attr_name]]
+          }
+        }
+      }
+      return(data)
+    },
+    exists = function(name) {
+      DBI::dbExistsTable(private$conn, name)
+    },
+    list = function() {
+      tables <- DBI::dbListTables(private$conn)
+      tables[tables != "_metadata"]
+    },
+    is_db = function() {
+      TRUE
+    }
+  ),
+  private = list(
+    conn = NULL,
+    ensure_metadata_table = function() {
+      if (!DBI::dbExistsTable(private$conn, "_metadata")) {
+        DBI::dbExecute(
+          private$conn,
+          "CREATE TABLE _metadata (
+            dataset_name TEXT PRIMARY KEY,
+            metadata TEXT NOT NULL
+          )"
+        )
+      }
+    },
+    save_metadata = function(name, meta) {
+      meta_json <- jsonlite::toJSON(meta, auto_unbox = TRUE)
+      DBI::dbExecute(
+        private$conn,
+        "DELETE FROM _metadata WHERE dataset_name = ?",
+        params = list(name)
+      )
+      DBI::dbExecute(
+        private$conn,
+        "INSERT INTO _metadata (dataset_name, metadata) VALUES (?, ?)",
+        params = list(name, as.character(meta_json))
+      )
+    },
+    load_metadata = function(name) {
+      result <- DBI::dbGetQuery(
+        private$conn,
+        "SELECT metadata FROM _metadata WHERE dataset_name = ?",
+        params = list(name)
+      )
+      if (nrow(result) == 0) {
+        return(NULL)
+      }
+      jsonlite::fromJSON(result$metadata[[1]])
+    }
+  )
+)
+
