@@ -41,7 +41,7 @@ test_that("StorageLocal exists returns TRUE/FALSE correctly", {
 
 test_that("StorageLocal list returns saved names", {
   storage <- StorageLocal$new()
-  expect_equal(storage$list(), character(0))
+  expect_null(storage$list())
   storage$save("alpha", dplyr::tibble(x = 1))
   storage$save("beta", dplyr::tibble(y = 2))
   expect_setequal(storage$list(), c("alpha", "beta"))
