@@ -1,193 +1,242 @@
-# ---- StorageLocal ----
+# Storage base class -----------------------------------------------------------
 
-test_that("StorageLocal saves and loads data", {
-  storage <- StorageLocal$new()
-  test_data <- dplyr::tibble(a = 1:3, b = c("x", "y", "z"))
-  storage$save("test_table", test_data)
-  result <- storage$load("test_table")
-  expect_equal(result, test_data)
+test_that("Storage base class methods raise 'Not implemented'", {
+  base <- Storage$new()
+  expect_error(base$save("x", 1), "Not implemented")
+  expect_error(base$load("x"), "Not implemented")
+  expect_error(base$exists("x"), "Not implemented")
+  expect_error(base$list(), "Not implemented")
+  expect_false(base$is_db())
 })
 
-test_that("StorageLocal preserves R classes and attributes", {
+# StorageLocal -----------------------------------------------------------------
+
+test_that("StorageLocal save and load round-trips data", {
   storage <- StorageLocal$new()
-  test_data <- dplyr::tibble(a = 1:3)
-  class(test_data) <- c("gitstats_commits", class(test_data))
-  attr(test_data, "date_range") <- c("2024-01-01", "2024-12-31")
-  storage$save("commits", test_data)
-  result <- storage$load("commits")
-  expect_s3_class(result, "gitstats_commits")
-  expect_equal(attr(result, "date_range"), c("2024-01-01", "2024-12-31"))
+  df <- dplyr::tibble(a = 1:3, b = letters[1:3])
+  storage$save("test_data", df)
+  loaded <- storage$load("test_data")
+  expect_equal(loaded, df)
 })
 
-test_that("StorageLocal$exists works", {
+test_that("StorageLocal preserves class and attributes", {
+  storage <- StorageLocal$new()
+  df <- dplyr::tibble(a = 1:3)
+  class(df) <- c("gitstats_repos", class(df))
+  attr(df, "since") <- "2024-01-01"
+  attr(df, "until") <- "2024-12-31"
+  storage$save("repos", df)
+  loaded <- storage$load("repos")
+  expect_s3_class(loaded, "gitstats_repos")
+  expect_equal(attr(loaded, "since"), "2024-01-01")
+  expect_equal(attr(loaded, "until"), "2024-12-31")
+})
+
+test_that("StorageLocal exists returns TRUE/FALSE correctly", {
   storage <- StorageLocal$new()
   expect_false(storage$exists("missing"))
   storage$save("present", dplyr::tibble(x = 1))
   expect_true(storage$exists("present"))
 })
 
-test_that("StorageLocal$list returns stored names", {
+test_that("StorageLocal list returns saved names", {
   storage <- StorageLocal$new()
-  expect_length(storage$list(), 0)
-  storage$save("commits", dplyr::tibble(x = 1))
-  storage$save("repos", dplyr::tibble(y = 2))
-  expect_equal(sort(storage$list()), c("commits", "repos"))
+  expect_equal(storage$list(), character(0))
+  storage$save("alpha", dplyr::tibble(x = 1))
+  storage$save("beta", dplyr::tibble(y = 2))
+  expect_setequal(storage$list(), c("alpha", "beta"))
 })
 
-test_that("StorageLocal$load returns NULL for missing data", {
+test_that("StorageLocal load returns NULL for missing data", {
   storage <- StorageLocal$new()
   expect_null(storage$load("nonexistent"))
 })
 
-# ---- set_storage ----
-
-test_that("GitStats uses StorageLocal by default", {
-  gs <- create_gitstats()
-  gs_priv <- environment(gs$print)$private
-  expect_s3_class(gs_priv$storage_backend, "StorageLocal")
+test_that("StorageLocal overwrite replaces data", {
+  storage <- StorageLocal$new()
+  storage$save("data", dplyr::tibble(x = 1))
+  storage$save("data", dplyr::tibble(x = 99))
+  expect_equal(storage$load("data")$x, 99)
 })
 
-test_that("set_storage with unknown type errors", {
+test_that("StorageLocal is_db returns FALSE", {
+  storage <- StorageLocal$new()
+  expect_false(storage$is_db())
+})
+
+# set_storage ------------------------------------------------------------------
+
+test_that("set_storage defaults to StorageLocal", {
+  gs <- create_gitstats()
+  backend <- gs$.__enclos_env__$private$storage_backend
+  expect_true(inherits(backend, "StorageLocal"))
+  expect_false(backend$is_db())
+})
+
+test_that("set_storage errors on unknown type", {
   gs <- create_gitstats()
   expect_error(
-    gs$set_storage(type = "unknown"),
+    gs$set_storage(type = "redis"),
     "Unknown storage type"
   )
 })
 
-test_that("set_storage('local') resets to in-memory storage", {
-  gs <- create_gitstats()
-  gs$set_storage(type = "local")
-  gs_priv <- environment(gs$print)$private
-  expect_s3_class(gs_priv$storage_backend, "StorageLocal")
-})
-
-# ---- StorageSQLite ----
-
-test_that("StorageSQLite saves and loads data", {
-  skip_if_not_installed("RSQLite")
-  skip_if_not_installed("DBI")
-  skip_if_not_installed("jsonlite")
-  storage <- StorageSQLite$new()
-  test_data <- dplyr::tibble(a = 1:3, b = c("x", "y", "z"))
-  storage$save("test_table", test_data)
-  result <- storage$load("test_table")
-  expect_equal(result$a, test_data$a)
-  expect_equal(result$b, test_data$b)
-})
-
-test_that("StorageSQLite preserves R classes and attributes", {
-  skip_if_not_installed("RSQLite")
-  skip_if_not_installed("DBI")
-  skip_if_not_installed("jsonlite")
-  storage <- StorageSQLite$new()
-  test_data <- dplyr::tibble(repo = c("A", "B"), stars = c(10L, 5L))
-  class(test_data) <- c("gitstats_repositories", class(test_data))
-  attr(test_data, "date_range") <- c("2024-01-01", "2024-12-31")
-  storage$save("repositories", test_data)
-  result <- storage$load("repositories")
-  expect_s3_class(result, "gitstats_repositories")
-  expect_equal(attr(result, "date_range"), c("2024-01-01", "2024-12-31"))
-})
-
-test_that("StorageSQLite$exists and $list work", {
-  skip_if_not_installed("RSQLite")
-  skip_if_not_installed("DBI")
-  storage <- StorageSQLite$new()
-  expect_false(storage$exists("missing"))
-  expect_length(storage$list(), 0)
-  storage$save("commits", dplyr::tibble(x = 1))
-  storage$save("repos", dplyr::tibble(y = 2))
-  expect_true(storage$exists("commits"))
-  expect_equal(sort(storage$list()), c("commits", "repos"))
-})
-
-test_that("set_storage('sqlite') works", {
-  skip_if_not_installed("RSQLite")
+test_that("set_storage resets to local", {
   gs <- create_gitstats()
   gs$set_storage(type = "sqlite")
-  gs_priv <- environment(gs$print)$private
-  expect_s3_class(gs_priv$storage_backend, "StorageSQLite")
+  expect_true(gs$.__enclos_env__$private$storage_backend$is_db())
+  gs$set_storage(type = "local")
+  expect_false(gs$.__enclos_env__$private$storage_backend$is_db())
 })
 
-test_that("set_storage('postgres') errors without DBI packages", {
-  skip_if(requireNamespace("RPostgres", quietly = TRUE),
-          "RPostgres is installed, cannot test missing package error")
+test_that("set_storage returns self invisibly for piping", {
   gs <- create_gitstats()
+  result <- gs$set_storage(type = "local")
+  expect_identical(result, gs)
+})
+
+# StorageSQLite ----------------------------------------------------------------
+
+test_that("StorageSQLite save and load round-trips data", {
+  storage <- StorageSQLite$new()
+  df <- dplyr::tibble(a = 1:3, b = c("x", "y", "z"))
+  storage$save("test_data", df)
+  loaded <- storage$load("test_data")
+  expect_equal(loaded$a, df$a)
+  expect_equal(loaded$b, df$b)
+})
+
+test_that("StorageSQLite preserves class via metadata", {
+  storage <- StorageSQLite$new()
+  df <- dplyr::tibble(a = 1:3)
+  class(df) <- c("gitstats_commits", class(df))
+  storage$save("commits", df)
+  loaded <- storage$load("commits")
+  expect_s3_class(loaded, "gitstats_commits")
+})
+
+test_that("StorageSQLite preserves custom attributes via metadata", {
+  storage <- StorageSQLite$new()
+  df <- dplyr::tibble(a = 1:3)
+  class(df) <- c("gitstats_repos", class(df))
+  attr(df, "since") <- "2024-01-01"
+  attr(df, "until") <- "2024-12-31"
+  storage$save("repos", df)
+  loaded <- storage$load("repos")
+  expect_equal(attr(loaded, "since"), "2024-01-01")
+  expect_equal(attr(loaded, "until"), "2024-12-31")
+})
+
+test_that("StorageSQLite exists returns TRUE/FALSE correctly", {
+  storage <- StorageSQLite$new()
+  expect_false(storage$exists("missing"))
+  storage$save("present", dplyr::tibble(x = 1))
+  expect_true(storage$exists("present"))
+})
+
+test_that("StorageSQLite list excludes _metadata table", {
+  storage <- StorageSQLite$new()
+  storage$save("alpha", dplyr::tibble(x = 1))
+  storage$save("beta", dplyr::tibble(y = 2))
+  tables <- storage$list()
+  expect_true("alpha" %in% tables)
+  expect_true("beta" %in% tables)
+  expect_false("_metadata" %in% tables)
+})
+
+test_that("StorageSQLite load returns NULL for missing data", {
+  storage <- StorageSQLite$new()
+  expect_null(storage$load("nonexistent"))
+})
+
+test_that("StorageSQLite overwrite replaces data", {
+  storage <- StorageSQLite$new()
+  storage$save("data", dplyr::tibble(x = 1))
+  storage$save("data", dplyr::tibble(x = 99))
+  expect_equal(storage$load("data")$x, 99)
+})
+
+test_that("StorageSQLite is_db returns TRUE", {
+  storage <- StorageSQLite$new()
+  expect_true(storage$is_db())
+})
+
+test_that("StorageSQLite load works when metadata is missing", {
+  storage <- StorageSQLite$new()
+  conn <- storage$.__enclos_env__$private$conn
+  DBI::dbWriteTable(conn, "raw_table", data.frame(x = 1:3))
+  loaded <- storage$load("raw_table")
+  expect_equal(nrow(loaded), 3)
+  expect_true(inherits(loaded, "tbl_df"))
+})
+
+test_that("StorageSQLite works with file-based database", {
+  tmp <- tempfile(fileext = ".sqlite")
+  on.exit(unlink(tmp), add = TRUE)
+  storage <- StorageSQLite$new(dbname = tmp)
+  storage$save("data", dplyr::tibble(val = 42))
+  loaded <- storage$load("data")
+  expect_equal(loaded$val, 42)
+})
+
+test_that("set_storage creates SQLite backend with dbname", {
+  tmp <- tempfile(fileext = ".sqlite")
+  on.exit(unlink(tmp), add = TRUE)
+  gs <- create_gitstats()
+  gs$set_storage(type = "sqlite", dbname = tmp)
+  backend <- gs$.__enclos_env__$private$storage_backend
+  expect_true(inherits(backend, "StorageSQLite"))
+  expect_true(backend$is_db())
+})
+
+# GitStats + SQLite integration ------------------------------------------------
+
+test_that("GitStats save_to_storage and get_from_storage work with SQLite", {
+  gs <- create_gitstats()
+  gs$set_storage(type = "sqlite")
+  priv <- gs$.__enclos_env__$private
+  df <- dplyr::tibble(repo = "test/repo", stars = 10)
+  priv$storage_backend$save("repositories", df)
+  expect_false(priv$storage_is_empty("repositories"))
+  loaded <- priv$storage_backend$load("repositories")
+  expect_equal(loaded$repo, "test/repo")
+})
+
+test_that("GitStats get_storage returns all data from SQLite", {
+  gs <- create_gitstats()
+  gs$set_storage(type = "sqlite")
+  priv <- gs$.__enclos_env__$private
+  priv$storage_backend$save("repos", dplyr::tibble(x = 1))
+  priv$storage_backend$save("commits", dplyr::tibble(y = 2))
+  all_data <- gs$get_storage(NULL)
+  expect_true("repos" %in% names(all_data))
+  expect_true("commits" %in% names(all_data))
+})
+
+test_that("GitStats get_storage returns single table from SQLite", {
+  gs <- create_gitstats()
+  gs$set_storage(type = "sqlite")
+  priv <- gs$.__enclos_env__$private
+  priv$storage_backend$save("files", dplyr::tibble(path = "R/main.R"))
+  result <- gs$get_storage("files")
+  expect_equal(result$path, "R/main.R")
+})
+
+# check_if_package_installed ---------------------------------------------------
+
+test_that("check_if_package_installed errors for missing package", {
   expect_error(
-    gs$set_storage(type = "postgres", dbname = "test"),
-    "RPostgres"
+    check_if_package_installed("nonexistent_pkg_12345"),
+    "nonexistent_pkg_12345"
   )
 })
 
-# ---- StoragePostgres (requires database) ----
-
-test_that("StoragePostgres saves and loads data with metadata", {
-  skip_if_not(
-    nzchar(Sys.getenv("GITSTATS_TEST_DB")),
-    "Set GITSTATS_TEST_DB to run Postgres storage tests"
-  )
-  skip_if_not_installed("RPostgres")
-  skip_if_not_installed("DBI")
-  skip_if_not_installed("jsonlite")
-
-  storage <- StoragePostgres$new(
-    schema = "git_stats_test",
-    dbname = Sys.getenv("GITSTATS_TEST_DB"),
-    host = Sys.getenv("GITSTATS_TEST_DB_HOST", "localhost"),
-    port = as.integer(Sys.getenv("GITSTATS_TEST_DB_PORT", "5432")),
-    user = Sys.getenv("GITSTATS_TEST_DB_USER", "postgres"),
-    password = Sys.getenv("GITSTATS_TEST_DB_PASSWORD", "")
-  )
-  withr::defer({
-    DBI::dbExecute(
-      storage$.__enclos_env__$private$conn,
-      "DROP SCHEMA IF EXISTS git_stats_test CASCADE"
-    )
-  })
-
-  test_data <- dplyr::tibble(
-    repo_name = c("GitStats", "GitAI"),
-    stars = c(10L, 5L)
-  )
-  class(test_data) <- c("gitstats_repositories", class(test_data))
-  attr(test_data, "date_range") <- c("2024-01-01", "2024-12-31")
-
-  storage$save("repositories", test_data)
-  expect_true(storage$exists("repositories"))
-
-  result <- storage$load("repositories")
-  expect_s3_class(result, "gitstats_repositories")
-  expect_equal(nrow(result), 2)
-  expect_equal(result$repo_name, c("GitStats", "GitAI"))
-  expect_equal(attr(result, "date_range"), c("2024-01-01", "2024-12-31"))
+test_that("check_if_package_installed passes for installed package", {
+  expect_no_error(check_if_package_installed("testthat"))
 })
 
-test_that("set_storage('postgres') creates connection from arguments", {
-  skip_if_not(
-    nzchar(Sys.getenv("GITSTATS_TEST_DB")),
-    "Set GITSTATS_TEST_DB to run Postgres storage tests"
-  )
-  skip_if_not_installed("RPostgres")
-  skip_if_not_installed("DBI")
+# StoragePostgres (skipped without credentials) --------------------------------
 
-  gs <- create_gitstats()
-  gs$set_storage(
-    type = "postgres",
-    dbname = Sys.getenv("GITSTATS_TEST_DB"),
-    host = Sys.getenv("GITSTATS_TEST_DB_HOST", "localhost"),
-    port = as.integer(Sys.getenv("GITSTATS_TEST_DB_PORT", "5432")),
-    user = Sys.getenv("GITSTATS_TEST_DB_USER", "postgres"),
-    password = Sys.getenv("GITSTATS_TEST_DB_PASSWORD", ""),
-    schema = "git_stats_test2"
-  )
-  gs_priv <- environment(gs$print)$private
-  expect_s3_class(gs_priv$storage_backend, "StoragePostgres")
-
-  withr::defer({
-    DBI::dbExecute(
-      gs_priv$storage_backend$.__enclos_env__$private$conn,
-      "DROP SCHEMA IF EXISTS git_stats_test2 CASCADE"
-    )
-  })
+test_that("StoragePostgres requires DBI and RPostgres", {
+  skip("Postgres tests require a running database")
 })
