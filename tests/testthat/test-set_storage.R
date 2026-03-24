@@ -262,10 +262,17 @@ test_that("set_storage() exported wrapper calls R6 method", {
 
 # StoragePostgres (integration tests) ------------------------------------------
 # These tests require a running PostgreSQL instance.
-# Run locally with GITSTATS_INTEGRATION_TEST_SKIPPED=false and a Postgres server.
+
+postgres_available <- function() {
+  tryCatch({
+    conn <- DBI::dbConnect(RPostgres::Postgres())
+    DBI::dbDisconnect(conn)
+    TRUE
+  }, error = function(e) FALSE)
+}
 
 test_that("StoragePostgres can be created with a real connection", {
-  skip_if(integration_tests_skipped)
+  skip_if_not(postgres_available(), "PostgreSQL server not available")
   storage <- StoragePostgres$new()
   on.exit(storage$finalize(), add = TRUE)
   expect_true(inherits(storage, "StoragePostgres"))
@@ -273,7 +280,7 @@ test_that("StoragePostgres can be created with a real connection", {
 })
 
 test_that("StoragePostgres save and load round-trips data", {
-  skip_if(integration_tests_skipped)
+  skip_if_not(postgres_available(), "PostgreSQL server not available")
   storage <- StoragePostgres$new()
   on.exit(storage$finalize(), add = TRUE)
   df <- dplyr::tibble(a = 1:3, b = c("x", "y", "z"))
@@ -287,7 +294,7 @@ test_that("StoragePostgres save and load round-trips data", {
 })
 
 test_that("StoragePostgres exists and list work", {
-  skip_if(integration_tests_skipped)
+  skip_if_not(postgres_available(), "PostgreSQL server not available")
   storage <- StoragePostgres$new()
   on.exit(storage$finalize(), add = TRUE)
   storage$save("test_table", dplyr::tibble(x = 1))
@@ -296,7 +303,7 @@ test_that("StoragePostgres exists and list work", {
 })
 
 test_that("StoragePostgres load returns NULL for missing table", {
-  skip_if(integration_tests_skipped)
+  skip_if_not(postgres_available(), "PostgreSQL server not available")
   storage <- StoragePostgres$new()
   on.exit(storage$finalize(), add = TRUE)
   expect_null(storage$load("nonexistent_table_xyz"))
