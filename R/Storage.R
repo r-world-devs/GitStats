@@ -63,11 +63,6 @@ StoragePostgres <- R6::R6Class(
       private$ensure_schema()
       private$ensure_metadata_table()
     },
-    finalize = function() {
-      if (!is.null(private$conn) && DBI::dbIsValid(private$conn)) {
-        DBI::dbDisconnect(private$conn)
-      }
-    },
     save = function(name, data) {
       qualified <- private$qualified_name(name)
       meta <- list(
@@ -139,6 +134,11 @@ StoragePostgres <- R6::R6Class(
   private = list(
     conn = NULL,
     schema = NULL,
+    finalize = function() {
+      if (!is.null(private$conn) && DBI::dbIsValid(private$conn)) {
+        DBI::dbDisconnect(private$conn)
+      }
+    },
     ensure_schema = function() {
       DBI::dbExecute(
         private$conn,
@@ -236,11 +236,6 @@ StorageSQLite <- R6::R6Class(
       private$conn <- DBI::dbConnect(RSQLite::SQLite(), dbname = dbname)
       private$ensure_metadata_table()
     },
-    finalize = function() {
-      if (!is.null(private$conn) && DBI::dbIsValid(private$conn)) {
-        DBI::dbDisconnect(private$conn)
-      }
-    },
     save = function(name, data) {
       meta <- list(
         class = class(data),
@@ -296,6 +291,11 @@ StorageSQLite <- R6::R6Class(
   ),
   private = list(
     conn = NULL,
+    finalize = function() {
+      if (!is.null(private$conn) && DBI::dbIsValid(private$conn)) {
+        DBI::dbDisconnect(private$conn)
+      }
+    },
     ensure_metadata_table = function() {
       if (!DBI::dbExistsTable(private$conn, "_metadata")) {
         DBI::dbExecute(

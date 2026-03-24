@@ -214,7 +214,7 @@ test_that("StorageSQLite finalize disconnects connection", {
   storage <- StorageSQLite$new()
   conn <- storage$.__enclos_env__$private$conn
   expect_true(DBI::dbIsValid(conn))
-  storage$finalize()
+  storage$.__enclos_env__$private$finalize()
   expect_false(DBI::dbIsValid(conn))
 })
 
@@ -223,7 +223,7 @@ test_that("StorageSQLite finalize handles NULL connection", {
   conn <- storage$.__enclos_env__$private$conn
   DBI::dbDisconnect(conn)
   storage$.__enclos_env__$private$conn <- NULL
-  expect_no_error(storage$finalize())
+  expect_no_error(storage$.__enclos_env__$private$finalize())
 })
 
 test_that("StorageSQLite load works when metadata is missing", {
