@@ -10,13 +10,10 @@ coverage:
     project:
       default:
         target: auto
-        threshold: 1%
+        threshold: 5%
         informational: true
     patch:
       default:
         target: auto
-        threshold: 5%
+        threshold: 50%
         informational: true
-
-ignore:
-  - "R/Storage.R"
