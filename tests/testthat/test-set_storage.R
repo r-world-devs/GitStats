@@ -127,6 +127,55 @@ test_that("StorageSQLite preserves custom attributes via metadata", {
   expect_equal(attr(loaded, "until"), "2024-12-31")
 })
 
+test_that("StorageSQLite preserves difftime columns", {
+  storage <- StorageSQLite$new()
+  df <- dplyr::tibble(
+    repo = "test/repo",
+    last_activity = as.difftime(c(38.5, 12.3), units = "days")
+  )
+  storage$save("repos", df)
+  loaded <- storage$load("repos")
+  expect_s3_class(loaded$last_activity, "difftime")
+  expect_equal(attr(loaded$last_activity, "units"), "days")
+  expect_equal(as.numeric(loaded$last_activity), c(38.5, 12.3))
+})
+
+test_that("StorageSQLite preserves POSIXct columns", {
+  storage <- StorageSQLite$new()
+  timestamps <- as.POSIXct(c("2024-01-15 10:30:00", "2024-06-20 14:00:00"))
+  df <- dplyr::tibble(
+    repo = "test/repo",
+    created_at = timestamps,
+    last_activity_at = timestamps
+  )
+  storage$save("repos", df)
+  loaded <- storage$load("repos")
+  expect_s3_class(loaded$created_at, "POSIXct")
+  expect_s3_class(loaded$last_activity_at, "POSIXct")
+  expect_equal(
+    format(loaded$created_at, "%Y-%m-%d %H:%M:%S"),
+    format(timestamps, "%Y-%m-%d %H:%M:%S")
+  )
+})
+
+test_that("StorageSQLite preserves mixed difftime and POSIXct columns", {
+  storage <- StorageSQLite$new()
+  df <- dplyr::tibble(
+    repo = "test/repo",
+    created_at = as.POSIXct("2024-01-15 10:30:00"),
+    last_activity_at = as.POSIXct("2024-06-20 14:00:00"),
+    last_activity = as.difftime(38.5, units = "days")
+  )
+  class(df) <- c("gitstats_repos", class(df))
+  storage$save("repos", df)
+  loaded <- storage$load("repos")
+  expect_s3_class(loaded, "gitstats_repos")
+  expect_s3_class(loaded$created_at, "POSIXct")
+  expect_s3_class(loaded$last_activity_at, "POSIXct")
+  expect_s3_class(loaded$last_activity, "difftime")
+  expect_equal(as.numeric(loaded$last_activity), 38.5)
+})
+
 test_that("StorageSQLite exists returns TRUE/FALSE correctly", {
   storage <- StorageSQLite$new()
   expect_false(storage$exists("missing"))

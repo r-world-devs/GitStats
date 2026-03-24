@@ -83,6 +83,9 @@ StoragePostgres <- R6::R6Class(
       }
       plain_data <- data
       class(plain_data) <- class(plain_data)[!grepl("^gitstats_", class(plain_data))]
+      serialized <- private$serialize_columns(plain_data)
+      plain_data <- serialized$data
+      meta$column_types <- serialized$column_types
       DBI::dbWriteTable(
         private$conn,
         DBI::Id(schema = private$schema, table = name),
@@ -102,6 +105,9 @@ StoragePostgres <- R6::R6Class(
         dplyr::as_tibble()
       meta <- private$load_metadata(name)
       if (!is.null(meta)) {
+        if (!is.null(meta$column_types)) {
+          data <- private$restore_columns(data, meta$column_types)
+        }
         if (!is.null(meta$class)) {
           class(data) <- meta$class
         }
@@ -181,6 +187,39 @@ StoragePostgres <- R6::R6Class(
         return(NULL)
       }
       jsonlite::fromJSON(result$metadata[[1]])
+    },
+    serialize_columns = function(data) {
+      column_types <- list()
+      for (col in names(data)) {
+        if (inherits(data[[col]], "difftime")) {
+          column_types[[col]] <- list(
+            type = "difftime",
+            units = attr(data[[col]], "units")
+          )
+          data[[col]] <- as.numeric(data[[col]])
+        } else if (inherits(data[[col]], "POSIXct")) {
+          column_types[[col]] <- list(type = "POSIXct")
+          data[[col]] <- format(data[[col]], "%Y-%m-%dT%H:%M:%S")
+        }
+      }
+      list(data = data, column_types = column_types)
+    },
+    restore_columns = function(data, column_types) {
+      for (col in names(column_types)) {
+        if (!(col %in% names(data))) next
+        col_type <- column_types[[col]]
+        type <- if (is.list(col_type)) col_type$type else col_type
+        if (type == "difftime") {
+          units <- if (is.list(col_type)) col_type$units else "days"
+          data[[col]] <- as.difftime(
+            as.numeric(data[[col]]),
+            units = units
+          )
+        } else if (type == "POSIXct") {
+          data[[col]] <- as.POSIXct(data[[col]], format = "%Y-%m-%dT%H:%M:%S")
+        }
+      }
+      data
     }
   )
 )
@@ -216,6 +255,9 @@ StorageSQLite <- R6::R6Class(
       }
       plain_data <- data
       class(plain_data) <- class(plain_data)[!grepl("^gitstats_", class(plain_data))]
+      serialized <- private$serialize_columns(plain_data)
+      plain_data <- serialized$data
+      meta$column_types <- serialized$column_types
       DBI::dbWriteTable(private$conn, name, plain_data, overwrite = TRUE)
       private$save_metadata(name, meta)
     },
@@ -227,6 +269,9 @@ StorageSQLite <- R6::R6Class(
         dplyr::as_tibble()
       meta <- private$load_metadata(name)
       if (!is.null(meta)) {
+        if (!is.null(meta$column_types)) {
+          data <- private$restore_columns(data, meta$column_types)
+        }
         if (!is.null(meta$class)) {
           class(data) <- meta$class
         }
@@ -285,6 +330,39 @@ StorageSQLite <- R6::R6Class(
         return(NULL)
       }
       jsonlite::fromJSON(result$metadata[[1]])
+    },
+    serialize_columns = function(data) {
+      column_types <- list()
+      for (col in names(data)) {
+        if (inherits(data[[col]], "difftime")) {
+          column_types[[col]] <- list(
+            type = "difftime",
+            units = attr(data[[col]], "units")
+          )
+          data[[col]] <- as.numeric(data[[col]])
+        } else if (inherits(data[[col]], "POSIXct")) {
+          column_types[[col]] <- list(type = "POSIXct")
+          data[[col]] <- format(data[[col]], "%Y-%m-%dT%H:%M:%S")
+        }
+      }
+      list(data = data, column_types = column_types)
+    },
+    restore_columns = function(data, column_types) {
+      for (col in names(column_types)) {
+        if (!(col %in% names(data))) next
+        col_type <- column_types[[col]]
+        type <- if (is.list(col_type)) col_type$type else col_type
+        if (type == "difftime") {
+          units <- if (is.list(col_type)) col_type$units else "days"
+          data[[col]] <- as.difftime(
+            as.numeric(data[[col]]),
+            units = units
+          )
+        } else if (type == "POSIXct") {
+          data[[col]] <- as.POSIXct(data[[col]], format = "%Y-%m-%dT%H:%M:%S")
+        }
+      }
+      data
     }
   )
 )
