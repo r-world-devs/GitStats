@@ -259,3 +259,16 @@ test_that("set_storage() exported wrapper calls R6 method", {
   backend <- gs$.__enclos_env__$private$storage_backend
   expect_true(inherits(backend, "StorageSQLite"))
 })
+
+test_that("set_storage postgres branch executes with stubbed connection", {
+  gs <- create_gitstats()
+  mock_storage <- StorageLocal$new()
+  mockery::stub(
+    gs$set_storage,
+    "do.call",
+    mock_storage
+  )
+  gs$set_storage(type = "postgres", host = "localhost", dbname = "test")
+  backend <- gs$.__enclos_env__$private$storage_backend
+  expect_true(inherits(backend, "StorageLocal"))
+})
