@@ -121,11 +121,15 @@ StoragePostgres <- R6::R6Class(
       )
     },
     list = function() {
-      DBI::dbListTables(private$conn) |>
-        purrr::keep(~ DBI::dbExistsTable(
-          private$conn,
-          DBI::Id(schema = private$schema, table = .)
-        ))
+      result <- DBI::dbGetQuery(
+        private$conn,
+        glue::glue(
+          "SELECT table_name FROM information_schema.tables
+           WHERE table_schema = $1 AND table_name != '_metadata'"
+        ),
+        params = list(private$schema)
+      )
+      result$table_name
     },
     is_db = function() {
       TRUE
