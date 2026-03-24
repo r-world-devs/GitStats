@@ -108,6 +108,27 @@ test_that("print shows storage backend type for SQLite", {
   expect_true(any(grepl("Storage \\[SQLite\\]", output)))
 })
 
+test_that("print lists stored data on separate lines", {
+  gs <- create_gitstats()
+  gs$set_storage(type = "sqlite")
+  priv <- gs$.__enclos_env__$private
+  repos <- dplyr::tibble(repo = c("a/b", "c/d"), stars = c(1, 2))
+  class(repos) <- c("gitstats_repos", class(repos))
+  priv$storage_backend$save("repositories", repos)
+  commits <- dplyr::tibble(sha = "abc123")
+  class(commits) <- c("gitstats_commits", class(commits))
+  attr(commits, "date_range") <- c("2024-01-01", "2024-06-30")
+  priv$storage_backend$save("commits", commits)
+  output <- capture.output(print(gs))
+  storage_lines <- output[grepl("Storage|Repositories|Commits", output)]
+  expect_true(any(grepl("Storage \\[SQLite\\]", storage_lines)))
+  expect_true(any(grepl("Repositories: 2", storage_lines)))
+  expect_true(any(grepl("Commits: 1", storage_lines)))
+  # First table should be on a separate line from the Storage label
+  storage_label_line <- grep("Storage \\[SQLite\\]", output)
+  expect_false(grepl("Repositories|Commits", output[storage_label_line]))
+})
+
 # StorageSQLite ----------------------------------------------------------------
 
 test_that("StorageSQLite save and load round-trips data", {
