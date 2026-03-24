@@ -503,25 +503,35 @@ GitStats <- R6::R6Class(
       private$settings$verbose
     },
 
-    set_storage = function(type = "local", ...) {
-      private$storage_backend <- switch(type,
-        "local" = StorageLocal$new(),
-        "postgres" = {
-          args <- list(...)
-          schema <- args$schema %||% "git_stats"
-          args$schema <- NULL
-          do.call(StoragePostgres$new, c(list(schema = schema), args))
-        },
-        "sqlite" = {
-          args <- list(...)
-          dbname <- args$dbname %||% ":memory:"
-          StorageSQLite$new(dbname = dbname)
-        },
-        cli::cli_abort("Unknown storage type: {.val {type}}. Use {.val local}, {.val postgres}, or {.val sqlite}.")
+    set_local_storage = function() {
+      private$storage_backend <- StorageLocal$new()
+      invisible(self)
+    },
+
+    set_postgres_storage = function(host = NULL,
+                                    port = NULL,
+                                    dbname = NULL,
+                                    user = NULL,
+                                    password = NULL,
+                                    schema = "git_stats",
+                                    ...) {
+      args <- list(...)
+      if (!is.null(host)) args$host <- host
+      if (!is.null(port)) args$port <- port
+      if (!is.null(dbname)) args$dbname <- dbname
+      if (!is.null(user)) args$user <- user
+      if (!is.null(password)) args$password <- password
+      private$storage_backend <- do.call(
+        StoragePostgres$new,
+        c(list(schema = schema), args)
       )
-      if (type != "local") {
-        cli::cli_alert_success("Storage set to {.val {type}}.")
-      }
+      cli::cli_alert_success("Storage set to {.val PostgreSQL}.")
+      invisible(self)
+    },
+
+    set_sqlite_storage = function(dbname = ":memory:") {
+      private$storage_backend <- StorageSQLite$new(dbname = dbname)
+      cli::cli_alert_success("Storage set to {.val SQLite}.")
       invisible(self)
     },
 

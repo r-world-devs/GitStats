@@ -27,7 +27,9 @@ reference:
   - get_users
 - title: Setting storage
 - contents:
-  - set_storage
+  - set_local_storage
+  - set_postgres_storage
+  - set_sqlite_storage
 - title: Parallel processing
 - contents:
   - set_parallel

@@ -64,34 +64,32 @@ test_that("StorageLocal is_db returns FALSE", {
   expect_false(storage$is_db())
 })
 
-# set_storage ------------------------------------------------------------------
+# set_*_storage ----------------------------------------------------------------
 
-test_that("set_storage defaults to StorageLocal", {
+test_that("default storage is StorageLocal", {
   gs <- create_gitstats()
   backend <- gs$.__enclos_env__$private$storage_backend
   expect_true(inherits(backend, "StorageLocal"))
   expect_false(backend$is_db())
 })
 
-test_that("set_storage errors on unknown type", {
+test_that("set_local_storage resets to local", {
   gs <- create_gitstats()
-  expect_error(
-    gs$set_storage(type = "redis"),
-    "Unknown storage type"
-  )
-})
-
-test_that("set_storage resets to local", {
-  gs <- create_gitstats()
-  gs$set_storage(type = "sqlite")
+  gs$set_sqlite_storage()
   expect_true(gs$.__enclos_env__$private$storage_backend$is_db())
-  gs$set_storage(type = "local")
+  gs$set_local_storage()
   expect_false(gs$.__enclos_env__$private$storage_backend$is_db())
 })
 
-test_that("set_storage returns self invisibly for piping", {
+test_that("set_local_storage returns self invisibly for piping", {
   gs <- create_gitstats()
-  result <- gs$set_storage(type = "local")
+  result <- gs$set_local_storage()
+  expect_identical(result, gs)
+})
+
+test_that("set_sqlite_storage returns self invisibly for piping", {
+  gs <- create_gitstats()
+  result <- gs$set_sqlite_storage()
   expect_identical(result, gs)
 })
 
@@ -103,14 +101,14 @@ test_that("print shows storage backend type for local", {
 
 test_that("print shows storage backend type for SQLite", {
   gs <- create_gitstats()
-  gs$set_storage(type = "sqlite")
+  gs$set_sqlite_storage()
   output <- capture.output(print(gs))
   expect_true(any(grepl("Storage \\[SQLite\\]", output)))
 })
 
 test_that("print lists stored data on separate lines", {
   gs <- create_gitstats()
-  gs$set_storage(type = "sqlite")
+  gs$set_sqlite_storage()
   priv <- gs$.__enclos_env__$private
   repos <- dplyr::tibble(repo = c("a/b", "c/d"), stars = c(1, 2))
   class(repos) <- c("gitstats_repos", class(repos))
@@ -124,7 +122,6 @@ test_that("print lists stored data on separate lines", {
   expect_true(any(grepl("Storage \\[SQLite\\]", storage_lines)))
   expect_true(any(grepl("Repositories: 2", storage_lines)))
   expect_true(any(grepl("Commits: 1", storage_lines)))
-  # First table should be on a separate line from the Storage label
   storage_label_line <- grep("Storage \\[SQLite\\]", output)
   expect_false(grepl("Repositories|Commits", output[storage_label_line]))
 })
@@ -278,11 +275,11 @@ test_that("StorageSQLite works with file-based database", {
   expect_equal(loaded$val, 42)
 })
 
-test_that("set_storage creates SQLite backend with dbname", {
+test_that("set_sqlite_storage creates SQLite backend with dbname", {
   tmp <- tempfile(fileext = ".sqlite")
   on.exit(unlink(tmp), add = TRUE)
   gs <- create_gitstats()
-  gs$set_storage(type = "sqlite", dbname = tmp)
+  gs$set_sqlite_storage(dbname = tmp)
   backend <- gs$.__enclos_env__$private$storage_backend
   expect_true(inherits(backend, "StorageSQLite"))
   expect_true(backend$is_db())
@@ -292,7 +289,7 @@ test_that("set_storage creates SQLite backend with dbname", {
 
 test_that("GitStats save_to_storage and get_from_storage work with SQLite", {
   gs <- create_gitstats()
-  gs$set_storage(type = "sqlite")
+  gs$set_sqlite_storage()
   priv <- gs$.__enclos_env__$private
   df <- dplyr::tibble(repo = "test/repo", stars = 10)
   priv$storage_backend$save("repositories", df)
@@ -303,7 +300,7 @@ test_that("GitStats save_to_storage and get_from_storage work with SQLite", {
 
 test_that("GitStats get_storage returns all data from SQLite", {
   gs <- create_gitstats()
-  gs$set_storage(type = "sqlite")
+  gs$set_sqlite_storage()
   priv <- gs$.__enclos_env__$private
   priv$storage_backend$save("repos", dplyr::tibble(x = 1))
   priv$storage_backend$save("commits", dplyr::tibble(y = 2))
@@ -314,7 +311,7 @@ test_that("GitStats get_storage returns all data from SQLite", {
 
 test_that("GitStats get_storage returns single table from SQLite", {
   gs <- create_gitstats()
-  gs$set_storage(type = "sqlite")
+  gs$set_sqlite_storage()
   priv <- gs$.__enclos_env__$private
   priv$storage_backend$save("files", dplyr::tibble(path = "R/main.R"))
   result <- gs$get_storage("files")
@@ -334,24 +331,32 @@ test_that("check_if_package_installed passes for installed package", {
   expect_no_error(check_if_package_installed("testthat"))
 })
 
-# set_storage wrapper function --------------------------------------------------
+# Exported wrapper functions ----------------------------------------------------
 
-test_that("set_storage() exported wrapper calls R6 method", {
+test_that("set_local_storage() wrapper calls R6 method", {
   gs <- create_gitstats()
-  result <- set_storage(gs, type = "sqlite")
+  gs$set_sqlite_storage()
+  result <- set_local_storage(gs)
+  backend <- gs$.__enclos_env__$private$storage_backend
+  expect_true(inherits(backend, "StorageLocal"))
+})
+
+test_that("set_sqlite_storage() wrapper calls R6 method", {
+  gs <- create_gitstats()
+  result <- set_sqlite_storage(gs)
   backend <- gs$.__enclos_env__$private$storage_backend
   expect_true(inherits(backend, "StorageSQLite"))
 })
 
-test_that("set_storage postgres branch executes with stubbed connection", {
+test_that("set_postgres_storage() wrapper executes with stubbed connection", {
   gs <- create_gitstats()
   mock_storage <- StorageLocal$new()
   mockery::stub(
-    gs$set_storage,
+    gs$set_postgres_storage,
     "do.call",
     mock_storage
   )
-  gs$set_storage(type = "postgres", host = "localhost", dbname = "test")
+  gs$set_postgres_storage(host = "localhost", dbname = "test")
   backend <- gs$.__enclos_env__$private$storage_backend
   expect_true(inherits(backend, "StorageLocal"))
 })
