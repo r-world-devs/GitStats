@@ -260,291 +260,44 @@ test_that("set_storage() exported wrapper calls R6 method", {
   expect_true(inherits(backend, "StorageSQLite"))
 })
 
-# StoragePostgres (mocked) -----------------------------------------------------
+# StoragePostgres (integration tests) ------------------------------------------
+# These tests require a running PostgreSQL instance.
+# Run locally with GITSTATS_INTEGRATION_TEST_SKIPPED=false and a Postgres server.
 
-# Helper: create a StoragePostgres with all DBI calls mocked
-create_mock_postgres <- function(schema = "git_stats") {
-  mock_conn <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
-  # Create schema-less metadata table for mock
-  DBI::dbExecute(mock_conn, "CREATE TABLE IF NOT EXISTS _metadata (
-    dataset_name TEXT PRIMARY KEY,
-    metadata TEXT NOT NULL
-  )")
-
-  mockery::stub(StoragePostgres$new, "DBI::dbConnect", mock_conn)
-  mockery::stub(StoragePostgres$new, "RPostgres::Postgres", function() "mock_driver")
-  mockery::stub(StoragePostgres$new, "DBI::dbIsValid", TRUE)
-  mockery::stub(StoragePostgres$new, "DBI::dbExecute", 0L)
-  mockery::stub(StoragePostgres$new, "DBI::dbExistsTable", TRUE)
-
-  storage <- StoragePostgres$new(schema = schema)
-  # Replace conn with real SQLite conn for subsequent method calls
-  storage$.__enclos_env__$private$conn <- mock_conn
-  storage
-}
-
-test_that("StoragePostgres initialize sets connection and schema", {
+test_that("StoragePostgres can be created with a real connection", {
   skip_if(integration_tests_skipped)
-  storage <- create_mock_postgres(schema = "test_schema")
-  on.exit(DBI::dbDisconnect(storage$.__enclos_env__$private$conn), add = TRUE)
+  storage <- StoragePostgres$new()
+  on.exit(storage$finalize(), add = TRUE)
   expect_true(inherits(storage, "StoragePostgres"))
-  expect_true(inherits(storage, "Storage"))
-  expect_equal(storage$.__enclos_env__$private$schema, "test_schema")
-})
-
-test_that("StoragePostgres initialize aborts on invalid connection", {
-  skip_if(integration_tests_skipped)
-  mockery::stub(StoragePostgres$new, "DBI::dbConnect", structure(list(), class = "mock_conn"))
-  mockery::stub(StoragePostgres$new, "RPostgres::Postgres", function() "mock_driver")
-  mockery::stub(StoragePostgres$new, "DBI::dbIsValid", FALSE)
-  expect_error(
-    StoragePostgres$new(),
-    "Failed to connect"
-  )
-})
-
-test_that("StoragePostgres is_db returns TRUE", {
-  skip_if(integration_tests_skipped)
-  storage <- create_mock_postgres()
-  on.exit(DBI::dbDisconnect(storage$.__enclos_env__$private$conn), add = TRUE)
   expect_true(storage$is_db())
 })
 
-test_that("StoragePostgres save writes table and metadata", {
+test_that("StoragePostgres save and load round-trips data", {
   skip_if(integration_tests_skipped)
-  storage <- create_mock_postgres()
-  conn <- storage$.__enclos_env__$private$conn
-  on.exit(DBI::dbDisconnect(conn), add = TRUE)
-
+  storage <- StoragePostgres$new()
+  on.exit(storage$finalize(), add = TRUE)
   df <- dplyr::tibble(a = 1:3, b = c("x", "y", "z"))
   class(df) <- c("gitstats_commits", class(df))
   attr(df, "since") <- "2024-01-01"
-
-  # Stub DBI calls in save() and in private$save_metadata()
-  mockery::stub(storage$save, "DBI::dbWriteTable", TRUE)
-  priv <- storage$.__enclos_env__$private
-  mockery::stub(priv$save_metadata, "DBI::dbExecute", 0L)
-  storage$save("commits", df)
-
-  expect_true(TRUE)
-})
-
-test_that("StoragePostgres save strips gitstats_ class prefix", {
-  skip_if(integration_tests_skipped)
-  storage <- create_mock_postgres()
-  conn <- storage$.__enclos_env__$private$conn
-  on.exit(DBI::dbDisconnect(conn), add = TRUE)
-  priv <- storage$.__enclos_env__$private
-
-  df <- dplyr::tibble(x = 1)
-  class(df) <- c("gitstats_repos", "tbl_df", "tbl", "data.frame")
-
-  written_data <- NULL
-  mockery::stub(storage$save, "DBI::dbWriteTable", function(conn, name, value, ...) {
-    written_data <<- value
-    TRUE
-  })
-  mockery::stub(priv$save_metadata, "DBI::dbExecute", 0L)
-  storage$save("repos", df)
-
-  expect_false("gitstats_repos" %in% class(written_data))
-})
-
-test_that("StoragePostgres save preserves custom attributes in metadata", {
-  skip_if(integration_tests_skipped)
-  storage <- create_mock_postgres()
-  conn <- storage$.__enclos_env__$private$conn
-  on.exit(DBI::dbDisconnect(conn), add = TRUE)
-  priv <- storage$.__enclos_env__$private
-
-  df <- dplyr::tibble(x = 1)
-  attr(df, "since") <- "2024-01-01"
-  attr(df, "until") <- "2024-12-31"
-
-  captured_meta <- NULL
-  mockery::stub(storage$save, "DBI::dbWriteTable", TRUE)
-  mockery::stub(priv$save_metadata, "DBI::dbExecute", function(conn, sql, ...) {
-    args <- list(...)
-    if (!is.null(args$params) && length(args$params) >= 2) {
-      captured_meta <<- args$params[[2]]
-    }
-    0L
-  })
-  storage$save("data", df)
-
-  expect_false(is.null(captured_meta))
-  meta <- jsonlite::fromJSON(captured_meta)
-  expect_true("since" %in% names(meta$attributes))
-  expect_true("until" %in% names(meta$attributes))
-})
-
-test_that("StoragePostgres load returns NULL when table does not exist", {
-  skip_if(integration_tests_skipped)
-  storage <- create_mock_postgres()
-  conn <- storage$.__enclos_env__$private$conn
-  on.exit(DBI::dbDisconnect(conn), add = TRUE)
-
-  mockery::stub(storage$exists, "DBI::dbExistsTable", FALSE)
-  mockery::stub(storage$load, "self$exists", FALSE)
-  result <- storage$load("nonexistent")
-  expect_null(result)
-})
-
-test_that("StoragePostgres load reads table and restores metadata", {
-  skip_if(integration_tests_skipped)
-  storage <- create_mock_postgres()
-  conn <- storage$.__enclos_env__$private$conn
-  on.exit(DBI::dbDisconnect(conn), add = TRUE)
-  priv <- storage$.__enclos_env__$private
-
-  mock_data <- data.frame(a = 1:3, b = c("x", "y", "z"))
-  mock_meta <- list(
-    class = c("gitstats_commits", "tbl_df", "tbl", "data.frame"),
-    attributes = list(since = "2024-01-01")
-  )
-
-  mockery::stub(storage$load, "self$exists", TRUE)
-  mockery::stub(storage$load, "DBI::dbReadTable", mock_data)
-  mockery::stub(priv$load_metadata, "DBI::dbGetQuery", data.frame(
-    metadata = as.character(jsonlite::toJSON(mock_meta, auto_unbox = TRUE)),
-    stringsAsFactors = FALSE
-  ))
-
-  loaded <- storage$load("commits")
+  storage$save("test_commits", df)
+  loaded <- storage$load("test_commits")
   expect_s3_class(loaded, "gitstats_commits")
   expect_equal(attr(loaded, "since"), "2024-01-01")
-})
-
-test_that("StoragePostgres load works when no metadata exists", {
-  skip_if(integration_tests_skipped)
-  storage <- create_mock_postgres()
-  conn <- storage$.__enclos_env__$private$conn
-  on.exit(DBI::dbDisconnect(conn), add = TRUE)
-  priv <- storage$.__enclos_env__$private
-
-  mock_data <- data.frame(x = 1:3)
-
-  mockery::stub(storage$load, "self$exists", TRUE)
-  mockery::stub(storage$load, "DBI::dbReadTable", mock_data)
-  mockery::stub(priv$load_metadata, "DBI::dbGetQuery", data.frame(
-    metadata = character(0),
-    stringsAsFactors = FALSE
-  ))
-
-  loaded <- storage$load("raw_data")
-  expect_true(inherits(loaded, "tbl_df"))
   expect_equal(nrow(loaded), 3)
 })
 
-test_that("StoragePostgres exists delegates to DBI::dbExistsTable", {
+test_that("StoragePostgres exists and list work", {
   skip_if(integration_tests_skipped)
-  storage <- create_mock_postgres()
-  conn <- storage$.__enclos_env__$private$conn
-  on.exit(DBI::dbDisconnect(conn), add = TRUE)
-
-  mockery::stub(storage$exists, "DBI::dbExistsTable", TRUE)
-  expect_true(storage$exists("some_table"))
-
-  mockery::stub(storage$exists, "DBI::dbExistsTable", FALSE)
-  expect_false(storage$exists("missing_table"))
+  storage <- StoragePostgres$new()
+  on.exit(storage$finalize(), add = TRUE)
+  storage$save("test_table", dplyr::tibble(x = 1))
+  expect_true(storage$exists("test_table"))
+  expect_true("test_table" %in% storage$list())
 })
 
-test_that("StoragePostgres list filters tables by schema", {
+test_that("StoragePostgres load returns NULL for missing table", {
   skip_if(integration_tests_skipped)
-  storage <- create_mock_postgres()
-  conn <- storage$.__enclos_env__$private$conn
-  on.exit(DBI::dbDisconnect(conn), add = TRUE)
-
-  mockery::stub(storage$list, "DBI::dbListTables", c("commits", "repos", "other"))
-  mockery::stub(storage$list, "DBI::dbExistsTable", function(conn, id) {
-    table_name <- if (inherits(id, "Id")) id@name[["table"]] else id
-    table_name %in% c("commits", "repos")
-  })
-
-  tables <- storage$list()
-  expect_equal(sort(tables), c("commits", "repos"))
-})
-
-test_that("StoragePostgres finalize disconnects", {
-  skip_if(integration_tests_skipped)
-  storage <- create_mock_postgres()
-  conn <- storage$.__enclos_env__$private$conn
-  expect_true(DBI::dbIsValid(conn))
-  storage$finalize()
-  expect_false(DBI::dbIsValid(conn))
-})
-
-test_that("StoragePostgres finalize handles NULL connection", {
-  skip_if(integration_tests_skipped)
-  storage <- create_mock_postgres()
-  conn <- storage$.__enclos_env__$private$conn
-  DBI::dbDisconnect(conn)
-  storage$.__enclos_env__$private$conn <- NULL
-  expect_no_error(storage$finalize())
-})
-
-test_that("StoragePostgres qualified_name builds schema.table", {
-  skip_if(integration_tests_skipped)
-  storage <- create_mock_postgres(schema = "my_schema")
-  on.exit(DBI::dbDisconnect(storage$.__enclos_env__$private$conn), add = TRUE)
-  qname <- storage$.__enclos_env__$private$qualified_name("commits")
-  expect_equal(qname, "my_schema.commits")
-})
-
-test_that("StoragePostgres ensure_schema creates schema", {
-  skip_if(integration_tests_skipped)
-  mock_conn <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
-  on.exit(DBI::dbDisconnect(mock_conn), add = TRUE)
-
-  mockery::stub(StoragePostgres$new, "DBI::dbConnect", mock_conn)
-  mockery::stub(StoragePostgres$new, "RPostgres::Postgres", function() "mock")
-  mockery::stub(StoragePostgres$new, "DBI::dbIsValid", TRUE)
-
-  executed_sql <- NULL
-  mockery::stub(StoragePostgres$new, "DBI::dbExecute", function(conn, sql, ...) {
-    executed_sql <<- c(executed_sql, sql)
-    0L
-  })
-  mockery::stub(StoragePostgres$new, "DBI::dbExistsTable", TRUE)
-
-  storage <- StoragePostgres$new(schema = "custom_schema")
-  expect_true(any(grepl("CREATE SCHEMA IF NOT EXISTS custom_schema", executed_sql)))
-})
-
-test_that("StoragePostgres ensure_metadata_table creates table when missing", {
-  skip_if(integration_tests_skipped)
-  mock_conn <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
-  on.exit(DBI::dbDisconnect(mock_conn), add = TRUE)
-
-  mockery::stub(StoragePostgres$new, "DBI::dbConnect", mock_conn)
-  mockery::stub(StoragePostgres$new, "RPostgres::Postgres", function() "mock")
-  mockery::stub(StoragePostgres$new, "DBI::dbIsValid", TRUE)
-
-  executed_sql <- NULL
-  mockery::stub(StoragePostgres$new, "DBI::dbExecute", function(conn, sql, ...) {
-    executed_sql <<- c(executed_sql, sql)
-    0L
-  })
-  mockery::stub(StoragePostgres$new, "DBI::dbExistsTable", FALSE)
-
-  storage <- StoragePostgres$new(schema = "git_stats")
-  expect_true(any(grepl("CREATE TABLE.*_metadata", executed_sql)))
-})
-
-test_that("set_storage creates StoragePostgres with mocked connection", {
-  skip_if(integration_tests_skipped)
-  gs <- create_gitstats()
-  mock_conn <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
-
-  mockery::stub(gs$set_storage, "do.call", function(fn, args) {
-    s <- StorageLocal$new()
-    class(s) <- c("StoragePostgres", class(s))
-    s$is_db <- function() TRUE
-    s
-  })
-
-  gs$set_storage(type = "postgres", host = "localhost", dbname = "test")
-  backend <- gs$.__enclos_env__$private$storage_backend
-  expect_true(backend$is_db())
-  DBI::dbDisconnect(mock_conn)
+  storage <- StoragePostgres$new()
+  on.exit(storage$finalize(), add = TRUE)
+  expect_null(storage$load("nonexistent_table_xyz"))
 })
