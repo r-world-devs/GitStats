@@ -8,7 +8,7 @@
       Scanning scope: 
        Organizations: [0] 
        Repositories: [0] 
-      Storage: <no data in storage>
+      Storage [local]: <no data in storage>
 
 # GitStats prints the proper info when connections are added.
 
@@ -20,7 +20,7 @@
       Scanning scope: 
        Organizations: [2] github_test_org, gitlab_test_group
        Repositories: [0] 
-      Storage: <no data in storage>
+      Storage [local]: <no data in storage>
 
 # GitStats prints the proper info when repos are passed instead of orgs.
 
@@ -32,7 +32,7 @@
       Scanning scope: 
        Organizations: [0] 
        Repositories: [4] r-world-devs/GitStats, openpharma/GithubMetrics, mbtests/gitstatstesting, mbtests/gitstats-testing-2
-      Storage: <no data in storage>
+      Storage [local]: <no data in storage>
 
 # check_for_host returns error when no hosts are passed
 
@@ -86,5 +86,5 @@
       Scanning scope: 
        Organizations: [1] mbtests/subgroup
        Repositories: [0] 
-      Storage: <no data in storage>
+      Storage [local]: <no data in storage>
 

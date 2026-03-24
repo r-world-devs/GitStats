@@ -1061,6 +1061,13 @@ GitStats <- R6::R6Class(
     },
 
     print_storage = function() {
+      backend_type <- if (inherits(private$storage_backend, "StoragePostgres")) {
+        "PostgreSQL"
+      } else if (inherits(private$storage_backend, "StorageSQLite")) {
+        "SQLite"
+      } else {
+        "local"
+      }
       stored_names <- private$storage_backend$list()
       gitstats_storage <- purrr::map(stored_names, function(storage_name) {
         storage_object <- private$storage_backend$load(storage_name)
@@ -1078,12 +1085,12 @@ GitStats <- R6::R6Class(
         purrr::discard(~is.null(.))
       if (length(gitstats_storage) == 0) {
         private$print_item(
-          "Storage",
+          glue::glue("Storage [{backend_type}]"),
           cli::col_grey("<no data in storage>")
         )
       } else {
         cat(paste0(
-          cli::col_blue("Storage: \n"),
+          cli::col_blue(glue::glue("Storage [{backend_type}]: \n")),
           paste0(" ", gitstats_storage, collapse = "\n")
         ))
       }

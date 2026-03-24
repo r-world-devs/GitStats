@@ -95,6 +95,19 @@ test_that("set_storage returns self invisibly for piping", {
   expect_identical(result, gs)
 })
 
+test_that("print shows storage backend type for local", {
+  gs <- create_gitstats()
+  output <- capture.output(print(gs))
+  expect_true(any(grepl("Storage \\[local\\]", output)))
+})
+
+test_that("print shows storage backend type for SQLite", {
+  gs <- create_gitstats()
+  gs$set_storage(type = "sqlite")
+  output <- capture.output(print(gs))
+  expect_true(any(grepl("Storage \\[SQLite\\]", output)))
+})
+
 # StorageSQLite ----------------------------------------------------------------
 
 test_that("StorageSQLite save and load round-trips data", {
