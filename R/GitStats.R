@@ -1089,7 +1089,8 @@ GitStats <- R6::R6Class(
           cli::col_grey("<no data in storage>")
         )
       } else {
-        cat(cli::col_blue(glue::glue("Storage [{backend_type}]: \n")))
+        cat(cli::col_blue(glue::glue("Storage [{backend_type}]:")))
+        cat("\n")
         cat(paste0(" ", gitstats_storage, collapse = "\n"))
       }
     },
