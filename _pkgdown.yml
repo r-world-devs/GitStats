@@ -25,6 +25,9 @@ reference:
   - get_release_logs
   - get_files
   - get_users
+- title: Setting storage
+- contents:
+  - set_storage
 - title: Parallel processing
 - contents:
   - set_parallel
