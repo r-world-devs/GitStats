@@ -13,9 +13,6 @@
 - [`set_gitlab_host()`](https://r-world-devs.github.io/GitStats/reference/set_gitlab_host.md)
   : Set GitLab host
 
-- [`set_parallel()`](https://r-world-devs.github.io/GitStats/reference/set_parallel.md)
-  : Enable parallel processing
-
 - [`is_verbose()`](https://r-world-devs.github.io/GitStats/reference/is_verbose.md)
   : Is verbose mode switched on
 
@@ -34,11 +31,6 @@
   :
 
   Show hosts set in `GitStats`
-
-- [`get_storage()`](https://r-world-devs.github.io/GitStats/reference/get_storage.md)
-  :
-
-  Get data from `GitStats` storage
 
 ## Get git data
 
@@ -64,6 +56,22 @@ Functions to get git data in a tibble format.
   : Get files
 - [`get_users()`](https://r-world-devs.github.io/GitStats/reference/get_users.md)
   : Get users data
+
+## Storage
+
+- [`set_local_storage()`](https://r-world-devs.github.io/GitStats/reference/set_local_storage.md)
+  : Set local (in-memory) storage
+
+- [`set_postgres_storage()`](https://r-world-devs.github.io/GitStats/reference/set_postgres_storage.md)
+  : Set PostgreSQL storage
+
+- [`set_sqlite_storage()`](https://r-world-devs.github.io/GitStats/reference/set_sqlite_storage.md)
+  : Set SQLite storage
+
+- [`get_storage()`](https://r-world-devs.github.io/GitStats/reference/get_storage.md)
+  :
+
+  Get data from `GitStats` storage
 
 ## Parallel processing
 

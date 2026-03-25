@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0.9003</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -97,7 +97,7 @@ organizations.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">repos</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_repos.html">get_repos</a></span><span class="op">(</span><span class="va">git_stats</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; → Pulling repositories 🌐 data...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 47.1 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 55.6 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">repos</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 100</span></span>
 <span><span class="co">#&gt; Columns: 19</span></span>
@@ -110,14 +110,14 @@ organizations.</p>
 <span><span class="co">#&gt; $ created_at       <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2022-04-20 10:04:32<span style="color: #949494;">, </span>2022-05-22 18:31:55<span style="color: #949494;">, </span>2022-05-22…</span></span>
 <span><span class="co">#&gt; $ last_activity_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-07-12<span style="color: #949494;">, </span>2026-02-26<span style="color: #949494;">, </span>2026-02-26<span style="color: #949494;">, </span>2024-06-13<span style="color: #949494;">, </span>2026…</span></span>
 <span><span class="co">#&gt; $ languages        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R, CSS, JavaScript"<span style="color: #949494;">, </span>"R"<span style="color: #949494;">, </span>"R, CSS, JavaScript, SCSS"…</span></span>
-<span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 6<span style="color: #949494;">, </span>34<span style="color: #949494;">, </span>36<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>71<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>12<span style="color: #949494;">, </span>0…</span></span>
-<span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 12<span style="color: #949494;">, </span>11<span style="color: #949494;">, </span>17<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>399<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>60<span style="color: #949494;">,</span>…</span></span>
+<span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 6<span style="color: #949494;">, </span>34<span style="color: #949494;">, </span>36<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>69<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>12<span style="color: #949494;">, </span>0…</span></span>
+<span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 12<span style="color: #949494;">, </span>11<span style="color: #949494;">, </span>17<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>401<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>60<span style="color: #949494;">,</span>…</span></span>
 <span><span class="co">#&gt; $ organization     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "r-world-devs"<span style="color: #949494;">, </span>"r-world-devs"<span style="color: #949494;">, </span>"r-world-devs"<span style="color: #949494;">, </span>"r-wo…</span></span>
 <span><span class="co">#&gt; $ repo_url         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/shinyGizmo"<span style="color: #949494;">, </span>"https:…</span></span>
 <span><span class="co">#&gt; $ commit_sha       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "735ec6ea367e6f9856eb0fe650d3c51c3a1aefb5"<span style="color: #949494;">, </span>"a404b64e…</span></span>
 <span><span class="co">#&gt; $ api_url          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://api.github.com/repos/r-world-devs/shinyGizmo…</span></span>
 <span><span class="co">#&gt; $ githost          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "github"<span style="color: #949494;">, </span>"github"<span style="color: #949494;">, </span>"github"<span style="color: #949494;">, </span>"github"<span style="color: #949494;">, </span>"github"<span style="color: #949494;">, </span>"gi…</span></span>
-<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 616.5 days<span style="color: #949494;">, </span>22.5 days<span style="color: #949494;">, </span>22.5 days<span style="color: #949494;">, </span>645.5 days<span style="color: #949494;">, </span>0.5 da…</span></span>
+<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 621.62 days<span style="color: #949494;">, </span>27.62 days<span style="color: #949494;">, </span>27.62 days<span style="color: #949494;">, </span>650.62 days<span style="color: #949494;">, </span>0.…</span></span>
 <span><span class="co">#&gt; $ contributors     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "krystian8207, stla, galachad, stlagsk"<span style="color: #949494;">, </span>"krystian820…</span></span>
 <span><span class="co">#&gt; $ contributors_n   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 4<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>4<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>5<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>6<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>141<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>6<span style="color: #949494;">, </span>44<span style="color: #949494;">,</span>…</span></span></code></pre></div>
 <p>You can always go for the lighter version of <code>get_repos</code>,
@@ -131,38 +131,10 @@ instead of whole table.</p>
 <span><span class="co">#&gt;  'gitstats_repos_urls' chr [1:100] "https://api.github.com/repos/r-world-devs/shinyGizmo" ...</span></span>
 <span><span class="co">#&gt;  - attr(*, "type")= chr "api"</span></span></code></pre></div>
 <div class="section level2">
-<h2 id="verbose-mode">Verbose mode<a class="anchor" aria-label="anchor" href="#verbose-mode"></a>
-</h2>
-<p>If messages overwhelm you, you can switch them off in the
-function:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">release_logs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_release_logs.html">get_release_logs</a></span><span class="op">(</span></span>
-<span>  gitstats <span class="op">=</span> <span class="va">git_stats</span>,</span>
-<span>  since <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; → Pulling release logs 🏷️..</span></span>
-<span><span class="co">#&gt; GitHub <span style="color: #00BB00;">■■■■■■■■■■■■■■■■                </span>  50% |  ETA:  6s</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 33 secs</span></span>
-<span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">release_logs</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Rows: 99</span></span>
-<span><span class="co">#&gt; Columns: 7</span></span>
-<span><span class="co">#&gt; $ repo_name    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "cohortBuilder"<span style="color: #949494;">, </span>"cohortBuilder"<span style="color: #949494;">, </span>"shinyCohortBuilder"<span style="color: #949494;">, </span>"…</span></span>
-<span><span class="co">#&gt; $ repo_url     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/cohortBuilder"<span style="color: #949494;">, </span>"https:/…</span></span>
-<span><span class="co">#&gt; $ release_name <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "cohortBuilder 0.4.0"<span style="color: #949494;">, </span>"cohortBuilder 0.3.0"<span style="color: #949494;">, </span>"shinyCohor…</span></span>
-<span><span class="co">#&gt; $ release_tag  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "v0.4.0"<span style="color: #949494;">, </span>"v0.3.0"<span style="color: #949494;">, </span>"v0.4.0"<span style="color: #949494;">, </span>"v0.3.1"<span style="color: #949494;">, </span>"v0.3.0"<span style="color: #949494;">, </span>"v2.4.0…</span></span>
-<span><span class="co">#&gt; $ published_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2026-02-26 15:06:49<span style="color: #949494;">, </span>2024-09-27 11:35:06<span style="color: #949494;">, </span>2026-02-26 15:…</span></span>
-<span><span class="co">#&gt; $ release_url  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/cohortBuilder/releases/t…</span></span>
-<span><span class="co">#&gt; $ release_log  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "* Multi discrete filter does not operate on `dplyr::acro…</span></span></code></pre></div>
-<p>Or globally:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/verbose_off.html">verbose_off</a></span><span class="op">(</span><span class="va">git_stats</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="cache">Cache<a class="anchor" aria-label="anchor" href="#cache"></a>
+<h2 id="local-storage">Local Storage<a class="anchor" aria-label="anchor" href="#local-storage"></a>
 </h2>
 <p>After pulling, the data is saved to <code>GitStats</code>.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">commits</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_commits.html">get_commits</a></span><span class="op">(</span></span>
 <span>  gitstats <span class="op">=</span> <span class="va">git_stats</span>,</span>
 <span>  since <span class="op">=</span> <span class="st">"2024-06-01"</span>,</span>
@@ -170,7 +142,7 @@ function:</p>
 <span>  progress <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; → Pulling commits 🕒...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 29.8 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 46.6 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 188</span></span>
 <span><span class="co">#&gt; Columns: 11</span></span>
@@ -188,7 +160,7 @@ function:</p>
 <p>Caching feature is by default turned on. If you run the
 <code>get_*()</code> function once more, data will be retrieved from
 <code>GitStats</code> object.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">commits</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_commits.html">get_commits</a></span><span class="op">(</span></span>
 <span>  gitstats <span class="op">=</span> <span class="va">git_stats</span>,</span>
 <span>  since <span class="op">=</span> <span class="st">"2024-06-01"</span>,</span>
@@ -212,7 +184,7 @@ function:</p>
 <span><span class="co">#&gt; $ repo_url       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/cohortBuilder"<span style="color: #949494;">, </span>"https…</span></span>
 <span><span class="co">#&gt; $ api_url        <span style="color: #949494; font-style: italic;">&lt;glue&gt;</span> "https://api.github.com/graphql"<span style="color: #949494;">, </span>"https://api.github.…</span></span></code></pre></div>
 <p>Unless, you switch off the cache:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">commits</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_commits.html">get_commits</a></span><span class="op">(</span></span>
 <span>  gitstats <span class="op">=</span> <span class="va">git_stats</span>,</span>
 <span>  since <span class="op">=</span> <span class="st">"2024-06-01"</span>,</span>
@@ -221,7 +193,7 @@ function:</p>
 <span>  progress <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; → Pulling commits 🕒...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 27.6 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 34.7 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 188</span></span>
 <span><span class="co">#&gt; Columns: 11</span></span>
@@ -237,16 +209,16 @@ function:</p>
 <span><span class="co">#&gt; $ repo_url       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/cohortBuilder"<span style="color: #949494;">, </span>"https…</span></span>
 <span><span class="co">#&gt; $ api_url        <span style="color: #949494; font-style: italic;">&lt;glue&gt;</span> "https://api.github.com/graphql"<span style="color: #949494;">, </span>"https://api.github.…</span></span></code></pre></div>
 <p>Or simply change the parameters for the function:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">commits</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_commits.html">get_commits</a></span><span class="op">(</span></span>
 <span>  gitstats <span class="op">=</span> <span class="va">git_stats</span>,</span>
 <span>  since <span class="op">=</span> <span class="st">"2024-07-01"</span>,</span>
 <span>  progress <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; → Pulling commits 🕒...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 2.4 mins</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 2.5 mins</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Rows: 4,812</span></span>
+<span><span class="co">#&gt; Rows: 4,856</span></span>
 <span><span class="co">#&gt; Columns: 11</span></span>
 <span><span class="co">#&gt; $ repo_name      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "cohortBuilder"<span style="color: #949494;">, </span>"cohortBuilder"<span style="color: #949494;">, </span>"cohortBuilder"<span style="color: #949494;">, </span>"coh…</span></span>
 <span><span class="co">#&gt; $ id             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "C_kwDOHYNOFdoAKGE0MDRiNjRlYzYxZGMxYjFkZTQ1MWFhODg2MzA2…</span></span>
@@ -261,153 +233,52 @@ function:</p>
 <span><span class="co">#&gt; $ api_url        <span style="color: #949494; font-style: italic;">&lt;glue&gt;</span> "https://api.github.com/graphql"<span style="color: #949494;">, </span>"https://api.github.…</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="storage">Storage<a class="anchor" aria-label="anchor" href="#storage"></a>
+<h2 id="database-storage">Database Storage<a class="anchor" aria-label="anchor" href="#database-storage"></a>
 </h2>
-<p>Finally, have a glimpse at your storage:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">git_stats</span></span>
-<span><span class="co">#&gt; A <span style="color: #0000BB;">GitStats</span> object for 2 hosts: </span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">Hosts: </span>https://api.github.com, https://gitlab.com/api/v4</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">Scanning scope: </span></span></span>
-<span><span class="co"><span style="color: #0000BB;">#&gt;  Organizations: </span>[<span style="color: #00BB00;">3</span>] r-world-devs, openpharma, mbtests</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;"> Repositories: </span>[<span style="color: #00BB00;">0</span>] </span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">Storage: </span></span></span>
-<span><span class="co"><span style="color: #0000BB;">#&gt; </span> Repositories: 100 </span></span>
-<span><span class="co">#&gt;  Commits: 4812 <span style="color: #555555;">[date range: 2024-07-01 - 2026-03-20]</span></span></span>
-<span><span class="co">#&gt;  Release_logs: 99 <span style="color: #555555;">[date range: 2024-01-01 - 2026-03-20]</span></span></span>
-<span><span class="co">#&gt;  Repos_urls: 100 <span style="color: #555555;">[type: api]</span></span></span></code></pre></div>
-<p>You can retrieve whole data from your <code>GitStats</code> object
-with:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/get_storage.html">get_storage</a></span><span class="op">(</span><span class="va">git_stats</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $repositories</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 100 × 19</span></span></span>
-<span><span class="co">#&gt;    repo_id      repo_name               repo_fullpath default_branch stars forks</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> R_kgDOHNMr2w shinyGizmo              r-world-devs… dev               21     0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> R_kgDOHYNOFQ cohortBuilder           r-world-devs… dev                9     2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> R_kgDOHYNrJw shinyCohortBuilder      r-world-devs… dev               10     0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> R_kgDOHYNxtw cohortBuilder.db        r-world-devs… master             0     0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> R_kgDOIvtxsg GitStats                r-world-devs… master             9     2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> R_kgDOJAtHJA shinyTimelines          r-world-devs… master             3     0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> R_kgDOJKQ8Lg ROhdsiWebApi            r-world-devs… main               0     0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> R_kgDOJWYrCA hypothesis              r-world-devs… master             2     0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> R_kgDOMHUIwg useR2024-mastering-plu… r-world-devs… main               1     0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> R_kgDOMMESGQ dbplyr                  r-world-devs… main               0     0</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 90 more rows</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 13 more variables: created_at &lt;dttm&gt;, last_activity_at &lt;dttm&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   languages &lt;chr&gt;, issues_open &lt;int&gt;, issues_closed &lt;int&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   organization &lt;chr&gt;, repo_url &lt;chr&gt;, commit_sha &lt;chr&gt;, api_url &lt;chr&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   githost &lt;chr&gt;, last_activity &lt;drtn&gt;, contributors &lt;chr&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   contributors_n &lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $commits</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4,812 × 11</span></span></span>
-<span><span class="co">#&gt;    repo_name id    committed_date      author author_login author_name additions</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> cohortBu… C_kw… 2026-02-24 <span style="color: #949494;">14:36:07</span> Kryst… krystian8207 Krystian I…         1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> cohortBu… C_kw… 2026-02-24 <span style="color: #949494;">14:15:09</span> Kryst… krystian8207 Krystian I…        98</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> cohortBu… C_kw… 2026-02-24 <span style="color: #949494;">13:20:36</span> Kryst… krystian8207 Krystian I…         2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> cohortBu… C_kw… 2026-02-24 <span style="color: #949494;">13:03:22</span> Kryst… krystian8207 Krystian I…         1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> cohortBu… C_kw… 2026-02-24 <span style="color: #949494;">13:00:32</span> Kryst… krystian8207 Krystian I…        25</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> cohortBu… C_kw… 2026-02-24 <span style="color: #949494;">12:41:07</span> Kryst… krystian8207 Krystian I…       324</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> cohortBu… C_kw… 2026-02-24 <span style="color: #949494;">12:40:39</span> Kryst… krystian8207 Krystian I…       324</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> cohortBu… C_kw… 2026-02-24 <span style="color: #949494;">12:00:19</span> Kryst… krystian8207 Krystian I…         8</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> cohortBu… C_kw… 2026-02-24 <span style="color: #949494;">11:55:14</span> Kryst… krystian8207 Krystian I…       310</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> cohortBu… C_kw… 2026-02-24 <span style="color: #949494;">11:45:13</span> Kryst… krystian8207 Krystian I…         0</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4,802 more rows</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4 more variables: deletions &lt;int&gt;, organization &lt;chr&gt;, repo_url &lt;chr&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   api_url &lt;glue&gt;</span></span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $users</span></span>
-<span><span class="co">#&gt; NULL</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $files</span></span>
-<span><span class="co">#&gt; NULL</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $repos_trees</span></span>
-<span><span class="co">#&gt; NULL</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $release_logs</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 99 × 7</span></span></span>
-<span><span class="co">#&gt;    repo_name   repo_url release_name release_tag published_at        release_url</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> cohortBuil… https:/… cohortBuild… v0.4.0      2026-02-26 <span style="color: #949494;">15:06:49</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> cohortBuil… https:/… cohortBuild… v0.3.0      2024-09-27 <span style="color: #949494;">11:35:06</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> shinyCohor… https:/… shinyCohort… v0.4.0      2026-02-26 <span style="color: #949494;">15:05:48</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> shinyCohor… https:/… v0.3.1       v0.3.1      2024-10-24 <span style="color: #949494;">08:21:19</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> shinyCohor… https:/… v0.3.0       v0.3.0      2024-10-24 <span style="color: #949494;">08:20:32</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> GitStats    https:/… GitStats 2.… v2.4.0      2026-03-17 <span style="color: #949494;">08:48:02</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> GitStats    https:/… GitStats 2.… v2.3.9      2026-01-12 <span style="color: #949494;">07:52:20</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> GitStats    https:/… GitStats 2.… v2.3.8      2025-12-08 <span style="color: #949494;">07:58:49</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> GitStats    https:/… GitStats 2.… v2.3.7      2025-10-16 <span style="color: #949494;">07:24:36</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> GitStats    https:/… GitStats 2.… v2.3.6      2025-09-17 <span style="color: #949494;">07:46:45</span> https://gi…</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 89 more rows</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: release_log &lt;chr&gt;</span></span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $repos_urls</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;"># Repository URLs (showing first 5 of 100):</span></span></span>
-<span><span class="co"><span style="color: #555555;">#&gt; </span>- https://api.github.com/repos/r-world-devs/shinyGizmo</span></span>
-<span><span class="co">#&gt; - https://api.github.com/repos/r-world-devs/cohortBuilder</span></span>
-<span><span class="co">#&gt; - https://api.github.com/repos/r-world-devs/shinyCohortBuilder</span></span>
-<span><span class="co">#&gt; - https://api.github.com/repos/r-world-devs/cohortBuilder.db</span></span>
-<span><span class="co">#&gt; - https://api.github.com/repos/r-world-devs/GitStats</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co"><span style="color: #555555;">#&gt; # Host Summary:</span></span></span>
-<span><span class="co"><span style="color: #555555;">#&gt; - api.github.com: 89 URL(s)</span></span></span>
-<span><span class="co"><span style="color: #555555;">#&gt; - gitlab.com: 11 URL(s)</span></span></span>
-<span><span class="co"><span style="color: #555555;">#&gt; </span></span></span></code></pre></div>
-<p>Or particular data set:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/get_storage.html">get_storage</a></span><span class="op">(</span></span>
-<span>  gitstats <span class="op">=</span> <span class="va">git_stats</span>,</span>
-<span>  storage <span class="op">=</span> <span class="st">"repositories"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 100 × 19</span></span></span>
-<span><span class="co">#&gt;    repo_id      repo_name               repo_fullpath default_branch stars forks</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> R_kgDOHNMr2w shinyGizmo              r-world-devs… dev               21     0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> R_kgDOHYNOFQ cohortBuilder           r-world-devs… dev                9     2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> R_kgDOHYNrJw shinyCohortBuilder      r-world-devs… dev               10     0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> R_kgDOHYNxtw cohortBuilder.db        r-world-devs… master             0     0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> R_kgDOIvtxsg GitStats                r-world-devs… master             9     2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> R_kgDOJAtHJA shinyTimelines          r-world-devs… master             3     0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> R_kgDOJKQ8Lg ROhdsiWebApi            r-world-devs… main               0     0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> R_kgDOJWYrCA hypothesis              r-world-devs… master             2     0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> R_kgDOMHUIwg useR2024-mastering-plu… r-world-devs… main               1     0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> R_kgDOMMESGQ dbplyr                  r-world-devs… main               0     0</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 90 more rows</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 13 more variables: created_at &lt;dttm&gt;, last_activity_at &lt;dttm&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   languages &lt;chr&gt;, issues_open &lt;int&gt;, issues_closed &lt;int&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   organization &lt;chr&gt;, repo_url &lt;chr&gt;, commit_sha &lt;chr&gt;, api_url &lt;chr&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   githost &lt;chr&gt;, last_activity &lt;drtn&gt;, contributors &lt;chr&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   contributors_n &lt;int&gt;</span></span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="commits-statistics">Commits statistics<a class="anchor" aria-label="anchor" href="#commits-statistics"></a>
-</h2>
-<p>Pull statistics in one pipe:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">commits_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_commits.html">get_commits</a></span><span class="op">(</span></span>
-<span>  gitstats <span class="op">=</span> <span class="va">git_stats</span>,</span>
-<span>  since <span class="op">=</span> <span class="st">"2024-06-01"</span>,</span>
-<span>  until <span class="op">=</span> <span class="st">"2024-06-30"</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/get_commits_stats.html">get_commits_stats</a></span><span class="op">(</span></span>
-<span>    time_aggregation <span class="op">=</span> <span class="st">"year"</span>,</span>
-<span>    group_var <span class="op">=</span> <span class="va">author_name</span></span>
+<p>For more permanent storage, you can set up a connection to your
+database with <code><a href="../reference/set_postgres_storage.html">set_postgres_storage()</a></code> function. Then, all
+data pulled with <code>get_*()</code> functions will be stored in the
+database and retrieved from there when you run the function again.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">git_stats</span> <span class="op">&lt;-</span> <span class="va">git_stats</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/set_postgres_storage.html">set_postgres_storage</a></span><span class="op">(</span></span>
+<span>    host <span class="op">=</span> <span class="st">"hostname"</span>,</span>
+<span>    port <span class="op">=</span> <span class="fl">5432</span>,</span>
+<span>    dbname <span class="op">=</span> <span class="st">"dbname"</span>,</span>
+<span>    user <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"POSTGRES_USERNAME"</span><span class="op">)</span>,</span>
+<span>    password <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"POSTGRES_PASSWORD"</span><span class="op">)</span>,</span>
+<span>    schema <span class="op">=</span> <span class="st">"git_stats"</span></span>
 <span>  <span class="op">)</span></span>
-<span><span class="co">#&gt; → Pulling commits 🕒...</span></span>
-<span><span class="co">#&gt; GitHub <span style="color: #00BB00;">■■■■■■■■■■■■■■■■                </span>  50% |  ETA:  5s</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 27.2 secs</span></span>
-<span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits_stats</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Rows: 20</span></span>
-<span><span class="co">#&gt; Columns: 4</span></span>
-<span><span class="co">#&gt; $ stats_date  <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2024-01-01<span style="color: #949494;">, </span>2024-01-01<span style="color: #949494;">, </span>2024-01-01<span style="color: #949494;">, </span>2024-01-01<span style="color: #949494;">, </span>2024-01-0…</span></span>
-<span><span class="co">#&gt; $ githost     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "github"<span style="color: #949494;">, </span>"github"<span style="color: #949494;">, </span>"github"<span style="color: #949494;">, </span>"github"<span style="color: #949494;">, </span>"github"<span style="color: #949494;">, </span>"github"…</span></span>
-<span><span class="co">#&gt; $ author_name <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "Aaron Clark"<span style="color: #949494;">, </span>"Björn Bornkamp"<span style="color: #949494;">, </span>"Chao Cheng"<span style="color: #949494;">, </span>"Daniel Sab…</span></span>
-<span><span class="co">#&gt; $ stats       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 16<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>9<span style="color: #949494;">, </span>12<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>16<span style="color: #949494;">, </span>6<span style="color: #949494;">, </span>13<span style="color: #949494;">, </span>43<span style="color: #949494;">, </span>11<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2…</span></span></code></pre></div>
+<span></span>
+<span><span class="co"># Pulling and saving to database</span></span>
+<span><span class="va">git_stats</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/get_commits.html">get_commits</a></span><span class="op">(</span></span>
+<span>    since <span class="op">=</span> <span class="st">"2024-06-01"</span>,</span>
+<span>    until <span class="op">=</span> <span class="st">"2024-06-30"</span>,</span>
+<span>    progress <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
+<p>Stored data is now not dependent on <code>GitStats</code> object but
+on database credentials. If you set up same credentials in another
+<code>GitStats</code> object, you will be able to retrieve data from the
+database with that object as well.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">new_git_stats</span> <span class="op">&lt;-</span> <span class="va">git_stats</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/set_postgres_storage.html">set_postgres_storage</a></span><span class="op">(</span></span>
+<span>    host <span class="op">=</span> <span class="st">"hostname"</span>,</span>
+<span>    port <span class="op">=</span> <span class="fl">5432</span>,</span>
+<span>    dbname <span class="op">=</span> <span class="st">"dbname"</span>,</span>
+<span>    user <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"POSTGRES_USERNAME"</span><span class="op">)</span>,</span>
+<span>    password <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"POSTGRES_PASSWORD"</span><span class="op">)</span>,</span>
+<span>    schema <span class="op">=</span> <span class="st">"git_stats"</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Data is cached and retrieved instantly</span></span>
+<span><span class="va">new_git_stats</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/get_commits.html">get_commits</a></span><span class="op">(</span></span>
+<span>    since <span class="op">=</span> <span class="st">"2024-06-01"</span>,</span>
+<span>    until <span class="op">=</span> <span class="st">"2024-06-30"</span>,</span>
+<span>    progress <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

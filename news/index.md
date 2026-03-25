@@ -16,6 +16,16 @@
   [`get_repos_trees()`](https://r-world-devs.github.io/GitStats/reference/get_repos_trees.md),
   substantially improving speed of retrieving repository file trees
   ([\#740](https://github.com/r-world-devs/GitStats/issues/740)).
+- Added
+  [`set_postgres_storage()`](https://r-world-devs.github.io/GitStats/reference/set_postgres_storage.md),
+  [`set_sqlite_storage()`](https://r-world-devs.github.io/GitStats/reference/set_sqlite_storage.md),
+  and
+  [`set_local_storage()`](https://r-world-devs.github.io/GitStats/reference/set_local_storage.md)
+  to configure external storage backends. PostgreSQL (via
+  `RPostgres`/`DBI`) and SQLite (via `RSQLite`/`DBI`) are supported for
+  persisting data in a database. Metadata (R classes, attributes) is
+  preserved via a `_metadata` table
+  ([\#602](https://github.com/r-world-devs/GitStats/issues/602)).
 
 ## GitStats 2.4.0
 
