@@ -123,7 +123,7 @@ git_stats |>
 
 Stored data is now not dependent on `GitStats` object but on database credentials. If you set up same credentials in another `GitStats` object, you will be able to retrieve data from the database with that object as well.
 
-```r
+```{r, eval = FALSE}
 new_git_stats <- git_stats |>
   set_postgres_storage(
     host = "hostname",
