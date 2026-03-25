@@ -191,13 +191,47 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        cli::cli_alert("Pulling commits {cli_icons$commit}...")
-        commits <- private$get_commits_from_hosts(
-          since = since,
-          until = until,
-          verbose = verbose,
-          progress = progress
-        )
+        stored_commits <- private$storage_backend$load("commits")
+        stored_range <- attr(stored_commits, "date_range")
+        if (!is.null(stored_commits) && !is.null(stored_range) && cache) {
+          gaps <- private$get_date_gaps(stored_range, c(since, as.character(until)))
+          if (length(gaps) > 0) {
+            if (verbose) {
+              cli::cli_alert("Pulling missing commits {cli_icons$commit}...")
+            }
+            new_commits <- purrr::map(gaps, function(gap) {
+              private$get_commits_from_hosts(
+                since = gap$since,
+                until = gap$until,
+                verbose = verbose,
+                progress = progress
+              )
+            }) |>
+              purrr::list_rbind()
+            if (nrow(new_commits) > 0) {
+              class(stored_commits) <- class(stored_commits)[
+                !grepl("^gitstats_", class(stored_commits))
+              ]
+              commits <- dplyr::bind_rows(stored_commits, new_commits) |>
+                dplyr::distinct(.data$id, .keep_all = TRUE)
+            } else {
+              commits <- stored_commits
+              class(commits) <- class(commits)[
+                !grepl("^gitstats_", class(commits))
+              ]
+            }
+          } else {
+            commits <- stored_commits
+          }
+        } else {
+          cli::cli_alert("Pulling commits {cli_icons$commit}...")
+          commits <- private$get_commits_from_hosts(
+            since = since,
+            until = until,
+            verbose = verbose,
+            progress = progress
+          )
+        }
         if (nrow(commits) > 0) {
           commits <- private$set_object_class(
             object = commits,
@@ -661,6 +695,27 @@ GitStats <- R6::R6Class(
       stored_params <- purrr::map(names(args_list), ~ attr(storage_data, .) %||% "")
       new_params <- purrr::map(args_list, ~ . %||% "")
       !all(purrr::map2_lgl(new_params, stored_params, ~ identical(.x, .y)))
+    },
+
+    get_date_gaps = function(stored_range, requested_range) {
+      stored_since <- as.Date(stored_range[1])
+      stored_until <- as.Date(stored_range[2])
+      req_since <- as.Date(requested_range[1])
+      req_until <- as.Date(requested_range[2])
+      gaps <- list()
+      if (req_since < stored_since) {
+        gaps <- c(gaps, list(list(
+          since = as.character(req_since),
+          until = as.character(stored_since - 1)
+        )))
+      }
+      if (req_until > stored_until) {
+        gaps <- c(gaps, list(list(
+          since = as.character(stored_until + 1),
+          until = as.character(req_until)
+        )))
+      }
+      gaps
     },
 
     set_object_class = function(object, class, attr_list = NULL) {
