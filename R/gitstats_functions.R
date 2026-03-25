@@ -105,6 +105,90 @@ is_verbose <- function(gitstats) {
   gitstats$is_verbose()
 }
 
+#' @title Set local (in-memory) storage
+#' @name set_local_storage
+#' @description Reset storage to the default in-memory backend.
+#' @param gitstats A GitStats object.
+#' @return A `GitStats` object (invisibly).
+#' @examples
+#' \dontrun{
+#'   my_gitstats <- create_gitstats() |>
+#'     set_local_storage()
+#' }
+#' @export
+set_local_storage <- function(gitstats) {
+  gitstats$set_local_storage()
+}
+
+#' @title Set PostgreSQL storage
+#' @name set_postgres_storage
+#' @description Persist GitStats data in a PostgreSQL database. R classes,
+#'   custom attributes, and column types are preserved via a `_metadata` table.
+#'   Requires `DBI`, `RPostgres`, and `jsonlite` packages.
+#' @param gitstats A GitStats object.
+#' @param host A character, database host.
+#' @param port An integer, database port.
+#' @param dbname A character, database name.
+#' @param user A character, database user.
+#' @param password A character, database password.
+#' @param schema A character, database schema (default `"git_stats"`).
+#' @param ... Additional arguments passed to
+#'   `DBI::dbConnect(RPostgres::Postgres(), ...)`.
+#' @return A `GitStats` object (invisibly).
+#' @examples
+#' \dontrun{
+#'   my_gitstats <- create_gitstats() |>
+#'     set_postgres_storage(
+#'       dbname = "my_database",
+#'       host = "localhost",
+#'       user = "postgres",
+#'       password = "secret"
+#'     )
+#' }
+#' @export
+set_postgres_storage <- function(gitstats,
+                                 host = NULL,
+                                 port = NULL,
+                                 dbname = NULL,
+                                 user = NULL,
+                                 password = NULL,
+                                 schema = "git_stats",
+                                 ...) {
+  gitstats$set_postgres_storage(
+    host = host,
+    port = port,
+    dbname = dbname,
+    user = user,
+    password = password,
+    schema = schema,
+    ...
+  )
+}
+
+#' @title Set SQLite storage
+#' @name set_sqlite_storage
+#' @description Persist GitStats data in a SQLite database. R classes,
+#'   custom attributes, and column types are preserved via a `_metadata` table.
+#'   Requires `DBI`, `RSQLite`, and `jsonlite` packages.
+#' @param gitstats A GitStats object.
+#' @param dbname A character, path to SQLite file. Defaults to `":memory:"`
+#'   for an in-memory database.
+#' @return A `GitStats` object (invisibly).
+#' @examples
+#' \dontrun{
+#'   # File-based
+#'   my_gitstats <- create_gitstats() |>
+#'     set_sqlite_storage(dbname = "gitstats.sqlite")
+#'
+#'   # In-memory
+#'   my_gitstats <- create_gitstats() |>
+#'     set_sqlite_storage()
+#' }
+#' @export
+set_sqlite_storage <- function(gitstats, dbname = ":memory:") {
+  gitstats$set_sqlite_storage(dbname = dbname)
+}
+
 #' @title Get data from `GitStats` storage
 #' @name get_storage
 #' @description Retrieves whole or particular data (see `storage` parameter)

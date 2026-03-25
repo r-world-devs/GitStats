@@ -5,12 +5,12 @@ template:
 reference:
 - title: Create, set and show
 - contents:
-  - matches("create_gitstats")
-  - starts_with("set_")
+  - create_gitstats
+  - set_github_host
+  - set_gitlab_host
   - matches("verbose")
-  - matches("show_orgs")
-  - matches("show_hosts")
-  - matches("get_storage")
+  - show_orgs
+  - show_hosts
 - title: Get git data
   desc: >
       Functions to get git data in a tibble format.
@@ -25,6 +25,12 @@ reference:
   - get_release_logs
   - get_files
   - get_users
+- title: Storage
+- contents:
+  - set_local_storage
+  - set_postgres_storage
+  - set_sqlite_storage
+  - get_storage
 - title: Parallel processing
 - contents:
   - set_parallel

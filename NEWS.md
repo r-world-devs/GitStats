@@ -3,6 +3,7 @@
 - Added optional parallel processing for API calls via `mirai` package. Use `set_parallel()` to enable concurrent data fetching across repositories and organizations ([#736](https://github.com/r-world-devs/GitStats/issues/736)).
 - Cached `set_owner_type()` results to avoid redundant GraphQL calls when multiple `get_*` functions are used in the same session ([#738](https://github.com/r-world-devs/GitStats/issues/738)).
 - Replaced per-directory GraphQL file tree traversal with single-call REST recursive tree API for `get_repos_trees()`, substantially improving speed of retrieving repository file trees ([#740](https://github.com/r-world-devs/GitStats/issues/740)).
+- Added `set_postgres_storage()`, `set_sqlite_storage()`, and `set_local_storage()` to configure external storage backends. PostgreSQL (via `RPostgres`/`DBI`) and SQLite (via `RSQLite`/`DBI`) are supported for persisting data in a database. Metadata (R classes, attributes) is preserved via a `_metadata` table ([#602](https://github.com/r-world-devs/GitStats/issues/602)).
 
 # GitStats 2.4.0
 

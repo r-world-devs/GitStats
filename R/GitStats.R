@@ -2,6 +2,10 @@ GitStats <- R6::R6Class(
   classname = "GitStats",
   public = list(
 
+    initialize = function() {
+      private$storage_backend <- StorageLocal$new()
+    },
+
     set_github_host = function(host,
                                token = NULL,
                                orgs = NULL,
@@ -499,11 +503,46 @@ GitStats <- R6::R6Class(
       private$settings$verbose
     },
 
+    set_local_storage = function() {
+      private$storage_backend <- StorageLocal$new()
+      invisible(self)
+    },
+
+    set_postgres_storage = function(host = NULL,
+                                    port = NULL,
+                                    dbname = NULL,
+                                    user = NULL,
+                                    password = NULL,
+                                    schema = "git_stats",
+                                    ...) {
+      args <- list(...)
+      if (!is.null(host)) args$host <- host
+      if (!is.null(port)) args$port <- port
+      if (!is.null(dbname)) args$dbname <- dbname
+      if (!is.null(user)) args$user <- user
+      if (!is.null(password)) args$password <- password
+      private$storage_backend <- do.call(
+        StoragePostgres$new,
+        c(list(schema = schema), args)
+      )
+      cli::cli_alert_success("Storage set to {.val PostgreSQL}.")
+      invisible(self)
+    },
+
+    set_sqlite_storage = function(dbname = ":memory:") {
+      private$storage_backend <- StorageSQLite$new(dbname = dbname)
+      cli::cli_alert_success("Storage set to {.val SQLite}.")
+      invisible(self)
+    },
+
     get_storage = function(storage) {
       if (is.null(storage)) {
-        private$storage
+        stored <- private$storage_backend$list()
+        result <- purrr::map(stored, ~ private$storage_backend$load(.))
+        names(result) <- stored
+        return(result)
       } else {
-        private$storage[[storage]]
+        private$storage_backend$load(storage)
       }
     },
 
@@ -524,14 +563,7 @@ GitStats <- R6::R6Class(
       cache   = TRUE
     ),
 
-    storage = list(
-      repositories = NULL,
-      commits = NULL,
-      users = NULL,
-      files = NULL,
-      repos_trees = NULL,
-      release_logs = NULL
-    ),
+    storage_backend = NULL,
 
     add_new_host = function(new_host) {
       if (!is.null(new_host)) {
@@ -576,12 +608,12 @@ GitStats <- R6::R6Class(
     },
 
     storage_is_empty = function(table) {
-      is.null(private$storage[[table]])
+      !private$storage_backend$exists(table)
     },
 
     save_to_storage = function(table) {
       table_name <- deparse(substitute(table))
-      private$storage[[paste0(table_name)]] <- table
+      private$storage_backend$save(table_name, table)
     },
 
     get_from_storage = function(table) {
@@ -591,7 +623,7 @@ GitStats <- R6::R6Class(
       cli::cli_alert_info(cli::col_cyan(
         "If you wish to pull the data from API once more, set `cache` parameter to `FALSE`."
       ))
-      private$storage[[table]]
+      private$storage_backend$load(table)
     },
 
     trigger_pulling = function(cache, storage, args_list = NULL, verbose) {
@@ -625,7 +657,7 @@ GitStats <- R6::R6Class(
     },
 
     check_if_args_changed = function(storage, args_list) {
-      storage_data <- private$storage[[paste0(storage)]]
+      storage_data <- private$storage_backend$load(storage)
       stored_params <- purrr::map(names(args_list), ~ attr(storage_data, .) %||% "")
       new_params <- purrr::map(args_list, ~ . %||% "")
       !all(purrr::map2_lgl(new_params, stored_params, ~ identical(.x, .y)))
@@ -1039,7 +1071,16 @@ GitStats <- R6::R6Class(
     },
 
     print_storage = function() {
-      gitstats_storage <- purrr::imap(private$storage, function(storage_object, storage_name) {
+      backend_type <- if (inherits(private$storage_backend, "StoragePostgres")) {
+        "PostgreSQL"
+      } else if (inherits(private$storage_backend, "StorageSQLite")) {
+        "SQLite"
+      } else {
+        "local"
+      }
+      stored_names <- private$storage_backend$list()
+      gitstats_storage <- purrr::map(stored_names, function(storage_name) {
+        storage_object <- private$storage_backend$load(storage_name)
         if (!is.null(storage_object)) {
           storage_size <- if (inherits(storage_object, "data.frame")) {
             nrow(storage_object)
@@ -1054,14 +1095,13 @@ GitStats <- R6::R6Class(
         purrr::discard(~is.null(.))
       if (length(gitstats_storage) == 0) {
         private$print_item(
-          "Storage",
+          glue::glue("Storage [{backend_type}]"),
           cli::col_grey("<no data in storage>")
         )
       } else {
-        cat(paste0(
-          cli::col_blue("Storage: \n"),
-          paste0(" ", gitstats_storage, collapse = "\n")
-        ))
+        cat(cli::col_blue(glue::glue("Storage [{backend_type}]:")))
+        cat("\n")
+        cat(paste0(" ", gitstats_storage, collapse = "\n"))
       }
     },
 
