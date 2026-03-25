@@ -372,8 +372,8 @@ test_that("set_postgres_storage() exported wrapper calls R6 method", {
   gs <- create_gitstats()
   mock_storage <- StorageLocal$new()
   mockery::stub(
-    gs$set_postgres_storage,
-    "do.call",
+    set_postgres_storage,
+    "gitstats$set_postgres_storage",
     mock_storage
   )
   set_postgres_storage(
