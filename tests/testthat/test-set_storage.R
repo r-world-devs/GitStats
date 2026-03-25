@@ -356,7 +356,23 @@ test_that("set_postgres_storage() wrapper executes with stubbed connection", {
     "do.call",
     mock_storage
   )
-  gs$set_postgres_storage(host = "localhost", dbname = "test")
+  gs$set_postgres_storage(
+    host = "localhost",
+    port = 5432,
+    dbname = "test",
+    user = "postgres",
+    password = "secret",
+    schema = "my_schema"
+  )
   backend <- gs$.__enclos_env__$private$storage_backend
   expect_true(inherits(backend, "StorageLocal"))
+})
+
+test_that("print shows PostgreSQL backend type", {
+  gs <- create_gitstats()
+  mock_backend <- StorageLocal$new()
+  class(mock_backend) <- c("StoragePostgres", class(mock_backend))
+  gs$.__enclos_env__$private$storage_backend <- mock_backend
+  output <- capture.output(print(gs))
+  expect_true(any(grepl("Storage \\[PostgreSQL\\]", output)))
 })
