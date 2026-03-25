@@ -48,7 +48,7 @@ git_stats <- create_gitstats() |>
 
 If you wish to connect to **internal** GitHub or GitLab, you need to pass names of the hosts to `host` parameter. Remember also to have tokens set up properly for these hosts (on tokens read below).
 
-```r
+```{r, eval = FALSE}
 git_stats <- create_gitstats() |>
   set_github_host(
     host = "github.internal.com",
@@ -111,7 +111,7 @@ git_stats <- create_gitstats() |>
 
 * `whole hosts` - this is possible for the time being only in case of private hosts, as public ones are deemed to be too large. To set whole Git platform to be scanned just set hosts **without specifying** `orgs` or `repos`. On the other hand, remember that to connect with internal host, you need to pass argument to `host` parameter.
 
-```r
+```{r, eval = FALSE}
 git_stats <- create_gitstats() |>
   set_github_host(
     host = "github.internal.com",
