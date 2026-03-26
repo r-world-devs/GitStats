@@ -543,6 +543,7 @@ GitStats <- R6::R6Class(
 
     set_local_storage = function() {
       private$storage_backend <- StorageLocal$new()
+      private$propagate_storage_to_hosts()
       invisible(self)
     },
 
@@ -563,13 +564,17 @@ GitStats <- R6::R6Class(
         StoragePostgres$new,
         c(list(schema = schema), args)
       )
+      private$propagate_storage_to_hosts()
       cli::cli_alert_success("Storage set to {.val PostgreSQL}.")
+      private$report_storage_contents()
       invisible(self)
     },
 
     set_sqlite_storage = function(dbname = ":memory:") {
       private$storage_backend <- StorageSQLite$new(dbname = dbname)
+      private$propagate_storage_to_hosts()
       cli::cli_alert_success("Storage set to {.val SQLite}.")
+      private$report_storage_contents()
       invisible(self)
     },
 
@@ -607,6 +612,9 @@ GitStats <- R6::R6Class(
       if (!is.null(new_host)) {
         new_host <- new_host |>
           private$check_for_duplicate_hosts()
+        if (!is.null(private$storage_backend)) {
+          new_host$set_storage_backend(private$storage_backend)
+        }
         private$hosts <- append(private$hosts, new_host)
       }
     },
@@ -652,6 +660,26 @@ GitStats <- R6::R6Class(
     save_to_storage = function(table) {
       table_name <- deparse(substitute(table))
       private$storage_backend$save(table_name, table)
+    },
+
+    propagate_storage_to_hosts = function() {
+      purrr::walk(private$hosts, function(host) {
+        host$set_storage_backend(private$storage_backend)
+      })
+    },
+
+    report_storage_contents = function() {
+      stored_names <- private$storage_backend$list()
+      if (length(stored_names) == 0) {
+        cli::cli_alert_info("Database is empty.")
+      } else {
+        cli::cli_alert_info("Database contains data:")
+        purrr::walk(stored_names, function(name) {
+          data <- private$storage_backend$load(name)
+          n <- if (inherits(data, "data.frame")) nrow(data) else length(data)
+          cli::cli_bullets(c(" " = "{name}: {n} records"))
+        })
+      }
     },
 
     get_from_storage = function(table) {

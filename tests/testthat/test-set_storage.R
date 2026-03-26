@@ -396,3 +396,80 @@ test_that("print shows PostgreSQL backend type", {
   output <- capture.output(print(gs))
   expect_true(any(grepl("Storage \\[PostgreSQL\\]", output)))
 })
+
+# Storage propagation to hosts -------------------------------------------------
+
+test_that("set_sqlite_storage propagates backend to hosts", {
+  gs <- create_test_gitstats(hosts = 1)
+  suppressMessages(gs$set_sqlite_storage())
+  host <- gs$.__enclos_env__$private$hosts[[1]]
+  host_storage <- host$.__enclos_env__$private$storage_backend
+  expect_true(inherits(host_storage, "StorageSQLite"))
+})
+
+test_that("set_local_storage propagates backend to hosts", {
+  gs <- create_test_gitstats(hosts = 1)
+  suppressMessages(gs$set_sqlite_storage())
+  gs$set_local_storage()
+  host <- gs$.__enclos_env__$private$hosts[[1]]
+  host_storage <- host$.__enclos_env__$private$storage_backend
+  expect_true(inherits(host_storage, "StorageLocal"))
+})
+
+test_that("add_new_host propagates current storage to new host", {
+  gs <- create_gitstats()
+  suppressMessages(gs$set_sqlite_storage())
+  gs$.__enclos_env__$private$hosts[[1]] <- create_github_testhost(
+    orgs = "test_org"
+  )
+  gs$.__enclos_env__$private$propagate_storage_to_hosts()
+  host <- gs$.__enclos_env__$private$hosts[[1]]
+  host_storage <- host$.__enclos_env__$private$storage_backend
+  expect_true(inherits(host_storage, "StorageSQLite"))
+})
+
+# report_storage_contents ------------------------------------------------------
+
+test_that("set_sqlite_storage reports empty database", {
+  gs <- create_gitstats()
+  output <- capture.output(
+    gs$set_sqlite_storage(),
+    type = "message"
+  )
+  expect_true(any(grepl("Database is empty", output)))
+})
+
+test_that("set_sqlite_storage reports existing data", {
+  tmp <- tempfile(fileext = ".sqlite")
+  on.exit(unlink(tmp), add = TRUE)
+  storage <- StorageSQLite$new(dbname = tmp)
+  df <- dplyr::tibble(repo = "test/repo", stars = 10L)
+  class(df) <- c("gitstats_repos", class(df))
+  storage$save("repositories", df)
+  commits <- dplyr::tibble(id = "abc123")
+  class(commits) <- c("gitstats_commits", class(commits))
+  storage$save("commits", commits)
+  rm(storage)
+  gc()
+
+  gs <- create_gitstats()
+  output <- capture.output(
+    gs$set_sqlite_storage(dbname = tmp),
+    type = "message"
+  )
+  expect_true(any(grepl("Database contains data", output)))
+  expect_true(any(grepl("repositories.*1", output)))
+  expect_true(any(grepl("commits.*1", output)))
+})
+
+# GitHost set_storage_backend --------------------------------------------------
+
+test_that("GitHost set_storage_backend sets storage", {
+  host <- create_github_testhost(orgs = "test_org")
+  storage <- StorageSQLite$new()
+  host$set_storage_backend(storage)
+  host_storage <- host$.__enclos_env__$private$storage_backend
+  expect_true(inherits(host_storage, "StorageSQLite"))
+})
+
+
