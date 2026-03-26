@@ -347,8 +347,11 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           })
         }
         private$set_cached_repos(repos_from_org, org, verbose)
-        private$save_repos_to_storage(
-          repos_from_org, org, engine_used
+        tryCatch(
+          private$save_repos_to_storage(
+            repos_from_org, org, engine_used
+          ),
+          error = function(e) NULL
         )
       } else {
         if (verbose) cli::cli_alert("Using cached repositories data...")

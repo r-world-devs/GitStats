@@ -385,8 +385,11 @@ GitHostGitHub <- R6::R6Class(
           verbose = verbose
         )
         private$set_cached_repos(repos_from_org, org, verbose)
-        private$save_repos_to_storage(
-          repos_from_org, org, graphql_engine
+        tryCatch(
+          private$save_repos_to_storage(
+            repos_from_org, org, graphql_engine
+          ),
+          error = function(e) NULL
         )
       } else {
         if (verbose) cli::cli_alert("[{org}] Using cached repositories data...")
