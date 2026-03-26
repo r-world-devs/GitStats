@@ -25,7 +25,7 @@ library(GitStats)
 
 git_stats <- create_gitstats() |>
   set_github_host(
-    orgs = c("r-world-devs", "openpharma"),
+    orgs = c("r-world-devs"),
     token = Sys.getenv("GITHUB_PAT")
   ) |>
   set_gitlab_host(
@@ -33,7 +33,7 @@ git_stats <- create_gitstats() |>
     token = Sys.getenv("GITLAB_PAT_PUBLIC")
   )
 
-set_parallel(4)
+set_parallel(10)
 ```
 
 As scanning scope was set to `organizations` (`orgs` parameter in `set_*_host()`), `GitStats` will pull all repositories from these organizations.
@@ -58,7 +58,7 @@ After pulling, the data is saved to `GitStats`.
 commits <- get_commits(
   gitstats = git_stats,
   since = "2024-06-01",
-  until = "2024-06-30",
+  until = "2024-06-14",
   progress = FALSE
 )
 dplyr::glimpse(commits)
@@ -70,7 +70,7 @@ Caching feature is by default turned on. If you run the `get_*()` function once 
 commits <- get_commits(
   gitstats = git_stats,
   since = "2024-06-01",
-  until = "2024-06-30"
+  until = "2024-06-14"
 )
 dplyr::glimpse(commits)
 ```
@@ -81,7 +81,7 @@ Unless, you switch off the cache:
 commits <- get_commits(
   gitstats = git_stats,
   since = "2024-06-01",
-  until = "2024-06-30",
+  until = "2024-06-14",
   cache = FALSE,
   progress = FALSE
 )
@@ -93,8 +93,8 @@ Or simply change the parameters for the function:
 ```{r}
 commits <- get_commits(
   gitstats = git_stats,
-  since = "2024-07-01",
-  until = "2024-07-31",
+  since = "2024-06-15",
+  until = "2024-06-20",
   progress = FALSE
 )
 dplyr::glimpse(commits)
@@ -119,7 +119,7 @@ git_stats <- git_stats |>
 git_stats |>
   get_commits(
     since = "2024-06-01",
-    until = "2024-06-30",
+    until = "2024-06-14",
     progress = FALSE
   )
 ```
@@ -141,7 +141,7 @@ new_git_stats <- git_stats |>
 new_git_stats |>
   get_commits(
     since = "2024-06-01",
-    until = "2024-06-30",
+    until = "2024-06-14",
     progress = FALSE
   )
 ```
