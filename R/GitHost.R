@@ -354,6 +354,10 @@ GitHost <- R6::R6Class(
           )
       }
       return(release_logs_table)
+    },
+
+    set_storage_backend = function(backend) {
+      private$storage_backend <- backend
     }
   ),
   private = list(
@@ -375,6 +379,7 @@ GitHost <- R6::R6Class(
     verbose = TRUE,
     engines = list(),
     cached_repos = list(),
+    storage_backend = NULL,
 
     get_cached_repos = function(org) {
       private$cached_repos[[org]]

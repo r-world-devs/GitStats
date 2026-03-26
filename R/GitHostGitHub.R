@@ -385,6 +385,9 @@ GitHostGitHub <- R6::R6Class(
           verbose = verbose
         )
         private$set_cached_repos(repos_from_org, org, verbose)
+        private$save_repos_to_storage(
+          repos_from_org, org, graphql_engine
+        )
       } else {
         if (verbose) cli::cli_alert("[{org}] Using cached repositories data...")
         repos_from_org <- cached_repos
@@ -399,6 +402,23 @@ GitHostGitHub <- R6::R6Class(
         "repo_ids" = purrr::map_chr(repos_from_org, ~ .$repo_id)
       )
       return(repos_data)
+    },
+
+    save_repos_to_storage = function(repos_from_org, org, engine) {
+      storage <- private$storage_backend
+      if (!is.null(storage) && storage$is_db()) {
+        repos_table <- engine$prepare_repos_table(repos_from_org, org)
+        if (!is.null(repos_table) && nrow(repos_table) > 0) {
+          repos_table <- dplyr::as_tibble(repos_table)
+          existing <- storage$load("repositories")
+          if (!is.null(existing)) {
+            repos_table <- dplyr::bind_rows(existing, repos_table) |>
+              dplyr::distinct(repo_id, .keep_all = TRUE)
+          }
+          class(repos_table) <- c("gitstats_repos", class(repos_table))
+          storage$save("repositories", repos_table)
+        }
+      }
     },
 
     set_repo_url = function(repo_fullname) {
