@@ -85,24 +85,24 @@ Therefore, it is now not be dependent on the `GitStats` object, but on the local
 new_gitstats <- create_gitstats() |>
   set_sqlite_storage("my_local_db")
   
-commits <- get_commits(
-  gitstats = new_git_stats,
-  since = "2025-06-01",
-  until = "2025-06-14"
-)
+commits <- new_git_stats |>
+  get_commits(
+    since = "2025-06-01",
+    until = "2025-06-14"
+  )
 dplyr::glimpse(commits)
 ```
 
 Caching feature is by default turned on. You may switch it off:
 
 ```{r}
-commits <- get_commits(
-  gitstats = new_gitstats,
-  since = "2025-06-01",
-  until = "2025-06-14",
-  cache = FALSE,
-  progress = FALSE
-)
+commits <- new_gitstats |>
+  get_commits(
+    since = "2025-06-01",
+    until = "2025-06-14",
+    cache = FALSE,
+    progress = FALSE
+  )
 dplyr::glimpse(commits)
 ```
 
