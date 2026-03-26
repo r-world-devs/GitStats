@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,10 +44,8 @@
 <li>Cached <code>set_owner_type()</code> results to avoid redundant GraphQL calls when multiple <code>get_*</code> functions are used in the same session (<a href="https://github.com/r-world-devs/GitStats/issues/738" class="external-link">#738</a>).</li>
 <li>Replaced per-directory GraphQL file tree traversal with single-call REST recursive tree API for <code><a href="../reference/get_repos_trees.html">get_repos_trees()</a></code>, substantially improving speed of retrieving repository file trees (<a href="https://github.com/r-world-devs/GitStats/issues/740" class="external-link">#740</a>).</li>
 <li>Added <code><a href="../reference/set_postgres_storage.html">set_postgres_storage()</a></code>, <code><a href="../reference/set_sqlite_storage.html">set_sqlite_storage()</a></code>, and <code><a href="../reference/set_local_storage.html">set_local_storage()</a></code> to configure external storage backends. PostgreSQL (via <code>RPostgres</code>/<code>DBI</code>) and SQLite (via <code>RSQLite</code>/<code>DBI</code>) are supported for persisting data in a database. Metadata (R classes, attributes) is preserved via a <code>_metadata</code> table (<a href="https://github.com/r-world-devs/GitStats/issues/602" class="external-link">#602</a>).</li>
-</ul></div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.4.0" id="gitstats-240">GitStats 2.4.0<a class="anchor" aria-label="anchor" href="#gitstats-240"></a></h2><p class="text-muted">CRAN release: 2026-03-17</p>
-<p>The newest minor release includes new functions for retrieving pull requests (<code><a href="../reference/get_pull_requests.html">get_pull_requests()</a></code>) and their statistics (<code><a href="../reference/get_pull_requests_stats.html">get_pull_requests_stats()</a></code>), prettified repository URL outputs in <code><a href="../reference/get_repos_urls.html">get_repos_urls()</a></code>, along with refactoring and code cleanup.</p>
+<li>Sped up vignettes generation (<a href="https://github.com/r-world-devs/GitStats/issues/504" class="external-link">#504</a>). # GitStats 2.4.0</li>
+</ul><p>The newest minor release includes new functions for retrieving pull requests (<code><a href="../reference/get_pull_requests.html">get_pull_requests()</a></code>) and their statistics (<code><a href="../reference/get_pull_requests_stats.html">get_pull_requests_stats()</a></code>), prettified repository URL outputs in <code><a href="../reference/get_repos_urls.html">get_repos_urls()</a></code>, along with refactoring and code cleanup.</p>
 <ul><li>Prettified output of repositories URLs in <code><a href="../reference/get_repos_urls.html">get_repos_urls()</a></code> function (<a href="https://github.com/r-world-devs/GitStats/issues/710" class="external-link">#710</a>).</li>
 <li>Added <code><a href="../reference/get_pull_requests.html">get_pull_requests()</a></code> function for getting information about pull requests (<a href="https://github.com/r-world-devs/GitStats/issues/722" class="external-link">#722</a>).</li>
 <li>Cleaned up unnecessary comments (<a href="https://github.com/r-world-devs/GitStats/issues/723" class="external-link">#723</a>).</li>

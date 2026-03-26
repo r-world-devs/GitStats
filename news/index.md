@@ -26,10 +26,9 @@
   persisting data in a database. Metadata (R classes, attributes) is
   preserved via a `_metadata` table
   ([\#602](https://github.com/r-world-devs/GitStats/issues/602)).
-
-## GitStats 2.4.0
-
-CRAN release: 2026-03-17
+- Sped up vignettes generation
+  ([\#504](https://github.com/r-world-devs/GitStats/issues/504)). \#
+  GitStats 2.4.0
 
 The newest minor release includes new functions for retrieving pull
 requests
