@@ -93,7 +93,7 @@ new_git_stats <- create_gitstats() |>
     token = Sys.getenv("GITLAB_PAT_PUBLIC")
   ) |>
   set_sqlite_storage("my_local_db")
-  
+
 commits <- new_git_stats |>
   get_commits(
     since = "2025-06-01",
