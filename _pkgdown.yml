@@ -46,5 +46,5 @@ articles:
   navbar: ~
   contents:
   - set_hosts
-  - get_and_store_data
+  - store_data
   - get_repos_with_code
