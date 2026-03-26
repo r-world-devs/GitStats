@@ -74,6 +74,7 @@ test_that("get_commits fetches only missing date range", {
   )
   class(stored_commits) <- c("gitstats_commits", class(stored_commits))
   attr(stored_commits, "date_range") <- c("2024-01-01", "2024-06-30")
+  attr(stored_commits, "scope") <- "test_org"
   priv$storage_backend$save("commits", stored_commits)
 
   new_commits <- dplyr::tibble(
@@ -129,6 +130,7 @@ test_that("get_commits deduplicates by commit id", {
   )
   class(stored_commits) <- c("gitstats_commits", class(stored_commits))
   attr(stored_commits, "date_range") <- c("2024-01-01", "2024-06-30")
+  attr(stored_commits, "scope") <- "test_org"
   priv$storage_backend$save("commits", stored_commits)
 
   new_commits <- dplyr::tibble(
@@ -217,6 +219,7 @@ test_that("get_commits does full fetch when cache is FALSE", {
   )
   class(stored_commits) <- c("gitstats_commits", class(stored_commits))
   attr(stored_commits, "date_range") <- c("2024-01-01", "2024-06-30")
+  attr(stored_commits, "scope") <- "test_org"
   priv$storage_backend$save("commits", stored_commits)
 
   fresh_commits <- dplyr::tibble(
@@ -272,6 +275,7 @@ test_that("get_commits returns stored data when no gaps exist", {
   )
   class(stored_commits) <- c("gitstats_commits", class(stored_commits))
   attr(stored_commits, "date_range") <- c("2024-01-01", "2024-12-31")
+  attr(stored_commits, "scope") <- "test_org"
   priv$storage_backend$save("commits", stored_commits)
 
   result <- test_gitstats$get_commits(
@@ -303,6 +307,7 @@ test_that("get_commits uses stored data when requested range is a subset", {
   )
   class(stored_commits) <- c("gitstats_commits", class(stored_commits))
   attr(stored_commits, "date_range") <- c("2024-01-01", "2024-12-31")
+  attr(stored_commits, "scope") <- "test_org"
   priv$storage_backend$save("commits", stored_commits)
 
   suppressMessages(
@@ -337,6 +342,7 @@ test_that("get_commits handles gaps with no new commits from API", {
   )
   class(stored_commits) <- c("gitstats_commits", class(stored_commits))
   attr(stored_commits, "date_range") <- c("2024-01-01", "2024-06-30")
+  attr(stored_commits, "scope") <- "test_org"
   priv$storage_backend$save("commits", stored_commits)
 
   mockery::stub(
@@ -389,6 +395,7 @@ test_that("get_commits prints cli messages when verbose is TRUE", {
   )
   class(stored_commits) <- c("gitstats_commits", class(stored_commits))
   attr(stored_commits, "date_range") <- c("2024-01-01", "2024-06-30")
+  attr(stored_commits, "scope") <- "test_org"
   priv$storage_backend$save("commits", stored_commits)
 
   new_commits <- dplyr::tibble(
@@ -616,6 +623,7 @@ test_that("get_issues fetches only missing date range", {
   class(stored_issues) <- c("gitstats_issues", class(stored_issues))
   attr(stored_issues, "date_range") <- c("2024-01-01", "2024-06-30")
   attr(stored_issues, "state") <- "open"
+  attr(stored_issues, "scope") <- "test_org"
   priv$storage_backend$save("issues", stored_issues)
 
   new_issues <- dplyr::tibble(
@@ -673,6 +681,7 @@ test_that("get_issues does full re-fetch when state changes", {
   class(stored_issues) <- c("gitstats_issues", class(stored_issues))
   attr(stored_issues, "date_range") <- c("2024-01-01", "2024-06-30")
   attr(stored_issues, "state") <- "open"
+  attr(stored_issues, "scope") <- "test_org"
   priv$storage_backend$save("issues", stored_issues)
 
   all_issues <- dplyr::tibble(
@@ -729,6 +738,7 @@ test_that("get_pull_requests fetches only missing date range", {
   class(stored_prs) <- c("gitstats_pull_requests", class(stored_prs))
   attr(stored_prs, "date_range") <- c("2024-01-01", "2024-06-30")
   attr(stored_prs, "state") <- "all"
+  attr(stored_prs, "scope") <- "test_org"
   priv$storage_backend$save("pull_requests", stored_prs)
 
   new_prs <- dplyr::tibble(
@@ -782,6 +792,7 @@ test_that("get_release_logs fetches only missing date range", {
   )
   class(stored_releases) <- c("gitstats_releases", class(stored_releases))
   attr(stored_releases, "date_range") <- c("2024-01-01", "2024-06-30")
+  attr(stored_releases, "scope") <- "test_org"
   priv$storage_backend$save("release_logs", stored_releases)
 
   new_releases <- dplyr::tibble(

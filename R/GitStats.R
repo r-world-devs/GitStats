@@ -737,7 +737,7 @@ GitStats <- R6::R6Class(
         stored_data, args_list
       )
       if (!is.null(stored_data) && !is.null(stored_range) &&
-          cache && !non_date_args_changed) {
+            cache && !non_date_args_changed) {
         gaps <- private$get_date_gaps(stored_range, requested_range)
         if (length(gaps) > 0) {
           if (verbose) {
