@@ -191,53 +191,20 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        stored_commits <- private$storage_backend$load("commits")
-        stored_range <- attr(stored_commits, "date_range")
-        if (!is.null(stored_commits) && !is.null(stored_range) && cache) {
-          gaps <- private$get_date_gaps(stored_range, c(since, as.character(until)))
-          if (length(gaps) > 0) {
-            if (verbose) {
-              cli::cli_alert_info(
-                "Using cached commits {cli_icons$commit} from {.val {stored_range[1]}} to {.val {stored_range[2]}}."
-              )
-              gap_ranges <- purrr::map_chr(gaps, ~ paste(.x$since, "to", .x$until))
-              cli::cli_alert(
-                "Pulling commits {cli_icons$commit} from API for: {.val {gap_ranges}}."
-              )
-            }
-            new_commits <- purrr::map(gaps, function(gap) {
-              private$get_commits_from_hosts(
-                since = gap$since,
-                until = gap$until,
-                verbose = verbose,
-                progress = progress
-              )
-            }) |>
-              purrr::list_rbind()
-            if (nrow(new_commits) > 0) {
-              class(stored_commits) <- class(stored_commits)[
-                !grepl("^gitstats_", class(stored_commits))
-              ]
-              commits <- dplyr::bind_rows(stored_commits, new_commits) |>
-                dplyr::distinct(.data$id, .keep_all = TRUE)
-            } else {
-              commits <- stored_commits
-              class(commits) <- class(commits)[
-                !grepl("^gitstats_", class(commits))
-              ]
-            }
-          } else {
-            commits <- stored_commits
-          }
-        } else {
-          cli::cli_alert("Pulling commits {cli_icons$commit}...")
-          commits <- private$get_commits_from_hosts(
-            since = since,
-            until = until,
-            verbose = verbose,
-            progress = progress
-          )
-        }
+        commits <- private$pull_incrementally(
+          storage_name = "commits",
+          fetch_fn = function(since, until) {
+            private$get_commits_from_hosts(
+              since = since, until = until,
+              verbose = verbose, progress = progress
+            )
+          },
+          args_list = args_list,
+          dedup_columns = "id",
+          cache = cache,
+          verbose = verbose,
+          icon = cli_icons$commit
+        )
         if (nrow(commits) > 0) {
           commits <- private$set_object_class(
             object = commits,
@@ -278,13 +245,19 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        cli::cli_alert("Getting issues {cli_icons$issue}...")
-        issues <- private$get_issues_from_hosts(
-          since = since,
-          until = until,
-          state = state,
+        issues <- private$pull_incrementally(
+          storage_name = "issues",
+          fetch_fn = function(since, until) {
+            private$get_issues_from_hosts(
+              since = since, until = until, state = state,
+              verbose = verbose, progress = progress
+            )
+          },
+          args_list = args_list,
+          dedup_columns = c("number", "repo_name"),
+          cache = cache,
           verbose = verbose,
-          progress = progress
+          icon = cli_icons$issue
         )
         if (nrow(issues) > 0) {
           issues <- private$set_object_class(
@@ -326,13 +299,19 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        cli::cli_alert("Getting pull requests {cli_icons$pull_request}...")
-        pull_requests <- private$get_pull_requests_from_hosts(
-          since = since,
-          until = until,
-          state = state,
+        pull_requests <- private$pull_incrementally(
+          storage_name = "pull_requests",
+          fetch_fn = function(since, until) {
+            private$get_pull_requests_from_hosts(
+              since = since, until = until, state = state,
+              verbose = verbose, progress = progress
+            )
+          },
+          args_list = args_list,
+          dedup_columns = c("number", "repo_name"),
+          cache = cache,
           verbose = verbose,
-          progress = progress
+          icon = cli_icons$pull_request
         )
         if (nrow(pull_requests) > 0) {
           pull_requests <- private$set_object_class(
@@ -485,12 +464,19 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        cli::cli_alert("Pulling release logs {cli_icons$release}..")
-        release_logs <- private$get_release_logs_from_hosts(
-          since = since,
-          until = until,
+        release_logs <- private$pull_incrementally(
+          storage_name = "release_logs",
+          fetch_fn = function(since, until) {
+            private$get_release_logs_from_hosts(
+              since = since, until = until,
+              verbose = verbose, progress = progress
+            )
+          },
+          args_list = args_list,
+          dedup_columns = c("release_tag", "repo_name"),
+          cache = cache,
           verbose = verbose,
-          progress = progress
+          icon = cli_icons$release
         )
         if (nrow(release_logs) > 0) {
           release_logs <- private$set_object_class(
@@ -722,6 +708,75 @@ GitStats <- R6::R6Class(
         )))
       }
       gaps
+    },
+
+    pull_incrementally = function(storage_name,
+                                  fetch_fn,
+                                  args_list,
+                                  dedup_columns,
+                                  cache,
+                                  verbose,
+                                  icon) {
+      stored_data <- private$storage_backend$load(storage_name)
+      stored_range <- attr(stored_data, "date_range")
+      requested_range <- args_list[["date_range"]]
+      non_date_args_changed <- private$non_date_args_changed(
+        stored_data, args_list
+      )
+      if (!is.null(stored_data) && !is.null(stored_range) &&
+          cache && !non_date_args_changed) {
+        gaps <- private$get_date_gaps(stored_range, requested_range)
+        if (length(gaps) > 0) {
+          if (verbose) {
+            cli::cli_alert_info(
+              "Using cached {storage_name} {icon} from {.val {stored_range[1]}} to {.val {stored_range[2]}}."
+            )
+            gap_ranges <- purrr::map_chr(
+              gaps, ~ paste(.x$since, "to", .x$until)
+            )
+            cli::cli_alert(
+              "Pulling {storage_name} {icon} from API for: {.val {gap_ranges}}."
+            )
+          }
+          new_data <- purrr::map(gaps, function(gap) {
+            fetch_fn(since = gap$since, until = gap$until)
+          }) |>
+            purrr::list_rbind()
+          if (nrow(new_data) > 0) {
+            class(stored_data) <- class(stored_data)[
+              !grepl("^gitstats_", class(stored_data))
+            ]
+            result <- dplyr::bind_rows(stored_data, new_data) |>
+              dplyr::distinct(
+                dplyr::across(dplyr::all_of(dedup_columns)),
+                .keep_all = TRUE
+              )
+          } else {
+            result <- stored_data
+            class(result) <- class(result)[
+              !grepl("^gitstats_", class(result))
+            ]
+          }
+        } else {
+          result <- stored_data
+        }
+      } else {
+        result <- fetch_fn(
+          since = requested_range[1],
+          until = requested_range[2]
+        )
+      }
+      result
+    },
+
+    non_date_args_changed = function(stored_data, args_list) {
+      non_date_args <- args_list[names(args_list) != "date_range"]
+      if (length(non_date_args) == 0) return(FALSE)
+      stored_params <- purrr::map(
+        names(non_date_args), ~ attr(stored_data, .) %||% ""
+      )
+      new_params <- purrr::map(non_date_args, ~ . %||% "")
+      !all(purrr::map2_lgl(new_params, stored_params, ~ identical(.x, .y)))
     },
 
     set_object_class = function(object, class, attr_list = NULL) {
