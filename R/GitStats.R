@@ -203,7 +203,8 @@ GitStats <- R6::R6Class(
           dedup_columns = "id",
           cache = cache,
           verbose = verbose,
-          icon = cli_icons$commit
+          icon = cli_icons$commit,
+          pull_message = "Pulling commits {cli_icons$commit}..."
         )
         if (nrow(commits) > 0) {
           commits <- private$set_object_class(
@@ -257,7 +258,8 @@ GitStats <- R6::R6Class(
           dedup_columns = c("number", "repo_name"),
           cache = cache,
           verbose = verbose,
-          icon = cli_icons$issue
+          icon = cli_icons$issue,
+          pull_message = "Getting issues {cli_icons$issue}..."
         )
         if (nrow(issues) > 0) {
           issues <- private$set_object_class(
@@ -311,7 +313,8 @@ GitStats <- R6::R6Class(
           dedup_columns = c("number", "repo_name"),
           cache = cache,
           verbose = verbose,
-          icon = cli_icons$pull_request
+          icon = cli_icons$pull_request,
+          pull_message = "Getting pull requests {cli_icons$pull_request}..."
         )
         if (nrow(pull_requests) > 0) {
           pull_requests <- private$set_object_class(
@@ -476,7 +479,8 @@ GitStats <- R6::R6Class(
           dedup_columns = c("release_tag", "repo_name"),
           cache = cache,
           verbose = verbose,
-          icon = cli_icons$release
+          icon = cli_icons$release,
+          pull_message = "Pulling release logs {cli_icons$release}.."
         )
         if (nrow(release_logs) > 0) {
           release_logs <- private$set_object_class(
@@ -716,7 +720,8 @@ GitStats <- R6::R6Class(
                                   dedup_columns,
                                   cache,
                                   verbose,
-                                  icon) {
+                                  icon,
+                                  pull_message = NULL) {
       stored_data <- private$storage_backend$load(storage_name)
       stored_range <- attr(stored_data, "date_range")
       requested_range <- args_list[["date_range"]]
@@ -761,6 +766,9 @@ GitStats <- R6::R6Class(
           result <- stored_data
         }
       } else {
+        if (verbose && !is.null(pull_message)) {
+          cli::cli_alert(pull_message)
+        }
         result <- fetch_fn(
           since = requested_range[1],
           until = requested_range[2]
