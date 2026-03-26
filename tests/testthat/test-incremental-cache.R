@@ -459,6 +459,141 @@ test_that("non_date_args_changed returns FALSE when state is same", {
   expect_false(result)
 })
 
+test_that("non_date_args_changed returns TRUE when scope changed", {
+  test_gitstats <- create_test_gitstats(hosts = 1, priv_mode = TRUE)
+  data <- dplyr::tibble(x = 1)
+  attr(data, "date_range") <- c("2024-01-01", "2024-06-30")
+  attr(data, "scope") <- "old_org"
+  result <- test_gitstats$non_date_args_changed(
+    data, list("date_range" = c("2024-01-01", "2024-12-31"), "scope" = "new_org")
+  )
+  expect_true(result)
+})
+
+test_that("non_date_args_changed returns FALSE when scope is same", {
+  test_gitstats <- create_test_gitstats(hosts = 1, priv_mode = TRUE)
+  data <- dplyr::tibble(x = 1)
+  attr(data, "date_range") <- c("2024-01-01", "2024-06-30")
+  attr(data, "scope") <- "test_org"
+  result <- test_gitstats$non_date_args_changed(
+    data, list("date_range" = c("2024-01-01", "2024-12-31"), "scope" = "test_org")
+  )
+  expect_false(result)
+})
+
+# Scope change triggers full re-fetch -----------------------------------------
+
+test_that("get_commits does full re-fetch when scanning scope changes", {
+  test_gitstats <- create_test_gitstats(hosts = 1)
+  priv <- test_gitstats$.__enclos_env__$private
+
+  stored_commits <- dplyr::tibble(
+    repo_name = "old_org/repo",
+    id = "old_commit",
+    committed_date = as.POSIXct("2024-03-15"),
+    author = "author1",
+    author_login = "author1",
+    author_name = "Author One",
+    additions = 10L,
+    deletions = 5L,
+    organization = "old_org",
+    repo_url = "https://github.com/old_org/repo",
+    api_url = "https://api.github.com"
+  )
+  class(stored_commits) <- c("gitstats_commits", class(stored_commits))
+  attr(stored_commits, "date_range") <- c("2024-01-01", "2024-06-30")
+  attr(stored_commits, "scope") <- "old_org"
+  priv$storage_backend$save("commits", stored_commits)
+
+  fresh_commits <- dplyr::tibble(
+    repo_name = "test_org/repo",
+    id = "new_commit",
+    committed_date = as.POSIXct("2024-03-15"),
+    author = "author1",
+    author_login = "author1",
+    author_name = "Author One",
+    additions = 10L,
+    deletions = 5L,
+    organization = "test_org",
+    repo_url = "https://github.com/test_org/repo",
+    api_url = "https://api.github.com"
+  )
+
+  mockery::stub(
+    test_gitstats$get_commits,
+    "private$get_commits_from_hosts",
+    fresh_commits
+  )
+
+  suppressMessages(
+    result <- test_gitstats$get_commits(
+      since = "2024-01-01",
+      until = "2024-06-30",
+      verbose = FALSE
+    )
+  )
+
+  # Full re-fetch: only new data, old data discarded
+  expect_equal(nrow(result), 1)
+  expect_equal(result$id, "new_commit")
+})
+
+test_that("get_issues does full re-fetch when scanning scope changes", {
+  test_gitstats <- create_test_gitstats(hosts = 1)
+  priv <- test_gitstats$.__enclos_env__$private
+
+  stored_issues <- dplyr::tibble(
+    repo_name = "old_org/repo",
+    number = 1L,
+    title = "Old issue",
+    description = "desc",
+    created_at = as.POSIXct("2024-03-15"),
+    closed_at = as.POSIXct(NA),
+    state = "open",
+    url = "https://github.com/old_org/repo/issues/1",
+    author = "author1",
+    organization = "old_org",
+    api_url = "https://api.github.com"
+  )
+  class(stored_issues) <- c("gitstats_issues", class(stored_issues))
+  attr(stored_issues, "date_range") <- c("2024-01-01", "2024-06-30")
+  attr(stored_issues, "state") <- "open"
+  attr(stored_issues, "scope") <- "old_org"
+  priv$storage_backend$save("issues", stored_issues)
+
+  fresh_issues <- dplyr::tibble(
+    repo_name = "test_org/repo",
+    number = 5L,
+    title = "New issue",
+    description = "desc",
+    created_at = as.POSIXct("2024-03-15"),
+    closed_at = as.POSIXct(NA),
+    state = "open",
+    url = "https://github.com/test_org/repo/issues/5",
+    author = "author1",
+    organization = "test_org",
+    api_url = "https://api.github.com"
+  )
+
+  mockery::stub(
+    test_gitstats$get_issues,
+    "private$get_issues_from_hosts",
+    fresh_issues
+  )
+
+  suppressMessages(
+    result <- test_gitstats$get_issues(
+      since = "2024-01-01",
+      until = "2024-06-30",
+      state = "open",
+      verbose = FALSE
+    )
+  )
+
+  expect_equal(nrow(result), 1)
+  expect_equal(result$number, 5L)
+})
+
 # Incremental get_issues -------------------------------------------------------
 
 test_that("get_issues fetches only missing date range", {

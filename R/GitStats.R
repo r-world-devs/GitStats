@@ -183,7 +183,10 @@ GitStats <- R6::R6Class(
                            verbose = TRUE,
                            progress = TRUE) {
       private$check_for_host()
-      args_list <- list("date_range" = c(since, as.character(until)))
+      args_list <- list(
+        "date_range" = c(since, as.character(until)),
+        "scope" = private$get_scope_fingerprint()
+      )
       trigger <- private$trigger_pulling(
         cache = cache,
         storage = "commits",
@@ -237,7 +240,8 @@ GitStats <- R6::R6Class(
       private$check_for_host()
       args_list <- list(
         "state" = state,
-        "date_range" = c(since, as.character(until))
+        "date_range" = c(since, as.character(until)),
+        "scope" = private$get_scope_fingerprint()
       )
       trigger <- private$trigger_pulling(
         cache = cache,
@@ -292,7 +296,8 @@ GitStats <- R6::R6Class(
       private$check_for_host()
       args_list <- list(
         "state" = state,
-        "date_range" = c(since, as.character(until))
+        "date_range" = c(since, as.character(until)),
+        "scope" = private$get_scope_fingerprint()
       )
       trigger <- private$trigger_pulling(
         cache = cache,
@@ -459,7 +464,10 @@ GitStats <- R6::R6Class(
                                 verbose = TRUE,
                                 progress = TRUE) {
       private$check_for_host()
-      args_list <- list("date_range" = c(since, as.character(until)))
+      args_list <- list(
+        "date_range" = c(since, as.character(until)),
+        "scope" = private$get_scope_fingerprint()
+      )
       trigger <- private$trigger_pulling(
         storage = "release_logs",
         cache = cache,
@@ -775,6 +783,20 @@ GitStats <- R6::R6Class(
         )
       }
       result
+    },
+
+    get_scope_fingerprint = function() {
+      orgs <- purrr::map(private$hosts, function(host) {
+        host$.__enclos_env__$private$orgs
+      }) |> unlist()
+      repos <- purrr::map(private$hosts, function(host) {
+        host_priv <- environment(host$initialize)$private
+        if ("repo" %in% host_priv$searching_scope) {
+          host_priv$repos_fullnames
+        }
+      }) |> unlist()
+      scope <- sort(unique(c(orgs, repos)))
+      paste(scope, collapse = ",")
     },
 
     non_date_args_changed = function(stored_data, args_list) {
