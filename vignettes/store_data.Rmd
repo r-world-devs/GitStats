@@ -54,12 +54,12 @@ dplyr::glimpse(repos_urls)
 After pulling, the data is saved by default to `GitStats`.
 
 ```{r}
-commits <- get_commits(
-  gitstats = git_stats,
-  since = "2025-06-01",
-  until = "2025-06-14",
-  progress = FALSE
-)
+commits <- git_stats |>
+  get_commits(
+    since = "2025-06-01",
+    until = "2025-06-14",
+    progress = FALSE
+  )
 git_stats
 dplyr::glimpse(commits)
 ```
@@ -70,7 +70,7 @@ For local saving we recommend though using `SQLite` storage. You can set it up w
 
 ```{r}
 git_stats |>
-  set_sqlite_storage() |>
+  set_sqlite_storage("my_local_db") |>
   get_commits(
     since = "2025-06-01",
     until = "2025-06-14",
@@ -82,13 +82,22 @@ git_stats
 Therefore, it is now not be dependent on the `GitStats` object, but on the local database, so you can even create a new `GitStats` and connect it to the same database and data will be there.
 
 ```{r}
-new_gitstats <- create_gitstats() |>
+new_git_stats <- create_gitstats() |>
+  set_github_host(
+    orgs = "r-world-devs",
+    token = Sys.getenv("GITHUB_PAT")
+  ) |>
+  set_gitlab_host(
+    orgs = c("mbtests"),
+    token = Sys.getenv("GITLAB_PAT_PUBLIC")
+  ) |>
   set_sqlite_storage("my_local_db")
   
 commits <- new_git_stats |>
   get_commits(
     since = "2025-06-01",
-    until = "2025-06-14"
+    until = "2025-06-14",
+    verbose = TRUE
   )
 dplyr::glimpse(commits)
 ```
@@ -96,10 +105,11 @@ dplyr::glimpse(commits)
 Caching feature is by default turned on. You may switch it off:
 
 ```{r}
-commits <- new_gitstats |>
+commits <- new_git_stats |>
   get_commits(
     since = "2025-06-01",
     until = "2025-06-14",
+    verbose = TRUE,
     cache = FALSE,
     progress = FALSE
   )
@@ -112,12 +122,13 @@ When you pull data with `get_*()` functions, it is stored in the local database.
 
 
 ```{r}
-commits <- get_commits(
-  gitstats = new_gitstats,
-  since = "2025-06-01",
-  until = "2025-06-30",
-  progress = FALSE
-)
+commits <- new_git_stats |>
+  get_commits(
+    since = "2025-06-01",
+    until = "2025-06-30",
+    verbose = TRUE,
+    progress = FALSE
+  )
 dplyr::glimpse(commits)
 ```
 
