@@ -69,13 +69,14 @@ dplyr::glimpse(commits)
 For local saving we recommend though using `SQLite` storage. You can set it up with `set_sqlite_storage()` function. Then, all data pulled with `get_*()` functions will be stored in the `SQLite` database and retrieved from there when you run the function again.
 
 ```{r}
-git_stats |>
+commits <- git_stats |>
   set_sqlite_storage("my_local_db") |>
   get_commits(
     since = "2025-06-01",
     until = "2025-06-14",
     progress = FALSE
   )
+dplyr::glimpse(commits)
 git_stats
 ```
 
