@@ -197,7 +197,13 @@ GitStats <- R6::R6Class(
           gaps <- private$get_date_gaps(stored_range, c(since, as.character(until)))
           if (length(gaps) > 0) {
             if (verbose) {
-              cli::cli_alert("Pulling missing commits {cli_icons$commit}...")
+              cli::cli_alert_info(
+                "Using cached commits {cli_icons$commit} from {.val {stored_range[1]}} to {.val {stored_range[2]}}."
+              )
+              gap_ranges <- purrr::map_chr(gaps, ~ paste(.x$since, "to", .x$until))
+              cli::cli_alert(
+                "Pulling commits {cli_icons$commit} from API for: {.val {gap_ranges}}."
+              )
             }
             new_commits <- purrr::map(gaps, function(gap) {
               private$get_commits_from_hosts(
