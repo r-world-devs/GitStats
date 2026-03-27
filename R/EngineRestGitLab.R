@@ -421,6 +421,26 @@ EngineRestGitLab <- R6::R6Class(
         }
         return(commits_table)
       }
+    },
+
+    get_commit_sha_from_branch = function(project_id, default_branch, verbose = FALSE) {
+      if (is.null(default_branch) || nchar(default_branch) == 0) {
+        return(NA_character_)
+      }
+      tryCatch({
+        branch_response <- self$response(
+          endpoint = paste0(
+            private$endpoints[["projects"]],
+            project_id,
+            "/repository/branches/",
+            utils::URLencode(default_branch, reserved = TRUE)
+          ),
+          verbose = verbose
+        )
+        branch_response$commit$id %||% NA_character_
+      }, error = function(e) {
+        NA_character_
+      })
     }
   ),
   private = list(

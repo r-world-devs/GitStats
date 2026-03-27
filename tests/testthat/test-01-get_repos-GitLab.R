@@ -695,3 +695,122 @@ test_that("get_repos_data prints message when turns to REST engine", {
     )
   )
 })
+
+# ---- commit_sha fallback for archived projects ----
+
+test_that("GraphQL engine returns NA commit_sha for archived projects with null lastCommit", {
+  repos_with_archived <- list(
+    gitlab_project_node,
+    gitlab_archived_project_node
+  )
+  gl_repos_table <- test_graphql_gitlab$prepare_repos_table(
+    repos_list = repos_with_archived,
+    org = "mbtests"
+  )
+  expect_repos_table(gl_repos_table)
+  expect_equal(gl_repos_table$commit_sha[1], "1a2bc3d4e5")
+  expect_true(is.na(gl_repos_table$commit_sha[2]))
+})
+
+test_that("`get_commit_sha_from_branch()` retrieves SHA from branches API", {
+  mockery::stub(
+    test_rest_gitlab$get_commit_sha_from_branch,
+    "self$response",
+    test_fixtures$gitlab_branch_response
+  )
+  sha <- test_rest_gitlab$get_commit_sha_from_branch(
+    project_id = "99999999",
+    default_branch = "main"
+  )
+  expect_equal(sha, "abcdef1234567890")
+})
+
+test_that("`get_commit_sha_from_branch()` returns NA when branch is empty", {
+  sha <- test_rest_gitlab$get_commit_sha_from_branch(
+    project_id = "99999999",
+    default_branch = ""
+  )
+  expect_true(is.na(sha))
+})
+
+test_that("`get_commit_sha_from_branch()` returns NA when branch is NULL", {
+  sha <- test_rest_gitlab$get_commit_sha_from_branch(
+    project_id = "99999999",
+    default_branch = NULL
+  )
+  expect_true(is.na(sha))
+})
+
+test_that("`get_commit_sha_from_branch()` returns NA on API error", {
+  mockery::stub(
+    test_rest_gitlab$get_commit_sha_from_branch,
+    "self$response",
+    { stop("HTTP 404 Not Found") }
+  )
+  sha <- test_rest_gitlab$get_commit_sha_from_branch(
+    project_id = "99999999",
+    default_branch = "main"
+  )
+  expect_true(is.na(sha))
+})
+
+test_that("`fill_repos_commit_sha()` fills missing commit_sha via REST", {
+  gitlab_testhost_fill <- create_gitlab_testhost(
+    orgs = "mbtests",
+    mode = "private"
+  )
+  repos_table <- data.frame(
+    repo_id = c("61399846", "99999999"),
+    repo_name = c("gitstatstesting", "archived-project"),
+    repo_fullpath = c("mbtests/gitstatstesting", "mbtests/archived-project"),
+    default_branch = c("main", "main"),
+    stars = c(8L, 2L),
+    forks = c(3L, 0L),
+    created_at = as.POSIXct(c("2023-09-18", "2022-01-10")),
+    last_activity_at = as.POSIXct(c("2024-09-18", "2023-06-15")),
+    languages = c("Python, R", "R"),
+    issues_open = c(2L, 0L),
+    issues_closed = c(8L, 3L),
+    organization = c("mbtests", "mbtests"),
+    repo_url = c("https://gitlab.com/mbtests/gitstatstesting",
+                 "https://gitlab.com/mbtests/archived-project"),
+    commit_sha = c("1a2bc3d4e5", NA_character_),
+    stringsAsFactors = FALSE
+  )
+  mockery::stub(
+    gitlab_testhost_fill$fill_repos_commit_sha,
+    "rest_engine$get_commit_sha_from_branch",
+    "abcdef1234567890"
+  )
+  result <- gitlab_testhost_fill$fill_repos_commit_sha(repos_table, verbose = FALSE)
+  expect_equal(result$commit_sha[1], "1a2bc3d4e5")
+  expect_equal(result$commit_sha[2], "abcdef1234567890")
+})
+
+test_that("`fill_repos_commit_sha()` skips repos with empty default_branch", {
+  gitlab_testhost_fill <- create_gitlab_testhost(
+    orgs = "mbtests",
+    mode = "private"
+  )
+  repos_table <- data.frame(
+    repo_id = c("99999999"),
+    repo_name = c("empty-repo"),
+    repo_fullpath = c("mbtests/empty-repo"),
+    default_branch = c(""),
+    stars = 0L,
+    forks = 0L,
+    created_at = as.POSIXct("2022-01-10"),
+    last_activity_at = as.POSIXct("2023-06-15"),
+    languages = "",
+    issues_open = 0L,
+    issues_closed = 0L,
+    organization = "mbtests",
+    repo_url = "https://gitlab.com/mbtests/empty-repo",
+    commit_sha = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  result <- gitlab_testhost_fill$fill_repos_commit_sha(repos_table, verbose = FALSE)
+  expect_true(is.na(result$commit_sha[1]))
+})
+
+

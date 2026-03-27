@@ -228,6 +228,71 @@ gitlab_project_node <- list(
   )
 )
 
+gitlab_archived_project_node <- list(
+  "node" = list(
+    "repo_id" = "gid://gitlab/Project/99999999",
+    "repo_name" = "archived-project",
+    "repo_path" = "archived-project",
+    "repo_fullpath" = "mbtests/archived-project",
+    "repository" = list(
+      "rootRef" = "main",
+      "lastCommit" = NULL
+    ),
+    "stars" = 2,
+    "forks" = 0,
+    "created_at" = "2022-01-10T00:00:00Z",
+    "last_activity_at" = "2023-06-15T00:00:00Z",
+    "languages" = list(
+      list(
+        "name" = "R"
+      )
+    ),
+    "issues" = list(
+      "all" = 3,
+      "closed" = 3,
+      "opened" = 0
+    ),
+    "namespace" = list(
+      "path" = "mbtests"
+    ),
+    "repo_url" = "https://gitlab.com/mbtests/archived-project"
+  )
+)
+
+test_fixtures$gitlab_branch_response <- list(
+  "name" = "main",
+  "merged" = FALSE,
+  "protected" = TRUE,
+  "default" = TRUE,
+  "commit" = list(
+    "id" = "abcdef1234567890",
+    "short_id" = "abcdef12",
+    "created_at" = "2023-06-15T10:00:00Z",
+    "title" = "Last commit on archived project",
+    "message" = "Last commit on archived project",
+    "author_name" = "Test User",
+    "author_email" = "test@example.com"
+  )
+)
+
+test_fixtures$gitlab_repos_by_org_with_archived_response <- list(
+  "data" = list(
+    "group" = list(
+      "projects" = list(
+        "count" = 2,
+        "pageInfo" = list(
+          "hasNextPage" = FALSE,
+          "endCursor" = "xyz"
+        ),
+        "edges" = list(
+          gitlab_project_node,
+          gitlab_archived_project_node
+        )
+      )
+    )
+  )
+)
+
 test_fixtures$gitlab_repos_by_org_response <- list(
   "data" = list(
     "group" = list(
