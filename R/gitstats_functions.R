@@ -221,3 +221,49 @@ get_storage <- function(gitstats,
     storage = storage
   )
 }
+
+#' @title Remove a table from `GitStats` storage
+#' @name remove_from_storage
+#' @description Removes a named table from the active storage backend.
+#' @param gitstats A GitStats object.
+#' @param storage A character, name of the table to remove (e.g. `"commits"`,
+#'   `"repositories"`).
+#' @return A `GitStats` object (invisibly).
+#' @examples
+#' \dontrun{
+#'   my_gitstats <- create_gitstats() |>
+#'     set_github_host(
+#'       token = Sys.getenv("GITHUB_PAT"),
+#'       orgs = "r-world-devs"
+#'     )
+#'   get_commits(my_gitstats, since = "2024-01-01")
+#'   remove_from_storage(my_gitstats, storage = "commits")
+#' }
+#' @export
+remove_from_storage <- function(gitstats, storage) {
+  gitstats$remove_from_storage(storage = storage)
+}
+
+#' @title Get metadata for a storage table
+#' @name get_storage_metadata
+#' @description Retrieves metadata (R classes, custom attributes, column types)
+#'   for a table stored in the active storage backend.
+#' @param gitstats A GitStats object.
+#' @param storage A character, name of the table (e.g. `"commits"`,
+#'   `"repositories"`).
+#' @return A list with metadata fields: `class`, `attributes`, and (for
+#'   database backends) `column_types`.
+#' @examples
+#' \dontrun{
+#'   my_gitstats <- create_gitstats() |>
+#'     set_github_host(
+#'       token = Sys.getenv("GITHUB_PAT"),
+#'       orgs = "r-world-devs"
+#'     )
+#'   get_commits(my_gitstats, since = "2024-01-01")
+#'   get_storage_metadata(my_gitstats, storage = "commits")
+#' }
+#' @export
+get_storage_metadata <- function(gitstats, storage) {
+  gitstats$get_storage_metadata(storage = storage)
+}

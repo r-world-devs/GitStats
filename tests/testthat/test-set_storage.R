@@ -5,7 +5,9 @@ test_that("Storage base class methods raise 'Not implemented'", {
   expect_error(base$save("x", 1), "Not implemented")
   expect_error(base$load("x"), "Not implemented")
   expect_error(base$exists("x"), "Not implemented")
+  expect_error(base$remove("x"), "Not implemented")
   expect_error(base$list(), "Not implemented")
+  expect_error(base$get_metadata("x"), "Not implemented")
   expect_false(base$is_db())
 })
 
@@ -62,6 +64,50 @@ test_that("StorageLocal overwrite replaces data", {
 test_that("StorageLocal is_db returns FALSE", {
   storage <- StorageLocal$new()
   expect_false(storage$is_db())
+})
+
+test_that("StorageLocal remove deletes a table", {
+  storage <- StorageLocal$new()
+  storage$save("alpha", dplyr::tibble(x = 1))
+  storage$save("beta", dplyr::tibble(y = 2))
+  expect_true(storage$exists("alpha"))
+  storage$remove("alpha")
+  expect_false(storage$exists("alpha"))
+  expect_true(storage$exists("beta"))
+  expect_equal(storage$list(), "beta")
+})
+
+test_that("StorageLocal remove is silent for missing table", {
+  storage <- StorageLocal$new()
+  expect_no_error(storage$remove("nonexistent"))
+})
+
+test_that("StorageLocal get_metadata returns class and attributes", {
+  storage <- StorageLocal$new()
+  df <- dplyr::tibble(a = 1:3)
+  class(df) <- c("gitstats_commits", class(df))
+  attr(df, "since") <- "2024-01-01"
+  attr(df, "until") <- "2024-12-31"
+  storage$save("commits", df)
+  meta <- storage$get_metadata("commits")
+  expect_type(meta, "list")
+  expect_true("gitstats_commits" %in% meta$class)
+  expect_equal(meta$attributes$since, "2024-01-01")
+  expect_equal(meta$attributes$until, "2024-12-31")
+})
+
+test_that("StorageLocal get_metadata returns NULL for missing table", {
+  storage <- StorageLocal$new()
+  expect_null(storage$get_metadata("nonexistent"))
+})
+
+test_that("StorageLocal get_metadata returns empty attributes when none set", {
+  storage <- StorageLocal$new()
+  df <- dplyr::tibble(x = 1)
+  storage$save("data", df)
+  meta <- storage$get_metadata("data")
+  expect_type(meta, "list")
+  expect_equal(meta$attributes, list())
 })
 
 # set_*_storage ----------------------------------------------------------------
@@ -241,6 +287,43 @@ test_that("StorageSQLite is_db returns TRUE", {
   expect_true(storage$is_db())
 })
 
+test_that("StorageSQLite remove deletes table and metadata", {
+  storage <- StorageSQLite$new()
+  df <- dplyr::tibble(a = 1:3)
+  class(df) <- c("gitstats_commits", class(df))
+  storage$save("commits", df)
+  storage$save("repos", dplyr::tibble(x = 1))
+  expect_true(storage$exists("commits"))
+  storage$remove("commits")
+  expect_false(storage$exists("commits"))
+  expect_true(storage$exists("repos"))
+  expect_equal(storage$list(), "repos")
+  # metadata row should also be gone
+  expect_null(storage$get_metadata("commits"))
+})
+
+test_that("StorageSQLite remove is silent for missing table", {
+  storage <- StorageSQLite$new()
+  expect_no_error(storage$remove("nonexistent"))
+})
+
+test_that("StorageSQLite get_metadata returns class and attributes", {
+  storage <- StorageSQLite$new()
+  df <- dplyr::tibble(a = 1:3)
+  class(df) <- c("gitstats_repos", class(df))
+  attr(df, "since") <- "2024-01-01"
+  storage$save("repos", df)
+  meta <- storage$get_metadata("repos")
+  expect_type(meta, "list")
+  expect_true("gitstats_repos" %in% meta$class)
+  expect_equal(meta$attributes$since, "2024-01-01")
+})
+
+test_that("StorageSQLite get_metadata returns NULL for missing table", {
+  storage <- StorageSQLite$new()
+  expect_null(storage$get_metadata("nonexistent"))
+})
+
 test_that("StorageSQLite finalize disconnects connection", {
   storage <- StorageSQLite$new()
   conn <- storage$.__enclos_env__$private$conn
@@ -316,6 +399,99 @@ test_that("GitStats get_storage returns single table from SQLite", {
   priv$storage_backend$save("files", dplyr::tibble(path = "R/main.R"))
   result <- gs$get_storage("files")
   expect_equal(result$path, "R/main.R")
+})
+
+# GitStats remove_from_storage -------------------------------------------------
+
+test_that("GitStats remove_from_storage removes a table", {
+  gs <- create_gitstats()
+  priv <- gs$.__enclos_env__$private
+  priv$storage_backend$save("commits", dplyr::tibble(sha = "abc"))
+  expect_true(priv$storage_backend$exists("commits"))
+  suppressMessages(gs$remove_from_storage("commits"))
+  expect_false(priv$storage_backend$exists("commits"))
+})
+
+test_that("GitStats remove_from_storage errors for missing table", {
+  gs <- create_gitstats()
+  expect_error(
+    gs$remove_from_storage("nonexistent"),
+    "nonexistent"
+  )
+})
+
+test_that("GitStats remove_from_storage returns self invisibly", {
+  gs <- create_gitstats()
+  priv <- gs$.__enclos_env__$private
+  priv$storage_backend$save("repos", dplyr::tibble(x = 1))
+  result <- suppressMessages(gs$remove_from_storage("repos"))
+  expect_identical(result, gs)
+})
+
+test_that("remove_from_storage() exported wrapper works", {
+  gs <- create_gitstats()
+  priv <- gs$.__enclos_env__$private
+  priv$storage_backend$save("commits", dplyr::tibble(sha = "abc"))
+  suppressMessages(remove_from_storage(gs, storage = "commits"))
+  expect_false(priv$storage_backend$exists("commits"))
+})
+
+# GitStats get_storage_metadata ------------------------------------------------
+
+test_that("GitStats get_storage_metadata returns metadata", {
+  gs <- create_gitstats()
+  priv <- gs$.__enclos_env__$private
+  df <- dplyr::tibble(a = 1:3)
+  class(df) <- c("gitstats_commits", class(df))
+  attr(df, "since") <- "2024-01-01"
+  priv$storage_backend$save("commits", df)
+  meta <- gs$get_storage_metadata("commits")
+  expect_type(meta, "list")
+  expect_true("gitstats_commits" %in% meta$class)
+  expect_equal(meta$attributes$since, "2024-01-01")
+})
+
+test_that("GitStats get_storage_metadata errors for missing table", {
+  gs <- create_gitstats()
+  expect_error(
+    gs$get_storage_metadata("nonexistent"),
+    "nonexistent"
+  )
+})
+
+test_that("get_storage_metadata() exported wrapper works", {
+  gs <- create_gitstats()
+  priv <- gs$.__enclos_env__$private
+  df <- dplyr::tibble(x = 1)
+  class(df) <- c("gitstats_repos", class(df))
+  priv$storage_backend$save("repos", df)
+  meta <- get_storage_metadata(gs, storage = "repos")
+  expect_type(meta, "list")
+  expect_true("gitstats_repos" %in% meta$class)
+})
+
+test_that("GitStats get_storage_metadata works with SQLite backend", {
+  gs <- create_gitstats()
+  gs$set_sqlite_storage()
+  priv <- gs$.__enclos_env__$private
+  df <- dplyr::tibble(a = 1:3)
+  class(df) <- c("gitstats_commits", class(df))
+  attr(df, "since") <- "2024-01-01"
+  priv$storage_backend$save("commits", df)
+  meta <- gs$get_storage_metadata("commits")
+  expect_type(meta, "list")
+  expect_true("gitstats_commits" %in% meta$class)
+  expect_equal(meta$attributes$since, "2024-01-01")
+})
+
+test_that("GitStats remove_from_storage works with SQLite backend", {
+  gs <- create_gitstats()
+  gs$set_sqlite_storage()
+  priv <- gs$.__enclos_env__$private
+  priv$storage_backend$save("commits", dplyr::tibble(sha = "abc"))
+  expect_true(priv$storage_backend$exists("commits"))
+  suppressMessages(gs$remove_from_storage("commits"))
+  expect_false(priv$storage_backend$exists("commits"))
 })
 
 # check_if_package_installed ---------------------------------------------------

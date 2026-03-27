@@ -11,7 +11,13 @@ Storage <- R6::R6Class(
     exists = function(name) {
       stop("Not implemented")
     },
+    remove = function(name) {
+      stop("Not implemented")
+    },
     list = function() {
+      stop("Not implemented")
+    },
+    get_metadata = function(name) {
       stop("Not implemented")
     },
     is_db = function() {
@@ -37,8 +43,29 @@ StorageLocal <- R6::R6Class(
     exists = function(name) {
       !is.null(private$data[[name]])
     },
+    remove = function(name) {
+      private$data[[name]] <- NULL
+    },
     list = function() {
       names(purrr::discard(private$data, is.null))
+    },
+    get_metadata = function(name) {
+      data <- private$data[[name]]
+      if (is.null(data)) {
+        return(NULL)
+      }
+      custom_attrs <- setdiff(
+        names(attributes(data)),
+        c("names", "row.names", "class")
+      )
+      attrs <- list()
+      for (attr_name in custom_attrs) {
+        attrs[[attr_name]] <- attr(data, attr_name)
+      }
+      list(
+        class = class(data),
+        attributes = attrs
+      )
     }
   ),
   private = list(
@@ -120,6 +147,23 @@ StoragePostgres <- R6::R6Class(
         DBI::Id(schema = private$schema, table = name)
       )
     },
+    remove = function(name) {
+      if (self$exists(name)) {
+        DBI::dbRemoveTable(
+          private$conn,
+          DBI::Id(schema = private$schema, table = name)
+        )
+        DBI::dbExecute(
+          private$conn,
+          glue::glue(
+            "DELETE FROM {private$schema}._metadata
+             WHERE dataset_name = $1"
+          ),
+          params = list(name)
+        )
+      }
+      invisible(NULL)
+    },
     list = function() {
       result <- DBI::dbGetQuery(
         private$conn,
@@ -130,6 +174,9 @@ StoragePostgres <- R6::R6Class(
         params = list(private$schema)
       )
       result$table_name
+    },
+    get_metadata = function(name) {
+      private$load_metadata(name)
     },
     is_db = function() {
       TRUE
@@ -285,9 +332,23 @@ StorageSQLite <- R6::R6Class(
     exists = function(name) {
       DBI::dbExistsTable(private$conn, name)
     },
+    remove = function(name) {
+      if (self$exists(name)) {
+        DBI::dbRemoveTable(private$conn, name)
+        DBI::dbExecute(
+          private$conn,
+          "DELETE FROM _metadata WHERE dataset_name = ?",
+          params = list(name)
+        )
+      }
+      invisible(NULL)
+    },
     list = function() {
       tables <- DBI::dbListTables(private$conn)
       tables[tables != "_metadata"]
+    },
+    get_metadata = function(name) {
+      private$load_metadata(name)
     },
     is_db = function() {
       TRUE
