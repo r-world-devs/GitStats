@@ -2,10 +2,10 @@ pandoc: 3.1.11
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
-  get_and_store_data: get_and_store_data.html
   get_repos_with_code: get_repos_with_code.html
   set_hosts: set_hosts.html
-last_built: 2026-03-26T08:40Z
+  store_data: store_data.html
+last_built: 2026-03-27T14:29Z
 urls:
   reference: https://r-world-devs.github.io/GitStats/reference
   article: https://r-world-devs.github.io/GitStats/articles
