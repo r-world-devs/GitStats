@@ -5,7 +5,6 @@
 - Replaced per-directory GraphQL file tree traversal with single-call REST recursive tree API for `get_repos_trees()`, substantially improving speed of retrieving repository file trees ([#740](https://github.com/r-world-devs/GitStats/issues/740)).
 - Added `set_postgres_storage()`, `set_sqlite_storage()`, and `set_local_storage()` to configure external storage backends. PostgreSQL (via `RPostgres`/`DBI`) and SQLite (via `RSQLite`/`DBI`) are supported for persisting data in a database. Metadata (R classes, attributes) is preserved via a `_metadata` table ([#602](https://github.com/r-world-devs/GitStats/issues/602)).
 - Sped up vignettes generation ([#504](https://github.com/r-world-devs/GitStats/issues/504)).
-- 
 
 # GitStats 2.4.0
 
