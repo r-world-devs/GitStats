@@ -589,6 +589,22 @@ GitStats <- R6::R6Class(
       }
     },
 
+    remove_from_storage = function(storage) {
+      if (!private$storage_backend$exists(storage)) {
+        cli::cli_abort("Table {.val {storage}} does not exist in storage.")
+      }
+      private$storage_backend$remove(storage)
+      cli::cli_alert_success("Removed {.val {storage}} from storage.")
+      invisible(self)
+    },
+
+    get_storage_metadata = function(storage) {
+      if (!private$storage_backend$exists(storage)) {
+        cli::cli_abort("Table {.val {storage}} does not exist in storage.")
+      }
+      private$storage_backend$get_metadata(storage)
+    },
+
     print = function() {
       cat(paste0("A ", cli::col_blue('GitStats'), " object for ", length(private$hosts), " hosts: \n"))
       private$print_hosts()
