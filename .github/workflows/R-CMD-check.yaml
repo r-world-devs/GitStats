@@ -28,9 +28,6 @@ jobs:
       R_KEEP_PKG_SOURCE: yes
       USE_RENV: "FALSE"
       GITSTATS_INTEGRATION_TEST_SKIPPED: "TRUE"
-      _R_CHECK_SKIP_VIGNETTES_: "TRUE"
-      _R_CHECK_FORCE_SUGGESTS_: "FALSE"
-
 
     steps:
       - uses: actions/checkout@v3
