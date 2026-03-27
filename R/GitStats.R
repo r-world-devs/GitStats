@@ -183,7 +183,10 @@ GitStats <- R6::R6Class(
                            verbose = TRUE,
                            progress = TRUE) {
       private$check_for_host()
-      args_list <- list("date_range" = c(since, as.character(until)))
+      args_list <- list(
+        "date_range" = c(since, as.character(until)),
+        "scope" = private$get_scope_fingerprint()
+      )
       trigger <- private$trigger_pulling(
         cache = cache,
         storage = "commits",
@@ -191,12 +194,20 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        cli::cli_alert("Pulling commits {cli_icons$commit}...")
-        commits <- private$get_commits_from_hosts(
-          since = since,
-          until = until,
+        commits <- private$pull_incrementally(
+          storage_name = "commits",
+          fetch_fn = function(since, until) {
+            private$get_commits_from_hosts(
+              since = since, until = until,
+              verbose = verbose, progress = progress
+            )
+          },
+          args_list = args_list,
+          dedup_columns = "id",
+          cache = cache,
           verbose = verbose,
-          progress = progress
+          icon = cli_icons$commit,
+          pull_message = "Pulling commits {cli_icons$commit}..."
         )
         if (nrow(commits) > 0) {
           commits <- private$set_object_class(
@@ -229,7 +240,8 @@ GitStats <- R6::R6Class(
       private$check_for_host()
       args_list <- list(
         "state" = state,
-        "date_range" = c(since, as.character(until))
+        "date_range" = c(since, as.character(until)),
+        "scope" = private$get_scope_fingerprint()
       )
       trigger <- private$trigger_pulling(
         cache = cache,
@@ -238,13 +250,20 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        cli::cli_alert("Getting issues {cli_icons$issue}...")
-        issues <- private$get_issues_from_hosts(
-          since = since,
-          until = until,
-          state = state,
+        issues <- private$pull_incrementally(
+          storage_name = "issues",
+          fetch_fn = function(since, until) {
+            private$get_issues_from_hosts(
+              since = since, until = until, state = state,
+              verbose = verbose, progress = progress
+            )
+          },
+          args_list = args_list,
+          dedup_columns = c("number", "repo_name"),
+          cache = cache,
           verbose = verbose,
-          progress = progress
+          icon = cli_icons$issue,
+          pull_message = "Getting issues {cli_icons$issue}..."
         )
         if (nrow(issues) > 0) {
           issues <- private$set_object_class(
@@ -277,7 +296,8 @@ GitStats <- R6::R6Class(
       private$check_for_host()
       args_list <- list(
         "state" = state,
-        "date_range" = c(since, as.character(until))
+        "date_range" = c(since, as.character(until)),
+        "scope" = private$get_scope_fingerprint()
       )
       trigger <- private$trigger_pulling(
         cache = cache,
@@ -286,13 +306,20 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        cli::cli_alert("Getting pull requests {cli_icons$pull_request}...")
-        pull_requests <- private$get_pull_requests_from_hosts(
-          since = since,
-          until = until,
-          state = state,
+        pull_requests <- private$pull_incrementally(
+          storage_name = "pull_requests",
+          fetch_fn = function(since, until) {
+            private$get_pull_requests_from_hosts(
+              since = since, until = until, state = state,
+              verbose = verbose, progress = progress
+            )
+          },
+          args_list = args_list,
+          dedup_columns = c("number", "repo_name"),
+          cache = cache,
           verbose = verbose,
-          progress = progress
+          icon = cli_icons$pull_request,
+          pull_message = "Getting pull requests {cli_icons$pull_request}..."
         )
         if (nrow(pull_requests) > 0) {
           pull_requests <- private$set_object_class(
@@ -437,7 +464,10 @@ GitStats <- R6::R6Class(
                                 verbose = TRUE,
                                 progress = TRUE) {
       private$check_for_host()
-      args_list <- list("date_range" = c(since, as.character(until)))
+      args_list <- list(
+        "date_range" = c(since, as.character(until)),
+        "scope" = private$get_scope_fingerprint()
+      )
       trigger <- private$trigger_pulling(
         storage = "release_logs",
         cache = cache,
@@ -445,12 +475,20 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
-        cli::cli_alert("Pulling release logs {cli_icons$release}..")
-        release_logs <- private$get_release_logs_from_hosts(
-          since = since,
-          until = until,
+        release_logs <- private$pull_incrementally(
+          storage_name = "release_logs",
+          fetch_fn = function(since, until) {
+            private$get_release_logs_from_hosts(
+              since = since, until = until,
+              verbose = verbose, progress = progress
+            )
+          },
+          args_list = args_list,
+          dedup_columns = c("release_tag", "repo_name"),
+          cache = cache,
           verbose = verbose,
-          progress = progress
+          icon = cli_icons$release,
+          pull_message = "Pulling release logs {cli_icons$release}.."
         )
         if (nrow(release_logs) > 0) {
           release_logs <- private$set_object_class(
@@ -505,6 +543,7 @@ GitStats <- R6::R6Class(
 
     set_local_storage = function() {
       private$storage_backend <- StorageLocal$new()
+      private$propagate_storage_to_hosts()
       invisible(self)
     },
 
@@ -525,13 +564,17 @@ GitStats <- R6::R6Class(
         StoragePostgres$new,
         c(list(schema = schema), args)
       )
+      private$propagate_storage_to_hosts()
       cli::cli_alert_success("Storage set to {.val PostgreSQL}.")
+      private$report_storage_contents()
       invisible(self)
     },
 
     set_sqlite_storage = function(dbname = ":memory:") {
       private$storage_backend <- StorageSQLite$new(dbname = dbname)
+      private$propagate_storage_to_hosts()
       cli::cli_alert_success("Storage set to {.val SQLite}.")
+      private$report_storage_contents()
       invisible(self)
     },
 
@@ -569,6 +612,9 @@ GitStats <- R6::R6Class(
       if (!is.null(new_host)) {
         new_host <- new_host |>
           private$check_for_duplicate_hosts()
+        if (!is.null(private$storage_backend)) {
+          new_host$set_storage_backend(private$storage_backend)
+        }
         private$hosts <- append(private$hosts, new_host)
       }
     },
@@ -616,6 +662,26 @@ GitStats <- R6::R6Class(
       private$storage_backend$save(table_name, table)
     },
 
+    propagate_storage_to_hosts = function() {
+      purrr::walk(private$hosts, function(host) {
+        host$set_storage_backend(private$storage_backend)
+      })
+    },
+
+    report_storage_contents = function() {
+      stored_names <- private$storage_backend$list()
+      if (length(stored_names) == 0) {
+        cli::cli_alert_info("Database is empty.")
+      } else {
+        cli::cli_alert_info("Database contains data:")
+        purrr::walk(stored_names, function(name) {
+          data <- private$storage_backend$load(name)
+          n <- if (inherits(data, "data.frame")) nrow(data) else length(data)
+          cli::cli_bullets(c(" " = "{name}: {n} records"))
+        })
+      }
+    },
+
     get_from_storage = function(table) {
       cli::cli_alert_warning(cli::col_yellow(
         glue::glue("Getting cached {table} data.")
@@ -660,6 +726,114 @@ GitStats <- R6::R6Class(
       storage_data <- private$storage_backend$load(storage)
       stored_params <- purrr::map(names(args_list), ~ attr(storage_data, .) %||% "")
       new_params <- purrr::map(args_list, ~ . %||% "")
+      !all(purrr::map2_lgl(new_params, stored_params, ~ identical(.x, .y)))
+    },
+
+    get_date_gaps = function(stored_range, requested_range) {
+      stored_since <- as.Date(stored_range[1])
+      stored_until <- as.Date(stored_range[2])
+      req_since <- as.Date(requested_range[1])
+      req_until <- as.Date(requested_range[2])
+      gaps <- list()
+      if (req_since < stored_since) {
+        gaps <- c(gaps, list(list(
+          since = as.character(req_since),
+          until = as.character(stored_since - 1)
+        )))
+      }
+      if (req_until > stored_until) {
+        gaps <- c(gaps, list(list(
+          since = as.character(stored_until + 1),
+          until = as.character(req_until)
+        )))
+      }
+      gaps
+    },
+
+    pull_incrementally = function(storage_name,
+                                  fetch_fn,
+                                  args_list,
+                                  dedup_columns,
+                                  cache,
+                                  verbose,
+                                  icon,
+                                  pull_message = NULL) {
+      stored_data <- private$storage_backend$load(storage_name)
+      stored_range <- attr(stored_data, "date_range")
+      requested_range <- args_list[["date_range"]]
+      non_date_args_changed <- private$non_date_args_changed(
+        stored_data, args_list
+      )
+      if (!is.null(stored_data) && !is.null(stored_range) &&
+            cache && !non_date_args_changed) {
+        gaps <- private$get_date_gaps(stored_range, requested_range)
+        if (length(gaps) > 0) {
+          if (verbose) {
+            cli::cli_alert_info(
+              "Using cached {storage_name} {icon} from {.val {stored_range[1]}} to {.val {stored_range[2]}}."
+            )
+            gap_ranges <- purrr::map_chr(
+              gaps, ~ paste(.x$since, "to", .x$until)
+            )
+            cli::cli_alert(
+              "Pulling {storage_name} {icon} from API for: {.val {gap_ranges}}."
+            )
+          }
+          new_data <- purrr::map(gaps, function(gap) {
+            fetch_fn(since = gap$since, until = gap$until)
+          }) |>
+            purrr::list_rbind()
+          if (nrow(new_data) > 0) {
+            class(stored_data) <- class(stored_data)[
+              !grepl("^gitstats_", class(stored_data))
+            ]
+            result <- dplyr::bind_rows(stored_data, new_data) |>
+              dplyr::distinct(
+                dplyr::across(dplyr::all_of(dedup_columns)),
+                .keep_all = TRUE
+              )
+          } else {
+            result <- stored_data
+            class(result) <- class(result)[
+              !grepl("^gitstats_", class(result))
+            ]
+          }
+        } else {
+          result <- stored_data
+        }
+      } else {
+        if (verbose && !is.null(pull_message)) {
+          cli::cli_alert(pull_message)
+        }
+        result <- fetch_fn(
+          since = requested_range[1],
+          until = requested_range[2]
+        )
+      }
+      result
+    },
+
+    get_scope_fingerprint = function() {
+      orgs <- purrr::map(private$hosts, function(host) {
+        host$.__enclos_env__$private$orgs
+      }) |> unlist()
+      repos <- purrr::map(private$hosts, function(host) {
+        host_priv <- environment(host$initialize)$private
+        if ("repo" %in% host_priv$searching_scope) {
+          host_priv$repos_fullnames
+        }
+      }) |> unlist()
+      scope <- sort(unique(c(orgs, repos)))
+      paste(scope, collapse = ",")
+    },
+
+    non_date_args_changed = function(stored_data, args_list) {
+      non_date_args <- args_list[names(args_list) != "date_range"]
+      if (length(non_date_args) == 0) return(FALSE)
+      stored_params <- purrr::map(
+        names(non_date_args), ~ attr(stored_data, .) %||% ""
+      )
+      new_params <- purrr::map(non_date_args, ~ . %||% "")
       !all(purrr::map2_lgl(new_params, stored_params, ~ identical(.x, .y)))
     },
 

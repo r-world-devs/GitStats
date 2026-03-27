@@ -328,6 +328,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           owner_type = owner_type,
           verbose = verbose
         )
+        engine_used <- graphql_engine
         if (inherits(repos_from_org, "graphql_error")) {
           if (verbose) {
             cli::cli_alert_info("Switching to REST API...")
@@ -338,6 +339,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             output = "raw",
             verbose = verbose
           )
+          engine_used <- rest_engine
         } else {
           repos_from_org <- purrr::map(repos_from_org, function(repos_data) {
             repos_data$path <- repos_data$node$repo_path
@@ -345,6 +347,12 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           })
         }
         private$set_cached_repos(repos_from_org, org, verbose)
+        tryCatch(
+          private$save_repos_to_storage(
+            repos_from_org, org, engine_used
+          ),
+          error = function(e) NULL
+        )
       } else {
         if (verbose) cli::cli_alert("Using cached repositories data...")
         repos_from_org <- cached_repos
@@ -366,6 +374,23 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         "repo_ids" = repo_ids
       )
       return(repos_data)
+    },
+
+    save_repos_to_storage = function(repos_from_org, org, engine) {
+      storage <- private$storage_backend
+      if (!is.null(storage) && storage$is_db()) {
+        repos_table <- engine$prepare_repos_table(repos_from_org, org)
+        if (!is.null(repos_table) && nrow(repos_table) > 0) {
+          repos_table <- dplyr::as_tibble(repos_table)
+          existing <- storage$load("repositories")
+          if (!is.null(existing)) {
+            repos_table <- dplyr::bind_rows(existing, repos_table) |>
+              dplyr::distinct(repo_id, .keep_all = TRUE)
+          }
+          class(repos_table) <- c("gitstats_repos", class(repos_table))
+          storage$save("repositories", repos_table)
+        }
+      }
     },
 
     are_non_text_files = function(file_path, host_files_structure) {

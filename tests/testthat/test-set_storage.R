@@ -396,3 +396,229 @@ test_that("print shows PostgreSQL backend type", {
   output <- capture.output(print(gs))
   expect_true(any(grepl("Storage \\[PostgreSQL\\]", output)))
 })
+
+# Storage propagation to hosts -------------------------------------------------
+
+test_that("set_sqlite_storage propagates backend to hosts", {
+  gs <- create_test_gitstats(hosts = 1)
+  suppressMessages(gs$set_sqlite_storage())
+  host <- gs$.__enclos_env__$private$hosts[[1]]
+  host_storage <- host$.__enclos_env__$private$storage_backend
+  expect_true(inherits(host_storage, "StorageSQLite"))
+})
+
+test_that("set_local_storage propagates backend to hosts", {
+  gs <- create_test_gitstats(hosts = 1)
+  suppressMessages(gs$set_sqlite_storage())
+  gs$set_local_storage()
+  host <- gs$.__enclos_env__$private$hosts[[1]]
+  host_storage <- host$.__enclos_env__$private$storage_backend
+  expect_true(inherits(host_storage, "StorageLocal"))
+})
+
+test_that("add_new_host propagates current storage to new host", {
+  gs <- create_gitstats()
+  suppressMessages(gs$set_sqlite_storage())
+  gs$.__enclos_env__$private$hosts[[1]] <- create_github_testhost(
+    orgs = "test_org"
+  )
+  gs$.__enclos_env__$private$propagate_storage_to_hosts()
+  host <- gs$.__enclos_env__$private$hosts[[1]]
+  host_storage <- host$.__enclos_env__$private$storage_backend
+  expect_true(inherits(host_storage, "StorageSQLite"))
+})
+
+# report_storage_contents ------------------------------------------------------
+
+test_that("set_sqlite_storage reports empty database", {
+  gs <- create_gitstats()
+  output <- capture.output(
+    gs$set_sqlite_storage(),
+    type = "message"
+  )
+  expect_true(any(grepl("Database is empty", output)))
+})
+
+test_that("set_sqlite_storage reports existing data", {
+  tmp <- tempfile(fileext = ".sqlite")
+  on.exit(unlink(tmp), add = TRUE)
+  storage <- StorageSQLite$new(dbname = tmp)
+  df <- dplyr::tibble(repo = "test/repo", stars = 10L)
+  class(df) <- c("gitstats_repos", class(df))
+  storage$save("repositories", df)
+  commits <- dplyr::tibble(id = "abc123")
+  class(commits) <- c("gitstats_commits", class(commits))
+  storage$save("commits", commits)
+  rm(storage)
+  gc()
+
+  gs <- create_gitstats()
+  output <- capture.output(
+    gs$set_sqlite_storage(dbname = tmp),
+    type = "message"
+  )
+  expect_true(any(grepl("Database contains data", output)))
+  expect_true(any(grepl("repositories.*1", output)))
+  expect_true(any(grepl("commits.*1", output)))
+})
+
+# GitHost set_storage_backend --------------------------------------------------
+
+test_that("GitHost set_storage_backend sets storage", {
+  host <- create_github_testhost(orgs = "test_org")
+  storage <- StorageSQLite$new()
+  host$set_storage_backend(storage)
+  host_storage <- host$.__enclos_env__$private$storage_backend
+  expect_true(inherits(host_storage, "StorageSQLite"))
+})
+
+# save_repos_to_storage --------------------------------------------------------
+
+test_that("GitHub save_repos_to_storage saves repos to database", {
+  host <- create_github_testhost(orgs = "test_org")
+  storage <- StorageSQLite$new()
+  host$set_storage_backend(storage)
+  priv <- host$.__enclos_env__$private
+
+  mock_repos_table <- dplyr::tibble(
+    repo_id = "123",
+    repo_name = "test-repo",
+    default_branch = "main",
+    organization = "test_org"
+  )
+  mock_engine <- list(
+    prepare_repos_table = function(repos_from_org, org) mock_repos_table
+  )
+
+  priv$save_repos_to_storage(list(), "test_org", mock_engine)
+
+  loaded <- storage$load("repositories")
+  expect_equal(nrow(loaded), 1)
+  expect_equal(loaded$repo_id, "123")
+  expect_s3_class(loaded, "gitstats_repos")
+})
+
+test_that("GitHub save_repos_to_storage merges with existing repos", {
+  host <- create_github_testhost(orgs = "test_org")
+  storage <- StorageSQLite$new()
+  host$set_storage_backend(storage)
+  priv <- host$.__enclos_env__$private
+
+  existing <- dplyr::tibble(
+    repo_id = "100",
+    repo_name = "old-repo",
+    default_branch = "main",
+    organization = "old_org"
+  )
+  class(existing) <- c("gitstats_repos", class(existing))
+  storage$save("repositories", existing)
+
+  new_repos <- dplyr::tibble(
+    repo_id = "200",
+    repo_name = "new-repo",
+    default_branch = "main",
+    organization = "test_org"
+  )
+  mock_engine <- list(
+    prepare_repos_table = function(repos_from_org, org) new_repos
+  )
+
+  priv$save_repos_to_storage(list(), "test_org", mock_engine)
+
+  loaded <- storage$load("repositories")
+  expect_equal(nrow(loaded), 2)
+  expect_true("100" %in% loaded$repo_id)
+  expect_true("200" %in% loaded$repo_id)
+})
+
+test_that("GitHub save_repos_to_storage deduplicates by repo_id", {
+  host <- create_github_testhost(orgs = "test_org")
+  storage <- StorageSQLite$new()
+  host$set_storage_backend(storage)
+  priv <- host$.__enclos_env__$private
+
+  existing <- dplyr::tibble(
+    repo_id = "123",
+    repo_name = "test-repo",
+    default_branch = "main",
+    organization = "test_org"
+  )
+  class(existing) <- c("gitstats_repos", class(existing))
+  storage$save("repositories", existing)
+
+  duplicate_repos <- dplyr::tibble(
+    repo_id = "123",
+    repo_name = "test-repo-updated",
+    default_branch = "develop",
+    organization = "test_org"
+  )
+  mock_engine <- list(
+    prepare_repos_table = function(repos_from_org, org) duplicate_repos
+  )
+
+  priv$save_repos_to_storage(list(), "test_org", mock_engine)
+
+  loaded <- storage$load("repositories")
+  expect_equal(nrow(loaded), 1)
+})
+
+test_that("GitHub save_repos_to_storage skips when no db storage", {
+  host <- create_github_testhost(orgs = "test_org")
+  priv <- host$.__enclos_env__$private
+  # storage_backend is NULL by default
+  expect_no_error(
+    priv$save_repos_to_storage(list(), "test_org", list())
+  )
+})
+
+test_that("GitHub save_repos_to_storage skips when storage is local", {
+  host <- create_github_testhost(orgs = "test_org")
+  storage <- StorageLocal$new()
+  host$set_storage_backend(storage)
+  priv <- host$.__enclos_env__$private
+  mock_engine <- list(
+    prepare_repos_table = function(repos_from_org, org) {
+      dplyr::tibble(repo_id = "1", repo_name = "r")
+    }
+  )
+  priv$save_repos_to_storage(list(), "test_org", mock_engine)
+  expect_null(storage$load("repositories"))
+})
+
+test_that("GitLab save_repos_to_storage saves repos to database", {
+  host <- create_gitlab_testhost(orgs = "test_group")
+  storage <- StorageSQLite$new()
+  host$set_storage_backend(storage)
+  priv <- host$.__enclos_env__$private
+
+  mock_repos_table <- dplyr::tibble(
+    repo_id = "456",
+    repo_name = "gl-repo",
+    default_branch = "main",
+    organization = "test_group"
+  )
+  mock_engine <- list(
+    prepare_repos_table = function(repos_from_org, org) mock_repos_table
+  )
+
+  priv$save_repos_to_storage(list(), "test_group", mock_engine)
+
+  loaded <- storage$load("repositories")
+  expect_equal(nrow(loaded), 1)
+  expect_equal(loaded$repo_id, "456")
+  expect_s3_class(loaded, "gitstats_repos")
+})
+
+# add_new_host propagates storage ----------------------------------------------
+
+test_that("add_new_host propagates storage backend to host", {
+  gs <- create_gitstats()
+  suppressMessages(gs$set_sqlite_storage())
+  priv <- gs$.__enclos_env__$private
+  new_host <- create_github_testhost(orgs = "test_org")
+  priv$add_new_host(new_host)
+  host_storage <- priv$hosts[[1]]$.__enclos_env__$private$storage_backend
+  expect_true(inherits(host_storage, "StorageSQLite"))
+})
+
+

@@ -1,0 +1,138 @@
+---
+title: "Store your data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Store your data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 4
+)
+```
+
+Set connections to hosts.
+
+> Example workflow makes use of public GitHub and GitLab, but it is plausible, that you will use your internal git platforms, where you need to define `host` parameter. See `vignette("set_hosts")` article on that.
+
+```{r}
+library(GitStats)
+
+git_stats <- create_gitstats() |>
+  set_github_host(
+    orgs = "r-world-devs",
+    token = Sys.getenv("GITHUB_PAT")
+  ) |>
+  set_gitlab_host(
+    orgs = c("mbtests"),
+    token = Sys.getenv("GITLAB_PAT_PUBLIC")
+  )
+set_parallel(10) # optionally speed up processing
+```
+
+As scanning scope was set to `organizations` (`orgs` parameter in `set_*_host()`), `GitStats` will pull all repositories from these organizations.
+
+```{r}
+repos <- get_repos(git_stats, progress = FALSE)
+dplyr::glimpse(repos)
+```
+
+You can always go for the lighter version of `get_repos`, i.e. `get_repos_urls()` which will print you a vector of URLs instead of whole table.
+
+```{r}
+repos_urls <- get_repos_urls(git_stats)
+dplyr::glimpse(repos_urls)
+```
+
+## Local Storage
+
+After pulling, the data is saved by default to `GitStats`.
+
+```{r}
+commits <- git_stats |>
+  get_commits(
+    since = "2025-06-01",
+    until = "2025-06-14",
+    progress = FALSE
+  )
+git_stats
+dplyr::glimpse(commits)
+```
+
+## SQLite Storage
+
+For local saving we recommend though using `SQLite` storage. You can set it up with `set_sqlite_storage()` function. Then, all data pulled with `get_*()` functions will be stored in the `SQLite` database and retrieved from there when you run the function again.
+
+```{r}
+commits <- git_stats |>
+  set_sqlite_storage("my_local_db") |>
+  get_commits(
+    since = "2025-06-01",
+    until = "2025-06-14",
+    progress = FALSE
+  )
+dplyr::glimpse(commits)
+git_stats
+```
+
+Therefore, it is now not be dependent on the `GitStats` object, but on the local database, so you can even create a new `GitStats` and connect it to the same database and data will be there.
+
+```{r}
+new_git_stats <- create_gitstats() |>
+  set_github_host(
+    orgs = "r-world-devs",
+    token = Sys.getenv("GITHUB_PAT")
+  ) |>
+  set_gitlab_host(
+    orgs = c("mbtests"),
+    token = Sys.getenv("GITLAB_PAT_PUBLIC")
+  ) |>
+  set_sqlite_storage("my_local_db")
+
+commits <- new_git_stats |>
+  get_commits(
+    since = "2025-06-01",
+    until = "2025-06-14",
+    verbose = TRUE
+  )
+dplyr::glimpse(commits)
+```
+
+Caching feature is by default turned on. You may switch it off:
+
+```{r}
+commits <- new_git_stats |>
+  get_commits(
+    since = "2025-06-01",
+    until = "2025-06-14",
+    verbose = TRUE,
+    cache = FALSE,
+    progress = FALSE
+  )
+dplyr::glimpse(commits)
+```
+
+## Incremental pulling
+
+When you pull data with `get_*()` functions, it is stored in the local database. If you run the same function again, it will check if there is already data for the same parameters and pull only the missing data. This way, you can keep your database up to date without pulling all data again.
+
+
+```{r}
+commits <- new_git_stats |>
+  get_commits(
+    since = "2025-06-01",
+    until = "2025-06-30",
+    verbose = TRUE,
+    progress = FALSE
+  )
+dplyr::glimpse(commits)
+```
+
+## Postgres Storage
+
+For more permanent storage, you can set up a connection to your database with `set_postgres_storage()` function. Then, all data pulled with `get_*()` functions will be stored in the database and retrieved from there when you run the function again.
