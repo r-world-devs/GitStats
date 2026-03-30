@@ -779,7 +779,10 @@ test_that("`fill_repos_commit_sha()` fills missing commit_sha via REST", {
     commit_sha = c("1a2bc3d4e5", NA_character_),
     stringsAsFactors = FALSE
   )
-  gitlab_testhost_fill$engines$rest$get_commit_sha_from_branch <- function(project_id, default_branch) {
+  rest_engine <- gitlab_testhost_fill$engines$rest
+  env <- environment(rest_engine$get_commit_sha_from_branch)
+  unlockBinding("get_commit_sha_from_branch", env)
+  env$get_commit_sha_from_branch <- function(project_id, default_branch) {
     "abcdef1234567890"
   }
   result <- gitlab_testhost_fill$fill_repos_commit_sha(repos_table, verbose = FALSE)
