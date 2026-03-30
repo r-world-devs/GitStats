@@ -244,6 +244,7 @@ test_that("`get_repos_languages()` works", {
   )
   gl_repos_list_with_languages <- test_rest_gitlab_priv$get_repos_languages(
     repos_list = repos_list,
+    verbose = FALSE,
     progress = FALSE
   )
   purrr::walk(gl_repos_list_with_languages, ~ expect_list_contains(., "languages"))

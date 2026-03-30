@@ -107,6 +107,7 @@ EngineRestGitLab <- R6::R6Class(
       if (output == "full_table") {
         repos_response <- repos_response |>
           private$get_repos_languages(
+            verbose = verbose,
             progress = verbose
           )
       }
