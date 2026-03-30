@@ -529,11 +529,19 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       }
     },
 
+    get_commit_sha = function(project_id, default_branch) {
+      rest_engine <- private$engines$rest
+      rest_engine$get_commit_sha_from_branch(
+        project_id = project_id,
+        default_branch = default_branch
+      )
+    },
+
     fill_repos_commit_sha = function(repos_table, verbose = FALSE) {
       if (is.null(repos_table) || nrow(repos_table) == 0) {
         return(repos_table)
       }
-      missing_sha <- is.na(repos_table$commit_sha) & nchar(repos_table$default_branch) > 0
+      missing_sha <- is.na(repos_table[["commit_sha"]]) & nchar(repos_table[["default_branch"]]) > 0
       if (any(missing_sha)) {
         n_missing <- sum(missing_sha)
         if (verbose) {
@@ -545,11 +553,10 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             )
           )
         }
-        rest_engine <- private$engines$rest
         for (i in which(missing_sha)) {
-          repos_table$commit_sha[i] <- rest_engine$get_commit_sha_from_branch(
-            project_id = repos_table$repo_id[i],
-            default_branch = repos_table$default_branch[i]
+          repos_table[["commit_sha"]][i] <- private$get_commit_sha(
+            project_id = repos_table[["repo_id"]][i],
+            default_branch = repos_table[["default_branch"]][i]
           )
         }
       }

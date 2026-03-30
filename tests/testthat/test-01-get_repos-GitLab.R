@@ -782,7 +782,7 @@ test_that("`fill_repos_commit_sha()` fills missing commit_sha via REST", {
   )
   mockery::stub(
     gitlab_testhost_fill$fill_repos_commit_sha,
-    "rest_engine$get_commit_sha_from_branch",
+    "private$get_commit_sha",
     test_mocker$use("commit_sha")
   )
   result <- gitlab_testhost_fill$fill_repos_commit_sha(repos_table, verbose = FALSE)
