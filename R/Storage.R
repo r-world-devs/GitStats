@@ -17,7 +17,7 @@ Storage <- R6::R6Class(
     list = function() {
       stop("Not implemented")
     },
-    get_metadata = function(name) {
+    get_metadata = function(name = NULL) {
       stop("Not implemented")
     },
     is_db = function() {
@@ -49,11 +49,26 @@ StorageLocal <- R6::R6Class(
     list = function() {
       names(purrr::discard(private$data, is.null))
     },
-    get_metadata = function(name) {
+    get_metadata = function(name = NULL) {
+      if (is.null(name)) {
+        names_list <- self$list()
+        if (length(names_list) == 0) {
+          return(private$empty_metadata_tibble())
+        }
+        rows <- purrr::map(names_list, ~ private$build_metadata_row(.))
+        return(dplyr::bind_rows(rows))
+      }
       data <- private$data[[name]]
       if (is.null(data)) {
-        return(NULL)
+        return(private$empty_metadata_tibble())
       }
+      private$build_metadata_row(name)
+    }
+  ),
+  private = list(
+    data = list(),
+    build_metadata_row = function(name) {
+      data <- private$data[[name]]
       custom_attrs <- setdiff(
         names(attributes(data)),
         c("names", "row.names", "class")
@@ -62,14 +77,19 @@ StorageLocal <- R6::R6Class(
       for (attr_name in custom_attrs) {
         attrs[[attr_name]] <- attr(data, attr_name)
       }
-      list(
-        class = class(data),
-        attributes = attrs
+      dplyr::tibble(
+        table_name = name,
+        class = list(class(data)),
+        attributes = list(attrs)
+      )
+    },
+    empty_metadata_tibble = function() {
+      dplyr::tibble(
+        table_name = character(),
+        class = list(),
+        attributes = list()
       )
     }
-  ),
-  private = list(
-    data = list()
   )
 )
 
@@ -175,8 +195,19 @@ StoragePostgres <- R6::R6Class(
       )
       result$table_name
     },
-    get_metadata = function(name) {
-      private$load_metadata(name)
+    get_metadata = function(name = NULL) {
+      if (is.null(name)) {
+        names_list <- self$list()
+        if (length(names_list) == 0) {
+          return(private$empty_metadata_tibble())
+        }
+        rows <- purrr::map(names_list, ~ private$build_metadata_row(.))
+        return(dplyr::bind_rows(rows))
+      }
+      if (!self$exists(name)) {
+        return(private$empty_metadata_tibble())
+      }
+      private$build_metadata_row(name)
     },
     is_db = function() {
       TRUE
@@ -271,6 +302,28 @@ StoragePostgres <- R6::R6Class(
         }
       }
       data
+    },
+    build_metadata_row = function(name) {
+      meta <- private$load_metadata(name)
+      if (is.null(meta)) {
+        return(dplyr::tibble(
+          table_name = name,
+          class = list(NULL),
+          attributes = list(list())
+        ))
+      }
+      dplyr::tibble(
+        table_name = name,
+        class = list(meta$class),
+        attributes = list(meta$attributes %||% list())
+      )
+    },
+    empty_metadata_tibble = function() {
+      dplyr::tibble(
+        table_name = character(),
+        class = list(),
+        attributes = list()
+      )
     }
   )
 )
@@ -347,8 +400,19 @@ StorageSQLite <- R6::R6Class(
       tables <- DBI::dbListTables(private$conn)
       tables[tables != "_metadata"]
     },
-    get_metadata = function(name) {
-      private$load_metadata(name)
+    get_metadata = function(name = NULL) {
+      if (is.null(name)) {
+        names_list <- self$list()
+        if (length(names_list) == 0) {
+          return(private$empty_metadata_tibble())
+        }
+        rows <- purrr::map(names_list, ~ private$build_metadata_row(.))
+        return(dplyr::bind_rows(rows))
+      }
+      if (!self$exists(name)) {
+        return(private$empty_metadata_tibble())
+      }
+      private$build_metadata_row(name)
     },
     is_db = function() {
       TRUE
@@ -428,6 +492,28 @@ StorageSQLite <- R6::R6Class(
         }
       }
       data
+    },
+    build_metadata_row = function(name) {
+      meta <- private$load_metadata(name)
+      if (is.null(meta)) {
+        return(dplyr::tibble(
+          table_name = name,
+          class = list(NULL),
+          attributes = list(list())
+        ))
+      }
+      dplyr::tibble(
+        table_name = name,
+        class = list(meta$class),
+        attributes = list(meta$attributes %||% list())
+      )
+    },
+    empty_metadata_tibble = function() {
+      dplyr::tibble(
+        table_name = character(),
+        class = list(),
+        attributes = list()
+      )
     }
   )
 )
