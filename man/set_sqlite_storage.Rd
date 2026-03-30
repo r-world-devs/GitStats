@@ -17,8 +17,8 @@ A \code{GitStats} object (invisibly).
 }
 \description{
 Persist GitStats data in a SQLite database. R classes,
-  custom attributes, and column types are preserved via a \code{_metadata} table.
-  Requires \code{DBI}, \code{RSQLite}, and \code{jsonlite} packages.
+custom attributes, and column types are preserved via a \verb{_metadata} table.
+Requires \code{DBI}, \code{RSQLite}, and \code{jsonlite} packages.
 }
 \examples{
 \dontrun{
