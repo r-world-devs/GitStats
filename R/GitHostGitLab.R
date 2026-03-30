@@ -563,7 +563,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       return(repos_table)
     },
 
-    get_all_repos = function(verbose = TRUE, progress = TRUE, with_commit_sha = TRUE) {
+    get_all_repos = function(verbose = TRUE, progress = TRUE, fill_empty_sha = FALSE) {
       if (private$scan_all && is.null(private$orgs)) {
         private$orgs <- private$get_orgs_from_host(
           output = "only_names",
@@ -575,7 +575,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       repos_table <- purrr::list_rbind(
         list(repos_from_orgs, repos_from_repos)
       )
-      if (with_commit_sha) {
+      if (fill_empty_sha) {
         repos_table <- private$fill_repos_commit_sha(repos_table, verbose = verbose)
       }
       return(repos_table)

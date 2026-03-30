@@ -29,10 +29,10 @@
 #'   output is switched off.
 #' @param progress A logical, by default set to `verbose` value. If `FALSE` no
 #'   `cli` progress bar will be displayed.
-#' @param with_commit_sha A logical, `TRUE` by default. If `TRUE`, GitStats
+#' @param fill_empty_sha A logical, `FALSE` by default. If `TRUE`, GitStats
 #'   will try to fetch missing `commit_sha` values (e.g. for archived GitLab
-#'   projects) via the REST Branches API. Set to `FALSE` to skip this step and
-#'   speed up the call.
+#'   projects) via the REST Branches API. This may slow down the call for
+#'   large numbers of repositories.
 #' @return A data.frame.
 #' @examples
 #' \dontrun{
@@ -60,7 +60,7 @@ get_repos <- function(gitstats,
                       cache = TRUE,
                       verbose = FALSE,
                       progress = TRUE,
-                      with_commit_sha = TRUE) {
+                      fill_empty_sha = FALSE) {
   start_time <- Sys.time()
   repos <- gitstats$get_repos(
     add_contributors = add_contributors,
@@ -71,7 +71,7 @@ get_repos <- function(gitstats,
     cache = cache,
     verbose = verbose,
     progress = progress,
-    with_commit_sha = with_commit_sha
+    fill_empty_sha = fill_empty_sha
   )
   end_time <- Sys.time()
   time_taken <- end_time - start_time
