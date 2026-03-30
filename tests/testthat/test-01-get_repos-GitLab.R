@@ -742,10 +742,12 @@ test_that("`get_commit_sha_from_branch()` returns NA when branch is NULL", {
 })
 
 test_that("`get_commit_sha_from_branch()` returns NA on API error", {
+  rest_error_response <- list("message" = "404 Not Found")
+  class(rest_error_response) <- c("rest_error", "404_not_found", class(rest_error_response))
   mockery::stub(
     test_rest_gitlab$get_commit_sha_from_branch,
     "self$response",
-    { stop("HTTP 404 Not Found") }
+    rest_error_response
   )
   sha <- test_rest_gitlab$get_commit_sha_from_branch(
     project_id = "99999999",
@@ -777,10 +779,11 @@ test_that("`fill_repos_commit_sha()` fills missing commit_sha via REST", {
     commit_sha = c("1a2bc3d4e5", NA_character_),
     stringsAsFactors = FALSE
   )
+  rest_engine <- gitlab_testhost_fill$engines$rest
   mockery::stub(
-    gitlab_testhost_fill$fill_repos_commit_sha,
-    "rest_engine$get_commit_sha_from_branch",
-    "abcdef1234567890"
+    rest_engine$get_commit_sha_from_branch,
+    "self$response",
+    test_fixtures$gitlab_branch_response
   )
   result <- gitlab_testhost_fill$fill_repos_commit_sha(repos_table, verbose = FALSE)
   expect_equal(result$commit_sha[1], "1a2bc3d4e5")
