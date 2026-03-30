@@ -76,7 +76,8 @@ GitStats <- R6::R6Class(
                          language = NULL,
                          cache = TRUE,
                          verbose = TRUE,
-                         progress = TRUE) {
+                         progress = TRUE,
+                         with_commit_sha = TRUE) {
       private$check_for_host()
       private$check_params_conflict(
         with_code = with_code,
@@ -102,7 +103,8 @@ GitStats <- R6::R6Class(
           with_files = with_files,
           language = language,
           verbose = verbose,
-          progress = progress
+          progress = progress,
+          with_commit_sha = with_commit_sha
         )
         if (nrow(repositories) > 0) {
           repositories <- private$set_object_class(
@@ -870,7 +872,8 @@ GitStats <- R6::R6Class(
                                     language = NULL,
                                     output = "table",
                                     verbose = TRUE,
-                                    progress = TRUE) {
+                                    progress = TRUE,
+                                    with_commit_sha = TRUE) {
       repos_table <- purrr::map(private$hosts, function(host) {
         if (!is.null(with_code)) {
           private$get_repos_from_host_with_code(
@@ -897,7 +900,8 @@ GitStats <- R6::R6Class(
           host$get_repos(
             add_contributors = add_contributors,
             verbose = verbose,
-            progress = progress
+            progress = progress,
+            with_commit_sha = with_commit_sha
           )
         }
       }) |>

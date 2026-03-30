@@ -535,14 +535,23 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       }
       missing_sha <- is.na(repos_table$commit_sha) & nchar(repos_table$default_branch) > 0
       if (any(missing_sha)) {
+        n_missing <- sum(missing_sha)
+        if (verbose) {
+          show_message(
+            host = private$host_name,
+            engine = "rest",
+            information = glue::glue(
+              "Fetching missing commit SHAs for {n_missing} repo{ifelse(n_missing > 1, 's', '')}"
+            )
+          )
+        }
         rest_engine <- private$engines$rest
         repos_table$commit_sha[missing_sha] <- purrr::map_chr(
           which(missing_sha),
           function(i) {
             rest_engine$get_commit_sha_from_branch(
               project_id = repos_table$repo_id[i],
-              default_branch = repos_table$default_branch[i],
-              verbose = verbose
+              default_branch = repos_table$default_branch[i]
             )
           }
         )
@@ -550,7 +559,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       return(repos_table)
     },
 
-    get_all_repos = function(verbose = TRUE, progress = TRUE) {
+    get_all_repos = function(verbose = TRUE, progress = TRUE, with_commit_sha = TRUE) {
       if (private$scan_all && is.null(private$orgs)) {
         private$orgs <- private$get_orgs_from_host(
           output = "only_names",
@@ -563,7 +572,9 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           private$get_repos_from_repos(verbose, progress)
         )
       )
-      repos_table <- private$fill_repos_commit_sha(repos_table, verbose = verbose)
+      if (with_commit_sha) {
+        repos_table <- private$fill_repos_commit_sha(repos_table, verbose = verbose)
+      }
       return(repos_table)
     }
   )

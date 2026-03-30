@@ -423,7 +423,7 @@ EngineRestGitLab <- R6::R6Class(
       }
     },
 
-    get_commit_sha_from_branch = function(project_id, default_branch, verbose = FALSE) {
+    get_commit_sha_from_branch = function(project_id, default_branch) {
       if (is.null(default_branch) || nchar(default_branch) == 0) {
         return(NA_character_)
       }
@@ -435,7 +435,7 @@ EngineRestGitLab <- R6::R6Class(
             "/repository/branches/",
             utils::URLencode(default_branch, reserved = TRUE)
           ),
-          verbose = verbose
+          verbose = FALSE
         )
         branch_response$commit$id %||% NA_character_
       }, error = function(e) {

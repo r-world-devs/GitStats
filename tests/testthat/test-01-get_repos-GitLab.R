@@ -779,12 +779,9 @@ test_that("`fill_repos_commit_sha()` fills missing commit_sha via REST", {
     commit_sha = c("1a2bc3d4e5", NA_character_),
     stringsAsFactors = FALSE
   )
-  rest_engine <- gitlab_testhost_fill$engines$rest
-  mockery::stub(
-    rest_engine$get_commit_sha_from_branch,
-    "self$response",
-    test_fixtures$gitlab_branch_response
-  )
+  gitlab_testhost_fill$engines$rest$get_commit_sha_from_branch <- function(project_id, default_branch) {
+    "abcdef1234567890"
+  }
   result <- gitlab_testhost_fill$fill_repos_commit_sha(repos_table, verbose = FALSE)
   expect_equal(result$commit_sha[1], "1a2bc3d4e5")
   expect_equal(result$commit_sha[2], "abcdef1234567890")
