@@ -546,15 +546,12 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           )
         }
         rest_engine <- private$engines$rest
-        repos_table$commit_sha[missing_sha] <- purrr::map_chr(
-          which(missing_sha),
-          function(i) {
-            rest_engine$get_commit_sha_from_branch(
-              project_id = repos_table$repo_id[i],
-              default_branch = repos_table$default_branch[i]
-            )
-          }
-        )
+        for (i in which(missing_sha)) {
+          repos_table$commit_sha[i] <- rest_engine$get_commit_sha_from_branch(
+            project_id = repos_table$repo_id[i],
+            default_branch = repos_table$default_branch[i]
+          )
+        }
       }
       return(repos_table)
     },
