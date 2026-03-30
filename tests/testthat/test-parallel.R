@@ -97,6 +97,89 @@ test_that("`set_parallel(TRUE)` auto-detects workers", {
   expect_true(mirai_active())
 })
 
+# ---- set_parallel (mocked, runs under covr) ----
+
+test_that("`set_parallel` disable path executes under covr", {
+  mock_daemons <- mockery::mock("status_off")
+  mockery::stub(set_parallel, "mirai::daemons", mock_daemons)
+
+  result <- set_parallel(FALSE)
+  expect_equal(result, "status_off")
+  mockery::expect_called(mock_daemons, 1)
+  expect_equal(mockery::mock_args(mock_daemons)[[1]], list(0))
+})
+
+test_that("`set_parallel(0)` disable path executes under covr", {
+  mock_daemons <- mockery::mock("status_off")
+  mockery::stub(set_parallel, "mirai::daemons", mock_daemons)
+
+  result <- set_parallel(0)
+  expect_equal(result, "status_off")
+  mockery::expect_called(mock_daemons, 1)
+})
+
+test_that("`set_parallel(0L)` disable path executes under covr", {
+  mock_daemons <- mockery::mock("status_off")
+  mockery::stub(set_parallel, "mirai::daemons", mock_daemons)
+
+  result <- set_parallel(0L)
+  expect_equal(result, "status_off")
+  mockery::expect_called(mock_daemons, 1)
+})
+
+test_that("`set_parallel` enable path with explicit workers executes under covr", {
+  mock_daemons <- mockery::mock("status_on")
+  mock_everywhere <- mockery::mock(NULL)
+  mockery::stub(set_parallel, "mirai::daemons", mock_daemons)
+  mockery::stub(set_parallel, "do.call", NULL)
+
+  result <- set_parallel(4)
+  expect_equal(result, "status_on")
+  mockery::expect_called(mock_daemons, 1)
+  expect_equal(mockery::mock_args(mock_daemons)[[1]], list(4))
+})
+
+test_that("`set_parallel(TRUE)` auto-detects and falls back to 2 when cores < 2", {
+  mock_daemons <- mockery::mock("status_on")
+  mockery::stub(set_parallel, "mirai::daemons", mock_daemons)
+  mockery::stub(set_parallel, "parallel::detectCores", 1L)
+  mockery::stub(set_parallel, "do.call", NULL)
+
+  result <- set_parallel(TRUE)
+  expect_equal(result, "status_on")
+  # Should have been called with 2 (the fallback)
+  expect_equal(mockery::mock_args(mock_daemons)[[1]], list(2))
+})
+
+test_that("`set_parallel(TRUE)` falls back to 2 when detectCores returns NA", {
+  mock_daemons <- mockery::mock("status_on")
+  mockery::stub(set_parallel, "mirai::daemons", mock_daemons)
+  mockery::stub(set_parallel, "parallel::detectCores", NA_integer_)
+  mockery::stub(set_parallel, "do.call", NULL)
+
+  result <- set_parallel(TRUE)
+  expect_equal(result, "status_on")
+  expect_equal(mockery::mock_args(mock_daemons)[[1]], list(2))
+})
+
+test_that("`set_parallel(TRUE)` uses detected cores when >= 2", {
+  mock_daemons <- mockery::mock("status_on")
+  mockery::stub(set_parallel, "mirai::daemons", mock_daemons)
+  mockery::stub(set_parallel, "parallel::detectCores", 8L)
+  mockery::stub(set_parallel, "do.call", NULL)
+
+  result <- set_parallel(TRUE)
+  expect_equal(result, "status_on")
+  expect_equal(mockery::mock_args(mock_daemons)[[1]], list(8))
+})
+
+test_that("`set_parallel` returns invisibly", {
+  mock_daemons <- mockery::mock("status")
+  mockery::stub(set_parallel, "mirai::daemons", mock_daemons)
+
+  expect_invisible(set_parallel(FALSE))
+})
+
 # ---- parallel execution paths (single daemon startup) ----
 
 test_that("gitstats_map/map_chr work via mirai_map when daemons are active", {
