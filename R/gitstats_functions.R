@@ -244,15 +244,16 @@ remove_from_storage <- function(gitstats, storage) {
   gitstats$remove_from_storage(storage = storage)
 }
 
-#' @title Get metadata for a storage table
+#' @title Get metadata for storage tables
 #' @name get_storage_metadata
-#' @description Retrieves metadata (R classes, custom attributes, column types)
-#'   for a table stored in the active storage backend.
+#' @description Retrieves metadata (R classes, custom attributes) for tables
+#'   stored in the active storage backend. When `storage` is `NULL`, metadata
+#'   for all tables is returned.
 #' @param gitstats A GitStats object.
 #' @param storage A character, name of the table (e.g. `"commits"`,
-#'   `"repositories"`).
-#' @return A list with metadata fields: `class`, `attributes`, and (for
-#'   database backends) `column_types`.
+#'   `"repositories"`). If `NULL` (default), returns metadata for all tables.
+#' @return A tibble with columns `table_name`, `class` (list-column), and
+#'   `attributes` (list-column).
 #' @examples
 #' \dontrun{
 #'   my_gitstats <- create_gitstats() |>
@@ -261,9 +262,15 @@ remove_from_storage <- function(gitstats, storage) {
 #'       orgs = "r-world-devs"
 #'     )
 #'   get_commits(my_gitstats, since = "2024-01-01")
+#'   get_repos(my_gitstats)
+#'
+#'   # Metadata for a single table
 #'   get_storage_metadata(my_gitstats, storage = "commits")
+#'
+#'   # Metadata for all tables
+#'   get_storage_metadata(my_gitstats)
 #' }
 #' @export
-get_storage_metadata <- function(gitstats, storage) {
+get_storage_metadata <- function(gitstats, storage = NULL) {
   gitstats$get_storage_metadata(storage = storage)
 }

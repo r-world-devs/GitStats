@@ -2,23 +2,24 @@
 % Please edit documentation in R/gitstats_functions.R
 \name{get_storage_metadata}
 \alias{get_storage_metadata}
-\title{Get metadata for a storage table}
+\title{Get metadata for storage tables}
 \usage{
-get_storage_metadata(gitstats, storage)
+get_storage_metadata(gitstats, storage = NULL)
 }
 \arguments{
 \item{gitstats}{A GitStats object.}
 
 \item{storage}{A character, name of the table (e.g. \code{"commits"},
-\code{"repositories"}).}
+\code{"repositories"}). If \code{NULL} (default), returns metadata for all tables.}
 }
 \value{
-A list with metadata fields: \code{class}, \code{attributes}, and (for
-  database backends) \code{column_types}.
+A tibble with columns \code{table_name}, \code{class} (list-column), and
+  \code{attributes} (list-column).
 }
 \description{
-Retrieves metadata (R classes, custom attributes, column types)
-  for a table stored in the active storage backend.
+Retrieves metadata (R classes, custom attributes) for tables
+  stored in the active storage backend. When \code{storage} is \code{NULL}, metadata
+  for all tables is returned.
 }
 \examples{
 \dontrun{
@@ -28,6 +29,12 @@ Retrieves metadata (R classes, custom attributes, column types)
       orgs = "r-world-devs"
     )
   get_commits(my_gitstats, since = "2024-01-01")
+  get_repos(my_gitstats)
+
+  # Metadata for a single table
   get_storage_metadata(my_gitstats, storage = "commits")
+
+  # Metadata for all tables
+  get_storage_metadata(my_gitstats)
 }
 }

@@ -598,8 +598,8 @@ GitStats <- R6::R6Class(
       invisible(self)
     },
 
-    get_storage_metadata = function(storage) {
-      if (!private$storage_backend$exists(storage)) {
+    get_storage_metadata = function(storage = NULL) {
+      if (!is.null(storage) && !private$storage_backend$exists(storage)) {
         cli::cli_abort("Table {.val {storage}} does not exist in storage.")
       }
       private$storage_backend$get_metadata(storage)
