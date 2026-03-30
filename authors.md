@@ -16,13 +16,13 @@ Source:
 [`DESCRIPTION`](https://github.com/r-world-devs/GitStats/blob/master/DESCRIPTION)
 
 Banas M, Koziej K, Marcinkowska K, Secrest M (2026). *GitStats:
-Standardized Git Repository Data*. R package version 2.4.0.9004,
+Standardized Git Repository Data*. R package version 2.4.0.9005,
 <https://r-world-devs.github.io/GitStats/>.
 
     @Manual{,
       title = {GitStats: Standardized Git Repository Data},
       author = {Maciej Banas and Kamil Koziej and Karolina Marcinkowska and Matt Secrest},
       year = {2026},
-      note = {R package version 2.4.0.9004},
+      note = {R package version 2.4.0.9005},
       url = {https://r-world-devs.github.io/GitStats/},
     }

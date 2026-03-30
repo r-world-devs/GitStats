@@ -2,6 +2,14 @@
 
 ## GitStats 2.4.0.9000
 
+- Fixed
+  [`get_repos()`](https://r-world-devs.github.io/GitStats/reference/get_repos.md)
+  returning `NA` for `commit_sha` on archived GitLab projects. When the
+  GraphQL API returns `null` for `lastCommit`, a REST Branches API
+  fallback can now retrieve the SHA. Use `fill_empty_sha = TRUE` in
+  [`get_repos()`](https://r-world-devs.github.io/GitStats/reference/get_repos.md)
+  to enable this
+  ([\#746](https://github.com/r-world-devs/GitStats/issues/746)).
 - Added optional parallel processing for API calls via `mirai` package.
   Use
   [`set_parallel()`](https://r-world-devs.github.io/GitStats/reference/set_parallel.md)

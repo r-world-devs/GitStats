@@ -11,7 +11,7 @@ file (with_files parameter) and parse it into table format."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0.9005</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,7 +60,8 @@ file (<code>with_files</code> parameter) and parse it into table format.</p>
 <span>  language <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cache <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  progress <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  progress <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  fill_empty_sha <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -119,6 +120,13 @@ output is switched off.</p></dd>
 <dt id="arg-progress">progress<a class="anchor" aria-label="anchor" href="#arg-progress"></a></dt>
 <dd><p>A logical, by default set to <code>verbose</code> value. If <code>FALSE</code> no
 <code>cli</code> progress bar will be displayed.</p></dd>
+
+
+<dt id="arg-fill-empty-sha">fill_empty_sha<a class="anchor" aria-label="anchor" href="#arg-fill-empty-sha"></a></dt>
+<dd><p>A logical, <code>FALSE</code> by default. If <code>TRUE</code>, GitStats
+will try to fetch missing <code>commit_sha</code> values (e.g. for archived GitLab
+projects) via the REST Branches API. This may slow down the call for
+large numbers of repositories.</p></dd>
 
 </dl></div>
     <div class="section level2">

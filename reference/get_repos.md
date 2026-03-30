@@ -16,7 +16,8 @@ get_repos(
   language = NULL,
   cache = TRUE,
   verbose = FALSE,
-  progress = TRUE
+  progress = TRUE,
+  fill_empty_sha = FALSE
 )
 ```
 
@@ -74,6 +75,13 @@ get_repos(
 
   A logical, by default set to `verbose` value. If `FALSE` no `cli`
   progress bar will be displayed.
+
+- fill_empty_sha:
+
+  A logical, `FALSE` by default. If `TRUE`, GitStats will try to fetch
+  missing `commit_sha` values (e.g. for archived GitLab projects) via
+  the REST Branches API. This may slow down the call for large numbers
+  of repositories.
 
 ## Value
 
