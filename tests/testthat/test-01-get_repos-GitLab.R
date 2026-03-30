@@ -718,11 +718,12 @@ test_that("`get_commit_sha_from_branch()` retrieves SHA from branches API", {
     "self$response",
     test_fixtures$gitlab_branch_response
   )
-  sha <- test_rest_gitlab$get_commit_sha_from_branch(
+  commit_sha <- test_rest_gitlab$get_commit_sha_from_branch(
     project_id = "99999999",
     default_branch = "main"
   )
-  expect_equal(sha, "abcdef1234567890")
+  expect_equal(commit_sha, "abcdef1234567890")
+  test_mocker$cache(commit_sha)
 })
 
 test_that("`get_commit_sha_from_branch()` returns NA when branch is empty", {
@@ -779,12 +780,11 @@ test_that("`fill_repos_commit_sha()` fills missing commit_sha via REST", {
     commit_sha = c("1a2bc3d4e5", NA_character_),
     stringsAsFactors = FALSE
   )
-  rest_engine <- gitlab_testhost_fill$engines$rest
-  env <- environment(rest_engine$get_commit_sha_from_branch)
-  unlockBinding("get_commit_sha_from_branch", env)
-  env$get_commit_sha_from_branch <- function(project_id, default_branch) {
-    "abcdef1234567890"
-  }
+  mockery::stub(
+    gitlab_testhost_fill$fill_repos_commit_sha,
+    "rest_engine$get_commit_sha_from_branch",
+    test_mocker$use("commit_sha")
+  )
   result <- gitlab_testhost_fill$fill_repos_commit_sha(repos_table, verbose = FALSE)
   expect_equal(result$commit_sha[1], "1a2bc3d4e5")
   expect_equal(result$commit_sha[2], "abcdef1234567890")
