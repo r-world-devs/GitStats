@@ -868,7 +868,7 @@ test_that("get_all_repos() works", {
     "private$fill_repos_commit_sha",
     test_mocker$use("repos_commit_sha")
   )
-  gitlab_repos <- gitlab_testhost_fill$get_all_repos()
+  gitlab_repos <- gitlab_testhost_fill$get_all_repos(fill_empty_sha = TRUE)
   expect_repos_table(gitlab_repos)
   expect_equal(gitlab_repos$commit_sha[1], "1a2bc3d4e5")
   expect_equal(gitlab_repos$commit_sha[2], "abcdef1234567890")
