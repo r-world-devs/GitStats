@@ -14,11 +14,11 @@ get_storage_metadata(gitstats, storage)
 }
 \value{
 A list with metadata fields: \code{class}, \code{attributes}, and (for
-  database backends) \code{column_types}.
+database backends) \code{column_types}.
 }
 \description{
 Retrieves metadata (R classes, custom attributes, column types)
-  for a table stored in the active storage backend.
+for a table stored in the active storage backend.
 }
 \examples{
 \dontrun{
