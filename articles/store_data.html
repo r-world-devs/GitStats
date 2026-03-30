@@ -99,7 +99,7 @@ organizations.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">repos</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_repos.html">get_repos</a></span><span class="op">(</span><span class="va">git_stats</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; → Pulling repositories 🌐 data...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 4.9 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 5.7 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">repos</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 28</span></span>
 <span><span class="co">#&gt; Columns: 19</span></span>
@@ -128,7 +128,7 @@ instead of whole table.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">repos_urls</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_repos_urls.html">get_repos_urls</a></span><span class="op">(</span><span class="va">git_stats</span><span class="op">)</span></span>
 <span><span class="co">#&gt; → Pulling repositories 🌐 URLs...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 1.2 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 1.4 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">repos_urls</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  'gitstats_repos_urls' chr [1:28] "https://api.github.com/repos/r-world-devs/shinyGizmo" ...</span></span>
 <span><span class="co">#&gt;  - attr(*, "type")= chr "api"</span></span></code></pre></div>
@@ -144,7 +144,7 @@ instead of whole table.</p>
 <span>    until <span class="op">=</span> <span class="st">"2025-06-14"</span>,</span>
 <span>    progress <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 8.6 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 10.6 secs</span></span>
 <span><span class="va">git_stats</span></span>
 <span><span class="co">#&gt; A <span style="color: #0000BB;">GitStats</span> object for 2 hosts: </span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Hosts: </span>https://api.github.com, https://gitlab.com/api/v4</span></span>
@@ -188,7 +188,7 @@ when you run the function again.</p>
 <span>  <span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Storage set to <span style="color: #0000BB;">"SQLite"</span>.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Database is empty.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 10 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 11.8 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 20</span></span>
 <span><span class="co">#&gt; Columns: 11</span></span>
@@ -269,7 +269,7 @@ be there.</p>
 <span>  <span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #0000BB;">Cache set to FALSE, I will pull data from API.</span></span></span>
 <span><span class="co">#&gt; → Pulling commits 🕒...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 8.8 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 10.9 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 20</span></span>
 <span><span class="co">#&gt; Columns: 11</span></span>
@@ -304,7 +304,7 @@ pulling all data again.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #0000BB;">Parameters changed, I will pull data from API.</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Using cached commits 🕒 from <span style="color: #0000BB;">"2025-06-01"</span> to <span style="color: #0000BB;">"2025-06-14"</span>.</span></span>
 <span><span class="co">#&gt; → Pulling commits 🕒 from API for: <span style="color: #0000BB;">"2025-06-15 to 2025-06-30"</span>.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 10.6 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 11.1 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 62</span></span>
 <span><span class="co">#&gt; Columns: 11</span></span>
