@@ -570,11 +570,10 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
           verbose = verbose
         )
       }
+      repos_from_orgs <- private$get_repos_from_orgs(verbose, progress)
+      repos_from_repos <- private$get_repos_from_repos(verbose, progress)
       repos_table <- purrr::list_rbind(
-        list(
-          private$get_repos_from_orgs(verbose, progress),
-          private$get_repos_from_repos(verbose, progress)
-        )
+        list(repos_from_orgs, repos_from_repos)
       )
       if (with_commit_sha) {
         repos_table <- private$fill_repos_commit_sha(repos_table, verbose = verbose)

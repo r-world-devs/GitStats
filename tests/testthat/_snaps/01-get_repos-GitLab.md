@@ -91,3 +91,11 @@
       i Switching to REST API...
       > Caching repositories for [test_org]...
 
+# `fill_repos_commit_sha()` fills missing commit_sha via REST
+
+    Code
+      repos_commit_sha <- gitlab_testhost_fill$fill_repos_commit_sha(repos_table,
+        verbose = TRUE)
+    Message
+      > [Host:GitLab][Engine:REST] Fetching missing commit SHAs for 1 repo...
+

@@ -757,6 +757,35 @@ test_that("`get_commit_sha_from_branch()` returns NA on API error", {
   expect_true(is.na(sha))
 })
 
+test_that("get_commit_sha works on host level", {
+  gitlab_testhost_fill <- create_gitlab_testhost(
+    orgs = "mbtests",
+    mode = "private"
+  )
+  mockery::stub(
+    gitlab_testhost_fill$get_commit_sha,
+    "rest_engine$get_commit_sha_from_branch",
+    test_mocker$use("commit_sha")
+  )
+  commit_sha <- gitlab_testhost_fill$get_commit_sha(
+    project_id = "99999999",
+    default_branch = "main"
+  )
+  expect_equal(commit_sha, "abcdef1234567890")
+})
+
+test_that("fill_repos_commit_sha() returns empty table",{
+  gitlab_testhost_fill <- create_gitlab_testhost(
+    orgs = "mbtests",
+    mode = "private"
+  )
+  repos_table <- data.frame()
+  expect_equal(
+    gitlab_testhost_fill$fill_repos_commit_sha(repos_table, verbose = FALSE),
+    data.frame()
+  )  
+})
+
 test_that("`fill_repos_commit_sha()` fills missing commit_sha via REST", {
   gitlab_testhost_fill <- create_gitlab_testhost(
     orgs = "mbtests",
@@ -785,9 +814,12 @@ test_that("`fill_repos_commit_sha()` fills missing commit_sha via REST", {
     "private$get_commit_sha",
     test_mocker$use("commit_sha")
   )
-  result <- gitlab_testhost_fill$fill_repos_commit_sha(repos_table, verbose = FALSE)
-  expect_equal(result$commit_sha[1], "1a2bc3d4e5")
-  expect_equal(result$commit_sha[2], "abcdef1234567890")
+  expect_snapshot(
+    repos_commit_sha <- gitlab_testhost_fill$fill_repos_commit_sha(repos_table, verbose = TRUE)
+  )  
+  expect_equal(repos_commit_sha$commit_sha[1], "1a2bc3d4e5")
+  expect_equal(repos_commit_sha$commit_sha[2], "abcdef1234567890")
+  test_mocker$cache(repos_commit_sha)
 })
 
 test_that("`fill_repos_commit_sha()` skips repos with empty default_branch", {
@@ -816,4 +848,28 @@ test_that("`fill_repos_commit_sha()` skips repos with empty default_branch", {
   expect_true(is.na(result$commit_sha[1]))
 })
 
-
+test_that("get_all_repos() works", {
+  gitlab_testhost_fill <- create_gitlab_testhost(
+    orgs = "mbtests",
+    mode = "private"
+  )
+  mockery::stub(
+    gitlab_testhost_fill$get_all_repos,
+    "private$get_repos_from_orgs",
+    test_mocker$use("gl_repos_from_orgs")
+  )
+  mockery::stub(
+    gitlab_testhost_fill$get_all_repos,
+    "private$get_repos_from_repos",
+    test_mocker$use("gl_repos_from_repos")
+  )
+  mockery::stub(
+    gitlab_testhost_fill$get_all_repos,
+    "private$fill_repos_commit_sha",
+    test_mocker$use("repos_commit_sha")
+  )
+  gitlab_repos <- gitlab_testhost_fill$get_all_repos()
+  expect_repos_table(gitlab_repos)
+  expect_equal(gitlab_repos$commit_sha[1], "1a2bc3d4e5")
+  expect_equal(gitlab_repos$commit_sha[2], "abcdef1234567890")
+})
