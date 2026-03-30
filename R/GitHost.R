@@ -60,11 +60,13 @@ GitHost <- R6::R6Class(
                          language = NULL,
                          output = "table",
                          verbose = TRUE,
-                         progress = TRUE) {
+                         progress = TRUE,
+                         fill_empty_sha = FALSE) {
       if (is.null(with_code) && is.null(with_file)) {
         repos_table <- private$get_all_repos(
           verbose  = verbose,
-          progress = progress
+          progress = progress,
+          fill_empty_sha = fill_empty_sha
         )
       }
       if (!is.null(with_code)) {
@@ -713,7 +715,7 @@ GitHost <- R6::R6Class(
       return(orgs_table)
     },
 
-    get_all_repos = function(verbose = TRUE, progress = TRUE) {
+    get_all_repos = function(verbose = TRUE, progress = TRUE, fill_empty_sha = FALSE) {
       if (private$scan_all && is.null(private$orgs)) {
         private$orgs <- private$get_orgs_from_host(
           output = "only_names",

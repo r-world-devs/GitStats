@@ -1,5 +1,6 @@
 # GitStats 2.4.0.9000
 
+- Fixed `get_repos()` returning `NA` for `commit_sha` on archived GitLab projects. When the GraphQL API returns `null` for `lastCommit`, a REST Branches API fallback can now retrieve the SHA. Use `fill_empty_sha = TRUE` in `get_repos()` to enable this ([#746](https://github.com/r-world-devs/GitStats/issues/746)).
 - Added optional parallel processing for API calls via `mirai` package. Use `set_parallel()` to enable concurrent data fetching across repositories and organizations ([#736](https://github.com/r-world-devs/GitStats/issues/736)).
 - Cached `set_owner_type()` results to avoid redundant GraphQL calls when multiple `get_*` functions are used in the same session ([#738](https://github.com/r-world-devs/GitStats/issues/738)).
 - Replaced per-directory GraphQL file tree traversal with single-call REST recursive tree API for `get_repos_trees()`, substantially improving speed of retrieving repository file trees ([#740](https://github.com/r-world-devs/GitStats/issues/740)).

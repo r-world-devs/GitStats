@@ -527,6 +527,58 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         cli::cli_alert_warning("[GitLab] No files {cli_icons$file} found. Skipping pulling files content.")
         return(NULL)
       }
+    },
+
+    get_commit_sha = function(project_id, default_branch) {
+      rest_engine <- private$engines$rest
+      rest_engine$get_commit_sha_from_branch(
+        project_id = project_id,
+        default_branch = default_branch
+      )
+    },
+
+    fill_repos_commit_sha = function(repos_table, verbose = FALSE) {
+      if (is.null(repos_table) || nrow(repos_table) == 0) {
+        return(repos_table)
+      }
+      missing_sha <- is.na(repos_table[["commit_sha"]]) & nchar(repos_table[["default_branch"]]) > 0
+      if (any(missing_sha)) {
+        n_missing <- sum(missing_sha)
+        if (verbose) {
+          show_message(
+            host = private$host_name,
+            engine = "rest",
+            information = glue::glue(
+              "Fetching missing commit SHAs for {n_missing} repo{ifelse(n_missing > 1, 's', '')}"
+            )
+          )
+        }
+        for (i in which(missing_sha)) {
+          repos_table[["commit_sha"]][i] <- private$get_commit_sha(
+            project_id = repos_table[["repo_id"]][i],
+            default_branch = repos_table[["default_branch"]][i]
+          )
+        }
+      }
+      return(repos_table)
+    },
+
+    get_all_repos = function(verbose = TRUE, progress = TRUE, fill_empty_sha = FALSE) {
+      if (private$scan_all && is.null(private$orgs)) {
+        private$orgs <- private$get_orgs_from_host(
+          output = "only_names",
+          verbose = verbose
+        )
+      }
+      repos_from_orgs <- private$get_repos_from_orgs(verbose, progress)
+      repos_from_repos <- private$get_repos_from_repos(verbose, progress)
+      repos_table <- purrr::list_rbind(
+        list(repos_from_orgs, repos_from_repos)
+      )
+      if (fill_empty_sha) {
+        repos_table <- private$fill_repos_commit_sha(repos_table, verbose = verbose)
+      }
+      return(repos_table)
     }
   )
 )

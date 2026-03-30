@@ -13,7 +13,8 @@ get_repos(
   language = NULL,
   cache = TRUE,
   verbose = FALSE,
-  progress = TRUE
+  progress = TRUE,
+  fill_empty_sha = FALSE
 )
 }
 \arguments{
@@ -51,6 +52,11 @@ output is switched off.}
 
 \item{progress}{A logical, by default set to \code{verbose} value. If \code{FALSE} no
 \code{cli} progress bar will be displayed.}
+
+\item{fill_empty_sha}{A logical, \code{FALSE} by default. If \code{TRUE}, GitStats
+will try to fetch missing \code{commit_sha} values (e.g. for archived GitLab
+projects) via the REST Branches API. This may slow down the call for
+large numbers of repositories.}
 }
 \value{
 A data.frame.
