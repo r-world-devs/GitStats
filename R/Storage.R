@@ -55,7 +55,8 @@ StorageLocal <- R6::R6Class(
         if (length(names_list) == 0) {
           return(private$empty_metadata_tibble())
         }
-        rows <- purrr::map(names_list, ~ private$build_metadata_row(.))
+        build_row <- private$build_metadata_row
+        rows <- purrr::map(names_list, function(n) build_row(n))
         return(dplyr::bind_rows(rows))
       }
       data <- private$data[[name]]
@@ -201,7 +202,8 @@ StoragePostgres <- R6::R6Class(
         if (length(names_list) == 0) {
           return(private$empty_metadata_tibble())
         }
-        rows <- purrr::map(names_list, ~ private$build_metadata_row(.))
+        build_row <- private$build_metadata_row
+        rows <- purrr::map(names_list, function(n) build_row(n))
         return(dplyr::bind_rows(rows))
       }
       if (!self$exists(name)) {
@@ -406,7 +408,8 @@ StorageSQLite <- R6::R6Class(
         if (length(names_list) == 0) {
           return(private$empty_metadata_tibble())
         }
-        rows <- purrr::map(names_list, ~ private$build_metadata_row(.))
+        build_row <- private$build_metadata_row
+        rows <- purrr::map(names_list, function(n) build_row(n))
         return(dplyr::bind_rows(rows))
       }
       if (!self$exists(name)) {
