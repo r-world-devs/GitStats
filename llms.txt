@@ -284,6 +284,14 @@ Functions to get git data in a tibble format.
 
   Get data from `GitStats` storage
 
+- [`get_storage_metadata()`](https://r-world-devs.github.io/GitStats/reference/get_storage_metadata.md)
+  : Get metadata for a storage table
+
+- [`remove_from_storage()`](https://r-world-devs.github.io/GitStats/reference/remove_from_storage.md)
+  :
+
+  Remove a table from `GitStats` storage
+
 ## Parallel processing
 
 - [`set_parallel()`](https://r-world-devs.github.io/GitStats/reference/set_parallel.md)

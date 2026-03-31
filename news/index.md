@@ -34,6 +34,15 @@
   persisting data in a database. Metadata (R classes, attributes) is
   preserved via a `_metadata` table
   ([\#602](https://github.com/r-world-devs/GitStats/issues/602)).
+- Added
+  [`remove_from_storage()`](https://r-world-devs.github.io/GitStats/reference/remove_from_storage.md)
+  to remove a named table from the active storage backend
+  ([\#747](https://github.com/r-world-devs/GitStats/issues/747)).
+- Added
+  [`get_storage_metadata()`](https://r-world-devs.github.io/GitStats/reference/get_storage_metadata.md)
+  to retrieve metadata (R classes, custom attributes, column types) for
+  a stored table
+  ([\#748](https://github.com/r-world-devs/GitStats/issues/748)).
 - Sped up vignettes generation
   ([\#504](https://github.com/r-world-devs/GitStats/issues/504)).
 
