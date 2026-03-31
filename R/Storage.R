@@ -137,6 +137,49 @@ remove_from_storage <- function(gitstats, storage) {
   gitstats$remove_from_storage(storage = storage)
 }
 
+#' @title Remove PostgreSQL storage
+#' @name remove_postgres_storage
+#' @description Drops the GitStats schema (with all tables and metadata) from
+#'   the PostgreSQL database, closes the connection, and reverts storage to the
+#'   default in-memory local backend. Errors if no PostgreSQL backend is
+#'   currently set.
+#' @param gitstats A GitStats object.
+#' @return A `GitStats` object (invisibly).
+#' @examples
+#' \dontrun{
+#'   my_gitstats <- create_gitstats() |>
+#'     set_postgres_storage(
+#'       dbname = "my_database",
+#'       host = "localhost",
+#'       user = "postgres",
+#'       password = "secret"
+#'     )
+#'   remove_postgres_storage(my_gitstats)
+#' }
+#' @export
+remove_postgres_storage <- function(gitstats) {
+  gitstats$remove_postgres_storage()
+}
+
+#' @title Remove SQLite storage
+#' @name remove_sqlite_storage
+#' @description Closes the SQLite connection and, for file-based databases,
+#'   deletes the database file. For in-memory databases the data is simply
+#'   discarded. Storage is reverted to the default in-memory local backend.
+#'   Errors if no SQLite backend is currently set.
+#' @param gitstats A GitStats object.
+#' @return A `GitStats` object (invisibly).
+#' @examples
+#' \dontrun{
+#'   my_gitstats <- create_gitstats() |>
+#'     set_sqlite_storage(dbname = "gitstats.sqlite")
+#'   remove_sqlite_storage(my_gitstats)
+#' }
+#' @export
+remove_sqlite_storage <- function(gitstats) {
+  gitstats$remove_sqlite_storage()
+}
+
 #' @title Get metadata for a storage table
 #' @name get_storage_metadata
 #' @description Retrieves metadata (R classes, custom attributes, column types)
@@ -178,6 +221,9 @@ Storage <- R6::R6Class(
     remove = function(name) {
       stop("Not implemented")
     },
+    drop_storage = function() {
+      stop("Not implemented")
+    },
     list = function() {
       stop("Not implemented")
     },
@@ -209,6 +255,9 @@ StorageLocal <- R6::R6Class(
     },
     remove = function(name) {
       private$data[[name]] <- NULL
+    },
+    drop_storage = function() {
+      private$data <- list()
     },
     list = function() {
       names(purrr::discard(private$data, is.null))
@@ -348,6 +397,14 @@ StoragePostgres <- R6::R6Class(
         )
       }
       invisible(NULL)
+    },
+    drop_storage = function() {
+      DBI::dbExecute(
+        private$conn,
+        glue::glue("DROP SCHEMA IF EXISTS {private$schema} CASCADE")
+      )
+      DBI::dbDisconnect(private$conn)
+      private$conn <- NULL
     },
     list = function() {
       result <- DBI::dbGetQuery(
@@ -503,6 +560,7 @@ StorageSQLite <- R6::R6Class(
       check_if_package_installed("DBI")
       check_if_package_installed("RSQLite")
       check_if_package_installed("jsonlite")
+      private$dbname <- dbname
       private$conn <- DBI::dbConnect(RSQLite::SQLite(), dbname = dbname)
       private$ensure_metadata_table()
     },
@@ -562,6 +620,16 @@ StorageSQLite <- R6::R6Class(
       }
       invisible(NULL)
     },
+    drop_storage = function() {
+      if (!is.null(private$conn) && DBI::dbIsValid(private$conn)) {
+        DBI::dbDisconnect(private$conn)
+        private$conn <- NULL
+      }
+      if (!is.null(private$dbname) && private$dbname != ":memory:" &&
+          file.exists(private$dbname)) {
+        file.remove(private$dbname)
+      }
+    },
     list = function() {
       tables <- DBI::dbListTables(private$conn)
       tables[tables != "_metadata"]
@@ -587,6 +655,7 @@ StorageSQLite <- R6::R6Class(
   ),
   private = list(
     conn = NULL,
+    dbname = NULL,
     finalize = function() {
       if (!is.null(private$conn) && DBI::dbIsValid(private$conn)) {
         DBI::dbDisconnect(private$conn)

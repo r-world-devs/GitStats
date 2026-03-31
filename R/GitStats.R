@@ -661,6 +661,41 @@ GitStats <- R6::R6Class(
       invisible(self)
     },
 
+    remove_postgres_storage = function() {
+      if (!inherits(private$storage_backend, "StoragePostgres")) {
+        cli::cli_abort("No PostgreSQL storage is set.")
+      }
+      private$storage_backend$drop_storage()
+      cli::cli_alert_success(
+        "PostgreSQL schema dropped and connection closed."
+      )
+      private$storage_backend <- StorageLocal$new()
+      private$propagate_storage_to_hosts()
+      cli::cli_alert_info("Storage set back to {.val local}.")
+      invisible(self)
+    },
+
+    remove_sqlite_storage = function() {
+      if (!inherits(private$storage_backend, "StorageSQLite")) {
+        cli::cli_abort("No SQLite storage is set.")
+      }
+      dbname <- private$storage_backend$.__enclos_env__$private$dbname
+      private$storage_backend$drop_storage()
+      if (!is.null(dbname) && dbname != ":memory:") {
+        cli::cli_alert_success(
+          "SQLite database file {.file {dbname}} removed."
+        )
+      } else {
+        cli::cli_alert_success(
+          "In-memory SQLite database removed."
+        )
+      }
+      private$storage_backend <- StorageLocal$new()
+      private$propagate_storage_to_hosts()
+      cli::cli_alert_info("Storage set back to {.val local}.")
+      invisible(self)
+    },
+
     get_storage_metadata = function(storage = NULL) {
       if (!is.null(storage) && !private$storage_backend$exists(storage)) {
         cli::cli_abort("Table {.val {storage}} does not exist in storage.")
