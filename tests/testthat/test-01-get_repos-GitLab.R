@@ -507,6 +507,21 @@ test_that("`get_repos_from_repos()` queries repos directly by fullpath", {
   test_mocker$cache(gl_repos_from_repos)
 })
 
+test_that("`get_repos_from_repos()` returns NULL when no repos found", {
+  mockery::stub(
+    gitlab_testhost_priv$get_repos_from_repos,
+    "graphql_engine$get_repos_by_fullpath",
+    list()
+  )
+  gitlab_testhost_priv$searching_scope <- "repo"
+  gitlab_testhost_priv$orgs_repos <- list("mbtests" = "nonexistent")
+  gl_repos_from_repos <- gitlab_testhost_priv$get_repos_from_repos(
+    verbose = FALSE,
+    progress = FALSE
+  )
+  expect_null(gl_repos_from_repos)
+})
+
 test_that("GitLab Host prints message when turning to REST engine (from orgs)", {
   mockery::stub(
     gitlab_testhost_priv$get_repos_from_orgs,
