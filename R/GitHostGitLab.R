@@ -65,7 +65,9 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     },
 
     check_if_public = function(host) {
-      private$is_public <- is.null(host) || grepl("gitlab.com", host)
+      private$is_public <- is.null(host) ||
+        host == "gitlab.com" ||
+        host == "https://gitlab.com"
     },
 
     set_test_endpoint = function() {
