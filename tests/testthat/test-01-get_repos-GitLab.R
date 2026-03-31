@@ -922,3 +922,120 @@ test_that("get_all_repos() works", {
   expect_equal(gitlab_repos$commit_sha[1], "1a2bc3d4e5")
   expect_equal(gitlab_repos$commit_sha[2], "abcdef1234567890")
 })
+
+# ---- EngineGraphQLGitLab: get_repo_name_from_url ----
+
+test_that("`get_repo_name_from_url()` extracts repo name from URL", {
+  expect_equal(
+    test_graphql_gitlab_priv$get_repo_name_from_url(
+      "https://gitlab.com/mbtests/gitstatstesting"
+    ),
+    "gitstatstesting"
+  )
+})
+
+test_that("`get_repo_name_from_url()` handles nested group paths", {
+  expect_equal(
+    test_graphql_gitlab_priv$get_repo_name_from_url(
+      "https://gitlab.com/group/subgroup/my-repo"
+    ),
+    "my-repo"
+  )
+})
+
+# ---- EngineGraphQLGitLab: prepare_files_table_row ----
+
+test_that("`prepare_files_table_row()` builds files data.frame from project", {
+  project <- test_fixtures$gitlab_file_repo_response$data$project
+  files_row <- test_graphql_gitlab_priv$prepare_files_table_row(
+    project = project,
+    org = "mbtests"
+  )
+  expect_s3_class(files_row, "data.frame")
+  expect_true(nrow(files_row) > 0)
+  expect_true(all(c("repo_name", "file_path", "file_content", "repo_url") %in% names(files_row)))
+  expect_equal(files_row$organization[1], "mbtests")
+})
+
+# ---- EngineGraphQLGitLab: set_owner_type ----
+
+test_that("`set_owner_type()` identifies organization (group) type", {
+  gl_group_response <- list(
+    "data" = list(
+      "user" = NULL,
+      "group" = list("__typename" = "Group", "fullPath" = "mbtests")
+    )
+  )
+  mockery::stub(
+    test_graphql_gitlab$set_owner_type,
+    "self$gql_response",
+    gl_group_response
+  )
+  result <- test_graphql_gitlab$set_owner_type(
+    owners = "mbtests_org_test",
+    verbose = FALSE
+  )
+  expect_equal(attr(result[[1]], "type"), "organization")
+})
+
+test_that("`set_owner_type()` identifies user type", {
+  gl_user_response <- list(
+    "data" = list(
+      "user" = list("__typename" = "User", "username" = "test_user"),
+      "group" = NULL
+    )
+  )
+  mockery::stub(
+    test_graphql_gitlab$set_owner_type,
+    "self$gql_response",
+    gl_user_response
+  )
+  result <- test_graphql_gitlab$set_owner_type(
+    owners = "test_user_type_test",
+    verbose = FALSE
+  )
+  expect_equal(attr(result[[1]], "type"), "user")
+})
+
+test_that("`set_owner_type()` returns 'not found' when owner does not exist", {
+  mockery::stub(
+    test_graphql_gitlab$set_owner_type,
+    "self$gql_response",
+    list("data" = list("user" = NULL, "group" = NULL))
+  )
+  result <- test_graphql_gitlab$set_owner_type(
+    owners = "nonexistent_owner_test",
+    verbose = FALSE
+  )
+  expect_equal(attr(result[[1]], "type"), "not found")
+})
+
+# ---- GitHostGitLab: get_repo_url_from_response with type "api" ----
+
+test_that("`get_repo_url_from_response()` returns api URLs", {
+  gl_repo_api_urls <- gitlab_testhost_priv$get_repo_url_from_response(
+    search_response = test_mocker$use("gl_repos_raw_output"),
+    type = "api",
+    progress = FALSE
+  )
+  expect_gt(length(gl_repo_api_urls), 0)
+  expect_type(gl_repo_api_urls, "character")
+  expect_true(all(grepl("api", gl_repo_api_urls)))
+})
+
+# ---- GitHostGitLab: check_if_public ----
+
+test_that("`check_if_public()` sets TRUE for public gitlab.com", {
+  gitlab_testhost_priv$check_if_public(NULL)
+  expect_true(gitlab_testhost_priv$is_public)
+  gitlab_testhost_priv$check_if_public("https://gitlab.com")
+  expect_true(gitlab_testhost_priv$is_public)
+})
+
+test_that("`check_if_public()` sets FALSE for custom host", {
+  gitlab_testhost_priv$check_if_public("https://internal-gitlab.company.com")
+  expect_false(gitlab_testhost_priv$is_public)
+  # Reset to default
+  gitlab_testhost_priv$check_if_public(NULL)
+})
+
