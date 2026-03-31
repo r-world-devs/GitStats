@@ -143,3 +143,47 @@ test_that("subgroups are cleanly printed in GitStats", {
     test_gitstats
   )
 })
+
+# ---- verbose_on / verbose_off ----
+
+test_that("verbose is TRUE by default", {
+  gs <- create_gitstats()
+  expect_true(is_verbose(gs))
+})
+
+test_that("verbose_off sets verbose to FALSE", {
+  gs <- create_gitstats()
+  verbose_off(gs)
+  expect_false(is_verbose(gs))
+})
+
+test_that("verbose_on sets verbose back to TRUE", {
+  gs <- create_gitstats()
+  verbose_off(gs)
+  expect_false(is_verbose(gs))
+  verbose_on(gs)
+  expect_true(is_verbose(gs))
+})
+
+test_that("verbose_on returns self invisibly for piping", {
+  gs <- create_gitstats()
+  expect_invisible(verbose_on(gs))
+  result <- verbose_on(gs)
+  expect_identical(result, gs)
+})
+
+test_that("verbose_off returns self invisibly for piping", {
+  gs <- create_gitstats()
+  expect_invisible(verbose_off(gs))
+  result <- verbose_off(gs)
+  expect_identical(result, gs)
+})
+
+test_that("verbose_off and verbose_on work via R6 methods directly", {
+  gs <- create_gitstats()
+  gs$verbose_off()
+  expect_false(gs$is_verbose())
+  gs$verbose_on()
+  expect_true(gs$is_verbose())
+})
+
