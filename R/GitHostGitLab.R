@@ -563,6 +563,40 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       return(repos_table)
     },
 
+    # Override parent to query repos directly by fullpath instead of
+    # fetching all repos from org/user and filtering client-side.
+    # The parent's approach is slow for GitLab because the repos_by_user
+    # query searches the entire GitLab instance.
+    get_repos_from_repos = function(verbose, progress) {
+      if ("repo" %in% private$searching_scope) {
+        graphql_engine <- private$engines$graphql
+        orgs <- names(private$orgs_repos)
+        full_paths <- purrr::map(orgs, function(org) {
+          repos <- private$orgs_repos[[org]]
+          paste0(url_decode(org), "/", repos)
+        }) |>
+          unlist()
+        if (!private$scan_all && verbose) {
+          show_message(
+            host = private$host_name,
+            engine = "graphql",
+            scope = paste0(full_paths, collapse = ", "),
+            information = paste0("Pulling repositories ", cli_icons$repo)
+          )
+        }
+        repos_list <- graphql_engine$get_repos_by_fullpath(
+          full_paths = full_paths,
+          verbose = verbose
+        )
+        if (length(repos_list) > 0) {
+          repos_table <- graphql_engine$prepare_repos_table(repos_list)
+        } else {
+          repos_table <- NULL
+        }
+        return(repos_table)
+      }
+    },
+
     get_all_repos = function(verbose = TRUE, progress = TRUE, fill_empty_sha = FALSE) {
       if (private$scan_all && is.null(private$orgs)) {
         private$orgs <- private$get_orgs_from_host(

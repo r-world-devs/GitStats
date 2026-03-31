@@ -15,6 +15,14 @@ test_that("repos queries are built properly", {
   )
 })
 
+test_that("repo_by_fullpath query is built properly", {
+  gl_repo_by_fullpath_query <-
+    test_gqlquery_gl$repo_by_fullpath()
+  expect_snapshot(
+    gl_repo_by_fullpath_query
+  )
+})
+
 test_that("`get_repos_page()` pulls repos page from GitLab group", {
   mockery::stub(
     test_graphql_gitlab_priv$get_repos_page,
@@ -88,6 +96,42 @@ test_that("`get_repos_from_org()` prepares formatted list", {
     )
   )
   test_mocker$cache(gl_repos_from_user)
+})
+
+test_that("`get_repos_by_fullpath()` queries repos directly by path", {
+  mockery::stub(
+    test_graphql_gitlab$get_repos_by_fullpath,
+    "self$gql_response",
+    test_fixtures$gitlab_repo_by_fullpath_response
+  )
+  gl_repos_by_path <- test_graphql_gitlab$get_repos_by_fullpath(
+    full_paths = c("mbtests/gitstatstesting")
+  )
+  expect_type(gl_repos_by_path, "list")
+  expect_length(gl_repos_by_path, 1)
+  expect_equal(
+    names(gl_repos_by_path[[1]]$node),
+    c(
+      "repo_id", "repo_name", "repo_path", "repo_fullpath", "repository",
+      "stars", "forks", "created_at", "last_activity_at",
+      "languages", "issues", "namespace", "repo_url"
+    )
+  )
+  test_mocker$cache(gl_repos_by_path)
+})
+
+test_that("`get_repos_by_fullpath()` skips repos that return NULL", {
+  null_response <- list("data" = list("project" = NULL))
+  mockery::stub(
+    test_graphql_gitlab$get_repos_by_fullpath,
+    "self$gql_response",
+    null_response
+  )
+  gl_repos_by_path <- test_graphql_gitlab$get_repos_by_fullpath(
+    full_paths = c("nonexistent/repo")
+  )
+  expect_type(gl_repos_by_path, "list")
+  expect_length(gl_repos_by_path, 0)
 })
 
 test_that("`get_repos_from_org()` does not fail when GraphQL response is not complete", {
@@ -442,30 +486,25 @@ test_that("GitLab Host turns to REST if GraphQL fails with error (org setup)", {
   expect_repos_table(gl_repos_from_orgs)
 })
 
-test_that("GitLab Host turns to REST if GraphQL fails with error (repo setup)", {
-  test_org <- "test_org"
-  attr(test_org, "type") <- "organization"
+test_that("`get_repos_from_repos()` queries repos directly by fullpath", {
   mockery::stub(
     gitlab_testhost_priv$get_repos_from_repos,
-    "graphql_engine$set_owner_type",
-    test_org
+    "graphql_engine$get_repos_by_fullpath",
+    test_mocker$use("gl_repos_by_path")
   )
   mockery::stub(
     gitlab_testhost_priv$get_repos_from_repos,
-    "graphql_engine$get_repos_from_org",
-    test_mocker$use("gitlab_repos_error")
-  )
-  mockery::stub(
-    gitlab_testhost_priv$get_repos_from_repos,
-    "rest_engine$prepare_repos_table",
-    test_mocker$use("gitlab_rest_repos_table")
+    "graphql_engine$prepare_repos_table",
+    test_mocker$use("gl_repos_table")
   )
   gitlab_testhost_priv$searching_scope <- "repo"
+  gitlab_testhost_priv$orgs_repos <- list("mbtests" = "gitstatstesting")
   gl_repos_from_repos <- gitlab_testhost_priv$get_repos_from_repos(
     verbose = FALSE,
     progress = FALSE
   )
   expect_repos_table(gl_repos_from_repos)
+  test_mocker$cache(gl_repos_from_repos)
 })
 
 test_that("GitLab Host prints message when turning to REST engine (from orgs)", {
@@ -488,25 +527,19 @@ test_that("GitLab Host prints message when turning to REST engine (from orgs)", 
   )
 })
 
-test_that("GitLab Host prints message when turning to REST engine (from repos)", {
-  test_org <- "test_org"
-  attr(test_org, "type") <- "organization"
+test_that("`get_repos_from_repos()` prints proper message", {
   mockery::stub(
     gitlab_testhost_priv$get_repos_from_repos,
-    "graphql_engine$set_owner_type",
-    test_org
+    "graphql_engine$get_repos_by_fullpath",
+    test_mocker$use("gl_repos_by_path")
   )
   mockery::stub(
     gitlab_testhost_priv$get_repos_from_repos,
-    "graphql_engine$get_repos_from_org",
-    test_mocker$use("gitlab_repos_error")
-  )
-  mockery::stub(
-    gitlab_testhost_priv$get_repos_from_repos,
-    "rest_engine$prepare_repos_table",
-    test_mocker$use("gitlab_rest_repos_table")
+    "graphql_engine$prepare_repos_table",
+    test_mocker$use("gl_repos_table")
   )
   gitlab_testhost_priv$searching_scope <- "repo"
+  gitlab_testhost_priv$orgs_repos <- list("mbtests" = "gitstatstesting")
   expect_snapshot(
     gl_repos_from_repos <- gitlab_testhost_priv$get_repos_from_repos(
       verbose = TRUE,

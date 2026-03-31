@@ -65,15 +65,13 @@
       i Switching to REST API
       > [Host:GitLab][Engine:REST][Scope:mbtests] Pulling repositories 🌐...
 
-# GitLab Host prints message when turning to REST engine (from repos)
+# `get_repos_from_repos()` prints proper message
 
     Code
       gl_repos_from_repos <- gitlab_testhost_priv$get_repos_from_repos(verbose = TRUE,
         progress = FALSE)
     Message
-      > [Host:GitLab][Engine:GraphQl][Scope:test_org: 0 repos] Pulling repositories 🌐...
-      i Switching to REST API
-      > [Host:GitLab][Engine:REST][Scope:test_org] Pulling repositories 🌐...
+      > [Host:GitLab][Engine:GraphQl][Scope:mbtests/gitstatstesting] Pulling repositories 🌐...
 
 # `get_repos_data` uses cached data from org
 
