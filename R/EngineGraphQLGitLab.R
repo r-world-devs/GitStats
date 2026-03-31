@@ -167,7 +167,7 @@ EngineGraphQLGitLab <- R6::R6Class(
           verbose = verbose
         )
         if (inherits(response, "graphql_error") ||
-            is.null(response$data$project)) {
+              is.null(response$data$project)) {
           return(NULL)
         }
         # Wrap in node structure to match prepare_repos_table() expectations
