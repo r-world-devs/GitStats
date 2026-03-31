@@ -1,3 +1,64 @@
+#' @title Create a `GitStats` object
+#' @name create_gitstats
+#' @examples
+#' my_gitstats <- create_gitstats()
+#' @return A `GitStats` object.
+#' @export
+create_gitstats <- function() {
+  GitStats$new()
+}
+
+#' @title Show hosts set in `GitStats`
+#' @name show_hosts
+#' @description Retrieves hosts set by `GitStats` with `set_*_host()` functions.
+#' @param gitstats A GitStats object.
+#' @return A list of hosts.
+#' @export
+show_hosts <- function(gitstats) {
+  gitstats$show_hosts()
+}
+
+#' @title Show organizations set in `GitStats`
+#' @name show_orgs
+#' @description Retrieves organizations set or pulled by `GitStats`. Especially
+#'   helpful when user is scanning whole git platform and wants to have a
+#'   glimpse at organizations.
+#' @param gitstats A GitStats object.
+#' @return A vector of organizations.
+#' @export
+show_orgs <- function(gitstats) {
+  gitstats$show_orgs()
+}
+
+#' @title Switch on verbose mode
+#' @name verbose_on
+#' @description Print all messages and output.
+#' @param gitstats A GitStats object.
+#' @return A GitStats object.
+#' @export
+verbose_on <- function(gitstats) {
+  gitstats$verbose_on()
+  return(invisible(gitstats))
+}
+
+#' @title Switch off verbose mode
+#' @name verbose_off
+#' @description Stop printing messages and output.
+#' @param gitstats A GitStats object.
+#' @return A GitStats object.
+#' @export
+verbose_off <- function(gitstats) {
+  gitstats$verbose_off()
+  return(invisible(gitstats))
+}
+
+#' @title Is verbose mode switched on
+#' @name is_verbose
+#' @param gitstats A GitStats object.
+is_verbose <- function(gitstats) {
+  gitstats$is_verbose()
+}
+
 GitStats <- R6::R6Class(
   classname = "GitStats",
   public = list(
@@ -589,6 +650,22 @@ GitStats <- R6::R6Class(
       } else {
         private$storage_backend$load(storage)
       }
+    },
+
+    remove_from_storage = function(storage) {
+      if (!private$storage_backend$exists(storage)) {
+        cli::cli_abort("Table {.val {storage}} does not exist in storage.")
+      }
+      private$storage_backend$remove(storage)
+      cli::cli_alert_success("Removed {.val {storage}} from storage.")
+      invisible(self)
+    },
+
+    get_storage_metadata = function(storage = NULL) {
+      if (!is.null(storage) && !private$storage_backend$exists(storage)) {
+        cli::cli_abort("Table {.val {storage}} does not exist in storage.")
+      }
+      private$storage_backend$get_metadata(storage)
     },
 
     print = function() {
@@ -1315,3 +1392,49 @@ GitStats <- R6::R6Class(
     }
   )
 )
+
+#' @title Enable parallel processing
+#' @name set_parallel
+#' @description Set up parallel processing for API calls using mirai daemons.
+#'   When enabled, GitStats fetches data from multiple repositories
+#'   concurrently. Call `set_parallel(FALSE)` or `set_parallel(0)` to revert
+#'   to sequential execution.
+#' @param workers Number of parallel workers. Set to `TRUE` for automatic
+#'   detection, a positive integer for a specific count, or `FALSE`/`0` to
+#'   disable parallelism.
+#' @return Invisibly returns the status from `mirai::daemons()`.
+#' @examples
+#' \dontrun{
+#'   my_gitstats <- create_gitstats() |>
+#'     set_github_host(
+#'       token = Sys.getenv("GITHUB_PAT"),
+#'       orgs = c("r-world-devs", "openpharma")
+#'     )
+#'   set_parallel(4)
+#'   get_commits(my_gitstats, since = "2024-01-01")
+#'   set_parallel(FALSE) # revert to sequential
+#' }
+#' @export
+set_parallel <- function(workers = TRUE) {
+  if (isFALSE(workers) || identical(workers, 0L) || identical(workers, 0)) {
+    status <- mirai::daemons(0)
+    cli::cli_alert_info("Parallel processing disabled.")
+  } else {
+    if (isTRUE(workers)) {
+      workers <- parallel::detectCores(logical = FALSE)
+      if (is.na(workers) || workers < 2L) workers <- 2L
+    }
+    status <- mirai::daemons(workers)
+    # Export all GitStats namespace objects to daemon global environments.
+    # This works regardless of whether the package is installed or loaded
+    # via devtools::load_all(). Using ... (not .args) so objects are
+    # assigned to the daemon's global env where they can be found by name.
+    ns <- asNamespace("GitStats")
+    ns_objects <- as.list(ns, all.names = TRUE)
+    do.call(mirai::everywhere, c(list(quote({})), ns_objects))
+    cli::cli_alert_success(
+      "Parallel processing enabled with {workers} workers."
+    )
+  }
+  return(invisible(status))
+}

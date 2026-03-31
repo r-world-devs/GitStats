@@ -1,3 +1,167 @@
+#' @title Set local (in-memory) storage
+#' @name set_local_storage
+#' @description Reset storage to the default in-memory backend.
+#' @param gitstats A GitStats object.
+#' @return A `GitStats` object (invisibly).
+#' @examples
+#' \dontrun{
+#'   my_gitstats <- create_gitstats() |>
+#'     set_local_storage()
+#' }
+#' @export
+set_local_storage <- function(gitstats) {
+  gitstats$set_local_storage()
+}
+
+#' @title Set PostgreSQL storage
+#' @name set_postgres_storage
+#' @description Persist GitStats data in a PostgreSQL database. R classes,
+#'   custom attributes, and column types are preserved via a `_metadata` table.
+#'   Requires `DBI`, `RPostgres`, and `jsonlite` packages.
+#' @param gitstats A GitStats object.
+#' @param host A character, database host.
+#' @param port An integer, database port.
+#' @param dbname A character, database name.
+#' @param user A character, database user.
+#' @param password A character, database password.
+#' @param schema A character, database schema (default `"git_stats"`).
+#' @param ... Additional arguments passed to
+#'   `DBI::dbConnect(RPostgres::Postgres(), ...)`.
+#' @return A `GitStats` object (invisibly).
+#' @examples
+#' \dontrun{
+#'   my_gitstats <- create_gitstats() |>
+#'     set_postgres_storage(
+#'       dbname = "my_database",
+#'       host = "localhost",
+#'       user = "postgres",
+#'       password = "secret"
+#'     )
+#' }
+#' @export
+set_postgres_storage <- function(gitstats,
+                                 host = NULL,
+                                 port = NULL,
+                                 dbname = NULL,
+                                 user = NULL,
+                                 password = NULL,
+                                 schema = "git_stats",
+                                 ...) {
+  gitstats$set_postgres_storage(
+    host = host,
+    port = port,
+    dbname = dbname,
+    user = user,
+    password = password,
+    schema = schema,
+    ...
+  )
+}
+
+#' @title Set SQLite storage
+#' @name set_sqlite_storage
+#' @description Persist GitStats data in a SQLite database. R classes,
+#'   custom attributes, and column types are preserved via a `_metadata` table.
+#'   Requires `DBI`, `RSQLite`, and `jsonlite` packages.
+#' @param gitstats A GitStats object.
+#' @param dbname A character, path to SQLite file. Defaults to `":memory:"`
+#'   for an in-memory database.
+#' @return A `GitStats` object (invisibly).
+#' @examples
+#' \dontrun{
+#'   # File-based
+#'   my_gitstats <- create_gitstats() |>
+#'     set_sqlite_storage(dbname = "gitstats.sqlite")
+#'
+#'   # In-memory
+#'   my_gitstats <- create_gitstats() |>
+#'     set_sqlite_storage()
+#' }
+#' @export
+set_sqlite_storage <- function(gitstats, dbname = ":memory:") {
+  gitstats$set_sqlite_storage(dbname = dbname)
+}
+
+#' @title Get data from `GitStats` storage
+#' @name get_storage
+#' @description Retrieves whole or particular data (see `storage` parameter)
+#'   pulled earlier with `GitStats`.
+#' @param gitstats A GitStats object.
+#' @param storage A character, type of the data you want to get from storage:
+#'   `commits`, `repositories`, `release_logs`, `users`, `files`,
+#'   `files_structure`, `R_package_usage` or `release_logs`.
+#' @return A list of tibbles (if `storage` set to `NULL`) or a tibble (if
+#'   `storage` defined).
+#' @examples
+#' \dontrun{
+#'  my_gitstats <- create_gitstats() |>
+#'   set_github_host(
+#'     token = Sys.getenv("GITHUB_PAT"),
+#'     orgs = c("r-world-devs", "openpharma")
+#'   )
+#'   get_release_logs(my_gistats, since = "2024-01-01")
+#'   get_repos(my_gitstats)
+#'
+#'   release_logs <- get_storage(
+#'     gitstats = my_gitstats,
+#'     storage = "release_logs"
+#'   )
+#' }
+#' @export
+get_storage <- function(gitstats,
+                        storage = NULL) {
+  gitstats$get_storage(
+    storage = storage
+  )
+}
+
+#' @title Remove a table from `GitStats` storage
+#' @name remove_from_storage
+#' @description Removes a named table from the active storage backend.
+#' @param gitstats A GitStats object.
+#' @param storage A character, name of the table to remove (e.g. `"commits"`,
+#'   `"repositories"`).
+#' @return A `GitStats` object (invisibly).
+#' @examples
+#' \dontrun{
+#'   my_gitstats <- create_gitstats() |>
+#'     set_github_host(
+#'       token = Sys.getenv("GITHUB_PAT"),
+#'       orgs = "r-world-devs"
+#'     )
+#'   get_commits(my_gitstats, since = "2024-01-01")
+#'   remove_from_storage(my_gitstats, storage = "commits")
+#' }
+#' @export
+remove_from_storage <- function(gitstats, storage) {
+  gitstats$remove_from_storage(storage = storage)
+}
+
+#' @title Get metadata for a storage table
+#' @name get_storage_metadata
+#' @description Retrieves metadata (R classes, custom attributes, column types)
+#'   for a table stored in the active storage backend.
+#' @param gitstats A GitStats object.
+#' @param storage A character, name of the table (e.g. `"commits"`,
+#'   `"repositories"`). If `NULL` (default), metadata for all tables in storage
+#'   will be returned.
+#' @return A list with metadata fields: `class`, `attributes`, and (for
+#'   database backends) `column_types`.
+#' @examples
+#' \dontrun{
+#'   my_gitstats <- create_gitstats() |>
+#'     set_github_host(
+#'       token = Sys.getenv("GITHUB_PAT"),
+#'       orgs = "r-world-devs"
+#'     )
+#'   get_commits(my_gitstats, since = "2024-01-01")
+#'   get_storage_metadata(my_gitstats, storage = "commits")
+#' }
+#' @export
+get_storage_metadata <- function(gitstats, storage = NULL) {
+  gitstats$get_storage_metadata(storage = storage)
+}
+
 #' @noRd
 Storage <- R6::R6Class(
   classname = "Storage",
@@ -11,7 +175,13 @@ Storage <- R6::R6Class(
     exists = function(name) {
       stop("Not implemented")
     },
+    remove = function(name) {
+      stop("Not implemented")
+    },
     list = function() {
+      stop("Not implemented")
+    },
+    get_metadata = function(name = NULL) {
       stop("Not implemented")
     },
     is_db = function() {
@@ -37,12 +207,54 @@ StorageLocal <- R6::R6Class(
     exists = function(name) {
       !is.null(private$data[[name]])
     },
+    remove = function(name) {
+      private$data[[name]] <- NULL
+    },
     list = function() {
       names(purrr::discard(private$data, is.null))
+    },
+    get_metadata = function(name = NULL) {
+      if (is.null(name)) {
+        names_list <- self$list()
+        if (length(names_list) == 0) {
+          return(private$empty_metadata_tibble())
+        }
+        build_row <- private$build_metadata_row
+        rows <- purrr::map(names_list, function(n) build_row(n))
+        return(dplyr::bind_rows(rows))
+      }
+      data <- private$data[[name]]
+      if (is.null(data)) {
+        return(private$empty_metadata_tibble())
+      }
+      private$build_metadata_row(name)
     }
   ),
   private = list(
-    data = list()
+    data = list(),
+    build_metadata_row = function(name) {
+      data <- private$data[[name]]
+      custom_attrs <- setdiff(
+        names(attributes(data)),
+        c("names", "row.names", "class")
+      )
+      attrs <- list()
+      for (attr_name in custom_attrs) {
+        attrs[[attr_name]] <- attr(data, attr_name)
+      }
+      dplyr::tibble(
+        table_name = name,
+        class = list(class(data)),
+        attributes = list(attrs)
+      )
+    },
+    empty_metadata_tibble = function() {
+      dplyr::tibble(
+        table_name = character(),
+        class = list(),
+        attributes = list()
+      )
+    }
   )
 )
 
@@ -120,6 +332,23 @@ StoragePostgres <- R6::R6Class(
         DBI::Id(schema = private$schema, table = name)
       )
     },
+    remove = function(name) {
+      if (self$exists(name)) {
+        DBI::dbRemoveTable(
+          private$conn,
+          DBI::Id(schema = private$schema, table = name)
+        )
+        DBI::dbExecute(
+          private$conn,
+          glue::glue(
+            "DELETE FROM {private$schema}._metadata
+             WHERE dataset_name = $1"
+          ),
+          params = list(name)
+        )
+      }
+      invisible(NULL)
+    },
     list = function() {
       result <- DBI::dbGetQuery(
         private$conn,
@@ -130,6 +359,21 @@ StoragePostgres <- R6::R6Class(
         params = list(private$schema)
       )
       result$table_name
+    },
+    get_metadata = function(name = NULL) {
+      if (is.null(name)) {
+        names_list <- self$list()
+        if (length(names_list) == 0) {
+          return(private$empty_metadata_tibble())
+        }
+        build_row <- private$build_metadata_row
+        rows <- purrr::map(names_list, function(n) build_row(n))
+        return(dplyr::bind_rows(rows))
+      }
+      if (!self$exists(name)) {
+        return(private$empty_metadata_tibble())
+      }
+      private$build_metadata_row(name)
     },
     is_db = function() {
       TRUE
@@ -224,6 +468,28 @@ StoragePostgres <- R6::R6Class(
         }
       }
       data
+    },
+    build_metadata_row = function(name) {
+      meta <- private$load_metadata(name)
+      if (is.null(meta)) {
+        return(dplyr::tibble(
+          table_name = name,
+          class = list(NULL),
+          attributes = list(list())
+        ))
+      }
+      dplyr::tibble(
+        table_name = name,
+        class = list(meta$class),
+        attributes = list(meta$attributes %||% list())
+      )
+    },
+    empty_metadata_tibble = function() {
+      dplyr::tibble(
+        table_name = character(),
+        class = list(),
+        attributes = list()
+      )
     }
   )
 )
@@ -285,9 +551,35 @@ StorageSQLite <- R6::R6Class(
     exists = function(name) {
       DBI::dbExistsTable(private$conn, name)
     },
+    remove = function(name) {
+      if (self$exists(name)) {
+        DBI::dbRemoveTable(private$conn, name)
+        DBI::dbExecute(
+          private$conn,
+          "DELETE FROM _metadata WHERE dataset_name = ?",
+          params = list(name)
+        )
+      }
+      invisible(NULL)
+    },
     list = function() {
       tables <- DBI::dbListTables(private$conn)
       tables[tables != "_metadata"]
+    },
+    get_metadata = function(name = NULL) {
+      if (is.null(name)) {
+        names_list <- self$list()
+        if (length(names_list) == 0) {
+          return(private$empty_metadata_tibble())
+        }
+        build_row <- private$build_metadata_row
+        rows <- purrr::map(names_list, function(n) build_row(n))
+        return(dplyr::bind_rows(rows))
+      }
+      if (!self$exists(name)) {
+        return(private$empty_metadata_tibble())
+      }
+      private$build_metadata_row(name)
     },
     is_db = function() {
       TRUE
@@ -367,6 +659,28 @@ StorageSQLite <- R6::R6Class(
         }
       }
       data
+    },
+    build_metadata_row = function(name) {
+      meta <- private$load_metadata(name)
+      if (is.null(meta)) {
+        return(dplyr::tibble(
+          table_name = name,
+          class = list(NULL),
+          attributes = list(list())
+        ))
+      }
+      dplyr::tibble(
+        table_name = name,
+        class = list(meta$class),
+        attributes = list(meta$attributes %||% list())
+      )
+    },
+    empty_metadata_tibble = function() {
+      dplyr::tibble(
+        table_name = character(),
+        class = list(),
+        attributes = list()
+      )
     }
   )
 )

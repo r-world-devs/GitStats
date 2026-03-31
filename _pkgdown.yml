@@ -31,6 +31,8 @@ reference:
   - set_postgres_storage
   - set_sqlite_storage
   - get_storage
+  - get_storage_metadata
+  - remove_from_storage
 - title: Parallel processing
 - contents:
   - set_parallel
