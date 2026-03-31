@@ -504,7 +504,7 @@ GitHost <- R6::R6Class(
       if (verbose) {
         cli::cli_alert(cli::col_grey("Checking repositories..."))
       }
-      repos <- purrr::map(repos, function(repo) {
+      repos <- gitstats_map(repos, function(repo) {
         repo_endpoint <- glue::glue("{private$endpoints$repositories}/{repo}")
         check <- private$check_endpoint(
           endpoint = repo_endpoint,
