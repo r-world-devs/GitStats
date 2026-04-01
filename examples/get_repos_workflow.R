@@ -24,3 +24,9 @@ rwd_stats <- create_gitstats() |>
 
 rwd_stats |>
   get_repos(with_code = "purrr", add_contributors = FALSE)
+
+gs_stats <- create_gitstats() |>
+  set_github_host(repos = "r-world-devs/GitStats")
+
+gs_stats |>
+  get_repos(verbose = TRUE)

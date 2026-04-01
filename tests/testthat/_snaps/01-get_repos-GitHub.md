@@ -57,8 +57,8 @@
 # get_repos_from_repos works
 
     Code
-      gh_repos_individual <- github_testhost_priv$get_repos_from_repos(verbose = TRUE,
-        progress = FALSE)
+      gh_repos_individual <- github_testhost_priv$get_repos_from_repos(add_languages = TRUE,
+        verbose = TRUE, progress = FALSE)
     Message
       > [Host:GitHub][Engine:GraphQl][Scope:r-world-devs: 1 repos] Pulling repositories 🌐...
 

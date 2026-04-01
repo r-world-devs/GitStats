@@ -1,3 +1,5 @@
+set_parallel(FALSE)
+
 integration_tests_skipped <- Sys.getenv("GITSTATS_INTEGRATION_TEST_SKIPPED", unset = "true") |>
   as.logical()
 gitlab_group <- "mbtests"
