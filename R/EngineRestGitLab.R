@@ -395,7 +395,7 @@ EngineRestGitLab <- R6::R6Class(
                                                      verbose) {
       if (nrow(commits_table) > 0) {
         if (verbose) {
-          cli::cli_alert("Looking up for authors' {cli_icons$user} names and logins...")
+          cli::cli_alert("[Host:GitLab][Engine:{cli::col_green('REST')}] Looking up for authors' {cli_icons$user} names and logins...")
         }
         authors_dict <- private$get_authors_dict(
           commits_table = commits_table,
@@ -503,6 +503,9 @@ EngineRestGitLab <- R6::R6Class(
     },
 
     get_repos_languages = function(repos_list, verbose, progress) {
+      if (verbose) {
+        cli::cli_alert("Pulling languages {cli_icons$language}...")
+      }
       repos_list_with_languages <- purrr::map(repos_list, function(repo) {
         id <- repo$id
         languages_response <- self$response(
@@ -511,11 +514,7 @@ EngineRestGitLab <- R6::R6Class(
         )
         repo$languages <- names(languages_response)
         repo
-      }, .progress = if (progress) {
-        "Pulling repositories languages..."
-      } else {
-        FALSE
-      })
+      }, .progress = progress)
       return(repos_list_with_languages)
     },
 
