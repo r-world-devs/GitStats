@@ -458,6 +458,7 @@ test_that("get_repos_from_org prints proper message", {
   gitlab_testhost_priv$orgs <- "mbtests"
   expect_snapshot(
     gl_repos_from_orgs <- gitlab_testhost_priv$get_repos_from_orgs(
+      add_languages = TRUE,
       verbose = TRUE,
       progress = FALSE
     )
@@ -480,6 +481,7 @@ test_that("GitLab Host turns to REST if GraphQL fails with error (org setup)", {
     test_mocker$use("gitlab_rest_repos_table")
   )
   gl_repos_from_orgs <- gitlab_testhost_priv$get_repos_from_orgs(
+    add_languages = TRUE,
     verbose = FALSE,
     progress = FALSE
   )
@@ -500,6 +502,7 @@ test_that("`get_repos_from_repos()` queries repos directly by fullpath", {
   gitlab_testhost_priv$searching_scope <- "repo"
   gitlab_testhost_priv$orgs_repos <- list("mbtests" = "gitstatstesting")
   gl_repos_from_repos <- gitlab_testhost_priv$get_repos_from_repos(
+    add_languages = TRUE,
     verbose = FALSE,
     progress = FALSE
   )
@@ -516,6 +519,7 @@ test_that("`get_repos_from_repos()` returns NULL when no repos found", {
   gitlab_testhost_priv$searching_scope <- "repo"
   gitlab_testhost_priv$orgs_repos <- list("mbtests" = "nonexistent")
   gl_repos_from_repos <- gitlab_testhost_priv$get_repos_from_repos(
+    add_languages = TRUE,
     verbose = FALSE,
     progress = FALSE
   )
@@ -536,6 +540,7 @@ test_that("GitLab Host prints message when turning to REST engine (from orgs)", 
   gitlab_testhost_priv$searching_scope <- "org"
   expect_snapshot(
     gl_repos_from_orgs <- gitlab_testhost_priv$get_repos_from_orgs(
+      add_languages = TRUE,
       verbose = TRUE,
       progress = FALSE
     )
@@ -557,6 +562,7 @@ test_that("`get_repos_from_repos()` prints proper message", {
   gitlab_testhost_priv$orgs_repos <- list("mbtests" = "gitstatstesting")
   expect_snapshot(
     gl_repos_from_repos <- gitlab_testhost_priv$get_repos_from_repos(
+      add_languages = TRUE,
       verbose = TRUE,
       progress = FALSE
     )
@@ -917,7 +923,7 @@ test_that("get_all_repos() works", {
     "private$fill_repos_commit_sha",
     test_mocker$use("repos_commit_sha")
   )
-  gitlab_repos <- gitlab_testhost_fill$get_all_repos(fill_empty_sha = TRUE)
+  gitlab_repos <- gitlab_testhost_fill$get_all_repos(add_languages = TRUE, fill_empty_sha = TRUE)
   expect_repos_table(gitlab_repos)
   expect_equal(gitlab_repos$commit_sha[1], "1a2bc3d4e5")
   expect_equal(gitlab_repos$commit_sha[2], "abcdef1234567890")
