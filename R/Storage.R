@@ -626,7 +626,7 @@ StorageSQLite <- R6::R6Class(
         private$conn <- NULL
       }
       if (!is.null(private$dbname) && private$dbname != ":memory:" &&
-          file.exists(private$dbname)) {
+            file.exists(private$dbname)) {
         file.remove(private$dbname)
       }
     },
