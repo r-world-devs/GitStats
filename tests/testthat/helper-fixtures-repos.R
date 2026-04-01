@@ -333,6 +333,12 @@ test_fixtures$gitlab_repos_by_user_response <- list(
   )
 )
 
+test_fixtures$gitlab_repo_by_fullpath_response <- list(
+  "data" = list(
+    "project" = gitlab_project_node$node
+  )
+)
+
 test_fixtures$gitlab_repos_response_flawed <- list(
   "data" = list(
     "projects" = list(

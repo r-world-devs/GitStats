@@ -7,6 +7,7 @@
 - Added `set_postgres_storage()`, `set_sqlite_storage()`, and `set_local_storage()` to configure external storage backends. PostgreSQL (via `RPostgres`/`DBI`) and SQLite (via `RSQLite`/`DBI`) are supported for persisting data in a database. Metadata (R classes, attributes) is preserved via a `_metadata` table ([#602](https://github.com/r-world-devs/GitStats/issues/602)).
 - Added `remove_from_storage()` to remove a named table from the active storage backend ([#747](https://github.com/r-world-devs/GitStats/issues/747)).
 - Added `get_storage_metadata()` to retrieve metadata (R classes, custom attributes, column types) for a stored table ([#748](https://github.com/r-world-devs/GitStats/issues/748)).
+- Fixed slow `get_repos()` for GitLab when specific repos are set. Previously, the `repos_by_user` GraphQL query searched the entire GitLab instance; now repos are queried directly by `fullPath` ([#750](https://github.com/r-world-devs/GitStats/issues/750)).
 - Sped up vignettes generation ([#504](https://github.com/r-world-devs/GitStats/issues/504)).
 
 # GitStats 2.4.0

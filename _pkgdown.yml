@@ -49,4 +49,3 @@ articles:
   contents:
   - set_hosts
   - store_data
-  - get_repos_with_code

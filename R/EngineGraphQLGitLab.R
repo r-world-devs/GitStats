@@ -159,6 +159,24 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(full_repos_list)
     },
 
+    get_repos_by_fullpath = function(full_paths, verbose = TRUE) {
+      repos_list <- purrr::map(full_paths, function(full_path) {
+        response <- self$gql_response(
+          gql_query = self$gql_query$repo_by_fullpath(),
+          vars = list("fullPath" = full_path),
+          verbose = verbose
+        )
+        if (inherits(response, "graphql_error") ||
+              is.null(response$data$project)) {
+          return(NULL)
+        }
+        # Wrap in node structure to match prepare_repos_table() expectations
+        list(node = response$data$project)
+      }) |>
+        purrr::compact()
+      return(repos_list)
+    },
+
     get_repos_from_org = function(org  = NULL,
                                   owner_type = c("organization", "user"),
                                   verbose = TRUE) {
