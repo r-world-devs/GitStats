@@ -81,6 +81,12 @@ Functions to get git data in a tibble format.
 
   Remove a table from `GitStats` storage
 
+- [`remove_postgres_storage()`](https://r-world-devs.github.io/GitStats/reference/remove_postgres_storage.md)
+  : Remove PostgreSQL storage
+
+- [`remove_sqlite_storage()`](https://r-world-devs.github.io/GitStats/reference/remove_sqlite_storage.md)
+  : Remove SQLite storage
+
 ## Parallel processing
 
 - [`set_parallel()`](https://r-world-devs.github.io/GitStats/reference/set_parallel.md)

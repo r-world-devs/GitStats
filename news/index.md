@@ -39,6 +39,14 @@
   to remove a named table from the active storage backend
   ([\#747](https://github.com/r-world-devs/GitStats/issues/747)).
 - Added
+  [`remove_postgres_storage()`](https://r-world-devs.github.io/GitStats/reference/remove_postgres_storage.md)
+  and
+  [`remove_sqlite_storage()`](https://r-world-devs.github.io/GitStats/reference/remove_sqlite_storage.md)
+  to fully remove a database storage backend — the PostgreSQL variant
+  drops the GitStats schema, the SQLite variant deletes the database
+  file — and revert to local storage
+  ([\#759](https://github.com/r-world-devs/GitStats/issues/759)).
+- Added
   [`get_storage_metadata()`](https://r-world-devs.github.io/GitStats/reference/get_storage_metadata.md)
   to retrieve metadata (R classes, custom attributes, column types) for
   a stored table

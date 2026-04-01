@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0.9006</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0.9007</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,6 +45,7 @@
 <li>Replaced per-directory GraphQL file tree traversal with single-call REST recursive tree API for <code><a href="../reference/get_repos_trees.html">get_repos_trees()</a></code>, substantially improving speed of retrieving repository file trees (<a href="https://github.com/r-world-devs/GitStats/issues/740" class="external-link">#740</a>).</li>
 <li>Added <code><a href="../reference/set_postgres_storage.html">set_postgres_storage()</a></code>, <code><a href="../reference/set_sqlite_storage.html">set_sqlite_storage()</a></code>, and <code><a href="../reference/set_local_storage.html">set_local_storage()</a></code> to configure external storage backends. PostgreSQL (via <code>RPostgres</code>/<code>DBI</code>) and SQLite (via <code>RSQLite</code>/<code>DBI</code>) are supported for persisting data in a database. Metadata (R classes, attributes) is preserved via a <code>_metadata</code> table (<a href="https://github.com/r-world-devs/GitStats/issues/602" class="external-link">#602</a>).</li>
 <li>Added <code><a href="../reference/remove_from_storage.html">remove_from_storage()</a></code> to remove a named table from the active storage backend (<a href="https://github.com/r-world-devs/GitStats/issues/747" class="external-link">#747</a>).</li>
+<li>Added <code><a href="../reference/remove_postgres_storage.html">remove_postgres_storage()</a></code> and <code><a href="../reference/remove_sqlite_storage.html">remove_sqlite_storage()</a></code> to fully remove a database storage backend — the PostgreSQL variant drops the GitStats schema, the SQLite variant deletes the database file — and revert to local storage (<a href="https://github.com/r-world-devs/GitStats/issues/759" class="external-link">#759</a>).</li>
 <li>Added <code><a href="../reference/get_storage_metadata.html">get_storage_metadata()</a></code> to retrieve metadata (R classes, custom attributes, column types) for a stored table (<a href="https://github.com/r-world-devs/GitStats/issues/748" class="external-link">#748</a>).</li>
 <li>Fixed slow <code><a href="../reference/get_repos.html">get_repos()</a></code> for GitLab when specific repos are set. Previously, the <code>repos_by_user</code> GraphQL query searched the entire GitLab instance; now repos are queried directly by <code>fullPath</code> (<a href="https://github.com/r-world-devs/GitStats/issues/750" class="external-link">#750</a>).</li>
 <li>Sped up vignettes generation (<a href="https://github.com/r-world-devs/GitStats/issues/504" class="external-link">#504</a>).</li>

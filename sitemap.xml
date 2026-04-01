@@ -27,6 +27,8 @@
 <url><loc>https://r-world-devs.github.io/GitStats/reference/index.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/reference/is_verbose.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/reference/remove_from_storage.html</loc></url>
+<url><loc>https://r-world-devs.github.io/GitStats/reference/remove_postgres_storage.html</loc></url>
+<url><loc>https://r-world-devs.github.io/GitStats/reference/remove_sqlite_storage.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/reference/set_github_host.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/reference/set_gitlab_host.html</loc></url>
 <url><loc>https://r-world-devs.github.io/GitStats/reference/set_local_storage.html</loc></url>
