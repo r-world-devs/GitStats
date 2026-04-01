@@ -216,6 +216,39 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(full_repos_list)
     },
 
+    # Per-repo fallback: first list project paths with a minimal
+    # query, then fetch each repo individually with a lightweight
+    # query (no languages / issueStatusCounts).
+    get_repos_from_org_per_repo = function(org, verbose = TRUE) {
+      full_paths <- private$get_repo_paths_from_org(
+        org = org,
+        verbose = verbose
+      )
+      if (inherits(full_paths, "graphql_error")) {
+        return(full_paths)
+      }
+      if (length(full_paths) == 0) {
+        return(list())
+      }
+      repos_list <- purrr::map(full_paths, function(full_path) {
+        response <- self$gql_response(
+          gql_query = self$gql_query$repo_by_fullpath_light(),
+          vars = list("fullPath" = full_path),
+          verbose = verbose
+        )
+        if (inherits(response, "graphql_error") ||
+              is.null(response$data$project)) {
+          if (verbose) {
+            cli::cli_alert_warning("Failed to fetch repo: {full_path}")
+          }
+          return(NULL)
+        }
+        list(node = response$data$project)
+      }) |>
+        purrr::compact()
+      return(repos_list)
+    },
+
     prepare_repos_table = function(repos_list, org) {
       if (length(repos_list) > 0) {
         repos_table <- purrr::map(repos_list, function(repo) {
@@ -514,6 +547,38 @@ EngineGraphQLGitLab <- R6::R6Class(
     }
   ),
   private = list(
+    get_repo_paths_from_org = function(org, verbose = TRUE) {
+      full_paths <- list()
+      next_page <- TRUE
+      repo_cursor <- ""
+      while (next_page) {
+        response <- self$gql_response(
+          gql_query = self$gql_query$repos_by_org_minimal(),
+          vars = list(
+            "org" = org,
+            "repo_cursor" = repo_cursor
+          ),
+          verbose = verbose
+        )
+        if (inherits(response, "graphql_error")) {
+          return(response)
+        }
+        core_response <- response$data$group$projects
+        paths <- purrr::map_chr(
+          core_response$edges,
+          ~ .$node$fullPath
+        )
+        next_page <- core_response$pageInfo$hasNextPage
+        if (is.null(next_page)) next_page <- FALSE
+        if (length(paths) == 0) next_page <- FALSE
+        if (next_page) {
+          repo_cursor <- core_response$pageInfo$endCursor
+        }
+        full_paths <- c(full_paths, as.list(paths))
+      }
+      return(unlist(full_paths))
+    },
+
     get_repos_page = function(org = NULL,
                               projects_ids = NULL,
                               type = "organization",
