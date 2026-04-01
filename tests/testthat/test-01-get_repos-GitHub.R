@@ -509,6 +509,7 @@ test_that("get_repos_from_orgs works", {
   )
   github_testhost_priv$orgs <- gh_org
   gh_repos_from_orgs <- github_testhost_priv$get_repos_from_orgs(
+    add_languages = TRUE,
     verbose = FALSE,
     progress = FALSE
   )
@@ -540,6 +541,7 @@ test_that("get_repos_from_repos works", {
   github_testhost_priv$orgs_repos <- list("r-world-devs" = "GitStats")
   expect_snapshot(
     gh_repos_individual <- github_testhost_priv$get_repos_from_repos(
+      add_languages = TRUE,
       verbose = TRUE,
       progress = FALSE
     )
@@ -562,6 +564,7 @@ test_that("`get_all_repos()` works as expected", {
     test_mocker$use("gh_repos_individual")
   )
   gh_repos_table <- github_testhost_priv$get_all_repos(
+    add_languages = TRUE,
     verbose = FALSE,
     progress = FALSE
   )
@@ -593,6 +596,7 @@ test_that("`get_all_repos()` is set to scan whole git host", {
   )
   expect_repos_table(
     github_testhost_all_priv$get_all_repos(
+      add_languages = TRUE,
       verbose  = TRUE,
       progress = FALSE
     )
@@ -685,6 +689,7 @@ test_that("`get_repos()` works as expected", {
   )
   gh_repos_table <- github_testhost$get_repos(
     add_contributors = FALSE,
+    add_languages = TRUE,
     verbose = FALSE
   )
   expect_repos_table(
@@ -707,6 +712,7 @@ test_that("`get_repos()` works as expected", {
   )
   gh_repos_table_full <- github_testhost$get_repos(
     add_contributors = TRUE,
+    add_languages = TRUE,
     language = "R",
     verbose = FALSE
   )

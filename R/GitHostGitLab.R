@@ -569,7 +569,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
     # fetching all repos from org/user and filtering client-side.
     # The parent's approach is slow for GitLab because the repos_by_user
     # query searches the entire GitLab instance.
-    get_repos_from_repos = function(verbose, progress) {
+    get_repos_from_repos = function(add_languages, verbose, progress) {
       if ("repo" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
         orgs <- names(private$orgs_repos)
@@ -599,15 +599,15 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       }
     },
 
-    get_all_repos = function(verbose = TRUE, progress = TRUE, fill_empty_sha = FALSE) {
+    get_all_repos = function(add_languages = FALSE, verbose = TRUE, progress = TRUE, fill_empty_sha = FALSE) {
       if (private$scan_all && is.null(private$orgs)) {
         private$orgs <- private$get_orgs_from_host(
           output = "only_names",
           verbose = verbose
         )
       }
-      repos_from_orgs <- private$get_repos_from_orgs(verbose, progress)
-      repos_from_repos <- private$get_repos_from_repos(verbose, progress)
+      repos_from_orgs <- private$get_repos_from_orgs(add_languages, verbose, progress)
+      repos_from_repos <- private$get_repos_from_repos(add_languages, verbose, progress)
       repos_table <- purrr::list_rbind(
         list(repos_from_orgs, repos_from_repos)
       )

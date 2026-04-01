@@ -131,6 +131,7 @@ GitStats <- R6::R6Class(
     },
 
     get_repos = function(add_contributors = FALSE,
+                         add_languages = FALSE,
                          with_code = NULL,
                          in_files = NULL,
                          with_files = NULL,
@@ -159,6 +160,7 @@ GitStats <- R6::R6Class(
         cli::cli_alert("Pulling repositories {cli_icons$repo} data...")
         repositories <- private$get_repos_from_hosts(
           add_contributors = add_contributors,
+          add_languages = add_languages,
           with_code = with_code,
           in_files = in_files,
           with_files = with_files,
@@ -943,6 +945,7 @@ GitStats <- R6::R6Class(
     },
 
     get_repos_from_hosts = function(add_contributors = FALSE,
+                                    add_languages = FALSE,
                                     with_code,
                                     in_files = NULL,
                                     with_files,
@@ -956,6 +959,7 @@ GitStats <- R6::R6Class(
           private$get_repos_from_host_with_code(
             host = host,
             add_contributors = add_contributors,
+            add_languages = add_languages,
             with_code = with_code,
             in_files = in_files,
             language = language,
@@ -967,6 +971,7 @@ GitStats <- R6::R6Class(
           private$get_repos_from_host_with_files(
             host = host,
             add_contributors = add_contributors,
+            add_languages = add_languages,
             with_files = with_files,
             language = language,
             output = output,
@@ -976,6 +981,7 @@ GitStats <- R6::R6Class(
         } else {
           host$get_repos(
             add_contributors = add_contributors,
+            add_languages = add_languages,
             verbose = verbose,
             progress = progress,
             fill_empty_sha = fill_empty_sha
@@ -991,6 +997,7 @@ GitStats <- R6::R6Class(
 
     get_repos_from_host_with_code = function(host,
                                              add_contributors,
+                                             add_languages,
                                              with_code,
                                              in_files,
                                              language,
@@ -1000,6 +1007,7 @@ GitStats <- R6::R6Class(
       purrr::map(with_code, function(with_code) {
         host$get_repos(
           add_contributors = add_contributors,
+          add_languages = add_languages,
           with_code = with_code,
           in_files = in_files,
           language = language,
@@ -1013,6 +1021,7 @@ GitStats <- R6::R6Class(
 
     get_repos_from_host_with_files = function(host,
                                               add_contributors,
+                                              add_languages,
                                               with_files,
                                               language,
                                               output,
@@ -1021,6 +1030,7 @@ GitStats <- R6::R6Class(
       purrr::map(with_files, function(with_file) {
         host$get_repos(
           add_contributors = add_contributors,
+          add_languages = add_languages,
           with_file = with_file,
           language = language,
           output = output,
