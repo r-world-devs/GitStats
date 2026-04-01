@@ -54,7 +54,7 @@ GitHost <- R6::R6Class(
     },
 
     get_repos = function(add_contributors = TRUE,
-                         add_languages = FALSE,
+                         add_languages = TRUE,
                          with_code = NULL,
                          in_files = NULL,
                          with_file = NULL,
@@ -721,7 +721,7 @@ GitHost <- R6::R6Class(
       return(orgs_table)
     },
 
-    get_all_repos = function(add_languages = FALSE, verbose = TRUE, progress = TRUE, fill_empty_sha = FALSE) {
+    get_all_repos = function(add_languages = TRUE, verbose = TRUE, progress = TRUE, fill_empty_sha = FALSE) {
       if (private$scan_all && is.null(private$orgs)) {
         private$orgs <- private$get_orgs_from_host(
           output = "only_names",

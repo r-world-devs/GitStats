@@ -14,8 +14,9 @@
 #'   default), `GitStats` iterates additionally over pulled repositories and
 #'   reaches to the `contributors APIs`, which makes it slower, but gives
 #'   additional information.
-#' @param add_languages A logical, `FALSE` by default. If set to `TRUE`,
-#'   languages data will be included in the repositories output.
+#' @param add_languages A logical, `TRUE` by default. If set to `FALSE`,
+#'   languages data will not be included in the repositories output which
+#'   may speed up the process for GitLab REST engine.
 #' @param with_code A character vector, if defined, GitStats will pull
 #'   repositories with specified code phrases in code blobs.
 #' @param in_files A character vector of file names. Works when `with_code` is
@@ -49,14 +50,14 @@
 #'   )
 #' get_repos(my_gitstats)
 #' get_repos(my_gitstats, add_contributors = FALSE)
-#' get_repos(my_gitstats, add_languages = TRUE)
+#' get_repos(my_gitstats, add_languages = FALSE)
 #' get_repos(my_gitstats, with_code = "Shiny", in_files = "renv.lock")
 #' get_repos(my_gitstats, with_files = "DESCRIPTION")
 #' }
 #' @export
 get_repos <- function(gitstats,
                       add_contributors = TRUE,
-                      add_languages = FALSE,
+                      add_languages = TRUE,
                       with_code = NULL,
                       in_files = NULL,
                       with_files = NULL,

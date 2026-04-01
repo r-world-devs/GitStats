@@ -599,7 +599,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       }
     },
 
-    get_all_repos = function(add_languages = FALSE, verbose = TRUE, progress = TRUE, fill_empty_sha = FALSE) {
+    get_all_repos = function(add_languages = TRUE, verbose = TRUE, progress = TRUE, fill_empty_sha = FALSE) {
       if (private$scan_all && is.null(private$orgs)) {
         private$orgs <- private$get_orgs_from_host(
           output = "only_names",

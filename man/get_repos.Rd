@@ -7,7 +7,7 @@
 get_repos(
   gitstats,
   add_contributors = TRUE,
-  add_languages = FALSE,
+  add_languages = TRUE,
   with_code = NULL,
   in_files = NULL,
   with_files = NULL,
@@ -32,8 +32,9 @@ default), \code{GitStats} iterates additionally over pulled repositories and
 reaches to the \verb{contributors APIs}, which makes it slower, but gives
 additional information.}
 
-\item{add_languages}{A logical, \code{FALSE} by default. If set to \code{TRUE},
-languages data will be included in the repositories output.}
+\item{add_languages}{A logical, \code{TRUE} by default. If set to \code{FALSE},
+languages data will not be included in the repositories output which
+may speed up the process for GitLab REST engine.}
 
 \item{with_code}{A character vector, if defined, GitStats will pull
 repositories with specified code phrases in code blobs.}
@@ -83,7 +84,7 @@ my_gitstats <- create_gitstats() |>
   )
 get_repos(my_gitstats)
 get_repos(my_gitstats, add_contributors = FALSE)
-get_repos(my_gitstats, add_languages = TRUE)
+get_repos(my_gitstats, add_languages = FALSE)
 get_repos(my_gitstats, with_code = "Shiny", in_files = "renv.lock")
 get_repos(my_gitstats, with_files = "DESCRIPTION")
 }

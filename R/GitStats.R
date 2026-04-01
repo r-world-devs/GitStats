@@ -131,7 +131,7 @@ GitStats <- R6::R6Class(
     },
 
     get_repos = function(add_contributors = FALSE,
-                         add_languages = FALSE,
+                         add_languages = TRUE,
                          with_code = NULL,
                          in_files = NULL,
                          with_files = NULL,
@@ -945,7 +945,7 @@ GitStats <- R6::R6Class(
     },
 
     get_repos_from_hosts = function(add_contributors = FALSE,
-                                    add_languages = FALSE,
+                                    add_languages = TRUE,
                                     with_code,
                                     in_files = NULL,
                                     with_files,

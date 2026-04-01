@@ -57,16 +57,16 @@
 # get_repos_from_org prints proper message
 
     Code
-      gl_repos_from_orgs <- gitlab_testhost_priv$get_repos_from_orgs(add_languages = TRUE,
-        verbose = TRUE, progress = FALSE)
+      gl_repos_from_orgs <- gitlab_testhost_priv$get_repos_from_orgs(
+        add_languages = TRUE, verbose = TRUE, progress = FALSE)
     Message
       > [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling repositories 🌐...
 
 # GitLab Host prints message when turning to REST engine (from orgs)
 
     Code
-      gl_repos_from_orgs <- gitlab_testhost_priv$get_repos_from_orgs(add_languages = TRUE,
-        verbose = TRUE, progress = FALSE)
+      gl_repos_from_orgs <- gitlab_testhost_priv$get_repos_from_orgs(
+        add_languages = TRUE, verbose = TRUE, progress = FALSE)
     Message
       > [Host:GitLab][Engine:GraphQl][Scope:mbtests] Pulling repositories 🌐...
       i Switching to REST API
@@ -75,8 +75,8 @@
 # `get_repos_from_repos()` prints proper message
 
     Code
-      gl_repos_from_repos <- gitlab_testhost_priv$get_repos_from_repos(add_languages = TRUE,
-        verbose = TRUE, progress = FALSE)
+      gl_repos_from_repos <- gitlab_testhost_priv$get_repos_from_repos(
+        add_languages = TRUE, verbose = TRUE, progress = FALSE)
     Message
       > [Host:GitLab][Engine:GraphQl][Scope:mbtests/gitstatstesting] Pulling repositories 🌐...
 
