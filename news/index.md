@@ -2,6 +2,11 @@
 
 ## GitStats 2.4.0.9000
 
+- Added `add_languages` parameter to
+  [`get_repos()`](https://r-world-devs.github.io/GitStats/reference/get_repos.md)
+  (`TRUE` by default). When set to `FALSE`, languages data is excluded
+  from the output and the GitLab REST languages API calls are skipped,
+  speeding up the process.
 - Fixed
   [`get_repos()`](https://r-world-devs.github.io/GitStats/reference/get_repos.md)
   returning `NA` for `commit_sha` on archived GitLab projects. When the

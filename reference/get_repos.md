@@ -10,6 +10,7 @@ those with a given text in code blobs (`with_code` parameter) or a file
 get_repos(
   gitstats,
   add_contributors = TRUE,
+  add_languages = TRUE,
   with_code = NULL,
   in_files = NULL,
   with_files = NULL,
@@ -40,6 +41,12 @@ get_repos(
   When set to `TRUE` (by default), `GitStats` iterates additionally over
   pulled repositories and reaches to the `contributors APIs`, which
   makes it slower, but gives additional information.
+
+- add_languages:
+
+  A logical, `TRUE` by default. If set to `FALSE`, languages data will
+  not be included in the repositories output which may speed up the
+  process for GitLab REST engine.
 
 - with_code:
 
@@ -102,6 +109,7 @@ my_gitstats <- create_gitstats() |>
   )
 get_repos(my_gitstats)
 get_repos(my_gitstats, add_contributors = FALSE)
+get_repos(my_gitstats, add_languages = FALSE)
 get_repos(my_gitstats, with_code = "Shiny", in_files = "renv.lock")
 get_repos(my_gitstats, with_files = "DESCRIPTION")
 } # }

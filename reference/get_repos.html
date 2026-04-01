@@ -53,6 +53,7 @@ file (<code>with_files</code> parameter) and parse it into table format.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_repos</span><span class="op">(</span></span>
 <span>  <span class="va">gitstats</span>,</span>
 <span>  add_contributors <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  add_languages <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  with_code <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  in_files <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  with_files <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -83,6 +84,12 @@ does not convey information on contributors. <br><br> When set to <code>TRUE</co
 default), <code>GitStats</code> iterates additionally over pulled repositories and
 reaches to the <code>contributors APIs</code>, which makes it slower, but gives
 additional information.</p></dd>
+
+
+<dt id="arg-add-languages">add_languages<a class="anchor" aria-label="anchor" href="#arg-add-languages"></a></dt>
+<dd><p>A logical, <code>TRUE</code> by default. If set to <code>FALSE</code>,
+languages data will not be included in the repositories output which
+may speed up the process for GitLab REST engine.</p></dd>
 
 
 <dt id="arg-with-code">with_code<a class="anchor" aria-label="anchor" href="#arg-with-code"></a></dt>
@@ -147,6 +154,7 @@ large numbers of repositories.</p></dd>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">get_repos</span><span class="op">(</span><span class="va">my_gitstats</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">get_repos</span><span class="op">(</span><span class="va">my_gitstats</span>, add_contributors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">get_repos</span><span class="op">(</span><span class="va">my_gitstats</span>, add_languages <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">get_repos</span><span class="op">(</span><span class="va">my_gitstats</span>, with_code <span class="op">=</span> <span class="st">"Shiny"</span>, in_files <span class="op">=</span> <span class="st">"renv.lock"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">get_repos</span><span class="op">(</span><span class="va">my_gitstats</span>, with_files <span class="op">=</span> <span class="st">"DESCRIPTION"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
