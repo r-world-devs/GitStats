@@ -4,7 +4,7 @@
       gl_commits_table <- test_rest_gitlab$get_commits_authors_handles_and_names(
         commits_table = test_mocker$use("gl_commits_table"), verbose = TRUE)
     Message
-      > Looking up for authors' 🙍 names and logins...
+      > [Host:GitLab][Engine:REST] Looking up for authors' 🙍 names and logins...
 
 # get_commits_from_orgs works
 
