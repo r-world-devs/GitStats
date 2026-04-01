@@ -1,5 +1,7 @@
 # GitStats 2.5.0
 
+This release introduces external storage backends (PostgreSQL and SQLite) for persisting pulled data across sessions, and optional parallel processing via `mirai` for faster API calls. It also brings several performance improvements, including a faster file tree retrieval and optimized GitLab repository queries.
+
 - Added `add_languages` parameter to `get_repos()` (`TRUE` by default). When set to `FALSE`, languages data is excluded from the output and the GitLab REST languages API calls are skipped, speeding up the process.
 - Fixed `get_repos()` returning `NA` for `commit_sha` on archived GitLab projects. When the GraphQL API returns `null` for `lastCommit`, a REST Branches API fallback can now retrieve the SHA. Use `fill_empty_sha = TRUE` in `get_repos()` to enable this ([#746](https://github.com/r-world-devs/GitStats/issues/746)).
 - Added optional parallel processing for API calls via `mirai` package. Use `set_parallel()` to enable concurrent data fetching across repositories and organizations ([#736](https://github.com/r-world-devs/GitStats/issues/736)).
