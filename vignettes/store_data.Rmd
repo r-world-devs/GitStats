@@ -133,6 +133,15 @@ commits <- new_git_stats |>
 dplyr::glimpse(commits)
 ```
 
+## Remove Storage
+
+Remove storage if you wish.
+
+```{r}
+new_git_stats |>
+  remove_sqlite_storage()
+```
+
 ## Postgres Storage
 
 For more permanent storage, you can set up a connection to your database with `set_postgres_storage()` function. Then, all data pulled with `get_*()` functions will be stored in the database and retrieved from there when you run the function again.

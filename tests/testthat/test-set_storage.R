@@ -883,4 +883,165 @@ test_that("add_new_host propagates storage backend to host", {
   expect_true(inherits(host_storage, "StorageSQLite"))
 })
 
+# Storage drop_storage ---------------------------------------------------------
+
+test_that("Storage base class drop_storage raises 'Not implemented'", {
+  base <- Storage$new()
+  expect_error(base$drop_storage(), "Not implemented")
+})
+
+test_that("StorageLocal drop_storage clears all data", {
+  storage <- StorageLocal$new()
+  storage$save("alpha", dplyr::tibble(x = 1))
+  storage$save("beta", dplyr::tibble(y = 2))
+  expect_length(storage$list(), 2)
+  storage$drop_storage()
+  expect_null(storage$list())
+})
+
+test_that("StorageSQLite drop_storage removes file-based database", {
+  tmp <- tempfile(fileext = ".sqlite")
+  storage <- StorageSQLite$new(dbname = tmp)
+  storage$save("commits", dplyr::tibble(sha = "abc"))
+  expect_true(file.exists(tmp))
+  storage$drop_storage()
+  expect_false(file.exists(tmp))
+})
+
+test_that("StorageSQLite drop_storage works for in-memory database", {
+  storage <- StorageSQLite$new()
+  storage$save("commits", dplyr::tibble(sha = "abc"))
+  expect_no_error(storage$drop_storage())
+})
+
+test_that("StorageSQLite stores dbname in private field", {
+  tmp <- tempfile(fileext = ".sqlite")
+  on.exit(unlink(tmp), add = TRUE)
+  storage <- StorageSQLite$new(dbname = tmp)
+  expect_equal(storage$.__enclos_env__$private$dbname, tmp)
+})
+
+# GitStats remove_sqlite_storage -----------------------------------------------
+
+test_that("remove_sqlite_storage removes file-based SQLite and reverts to local", {
+  tmp <- tempfile(fileext = ".sqlite")
+  gs <- create_gitstats()
+  gs$set_sqlite_storage(dbname = tmp)
+  priv <- gs$.__enclos_env__$private
+  priv$storage_backend$save("commits", dplyr::tibble(sha = "abc"))
+  expect_true(file.exists(tmp))
+  suppressMessages(gs$remove_sqlite_storage())
+  expect_false(file.exists(tmp))
+  expect_true(inherits(priv$storage_backend, "StorageLocal"))
+})
+
+test_that("remove_sqlite_storage removes in-memory SQLite and reverts to local", {
+  gs <- create_gitstats()
+  gs$set_sqlite_storage()
+  priv <- gs$.__enclos_env__$private
+  expect_true(inherits(priv$storage_backend, "StorageSQLite"))
+  suppressMessages(gs$remove_sqlite_storage())
+  expect_true(inherits(priv$storage_backend, "StorageLocal"))
+})
+
+test_that("remove_sqlite_storage errors when no SQLite backend is set", {
+  gs <- create_gitstats()
+  expect_error(
+    gs$remove_sqlite_storage(),
+    "No SQLite storage"
+  )
+})
+
+test_that("remove_sqlite_storage returns self invisibly", {
+  gs <- create_gitstats()
+  gs$set_sqlite_storage()
+  result <- suppressMessages(gs$remove_sqlite_storage())
+  expect_identical(result, gs)
+})
+
+test_that("remove_sqlite_storage propagates local storage to hosts", {
+  gs <- create_test_gitstats(hosts = 1)
+  suppressMessages(gs$set_sqlite_storage())
+  host <- gs$.__enclos_env__$private$hosts[[1]]
+  expect_true(inherits(
+    host$.__enclos_env__$private$storage_backend, "StorageSQLite"
+  ))
+  suppressMessages(gs$remove_sqlite_storage())
+  expect_true(inherits(
+    host$.__enclos_env__$private$storage_backend, "StorageLocal"
+  ))
+})
+
+test_that("remove_sqlite_storage() exported wrapper works", {
+  gs <- create_gitstats()
+  gs$set_sqlite_storage()
+  suppressMessages(remove_sqlite_storage(gs))
+  backend <- gs$.__enclos_env__$private$storage_backend
+  expect_true(inherits(backend, "StorageLocal"))
+})
+
+test_that("remove_sqlite_storage prints file removal message", {
+  tmp <- tempfile(fileext = ".sqlite")
+  gs <- create_gitstats()
+  gs$set_sqlite_storage(dbname = tmp)
+  output <- capture.output(
+    gs$remove_sqlite_storage(),
+    type = "message"
+  )
+  expect_true(any(grepl("removed", output, ignore.case = TRUE)))
+  expect_true(any(grepl("local", output)))
+})
+
+test_that("remove_sqlite_storage prints in-memory removal message", {
+  gs <- create_gitstats()
+  gs$set_sqlite_storage()
+  output <- capture.output(
+    gs$remove_sqlite_storage(),
+    type = "message"
+  )
+  expect_true(any(grepl("In-memory", output)))
+  expect_true(any(grepl("local", output)))
+})
+
+# GitStats remove_postgres_storage ---------------------------------------------
+
+test_that("remove_postgres_storage errors when no PostgreSQL backend is set", {
+  gs <- create_gitstats()
+  expect_error(
+    gs$remove_postgres_storage(),
+    "No PostgreSQL storage"
+  )
+})
+
+test_that("remove_postgres_storage errors when SQLite is set instead", {
+  gs <- create_gitstats()
+  gs$set_sqlite_storage()
+  expect_error(
+    gs$remove_postgres_storage(),
+    "No PostgreSQL storage"
+  )
+})
+
+test_that("remove_postgres_storage R6 method works with stubbed backend", {
+  gs <- create_gitstats()
+  mock_backend <- StorageLocal$new()
+  class(mock_backend) <- c("StoragePostgres", class(mock_backend))
+  gs$.__enclos_env__$private$storage_backend <- mock_backend
+  suppressMessages(gs$remove_postgres_storage())
+  backend <- gs$.__enclos_env__$private$storage_backend
+  expect_true(inherits(backend, "StorageLocal"))
+  expect_false(inherits(backend, "StoragePostgres"))
+})
+
+test_that("remove_postgres_storage() exported wrapper works with stubbed backend", {
+  gs <- create_gitstats()
+  mock_backend <- StorageLocal$new()
+  class(mock_backend) <- c("StoragePostgres", class(mock_backend))
+  gs$.__enclos_env__$private$storage_backend <- mock_backend
+  suppressMessages(remove_postgres_storage(gs))
+  backend <- gs$.__enclos_env__$private$storage_backend
+  expect_true(inherits(backend, "StorageLocal"))
+})
+
+
 
