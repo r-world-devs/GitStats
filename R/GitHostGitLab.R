@@ -333,27 +333,16 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         engine_used <- graphql_engine
         if (inherits(repos_from_org, "graphql_error")) {
           if (verbose) {
-            cli::cli_alert_info("Switching to per-repo GraphQL queries...")
+            cli::cli_alert_info("Switching to REST API...")
           }
-          repos_from_org <- graphql_engine$get_repos_from_org_per_repo(
-            org = url_decode(org),
+          rest_engine <- private$engines$rest
+          repos_from_org <- rest_engine$get_repos_from_org(
+            org = url_encode(org),
+            output = "raw",
             verbose = verbose
           )
-          if (inherits(repos_from_org, "graphql_error")) {
-            if (verbose) {
-              cli::cli_alert_info("Switching to REST API...")
-            }
-            rest_engine <- private$engines$rest
-            repos_from_org <- rest_engine$get_repos_from_org(
-              org = url_encode(org),
-              output = "raw",
-              verbose = verbose
-            )
-            engine_used <- rest_engine
-          }
-        }
-        if (!inherits(repos_from_org, "graphql_error") &&
-              engine_used == graphql_engine) {
+          engine_used <- rest_engine
+        } else {
           repos_from_org <- purrr::map(repos_from_org, function(repos_data) {
             repos_data$path <- repos_data$node$repo_path
             repos_data
@@ -574,88 +563,6 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         }
       }
       return(repos_table)
-    },
-
-    # Override parent to add a per-repo GraphQL fallback before REST.
-    # Fallback order: repos_by_org query -> per-repo GraphQL -> REST.
-    get_repos_from_orgs = function(add_languages, verbose, progress) {
-      if (any(c("all", "org") %in% private$searching_scope)) {
-        graphql_engine <- private$engines$graphql
-        gitstats_map(private$orgs, function(org) {
-          owner_type <- attr(org, "type") %||% "organization"
-          if (!private$scan_all && verbose) {
-            show_message(
-              host = private$host_name,
-              engine = "graphql",
-              scope = url_decode(org),
-              information = paste0("Pulling repositories ", cli_icons$repo)
-            )
-          }
-          repos_from_org <- graphql_engine$get_repos_from_org(
-            org = url_decode(org),
-            owner_type = owner_type,
-            verbose = verbose
-          )
-          if (!inherits(repos_from_org, "graphql_error")) {
-            if (length(repos_from_org) > 0) {
-              repos_table <- repos_from_org |>
-                graphql_engine$prepare_repos_table(
-                  org = unclass(url_decode(org))
-                ) |>
-                dplyr::filter(organization == unclass(url_decode(org)))
-            } else {
-              repos_table <- NULL
-            }
-          } else {
-            if (verbose) {
-              cli::cli_alert_info("Switching to per-repo GraphQL queries...")
-              show_message(
-                host = private$host_name,
-                engine = "graphql",
-                scope = url_decode(org),
-                information = paste0("Pulling repositories per-repo ", cli_icons$repo)
-              )
-            }
-            repos_from_org <- graphql_engine$get_repos_from_org_per_repo(
-              org = url_decode(org),
-              verbose = verbose
-            )
-            if (!inherits(repos_from_org, "graphql_error")) {
-              if (length(repos_from_org) > 0) {
-                repos_table <- repos_from_org |>
-                  graphql_engine$prepare_repos_table(
-                    org = unclass(url_decode(org))
-                  ) |>
-                  dplyr::filter(organization == unclass(url_decode(org)))
-              } else {
-                repos_table <- NULL
-              }
-            } else {
-              if (verbose) {
-                cli::cli_alert_info("Switching to REST API")
-                show_message(
-                  host = private$host_name,
-                  engine = "rest",
-                  scope = org,
-                  information = paste0("Pulling repositories ", cli_icons$repo)
-                )
-              }
-              rest_engine <- private$engines$rest
-              repos_table <- rest_engine$get_repos_from_org(
-                org = org,
-                add_languages = add_languages,
-                output = "full_table",
-                verbose = verbose
-              ) |>
-                rest_engine$prepare_repos_table(
-                  org = org
-                )
-            }
-          }
-          return(repos_table)
-        }, .progress = set_progress_bar(progress, private)) |>
-          purrr::list_rbind()
-      }
     },
 
     # Override parent to query repos directly by fullpath instead of

@@ -73,29 +73,6 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
         }')
     },
 
-    # Minimal query to list project paths in a group without
-    # expensive fields (languages, issues). Used as the first step
-    # of the per-repo fallback when repos_by_org fails.
-    repos_by_org_minimal = function() {
-      paste0('
-        query GetRepoPathsByOrg($org: ID! $repo_cursor: String!) {
-          group(fullPath: $org) {
-            projects(first: 100 after: $repo_cursor) {
-              count
-              pageInfo {
-                hasNextPage
-                endCursor
-              }
-              edges {
-                node {
-                  fullPath
-                }
-              }
-            }
-          }
-        }')
-    },
-
     repo_by_fullpath = function() {
       paste0('
         query GetRepoByFullPath($fullPath: ID!) {
@@ -103,36 +80,6 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
             ', private$project_node_fields, '
           }
         }')
-    },
-
-    # Lightweight per-repo query that omits languages and
-    # issueStatusCounts to avoid complexity limits.
-    repo_by_fullpath_light = function() {
-      '
-        query GetRepoByFullPathLight($fullPath: ID!) {
-          project(fullPath: $fullPath) {
-            repo_id: id
-            repo_name: name
-            repo_path: path
-            repo_fullpath: fullPath
-            ... on Project {
-              repository {
-                rootRef
-                lastCommit {
-                  sha
-                }
-              }
-            }
-            stars: starCount
-            forks: forksCount
-            created_at: createdAt
-            last_activity_at: lastActivityAt
-            namespace {
-              path: fullPath
-            }
-            repo_url: webUrl
-          }
-        }'
     },
 
     issues_from_repo = function(issues_cursor = "") {
