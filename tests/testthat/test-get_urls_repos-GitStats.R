@@ -170,3 +170,24 @@ test_that("get_repos_urls prints when data is longer than 5", {
     )
   )
 })
+
+test_that("print.gitstats_repos_urls prints message for empty URLs", {
+  empty_urls <- character(0)
+  class(empty_urls) <- c("gitstats_repos_urls", class(empty_urls))
+  expect_output(print(empty_urls), "No repository URLs found")
+})
+
+test_that("print.gitstats_repos_urls prints all URLs when 5 or fewer", {
+  urls <- c(
+    "https://github.com/org/repo1",
+    "https://github.com/org/repo2",
+    "https://gitlab.com/group/project"
+  )
+  class(urls) <- c("gitstats_repos_urls", class(urls))
+  output <- capture.output(print(urls))
+  expect_true(any(grepl("Repository URLs:", output)))
+  expect_true(any(grepl("repo1", output)))
+  expect_true(any(grepl("repo2", output)))
+  expect_true(any(grepl("project", output)))
+  expect_true(any(grepl("Host Summary:", output)))
+})

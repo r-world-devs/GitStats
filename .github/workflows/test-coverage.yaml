@@ -12,7 +12,6 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.TEST_GITHUB_PAT }}
       GITLAB_PAT_PUBLIC: ${{ secrets.GITLAB_PAT }}
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       USE_RENV: "FALSE"
       GITSTATS_INTEGRATION_TEST_SKIPPED: "TRUE"
 
@@ -30,7 +29,7 @@ jobs:
 
       - name: Code coverage
         run: |
-          covr::codecov(
+          covr::package_coverage(
             quiet = FALSE,
             clean = FALSE,
             install_path = file.path(Sys.getenv("RUNNER_TEMP"), "package")
