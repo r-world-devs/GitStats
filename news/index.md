@@ -43,6 +43,12 @@
   to retrieve metadata (R classes, custom attributes, column types) for
   a stored table
   ([\#748](https://github.com/r-world-devs/GitStats/issues/748)).
+- Fixed slow
+  [`get_repos()`](https://r-world-devs.github.io/GitStats/reference/get_repos.md)
+  for GitLab when specific repos are set. Previously, the
+  `repos_by_user` GraphQL query searched the entire GitLab instance; now
+  repos are queried directly by `fullPath`
+  ([\#750](https://github.com/r-world-devs/GitStats/issues/750)).
 - Sped up vignettes generation
   ([\#504](https://github.com/r-world-devs/GitStats/issues/504)).
 
