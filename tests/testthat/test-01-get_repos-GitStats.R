@@ -6,6 +6,7 @@ test_that("get_repos_from_host_with_code works", {
   )
   repos_from_host_with_code <- test_gitstats_priv$get_repos_from_host_with_code(
     add_contributors = TRUE,
+    add_languages = TRUE,
     with_code = "test_code",
     in_files = NULL,
     verbose = FALSE,
@@ -27,6 +28,7 @@ test_that("get_repos_from_host_with_files works", {
   )
   repos_from_host_with_files <- test_gitstats_priv$get_repos_from_host_with_files(
     add_contributors = TRUE,
+    add_languages = TRUE,
     with_files = "test_file",
     verbose = FALSE,
     progress = FALSE
@@ -47,6 +49,7 @@ test_that("get_repos_from_hosts works", {
   )
   repos_from_hosts_with_code <- test_gitstats_priv$get_repos_from_hosts(
     add_contributors = TRUE,
+    add_languages = TRUE,
     with_code = "test_code",
     in_files = NULL,
     with_files = NULL,
@@ -65,6 +68,7 @@ test_that("get_repos_from_hosts works", {
   )
   repos_from_hosts_with_files <- test_gitstats_priv$get_repos_from_hosts(
     add_contributors = TRUE,
+    add_languages = TRUE,
     with_code = NULL,
     in_files = NULL,
     with_files = "test_file",
@@ -86,6 +90,7 @@ test_that("get_repos_from_hosts works", {
   )
   repos_from_hosts <- test_gitstats_priv$get_repos_from_hosts(
     add_contributors = TRUE,
+    add_languages = TRUE,
     with_code = NULL,
     in_files = NULL,
     with_files = NULL,

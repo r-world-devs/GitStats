@@ -15,7 +15,7 @@ EngineGraphQLGitLab <- R6::R6Class(
 
     set_owner_type = function(owners, verbose = TRUE) {
       user_or_org_query <- self$gql_query$user_or_org_query
-      login_types <- purrr::map(owners, function(owner) {
+      login_types <- gitstats_map(owners, function(owner) {
         cached <- private[["owner_types_cache"]][[owner]]
         if (!is.null(cached)) {
           return(cached)

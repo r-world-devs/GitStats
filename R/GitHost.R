@@ -54,6 +54,7 @@ GitHost <- R6::R6Class(
     },
 
     get_repos = function(add_contributors = TRUE,
+                         add_languages = TRUE,
                          with_code = NULL,
                          in_files = NULL,
                          with_file = NULL,
@@ -64,6 +65,7 @@ GitHost <- R6::R6Class(
                          fill_empty_sha = FALSE) {
       if (is.null(with_code) && is.null(with_file)) {
         repos_table <- private$get_all_repos(
+          add_languages = add_languages,
           verbose  = verbose,
           progress = progress,
           fill_empty_sha = fill_empty_sha
@@ -96,6 +98,10 @@ GitHost <- R6::R6Class(
             repos_table = repos_table,
             language_filter = language
           )
+        }
+        if (!add_languages && "languages" %in% colnames(repos_table)) {
+          repos_table <- repos_table |>
+            dplyr::select(-languages)
         }
         if (add_contributors) {
           repos_table <- private$get_repos_contributors(
@@ -504,7 +510,7 @@ GitHost <- R6::R6Class(
       if (verbose) {
         cli::cli_alert(cli::col_grey("Checking repositories..."))
       }
-      repos <- purrr::map(repos, function(repo) {
+      repos <- gitstats_map(repos, function(repo) {
         repo_endpoint <- glue::glue("{private$endpoints$repositories}/{repo}")
         check <- private$check_endpoint(
           endpoint = repo_endpoint,
@@ -715,7 +721,7 @@ GitHost <- R6::R6Class(
       return(orgs_table)
     },
 
-    get_all_repos = function(verbose = TRUE, progress = TRUE, fill_empty_sha = FALSE) {
+    get_all_repos = function(add_languages = TRUE, verbose = TRUE, progress = TRUE, fill_empty_sha = FALSE) {
       if (private$scan_all && is.null(private$orgs)) {
         private$orgs <- private$get_orgs_from_host(
           output = "only_names",
@@ -724,14 +730,14 @@ GitHost <- R6::R6Class(
       }
       repos_table <- purrr::list_rbind(
         list(
-          private$get_repos_from_orgs(verbose, progress),
-          private$get_repos_from_repos(verbose, progress)
+          private$get_repos_from_orgs(add_languages, verbose, progress),
+          private$get_repos_from_repos(add_languages, verbose, progress)
         )
       )
       return(repos_table)
     },
 
-    get_repos_from_orgs = function(verbose, progress) {
+    get_repos_from_orgs = function(add_languages, verbose, progress) {
       if (any(c("all", "org") %in% private$searching_scope)) {
         graphql_engine <- private$engines$graphql
         gitstats_map(private$orgs, function(org) {
@@ -772,6 +778,7 @@ GitHost <- R6::R6Class(
             rest_engine <- private$engines$rest
             repos_table <- rest_engine$get_repos_from_org(
               org = org,
+              add_languages = add_languages,
               output = "full_table",
               verbose = verbose
             ) |>
@@ -785,7 +792,7 @@ GitHost <- R6::R6Class(
       }
     },
 
-    get_repos_from_repos = function(verbose, progress) {
+    get_repos_from_repos = function(add_languages, verbose, progress) {
       if ("repo" %in% private$searching_scope) {
         graphql_engine <- private$engines$graphql
         orgs <- graphql_engine$set_owner_type(
@@ -829,6 +836,7 @@ GitHost <- R6::R6Class(
             repos_table <- rest_engine$get_repos_from_org(
               org = org,
               repos = private$orgs_repos[[org]],
+              add_languages = add_languages,
               output = "full_table",
               verbose = verbose
             ) |>

@@ -12,6 +12,7 @@ cli_icons <- list(
   repo = "\U1F310",
   commit = "\U1F552",
   issue = "\U1F41B",
+  language = "\U1F3AD",
   pull_request = "\U1F500",
   user = "\U1F64D",
   file = "\U1F4C4",
