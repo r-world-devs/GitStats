@@ -73,6 +73,15 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
         }')
     },
 
+    repo_by_fullpath = function() {
+      paste0('
+        query GetRepoByFullPath($fullPath: ID!) {
+          project(fullPath: $fullPath) {
+            ', private$project_node_fields, '
+          }
+        }')
+    },
+
     issues_from_repo = function(issues_cursor = "") {
       paste0('
       query getIssuesFromRepo ($fullPath: ID!) {
@@ -262,6 +271,37 @@ GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
       groupMembersCount
       avatarUrl
     ',
+
+    project_node_fields =
+      '
+          repo_id: id
+          repo_name: name
+          repo_path: path
+          repo_fullpath: fullPath
+          ... on Project {
+            repository {
+              rootRef
+              lastCommit {
+                sha
+              }
+            }
+          }
+          stars: starCount
+          forks: forksCount
+          created_at: createdAt
+          last_activity_at: lastActivityAt
+          languages {
+            name
+          }
+          issues: issueStatusCounts {
+            all
+            closed
+            opened
+          }
+          namespace {
+            path: fullPath
+          }
+          repo_url: webUrl',
 
     # count in ProjectConnection GitLab >= 13.0
     # languages in Project GitLab >= 12.9

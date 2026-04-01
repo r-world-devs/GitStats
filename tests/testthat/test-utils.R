@@ -96,3 +96,67 @@ test_that("`set_progress_bar` returns FALSE when progress is FALSE", {
   result <- set_progress_bar(FALSE, mock_private)
   expect_false(result)
 })
+
+test_that("`check_if_package_installed` does not error for installed package", {
+  expect_no_error(check_if_package_installed("testthat"))
+})
+
+test_that("`check_if_package_installed` errors for missing package", {
+  expect_error(
+    check_if_package_installed("nonexistent_pkg_xyz"),
+    "nonexistent_pkg_xyz"
+  )
+})
+
+test_that("`show_message` prints message with scope", {
+  expect_message(
+    show_message(
+      host = "GitHub",
+      engine = "graphql",
+      scope = "r-world-devs",
+      information = "Pulling repos"
+    ),
+    "GitHub"
+  )
+})
+
+test_that("`show_message` prints message without scope", {
+  expect_message(
+    show_message(
+      host = "GitLab",
+      engine = "rest",
+      information = "Pulling commits"
+    ),
+    "GitLab"
+  )
+})
+
+test_that("`show_message` handles 'both' engine type", {
+  expect_message(
+    show_message(
+      host = "GitHub",
+      engine = "both",
+      information = "Pulling data"
+    ),
+    "GitHub"
+  )
+})
+
+test_that("`cut_item_to_print` returns all items when fewer than 10", {
+  items <- c("a", "b", "c")
+  result <- cut_item_to_print(items)
+  expect_equal(result, "a, b, c")
+})
+
+test_that("`cut_item_to_print` truncates items when 10 or more", {
+  items <- letters[1:15]
+  result <- cut_item_to_print(items)
+  expect_true(grepl("and 5 more", result))
+  expect_true(grepl("^a, b, c", result))
+})
+
+test_that("`set_repo_scope` formats scope string", {
+  mock_private <- list(orgs_repos = list("my-org" = c("repo1", "repo2")))
+  result <- set_repo_scope("my-org", mock_private)
+  expect_equal(result, "my-org: 2 repos")
+})

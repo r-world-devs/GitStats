@@ -33,6 +33,8 @@ reference:
   - get_storage
   - get_storage_metadata
   - remove_from_storage
+  - remove_postgres_storage
+  - remove_sqlite_storage
 - title: Parallel processing
 - contents:
   - set_parallel
@@ -49,4 +51,3 @@ articles:
   contents:
   - set_hosts
   - store_data
-  - get_repos_with_code
