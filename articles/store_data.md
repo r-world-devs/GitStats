@@ -35,7 +35,7 @@ organizations.
 ``` r
 repos <- get_repos(git_stats, progress = FALSE)
 #> → Pulling repositories 🌐 data...
-#> ✔ Data pulled in 8.1 secs
+#> ✔ Data pulled in 5.2 secs
 dplyr::glimpse(repos)
 #> Rows: 28
 #> Columns: 19
@@ -55,7 +55,7 @@ dplyr::glimpse(repos)
 #> $ commit_sha       <chr> "735ec6ea367e6f9856eb0fe650d3c51c3a1aefb5", "a404b64e…
 #> $ api_url          <chr> "https://api.github.com/repos/r-world-devs/shinyGizmo…
 #> $ githost          <chr> "github", "github", "github", "github", "github", "gi…
-#> $ last_activity    <drtn> 629.51 days, 35.51 days, 35.51 days, 658.51 days, 0.…
+#> $ last_activity    <drtn> 629.52 days, 35.52 days, 35.52 days, 658.52 days, 0.…
 #> $ contributors     <chr> "krystian8207, stla, galachad, stlagsk", "krystian820…
 #> $ contributors_n   <int> 4, 3, 4, 1, 5, 1, 6, 2, 1, 141, 2, 3, 1, 1, 1, 6, 44,…
 ```
@@ -84,7 +84,7 @@ commits <- git_stats |>
     until = "2025-06-14",
     progress = FALSE
   )
-#> ✔ Data pulled in 8.4 secs
+#> ✔ Data pulled in 9.1 secs
 git_stats
 #> A GitStats object for 2 hosts: 
 #> Hosts: https://api.github.com, https://gitlab.com/api/v4
@@ -130,7 +130,7 @@ commits <- git_stats |>
   )
 #> ✔ Storage set to "SQLite".
 #> ℹ Database is empty.
-#> ✔ Data pulled in 9.9 secs
+#> ✔ Data pulled in 8.9 secs
 dplyr::glimpse(commits)
 #> Rows: 20
 #> Columns: 11
@@ -216,7 +216,7 @@ commits <- new_git_stats |>
   )
 #> ℹ Cache set to FALSE, I will pull data from API.
 #> → Pulling commits 🕒...
-#> ✔ Data pulled in 9.4 secs
+#> ✔ Data pulled in 8.4 secs
 dplyr::glimpse(commits)
 #> Rows: 20
 #> Columns: 11
@@ -252,7 +252,7 @@ commits <- new_git_stats |>
 #> ℹ Parameters changed, I will pull data from API.
 #> ℹ Using cached commits 🕒 from "2025-06-01" to "2025-06-14".
 #> → Pulling commits 🕒 from API for: "2025-06-15 to 2025-06-30".
-#> ✔ Data pulled in 9.7 secs
+#> ✔ Data pulled in 8.8 secs
 dplyr::glimpse(commits)
 #> Rows: 62
 #> Columns: 11
