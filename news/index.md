@@ -1,6 +1,14 @@
 # Changelog
 
-## GitStats 2.4.0.9000
+## GitStats 2.5.0
+
+CRAN release: 2026-04-02
+
+This release introduces external storage backends (PostgreSQL and
+SQLite) for persisting pulled data across sessions, and optional
+parallel processing via `mirai` for faster API calls. It also brings
+several performance improvements, including a faster file tree retrieval
+and optimized GitLab repository queries.
 
 - Added `add_languages` parameter to
   [`get_repos()`](https://r-world-devs.github.io/GitStats/reference/get_repos.md)
@@ -63,7 +71,8 @@
   repos are queried directly by `fullPath`
   ([\#750](https://github.com/r-world-devs/GitStats/issues/750)).
 - Sped up vignettes generation
-  ([\#504](https://github.com/r-world-devs/GitStats/issues/504)).
+  ([\#504](https://github.com/r-world-devs/GitStats/issues/504),
+  [@marcinkowskak](https://github.com/marcinkowskak)).
 
 ## GitStats 2.4.0
 

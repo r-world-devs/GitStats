@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0.9008</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,8 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.4.0.9000" id="gitstats-2409000">GitStats 2.4.0.9000<a class="anchor" aria-label="anchor" href="#gitstats-2409000"></a></h2>
+<h2 class="pkg-version" data-toc-text="2.5.0" id="gitstats-250">GitStats 2.5.0<a class="anchor" aria-label="anchor" href="#gitstats-250"></a></h2><p class="text-muted">CRAN release: 2026-04-02</p>
+<p>This release introduces external storage backends (PostgreSQL and SQLite) for persisting pulled data across sessions, and optional parallel processing via <code>mirai</code> for faster API calls. It also brings several performance improvements, including a faster file tree retrieval and optimized GitLab repository queries.</p>
 <ul><li>Added <code>add_languages</code> parameter to <code><a href="../reference/get_repos.html">get_repos()</a></code> (<code>TRUE</code> by default). When set to <code>FALSE</code>, languages data is excluded from the output and the GitLab REST languages API calls are skipped, speeding up the process.</li>
 <li>Fixed <code><a href="../reference/get_repos.html">get_repos()</a></code> returning <code>NA</code> for <code>commit_sha</code> on archived GitLab projects. When the GraphQL API returns <code>null</code> for <code>lastCommit</code>, a REST Branches API fallback can now retrieve the SHA. Use <code>fill_empty_sha = TRUE</code> in <code><a href="../reference/get_repos.html">get_repos()</a></code> to enable this (<a href="https://github.com/r-world-devs/GitStats/issues/746" class="external-link">#746</a>).</li>
 <li>Added optional parallel processing for API calls via <code>mirai</code> package. Use <code><a href="../reference/set_parallel.html">set_parallel()</a></code> to enable concurrent data fetching across repositories and organizations (<a href="https://github.com/r-world-devs/GitStats/issues/736" class="external-link">#736</a>).</li>
@@ -49,7 +50,7 @@
 <li>Added <code><a href="../reference/remove_postgres_storage.html">remove_postgres_storage()</a></code> and <code><a href="../reference/remove_sqlite_storage.html">remove_sqlite_storage()</a></code> to fully remove a database storage backend — the PostgreSQL variant drops the GitStats schema, the SQLite variant deletes the database file — and revert to local storage (<a href="https://github.com/r-world-devs/GitStats/issues/759" class="external-link">#759</a>).</li>
 <li>Added <code><a href="../reference/get_storage_metadata.html">get_storage_metadata()</a></code> to retrieve metadata (R classes, custom attributes, column types) for a stored table (<a href="https://github.com/r-world-devs/GitStats/issues/748" class="external-link">#748</a>).</li>
 <li>Fixed slow <code><a href="../reference/get_repos.html">get_repos()</a></code> for GitLab when specific repos are set. Previously, the <code>repos_by_user</code> GraphQL query searched the entire GitLab instance; now repos are queried directly by <code>fullPath</code> (<a href="https://github.com/r-world-devs/GitStats/issues/750" class="external-link">#750</a>).</li>
-<li>Sped up vignettes generation (<a href="https://github.com/r-world-devs/GitStats/issues/504" class="external-link">#504</a>).</li>
+<li>Sped up vignettes generation (<a href="https://github.com/r-world-devs/GitStats/issues/504" class="external-link">#504</a>, <a href="https://github.com/marcinkowskak" class="external-link">@marcinkowskak</a>).</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.4.0" id="gitstats-240">GitStats 2.4.0<a class="anchor" aria-label="anchor" href="#gitstats-240"></a></h2><p class="text-muted">CRAN release: 2026-03-17</p>
