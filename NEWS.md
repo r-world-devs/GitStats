@@ -1,4 +1,6 @@
-# GitStats 2.4.0.9000
+# GitStats 2.5.0
+
+This release introduces external storage backends (PostgreSQL and SQLite) for persisting pulled data across sessions, and optional parallel processing via `mirai` for faster API calls. It also brings several performance improvements, including a faster file tree retrieval and optimized GitLab repository queries.
 
 - Added `add_languages` parameter to `get_repos()` (`TRUE` by default). When set to `FALSE`, languages data is excluded from the output and the GitLab REST languages API calls are skipped, speeding up the process.
 - Fixed `get_repos()` returning `NA` for `commit_sha` on archived GitLab projects. When the GraphQL API returns `null` for `lastCommit`, a REST Branches API fallback can now retrieve the SHA. Use `fill_empty_sha = TRUE` in `get_repos()` to enable this ([#746](https://github.com/r-world-devs/GitStats/issues/746)).
@@ -10,7 +12,7 @@
 - Added `remove_postgres_storage()` and `remove_sqlite_storage()` to fully remove a database storage backend — the PostgreSQL variant drops the GitStats schema, the SQLite variant deletes the database file — and revert to local storage ([#759](https://github.com/r-world-devs/GitStats/issues/759)).
 - Added `get_storage_metadata()` to retrieve metadata (R classes, custom attributes, column types) for a stored table ([#748](https://github.com/r-world-devs/GitStats/issues/748)).
 - Fixed slow `get_repos()` for GitLab when specific repos are set. Previously, the `repos_by_user` GraphQL query searched the entire GitLab instance; now repos are queried directly by `fullPath` ([#750](https://github.com/r-world-devs/GitStats/issues/750)).
-- Sped up vignettes generation ([#504](https://github.com/r-world-devs/GitStats/issues/504)).
+- Sped up vignettes generation ([#504](https://github.com/r-world-devs/GitStats/issues/504), [@marcinkowskak](https://github.com/marcinkowskak)).
 
 # GitStats 2.4.0
 
