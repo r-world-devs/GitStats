@@ -34,6 +34,9 @@ gts_to_posixt <- function(date_vector) {
 
 #' @noRd
 retrieve_githost <- function(api_url) {
+  if (grepl("bitbucket", api_url)) {
+    return("bitbucket")
+  }
   stringr::str_remove_all(
     string = api_url,
     pattern = "(?<=com).*|(https://)|(api.)|(.com)"

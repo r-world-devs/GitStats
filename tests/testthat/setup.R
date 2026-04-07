@@ -61,3 +61,20 @@ gitlab_testhost_priv <- create_gitlab_testhost(
   orgs = gitlab_group,
   mode = "private"
 )
+
+bitbucket_workspace <- "test_workspace"
+
+test_rest_bitbucket <- TestEngineRestBitBucket$new(
+  rest_api_url = "https://api.bitbucket.org/2.0",
+  token = NULL
+)
+test_rest_bitbucket_priv <- environment(test_rest_bitbucket$initialize)$private
+
+bitbucket_testhost <- create_bitbucket_testhost(
+  orgs = bitbucket_workspace
+)
+
+bitbucket_testhost_priv <- create_bitbucket_testhost(
+  orgs = bitbucket_workspace,
+  mode = "private"
+)

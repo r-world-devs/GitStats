@@ -82,3 +82,46 @@ set_gitlab_host <- function(gitstats,
 
   return(invisible(gitstats))
 }
+
+#' @title Set BitBucket host
+#' @name set_bitbucket_host
+#' @inheritParams set_github_host
+#' @param orgs An optional character vector of BitBucket workspaces. If you
+#'   pass it, `repos` parameter should stay `NULL`.
+#' @details If you do not define `orgs` and `repos`, `GitStats` will be set to
+#'   scan whole Git platform. In case of a public one (like BitBucket Cloud) you
+#'   need to define `orgs` (workspaces) or `repos` as scanning through all
+#'   workspaces may take large amount of time.
+#'
+#'   BitBucket Cloud support currently covers `get_repos()`, `get_commits()`,
+#'   `get_orgs()`, and `get_repos_trees()`. Other methods (`get_issues()`,
+#'   `get_pull_requests()`, `get_release_logs()`, `get_files()`, `get_users()`)
+#'   are not yet implemented and will raise an error when called.
+#' @return A `GitStats` object with added information on host.
+#' @examples
+#' \dontrun{
+#' my_gitstats <- create_gitstats() |>
+#'   set_bitbucket_host(
+#'     token = Sys.getenv("BITBUCKET_PAT"),
+#'     orgs = "my_workspace"
+#'   )
+#' }
+#' @export
+set_bitbucket_host <- function(gitstats,
+                               host = NULL,
+                               token = NULL,
+                               orgs = NULL,
+                               repos = NULL,
+                               verbose = is_verbose(gitstats),
+                               .error = TRUE) {
+  gitstats$set_bitbucket_host(
+    host = host,
+    token = token,
+    orgs = orgs,
+    repos = repos,
+    verbose = verbose,
+    .error = .error
+  )
+
+  return(invisible(gitstats))
+}

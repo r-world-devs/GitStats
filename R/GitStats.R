@@ -103,6 +103,24 @@ GitStats <- R6::R6Class(
       private$add_new_host(new_host)
     },
 
+    set_bitbucket_host = function(host,
+                                  token = NULL,
+                                  orgs = NULL,
+                                  repos = NULL,
+                                  verbose = TRUE,
+                                  .error = TRUE) {
+      new_host <- NULL
+      new_host <- GitHostBitBucket$new(
+        orgs = orgs,
+        repos = repos,
+        token = token,
+        host = host,
+        verbose = verbose,
+        .error = .error
+      )
+      private$add_new_host(new_host)
+    },
+
     get_orgs = function(cache = TRUE, output = "full_table", verbose = TRUE) {
       private$check_for_host()
       trigger <- private$trigger_pulling(
@@ -737,7 +755,7 @@ GitStats <- R6::R6Class(
 
     check_for_host = function() {
       if (length(private$hosts) == 0) {
-        cli::cli_abort("Add first your hosts with `set_github_host()` or `set_gitlab_host()`.", call = NULL)
+        cli::cli_abort("Add first your hosts with `set_github_host()`, `set_gitlab_host()`, or `set_bitbucket_host()`.", call = NULL)
       }
     },
 

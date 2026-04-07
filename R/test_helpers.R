@@ -115,6 +115,67 @@ GitHostGitLabTest <- R6::R6Class(
   )
 )
 
+GitHostBitBucketTest <- R6::R6Class(
+  classname = "GitHostBitBucketTest",
+  inherit = GitHostBitBucket,
+  public = list(
+    initialize = function(orgs = NA,
+                          repos = NA,
+                          token = NA,
+                          host = NA) {
+      private$set_api_url(host)
+      private$set_web_url(host)
+      private$set_endpoints()
+      private$is_public <- FALSE
+      private$token <- token
+      private$set_orgs_and_repos_mocked(orgs, repos)
+      private$setup_test_engines()
+      private$set_searching_scope(orgs, repos, verbose = FALSE)
+    }
+  ),
+  private = list(
+    set_orgs_and_repos_mocked = function(orgs, repos) {
+      if (is.null(orgs) && is.null(repos)) {
+        private$scan_all <- TRUE
+      } else {
+        private$orgs <- orgs
+      }
+      if (!is.null(repos)) {
+        private$repos <- repos
+        orgs_repos <- private$extract_repos_and_orgs(repos)
+        private$orgs <- names(orgs_repos)
+        private$orgs_repos <- orgs_repos
+      }
+    },
+    setup_test_engines = function() {
+      private$engines$rest <- TestEngineRestBitBucket$new(
+        token = private$token,
+        rest_api_url = private$api_url
+      )
+      private$engines$graphql <- NULL
+    }
+  )
+)
+
+create_bitbucket_testhost <- function(host  = NULL,
+                                      orgs  = NULL,
+                                      repos = NULL,
+                                      token = NULL,
+                                      mode = "") {
+  suppressMessages(
+    test_host <- GitHostBitBucketTest$new(
+      host  = host,
+      token = token,
+      orgs  = orgs,
+      repos = repos
+    )
+  )
+  if (mode == "private") {
+    test_host <- environment(test_host$initialize)$private
+  }
+  return(test_host)
+}
+
 create_github_testhost <- function(host  = NULL,
                                    orgs  = NULL,
                                    repos = NULL,
@@ -200,6 +261,18 @@ TestEngineRestGitHub <- R6::R6Class("TestEngineRestGitHub",
 
 TestEngineRestGitLab <- R6::R6Class("TestEngineRestGitLab",
   inherit = EngineRestGitLab,
+  public = list(
+    initialize = function(token,
+                          rest_api_url) {
+      private$token <- token
+      self$rest_api_url <- rest_api_url
+      private$set_endpoints()
+    }
+  )
+)
+
+TestEngineRestBitBucket <- R6::R6Class("TestEngineRestBitBucket",
+  inherit = EngineRestBitBucket,
   public = list(
     initialize = function(token,
                           rest_api_url) {

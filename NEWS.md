@@ -1,3 +1,8 @@
+# GitStats 2.6.0.9000 (development)
+
+- Added BitBucket Cloud support via `set_bitbucket_host()`. BitBucket workspaces map to the `orgs` parameter. Currently supports `get_repos()`, `get_commits()`, `get_orgs()`, and `get_repos_trees()`. Other methods (`get_issues()`, `get_pull_requests()`, `get_release_logs()`, `get_files()`, `get_users()`) will raise an informative error until implemented (#754, #768).
+- New classes: `GitHostBitBucket` (REST-only host, no GraphQL) and `EngineRestBitBucket` (handles BitBucket Cloud API v2 pagination and endpoints).
+
 # GitStats 2.5.0
 
 This release introduces external storage backends (PostgreSQL and SQLite) for persisting pulled data across sessions, and optional parallel processing via `mirai` for faster API calls. It also brings several performance improvements, including a faster file tree retrieval and optimized GitLab repository queries.
