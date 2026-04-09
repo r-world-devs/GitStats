@@ -112,6 +112,7 @@ GitStats <- R6::R6Class(
       )
       if (trigger) {
         cli::cli_alert("Pulling organizations {cli_icons$org} data...")
+        private$inform_parallel(verbose)
         organizations <- private$get_orgs_from_hosts(
           output = output,
           verbose = verbose
@@ -158,6 +159,7 @@ GitStats <- R6::R6Class(
       )
       if (trigger) {
         cli::cli_alert("Pulling repositories {cli_icons$repo} data...")
+        private$inform_parallel(verbose)
         repositories <- private$get_repos_from_hosts(
           add_contributors = add_contributors,
           add_languages = add_languages,
@@ -216,6 +218,7 @@ GitStats <- R6::R6Class(
       )
       if (trigger) {
         cli::cli_alert("Pulling repositories {cli_icons$repo} URLs...")
+        private$inform_parallel(verbose)
         repos_urls <- private$get_repos_urls_from_hosts(
           type = type,
           with_code = with_code,
@@ -259,6 +262,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
+        private$inform_parallel(verbose)
         commits <- private$pull_incrementally(
           storage_name = "commits",
           fetch_fn = function(since, until) {
@@ -315,6 +319,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
+        private$inform_parallel(verbose)
         issues <- private$pull_incrementally(
           storage_name = "issues",
           fetch_fn = function(since, until) {
@@ -371,6 +376,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
+        private$inform_parallel(verbose)
         pull_requests <- private$pull_incrementally(
           storage_name = "pull_requests",
           fetch_fn = function(since, until) {
@@ -419,6 +425,7 @@ GitStats <- R6::R6Class(
       )
       if (trigger) {
         cli::cli_alert("Pulling users {cli_icons$user} data...")
+        private$inform_parallel(verbose)
         users <- private$get_users_from_hosts(logins) |>
           private$set_object_class(
             class = "gitstats_users",
@@ -452,6 +459,7 @@ GitStats <- R6::R6Class(
       )
       if (trigger) {
         cli::cli_alert("Pulling files {cli_icons$file} content...")
+        private$inform_parallel(verbose)
         files <- private$get_files_from_hosts(
           pattern = pattern,
           depth = depth,
@@ -497,6 +505,7 @@ GitStats <- R6::R6Class(
       )
       if (trigger) {
         cli::cli_alert("Pulling repositories {cli_icons$tree} structure...")
+        private$inform_parallel(verbose)
         repos_trees <- private$get_repos_trees_from_hosts(
           pattern = pattern,
           depth = depth,
@@ -540,6 +549,7 @@ GitStats <- R6::R6Class(
         verbose = verbose
       )
       if (trigger) {
+        private$inform_parallel(verbose)
         release_logs <- private$pull_incrementally(
           storage_name = "release_logs",
           fetch_fn = function(since, until) {
@@ -738,6 +748,12 @@ GitStats <- R6::R6Class(
     check_for_host = function() {
       if (length(private$hosts) == 0) {
         cli::cli_abort("Add first your hosts with `set_github_host()` or `set_gitlab_host()`.", call = NULL)
+      }
+    },
+
+    inform_parallel = function(verbose) {
+      if (verbose && mirai_active()) {
+        cli::cli_alert_info("Running in parallel mode.")
       }
     },
 
@@ -1482,4 +1498,16 @@ set_parallel <- function(workers = TRUE) {
     )
   }
   return(invisible(status))
+}
+
+#' @title Check if parallel processing is active
+#' @name is_parallel
+#' @description Returns `TRUE` when mirai daemons are running (i.e.
+#'   `set_parallel()` has been called), `FALSE` otherwise.
+#' @return A logical scalar.
+#' @examples
+#' is_parallel()
+#' @export
+is_parallel <- function() {
+  mirai_active()
 }
