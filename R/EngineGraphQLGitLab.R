@@ -135,6 +135,19 @@ EngineGraphQLGitLab <- R6::R6Class(
             full_repos_list <- repos_response
             break
           }
+          if (inherits(repos_response, "graphql_complexity_error")) {
+            if (verbose) {
+              cli::cli_alert_warning("GraphQL complexity error when pulling repos by IDs ({length(repos_ids)} repos).")
+              cli::cli_alert_info(
+                cli::col_br_cyan("I will pull repos in batches.")
+              )
+            }
+            full_repos_list <- private$get_repos_in_batches(
+              repos_ids = repos_ids,
+              verbose = verbose
+            )
+            return(full_repos_list)
+          }
           repos_response <- private$get_repos_page(
             projects_ids = paste0("gid://gitlab/Project/", repos_ids),
             type = "projects",
@@ -547,6 +560,43 @@ EngineGraphQLGitLab <- R6::R6Class(
         )
       }
       return(response)
+    },
+
+    get_repos_in_batches = function(repos_ids, batch_size = 50, verbose) {
+      batches <- split(repos_ids, ceiling(seq_along(repos_ids) / batch_size))
+      full_repos_list <- list()
+      for (batch in batches) {
+        next_page <- TRUE
+        repo_cursor <- ""
+        while (next_page) {
+          repos_response <- private$get_repos_page(
+            projects_ids = paste0("gid://gitlab/Project/", batch),
+            type = "projects",
+            repo_cursor = repo_cursor,
+            verbose = verbose
+          )
+          if (inherits(repos_response, "graphql_error")) {
+            if (inherits(repos_response, "graphql_no_fields_error")) {
+              return(repos_response)
+            }
+            break
+          }
+          core_response <- repos_response$data$projects
+          repos_list <- core_response$edges
+          next_page <- core_response$pageInfo$hasNextPage
+          if (is.null(next_page)) next_page <- FALSE
+          if (is.null(repos_list)) repos_list <- list()
+          if (length(repos_list) == 0) next_page <- FALSE
+          if (next_page) {
+            repo_cursor <- core_response$pageInfo$endCursor
+          } else {
+            repo_cursor <- ""
+          }
+          full_repos_list <- append(full_repos_list, repos_list)
+        }
+      }
+      full_repos_list <- private$handle_graphql_error(full_repos_list, verbose)
+      return(full_repos_list)
     },
 
     get_repo_name_from_url = function(web_url) {

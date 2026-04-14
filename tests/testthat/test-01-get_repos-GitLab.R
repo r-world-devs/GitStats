@@ -264,6 +264,69 @@ test_that("get_repos breaks when response is a GraphQL 'no fields' error", {
   expect_s3_class(response, "graphql_no_fields_error")
 })
 
+test_that("get_repos falls back to batching on GraphQL complexity error", {
+  complexity_error <- test_error_fixtures$graphql_complexity_error
+  class(complexity_error) <- c(class(complexity_error), "graphql_error", "graphql_complexity_error")
+  mockery::stub(
+    test_graphql_gitlab$get_repos,
+    "private$get_repos_page",
+    complexity_error
+  )
+  mockery::stub(
+    test_graphql_gitlab$get_repos,
+    "private$get_repos_in_batches",
+    test_fixtures$gitlab_repos_by_user_response$data$projects$edges
+  )
+  repos_response <- test_graphql_gitlab$get_repos(
+    repos_ids = c("test_id_1", "test_id_2"),
+    verbose = FALSE
+  )
+  expect_type(repos_response, "list")
+  expect_gt(length(repos_response), 0)
+  expect_named(
+    repos_response[[1]]$node,
+    c("repo_id", "repo_name", "repo_path", "repo_fullpath", "repository", "stars",
+      "forks", "created_at", "last_activity_at", "languages", "issues", "namespace",
+      "repo_url")
+  )
+})
+
+test_that("get_repos prints messages when falling back to batching", {
+  complexity_error <- test_error_fixtures$graphql_complexity_error
+  class(complexity_error) <- c(class(complexity_error), "graphql_error", "graphql_complexity_error")
+  mockery::stub(
+    test_graphql_gitlab$get_repos,
+    "private$get_repos_page",
+    complexity_error
+  )
+  mockery::stub(
+    test_graphql_gitlab$get_repos,
+    "private$get_repos_in_batches",
+    test_fixtures$gitlab_repos_by_user_response$data$projects$edges
+  )
+  expect_snapshot(
+    test_graphql_gitlab$get_repos(
+      repos_ids = c("test_id_1", "test_id_2"),
+      verbose = TRUE
+    )
+  )
+})
+
+test_that("get_repos_in_batches pulls repos in smaller chunks", {
+  mockery::stub(
+    test_graphql_gitlab_priv$get_repos_in_batches,
+    "private$get_repos_page",
+    test_fixtures$gitlab_repos_by_user_response
+  )
+  repos_response <- test_graphql_gitlab_priv$get_repos_in_batches(
+    repos_ids = as.character(1:120),
+    batch_size = 50,
+    verbose = FALSE
+  )
+  expect_type(repos_response, "list")
+  expect_gt(length(repos_response), 0)
+})
+
 test_that("get_repos_from_org handles properly a GraphQL query error", {
   mockery::stub(
     test_graphql_gitlab$get_repos_from_org,
