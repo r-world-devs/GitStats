@@ -4,11 +4,9 @@
 #' @param host A character, optional, URL name of the host. If not passed, a
 #'   public host will be used.
 #' @param token A token.
-#' @param orgs An optional character vector of organisations. Typically used
-#'   without `repos`.
+#' @param orgs An optional character vector of organisations
 #' @param repos An optional character vector of repositories full names
-#'   (organization and repository name, e.g. "r-world-devs/GitStats"). Typically
-#'   used without `orgs`.
+#'   (organization and repository name, e.g. "r-world-devs/GitStats").
 #' @param verbose A logical, `TRUE` by default. If `FALSE` messages and printing
 #'   output is switched off.
 #' @param .error A logical to control if passing wrong input
