@@ -207,6 +207,10 @@ EngineGraphQL <- R6::R6Class(
       any(purrr::map_lgl(response$errors, ~ grepl("Internal server error", .$message)))
     },
 
+    is_limit_error = function(response) {
+      any(purrr::map_lgl(response$errors, ~ grepl("cannot accept more than", .$message)))
+    },
+
     set_graphql_error_class = function(response) {
       if (private$is_query_error(response)) {
         class(response) <- c(class(response), "graphql_error")
@@ -215,6 +219,9 @@ EngineGraphQL <- R6::R6Class(
         }
         if (private$is_complexity_error(response)) {
           class(response) <- c(class(response), "graphql_complexity_error")
+        }
+        if (private$is_limit_error(response)) {
+          class(response) <- c(class(response), "graphql_limit_error")
         }
         if (private$is_server_error(response)) {
           class(response) <- c(class(response), "graphql_server_error")

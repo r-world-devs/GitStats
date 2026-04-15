@@ -16,6 +16,26 @@ test_error_fixtures$graphql_complexity_error <- list(
   )
 )
 
+test_error_fixtures$graphql_limit_error <- list(
+  "errors" = list(
+    list(
+      "message" = "Resolvers::ProjectsResolver#ids cannot accept more than 1000 items",
+      "locations" = list(
+        list(
+          "line" = 3L,
+          "column" = 11L
+        )
+      ),
+      "path" = list(
+        "projects"
+      )
+    )
+  ),
+  "data" = list(
+    "projects" = NULL
+  )
+)
+
 test_error_fixtures$graphql_error_no_groups <- list(
   "errors" = list(
     list(
