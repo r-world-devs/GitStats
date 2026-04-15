@@ -507,12 +507,12 @@ GitHost <- R6::R6Class(
     },
 
     check_repositories = function(repos, verbose, .error) {
-      repos_without_org <- repos[!grepl("/", repos)]
+      repos_without_org <- repos[!grepl("/", url_decode(repos))]
       if (length(repos_without_org) > 0) {
         cli::cli_abort(
           c(
             "x" = "Repository name must be provided as a full path: {.val org/repo_name}.",
-            "i" = "Got: {.val {repos_without_org}}",
+            "i" = "Got: {.val {url_decode(repos_without_org)}}",
             "!" = "Pass the full path as seen in the web URL, e.g. {.val r-world-devs/GitStats}."
           ),
           call = NULL
