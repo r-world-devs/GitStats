@@ -32,13 +32,11 @@
 # get_repos prints messages when falling back to batching
 
     Code
-      test_graphql_gitlab$get_repos(repos_ids = c("test_id_1", "test_id_2"),
-        verbose = TRUE)
+      gitlab_repos <- test_graphql_gitlab$get_repos(repos_ids = c("test_id_1",
+        "test_id_2"), verbose = TRUE)
     Message
       ! GraphQL complexity error when pulling repos by IDs (2 repos).
       i I will pull repos in batches.
-
----
 
 # `search_for_code()` works
 
