@@ -1,6 +1,7 @@
 # GitStats (development version)
 
 - Fixed `get_repos()` with `with_code` failing for GitLab when the code search returns more than 1000 repositories. The GraphQL resolver rejects queries with too many IDs; `get_repos()` now detects this limit error and automatically batches the IDs ([#781](https://github.com/r-world-devs/GitStats/issues/781)).
+- Improvements to parallelism visibility: added `is_parallel()` indicating whether parallel processing is currently active and public `get_*()` methods now emit `ℹ Running in parallel mode.` when `verbose = TRUE` ([#779](https://github.com/r-world-devs/GitStats/issues/779)).
 
 # GitStats 2.5.0
 

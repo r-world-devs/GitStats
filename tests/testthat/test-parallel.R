@@ -203,3 +203,4 @@ test_that("gitstats_map/map_chr work via mirai_map when daemons are active", {
   result <- gitstats_map_chr(c("x", "y"), function(x) toupper(x), .progress = TRUE)
   expect_equal(result, c("X", "Y"))
 })
+
