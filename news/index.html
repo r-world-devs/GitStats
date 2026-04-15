@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.0.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.0.9003</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,10 +41,8 @@
 <h2 class="pkg-version" data-toc-text="development version" id="gitstats-development-version">GitStats (development version)<a class="anchor" aria-label="anchor" href="#gitstats-development-version"></a></h2>
 <ul><li>Fixed <code><a href="../reference/get_repos.html">get_repos()</a></code> with <code>with_code</code> failing for GitLab when the code search returns more than 1000 repositories. The GraphQL resolver rejects queries with too many IDs; <code><a href="../reference/get_repos.html">get_repos()</a></code> now detects this limit error and automatically batches the IDs (<a href="https://github.com/r-world-devs/GitStats/issues/781" class="external-link">#781</a>).</li>
 <li>Improvements to parallelism visibility: added <code><a href="../reference/is_parallel.html">is_parallel()</a></code> indicating whether parallel processing is currently active and public <code>get_*()</code> methods now emit <code>ℹ Running in parallel mode.</code> when <code>verbose = TRUE</code> (<a href="https://github.com/r-world-devs/GitStats/issues/779" class="external-link">#779</a>).</li>
-</ul></div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.5.0" id="gitstats-250">GitStats 2.5.0<a class="anchor" aria-label="anchor" href="#gitstats-250"></a></h2><p class="text-muted">CRAN release: 2026-04-02</p>
-<p>This release introduces external storage backends (PostgreSQL and SQLite) for persisting pulled data across sessions, and optional parallel processing via <code>mirai</code> for faster API calls. It also brings several performance improvements, including a faster file tree retrieval and optimized GitLab repository queries.</p>
+<li>Improved error handling for <code>set_*host()</code> in case user doesn’t pass full path in <code>repos</code> (<a href="https://github.com/r-world-devs/GitStats/issues/782" class="external-link">#782</a>). # GitStats 2.5.0</li>
+</ul><p>This release introduces external storage backends (PostgreSQL and SQLite) for persisting pulled data across sessions, and optional parallel processing via <code>mirai</code> for faster API calls. It also brings several performance improvements, including a faster file tree retrieval and optimized GitLab repository queries.</p>
 <ul><li>Added <code>add_languages</code> parameter to <code><a href="../reference/get_repos.html">get_repos()</a></code> (<code>TRUE</code> by default). When set to <code>FALSE</code>, languages data is excluded from the output and the GitLab REST languages API calls are skipped, speeding up the process.</li>
 <li>Fixed <code><a href="../reference/get_repos.html">get_repos()</a></code> returning <code>NA</code> for <code>commit_sha</code> on archived GitLab projects. When the GraphQL API returns <code>null</code> for <code>lastCommit</code>, a REST Branches API fallback can now retrieve the SHA. Use <code>fill_empty_sha = TRUE</code> in <code><a href="../reference/get_repos.html">get_repos()</a></code> to enable this (<a href="https://github.com/r-world-devs/GitStats/issues/746" class="external-link">#746</a>).</li>
 <li>Added optional parallel processing for API calls via <code>mirai</code> package. Use <code><a href="../reference/set_parallel.html">set_parallel()</a></code> to enable concurrent data fetching across repositories and organizations (<a href="https://github.com/r-world-devs/GitStats/issues/736" class="external-link">#736</a>).</li>

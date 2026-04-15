@@ -33,14 +33,12 @@ set_gitlab_host(
 
 - orgs:
 
-  An optional character vector of organisations. If you pass it, `repos`
-  parameter should stay `NULL`.
+  An optional character vector of organisations
 
 - repos:
 
   An optional character vector of repositories full names (organization
-  and repository name, e.g. "r-world-devs/GitStats"). If you pass it,
-  `orgs` parameter should stay `NULL`.
+  and repository name, e.g. "r-world-devs/GitStats").
 
 - verbose:
 

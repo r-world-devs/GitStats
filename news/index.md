@@ -16,10 +16,10 @@
   `get_*()` methods now emit `ℹ Running in parallel mode.` when
   `verbose = TRUE`
   ([\#779](https://github.com/r-world-devs/GitStats/issues/779)).
-
-## GitStats 2.5.0
-
-CRAN release: 2026-04-02
+- Improved error handling for `set_*host()` in case user doesn’t pass
+  full path in `repos`
+  ([\#782](https://github.com/r-world-devs/GitStats/issues/782)). \#
+  GitStats 2.5.0
 
 This release introduces external storage backends (PostgreSQL and
 SQLite) for persisting pulled data across sessions, and optional
