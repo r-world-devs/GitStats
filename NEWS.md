@@ -1,3 +1,5 @@
+# GitStats (development version)
+
 # GitStats 2.5.0
 
 This release introduces external storage backends (PostgreSQL and SQLite) for persisting pulled data across sessions, and optional parallel processing via `mirai` for faster API calls. It also brings several performance improvements, including a faster file tree retrieval and optimized GitLab repository queries.
