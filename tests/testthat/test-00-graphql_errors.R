@@ -19,11 +19,22 @@ test_that("is_complexity_error works", {
   expect_false(test_graphql_github_priv$is_complexity_error(test_error_fixtures$graphql_error_no_groups))
 })
 
+test_that("is_limit_error works", {
+  expect_true(test_graphql_github_priv$is_limit_error(test_error_fixtures$graphql_limit_error))
+  expect_false(test_graphql_github_priv$is_limit_error(test_error_fixtures$graphql_error_no_groups))
+})
+
 test_that("set_graphql_error_class works", {
   error_class_object <- test_graphql_github_priv$set_graphql_error_class(
     test_error_fixtures$graphql_error_no_groups
   )
   expect_true(
     all(c("graphql_error", "graphql_no_fields_error") %in% class(error_class_object))
+  )
+  limit_error_object <- test_graphql_github_priv$set_graphql_error_class(
+    test_error_fixtures$graphql_limit_error
+  )
+  expect_true(
+    all(c("graphql_error", "graphql_limit_error") %in% class(limit_error_object))
   )
 })

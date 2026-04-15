@@ -264,13 +264,13 @@ test_that("get_repos breaks when response is a GraphQL 'no fields' error", {
   expect_s3_class(response, "graphql_no_fields_error")
 })
 
-test_that("get_repos falls back to batching on GraphQL complexity error", {
-  complexity_error <- test_error_fixtures$graphql_complexity_error
-  class(complexity_error) <- c(class(complexity_error), "graphql_error", "graphql_complexity_error")
+test_that("get_repos falls back to batching on GraphQL limit error", {
+  limit_error <- test_error_fixtures$graphql_limit_error
+  class(limit_error) <- c(class(limit_error), "graphql_error", "graphql_limit_error")
   mockery::stub(
     test_graphql_gitlab$get_repos,
     "private$get_repos_page",
-    complexity_error
+    limit_error
   )
   mockery::stub(
     test_graphql_gitlab$get_repos,
@@ -292,12 +292,12 @@ test_that("get_repos falls back to batching on GraphQL complexity error", {
 })
 
 test_that("get_repos prints messages when falling back to batching", {
-  complexity_error <- test_error_fixtures$graphql_complexity_error
-  class(complexity_error) <- c(class(complexity_error), "graphql_error", "graphql_complexity_error")
+  limit_error <- test_error_fixtures$graphql_limit_error
+  class(limit_error) <- c(class(limit_error), "graphql_error", "graphql_limit_error")
   mockery::stub(
     test_graphql_gitlab$get_repos,
     "private$get_repos_page",
-    complexity_error
+    limit_error
   )
   mockery::stub(
     test_graphql_gitlab$get_repos,

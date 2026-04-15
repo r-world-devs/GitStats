@@ -135,9 +135,9 @@ EngineGraphQLGitLab <- R6::R6Class(
             full_repos_list <- repos_response
             break
           }
-          if (inherits(repos_response, "graphql_complexity_error")) {
+          if (inherits(repos_response, "graphql_limit_error")) {
             if (verbose) {
-              cli::cli_alert_warning("GraphQL complexity error when pulling repos by IDs ({length(repos_ids)} repos).")
+              cli::cli_alert_warning("GraphQL limit error when pulling repos by IDs ({length(repos_ids)} repos).")
               cli::cli_alert_info(
                 cli::col_br_cyan("I will pull repos in batches.")
               )
