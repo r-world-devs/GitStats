@@ -310,7 +310,12 @@ test_that("get_repos prints messages when falling back to batching", {
       verbose = TRUE
     )
   )
-  expect_repos_gitlab_gql_response(gitlab_repos, type = "repository")
+  expect_type(gitlab_repos, "list")
+  expect_gt(length(gitlab_repos), 0)
+  expect_list_contains(
+    gitlab_repos[[1]]$node,
+    c("repo_id", "repo_name", "repository", "stars", "forks", "created_at", "last_activity_at")
+  )
 })
 
 test_that("get_repos_in_batches pulls repos in smaller chunks", {
