@@ -91,6 +91,8 @@ Functions to get git data in a tibble format.
 
 - [`set_parallel()`](https://r-world-devs.github.io/GitStats/reference/set_parallel.md)
   : Enable parallel processing
+- [`is_parallel()`](https://r-world-devs.github.io/GitStats/reference/is_parallel.md)
+  : Check if parallel processing is active
 
 ## Get statistics
 

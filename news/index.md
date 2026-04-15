@@ -10,6 +10,12 @@
   [`get_repos()`](https://r-world-devs.github.io/GitStats/reference/get_repos.md)
   now detects this limit error and automatically batches the IDs
   ([\#781](https://github.com/r-world-devs/GitStats/issues/781)).
+- Improvements to parallelism visibility: added
+  [`is_parallel()`](https://r-world-devs.github.io/GitStats/reference/is_parallel.md)
+  indicating whether parallel processing is currently active and public
+  `get_*()` methods now emit `ℹ Running in parallel mode.` when
+  `verbose = TRUE`
+  ([\#779](https://github.com/r-world-devs/GitStats/issues/779)).
 
 ## GitStats 2.5.0
 
