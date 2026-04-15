@@ -2,7 +2,7 @@
 
 - Fixed `get_repos()` with `with_code` failing for GitLab when the code search returns more than 1000 repositories. The GraphQL resolver rejects queries with too many IDs; `get_repos()` now detects this limit error and automatically batches the IDs ([#781](https://github.com/r-world-devs/GitStats/issues/781)).
 - Improvements to parallelism visibility: added `is_parallel()` indicating whether parallel processing is currently active and public `get_*()` methods now emit `ℹ Running in parallel mode.` when `verbose = TRUE` ([#779](https://github.com/r-world-devs/GitStats/issues/779)).
-
+- Improved error handling for `set_*host()` in case user doesn't pass full path in `repos` ([#782](https://github.com/r-world-devs/GitStats/issues/782)).
 # GitStats 2.5.0
 
 This release introduces external storage backends (PostgreSQL and SQLite) for persisting pulled data across sessions, and optional parallel processing via `mirai` for faster API calls. It also brings several performance improvements, including a faster file tree retrieval and optimized GitLab repository queries.

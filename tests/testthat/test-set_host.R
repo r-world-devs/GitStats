@@ -177,6 +177,25 @@ test_that("When wrong orgs and repos are passed they are excluded but host is cr
   }
 })
 
+test_that("Error pops out when repos are passed without org prefix", {
+  expect_error(
+    create_gitstats() |>
+      set_github_host(
+        token = Sys.getenv("GITHUB_PAT"),
+        repos = c("GitStats", "shinyCohortBuilder")
+      ),
+    "org/repo_name"
+  )
+  expect_error(
+    create_gitstats() |>
+      set_gitlab_host(
+        token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+        repos = c("gitstatstesting")
+      ),
+    "org/repo_name"
+  )
+})
+
 test_that("Setting verbose for set_*_host() to FALSE works fine", {
   skip_on_cran()
   if (!integration_tests_skipped) {
