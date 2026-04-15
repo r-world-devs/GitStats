@@ -1,5 +1,16 @@
 # Changelog
 
+## GitStats (development version)
+
+- Fixed
+  [`get_repos()`](https://r-world-devs.github.io/GitStats/reference/get_repos.md)
+  with `with_code` failing for GitLab when the code search returns more
+  than 1000 repositories. The GraphQL resolver rejects queries with too
+  many IDs;
+  [`get_repos()`](https://r-world-devs.github.io/GitStats/reference/get_repos.md)
+  now detects this limit error and automatically batches the IDs
+  ([\#781](https://github.com/r-world-devs/GitStats/issues/781)).
+
 ## GitStats 2.5.0
 
 CRAN release: 2026-04-02
