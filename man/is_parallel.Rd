@@ -11,7 +11,7 @@ A logical scalar.
 }
 \description{
 Returns \code{TRUE} when mirai daemons are running (i.e.
-  \code{set_parallel()} has been called), \code{FALSE} otherwise.
+\code{set_parallel()} has been called), \code{FALSE} otherwise.
 }
 \examples{
 is_parallel()
