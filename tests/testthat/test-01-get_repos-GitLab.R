@@ -305,11 +305,12 @@ test_that("get_repos prints messages when falling back to batching", {
     test_fixtures$gitlab_repos_by_user_response$data$projects$edges
   )
   expect_snapshot(
-    test_graphql_gitlab$get_repos(
+    gitlab_repos <- test_graphql_gitlab$get_repos(
       repos_ids = c("test_id_1", "test_id_2"),
       verbose = TRUE
     )
   )
+  expect_repos_gitlab_gql_response(gitlab_repos, type = "repository")
 })
 
 test_that("get_repos_in_batches pulls repos in smaller chunks", {
