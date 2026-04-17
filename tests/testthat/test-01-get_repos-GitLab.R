@@ -321,7 +321,7 @@ test_that("get_repos prints messages when falling back to batching", {
 test_that("get_repos_in_batches pulls repos in smaller chunks", {
   mockery::stub(
     test_graphql_gitlab_priv$get_repos_in_batches,
-    "private$get_repos_page",
+    "graphql_response",
     test_fixtures$gitlab_repos_by_user_response
   )
   repos_response <- test_graphql_gitlab_priv$get_repos_in_batches(
@@ -329,6 +329,31 @@ test_that("get_repos_in_batches pulls repos in smaller chunks", {
     batch_size = 50,
     verbose = FALSE
   )
+  expect_type(repos_response, "list")
+  expect_gt(length(repos_response), 0)
+})
+
+test_that("get_repos_in_batches dispatches via gitstats_map", {
+  mockery::stub(
+    test_graphql_gitlab_priv$get_repos_in_batches,
+    "graphql_response",
+    test_fixtures$gitlab_repos_by_user_response
+  )
+  gitstats_map_called <- FALSE
+  mockery::stub(
+    test_graphql_gitlab_priv$get_repos_in_batches,
+    "gitstats_map",
+    function(.x, .f, ...) {
+      gitstats_map_called <<- TRUE
+      purrr::map(.x, .f, ...)
+    }
+  )
+  repos_response <- test_graphql_gitlab_priv$get_repos_in_batches(
+    repos_ids = as.character(1:120),
+    batch_size = 50,
+    verbose = FALSE
+  )
+  expect_true(gitstats_map_called)
   expect_type(repos_response, "list")
   expect_gt(length(repos_response), 0)
 })

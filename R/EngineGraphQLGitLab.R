@@ -564,16 +564,37 @@ EngineGraphQLGitLab <- R6::R6Class(
 
     get_repos_in_batches = function(repos_ids, batch_size = 50, verbose) {
       batches <- split(repos_ids, ceiling(seq_along(repos_ids) / batch_size))
-      full_repos_list <- list()
-      for (batch in batches) {
+
+      # Capture scalar values needed by workers — R6 envs don't serialize
+      # to mirai workers. The actual request/error logic lives in the
+      # standalone helpers from EngineGraphQL.R (graphql_response, etc.).
+      gql_api_url <- self$gql_api_url
+      token <- private$token
+
+      # Pre-evaluate query templates so the closure doesn't need the
+      # GQLQueryGitLab R6 object (which also has private fields).
+      query_no_cursor <- self$gql_query$repos("")
+      query_sample <- self$gql_query$repos("__CURSOR__")
+      repos_query_fn <- function(repo_cursor) {
+        if (nchar(repo_cursor) == 0) {
+          query_no_cursor
+        } else {
+          gsub('after: "__CURSOR__"',
+               paste0('after: "', repo_cursor, '"'),
+               query_sample, fixed = TRUE)
+        }
+      }
+
+      fetch_batch <- function(batch) {
+        batch_repos <- list()
         next_page <- TRUE
         repo_cursor <- ""
         while (next_page) {
-          repos_response <- private$get_repos_page(
-            projects_ids = paste0("gid://gitlab/Project/", batch),
-            type = "projects",
-            repo_cursor = repo_cursor,
-            verbose = verbose
+          repos_response <- graphql_response(
+            gql_api_url = gql_api_url,
+            token = token,
+            gql_query = repos_query_fn(repo_cursor),
+            vars = list("projects_ids" = paste0("gid://gitlab/Project/", batch))
           )
           if (inherits(repos_response, "graphql_error")) {
             if (inherits(repos_response, "graphql_no_fields_error")) {
@@ -592,9 +613,22 @@ EngineGraphQLGitLab <- R6::R6Class(
           } else {
             repo_cursor <- ""
           }
-          full_repos_list <- append(full_repos_list, repos_list)
+          batch_repos <- append(batch_repos, repos_list)
+        }
+        batch_repos
+      }
+
+      batch_results <- gitstats_map(batches, fetch_batch)
+
+      # Check if any batch returned a graphql error object
+      for (result in batch_results) {
+        if (inherits(result, "graphql_error")) {
+          result <- private$handle_graphql_error(result, verbose)
+          return(result)
         }
       }
+
+      full_repos_list <- purrr::list_c(batch_results)
       full_repos_list <- private$handle_graphql_error(full_repos_list, verbose)
       return(full_repos_list)
     },
