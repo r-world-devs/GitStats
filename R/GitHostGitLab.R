@@ -496,12 +496,8 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
                                                       progress = TRUE) {
       if (length(files_structure) > 0) {
         graphql_engine <- private$engines$graphql
-        result <- private$get_orgs_and_repos_from_files_structure(
-          files_structure = files_structure
-        )
-        orgs <- result$orgs
-        repos <- result$repos
-        files_table <- gitstats_map(orgs, function(org) {
+        orgs <- names(files_structure)
+        files_table <- purrr::map(orgs, function(org) {
           if (verbose) {
             show_message(
               host = private$host_name,
@@ -511,6 +507,8 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
             )
           }
           owner_type <- attr(org, "type") %||% "organization"
+          repos <- files_structure[[org]] |>
+            names()
           graphql_engine$get_files_from_org_per_repo(
             org = org,
             owner_type = owner_type,
