@@ -1,4 +1,4 @@
-set_parallel(FALSE)
+mirai::daemons(0)
 
 integration_tests_skipped <- Sys.getenv("GITSTATS_INTEGRATION_TEST_SKIPPED", unset = "true") |>
   as.logical()
