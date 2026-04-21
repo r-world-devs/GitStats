@@ -35,7 +35,7 @@ organizations.
 ``` r
 repos <- get_repos(git_stats, progress = FALSE)
 #> → Pulling repositories 🌐 data...
-#> ✔ Data pulled in 5.8 secs
+#> ✔ Data pulled in 5.4 secs
 dplyr::glimpse(repos)
 #> Rows: 28
 #> Columns: 19
@@ -48,14 +48,14 @@ dplyr::glimpse(repos)
 #> $ created_at       <dttm> 2022-04-20 10:04:32, 2022-05-22 18:31:55, 2022-05-22…
 #> $ last_activity_at <dttm> 2026-04-07, 2026-02-26, 2026-02-26, 2026-04-14, 2026…
 #> $ languages        <chr> "R, CSS, JavaScript", "R", "R, CSS, JavaScript, SCSS"…
-#> $ issues_open      <int> 6, 34, 36, 3, 79, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 12, 0…
-#> $ issues_closed    <int> 13, 11, 17, 0, 418, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 60,…
+#> $ issues_open      <int> 6, 34, 36, 3, 80, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 12, 0…
+#> $ issues_closed    <int> 13, 11, 17, 0, 419, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 60,…
 #> $ organization     <chr> "r-world-devs", "r-world-devs", "r-world-devs", "r-wo…
 #> $ repo_url         <chr> "https://github.com/r-world-devs/shinyGizmo", "https:…
 #> $ commit_sha       <chr> "220937951f114267a7ceb08aa2aa9f58ab45025d", "a404b64e…
 #> $ api_url          <chr> "https://api.github.com/repos/r-world-devs/shinyGizmo…
 #> $ githost          <chr> "github", "github", "github", "github", "github", "gi…
-#> $ last_activity    <drtn> 14.27 days, 54.27 days, 54.27 days, 7.27 days, 0.27 …
+#> $ last_activity    <drtn> 14.46 days, 54.46 days, 54.46 days, 7.46 days, 0.46 …
 #> $ contributors     <chr> "krystian8207, stla, galachad, stlagsk", "krystian820…
 #> $ contributors_n   <int> 4, 3, 4, 1, 5, 1, 6, 2, 1, 141, 2, 3, 1, 1, 1, 6, 44,…
 ```
@@ -67,7 +67,7 @@ which will print you a vector of URLs instead of whole table.
 ``` r
 repos_urls <- get_repos_urls(git_stats)
 #> → Pulling repositories 🌐 URLs...
-#> ✔ Data pulled in 1.4 secs
+#> ✔ Data pulled in 1.3 secs
 dplyr::glimpse(repos_urls)
 #>  'gitstats_repos_urls' chr [1:28] "https://api.github.com/repos/r-world-devs/shinyGizmo" ...
 #>  - attr(*, "type")= chr "api"
@@ -84,7 +84,7 @@ commits <- git_stats |>
     until = "2025-06-14",
     progress = FALSE
   )
-#> ✔ Data pulled in 9.5 secs
+#> ✔ Data pulled in 9.7 secs
 git_stats
 #> A GitStats object for 2 hosts: 
 #> Hosts: https://api.github.com, https://gitlab.com/api/v4
@@ -130,7 +130,7 @@ commits <- git_stats |>
   )
 #> ✔ Storage set to "SQLite".
 #> ℹ Database is empty.
-#> ✔ Data pulled in 10 secs
+#> ✔ Data pulled in 10.3 secs
 dplyr::glimpse(commits)
 #> Rows: 20
 #> Columns: 11
@@ -217,7 +217,7 @@ commits <- new_git_stats |>
 #> ℹ Cache set to FALSE, I will pull data from API.
 #> ℹ Running in parallel mode.
 #> → Pulling commits 🕒...
-#> ✔ Data pulled in 10.4 secs
+#> ✔ Data pulled in 9.9 secs
 dplyr::glimpse(commits)
 #> Rows: 20
 #> Columns: 11
@@ -254,7 +254,7 @@ commits <- new_git_stats |>
 #> ℹ Running in parallel mode.
 #> ℹ Using cached commits 🕒 from "2025-06-01" to "2025-06-14".
 #> → Pulling commits 🕒 from API for: "2025-06-15 to 2025-06-30".
-#> ✔ Data pulled in 10.4 secs
+#> ✔ Data pulled in 10.1 secs
 dplyr::glimpse(commits)
 #> Rows: 62
 #> Columns: 11
