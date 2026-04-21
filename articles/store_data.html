@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.0.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.0.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,7 +98,7 @@ organizations.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">repos</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_repos.html">get_repos</a></span><span class="op">(</span><span class="va">git_stats</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; → Pulling repositories 🌐 data...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 6.1 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 5.8 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">repos</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 28</span></span>
 <span><span class="co">#&gt; Columns: 19</span></span>
@@ -112,13 +112,13 @@ organizations.</p>
 <span><span class="co">#&gt; $ last_activity_at <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span> 2026-04-07<span style="color: #949494;">, </span>2026-02-26<span style="color: #949494;">, </span>2026-02-26<span style="color: #949494;">, </span>2026-04-14<span style="color: #949494;">, </span>2026…</span></span>
 <span><span class="co">#&gt; $ languages        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "R, CSS, JavaScript"<span style="color: #949494;">, </span>"R"<span style="color: #949494;">, </span>"R, CSS, JavaScript, SCSS"…</span></span>
 <span><span class="co">#&gt; $ issues_open      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 6<span style="color: #949494;">, </span>34<span style="color: #949494;">, </span>36<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>79<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>12<span style="color: #949494;">, </span>0…</span></span>
-<span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 13<span style="color: #949494;">, </span>11<span style="color: #949494;">, </span>17<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>417<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>60<span style="color: #949494;">,</span>…</span></span>
+<span><span class="co">#&gt; $ issues_closed    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 13<span style="color: #949494;">, </span>11<span style="color: #949494;">, </span>17<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>418<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>60<span style="color: #949494;">,</span>…</span></span>
 <span><span class="co">#&gt; $ organization     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "r-world-devs"<span style="color: #949494;">, </span>"r-world-devs"<span style="color: #949494;">, </span>"r-world-devs"<span style="color: #949494;">, </span>"r-wo…</span></span>
 <span><span class="co">#&gt; $ repo_url         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://github.com/r-world-devs/shinyGizmo"<span style="color: #949494;">, </span>"https:…</span></span>
 <span><span class="co">#&gt; $ commit_sha       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "220937951f114267a7ceb08aa2aa9f58ab45025d"<span style="color: #949494;">, </span>"a404b64e…</span></span>
 <span><span class="co">#&gt; $ api_url          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "https://api.github.com/repos/r-world-devs/shinyGizmo…</span></span>
 <span><span class="co">#&gt; $ githost          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "github"<span style="color: #949494;">, </span>"github"<span style="color: #949494;">, </span>"github"<span style="color: #949494;">, </span>"github"<span style="color: #949494;">, </span>"github"<span style="color: #949494;">, </span>"gi…</span></span>
-<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 8.62 days<span style="color: #949494;">, </span>48.62 days<span style="color: #949494;">, </span>48.62 days<span style="color: #949494;">, </span>1.62 days<span style="color: #949494;">, </span>0.62 d…</span></span>
+<span><span class="co">#&gt; $ last_activity    <span style="color: #949494; font-style: italic;">&lt;drtn&gt;</span> 14.27 days<span style="color: #949494;">, </span>54.27 days<span style="color: #949494;">, </span>54.27 days<span style="color: #949494;">, </span>7.27 days<span style="color: #949494;">, </span>0.27 …</span></span>
 <span><span class="co">#&gt; $ contributors     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "krystian8207, stla, galachad, stlagsk"<span style="color: #949494;">, </span>"krystian820…</span></span>
 <span><span class="co">#&gt; $ contributors_n   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 4<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>4<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>5<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>6<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>141<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>6<span style="color: #949494;">, </span>44<span style="color: #949494;">,</span>…</span></span></code></pre></div>
 <p>You can always go for the lighter version of <code>get_repos</code>,
@@ -143,7 +143,7 @@ instead of whole table.</p>
 <span>    until <span class="op">=</span> <span class="st">"2025-06-14"</span>,</span>
 <span>    progress <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 9.6 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 9.5 secs</span></span>
 <span><span class="va">git_stats</span></span>
 <span><span class="co">#&gt; A <span style="color: #0000BB;">GitStats</span> object for 2 hosts: </span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">Hosts: </span>https://api.github.com, https://gitlab.com/api/v4</span></span>
@@ -187,7 +187,7 @@ when you run the function again.</p>
 <span>  <span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Storage set to <span style="color: #0000BB;">"SQLite"</span>.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Database is empty.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 10.9 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 10 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 20</span></span>
 <span><span class="co">#&gt; Columns: 11</span></span>
@@ -269,7 +269,7 @@ be there.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #0000BB;">Cache set to FALSE, I will pull data from API.</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running in parallel mode.</span></span>
 <span><span class="co">#&gt; → Pulling commits 🕒...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 10.3 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 10.4 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 20</span></span>
 <span><span class="co">#&gt; Columns: 11</span></span>
@@ -305,7 +305,7 @@ pulling all data again.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running in parallel mode.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Using cached commits 🕒 from <span style="color: #0000BB;">"2025-06-01"</span> to <span style="color: #0000BB;">"2025-06-14"</span>.</span></span>
 <span><span class="co">#&gt; → Pulling commits 🕒 from API for: <span style="color: #0000BB;">"2025-06-15 to 2025-06-30"</span>.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 10.7 secs</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Data pulled in 10.4 secs</span></span>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">commits</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 62</span></span>
 <span><span class="co">#&gt; Columns: 11</span></span>
