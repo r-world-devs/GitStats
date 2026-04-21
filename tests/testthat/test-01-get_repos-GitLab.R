@@ -325,8 +325,8 @@ test_that("get_repos_in_batches pulls repos in smaller chunks", {
   )
   mockery::stub(
     test_graphql_gitlab_priv$get_repos_in_batches,
-    "httr2::req_perform",
-    mock_response
+    "graphql_response",
+    test_fixtures$gitlab_repos_by_user_response
   )
   repos_response <- test_graphql_gitlab_priv$get_repos_in_batches(
     repos_ids = as.character(1:120),
@@ -338,14 +338,10 @@ test_that("get_repos_in_batches pulls repos in smaller chunks", {
 })
 
 test_that("get_repos_in_batches dispatches via gitstats_map", {
-  mock_response <- httr2::response_json(
-    status_code = 200,
-    body = test_fixtures$gitlab_repos_by_user_response
-  )
   mockery::stub(
     test_graphql_gitlab_priv$get_repos_in_batches,
-    "httr2::req_perform",
-    mock_response
+    "graphql_response",
+    test_fixtures$gitlab_repos_by_user_response
   )
   gitstats_map_called <- FALSE
   mockery::stub(
@@ -940,7 +936,7 @@ test_that("fill_repos_commit_sha() returns empty table",{
   expect_equal(
     gitlab_testhost_fill$fill_repos_commit_sha(repos_table, verbose = FALSE),
     data.frame()
-  )  
+  )
 })
 
 test_that("`fill_repos_commit_sha()` fills missing commit_sha via REST", {
@@ -973,7 +969,7 @@ test_that("`fill_repos_commit_sha()` fills missing commit_sha via REST", {
   )
   expect_snapshot(
     repos_commit_sha <- gitlab_testhost_fill$fill_repos_commit_sha(repos_table, verbose = TRUE)
-  )  
+  )
   expect_equal(repos_commit_sha$commit_sha[1], "1a2bc3d4e5")
   expect_equal(repos_commit_sha$commit_sha[2], "abcdef1234567890")
   test_mocker$cache(repos_commit_sha)

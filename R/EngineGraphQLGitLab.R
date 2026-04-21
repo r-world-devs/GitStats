@@ -565,12 +565,14 @@ EngineGraphQLGitLab <- R6::R6Class(
     get_repos_in_batches = function(repos_ids, batch_size = 50, verbose) {
       batches <- split(repos_ids, ceiling(seq_along(repos_ids) / batch_size))
 
-      # Capture values needed by workers — R6 private envs don't serialize
-      # to mirai workers, so the closure must be self-contained.
+      # Capture scalar values needed by workers — R6 envs don't serialize
+      # to mirai workers. The actual request/error logic lives in the
+      # standalone helpers from EngineGraphQL.R (graphql_response, etc.).
       gql_api_url <- self$gql_api_url
       token <- private$token
-      # Pre-evaluate the query template parts so the closure doesn't need
-      # the GQLQueryGitLab R6 object (which also has private fields).
+
+      # Pre-evaluate query templates so the closure doesn't need the
+      # GQLQueryGitLab R6 object (which also has private fields).
       query_no_cursor <- self$gql_query$repos("")
       query_sample <- self$gql_query$repos("__CURSOR__")
       repos_query_fn <- function(repo_cursor) {
@@ -588,39 +590,14 @@ EngineGraphQLGitLab <- R6::R6Class(
         next_page <- TRUE
         repo_cursor <- ""
         while (next_page) {
-          gql_query <- repos_query_fn(repo_cursor)
-          projects_ids <- paste0("gid://gitlab/Project/", batch)
-          response <- httr2::request(paste0(gql_api_url, "?")) |>
-            httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
-            httr2::req_body_json(list(
-              query = gql_query,
-              variables = list("projects_ids" = as.character(projects_ids))
-            )) |>
-            httr2::req_error(is_error = function(resp) FALSE) |>
-            httr2::req_perform()
-          if (response$status_code %in% c(400, 502)) {
-            response <- httr2::request(paste0(gql_api_url, "?")) |>
-              httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
-              httr2::req_body_json(list(
-                query = gql_query,
-                variables = list("projects_ids" = as.character(projects_ids))
-              )) |>
-              httr2::req_retry(
-                is_transient = ~ httr2::resp_status(.x) %in% c(400, 502),
-                max_seconds = 60
-              ) |>
-              httr2::req_perform()
-          }
-          repos_response <- httr2::resp_body_json(response)
-          if (any(names(repos_response) == "errors")) {
-            is_no_fields <- any(purrr::map_lgl(
-              repos_response$errors,
-              ~ grepl("doesn't exist on type", .$message)
-            ))
-            if (is_no_fields) {
-              class(repos_response) <- c(
-                class(repos_response), "graphql_error", "graphql_no_fields_error"
-              )
+          repos_response <- graphql_response(
+            gql_api_url = gql_api_url,
+            token = token,
+            gql_query = repos_query_fn(repo_cursor),
+            vars = list("projects_ids" = paste0("gid://gitlab/Project/", batch))
+          )
+          if (inherits(repos_response, "graphql_error")) {
+            if (inherits(repos_response, "graphql_no_fields_error")) {
               return(repos_response)
             }
             break
