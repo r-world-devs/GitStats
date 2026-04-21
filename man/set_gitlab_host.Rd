@@ -22,12 +22,10 @@ public host will be used.}
 
 \item{token}{A token.}
 
-\item{orgs}{An optional character vector of organisations. If you pass it,
-\code{repos} parameter should stay \code{NULL}.}
+\item{orgs}{An optional character vector of organisations}
 
 \item{repos}{An optional character vector of repositories full names
-(organization and repository name, e.g. "r-world-devs/GitStats"). If you
-pass it, \code{orgs} parameter should stay \code{NULL}.}
+(organization and repository name, e.g. "r-world-devs/GitStats").}
 
 \item{verbose}{A logical, \code{TRUE} by default. If \code{FALSE} messages and printing
 output is switched off.}

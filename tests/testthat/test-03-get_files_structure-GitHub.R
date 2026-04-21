@@ -124,17 +124,6 @@ test_that("get_files_structure_from_repos() prints message", {
   )
 })
 
-test_that("get_orgs_and_repos_from_files_structure", {
-  result <- github_testhost_priv$get_orgs_and_repos_from_files_structure(
-    files_structure = test_mocker$use("gh_files_structure_from_orgs")
-  )
-  expect_equal(
-    names(result),
-    c("orgs", "repos")
-  )
-  purrr::walk(result, ~ expect_true(length(.) > 0))
-})
-
 test_that("when files_structure is empty, appropriate message is returned", {
   github_testhost_priv <- create_github_testhost(
     repos = c("r-world-devs/GitStats", "openpharma/DataFakeR", "openpharma/VisR"),

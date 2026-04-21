@@ -277,13 +277,10 @@ GitHostGitHub <- R6::R6Class(
                                                       progress) {
       if (length(files_structure) > 0) {
         graphql_engine <- private$engines$graphql
-        result <- private$get_orgs_and_repos_from_files_structure(
-          files_structure = files_structure
-        )
-        orgs <- result$orgs
-        repos <- result$repos
+        orgs <- names(files_structure)
         files_table <- gitstats_map(orgs, function(org) {
           owner_type <- attr(org, "type") %||% "organization"
+          repos <- files_structure[[org]] |> names()
           repos_data <- private$get_repos_data(
             org = org,
             repos = repos,

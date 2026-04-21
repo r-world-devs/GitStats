@@ -3,6 +3,9 @@
 - Fixed `get_repos()` with `with_code` failing for GitLab when the code search returns more than 1000 repositories. The GraphQL resolver rejects queries with too many IDs; `get_repos()` now detects this limit error and automatically batches the IDs ([#781](https://github.com/r-world-devs/GitStats/issues/781)).
 - GitLab repository batching now runs in parallel when `set_parallel()` is active. Previously, batches were fetched sequentially even with parallelism enabled ([#786](https://github.com/r-world-devs/GitStats/issues/786)).
 - Extracted GraphQL request and error-classification logic from `EngineGraphQL` R6 private methods into standalone package-level functions, enabling reuse by parallel workers without R6 serialization issues.
+- Improvements to parallelism visibility: added `is_parallel()` indicating whether parallel processing is currently active and public `get_*()` methods now emit `ℹ Running in parallel mode.` when `verbose = TRUE` ([#779](https://github.com/r-world-devs/GitStats/issues/779)).
+- Improved error handling for `set_*_host()` in case user doesn't pass full path in `repos` ([#782](https://github.com/r-world-devs/GitStats/issues/782)).
+- Fixed `get_files()` function ([#776](https://github.com/r-world-devs/GitStats/issues/776)).
 
 # GitStats 2.5.0
 
