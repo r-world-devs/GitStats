@@ -73,7 +73,8 @@ git_stats <- create_gitstats() |>
 Optionally, you can run `GitStats` functions in parallel (with `mirai` package underneath):
 
 ```{r}
-git_stats <- git_stats |> set_parallel()
+git_stats |>
+  set_parallel()
 ```
 
 Get commits:
