@@ -1396,14 +1396,6 @@ GitHost <- R6::R6Class(
       }
     },
 
-    get_orgs_and_repos_from_files_structure = function(files_structure) {
-      result <- list(
-        "orgs"  = names(files_structure),
-        "repos" = purrr::map(files_structure, ~names(.)) |> unlist() |> unname()
-      )
-      return(result)
-    },
-
     get_files_structure_from_orgs = function(pattern,
                                              depth,
                                              verbose  = TRUE,
