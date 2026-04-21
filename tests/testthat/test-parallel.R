@@ -71,6 +71,22 @@ test_that("`gitstats_map_chr` handles empty input in sequential mode", {
   expect_equal(result, character(0))
 })
 
+# ---- set_parallel / is_parallel input validation ----
+
+test_that("`set_parallel` errors when called without a GitStats object", {
+  expect_error(set_parallel(4), "GitStats")
+  expect_error(set_parallel(TRUE), "GitStats")
+  expect_error(set_parallel(FALSE), "GitStats")
+  expect_error(set_parallel("not_gitstats", 4), "GitStats")
+  expect_error(set_parallel(list(), 2), "GitStats")
+})
+
+test_that("`is_parallel` errors when called without a GitStats object", {
+  expect_error(is_parallel(), "GitStats")
+  expect_error(is_parallel("not_gitstats"), "GitStats")
+  expect_error(is_parallel(42), "GitStats")
+})
+
 # ---- set_parallel ----
 
 test_that("`set_parallel` enables and disables daemons", {

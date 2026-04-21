@@ -1505,6 +1505,13 @@ GitStats <- R6::R6Class(
 #' }
 #' @export
 set_parallel <- function(gitstats, workers = TRUE) {
+  if (missing(gitstats) || !inherits(gitstats, "GitStats")) {
+    cli::cli_abort(c(
+      "{.fun set_parallel} requires a {.cls GitStats} object as its first argument.",
+      "i" = "Use {.code my_gitstats |> set_parallel(workers)} or
+             {.code set_parallel(my_gitstats, workers)}."
+    ), call = NULL)
+  }
   gitstats$set_parallel(workers = workers)
   return(invisible(gitstats))
 }
@@ -1523,5 +1530,11 @@ set_parallel <- function(gitstats, workers = TRUE) {
 #' }
 #' @export
 is_parallel <- function(gitstats) {
+  if (missing(gitstats) || !inherits(gitstats, "GitStats")) {
+    cli::cli_abort(c(
+      "{.fun is_parallel} requires a {.cls GitStats} object as its first argument.",
+      "i" = "Use {.code is_parallel(my_gitstats)}."
+    ), call = NULL)
+  }
   gitstats$is_parallel()
 }
