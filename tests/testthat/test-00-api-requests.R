@@ -101,7 +101,7 @@ test_that("`perform_request()` for GraphQL handles error 400", {
   testthat::skip_on_cran()
   mockery::stub(
     test_graphql_github_priv$perform_request,
-    "httr2::req_perform",
+    "graphql_perform_request",
     httr2::response(status_code = 400)
   )
   response <- test_graphql_github_priv$perform_request(

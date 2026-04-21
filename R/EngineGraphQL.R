@@ -1,3 +1,80 @@
+# Standalone GraphQL helpers -----------------------------------------------
+# These are plain functions (no R6 dependency) so they can be serialized
+# to mirai workers and reused by the R6 methods below.
+
+#' @noRd
+graphql_perform_request <- function(gql_api_url, token, gql_query, vars) {
+  response <- httr2::request(paste0(gql_api_url, "?")) |>
+    httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
+    httr2::req_body_json(list(query = gql_query, variables = vars)) |>
+    httr2::req_error(is_error = function(resp) FALSE) |>
+    httr2::req_perform()
+  if (response$status_code %in% c(400, 502)) {
+    response <- httr2::request(paste0(gql_api_url, "?")) |>
+      httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
+      httr2::req_body_json(list(query = gql_query, variables = vars)) |>
+      httr2::req_retry(
+        is_transient = ~ httr2::resp_status(.x) %in% c(400, 502),
+        max_seconds = 60
+      ) |>
+      httr2::req_perform()
+  }
+  return(response)
+}
+
+#' @noRd
+is_graphql_query_error <- function(response) {
+  length(response) > 0 && any(names(response) == "errors")
+}
+
+#' @noRd
+is_graphql_no_fields_error <- function(response) {
+  any(purrr::map_lgl(response$errors, ~ grepl("doesn't exist on type", .$message)))
+}
+
+#' @noRd
+is_graphql_complexity_error <- function(response) {
+  any(purrr::map_lgl(response$errors, ~ grepl("Query has complexity", .$message)))
+}
+
+#' @noRd
+is_graphql_server_error <- function(response) {
+  any(purrr::map_lgl(response$errors, ~ grepl("Internal server error", .$message)))
+}
+
+#' @noRd
+is_graphql_limit_error <- function(response) {
+  any(purrr::map_lgl(response$errors, ~ grepl("cannot accept more than", .$message)))
+}
+
+#' @noRd
+set_graphql_error_class <- function(response) {
+  if (is_graphql_query_error(response)) {
+    class(response) <- c(class(response), "graphql_error")
+    if (is_graphql_no_fields_error(response)) {
+      class(response) <- c(class(response), "graphql_no_fields_error")
+    }
+    if (is_graphql_complexity_error(response)) {
+      class(response) <- c(class(response), "graphql_complexity_error")
+    }
+    if (is_graphql_limit_error(response)) {
+      class(response) <- c(class(response), "graphql_limit_error")
+    }
+    if (is_graphql_server_error(response)) {
+      class(response) <- c(class(response), "graphql_server_error")
+    }
+  }
+  return(response)
+}
+
+#' @noRd
+graphql_response <- function(gql_api_url, token, gql_query, vars) {
+  response <- graphql_perform_request(gql_api_url, token, gql_query, vars)
+  httr2::resp_body_json(response) |> set_graphql_error_class()
+}
+
+# EngineGraphQL R6 class ---------------------------------------------------
+
 EngineGraphQL <- R6::R6Class(
   "EngineGraphQL",
   inherit = Engine,
@@ -16,14 +93,12 @@ EngineGraphQL <- R6::R6Class(
     },
 
     gql_response = function(gql_query, vars = "null", verbose) {
-      response <- private$perform_request(
+      graphql_response(
+        gql_api_url = self$gql_api_url,
+        token = private$token,
         gql_query = gql_query,
-        vars = vars,
-        verbose = verbose
+        vars = vars
       )
-      response_list <- httr2::resp_body_json(response) |>
-        private$set_graphql_error_class()
-      return(response_list)
     },
 
     get_user = function(username) {
@@ -153,23 +228,12 @@ EngineGraphQL <- R6::R6Class(
     owner_types_cache = list(),
 
     perform_request = function(gql_query, vars, token = private$token, verbose = TRUE) {
-      response <- NULL
-      response <- httr2::request(paste0(self$gql_api_url, "?")) |>
-        httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
-        httr2::req_body_json(list(query = gql_query, variables = vars)) |>
-        httr2::req_error(is_error = function(resp) FALSE) |>
-        httr2::req_perform()
-      if (response$status_code %in% c(400, 502)) {
-        response <- httr2::request(paste0(self$gql_api_url, "?")) |>
-          httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
-          httr2::req_body_json(list(query = gql_query, variables = vars)) |>
-          httr2::req_retry(
-            is_transient = ~ httr2::resp_status(.x) %in% c(400, 502),
-            max_seconds = 60
-          ) |>
-          httr2::req_perform()
-      }
-      return(response)
+      graphql_perform_request(
+        gql_api_url = self$gql_api_url,
+        token = token,
+        gql_query = gql_query,
+        vars = vars
+      )
     },
 
     handle_graphql_error = function(responses_list, verbose) {
@@ -188,46 +252,27 @@ EngineGraphQL <- R6::R6Class(
     },
 
     is_query_error = function(response) {
-      check <- FALSE
-      if (length(response) > 0) {
-        check <- any(names(response) == "errors")
-      }
-      return(check)
+      is_graphql_query_error(response)
     },
 
     is_no_fields_query_error = function(response) {
-      any(purrr::map_lgl(response$errors, ~ grepl("doesn't exist on type", .$message)))
+      is_graphql_no_fields_error(response)
     },
 
     is_complexity_error = function(response) {
-      any(purrr::map_lgl(response$errors, ~ grepl("Query has complexity", .$message)))
+      is_graphql_complexity_error(response)
     },
 
     is_server_error = function(response) {
-      any(purrr::map_lgl(response$errors, ~ grepl("Internal server error", .$message)))
+      is_graphql_server_error(response)
     },
 
     is_limit_error = function(response) {
-      any(purrr::map_lgl(response$errors, ~ grepl("cannot accept more than", .$message)))
+      is_graphql_limit_error(response)
     },
 
     set_graphql_error_class = function(response) {
-      if (private$is_query_error(response)) {
-        class(response) <- c(class(response), "graphql_error")
-        if (private$is_no_fields_query_error(response)) {
-          class(response) <- c(class(response), "graphql_no_fields_error")
-        }
-        if (private$is_complexity_error(response)) {
-          class(response) <- c(class(response), "graphql_complexity_error")
-        }
-        if (private$is_limit_error(response)) {
-          class(response) <- c(class(response), "graphql_limit_error")
-        }
-        if (private$is_server_error(response)) {
-          class(response) <- c(class(response), "graphql_server_error")
-        }
-      }
-      return(response)
+      set_graphql_error_class(response)
     },
 
     get_path_from_files_structure = function(host_files_structure,
