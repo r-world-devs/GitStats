@@ -507,6 +507,17 @@ GitHost <- R6::R6Class(
     },
 
     check_repositories = function(repos, verbose, .error) {
+      repos_without_org <- repos[!grepl("/", url_decode(repos))]
+      if (length(repos_without_org) > 0) {
+        cli::cli_abort(
+          c(
+            "x" = "Repository name must be provided as a full path: {.val org/repo_name}.",
+            "i" = "Got: {.val {url_decode(repos_without_org)}}",
+            "!" = "Pass the full path as seen in the web URL, e.g. {.val r-world-devs/GitStats}."
+          ),
+          call = NULL
+        )
+      }
       if (verbose) {
         cli::cli_alert(cli::col_grey("Checking repositories..."))
       }
@@ -587,7 +598,8 @@ GitHost <- R6::R6Class(
               "!" = "Please type your {tolower(type)} name as you see it in
                 web URL.",
               "i" = "E.g. do not use spaces. {type} names as you see on the
-                page may differ from their web 'address'."
+                page may differ from their web 'address'.",
+              "i" = "Repository names should be provided as full paths: {.val org/repo_name}."
             ),
             call = NULL
           )
@@ -1382,14 +1394,6 @@ GitHost <- R6::R6Class(
           private$add_repo_api_url()
         return(files_table)
       }
-    },
-
-    get_orgs_and_repos_from_files_structure = function(files_structure) {
-      result <- list(
-        "orgs"  = names(files_structure),
-        "repos" = purrr::map(files_structure, ~names(.)) |> unlist() |> unname()
-      )
-      return(result)
     },
 
     get_files_structure_from_orgs = function(pattern,

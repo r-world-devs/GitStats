@@ -37,6 +37,7 @@
     x Repository you provided does not exist or its name was passed in a wrong way: https://api.github.com/repos/r-worlddevs/GitStats
     ! Please type your repository name as you see it in web URL.
     i E.g. do not use spaces. Repository names as you see on the page may differ from their web 'address'.
+    i Repository names should be provided as full paths: "org/repo_name".
 
 # check_endpoint returns warning if they are not correct
 

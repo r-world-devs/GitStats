@@ -38,6 +38,7 @@ reference:
 - title: Parallel processing
 - contents:
   - set_parallel
+  - is_parallel
 - title: Get statistics
   desc: >
       Functions summarizing git data.

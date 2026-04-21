@@ -28,6 +28,7 @@ endCursor
 httr
 lifecycle
 magrittr
+mirai
 organisations
 orgs
 param
@@ -36,5 +37,6 @@ plotly
 repo
 repos
 regex
+SHA
 tibble
 tibbles
