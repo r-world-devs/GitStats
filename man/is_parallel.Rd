@@ -4,15 +4,22 @@
 \alias{is_parallel}
 \title{Check if parallel processing is active}
 \usage{
-is_parallel()
+is_parallel(gitstats)
+}
+\arguments{
+\item{gitstats}{A GitStats object.}
 }
 \value{
 A logical scalar.
 }
 \description{
-Returns \code{TRUE} when mirai daemons are running (i.e.
-\code{set_parallel()} has been called), \code{FALSE} otherwise.
+Returns \code{TRUE} when mirai daemons are running on the given
+\code{GitStats} object (i.e. \code{set_parallel()} has been called), \code{FALSE}
+otherwise.
 }
 \examples{
-is_parallel()
+\dontrun{
+  my_gitstats <- create_gitstats()
+  is_parallel(my_gitstats)
+}
 }
