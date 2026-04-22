@@ -39,8 +39,8 @@ git_stats <- create_gitstats() |>
 Optionally speed up processing.
 
 ```{r}
-git_stats |> 
-  set_parallel(10)
+git_stats |>
+  set_parallel(10L)
 ```
 
 As scanning scope was set to `organizations` (`orgs` parameter in `set_*_host()`), `GitStats` will pull all repositories from these organizations.

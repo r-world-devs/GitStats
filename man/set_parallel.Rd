@@ -4,7 +4,7 @@
 \alias{set_parallel}
 \title{Enable parallel processing}
 \usage{
-set_parallel(gitstats, workers = TRUE)
+set_parallel(gitstats, workers = 10L)
 }
 \arguments{
 \item{gitstats}{A GitStats object.}

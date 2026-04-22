@@ -616,7 +616,7 @@ GitStats <- R6::R6Class(
       private$settings$verbose
     },
 
-    set_parallel = function(workers = TRUE) {
+    set_parallel = function(workers = 10L) {
       if (isFALSE(workers) || identical(workers, 0L) || identical(workers, 0)) {
         status <- mirai::daemons(0)
         private$settings$parallel <- FALSE
@@ -1504,7 +1504,7 @@ GitStats <- R6::R6Class(
 #'   my_gitstats |> set_parallel(FALSE) # revert to sequential
 #' }
 #' @export
-set_parallel <- function(gitstats, workers = TRUE) {
+set_parallel <- function(gitstats, workers = 10L) {
   if (missing(gitstats) || !inherits(gitstats, "GitStats")) {
     cli::cli_abort(c(
       "{.fun set_parallel} requires a {.cls GitStats} object as its first argument.",
