@@ -52,9 +52,11 @@ expect_repos_gitlab_gql_response <- function(object, type = "organization") {
 expect_repos_github_gql_response <- function(repo_node) {
   expect_in(
     names(repo_node),
-    c("repo_id", "repo_name", "stars", "forks", "created_at",
+    c("repo_id", "repo_name", "repo_path", "repo_fullpath",
+      "default_branch", "stars", "forks", "created_at",
       "last_activity_at", "languages", "issues_open",
-      "issues_closed", "repo_url", "commit_sha")
+      "issues_closed", "organization", "repo_url",
+      "defaultBranchRef", "commit_sha")
   )
 }
 
