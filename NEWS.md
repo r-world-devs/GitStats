@@ -1,5 +1,6 @@
 # GitStats (development version)
 
+- `set_parallel()` and `is_parallel()` now take a `gitstats` object as first argument, making them pipeable (e.g. `gitstats |> set_parallel(4)`). Parallel state is stored on the object ([#790](https://github.com/r-world-devs/GitStats/issues/790)).
 - Fixed `get_repos()` with `with_code` failing for GitLab when the code search returns more than 1000 repositories. The GraphQL resolver rejects queries with too many IDs; `get_repos()` now detects this limit error and automatically batches the IDs ([#781](https://github.com/r-world-devs/GitStats/issues/781)).
 - GitLab repository batching now runs in parallel when `set_parallel()` is active. Previously, batches were fetched sequentially even with parallelism enabled ([#786](https://github.com/r-world-devs/GitStats/issues/786)).
 - Extracted GraphQL request and error-classification logic from `EngineGraphQL` R6 private methods into standalone package-level functions, enabling reuse by parallel workers without R6 serialization issues.

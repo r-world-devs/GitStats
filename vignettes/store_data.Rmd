@@ -34,7 +34,13 @@ git_stats <- create_gitstats() |>
     orgs = c("mbtests"),
     token = Sys.getenv("GITLAB_PAT_PUBLIC")
   )
-set_parallel(10) # optionally speed up processing
+```
+
+Optionally speed up processing.
+
+```{r}
+git_stats |>
+  set_parallel(10L)
 ```
 
 As scanning scope was set to `organizations` (`orgs` parameter in `set_*_host()`), `GitStats` will pull all repositories from these organizations.

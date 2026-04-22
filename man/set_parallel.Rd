@@ -4,15 +4,17 @@
 \alias{set_parallel}
 \title{Enable parallel processing}
 \usage{
-set_parallel(workers = TRUE)
+set_parallel(gitstats, workers = 10L)
 }
 \arguments{
+\item{gitstats}{A GitStats object.}
+
 \item{workers}{Number of parallel workers. Set to \code{TRUE} for automatic
 detection, a positive integer for a specific count, or \code{FALSE}/\code{0} to
 disable parallelism.}
 }
 \value{
-Invisibly returns the status from \code{mirai::daemons()}.
+A \code{GitStats} object.
 }
 \description{
 Set up parallel processing for API calls using mirai daemons.
@@ -26,9 +28,9 @@ to sequential execution.
     set_github_host(
       token = Sys.getenv("GITHUB_PAT"),
       orgs = c("r-world-devs", "openpharma")
-    )
-  set_parallel(4)
+    ) |>
+    set_parallel(4)
   get_commits(my_gitstats, since = "2024-01-01")
-  set_parallel(FALSE) # revert to sequential
+  my_gitstats |> set_parallel(FALSE) # revert to sequential
 }
 }

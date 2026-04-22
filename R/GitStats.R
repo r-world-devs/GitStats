@@ -616,6 +616,32 @@ GitStats <- R6::R6Class(
       private$settings$verbose
     },
 
+    set_parallel = function(workers = 10L) {
+      if (isFALSE(workers) || identical(workers, 0L) || identical(workers, 0)) {
+        status <- mirai::daemons(0)
+        private$settings$parallel <- FALSE
+        cli::cli_alert_info("Parallel processing disabled.")
+      } else {
+        if (isTRUE(workers)) {
+          workers <- parallel::detectCores(logical = FALSE)
+          if (is.na(workers) || workers < 2L) workers <- 2L
+        }
+        status <- mirai::daemons(workers)
+        ns <- asNamespace("GitStats")
+        ns_objects <- as.list(ns, all.names = TRUE)
+        do.call(mirai::everywhere, c(list(quote({})), ns_objects))
+        private$settings$parallel <- TRUE
+        cli::cli_alert_success(
+          "Parallel processing enabled with {workers} workers."
+        )
+      }
+      return(invisible(status))
+    },
+
+    is_parallel = function() {
+      private$settings$parallel && mirai_active()
+    },
+
     set_local_storage = function() {
       private$storage_backend <- StorageLocal$new()
       private$propagate_storage_to_hosts()
@@ -728,8 +754,9 @@ GitStats <- R6::R6Class(
     hosts = list(),
 
     settings = list(
-      verbose = TRUE,
-      cache   = TRUE
+      verbose  = TRUE,
+      cache    = TRUE,
+      parallel = FALSE
     ),
 
     storage_backend = NULL,
@@ -752,7 +779,7 @@ GitStats <- R6::R6Class(
     },
 
     inform_parallel = function(verbose) {
-      if (verbose && mirai_active()) {
+      if (verbose && self$is_parallel()) {
         cli::cli_alert_info("Running in parallel mode.")
       }
     },
@@ -1460,54 +1487,54 @@ GitStats <- R6::R6Class(
 #'   When enabled, GitStats fetches data from multiple repositories
 #'   concurrently. Call `set_parallel(FALSE)` or `set_parallel(0)` to revert
 #'   to sequential execution.
+#' @param gitstats A GitStats object.
 #' @param workers Number of parallel workers. Set to `TRUE` for automatic
 #'   detection, a positive integer for a specific count, or `FALSE`/`0` to
 #'   disable parallelism.
-#' @return Invisibly returns the status from `mirai::daemons()`.
+#' @return A `GitStats` object.
 #' @examples
 #' \dontrun{
 #'   my_gitstats <- create_gitstats() |>
 #'     set_github_host(
 #'       token = Sys.getenv("GITHUB_PAT"),
 #'       orgs = c("r-world-devs", "openpharma")
-#'     )
-#'   set_parallel(4)
+#'     ) |>
+#'     set_parallel(4)
 #'   get_commits(my_gitstats, since = "2024-01-01")
-#'   set_parallel(FALSE) # revert to sequential
+#'   my_gitstats |> set_parallel(FALSE) # revert to sequential
 #' }
 #' @export
-set_parallel <- function(workers = TRUE) {
-  if (isFALSE(workers) || identical(workers, 0L) || identical(workers, 0)) {
-    status <- mirai::daemons(0)
-    cli::cli_alert_info("Parallel processing disabled.")
-  } else {
-    if (isTRUE(workers)) {
-      workers <- parallel::detectCores(logical = FALSE)
-      if (is.na(workers) || workers < 2L) workers <- 2L
-    }
-    status <- mirai::daemons(workers)
-    # Export all GitStats namespace objects to daemon global environments.
-    # This works regardless of whether the package is installed or loaded
-    # via devtools::load_all(). Using ... (not .args) so objects are
-    # assigned to the daemon's global env where they can be found by name.
-    ns <- asNamespace("GitStats")
-    ns_objects <- as.list(ns, all.names = TRUE)
-    do.call(mirai::everywhere, c(list(quote({})), ns_objects))
-    cli::cli_alert_success(
-      "Parallel processing enabled with {workers} workers."
-    )
+set_parallel <- function(gitstats, workers = 10L) {
+  if (missing(gitstats) || !inherits(gitstats, "GitStats")) {
+    cli::cli_abort(c(
+      "{.fun set_parallel} requires a {.cls GitStats} object as its first argument.",
+      "i" = "Use {.code my_gitstats |> set_parallel(workers)} or
+             {.code set_parallel(my_gitstats, workers)}."
+    ), call = NULL)
   }
-  return(invisible(status))
+  gitstats$set_parallel(workers = workers)
+  return(invisible(gitstats))
 }
 
 #' @title Check if parallel processing is active
 #' @name is_parallel
-#' @description Returns `TRUE` when mirai daemons are running (i.e.
-#'   `set_parallel()` has been called), `FALSE` otherwise.
+#' @description Returns `TRUE` when mirai daemons are running on the given
+#'   `GitStats` object (i.e. `set_parallel()` has been called), `FALSE`
+#'   otherwise.
+#' @param gitstats A GitStats object.
 #' @return A logical scalar.
 #' @examples
-#' is_parallel()
+#' \dontrun{
+#'   my_gitstats <- create_gitstats()
+#'   is_parallel(my_gitstats)
+#' }
 #' @export
-is_parallel <- function() {
-  mirai_active()
+is_parallel <- function(gitstats) {
+  if (missing(gitstats) || !inherits(gitstats, "GitStats")) {
+    cli::cli_abort(c(
+      "{.fun is_parallel} requires a {.cls GitStats} object as its first argument.",
+      "i" = "Use {.code is_parallel(my_gitstats)}."
+    ), call = NULL)
+  }
+  gitstats$is_parallel()
 }

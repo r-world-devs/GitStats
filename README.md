@@ -66,7 +66,8 @@ Optionally, you can run `GitStats` functions in parallel (with `mirai`
 package underneath):
 
 ``` r
-set_parallel()
+git_stats |>
+  set_parallel()
 ```
 
 Get commits:
@@ -78,7 +79,7 @@ commits <- git_stats |>
   )
 
 commits
-#> # A tibble: 3,510 × 11
+#> # A tibble: 3,713 × 11
 #>    repo_name id    committed_date      author author_login author_name additions
 #>    <chr>     <chr> <dttm>              <chr>  <chr>        <chr>           <int>
 #>  1 gitstats… 7f48… 2024-09-10 11:12:59 Macie… <NA>         Maciej Ban…         0
@@ -88,10 +89,10 @@ commits
 #>  5 gitstats… 7e87… 2023-02-10 09:48:55 Macie… <NA>         Maciej Ban…         1
 #>  6 gitstats… 62c4… 2023-02-10 09:17:24 Macie… <NA>         Maciej Ban…         2
 #>  7 gitstats… 55cf… 2023-02-10 09:07:54 Macie… <NA>         Maciej Ban…        92
-#>  8 shinyGiz… C_kw… 2023-05-08 09:43:31 Kryst… krystian8207 Krystian I…        18
-#>  9 shinyGiz… C_kw… 2023-04-28 12:30:40 Kamil… <NA>         Kamil Kozi…        18
-#> 10 shinyGiz… C_kw… 2023-03-01 15:05:10 Kryst… krystian8207 Krystian I…       296
-#> # ℹ 3,500 more rows
+#>  8 shinyGiz… C_kw… 2026-04-03 22:27:09 Kryst… krystian8207 Krystian I…      1638
+#>  9 shinyGiz… C_kw… 2026-04-03 21:23:33 Kryst… krystian8207 Krystian I…        42
+#> 10 shinyGiz… C_kw… 2026-04-03 20:29:59 Kryst… krystian8207 Krystian I…        18
+#> # ℹ 3,703 more rows
 #> # ℹ 4 more variables: deletions <int>, organization <chr>, repo_url <chr>,
 #> #   api_url <glue>
 
@@ -100,7 +101,7 @@ commits |>
     time_aggregation = "month",
     group_var = author
   )
-#> # A tibble: 378 × 4
+#> # A tibble: 382 × 4
 #>    stats_date          githost author             stats
 #>    <dttm>              <chr>   <chr>              <int>
 #>  1 2022-01-01 00:00:00 github  Admin_mschuemi         1
@@ -113,7 +114,7 @@ commits |>
 #>  8 2022-02-01 00:00:00 github  Reijo Sund             1
 #>  9 2022-02-01 00:00:00 github  eitsupi                1
 #> 10 2022-03-01 00:00:00 github  Maximilian Girlich    14
-#> # ℹ 368 more rows
+#> # ℹ 372 more rows
 ```
 
 Get repositories with specific code:
@@ -149,12 +150,12 @@ git_stats |>
     pattern = "\\.md",
     depth = 2L
   )
-#> # A tibble: 68 × 10
+#> # A tibble: 63 × 10
 #>    repo_id      repo_name  organization file_path file_content file_size file_id
 #>    <chr>        <chr>      <chr>        <chr>     <chr>            <int> <chr>  
 #>  1 43398933     gitstatst… mbtests      README.md "# GitStats…       122 fe2407…
-#>  2 R_kgDOHNMr2w shinyGizmo r-world-devs NEWS.md   "# shinyGiz…      2186 c13994…
-#>  3 R_kgDOHNMr2w shinyGizmo r-world-devs README.md "\n# shinyG…      2337 585f62…
+#>  2 R_kgDOHNMr2w shinyGizmo r-world-devs NEWS.md   "# shinyGiz…      2382 466c53…
+#>  3 R_kgDOHNMr2w shinyGizmo r-world-devs README.md "\n# shinyG…      4271 388469…
 #>  4 R_kgDOHNMr2w shinyGizmo r-world-devs cran-com… "## Test en…      1700 cfcaf4…
 #>  5 R_kgDOHYNOFQ cohortBui… r-world-devs NEWS.md   "# cohortBu…      1369 8c5cf3…
 #>  6 R_kgDOHYNOFQ cohortBui… r-world-devs README.md "\n# cohort…     13382 ebc919…
@@ -162,7 +163,7 @@ git_stats |>
 #>  8 R_kgDOHYNrJw shinyCoho… r-world-devs README.md "\n# shinyC…      3355 e49dfe…
 #>  9 R_kgDOHYNxtw cohortBui… r-world-devs README.md "\n# cohort…      3472 d4687c…
 #> 10 R_kgDOIvtxsg GitStats   r-world-devs LICENSE.… "# MIT Lice…      1075 141471…
-#> # ℹ 58 more rows
+#> # ℹ 53 more rows
 #> # ℹ 3 more variables: repo_url <chr>, commit_sha <chr>, api_url <chr>
 ```
 
@@ -173,7 +174,7 @@ git_stats |>
   get_pull_requests(
     since = "2022-01-01"
   )
-#> # A tibble: 420 × 10
+#> # A tibble: 444 × 10
 #>    repo_name       number created_at          merged_at           state  author 
 #>    <chr>           <chr>  <dttm>              <dttm>              <chr>  <chr>  
 #>  1 gitstatstesting 2      2026-02-25 09:34:18 NA                  closed <NA>   
@@ -186,7 +187,7 @@ git_stats |>
 #>  8 shinyGizmo      16     2022-06-15 13:48:08 2022-06-15 14:12:52 merged krysti…
 #>  9 shinyGizmo      17     2022-06-17 10:55:10 2022-06-17 10:56:09 merged krysti…
 #> 10 shinyGizmo      19     2022-07-05 10:01:44 2022-07-05 11:05:30 merged krysti…
-#> # ℹ 410 more rows
+#> # ℹ 434 more rows
 #> # ℹ 4 more variables: source_branch <chr>, target_branch <chr>,
 #> #   organization <chr>, api_url <glue>
 ```
@@ -200,11 +201,11 @@ git_stats
 #> Scanning scope: 
 #>  Organizations: [1] r-world-devs
 #>  Repositories: [2] mbtests/gitstatstesting, openpharma/DataFakeR
-#> Storage: 
+#> Storage [local]:
+#>  Commits: 3713 [date range: 2022-01-01 - 2026-04-21]
 #>  Repositories: 9 
-#>  Commits: 3510 [date range: 2022-01-01 - 2026-03-18]
-#>  Files: 68 [file pattern: \.md]
-#>  Pull_requests: 420 [date range: 2022-01-01 - 2026-03-18]
+#>  Files: 63 [file pattern: \.md]
+#>  Pull_requests: 444 [date range: 2022-01-01 - 2026-04-21]
 ```
 
 ## See also
