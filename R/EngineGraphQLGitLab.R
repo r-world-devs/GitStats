@@ -373,7 +373,7 @@ EngineGraphQLGitLab <- R6::R6Class(
                                            file_paths = NULL,
                                            host_files_structure = NULL,
                                            verbose = FALSE) {
-      org_files_list <- gitstats_map(repos_data, function(repo) {
+      org_files_list <- gitstats_map(repos_data$paths, function(repo) {
         if (!is.null(host_files_structure)) {
           file_paths <- private$get_path_from_files_structure(
             host_files_structure = host_files_structure,
