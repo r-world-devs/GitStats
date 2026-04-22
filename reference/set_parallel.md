@@ -8,10 +8,14 @@ execution.
 ## Usage
 
 ``` r
-set_parallel(workers = TRUE)
+set_parallel(gitstats, workers = 10L)
 ```
 
 ## Arguments
+
+- gitstats:
+
+  A GitStats object.
 
 - workers:
 
@@ -21,8 +25,7 @@ set_parallel(workers = TRUE)
 
 ## Value
 
-Invisibly returns the status from
-[`mirai::daemons()`](https://mirai.r-lib.org/reference/daemons.html).
+A `GitStats` object.
 
 ## Examples
 
@@ -32,9 +35,9 @@ if (FALSE) { # \dontrun{
     set_github_host(
       token = Sys.getenv("GITHUB_PAT"),
       orgs = c("r-world-devs", "openpharma")
-    )
-  set_parallel(4)
+    ) |>
+    set_parallel(4)
   get_commits(my_gitstats, since = "2024-01-01")
-  set_parallel(FALSE) # revert to sequential
+  my_gitstats |> set_parallel(FALSE) # revert to sequential
 } # }
 ```

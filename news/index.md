@@ -2,6 +2,12 @@
 
 ## GitStats (development version)
 
+- [`set_parallel()`](https://r-world-devs.github.io/GitStats/reference/set_parallel.md)
+  and
+  [`is_parallel()`](https://r-world-devs.github.io/GitStats/reference/is_parallel.md)
+  now take a `gitstats` object as first argument, making them pipeable
+  (e.g. `gitstats |> set_parallel(4)`). Parallel state is stored on the
+  object ([\#790](https://github.com/r-world-devs/GitStats/issues/790)).
 - Fixed
   [`get_repos()`](https://r-world-devs.github.io/GitStats/reference/get_repos.md)
   with `with_code` failing for GitLab when the code search returns more
