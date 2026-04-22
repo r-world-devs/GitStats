@@ -156,8 +156,8 @@ test_that("get_path_from_files_structure gets file path from files structure", {
     org = gh_org,
     repo = gh_repo
   )
-  expect_equal(typeof(file_path), "character")
-  expect_true(length(file_path) > 0)
+  expect_type(file_path, "character")
+  expect_gt(length(file_path), 0)
 })
 
 test_that("get_files_structure pulls files structure for repositories in orgs", {

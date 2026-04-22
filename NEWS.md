@@ -1,28 +1,47 @@
-# GitStats (development version)
+# GitStats 2.5.1
+
+## Parallel processing
 
 - `set_parallel()` and `is_parallel()` now take a `gitstats` object as first argument, making them pipeable (e.g. `gitstats |> set_parallel(4)`). Parallel state is stored on the object ([#790](https://github.com/r-world-devs/GitStats/issues/790)).
-- Fixed `get_repos()` with `with_code` failing for GitLab when the code search returns more than 1000 repositories. The GraphQL resolver rejects queries with too many IDs; `get_repos()` now detects this limit error and automatically batches the IDs ([#781](https://github.com/r-world-devs/GitStats/issues/781)).
 - GitLab repository batching now runs in parallel when `set_parallel()` is active. Previously, batches were fetched sequentially even with parallelism enabled ([#786](https://github.com/r-world-devs/GitStats/issues/786)).
-- Extracted GraphQL request and error-classification logic from `EngineGraphQL` R6 private methods into standalone package-level functions, enabling reuse by parallel workers without R6 serialization issues.
 - Improvements to parallelism visibility: added `is_parallel()` indicating whether parallel processing is currently active and public `get_*()` methods now emit `ℹ Running in parallel mode.` when `verbose = TRUE` ([#779](https://github.com/r-world-devs/GitStats/issues/779)).
+
+## Bug fixes
+
+- Fixed `get_repos()` with `with_code` failing for GitLab when the code search returns more than 1000 repositories. The GraphQL resolver rejects queries with too many IDs; `get_repos()` now detects this limit error and automatically batches the IDs ([#781](https://github.com/r-world-devs/GitStats/issues/781)).
 - Improved error handling for `set_*_host()` in case user doesn't pass full path in `repos` ([#782](https://github.com/r-world-devs/GitStats/issues/782)).
 - Fixed `get_files()` function ([#776](https://github.com/r-world-devs/GitStats/issues/776)).
+
+## Refactoring
+
+- Extracted GraphQL request and error-classification logic from `EngineGraphQL` R6 private methods into standalone package-level functions, enabling reuse by parallel workers without R6 serialization issues.
 
 # GitStats 2.5.0
 
 This release introduces external storage backends (PostgreSQL and SQLite) for persisting pulled data across sessions, and optional parallel processing via `mirai` for faster API calls. It also brings several performance improvements, including a faster file tree retrieval and optimized GitLab repository queries.
 
-- Added `add_languages` parameter to `get_repos()` (`TRUE` by default). When set to `FALSE`, languages data is excluded from the output and the GitLab REST languages API calls are skipped, speeding up the process.
-- Fixed `get_repos()` returning `NA` for `commit_sha` on archived GitLab projects. When the GraphQL API returns `null` for `lastCommit`, a REST Branches API fallback can now retrieve the SHA. Use `fill_empty_sha = TRUE` in `get_repos()` to enable this ([#746](https://github.com/r-world-devs/GitStats/issues/746)).
-- Added optional parallel processing for API calls via `mirai` package. Use `set_parallel()` to enable concurrent data fetching across repositories and organizations ([#736](https://github.com/r-world-devs/GitStats/issues/736)).
-- Cached `set_owner_type()` results to avoid redundant GraphQL calls when multiple `get_*` functions are used in the same session ([#738](https://github.com/r-world-devs/GitStats/issues/738)).
-- Replaced per-directory GraphQL file tree traversal with single-call REST recursive tree API for `get_repos_trees()`, substantially improving speed of retrieving repository file trees ([#740](https://github.com/r-world-devs/GitStats/issues/740)).
+## Storage
+
 - Added `set_postgres_storage()`, `set_sqlite_storage()`, and `set_local_storage()` to configure external storage backends. PostgreSQL (via `RPostgres`/`DBI`) and SQLite (via `RSQLite`/`DBI`) are supported for persisting data in a database. Metadata (R classes, attributes) is preserved via a `_metadata` table ([#602](https://github.com/r-world-devs/GitStats/issues/602)).
 - Added `remove_from_storage()` to remove a named table from the active storage backend ([#747](https://github.com/r-world-devs/GitStats/issues/747)).
 - Added `remove_postgres_storage()` and `remove_sqlite_storage()` to fully remove a database storage backend — the PostgreSQL variant drops the GitStats schema, the SQLite variant deletes the database file — and revert to local storage ([#759](https://github.com/r-world-devs/GitStats/issues/759)).
 - Added `get_storage_metadata()` to retrieve metadata (R classes, custom attributes, column types) for a stored table ([#748](https://github.com/r-world-devs/GitStats/issues/748)).
+
+## Parallel processing
+
+- Added optional parallel processing for API calls via `mirai` package. Use `set_parallel()` to enable concurrent data fetching across repositories and organizations ([#736](https://github.com/r-world-devs/GitStats/issues/736)).
+
+## Performance
+
+- Added `add_languages` parameter to `get_repos()` (`TRUE` by default). When set to `FALSE`, languages data is excluded from the output and the GitLab REST languages API calls are skipped, speeding up the process.
+- Cached `set_owner_type()` results to avoid redundant GraphQL calls when multiple `get_*` functions are used in the same session ([#738](https://github.com/r-world-devs/GitStats/issues/738)).
+- Replaced per-directory GraphQL file tree traversal with single-call REST recursive tree API for `get_repos_trees()`, substantially improving speed of retrieving repository file trees ([#740](https://github.com/r-world-devs/GitStats/issues/740)).
 - Fixed slow `get_repos()` for GitLab when specific repos are set. Previously, the `repos_by_user` GraphQL query searched the entire GitLab instance; now repos are queried directly by `fullPath` ([#750](https://github.com/r-world-devs/GitStats/issues/750)).
 - Sped up vignettes generation ([#504](https://github.com/r-world-devs/GitStats/issues/504), [@marcinkowskak](https://github.com/marcinkowskak)).
+
+## Bug fixes
+
+- Fixed `get_repos()` returning `NA` for `commit_sha` on archived GitLab projects. When the GraphQL API returns `null` for `lastCommit`, a REST Branches API fallback can now retrieve the SHA. Use `fill_empty_sha = TRUE` in `get_repos()` to enable this ([#746](https://github.com/r-world-devs/GitStats/issues/746)).
 
 # GitStats 2.4.0
 

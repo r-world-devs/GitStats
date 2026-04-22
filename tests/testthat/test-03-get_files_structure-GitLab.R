@@ -129,8 +129,8 @@ test_that("get_path_from_files_structure gets file path from files structure", {
     host_files_structure = test_mocker$use("gl_files_structure_from_orgs"),
     org = gl_group # this will need fixing and repo parameter must come back
   )
-  expect_equal(typeof(file_path), "character")
-  expect_true(length(file_path) > 0)
+  expect_type(file_path, "character")
+  expect_gt(length(file_path), 0)
 })
 
 test_that("get_files_structure pulls files structure for repositories in orgs", {

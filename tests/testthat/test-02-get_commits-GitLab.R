@@ -117,7 +117,7 @@ test_that("get_authors_dict() prepares dictionary with handles and names", {
     commits_table = test_mocker$use("gl_commits_table")
   )
   expect_s3_class(authors_dict, "data.frame")
-  expect_true(nrow(authors_dict) > 0)
+  expect_gt(nrow(authors_dict), 0)
   expect_length(authors_dict, 3)
   test_mocker$cache(authors_dict)
 })
