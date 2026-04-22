@@ -1,5 +1,7 @@
 # GitStats 2.5.1
 
+This patch improves parallel processing — `set_parallel()` and `is_parallel()` are now pipeable and GitLab batch fetching runs concurrently — and fixes several bugs in `get_repos()` and `get_files()`.
+
 ## Parallel processing
 
 - `set_parallel()` and `is_parallel()` now take a `gitstats` object as first argument, making them pipeable (e.g. `gitstats |> set_parallel(4)`). Parallel state is stored on the object ([#790](https://github.com/r-world-devs/GitStats/issues/790)).
