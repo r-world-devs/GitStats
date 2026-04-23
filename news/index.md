@@ -1,6 +1,18 @@
 # Changelog
 
-## GitStats (development version)
+## GitStats 2.5.1
+
+This patch improves parallel processing —
+[`set_parallel()`](https://r-world-devs.github.io/GitStats/reference/set_parallel.md)
+and
+[`is_parallel()`](https://r-world-devs.github.io/GitStats/reference/is_parallel.md)
+are now pipeable and GitLab batch fetching runs concurrently — and fixes
+several bugs in
+[`get_repos()`](https://r-world-devs.github.io/GitStats/reference/get_repos.md)
+and
+[`get_files()`](https://r-world-devs.github.io/GitStats/reference/get_files.md).
+
+### Parallel processing
 
 - [`set_parallel()`](https://r-world-devs.github.io/GitStats/reference/set_parallel.md)
   and
@@ -8,6 +20,20 @@
   now take a `gitstats` object as first argument, making them pipeable
   (e.g. `gitstats |> set_parallel(4)`). Parallel state is stored on the
   object ([\#790](https://github.com/r-world-devs/GitStats/issues/790)).
+- GitLab repository batching now runs in parallel when
+  [`set_parallel()`](https://r-world-devs.github.io/GitStats/reference/set_parallel.md)
+  is active. Previously, batches were fetched sequentially even with
+  parallelism enabled
+  ([\#786](https://github.com/r-world-devs/GitStats/issues/786)).
+- Improvements to parallelism visibility: added
+  [`is_parallel()`](https://r-world-devs.github.io/GitStats/reference/is_parallel.md)
+  indicating whether parallel processing is currently active and public
+  `get_*()` methods now emit `ℹ Running in parallel mode.` when
+  `verbose = TRUE`
+  ([\#779](https://github.com/r-world-devs/GitStats/issues/779)).
+
+### Bug fixes
+
 - Fixed
   [`get_repos()`](https://r-world-devs.github.io/GitStats/reference/get_repos.md)
   with `with_code` failing for GitLab when the code search returns more
@@ -16,21 +42,6 @@
   [`get_repos()`](https://r-world-devs.github.io/GitStats/reference/get_repos.md)
   now detects this limit error and automatically batches the IDs
   ([\#781](https://github.com/r-world-devs/GitStats/issues/781)).
-- GitLab repository batching now runs in parallel when
-  [`set_parallel()`](https://r-world-devs.github.io/GitStats/reference/set_parallel.md)
-  is active. Previously, batches were fetched sequentially even with
-  parallelism enabled
-  ([\#786](https://github.com/r-world-devs/GitStats/issues/786)).
-- Extracted GraphQL request and error-classification logic from
-  `EngineGraphQL` R6 private methods into standalone package-level
-  functions, enabling reuse by parallel workers without R6 serialization
-  issues.
-- Improvements to parallelism visibility: added
-  [`is_parallel()`](https://r-world-devs.github.io/GitStats/reference/is_parallel.md)
-  indicating whether parallel processing is currently active and public
-  `get_*()` methods now emit `ℹ Running in parallel mode.` when
-  `verbose = TRUE`
-  ([\#779](https://github.com/r-world-devs/GitStats/issues/779)).
 - Improved error handling for `set_*_host()` in case user doesn’t pass
   full path in `repos`
   ([\#782](https://github.com/r-world-devs/GitStats/issues/782)).
@@ -38,6 +49,13 @@
   [`get_files()`](https://r-world-devs.github.io/GitStats/reference/get_files.md)
   function
   ([\#776](https://github.com/r-world-devs/GitStats/issues/776)).
+
+### Refactoring
+
+- Extracted GraphQL request and error-classification logic from
+  `EngineGraphQL` R6 private methods into standalone package-level
+  functions, enabling reuse by parallel workers without R6 serialization
+  issues.
 
 ## GitStats 2.5.0
 
@@ -49,33 +67,8 @@ parallel processing via `mirai` for faster API calls. It also brings
 several performance improvements, including a faster file tree retrieval
 and optimized GitLab repository queries.
 
-- Added `add_languages` parameter to
-  [`get_repos()`](https://r-world-devs.github.io/GitStats/reference/get_repos.md)
-  (`TRUE` by default). When set to `FALSE`, languages data is excluded
-  from the output and the GitLab REST languages API calls are skipped,
-  speeding up the process.
-- Fixed
-  [`get_repos()`](https://r-world-devs.github.io/GitStats/reference/get_repos.md)
-  returning `NA` for `commit_sha` on archived GitLab projects. When the
-  GraphQL API returns `null` for `lastCommit`, a REST Branches API
-  fallback can now retrieve the SHA. Use `fill_empty_sha = TRUE` in
-  [`get_repos()`](https://r-world-devs.github.io/GitStats/reference/get_repos.md)
-  to enable this
-  ([\#746](https://github.com/r-world-devs/GitStats/issues/746)).
-- Added optional parallel processing for API calls via `mirai` package.
-  Use
-  [`set_parallel()`](https://r-world-devs.github.io/GitStats/reference/set_parallel.md)
-  to enable concurrent data fetching across repositories and
-  organizations
-  ([\#736](https://github.com/r-world-devs/GitStats/issues/736)).
-- Cached `set_owner_type()` results to avoid redundant GraphQL calls
-  when multiple `get_*` functions are used in the same session
-  ([\#738](https://github.com/r-world-devs/GitStats/issues/738)).
-- Replaced per-directory GraphQL file tree traversal with single-call
-  REST recursive tree API for
-  [`get_repos_trees()`](https://r-world-devs.github.io/GitStats/reference/get_repos_trees.md),
-  substantially improving speed of retrieving repository file trees
-  ([\#740](https://github.com/r-world-devs/GitStats/issues/740)).
+### Storage
+
 - Added
   [`set_postgres_storage()`](https://r-world-devs.github.io/GitStats/reference/set_postgres_storage.md),
   [`set_sqlite_storage()`](https://r-world-devs.github.io/GitStats/reference/set_sqlite_storage.md),
@@ -103,6 +96,31 @@ and optimized GitLab repository queries.
   to retrieve metadata (R classes, custom attributes, column types) for
   a stored table
   ([\#748](https://github.com/r-world-devs/GitStats/issues/748)).
+
+### Parallel processing
+
+- Added optional parallel processing for API calls via `mirai` package.
+  Use
+  [`set_parallel()`](https://r-world-devs.github.io/GitStats/reference/set_parallel.md)
+  to enable concurrent data fetching across repositories and
+  organizations
+  ([\#736](https://github.com/r-world-devs/GitStats/issues/736)).
+
+### Performance
+
+- Added `add_languages` parameter to
+  [`get_repos()`](https://r-world-devs.github.io/GitStats/reference/get_repos.md)
+  (`TRUE` by default). When set to `FALSE`, languages data is excluded
+  from the output and the GitLab REST languages API calls are skipped,
+  speeding up the process.
+- Cached `set_owner_type()` results to avoid redundant GraphQL calls
+  when multiple `get_*` functions are used in the same session
+  ([\#738](https://github.com/r-world-devs/GitStats/issues/738)).
+- Replaced per-directory GraphQL file tree traversal with single-call
+  REST recursive tree API for
+  [`get_repos_trees()`](https://r-world-devs.github.io/GitStats/reference/get_repos_trees.md),
+  substantially improving speed of retrieving repository file trees
+  ([\#740](https://github.com/r-world-devs/GitStats/issues/740)).
 - Fixed slow
   [`get_repos()`](https://r-world-devs.github.io/GitStats/reference/get_repos.md)
   for GitLab when specific repos are set. Previously, the
@@ -112,6 +130,17 @@ and optimized GitLab repository queries.
 - Sped up vignettes generation
   ([\#504](https://github.com/r-world-devs/GitStats/issues/504),
   [@marcinkowskak](https://github.com/marcinkowskak)).
+
+### Bug fixes
+
+- Fixed
+  [`get_repos()`](https://r-world-devs.github.io/GitStats/reference/get_repos.md)
+  returning `NA` for `commit_sha` on archived GitLab projects. When the
+  GraphQL API returns `null` for `lastCommit`, a REST Branches API
+  fallback can now retrieve the SHA. Use `fill_empty_sha = TRUE` in
+  [`get_repos()`](https://r-world-devs.github.io/GitStats/reference/get_repos.md)
+  to enable this
+  ([\#746](https://github.com/r-world-devs/GitStats/issues/746)).
 
 ## GitStats 2.4.0
 
