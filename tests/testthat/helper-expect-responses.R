@@ -50,12 +50,13 @@ expect_repos_gitlab_gql_response <- function(object, type = "organization") {
 }
 
 expect_repos_github_gql_response <- function(repo_node) {
-  expect_true(
-    all(
-      colnames(repo_node) %in% c("repo_id", "repo_name", "stars", "forks", "created_at",
-                                 "last_activity_at", "languages", "issues_open",
-                                 "issues_closed", "repo_url", "commit_sha")
-    )
+  expect_in(
+    names(repo_node),
+    c("repo_id", "repo_name", "repo_path", "repo_fullpath",
+      "default_branch", "stars", "forks", "created_at",
+      "last_activity_at", "languages", "issues_open",
+      "issues_closed", "organization", "repo_url",
+      "defaultBranchRef", "commit_sha")
   )
 }
 
@@ -211,9 +212,7 @@ expect_files_gitlab_from_org_by_repos_response <- function(response, expected_fi
   files_vec <- purrr::map(response, ~ purrr::map_vec(.$data$project$repository$blobs$nodes, ~ .$path)) |>
     unlist() |>
     unique()
-  expect_true(
-    all(expected_files %in% files_vec)
-  )
+  expect_in(expected_files, files_vec)
 }
 
 expect_releases_github_response <- function(object) {

@@ -151,8 +151,8 @@ test_that("`cut_item_to_print` returns all items when fewer than 10", {
 test_that("`cut_item_to_print` truncates items when 10 or more", {
   items <- letters[1:15]
   result <- cut_item_to_print(items)
-  expect_true(grepl("and 5 more", result))
-  expect_true(grepl("^a, b, c", result))
+  expect_match(result, "and 5 more")
+  expect_match(result, "^a, b, c")
 })
 
 test_that("`set_repo_scope` formats scope string", {

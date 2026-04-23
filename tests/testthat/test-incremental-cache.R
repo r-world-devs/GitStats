@@ -106,8 +106,8 @@ test_that("get_commits fetches only missing date range", {
   )
 
   expect_equal(nrow(result), 2)
-  expect_true("abc123" %in% result$id)
-  expect_true("def456" %in% result$id)
+  expect_in("abc123", result$id)
+  expect_in("def456", result$id)
   expect_equal(attr(result, "date_range"), c("2024-01-01", "2024-12-31"))
 })
 
@@ -656,8 +656,8 @@ test_that("get_issues fetches only missing date range", {
   )
 
   expect_equal(nrow(result), 2)
-  expect_true(1L %in% result$number)
-  expect_true(2L %in% result$number)
+  expect_in(1L, result$number)
+  expect_in(2L, result$number)
   expect_equal(attr(result, "date_range"), c("2024-01-01", "2024-12-31"))
 })
 
@@ -714,7 +714,7 @@ test_that("get_issues does full re-fetch when state changes", {
   )
 
   expect_equal(nrow(result), 2)
-  expect_true("closed" %in% result$state)
+  expect_in("closed", result$state)
 })
 
 # Incremental get_pull_requests ------------------------------------------------
@@ -770,8 +770,8 @@ test_that("get_pull_requests fetches only missing date range", {
   )
 
   expect_equal(nrow(result), 2)
-  expect_true(10L %in% result$number)
-  expect_true(20L %in% result$number)
+  expect_in(10L, result$number)
+  expect_in(20L, result$number)
   expect_equal(attr(result, "date_range"), c("2024-01-01", "2024-12-31"))
 })
 
@@ -820,8 +820,8 @@ test_that("get_release_logs fetches only missing date range", {
   )
 
   expect_equal(nrow(result), 2)
-  expect_true("v1.0.0" %in% result$release_tag)
-  expect_true("v2.0.0" %in% result$release_tag)
+  expect_in("v1.0.0", result$release_tag)
+  expect_in("v2.0.0", result$release_tag)
   expect_equal(attr(result, "date_range"), c("2024-01-01", "2024-12-31"))
 })
 

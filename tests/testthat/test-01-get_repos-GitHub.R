@@ -172,11 +172,11 @@ test_that("GitHub build_search_query builds query with all params", {
     in_path = TRUE,
     language = "R"
   )
-  expect_true(grepl("\\+repo:r-world-devs/GitStats", query))
-  expect_true(grepl("\\+user:r-world-devs", query))
-  expect_true(grepl("\\+in:path", query))
-  expect_true(grepl("\\+in:file\\+filename:DESCRIPTION", query))
-  expect_true(grepl("\\+language:R", query))
+  expect_match(query, "\\+repo:r-world-devs/GitStats")
+  expect_match(query, "\\+user:r-world-devs")
+  expect_match(query, "\\+in:path")
+  expect_match(query, "\\+in:file\\+filename:DESCRIPTION")
+  expect_match(query, "\\+language:R")
 })
 
 test_that("`search_for_code()` returns repos output for code search in files", {

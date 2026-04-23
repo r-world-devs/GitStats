@@ -26,8 +26,8 @@ test_that("get_files_tree for GitHub returns file paths from tree response", {
     verbose = FALSE
   )
   expect_type(result, "character")
-  expect_equal(length(result), 4)
-  expect_true(all(c("R/main.R", "R/utils.R", "tests/test-main.R", "README.md") %in% result))
+  expect_length(result, 4)
+  expect_in(c("R/main.R", "R/utils.R", "tests/test-main.R", "README.md"), result)
   expect_false("R" %in% result)
 })
 
@@ -120,8 +120,8 @@ test_that("get_files_tree for GitLab returns file paths from tree response", {
     verbose = FALSE
   )
   expect_type(result, "character")
-  expect_equal(length(result), 3)
-  expect_true(all(c("R/main.R", "R/utils.R", "README.md") %in% result))
+  expect_length(result, 3)
+  expect_in(c("R/main.R", "R/utils.R", "README.md"), result)
 })
 
 test_that("get_files_tree for GitLab filters by depth", {

@@ -234,7 +234,7 @@ test_that("REST method get_orgs works", {
     gl_orgs_rest_list <- rep(list(gl_orgs_rest_list), 300L)
   }
   expect_length(gl_orgs_rest_list, 300L)
-  expect_true(all(c("name", "id", "web_url", "path") %in% names(gl_orgs_rest_list[[1]])))
+  expect_in(c("name", "id", "web_url", "path"), names(gl_orgs_rest_list[[1]]))
   test_mocker$cache(gl_orgs_rest_list)
 })
 

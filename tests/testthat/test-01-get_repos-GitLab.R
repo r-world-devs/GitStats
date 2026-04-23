@@ -418,7 +418,7 @@ test_that("REST engine pulls repositories from organization", {
     org = test_org,
     output = "full_table"
   )
-  purrr::walk(gitlab_rest_repos_from_org, ~ expect_true("languages" %in% names(.)))
+  purrr::walk(gitlab_rest_repos_from_org, ~ expect_in("languages", names(.)))
   test_mocker$cache(gitlab_rest_repos_from_org)
 })
 
@@ -438,7 +438,7 @@ test_that("GitLab build_search_query builds query with code only", {
 
 test_that("GitLab build_search_query builds query with in_path", {
   query <- test_rest_gitlab_priv$build_search_query(code = "src/main", in_path = TRUE)
-  expect_true(grepl("^path:", query))
+  expect_match(query, "^path:")
 })
 
 test_that("GitLab build_search_query builds query with filename", {
@@ -446,7 +446,7 @@ test_that("GitLab build_search_query builds query with filename", {
     code = "test",
     filename = "DESCRIPTION"
   )
-  expect_true(grepl("filename:DESCRIPTION$", query))
+  expect_match(query, "filename:DESCRIPTION$")
 })
 
 test_that("`search_for_code()` works", {
@@ -1056,8 +1056,8 @@ test_that("`prepare_files_table_row()` builds files data.frame from project", {
     org = "mbtests"
   )
   expect_s3_class(files_row, "data.frame")
-  expect_true(nrow(files_row) > 0)
-  expect_true(all(c("repo_name", "file_path", "file_content", "repo_url") %in% names(files_row)))
+  expect_gt(nrow(files_row), 0)
+  expect_in(c("repo_name", "file_path", "file_content", "repo_url"), names(files_row))
   expect_equal(files_row$organization[1], "mbtests")
 })
 

@@ -24,7 +24,7 @@ test_that("get_storage works", {
     gitstats_storage[[1]],
     "tbl"
   )
-  expect_true(length(gitstats_storage) > 0)
+  expect_gt(length(gitstats_storage), 0)
 })
 test_that("get_storage retrieves one table", {
   gitstats_storage <- test_gitstats$get_storage(

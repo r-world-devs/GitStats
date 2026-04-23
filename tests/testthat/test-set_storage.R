@@ -93,7 +93,7 @@ test_that("StorageLocal get_metadata returns tibble with class and attributes", 
   expect_s3_class(meta, "tbl_df")
   expect_equal(nrow(meta), 1)
   expect_equal(meta$table_name, "commits")
-  expect_true("gitstats_commits" %in% meta$class[[1]])
+  expect_in("gitstats_commits", meta$class[[1]])
   expect_equal(meta$attributes[[1]]$since, "2024-01-01")
   expect_equal(meta$attributes[[1]]$until, "2024-12-31")
 })
@@ -126,8 +126,8 @@ test_that("StorageLocal get_metadata with NULL returns all tables", {
   meta <- storage$get_metadata()
   expect_s3_class(meta, "tbl_df")
   expect_equal(nrow(meta), 2)
-  expect_true("commits" %in% meta$table_name)
-  expect_true("repos" %in% meta$table_name)
+  expect_in("commits", meta$table_name)
+  expect_in("repos", meta$table_name)
 })
 
 test_that("StorageLocal get_metadata with NULL on empty storage returns empty tibble", {
@@ -142,7 +142,7 @@ test_that("StorageLocal get_metadata with NULL on empty storage returns empty ti
 test_that("default storage is StorageLocal", {
   gs <- create_gitstats()
   backend <- gs$.__enclos_env__$private$storage_backend
-  expect_true(inherits(backend, "StorageLocal"))
+  expect_s3_class(backend, "StorageLocal")
   expect_false(backend$is_db())
 })
 
@@ -292,8 +292,8 @@ test_that("StorageSQLite list excludes _metadata table", {
   storage$save("alpha", dplyr::tibble(x = 1))
   storage$save("beta", dplyr::tibble(y = 2))
   tables <- storage$list()
-  expect_true("alpha" %in% tables)
-  expect_true("beta" %in% tables)
+  expect_in("alpha", tables)
+  expect_in("beta", tables)
   expect_false("_metadata" %in% tables)
 })
 
@@ -345,7 +345,7 @@ test_that("StorageSQLite get_metadata returns tibble with class and attributes",
   expect_s3_class(meta, "tbl_df")
   expect_equal(nrow(meta), 1)
   expect_equal(meta$table_name, "repos")
-  expect_true("gitstats_repos" %in% meta$class[[1]])
+  expect_in("gitstats_repos", meta$class[[1]])
   expect_equal(meta$attributes[[1]]$since, "2024-01-01")
 })
 
@@ -367,8 +367,8 @@ test_that("StorageSQLite get_metadata with NULL returns all tables", {
   meta <- storage$get_metadata()
   expect_s3_class(meta, "tbl_df")
   expect_equal(nrow(meta), 2)
-  expect_true("commits" %in% meta$table_name)
-  expect_true("repos" %in% meta$table_name)
+  expect_in("commits", meta$table_name)
+  expect_in("repos", meta$table_name)
 })
 
 test_that("StorageSQLite finalize disconnects connection", {
@@ -393,7 +393,7 @@ test_that("StorageSQLite load works when metadata is missing", {
   DBI::dbWriteTable(conn, "raw_table", data.frame(x = 1:3))
   loaded <- storage$load("raw_table")
   expect_equal(nrow(loaded), 3)
-  expect_true(inherits(loaded, "tbl_df"))
+  expect_s3_class(loaded, "tbl_df")
 })
 
 test_that("StorageSQLite works with file-based database", {
@@ -411,7 +411,7 @@ test_that("set_sqlite_storage creates SQLite backend with dbname", {
   gs <- create_gitstats()
   gs$set_sqlite_storage(dbname = tmp)
   backend <- gs$.__enclos_env__$private$storage_backend
-  expect_true(inherits(backend, "StorageSQLite"))
+  expect_s3_class(backend, "StorageSQLite")
   expect_true(backend$is_db())
 })
 
@@ -435,8 +435,8 @@ test_that("GitStats get_storage returns all data from SQLite", {
   priv$storage_backend$save("repos", dplyr::tibble(x = 1))
   priv$storage_backend$save("commits", dplyr::tibble(y = 2))
   all_data <- gs$get_storage(NULL)
-  expect_true("repos" %in% names(all_data))
-  expect_true("commits" %in% names(all_data))
+  expect_in("repos", names(all_data))
+  expect_in("commits", names(all_data))
 })
 
 test_that("GitStats get_storage returns single table from SQLite", {
@@ -496,7 +496,7 @@ test_that("GitStats get_storage_metadata returns tibble for single table", {
   expect_s3_class(meta, "tbl_df")
   expect_equal(nrow(meta), 1)
   expect_equal(meta$table_name, "commits")
-  expect_true("gitstats_commits" %in% meta$class[[1]])
+  expect_in("gitstats_commits", meta$class[[1]])
   expect_equal(meta$attributes[[1]]$since, "2024-01-01")
 })
 
@@ -520,8 +520,8 @@ test_that("GitStats get_storage_metadata with NULL returns all tables", {
   meta <- gs$get_storage_metadata()
   expect_s3_class(meta, "tbl_df")
   expect_equal(nrow(meta), 2)
-  expect_true("commits" %in% meta$table_name)
-  expect_true("repos" %in% meta$table_name)
+  expect_in("commits", meta$table_name)
+  expect_in("repos", meta$table_name)
 })
 
 test_that("get_storage_metadata() exported wrapper works", {
@@ -532,7 +532,7 @@ test_that("get_storage_metadata() exported wrapper works", {
   priv$storage_backend$save("repos", df)
   meta <- get_storage_metadata(gs, storage = "repos")
   expect_s3_class(meta, "tbl_df")
-  expect_true("gitstats_repos" %in% meta$class[[1]])
+  expect_in("gitstats_repos", meta$class[[1]])
 })
 
 test_that("get_storage_metadata() exported wrapper works with NULL", {
@@ -555,7 +555,7 @@ test_that("GitStats get_storage_metadata works with SQLite backend", {
   meta <- gs$get_storage_metadata("commits")
   expect_s3_class(meta, "tbl_df")
   expect_equal(meta$table_name, "commits")
-  expect_true("gitstats_commits" %in% meta$class[[1]])
+  expect_in("gitstats_commits", meta$class[[1]])
   expect_equal(meta$attributes[[1]]$since, "2024-01-01")
 })
 
@@ -600,14 +600,14 @@ test_that("set_local_storage() wrapper calls R6 method", {
   gs$set_sqlite_storage()
   result <- set_local_storage(gs)
   backend <- gs$.__enclos_env__$private$storage_backend
-  expect_true(inherits(backend, "StorageLocal"))
+  expect_s3_class(backend, "StorageLocal")
 })
 
 test_that("set_sqlite_storage() wrapper calls R6 method", {
   gs <- create_gitstats()
   result <- set_sqlite_storage(gs)
   backend <- gs$.__enclos_env__$private$storage_backend
-  expect_true(inherits(backend, "StorageSQLite"))
+  expect_s3_class(backend, "StorageSQLite")
 })
 
 test_that("set_postgres_storage() R6 method executes with stubbed connection", {
@@ -627,7 +627,7 @@ test_that("set_postgres_storage() R6 method executes with stubbed connection", {
     schema = "my_schema"
   )
   backend <- gs$.__enclos_env__$private$storage_backend
-  expect_true(inherits(backend, "StorageLocal"))
+  expect_s3_class(backend, "StorageLocal")
 })
 
 test_that("set_postgres_storage() exported wrapper calls R6 method", {
@@ -647,7 +647,7 @@ test_that("set_postgres_storage() exported wrapper calls R6 method", {
     password = "secret"
   )
   backend <- gs$.__enclos_env__$private$storage_backend
-  expect_true(inherits(backend, "StorageLocal"))
+  expect_s3_class(backend, "StorageLocal")
 })
 
 test_that("print shows PostgreSQL backend type", {
@@ -666,7 +666,7 @@ test_that("set_sqlite_storage propagates backend to hosts", {
   suppressMessages(gs$set_sqlite_storage())
   host <- gs$.__enclos_env__$private$hosts[[1]]
   host_storage <- host$.__enclos_env__$private$storage_backend
-  expect_true(inherits(host_storage, "StorageSQLite"))
+  expect_s3_class(host_storage, "StorageSQLite")
 })
 
 test_that("set_local_storage propagates backend to hosts", {
@@ -675,7 +675,7 @@ test_that("set_local_storage propagates backend to hosts", {
   gs$set_local_storage()
   host <- gs$.__enclos_env__$private$hosts[[1]]
   host_storage <- host$.__enclos_env__$private$storage_backend
-  expect_true(inherits(host_storage, "StorageLocal"))
+  expect_s3_class(host_storage, "StorageLocal")
 })
 
 test_that("add_new_host propagates current storage to new host", {
@@ -687,7 +687,7 @@ test_that("add_new_host propagates current storage to new host", {
   gs$.__enclos_env__$private$propagate_storage_to_hosts()
   host <- gs$.__enclos_env__$private$hosts[[1]]
   host_storage <- host$.__enclos_env__$private$storage_backend
-  expect_true(inherits(host_storage, "StorageSQLite"))
+  expect_s3_class(host_storage, "StorageSQLite")
 })
 
 # report_storage_contents ------------------------------------------------------
@@ -731,7 +731,7 @@ test_that("GitHost set_storage_backend sets storage", {
   storage <- StorageSQLite$new()
   host$set_storage_backend(storage)
   host_storage <- host$.__enclos_env__$private$storage_backend
-  expect_true(inherits(host_storage, "StorageSQLite"))
+  expect_s3_class(host_storage, "StorageSQLite")
 })
 
 # save_repos_to_storage --------------------------------------------------------
@@ -789,8 +789,8 @@ test_that("GitHub save_repos_to_storage merges with existing repos", {
 
   loaded <- storage$load("repositories")
   expect_equal(nrow(loaded), 2)
-  expect_true("100" %in% loaded$repo_id)
-  expect_true("200" %in% loaded$repo_id)
+  expect_in("100", loaded$repo_id)
+  expect_in("200", loaded$repo_id)
 })
 
 test_that("GitHub save_repos_to_storage deduplicates by repo_id", {
@@ -880,7 +880,7 @@ test_that("add_new_host propagates storage backend to host", {
   new_host <- create_github_testhost(orgs = "test_org")
   priv$add_new_host(new_host)
   host_storage <- priv$hosts[[1]]$.__enclos_env__$private$storage_backend
-  expect_true(inherits(host_storage, "StorageSQLite"))
+  expect_s3_class(host_storage, "StorageSQLite")
 })
 
 # Storage drop_storage ---------------------------------------------------------
@@ -932,16 +932,16 @@ test_that("remove_sqlite_storage removes file-based SQLite and reverts to local"
   expect_true(file.exists(tmp))
   suppressMessages(gs$remove_sqlite_storage())
   expect_false(file.exists(tmp))
-  expect_true(inherits(priv$storage_backend, "StorageLocal"))
+  expect_s3_class(priv$storage_backend, "StorageLocal")
 })
 
 test_that("remove_sqlite_storage removes in-memory SQLite and reverts to local", {
   gs <- create_gitstats()
   gs$set_sqlite_storage()
   priv <- gs$.__enclos_env__$private
-  expect_true(inherits(priv$storage_backend, "StorageSQLite"))
+  expect_s3_class(priv$storage_backend, "StorageSQLite")
   suppressMessages(gs$remove_sqlite_storage())
-  expect_true(inherits(priv$storage_backend, "StorageLocal"))
+  expect_s3_class(priv$storage_backend, "StorageLocal")
 })
 
 test_that("remove_sqlite_storage errors when no SQLite backend is set", {
@@ -963,13 +963,9 @@ test_that("remove_sqlite_storage propagates local storage to hosts", {
   gs <- create_test_gitstats(hosts = 1)
   suppressMessages(gs$set_sqlite_storage())
   host <- gs$.__enclos_env__$private$hosts[[1]]
-  expect_true(inherits(
-    host$.__enclos_env__$private$storage_backend, "StorageSQLite"
-  ))
+  expect_s3_class(host$.__enclos_env__$private$storage_backend, "StorageSQLite")
   suppressMessages(gs$remove_sqlite_storage())
-  expect_true(inherits(
-    host$.__enclos_env__$private$storage_backend, "StorageLocal"
-  ))
+  expect_s3_class(host$.__enclos_env__$private$storage_backend, "StorageLocal")
 })
 
 test_that("remove_sqlite_storage() exported wrapper works", {
@@ -977,7 +973,7 @@ test_that("remove_sqlite_storage() exported wrapper works", {
   gs$set_sqlite_storage()
   suppressMessages(remove_sqlite_storage(gs))
   backend <- gs$.__enclos_env__$private$storage_backend
-  expect_true(inherits(backend, "StorageLocal"))
+  expect_s3_class(backend, "StorageLocal")
 })
 
 test_that("remove_sqlite_storage prints file removal message", {
@@ -1029,7 +1025,7 @@ test_that("remove_postgres_storage R6 method works with stubbed backend", {
   gs$.__enclos_env__$private$storage_backend <- mock_backend
   suppressMessages(gs$remove_postgres_storage())
   backend <- gs$.__enclos_env__$private$storage_backend
-  expect_true(inherits(backend, "StorageLocal"))
+  expect_s3_class(backend, "StorageLocal")
   expect_false(inherits(backend, "StoragePostgres"))
 })
 
@@ -1040,7 +1036,7 @@ test_that("remove_postgres_storage() exported wrapper works with stubbed backend
   gs$.__enclos_env__$private$storage_backend <- mock_backend
   suppressMessages(remove_postgres_storage(gs))
   backend <- gs$.__enclos_env__$private$storage_backend
-  expect_true(inherits(backend, "StorageLocal"))
+  expect_s3_class(backend, "StorageLocal")
 })
 
 

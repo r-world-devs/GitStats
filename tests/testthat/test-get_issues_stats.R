@@ -16,7 +16,7 @@ test_that("get_issues_stats method works", {
     issues = test_mocker$use("issues_data"),
     time_aggregation = "year"
   )
-  expect_true(all(as.POSIXct(c("2023-01-01", "2024-01-01", "2025-01-01"), tz = 'UTC') %in% issues_stats_yearly$stats_date))
+  expect_in(as.POSIXct(c("2023-01-01", "2024-01-01", "2025-01-01"), tz = 'UTC'), issues_stats_yearly$stats_date)
   expect_s3_class(issues_stats_yearly, "gitstats_issues_stats")
   expect_equal(
     colnames(issues_stats_yearly),

@@ -14,7 +14,7 @@ test_that("get_pull_requests_stats method works", {
     pull_requests = test_mocker$use("pr_data"),
     time_aggregation = "year"
   )
-  expect_true(all(as.POSIXct(c("2024-01-01", "2025-01-01", "2026-01-01"), tz = 'UTC') %in% pr_stats_yearly$created_at))
+  expect_in(as.POSIXct(c("2024-01-01", "2025-01-01", "2026-01-01"), tz = 'UTC'), pr_stats_yearly$created_at)
   expect_s3_class(pr_stats_yearly, "gitstats_pr_stats")
   expect_equal(
     colnames(pr_stats_yearly),

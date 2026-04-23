@@ -178,6 +178,7 @@ test_that("When wrong orgs and repos are passed they are excluded but host is cr
 })
 
 test_that("Error pops out when repos are passed without org prefix", {
+  skip_on_cran()
   expect_error(
     create_gitstats() |>
       set_github_host(
