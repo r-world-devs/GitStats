@@ -130,6 +130,7 @@ EngineGraphQLGitLab <- R6::R6Class(
     prepare_orgs_table = function(full_orgs_list) {
       orgs_table <- purrr::map(full_orgs_list, function(org_node) {
         org_node$avatarUrl <- org_node$avatarUrl %||% ""
+        org_node$description <- org_node$description %||% ""
         data.frame(org_node)
       }) |>
         purrr::list_rbind() |>
