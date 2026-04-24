@@ -50,7 +50,6 @@ EngineGraphQLGitLab <- R6::R6Class(
       }
       response <- self$gql_response(
         gql_query = self$gql_query$groups_count(),
-        vars = list(),
         verbose = verbose
       )
       if (!inherits(response, "graphql_error")) {
