@@ -1,3 +1,10 @@
+# groups_count GitLab query is built properly
+
+    Code
+      gl_orgs_count_query
+    Output
+      [1] "query GetGroupsCount {\n        groups {\n          count\n        }\n      }"
+
 # groups GitLab query is built properly
 
     Code
@@ -15,9 +22,9 @@
 # get_orgs_count prints message
 
     Code
-      orgs_count <- test_rest_gitlab$get_orgs_count(verbose = TRUE)
+      orgs_count <- test_graphql_gitlab$get_orgs_count(verbose = TRUE)
     Message
-      > [Host:GitLab][Engine:REST] Pulling number of all organizations 🏛️...
+      > [Host:GitLab][Engine:GraphQL] Pulling number of all organizations 🏛️...
 
 # get_orgs prints message
 
@@ -66,18 +73,14 @@
       gitlab_orgs_vec <- gitlab_test_host_priv_2$get_orgs_from_host(output = "only_names",
         verbose = TRUE)
     Message
-      > [Host:GitLab][Engine:REST] Pulling number of all organizations 🏛️...
-      i  organizations found.
       i Switching to REST API
 
----
+# if get_orgs_from_host runs into GraphQL error, it switches to REST API for full_table
 
     Code
       gitlab_orgs_table <- gitlab_test_host_priv_2$get_orgs_from_host(output = "full_table",
         verbose = TRUE)
     Message
-      > [Host:GitLab][Engine:REST] Pulling number of all organizations 🏛️...
-      i  organizations found.
       i Switching to REST API
 
 # get_orgs_from_host prints message on number of organizations
@@ -94,9 +97,6 @@
       gitlab_orgs_from_orgs_table <- gitlab_testhost_priv$
       get_orgs_from_orgs_and_repos(verbose = TRUE)
     Message
-      i Switching to REST API
-      i Switching to REST API
-      i Switching to REST API
       i Switching to REST API
       i Switching to REST API
       i Switching to REST API

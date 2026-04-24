@@ -44,6 +44,21 @@ EngineGraphQLGitLab <- R6::R6Class(
       return(login_types)
     },
 
+    get_orgs_count = function(verbose) {
+      if (verbose) {
+        cli::cli_alert("[Host:GitLab][Engine:{cli::col_yellow('GraphQL')}] Pulling number of all organizations {cli_icons$org}...")
+      }
+      response <- self$gql_response(
+        gql_query = self$gql_query$groups_count(),
+        verbose = verbose
+      )
+      if (!inherits(response, "graphql_error")) {
+        return(response$data$groups$count)
+      } else {
+        return(response)
+      }
+    },
+
     get_orgs = function(orgs_count,
                         output = c("only_names", "full_table"),
                         verbose,
@@ -52,8 +67,11 @@ EngineGraphQLGitLab <- R6::R6Class(
         cli::cli_alert("[Host:GitLab][Engine:{cli::col_yellow('GraphQL')}] Pulling organizations {cli_icons$org}...")
       }
       group_cursor <- ""
-      iterations_number <- round(orgs_count / 100)
+      iterations_number <- ceiling(orgs_count / 100)
       full_orgs_list <- list()
+      if (progress) {
+        cli::cli_progress_bar("Pulling organizations", total = iterations_number)
+      }
       for (x in 1:iterations_number) {
         response <- self$gql_response(
           gql_query = self$gql_query$groups(),
@@ -72,6 +90,12 @@ EngineGraphQLGitLab <- R6::R6Class(
           full_orgs_list <- response
           break
         }
+        if (progress) {
+          cli::cli_progress_update()
+        }
+      }
+      if (progress) {
+        cli::cli_progress_done()
       }
       full_orgs_list <- private$handle_graphql_error(full_orgs_list, verbose)
       if (!inherits(full_orgs_list, "graphql_error")) {
@@ -106,6 +130,7 @@ EngineGraphQLGitLab <- R6::R6Class(
     prepare_orgs_table = function(full_orgs_list) {
       orgs_table <- purrr::map(full_orgs_list, function(org_node) {
         org_node$avatarUrl <- org_node$avatarUrl %||% ""
+        org_node$description <- org_node$description %||% ""
         data.frame(org_node)
       }) |>
         purrr::list_rbind() |>
