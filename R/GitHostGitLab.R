@@ -125,9 +125,7 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
       rest_engine <- private$engines$rest
       orgs_count <- graphql_engine$get_orgs_count(verbose)
       if (!inherits(orgs_count, "graphql_error")) {
-        if (verbose) {
-          cli::cli_alert_info("{orgs_count} organizations found.")
-        }
+        cli::cli_alert_info("{orgs_count} organizations found.")
         orgs <- graphql_engine$get_orgs(
           orgs_count = as.integer(orgs_count),
           output = output,
