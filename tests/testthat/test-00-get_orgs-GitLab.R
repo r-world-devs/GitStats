@@ -65,6 +65,7 @@ test_that("get_orgs pulls responses from GraphQL", {
     test_fixtures$graphql_gl_orgs_response
   )
   gl_orgs_raw_response <- test_graphql_gitlab$get_orgs(
+    orgs_count = 3L,
     output = "only_names",
     verbose = FALSE
   )
@@ -74,6 +75,7 @@ test_that("get_orgs pulls responses from GraphQL", {
   )
   test_mocker$cache(gl_orgs_raw_response)
   gl_orgs_full_response <- test_graphql_gitlab$get_orgs(
+    orgs_count = 3L,
     output = "full_table",
     verbose = FALSE
   )
@@ -93,6 +95,7 @@ test_that("get_orgs prints message", {
   )
   expect_snapshot(
     gl_orgs_full_response <- test_graphql_gitlab$get_orgs(
+      orgs_count = 3L,
       output = "full_table",
       verbose = TRUE,
       progress = FALSE
@@ -108,6 +111,7 @@ test_that("if get_orgs runs into GraphQL error, it returns object of graphql_err
       test_graphql_gitlab_priv$set_graphql_error_class()
   )
   gl_orgs_error_response <- test_graphql_gitlab$get_orgs(
+    orgs_count = 3L,
     output = "full_table",
     verbose = FALSE,
     progress = FALSE
@@ -125,6 +129,7 @@ test_that("if get_orgs runs into GraphQL error, it prints warning", {
   )
   expect_snapshot(
     gl_orgs_error_response <- test_graphql_gitlab$get_orgs(
+      orgs_count = 3L,
       output = "full_table",
       verbose = TRUE,
       progress = FALSE

@@ -60,16 +60,17 @@ EngineGraphQLGitLab <- R6::R6Class(
       }
     },
 
-    get_orgs = function(output = c("only_names", "full_table"),
+    get_orgs = function(orgs_count,
+                        output = c("only_names", "full_table"),
                         verbose,
                         progress = verbose) {
       if (verbose) {
         cli::cli_alert("[Host:GitLab][Engine:{cli::col_yellow('GraphQL')}] Pulling organizations {cli_icons$org}...")
       }
       group_cursor <- ""
-      has_next_page <- TRUE
+      iterations_number <- ceiling(orgs_count / 100)
       full_orgs_list <- list()
-      while (has_next_page) {
+      for (x in 1:iterations_number) {
         response <- self$gql_response(
           gql_query = self$gql_query$groups(),
           vars = list("groupCursor" = group_cursor),
@@ -82,7 +83,6 @@ EngineGraphQLGitLab <- R6::R6Class(
             orgs_list <- purrr::map(response$data$groups$edges, ~ .$node)
           }
           group_cursor <- response$data$groups$pageInfo$endCursor
-          has_next_page <- response$data$groups$pageInfo$hasNextPage
           full_orgs_list <- append(full_orgs_list, orgs_list)
         } else {
           full_orgs_list <- response
