@@ -1,4 +1,4 @@
-# GitStats 2.5.2
+# GitStats (development version)
 
 ## Bug fixes
 

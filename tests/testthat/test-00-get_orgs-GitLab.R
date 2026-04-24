@@ -235,21 +235,14 @@ test_that("get_org prints proper message", {
 
 test_that("REST method get_orgs works", {
   if (integration_tests_skipped) {
-    call_count <- 0L
     mockery::stub(
       test_rest_gitlab$get_orgs,
       "self$response",
-      function(...) {
-        call_count <<- call_count + 1L
-        if (call_count <= 1L) {
-          test_fixtures$rest_gl_org_response
-        } else {
-          list()
-        }
-      }
+      test_fixtures$rest_gl_org_response
     )
   }
   gl_orgs_rest_list <- test_rest_gitlab$get_orgs(
+    orgs_count = 300L,
     verbose = FALSE
   )
   expect_type(gl_orgs_rest_list, "list")
@@ -265,6 +258,7 @@ test_that("REST method prints message", {
   skip_if(integration_tests_skipped)
   expect_snapshot(
     gl_orgs_rest_list <- test_rest_gitlab$get_orgs(
+      orgs_count = 300L,
       verbose = TRUE,
       progress = FALSE
     )

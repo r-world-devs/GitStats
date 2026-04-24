@@ -3,14 +3,13 @@ EngineRestGitLab <- R6::R6Class(
   inherit = EngineRest,
   public = list(
 
-    get_orgs = function(verbose, progress = verbose) {
+    get_orgs = function(orgs_count, verbose, progress = verbose) {
       if (verbose) {
         cli::cli_alert("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling organizations {cli_icons$org}...")
       }
-      orgs_list <- list()
-      page <- 1
-      repeat {
-        response_page <- self$response(
+      iterations_number <- ceiling(orgs_count / 100)
+      orgs_list <- purrr::map(1:iterations_number, function(page) {
+        self$response(
           endpoint = paste0(
             private$endpoints[["organizations"]],
             "?all_available=true",
@@ -20,12 +19,8 @@ EngineRestGitLab <- R6::R6Class(
           ),
           verbose = verbose
         )
-        if (length(response_page) == 0 || inherits(response_page, "rest_error")) {
-          break
-        }
-        orgs_list <- append(orgs_list, response_page)
-        page <- page + 1
-      }
+      }, .progress = progress) |>
+        purrr::list_flatten()
       return(orgs_list)
     },
 
