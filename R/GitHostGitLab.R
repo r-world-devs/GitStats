@@ -121,23 +121,25 @@ GitHostGitLab <- R6::R6Class("GitHostGitLab",
         cli::cli_abort("This feature is not applicable for public hosts.",
                        call = NULL)
       }
-      rest_engine <- private$engines$rest
-      orgs_count <- rest_engine$get_orgs_count(verbose)
-      if (verbose) {
-        cli::cli_alert_info("{orgs_count} organizations found.")
-      }
       graphql_engine <- private$engines$graphql
-      orgs <- graphql_engine$get_orgs(
-        orgs_count = as.integer(orgs_count),
-        output = output,
-        verbose = verbose
-      )
+      rest_engine <- private$engines$rest
+      orgs_count <- graphql_engine$get_orgs_count(verbose)
+      if (!inherits(orgs_count, "graphql_error")) {
+        if (verbose) {
+          cli::cli_alert_info("{orgs_count} organizations found.")
+        }
+        orgs <- graphql_engine$get_orgs(
+          output = output,
+          verbose = verbose
+        )
+      } else {
+        orgs <- orgs_count
+      }
       if (inherits(orgs, "graphql_error")) {
         if (verbose) {
           cli::cli_alert_info("Switching to REST API")
         }
         orgs <- rest_engine$get_orgs(
-          orgs_count = as.integer(orgs_count),
           verbose = verbose
         )
         if (output == "full_table") {
