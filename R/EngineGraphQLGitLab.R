@@ -69,6 +69,9 @@ EngineGraphQLGitLab <- R6::R6Class(
       group_cursor <- ""
       iterations_number <- ceiling(orgs_count / 100)
       full_orgs_list <- list()
+      if (progress) {
+        cli::cli_progress_bar("Pulling organizations", total = iterations_number)
+      }
       for (x in 1:iterations_number) {
         response <- self$gql_response(
           gql_query = self$gql_query$groups(),
@@ -87,6 +90,12 @@ EngineGraphQLGitLab <- R6::R6Class(
           full_orgs_list <- response
           break
         }
+        if (progress) {
+          cli::cli_progress_update()
+        }
+      }
+      if (progress) {
+        cli::cli_progress_done()
       }
       full_orgs_list <- private$handle_graphql_error(full_orgs_list, verbose)
       if (!inherits(full_orgs_list, "graphql_error")) {
