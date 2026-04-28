@@ -855,6 +855,13 @@ GitStats <- R6::R6Class(
       trigger <- FALSE
       if (private$storage_is_empty(storage)) {
         trigger <- TRUE
+      } else if (!cache) {
+        if (verbose) {
+          cli::cli_alert_info(cli::col_blue(
+            "Cache set to FALSE, I will pull data from API."
+          ))
+        }
+        trigger <- TRUE
       } else {
         if (!is.null(args_list)) {
           repos_parameters_changed <- private$check_if_args_changed(
@@ -865,13 +872,6 @@ GitStats <- R6::R6Class(
             if (verbose) {
               cli::cli_alert_info(cli::col_blue(
                 "Parameters changed, I will pull data from API."
-              ))
-            }
-            trigger <- TRUE
-          } else if (!repos_parameters_changed && !cache) {
-            if (verbose) {
-              cli::cli_alert_info(cli::col_blue(
-                "Cache set to FALSE, I will pull data from API."
               ))
             }
             trigger <- TRUE
