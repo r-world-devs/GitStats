@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">GitStats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,11 +34,18 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/r-world-devs/GitStats/blob/v2.5.1/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/r-world-devs/GitStats/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.5.1" id="gitstats-251">GitStats 2.5.1<a class="anchor" aria-label="anchor" href="#gitstats-251"></a></h2>
+<h2 class="pkg-version" data-toc-text="development version" id="gitstats-development-version">GitStats (development version)<a class="anchor" aria-label="anchor" href="#gitstats-development-version"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<ul><li>Fixed <code><a href="../reference/get_orgs.html">get_orgs()</a></code> failing for GitLab hosts with more than 10,000 groups. Since GitLab 15.7, the <code>x-total</code> header is suppressed from REST API responses when the result set exceeds 10,000 records. The org count is now obtained via GraphQL <code>groups { count }</code> query instead (<a href="https://github.com/r-world-devs/GitStats/issues/793" class="external-link">#793</a>).</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.5.1" id="gitstats-251">GitStats 2.5.1<a class="anchor" aria-label="anchor" href="#gitstats-251"></a></h2><p class="text-muted">CRAN release: 2026-04-23</p>
 <p>This patch improves parallel processing — <code><a href="../reference/set_parallel.html">set_parallel()</a></code> and <code><a href="../reference/is_parallel.html">is_parallel()</a></code> are now pipeable and GitLab batch fetching runs concurrently — and fixes several bugs in <code><a href="../reference/get_repos.html">get_repos()</a></code> and <code><a href="../reference/get_files.html">get_files()</a></code>.</p>
 <div class="section level3">
 <h3 id="parallel-processing-2-5-1">Parallel processing<a class="anchor" aria-label="anchor" href="#parallel-processing-2-5-1"></a></h3>

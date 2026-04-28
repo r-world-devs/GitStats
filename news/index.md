@@ -1,6 +1,20 @@
 # Changelog
 
+## GitStats (development version)
+
+### Bug fixes
+
+- Fixed
+  [`get_orgs()`](https://r-world-devs.github.io/GitStats/reference/get_orgs.md)
+  failing for GitLab hosts with more than 10,000 groups. Since GitLab
+  15.7, the `x-total` header is suppressed from REST API responses when
+  the result set exceeds 10,000 records. The org count is now obtained
+  via GraphQL `groups { count }` query instead
+  ([\#793](https://github.com/r-world-devs/GitStats/issues/793)).
+
 ## GitStats 2.5.1
+
+CRAN release: 2026-04-23
 
 This patch improves parallel processing —
 [`set_parallel()`](https://r-world-devs.github.io/GitStats/reference/set_parallel.md)
