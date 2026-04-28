@@ -1,3 +1,26 @@
+# Standalone helper --------------------------------------------------------
+# Plain function so it can be serialized to mirai workers.
+
+#' @noRd
+github_resolve_owner_type <- function(owner, gql_api_url, token,
+                                      user_or_org_query, verbose) {
+  response <- graphql_response(
+    gql_api_url = gql_api_url,
+    token = token,
+    gql_query = user_or_org_query,
+    vars = list("login" = owner)
+  )
+  if (length(response$errors) < 2) {
+    type <- purrr::discard(response$data, is.null) |>
+      names()
+  } else {
+    type <- "not found"
+  }
+  list(name = owner, type = type)
+}
+
+# EngineGraphQLGitHub R6 class ---------------------------------------------
+
 EngineGraphQLGitHub <- R6::R6Class(
   classname = "EngineGraphQLGitHub",
   inherit = EngineGraphQL,
@@ -15,29 +38,31 @@ EngineGraphQLGitHub <- R6::R6Class(
 
     set_owner_type = function(owners, verbose) {
       user_or_org_query <- self$gql_query$user_or_org_query
-      login_types <- gitstats_map(owners, function(owner) {
-        cached <- private[["owner_types_cache"]][[owner]]
-        if (!is.null(cached)) {
-          return(cached)
-        }
-        response <- self$gql_response(
-          gql_query = user_or_org_query,
-          vars = list(
-            "login" = owner
-          ),
+      gql_api_url <- self$gql_api_url
+      token <- private$token
+      cache <- private[["owner_types_cache"]]
+      cached <- purrr::map(owners, ~ cache[[.x]])
+      needs_lookup <- purrr::map_lgl(cached, is.null)
+      if (any(needs_lookup)) {
+        resolved <- gitstats_map(
+          owners[needs_lookup],
+          github_resolve_owner_type,
+          gql_api_url = gql_api_url,
+          token = token,
+          user_or_org_query = user_or_org_query,
           verbose = verbose
-        )
-        if (length(response$errors) < 2) {
-          type <- purrr::discard(response$data, is.null) |>
-            names()
-          attr(owner, "type") <- type
-        } else {
-          attr(owner, "type") <- "not found"
+        ) |>
+          purrr::map(function(result) {
+            owner <- result$name
+            attr(owner, "type") <- result$type
+            owner
+          })
+        for (r in resolved) {
+          private[["owner_types_cache"]][[as.character(r)]] <- r
         }
-        private[["owner_types_cache"]][[owner]] <- owner
-        return(owner)
-      })
-      return(login_types)
+        cached[needs_lookup] <- resolved
+      }
+      return(cached)
     },
 
     get_orgs = function(output = c("only_names", "full_table"), verbose) {
