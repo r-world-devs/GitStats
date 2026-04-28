@@ -1,3 +1,63 @@
+# Standalone REST helpers --------------------------------------------------
+# Plain functions (no R6 dependency) so they can be serialized to mirai
+# workers.
+
+#' @noRd
+rest_perform_request <- function(endpoint, token, verbose) {
+  resp <- httr2::request(endpoint) |>
+    httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
+    httr2::req_error(is_error = function(resp) FALSE) |>
+    httr2::req_perform()
+  if (resp$status_code %in% c(400, 500, 403)) {
+    resp <- httr2::request(endpoint) |>
+      httr2::req_headers("Authorization" = paste0("Bearer ", token)) |>
+      httr2::req_retry(
+        is_transient = ~ httr2::resp_status(.x) %in% c(400, 500, 403),
+        max_seconds = 60
+      ) |>
+      httr2::req_perform()
+  }
+  return(resp)
+}
+
+#' @noRd
+rest_check_endpoint <- function(endpoint, token, type, verbose, .error) {
+  check <- TRUE
+  endpoint_response <- rest_perform_request(
+    endpoint = endpoint,
+    token = token,
+    verbose = verbose
+  )
+  if (endpoint_response$status_code == 404) {
+    if (.error) {
+      cli::cli_abort(
+        c(
+          "x" = "{type} you provided does not exist or its name was passed
+            in a wrong way: {cli::col_red({url_decode(endpoint)})}",
+          "!" = "Please type your {tolower(type)} name as you see it in
+            web URL.",
+          "i" = "E.g. do not use spaces. {type} names as you see on the
+            page may differ from their web 'address'.",
+          "i" = "Repository names should be provided as full paths: {.val org/repo_name}."
+        ),
+        call = NULL
+      )
+    } else {
+      if (verbose) {
+        cli::cli_alert_warning(
+          cli::col_yellow(
+            "{type} you provided does not exist: {cli::col_red({url_decode(endpoint)})}"
+          )
+        )
+      }
+      check <- FALSE
+    }
+  }
+  return(check)
+}
+
+# EngineRest R6 class ------------------------------------------------------
+
 EngineRest <- R6::R6Class("EngineRest",
   inherit = Engine,
   public = list(

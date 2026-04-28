@@ -521,10 +521,13 @@ GitHost <- R6::R6Class(
       if (verbose) {
         cli::cli_alert(cli::col_grey("Checking repositories..."))
       }
+      repos_base_url <- private$endpoints$repositories
+      token <- private$token
       repos <- gitstats_map(repos, function(repo) {
-        repo_endpoint <- glue::glue("{private$endpoints$repositories}/{repo}")
-        check <- private$check_endpoint(
+        repo_endpoint <- glue::glue("{repos_base_url}/{repo}")
+        check <- rest_check_endpoint(
           endpoint = repo_endpoint,
+          token = token,
           type = "Repository",
           verbose = verbose,
           .error = .error

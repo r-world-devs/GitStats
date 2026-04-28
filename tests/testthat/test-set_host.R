@@ -216,3 +216,36 @@ test_that("Setting verbose for set_*_host() to FALSE works fine", {
     )
   }
 })
+
+test_that("set_parallel called before set_github_host works (#796)", {
+  skip_on_cran()
+  skip_if(Sys.getenv("R_COVR") == "true", "mirai daemons conflict with covr tracing")
+  if (!integration_tests_skipped) {
+    withr::defer(mirai::daemons(0))
+    expect_no_error(
+      create_gitstats() |>
+        set_parallel(2) |>
+        set_github_host(
+          orgs = c("openpharma", "r-world-devs"),
+          verbose = FALSE
+        )
+    )
+  }
+})
+
+test_that("set_parallel called before set_github_host with repos works (#796)", {
+  skip_on_cran()
+  skip_if(Sys.getenv("R_COVR") == "true", "mirai daemons conflict with covr tracing")
+  if (!integration_tests_skipped) {
+    withr::defer(mirai::daemons(0))
+    expect_no_error(
+      create_gitstats() |>
+        set_parallel(2) |>
+        set_github_host(
+          repos = c("r-world-devs/GitStats"),
+          verbose = FALSE
+        )
+    )
+  }
+})
+
