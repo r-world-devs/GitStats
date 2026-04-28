@@ -1,6 +1,15 @@
 GQLQueryGitLab <- R6::R6Class("GQLQueryGitLab",
   public = list(
 
+    # groups count
+    groups_count = function() {
+      'query GetGroupsCount {
+        groups {
+          count
+        }
+      }'
+    },
+
     # groups GitLab >= 14.3
     groups = function() {
       paste0(

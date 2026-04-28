@@ -3,16 +3,6 @@ EngineRestGitLab <- R6::R6Class(
   inherit = EngineRest,
   public = list(
 
-    get_orgs_count = function(verbose) {
-      if (verbose) {
-        cli::cli_alert("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling number of all organizations {cli_icons$org}...")
-      }
-      orgs_response <- self$perform_request(paste0(private$endpoints$organizations, "?all_available=True"),
-                                            token = private$token,
-                                            verbose = verbose)
-      return(orgs_response$headers$`x-total`)
-    },
-
     get_orgs = function(orgs_count, verbose, progress = verbose) {
       if (verbose) {
         cli::cli_alert("[Host:GitLab][Engine:{cli::col_green('REST')}] Pulling organizations {cli_icons$org}...")

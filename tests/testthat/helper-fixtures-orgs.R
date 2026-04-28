@@ -36,9 +36,11 @@ test_fixtures$graphql_gh_org_response <- list(
   )
 )
 
-test_fixtures$rest_gl_orgs_response <- list(
-  "headers" = list(
-    "x-total" = "3"
+test_fixtures$graphql_gl_orgs_count_response <- list(
+  "data" = list(
+    "groups" = list(
+      "count" = 3L
+    )
   )
 )
 
