@@ -1,3 +1,32 @@
+# Standalone helper --------------------------------------------------------
+# Plain function so it can be serialized to mirai workers.
+
+#' @noRd
+gitlab_resolve_owner_type <- function(owner, gql_api_url, token,
+                                      user_or_org_query, verbose) {
+  response <- graphql_response(
+    gql_api_url = gql_api_url,
+    token = token,
+    gql_query = user_or_org_query,
+    vars = list(
+      "username" = owner,
+      "grouppath" = owner
+    )
+  )
+  if (!all(purrr::map_lgl(response$data, is.null))) {
+    type <- purrr::discard(response$data, is.null) |>
+      names()
+    if (type == "group") {
+      type <- "organization"
+    }
+  } else {
+    type <- "not found"
+  }
+  list(name = owner, type = type)
+}
+
+# EngineGraphQLGitLab R6 class ---------------------------------------------
+
 EngineGraphQLGitLab <- R6::R6Class(
   classname = "EngineGraphQLGitLab",
   inherit = EngineGraphQL,
@@ -15,33 +44,32 @@ EngineGraphQLGitLab <- R6::R6Class(
 
     set_owner_type = function(owners, verbose = TRUE) {
       user_or_org_query <- self$gql_query$user_or_org_query
-      login_types <- gitstats_map(owners, function(owner) {
-        cached <- private[["owner_types_cache"]][[owner]]
-        if (!is.null(cached)) {
-          return(cached)
-        }
-        response <- self$gql_response(
-          gql_query = user_or_org_query,
-          vars = list(
-            "username" = owner,
-            "grouppath" = owner
-          ),
+      gql_api_url <- self$gql_api_url
+      token <- private$token
+      cache <- private[["owner_types_cache"]]
+      cached <- purrr::map(owners, ~ cache[[.x]])
+      needs_lookup <- purrr::map_lgl(cached, is.null)
+      if (any(needs_lookup)) {
+        lookup_owners <- owners[needs_lookup]
+        raw_results <- gitstats_map(
+          lookup_owners,
+          gitlab_resolve_owner_type,
+          gql_api_url = gql_api_url,
+          token = token,
+          user_or_org_query = user_or_org_query,
           verbose = verbose
         )
-        if (!all(purrr::map_lgl(response$data, is.null))) {
-          type <- purrr::discard(response$data, is.null) |>
-            names()
-          if (type == "group") {
-            type <- "organization"
-          }
-          attr(owner, "type") <- type
-        } else {
-          attr(owner, "type") <- "not found"
+        resolved <- purrr::map(raw_results, function(result) {
+          owner <- result$name
+          attr(owner, "type") <- result$type
+          owner
+        })
+        for (i in seq_along(resolved)) {
+          private[["owner_types_cache"]][[lookup_owners[i]]] <- resolved[[i]]
         }
-        private[["owner_types_cache"]][[owner]] <- owner
-        return(owner)
-      })
-      return(login_types)
+        cached[needs_lookup] <- resolved
+      }
+      return(cached)
     },
 
     get_orgs_count = function(verbose) {
