@@ -1,5 +1,4 @@
 # Standalone helper --------------------------------------------------------
-# Plain function so it can be serialized to mirai workers.
 
 #' @noRd
 github_resolve_owner_type <- function(owner, gql_api_url, token,
