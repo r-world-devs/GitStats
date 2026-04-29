@@ -6,6 +6,7 @@
     Message
       > Checking owners...
       v Set connection to GitHub.
+      i Set up in 0 secs.
 
 ---
 
@@ -15,6 +16,7 @@
     Message
       > Checking owners...
       v Set connection to GitLab.
+      i Set up in 0 secs.
 
 # When empty token for GitHub, GitStats pulls default token
 
@@ -25,6 +27,7 @@
       i Using PAT from GITHUB_PAT envar.
       > Checking owners...
       v Set connection to GitHub.
+      i Set up in 0 secs.
 
 # When empty token for GitLab, GitStats pulls default token
 
@@ -36,6 +39,7 @@
       i Using PAT from GITLAB_PAT envar.
       > Checking owners...
       v Set connection to GitLab.
+      i Set up in 0 secs.
 
 # Set GitHub host with particular repos vector instead of orgs
 
@@ -46,6 +50,7 @@
     Message
       > Checking repositories...
       v Set connection to GitHub.
+      i Set up in 0 secs.
 
 # Set GitLab host with particular repos vector instead of orgs
 
@@ -55,6 +60,7 @@
     Message
       > Checking repositories...
       v Set connection to GitLab.
+      i Set up in 0 secs.
 
 # When no organizations or repositories are set information is printed
 
@@ -64,6 +70,7 @@
       i No `orgs` nor `repos` specified.
       i Searching scope set to [all].
       v Set connection to GitHub.
+      i Set up in 0 secs.
 
 # Error shows, when wrong input is passed when setting connection and host is not passed
 
@@ -79,6 +86,7 @@
     Message
       > Checking owners...
       v Set connection to GitHub.
+      i Set up in 0 secs.
       > Checking owners...
       v Set connection to GitHub.
     Condition
@@ -141,4 +149,5 @@
       x HTTP 404 Not Found.
       ! Repository you provided does not exist: https://api.github.com/repos/r-world-devs/GitMetrics
       v Set connection to GitHub.
+      i Set up in 0 secs.
 
