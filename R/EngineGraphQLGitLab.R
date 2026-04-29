@@ -50,21 +50,22 @@ EngineGraphQLGitLab <- R6::R6Class(
       cached <- purrr::map(owners, ~ cache[[.x]])
       needs_lookup <- purrr::map_lgl(cached, is.null)
       if (any(needs_lookup)) {
-        resolved <- gitstats_map(
-          owners[needs_lookup],
+        lookup_owners <- owners[needs_lookup]
+        raw_results <- gitstats_map(
+          lookup_owners,
           gitlab_resolve_owner_type,
           gql_api_url = gql_api_url,
           token = token,
           user_or_org_query = user_or_org_query,
           verbose = verbose
-        ) |>
-          purrr::map(function(result) {
-            owner <- result$name
-            attr(owner, "type") <- result$type
-            owner
-          })
-        for (r in resolved) {
-          private[["owner_types_cache"]][[as.character(r)]] <- r
+        )
+        resolved <- purrr::map(raw_results, function(result) {
+          owner <- result$name
+          attr(owner, "type") <- result$type
+          owner
+        })
+        for (i in seq_along(resolved)) {
+          private[["owner_types_cache"]][[lookup_owners[i]]] <- resolved[[i]]
         }
         cached[needs_lookup] <- resolved
       }
