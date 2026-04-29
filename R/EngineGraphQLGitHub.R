@@ -13,11 +13,10 @@ github_resolve_owner_type <- function(owner, gql_api_url, token,
   if (length(response$errors) < 2) {
     type <- purrr::discard(response$data, is.null) |>
       names()
-    attr(owner, "type") <- type
   } else {
-    attr(owner, "type") <- "not found"
+    type <- "not found"
   }
-  return(owner)
+  list(name = owner, type = type)
 }
 
 # EngineGraphQLGitHub R6 class ---------------------------------------------
@@ -52,7 +51,12 @@ EngineGraphQLGitHub <- R6::R6Class(
           token = token,
           user_or_org_query = user_or_org_query,
           verbose = verbose
-        )
+        ) |>
+          purrr::map(function(result) {
+            owner <- result$name
+            attr(owner, "type") <- result$type
+            owner
+          })
         for (r in resolved) {
           private[["owner_types_cache"]][[as.character(r)]] <- r
         }

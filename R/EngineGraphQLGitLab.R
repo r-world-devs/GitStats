@@ -19,11 +19,10 @@ gitlab_resolve_owner_type <- function(owner, gql_api_url, token,
     if (type == "group") {
       type <- "organization"
     }
-    attr(owner, "type") <- type
   } else {
-    attr(owner, "type") <- "not found"
+    type <- "not found"
   }
-  return(owner)
+  list(name = owner, type = type)
 }
 
 # EngineGraphQLGitLab R6 class ---------------------------------------------
@@ -58,7 +57,12 @@ EngineGraphQLGitLab <- R6::R6Class(
           token = token,
           user_or_org_query = user_or_org_query,
           verbose = verbose
-        )
+        ) |>
+          purrr::map(function(result) {
+            owner <- result$name
+            attr(owner, "type") <- result$type
+            owner
+          })
         for (r in resolved) {
           private[["owner_types_cache"]][[as.character(r)]] <- r
         }
