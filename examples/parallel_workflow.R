@@ -20,3 +20,4 @@ my_gitstats <- create_gitstats() |>
     orgs = c("r-world-devs", "openpharma")
   )
   
+get_commits(my_gitstats, since = "2024-01-01", cache = FALSE)
