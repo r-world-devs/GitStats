@@ -5,6 +5,14 @@
 ### Bug fixes
 
 - Fixed
+  [`set_github_host()`](https://r-world-devs.github.io/GitStats/reference/set_github_host.md)
+  /
+  [`set_gitlab_host()`](https://r-world-devs.github.io/GitStats/reference/set_gitlab_host.md)
+  failing when
+  [`set_parallel()`](https://r-world-devs.github.io/GitStats/reference/set_parallel.md)
+  is called first. The order of function calls no longer matters
+  ([\#796](https://github.com/r-world-devs/GitStats/issues/796)).
+- Fixed
   [`get_orgs()`](https://r-world-devs.github.io/GitStats/reference/get_orgs.md)
   failing for GitLab hosts with more than 10,000 groups. Since GitLab
   15.7, the `x-total` header is suppressed from REST API responses when
