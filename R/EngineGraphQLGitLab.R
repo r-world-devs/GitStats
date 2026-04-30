@@ -1,3 +1,31 @@
+# Standalone helper --------------------------------------------------------
+
+#' @noRd
+gitlab_resolve_owner_type <- function(owner, gql_api_url, token,
+                                      user_or_org_query, verbose) {
+  response <- graphql_response(
+    gql_api_url = gql_api_url,
+    token = token,
+    gql_query = user_or_org_query,
+    vars = list(
+      "username" = owner,
+      "grouppath" = owner
+    )
+  )
+  if (!all(purrr::map_lgl(response$data, is.null))) {
+    type <- purrr::discard(response$data, is.null) |>
+      names()
+    if (type == "group") {
+      type <- "organization"
+    }
+  } else {
+    type <- "not found"
+  }
+  list(name = owner, type = type)
+}
+
+# EngineGraphQLGitLab R6 class ---------------------------------------------
+
 EngineGraphQLGitLab <- R6::R6Class(
   classname = "EngineGraphQLGitLab",
   inherit = EngineGraphQL,
@@ -15,30 +43,23 @@ EngineGraphQLGitLab <- R6::R6Class(
 
     set_owner_type = function(owners, verbose = TRUE) {
       user_or_org_query <- self$gql_query$user_or_org_query
-      login_types <- gitstats_map(owners, function(owner) {
+      gql_api_url <- self$gql_api_url
+      token <- private$token
+      login_types <- purrr::map(owners, function(owner) {
         cached <- private[["owner_types_cache"]][[owner]]
         if (!is.null(cached)) {
           return(cached)
         }
-        response <- self$gql_response(
-          gql_query = user_or_org_query,
-          vars = list(
-            "username" = owner,
-            "grouppath" = owner
-          ),
+        result <- gitlab_resolve_owner_type(
+          owner = owner,
+          gql_api_url = gql_api_url,
+          token = token,
+          user_or_org_query = user_or_org_query,
           verbose = verbose
         )
-        if (!all(purrr::map_lgl(response$data, is.null))) {
-          type <- purrr::discard(response$data, is.null) |>
-            names()
-          if (type == "group") {
-            type <- "organization"
-          }
-          attr(owner, "type") <- type
-        } else {
-          attr(owner, "type") <- "not found"
-        }
-        private[["owner_types_cache"]][[owner]] <- owner
+        owner <- result$name
+        attr(owner, "type") <- result$type
+        private[["owner_types_cache"]][[as.character(owner)]] <- owner
         return(owner)
       })
       return(login_types)

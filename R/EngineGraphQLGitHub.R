@@ -1,3 +1,25 @@
+# Standalone helper --------------------------------------------------------
+
+#' @noRd
+github_resolve_owner_type <- function(owner, gql_api_url, token,
+                                      user_or_org_query, verbose) {
+  response <- graphql_response(
+    gql_api_url = gql_api_url,
+    token = token,
+    gql_query = user_or_org_query,
+    vars = list("login" = owner)
+  )
+  if (length(response$errors) < 2) {
+    type <- purrr::discard(response$data, is.null) |>
+      names()
+  } else {
+    type <- "not found"
+  }
+  list(name = owner, type = type)
+}
+
+# EngineGraphQLGitHub R6 class ---------------------------------------------
+
 EngineGraphQLGitHub <- R6::R6Class(
   classname = "EngineGraphQLGitHub",
   inherit = EngineGraphQL,
@@ -15,26 +37,23 @@ EngineGraphQLGitHub <- R6::R6Class(
 
     set_owner_type = function(owners, verbose) {
       user_or_org_query <- self$gql_query$user_or_org_query
-      login_types <- gitstats_map(owners, function(owner) {
+      gql_api_url <- self$gql_api_url
+      token <- private$token
+      login_types <- purrr::map(owners, function(owner) {
         cached <- private[["owner_types_cache"]][[owner]]
         if (!is.null(cached)) {
           return(cached)
         }
-        response <- self$gql_response(
-          gql_query = user_or_org_query,
-          vars = list(
-            "login" = owner
-          ),
+        result <- github_resolve_owner_type(
+          owner = owner,
+          gql_api_url = gql_api_url,
+          token = token,
+          user_or_org_query = user_or_org_query,
           verbose = verbose
         )
-        if (length(response$errors) < 2) {
-          type <- purrr::discard(response$data, is.null) |>
-            names()
-          attr(owner, "type") <- type
-        } else {
-          attr(owner, "type") <- "not found"
-        }
-        private[["owner_types_cache"]][[owner]] <- owner
+        owner <- result$name
+        attr(owner, "type") <- result$type
+        private[["owner_types_cache"]][[as.character(owner)]] <- owner
         return(owner)
       })
       return(login_types)

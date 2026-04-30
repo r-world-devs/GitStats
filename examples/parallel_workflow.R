@@ -12,3 +12,12 @@ get_commits(my_gitstats, since = "2024-01-01", cache = FALSE)
 my_gitstats |> set_parallel(FALSE)
 
 get_commits(my_gitstats, since = "2024-01-01", cache = FALSE)
+
+my_gitstats <- create_gitstats() |>
+  set_parallel(4) |>
+  set_github_host(
+    token = Sys.getenv("GITHUB_PAT"),
+    orgs = c("r-world-devs", "openpharma")
+  )
+  
+get_commits(my_gitstats, since = "2024-01-01", cache = FALSE)

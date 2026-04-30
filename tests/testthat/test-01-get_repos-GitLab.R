@@ -7,6 +7,15 @@ test_that("repos queries are built properly", {
   test_mocker$cache(gl_repos_by_org_query)
 })
 
+test_that("user_or_org_query", {
+  gl_user_or_org_query <-
+    test_gqlquery_gl$user_or_org_query
+  expect_snapshot(
+    gl_user_or_org_query
+  )
+  test_mocker$cache(gl_user_or_org_query)
+})
+
 test_that("repos queries are built properly", {
   gl_repos_query <-
     test_gqlquery_gl$repos("")
@@ -1071,15 +1080,18 @@ test_that("`set_owner_type()` identifies organization (group) type", {
     )
   )
   mockery::stub(
-    test_graphql_gitlab$set_owner_type,
+    gitlab_resolve_owner_type,
     "self$gql_response",
     gl_group_response
   )
-  result <- test_graphql_gitlab$set_owner_type(
-    owners = "mbtests_org_test",
+  result <- gitlab_resolve_owner_type(
+    owner = "mbtests",
+    gql_api_url = "https://gitlab.com/api/graphql",
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    user_or_org_query = test_mocker$use("gl_user_or_org_query"),
     verbose = FALSE
   )
-  expect_equal(attr(result[[1]], "type"), "organization")
+  expect_equal(result, list("name" = "mbtests", "type" = "organization"))
 })
 
 test_that("`set_owner_type()` identifies user type", {
@@ -1090,28 +1102,34 @@ test_that("`set_owner_type()` identifies user type", {
     )
   )
   mockery::stub(
-    test_graphql_gitlab$set_owner_type,
+    gitlab_resolve_owner_type,
     "self$gql_response",
     gl_user_response
   )
-  result <- test_graphql_gitlab$set_owner_type(
-    owners = "test_user_type_test",
+  result <- gitlab_resolve_owner_type(
+    owner = "test_user",
+    gql_api_url = "https://gitlab.com/api/graphql",
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    user_or_org_query = test_mocker$use("gl_user_or_org_query"),
     verbose = FALSE
   )
-  expect_equal(attr(result[[1]], "type"), "user")
+  expect_equal(result, list("name" = "test_user", "type" = "user"))
 })
 
 test_that("`set_owner_type()` returns 'not found' when owner does not exist", {
   mockery::stub(
-    test_graphql_gitlab$set_owner_type,
+    gitlab_resolve_owner_type,
     "self$gql_response",
     list("data" = list("user" = NULL, "group" = NULL))
   )
-  result <- test_graphql_gitlab$set_owner_type(
-    owners = "nonexistent_owner_test",
+  result <- gitlab_resolve_owner_type(
+    owner = "nonexistent_owner_test",
+    gql_api_url = "https://gitlab.com/api/graphql",
+    token = Sys.getenv("GITLAB_PAT_PUBLIC"),
+    user_or_org_query = test_mocker$use("gl_user_or_org_query"),
     verbose = FALSE
   )
-  expect_equal(attr(result[[1]], "type"), "not found")
+  expect_equal(result, list("name" = "nonexistent_owner_test", "type" = "not found"))
 })
 
 # ---- GitHostGitLab: get_repo_url_from_response with type "api" ----
