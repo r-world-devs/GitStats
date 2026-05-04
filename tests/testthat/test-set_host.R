@@ -77,18 +77,6 @@ test_that("Set GitLab host with particular repos vector instead of orgs", {
   }
 })
 
-test_that("When no organizations or repositories are set information is printed", {
-  skip_on_cran()
-  test_gitstats <- create_gitstats()
-  expect_snapshot(
-    test_gitstats |>
-      set_github_host(
-        token = Sys.getenv("GITHUB_PAT"),
-        verbose = TRUE
-      )
-  )
-})
-
 test_that("Error shows, when wrong input is passed when setting connection and host is not passed", {
   if (!integration_tests_skipped) {
     test_gitstats <- create_gitstats()

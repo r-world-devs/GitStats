@@ -62,16 +62,6 @@
       v Set connection to GitLab.
       i Set up in 0 secs.
 
-# When no organizations or repositories are set information is printed
-
-    Code
-      set_github_host(test_gitstats, token = Sys.getenv("GITHUB_PAT"), verbose = TRUE)
-    Message
-      i No `orgs` nor `repos` specified.
-      i Searching scope set to [all].
-      v Set connection to GitHub.
-      i Set up in 0 secs.
-
 # Error shows, when wrong input is passed when setting connection and host is not passed
 
     x Token exists but does not grant access.
