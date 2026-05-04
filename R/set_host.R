@@ -32,6 +32,7 @@ set_github_host <- function(gitstats,
                             repos = NULL,
                             verbose = is_verbose(gitstats),
                             .error = TRUE) {
+  start_time <- Sys.time()
   gitstats$set_github_host(
     host = host,
     token = token,
@@ -40,6 +41,11 @@ set_github_host <- function(gitstats,
     verbose = verbose,
     .error = .error
   )
+  end_time <- Sys.time()
+  time_taken <- end_time - start_time
+  if (verbose) {
+    cli::cli_alert_info("Set up in {round(time_taken, 1)} {attr(time_taken, 'units')}.")
+  }
 
   return(invisible(gitstats))
 }
@@ -69,6 +75,7 @@ set_gitlab_host <- function(gitstats,
                             repos = NULL,
                             verbose = is_verbose(gitstats),
                             .error = TRUE) {
+  start_time <- Sys.time()
   gitstats$set_gitlab_host(
     host = host,
     token = token,
@@ -77,6 +84,11 @@ set_gitlab_host <- function(gitstats,
     verbose = verbose,
     .error = .error
   )
+  end_time <- Sys.time()
+  time_taken <- end_time - start_time
+  if (verbose) {
+    cli::cli_alert_info("Set up in {round(time_taken, 1)} {attr(time_taken, 'units')}.")
+  }
 
   return(invisible(gitstats))
 }

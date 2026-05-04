@@ -1,5 +1,9 @@
 # GitStats (development version)
 
+## Improvements
+
+- `set_github_host()` and `set_gitlab_host()` now print elapsed time after setting up the host ([#798](https://github.com/r-world-devs/GitStats/issues/798)).
+
 ## Bug fixes
 
 - Fixed `set_github_host()` / `set_gitlab_host()` failing when `set_parallel()` is called first. The order of function calls no longer matters ([#796](https://github.com/r-world-devs/GitStats/issues/796)).
