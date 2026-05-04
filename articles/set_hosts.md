@@ -27,6 +27,7 @@ or
 function without specifying `host` parameter.
 
 ``` r
+
 library(GitStats)
 git_stats <- create_gitstats() |>
   set_github_host(
@@ -44,6 +45,7 @@ pass names of the hosts to `host` parameter. Remember also to have
 tokens set up properly for these hosts (on tokens read below).
 
 ``` r
+
 git_stats <- create_gitstats() |>
   set_github_host(
     host = "github.internal.com",
@@ -72,6 +74,7 @@ will be:
   case of GitLab)) to `orgs` parameter.
 
 ``` r
+
 git_stats <- create_gitstats() |>
   set_github_host(
     orgs = c("r-world-devs", "openpharma"),
@@ -87,6 +90,7 @@ git_stats <- create_gitstats() |>
   repositories (`{org_name}/{repo_name}`) to the `repos` parameter.
 
 ``` r
+
 git_stats <- create_gitstats() |>
   set_github_host(
     repos = c("r-world-devs/GitStats", "r-world-devs/shinyCohortBuilder", "openpharma/DataFakeR"),
@@ -102,6 +106,7 @@ git_stats <- create_gitstats() |>
   same time:
 
 ``` r
+
 git_stats <- create_gitstats() |>
   set_github_host(
     orgs = "openpharma",
@@ -117,6 +122,7 @@ git_stats <- create_gitstats() |>
   internal host, you need to pass argument to `host` parameter.
 
 ``` r
+
 git_stats <- create_gitstats() |>
   set_github_host(
     host = "github.internal.com",
@@ -151,6 +157,7 @@ names as `GITHUB_PAT` or `GITHUB_PAT_*` and `GITLAB_PAT` or
 functions, `GitStats` will automatically find them.
 
 ``` r
+
 git_stats <- create_gitstats() |>
   set_github_host(
     orgs = c("r-world-devs", "openpharma")

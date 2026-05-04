@@ -2,6 +2,14 @@
 
 ## GitStats (development version)
 
+### Improvements
+
+- [`set_github_host()`](https://r-world-devs.github.io/GitStats/reference/set_github_host.md)
+  and
+  [`set_gitlab_host()`](https://r-world-devs.github.io/GitStats/reference/set_gitlab_host.md)
+  now print elapsed time after setting up the host
+  ([\#798](https://github.com/r-world-devs/GitStats/issues/798)).
+
 ### Bug fixes
 
 - Fixed

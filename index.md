@@ -21,12 +21,14 @@ commits and issues.
 From CRAN:
 
 ``` r
+
 install.packages("GitStats")
 ```
 
 From GitHub:
 
 ``` r
+
 devtools::install_github("r-world-devs/GitStats")
 ```
 
@@ -35,6 +37,7 @@ devtools::install_github("r-world-devs/GitStats")
 Setup your `GitStats`:
 
 ``` r
+
 library(GitStats)
 
 git_stats <- create_gitstats() |>
@@ -51,6 +54,7 @@ Optionally, you can run `GitStats` functions in parallel (with `mirai`
 package underneath):
 
 ``` r
+
 git_stats |>
   set_parallel()
 ```
@@ -58,6 +62,7 @@ git_stats |>
 Get commits:
 
 ``` r
+
 commits <- git_stats |>
   get_commits(
     since = "2022-01-01"
@@ -105,6 +110,7 @@ commits |>
 Get repositories with specific code:
 
 ``` r
+
 git_stats |>
   get_repos(
     with_code = "shiny",
@@ -130,6 +136,7 @@ git_stats |>
 Get files:
 
 ``` r
+
 git_stats |>
   get_files(
     pattern = "\\.md",
@@ -155,6 +162,7 @@ git_stats |>
 Get pull requests:
 
 ``` r
+
 git_stats |>
   get_pull_requests(
     since = "2022-01-01"
@@ -180,6 +188,7 @@ git_stats |>
 Print `GitStats` to see what it stores:
 
 ``` r
+
 git_stats
 #> A GitStats object for 2 hosts: 
 #> Hosts: https://gitlab.com/api/v4, https://api.github.com

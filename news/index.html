@@ -40,6 +40,11 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="gitstats-development-version">GitStats (development version)<a class="anchor" aria-label="anchor" href="#gitstats-development-version"></a></h2>
 <div class="section level3">
+<h3 id="improvements-development-version">Improvements<a class="anchor" aria-label="anchor" href="#improvements-development-version"></a></h3>
+<ul><li>
+<code><a href="../reference/set_github_host.html">set_github_host()</a></code> and <code><a href="../reference/set_gitlab_host.html">set_gitlab_host()</a></code> now print elapsed time after setting up the host (<a href="https://github.com/r-world-devs/GitStats/issues/798" class="external-link">#798</a>).</li>
+</ul></div>
+<div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
 <ul><li>Fixed <code><a href="../reference/set_github_host.html">set_github_host()</a></code> / <code><a href="../reference/set_gitlab_host.html">set_gitlab_host()</a></code> failing when <code><a href="../reference/set_parallel.html">set_parallel()</a></code> is called first. The order of function calls no longer matters (<a href="https://github.com/r-world-devs/GitStats/issues/796" class="external-link">#796</a>).</li>
 <li>Fixed <code><a href="../reference/get_orgs.html">get_orgs()</a></code> failing for GitLab hosts with more than 10,000 groups. Since GitLab 15.7, the <code>x-total</code> header is suppressed from REST API responses when the result set exceeds 10,000 records. The org count is now obtained via GraphQL <code>groups { count }</code> query instead (<a href="https://github.com/r-world-devs/GitStats/issues/793" class="external-link">#793</a>).</li>
