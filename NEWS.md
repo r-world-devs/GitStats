@@ -1,5 +1,9 @@
 # GitStats (development version)
 
+## Improvements
+
+- `set_github_host()` and `set_gitlab_host()` now print elapsed time after setting up the host ([#798](https://github.com/r-world-devs/GitStats/issues/798)).
+
 ## Bug fixes
 
 - Fixed `get_orgs()` failing for GitLab hosts with more than 10,000 groups. Since GitLab 15.7, the `x-total` header is suppressed from REST API responses when the result set exceeds 10,000 records. The org count is now obtained via GraphQL `groups { count }` query instead ([#793](https://github.com/r-world-devs/GitStats/issues/793)).
