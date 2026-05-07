@@ -1081,7 +1081,7 @@ test_that("`set_owner_type()` identifies organization (group) type", {
   )
   mockery::stub(
     gitlab_resolve_owner_type,
-    "self$gql_response",
+    "graphql_response",
     gl_group_response
   )
   result <- gitlab_resolve_owner_type(
@@ -1103,7 +1103,7 @@ test_that("`set_owner_type()` identifies user type", {
   )
   mockery::stub(
     gitlab_resolve_owner_type,
-    "self$gql_response",
+    "graphql_response",
     gl_user_response
   )
   result <- gitlab_resolve_owner_type(
@@ -1119,7 +1119,7 @@ test_that("`set_owner_type()` identifies user type", {
 test_that("`set_owner_type()` returns 'not found' when owner does not exist", {
   mockery::stub(
     gitlab_resolve_owner_type,
-    "self$gql_response",
+    "graphql_response",
     list("data" = list("user" = NULL, "group" = NULL))
   )
   result <- gitlab_resolve_owner_type(

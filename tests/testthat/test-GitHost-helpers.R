@@ -1,7 +1,7 @@
 test_that("set_owner_types sets attributes to owners list", {
   mockery::stub(
     github_resolve_owner_type,
-    "self$gql_response",
+    "graphql_response",
     test_fixtures$github_user_login
   )
   owner <- github_resolve_owner_type(
@@ -15,7 +15,7 @@ test_that("set_owner_types sets attributes to owners list", {
 
   mockery::stub(
     github_resolve_owner_type,
-    "self$gql_response",
+    "graphql_response",
     test_fixtures$github_org_login
   )
   owner <- github_resolve_owner_type(
