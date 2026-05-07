@@ -1,6 +1,8 @@
 # Changelog
 
-## GitStats (development version)
+## GitStats 2.5.2
+
+CRAN release: 2026-05-05
 
 ### Improvements
 
